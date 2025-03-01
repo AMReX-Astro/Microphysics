@@ -1,3 +1,5 @@
+.. _sec:comprehensive_tests:
+
 ************************
 Comprehensive Unit Tests
 ************************

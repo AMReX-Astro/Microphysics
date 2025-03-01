@@ -59,20 +59,20 @@
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="design.html">Design</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
-<li class="toctree-l1"><a class="reference internal" href="autodiff.html">Automatic Differentiation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_system.html">Build System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Equations of State</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#interface-and-modes">Interface and Modes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#interface-and-modes">Interface and modes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#composition">Composition</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#auxiliary-composition">Auxiliary Composition</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#composition-derivatives">Composition Derivatives</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#auxiliary-composition">Auxiliary composition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#composition-derivatives">Composition derivatives</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#initialization-and-cutoff-values">Initialization and Cutoff Values</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#eos-structure">EOS Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#initialization-and-cutoff-values">Initialization and cutoff values</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#eos-structure">EOS structure</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="eos_implementations.html">Available Equations of State</a></li>
@@ -96,10 +96,12 @@
 <p class="caption" role="heading"><span class="caption-text">Util / external libraries</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="util.html">Helper Functions and Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autodiff.html">Automatic Differentiation</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Unit tests</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Overview of Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unit_test_runtime_parameters.html">Unit Test Common Runtime Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="comprehensive_tests.html">Comprehensive Unit Tests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="one_zone_tests.html">One Zone Tests</a></li>
 </ul>
@@ -150,7 +152,7 @@
 the input and <code class="docutils literal notranslate"><span class="pre">state</span></code> is a C++ struct that holds all of the
 thermodynamic information.</p>
 <section id="interface-and-modes">
-<h2>Interface and Modes<a class="headerlink" href="#interface-and-modes" title="Link to this heading"></a></h2>
+<h2>Interface and modes<a class="headerlink" href="#interface-and-modes" title="Link to this heading"></a></h2>
 <p id="index-0">The EOS is called as:</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">eos</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span><span class="w"> </span><span class="n">eos_type</span><span class="p">)</span>
 </pre></div>
@@ -200,7 +202,7 @@ via the set of mass fractions, <code class="docutils literal notranslate"><span 
 is set to <code class="docutils literal notranslate"><span class="pre">TRUE</span></code>, then we instead use the auxiliary quantities
 stored in <code class="docutils literal notranslate"><span class="pre">eos_t.aux[]</span></code>.</p>
 <section id="auxiliary-composition">
-<span id="aux-eos-comp"></span><h3>Auxiliary Composition<a class="headerlink" href="#auxiliary-composition" title="Link to this heading"></a></h3>
+<span id="aux-eos-comp"></span><h3>Auxiliary composition<a class="headerlink" href="#auxiliary-composition" title="Link to this heading"></a></h3>
 <div class="admonition note" id="index-1">
 <p class="admonition-title">Note</p>
 <p>The main use-case for the auxiliary composition is when using a reaction
@@ -237,7 +239,7 @@ MeV), defined as</p>
 \[\bar{Z} = \bar{A} Y_e\]</div>
 </section>
 <section id="composition-derivatives">
-<h3>Composition Derivatives<a class="headerlink" href="#composition-derivatives" title="Link to this heading"></a></h3>
+<h3>Composition derivatives<a class="headerlink" href="#composition-derivatives" title="Link to this heading"></a></h3>
 <p id="index-2">The derivatives <span class="math notranslate nohighlight">\(\partial p/\partial A\)</span>, <span class="math notranslate nohighlight">\(\partial p/\partial Z\)</span>,
 and <span class="math notranslate nohighlight">\(\partial e/\partial A\)</span>, <span class="math notranslate nohighlight">\(\partial e/\partial Z\)</span> are available via
 the <code class="docutils literal notranslate"><span class="pre">eos_extra_t</span></code>, <code class="docutils literal notranslate"><span class="pre">eos_re_extra_t</span></code>, <code class="docutils literal notranslate"><span class="pre">eos_rep_extra_t</span></code>, which
@@ -253,7 +255,7 @@ to compute <span class="math notranslate nohighlight">\(\partial p/\partial X_k 
 </section>
 </section>
 <section id="initialization-and-cutoff-values">
-<h2>Initialization and Cutoff Values<a class="headerlink" href="#initialization-and-cutoff-values" title="Link to this heading"></a></h2>
+<h2>Initialization and cutoff values<a class="headerlink" href="#initialization-and-cutoff-values" title="Link to this heading"></a></h2>
 <p>The EOS will make sure that the inputs are within an acceptable range,
 (e.g., <code class="docutils literal notranslate"><span class="pre">small_temp</span></code> <span class="math notranslate nohighlight">\(&lt; T &lt;\)</span> <code class="docutils literal notranslate"><span class="pre">maxT</span></code>). If they are not, then it
 resets them silently—no error is thrown.</p>
@@ -267,7 +269,7 @@ the EOS.</p>
 </div>
 </section>
 <section id="eos-structure">
-<h2>EOS Structure<a class="headerlink" href="#eos-structure" title="Link to this heading"></a></h2>
+<h2>EOS structure<a class="headerlink" href="#eos-structure" title="Link to this heading"></a></h2>
 <p>Each EOS should have two main routines through which it interfaces to the
 rest of Microphysics.</p>
 <ul>

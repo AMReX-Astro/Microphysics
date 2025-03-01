@@ -59,7 +59,7 @@
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="design.html">Design</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
-<li class="toctree-l1"><a class="reference internal" href="autodiff.html">Automatic Differentiation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_system.html">Build System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
@@ -93,10 +93,12 @@
 <p class="caption" role="heading"><span class="caption-text">Util / external libraries</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="util.html">Helper Functions and Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autodiff.html">Automatic Differentiation</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Unit tests</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Overview of Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unit_test_runtime_parameters.html">Unit Test Common Runtime Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="comprehensive_tests.html">Comprehensive Unit Tests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="one_zone_tests.html">One Zone Tests</a></li>
 </ul>
@@ -136,7 +138,7 @@
            <div itemprop="articleBody">
              
   <section id="templated-network-righthand-sides">
-<h1>Templated Network Righthand Sides<a class="headerlink" href="#templated-network-righthand-sides" title="Link to this heading"></a></h1>
+<span id="sec-templated-rhs"></span><h1>Templated Network Righthand Sides<a class="headerlink" href="#templated-network-righthand-sides" title="Link to this heading"></a></h1>
 <p>A network consists of evaluating the rates and screening, and then for
 each rate, adding or subtracting the appropriate contribution to the
 evolution equation for each nucleus it affects.  That second part is
@@ -374,7 +376,7 @@ those additional rates.</p>
 <h2>Loop over Rates<a class="headerlink" href="#loop-over-rates" title="Link to this heading"></a></h2>
 <p>The main logic for constructing RHS is contained in <code class="docutils literal notranslate"><span class="pre">Microphysics/networks/rhs.H</span></code> as <code class="docutils literal notranslate"><span class="pre">rhs()</span></code>:</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">AMREX_GPU_HOST_DEVICE</span><span class="w"> </span><span class="n">AMREX_INLINE</span>
-<span class="kt">void</span><span class="w"> </span><span class="n">rhs</span><span class="w"> </span><span class="p">(</span><span class="n">burn_t</span><span class="o">&amp;</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">Array1D</span><span class="o">&lt;</span><span class="n">Real</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">neqs</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">ydot</span><span class="p">)</span>
+<span class="kt">void</span><span class="w"> </span><span class="n">rhs</span><span class="w"> </span><span class="p">(</span><span class="n">burn_t</span><span class="o">&amp;</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">amrex</span><span class="o">::</span><span class="n">Array1D</span><span class="o">&lt;</span><span class="n">amrex</span><span class="o">::</span><span class="n">Real</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">neqs</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">ydot</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The basic flow is:</p>

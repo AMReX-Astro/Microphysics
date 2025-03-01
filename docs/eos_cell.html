@@ -1,0 +1,269 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>eos_cell &mdash; Microphysics  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="_static/theme_overrides.css?v=2e394b92" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=f281be69"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="jac_cell" href="jac_cell.html" />
+    <link rel="prev" title="burn_cell_sdc" href="burn_cell_sdc.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Microphysics
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    <div class="branch">
+        Branch: <a href="./eos_cell.html">main</a> | <a href="./dev/eos_cell.html">development</a>
+    </div>
+
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Microphysics overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design.html">Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_system.html">Build System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="eos.html">Equations of State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eos_implementations.html">Available Equations of State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reaction networks</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="networks-overview.html">Overview of Reaction Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networks.html">Available Reaction Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="templated_networks.html">Templated Network Righthand Sides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="screening.html">Screening of Reaction Rates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="neutrinos.html">Neutrino Losses</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ODE integrators</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="integrators.html">Reaction ODE System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ode_integrators.html">ODE Integrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nse.html">NSE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Util / external libraries</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="util.html">Helper Functions and Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autodiff.html">Automatic Differentiation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Unit tests</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Overview of Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unit_test_runtime_parameters.html">Unit Test Common Runtime Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="comprehensive_tests.html">Comprehensive Unit Tests</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="one_zone_tests.html">One Zone Tests</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="burn_cell.html"><code class="docutils literal notranslate"><span class="pre">burn_cell</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="burn_cell_sdc.html"><code class="docutils literal notranslate"><span class="pre">burn_cell_sdc</span></code></a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">eos_cell</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#getting-started">Getting Started</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#setting-the-thermodynamics">Setting the thermodynamics</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#building-and-running-the-code">Building and Running the Code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#output">Output</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="jac_cell.html"><code class="docutils literal notranslate"><span class="pre">jac_cell</span></code></a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">References</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="citing.html">Citing Microphysics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changes.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zreferences.html">References</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Index</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="genindex.html">Index</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Microphysics</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="one_zone_tests.html">One Zone Tests</a></li>
+      <li class="breadcrumb-item active"><code class="docutils literal notranslate"><span class="pre">eos_cell</span></code></li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/eos_cell.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="eos-cell">
+<span id="sec-eos-cell"></span><h1><code class="docutils literal notranslate"><span class="pre">eos_cell</span></code><a class="headerlink" href="#eos-cell" title="Link to this heading"></a></h1>
+<p id="index-0"><code class="docutils literal notranslate"><span class="pre">eos_cell</span></code> simply calls the equation of state on an input density, temperature,
+and composition, and then outputs the full thermodynamic state.  This is mainly
+used to understand the thermodynamics one might encounter in a simulation
+when using a particular EOS.</p>
+<section id="getting-started">
+<h2>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">eos_cell</span></code> code is located in
+<code class="docutils literal notranslate"><span class="pre">Microphysics/unit_test/eos_cell</span></code>.  An inputs file which sets the
+default parameters for your thermodynamic state is needed to run the
+test.</p>
+<section id="setting-the-thermodynamics">
+<h3>Setting the thermodynamics<a class="headerlink" href="#setting-the-thermodynamics" title="Link to this heading"></a></h3>
+<p>The parameters that affect the thermodynamics are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.density</span></code> : the initial density</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.temperature</span></code> : the initial temperature</p></li>
+</ul>
+<p>The composition can be set either by specifying individual mass fractions
+or setting <code class="docutils literal notranslate"><span class="pre">unit_test.uniform_xn</span></code> as described in <a class="reference internal" href="unit_test_runtime_parameters.html#sec-defining-unit-test-composition"><span class="std std-ref">Defining composition</span></a>.</p>
+</section>
+</section>
+<section id="building-and-running-the-code">
+<h2>Building and Running the Code<a class="headerlink" href="#building-and-running-the-code" title="Link to this heading"></a></h2>
+<p>The code can be built simply as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><style type="text/css">
+span.prompt1:before {
+  content: "$ ";
+}
+</style><span class="prompt1">make</span>
+</pre></div></div><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Even though there are no reactions, a network is still required,
+and can be set via the <code class="docutils literal notranslate"><span class="pre">NETWORK_DIR</span></code> build variable.  By default,
+the <code class="docutils literal notranslate"><span class="pre">aprox13</span></code> network is used.</p>
+<p>The network choice serves only to set the composition, and a
+<code class="docutils literal notranslate"><span class="pre">general_null</span></code> network may also be used.</p>
+</div>
+<p>The build process will automatically create links in the build
+directory to any required EOS table.</p>
+<p>To run the code, in the <code class="docutils literal notranslate"><span class="pre">eos_cell</span></code> directory run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">main3d</span><span class="o">.</span><span class="n">gnu</span><span class="o">.</span><span class="n">ex</span> <span class="n">inputs_eos</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">inputs_eos</span></code> is the provided inputs file.  You may edit the
+thermodynamic state in that file prior to running.</p>
+</section>
+<section id="output">
+<h2>Output<a class="headerlink" href="#output" title="Link to this heading"></a></h2>
+<p>All output is directed to <code class="docutils literal notranslate"><span class="pre">stdout</span></code> and simply lists the entries in the
+full <code class="docutils literal notranslate"><span class="pre">eos_t</span></code> datatype.  Example output is shown below:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">AMReX</span> <span class="p">(</span><span class="mf">22.10</span><span class="o">-</span><span class="mi">75</span><span class="o">-</span><span class="n">g0a3ee1486cc3</span><span class="p">)</span> <span class="n">initialized</span>
+<span class="n">calling</span> <span class="n">the</span> <span class="n">EOS</span> <span class="n">on</span> <span class="n">a</span> <span class="n">single</span> <span class="n">zone</span> <span class="n">state</span><span class="o">...</span>
+<span class="n">rho</span> <span class="o">=</span> <span class="mi">1000000</span>
+<span class="n">T</span> <span class="o">=</span>   <span class="mi">1000000000</span>
+<span class="n">xn</span> <span class="o">=</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> 
+<span class="n">p</span> <span class="o">=</span> <span class="mf">7.33195768e+22</span>
+<span class="n">e</span> <span class="o">=</span> <span class="mf">1.284393683e+17</span>
+<span class="n">h</span> <span class="o">=</span> <span class="mf">2.017589451e+17</span>
+<span class="n">s</span> <span class="o">=</span> <span class="mf">431635027.3</span>
+<span class="n">dpdT</span> <span class="o">=</span> <span class="mf">6.581921221e+13</span>
+<span class="n">dpdr</span> <span class="o">=</span> <span class="mf">7.850159761e+16</span>
+<span class="n">dedT</span> <span class="o">=</span> <span class="mf">134065803.7</span>
+<span class="n">dedr</span> <span class="o">=</span> <span class="mi">7500364598</span>
+<span class="n">dhdT</span> <span class="o">=</span> <span class="mf">199885015.9</span>
+<span class="n">dhdr</span> <span class="o">=</span> <span class="mf">1.26823854e+10</span>
+<span class="n">dsdT</span> <span class="o">=</span> <span class="mf">0.1340658037</span>
+<span class="n">dsdr</span> <span class="o">=</span> <span class="o">-</span><span class="mf">65.81921221</span>
+<span class="n">dpde</span> <span class="o">=</span> <span class="mf">490947.0602</span>
+<span class="n">dpdr_e</span> <span class="o">=</span> <span class="mf">7.481931566e+16</span>
+<span class="n">cv</span> <span class="o">=</span> <span class="mf">134065803.7</span>
+<span class="n">cp</span> <span class="o">=</span> <span class="mi">189251543</span>
+<span class="n">xne</span> <span class="o">=</span> <span class="mf">3.011083784e+29</span>
+<span class="n">xnp</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">eta</span> <span class="o">=</span> <span class="mf">0.8073999904</span>
+<span class="n">pele</span> <span class="o">=</span> <span class="mf">5.008681351e+22</span>
+<span class="n">ppos</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">mu</span> <span class="o">=</span> <span class="mf">1.333333333</span>
+<span class="n">mu_e</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">y_e</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="n">gam1</span> <span class="o">=</span> <span class="mf">1.511401882</span>
+<span class="n">cs</span> <span class="o">=</span> <span class="mf">332889390.6</span>
+<span class="n">abar</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">zbar</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">AMReX</span> <span class="p">(</span><span class="mf">22.10</span><span class="o">-</span><span class="mi">75</span><span class="o">-</span><span class="n">g0a3ee1486cc3</span><span class="p">)</span> <span class="n">finalized</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="burn_cell_sdc.html" class="btn btn-neutral float-left" title="burn_cell_sdc" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="jac_cell.html" class="btn btn-neutral float-right" title="jac_cell" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Microphysics Development Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+
+</body>
+</html>

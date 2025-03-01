@@ -59,7 +59,7 @@
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="design.html">Design</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
-<li class="toctree-l1"><a class="reference internal" href="autodiff.html">Automatic Differentiation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_system.html">Build System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
@@ -100,10 +100,12 @@
 <p class="caption" role="heading"><span class="caption-text">Util / external libraries</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="util.html">Helper Functions and Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autodiff.html">Automatic Differentiation</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Unit tests</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Overview of Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unit_test_runtime_parameters.html">Unit Test Common Runtime Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="comprehensive_tests.html">Comprehensive Unit Tests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="one_zone_tests.html">One Zone Tests</a></li>
 </ul>
@@ -205,7 +207,7 @@ appropriate Jacobian terms) by the specified constant amount.</p>
 <code class="docutils literal notranslate"><span class="pre">interfaces/burner.H</span></code>.  This simply calls the <code class="docutils literal notranslate"><span class="pre">integrator()</span></code>
 routine (at the moment this can be <code class="docutils literal notranslate"><span class="pre">VODE</span></code>, <code class="docutils literal notranslate"><span class="pre">BackwardEuler</span></code>, <code class="docutils literal notranslate"><span class="pre">ForwardEuler</span></code>, <code class="docutils literal notranslate"><span class="pre">QSS</span></code>, or <code class="docutils literal notranslate"><span class="pre">RKC</span></code>).</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">AMREX_GPU_HOST_DEVICE</span><span class="w"> </span><span class="n">AMREX_FORCE_INLINE</span>
-<span class="kt">void</span><span class="w"> </span><span class="n">burner</span><span class="w"> </span><span class="p">(</span><span class="n">burn_t</span><span class="o">&amp;</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">Real</span><span class="w"> </span><span class="n">dt</span><span class="p">)</span>
+<span class="kt">void</span><span class="w"> </span><span class="n">burner</span><span class="w"> </span><span class="p">(</span><span class="n">burn_t</span><span class="o">&amp;</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">amrex</span><span class="o">::</span><span class="n">Real</span><span class="w"> </span><span class="n">dt</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The input is a <code class="docutils literal notranslate"><span class="pre">burn_t</span></code>.</p>
@@ -289,7 +291,7 @@ energy through an EOS evaluation.</p></li>
 </ul>
 <p>Note that we come in with the mass fractions, but the molar fractions can
 be computed as:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">Array1D</span><span class="o">&lt;</span><span class="n">Real</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">NumSpec</span><span class="o">&gt;</span><span class="w"> </span><span class="n">y</span><span class="p">;</span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">amrex</span><span class="o">::</span><span class="n">Array1D</span><span class="o">&lt;</span><span class="n">amrex</span><span class="o">::</span><span class="n">Real</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">NumSpec</span><span class="o">&gt;</span><span class="w"> </span><span class="n">y</span><span class="p">;</span>
 <span class="p">...</span>
 <span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">NumSpec</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">y</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">state</span><span class="p">.</span><span class="n">xn</span><span class="p">[</span><span class="n">i</span><span class="mi">-1</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">aion_inv</span><span class="p">[</span><span class="n">i</span><span class="mi">-1</span><span class="p">];</span>

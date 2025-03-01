@@ -59,7 +59,7 @@
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="design.html">Design</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
-<li class="toctree-l1"><a class="reference internal" href="autodiff.html">Automatic Differentiation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_system.html">Build System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
@@ -90,10 +90,12 @@
 <p class="caption" role="heading"><span class="caption-text">Util / external libraries</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="util.html">Helper Functions and Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autodiff.html">Automatic Differentiation</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Unit tests</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Overview of Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unit_test_runtime_parameters.html">Unit Test Common Runtime Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="comprehensive_tests.html">Comprehensive Unit Tests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="one_zone_tests.html">One Zone Tests</a></li>
 </ul>
@@ -179,7 +181,7 @@ is set as:</p>
 <code class="docutils literal notranslate"><span class="pre">conductivity.cond_exponent</span></code>.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">stellar</span></code> :</p>
-<p>This is a general stellar conductivity based on <span id="id1">[<a class="reference internal" href="zreferences.html#id46" title="F. X. Timmes. Physical Properties of Laminar Helium Deflagrations. APJ, 528(2):913-945, January 2000. doi:10.1086/308203.">10</a>]</span>.
+<p>This is a general stellar conductivity based on <span id="id1">[<a class="reference internal" href="zreferences.html#id46" title="F. X. Timmes. Physical Properties of Laminar Helium Deflagrations. APJ, 528(2):913-945, January 2000. doi:10.1086/308203.">9</a>]</span>.
 It combines radiative opacities and thermal conductivities into a
 single expression.  This conductivity is suitable for modeling
 laminar flames.</p>
@@ -193,7 +195,8 @@ laminar flames.</p>
 the Planck and Rosseland mean opacities.</p>
 <p>The interface for these opacities is:</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">AMREX_GPU_HOST_DEVICE</span><span class="w"> </span><span class="n">AMREX_INLINE</span>
-<span class="kt">void</span><span class="w"> </span><span class="n">actual_opacity</span><span class="w"> </span><span class="p">(</span><span class="n">Real</span><span class="o">&amp;</span><span class="w"> </span><span class="n">kp</span><span class="p">,</span><span class="w"> </span><span class="n">Real</span><span class="o">&amp;</span><span class="w"> </span><span class="n">kr</span><span class="p">,</span><span class="w"> </span><span class="n">Real</span><span class="w"> </span><span class="n">rho</span><span class="p">,</span><span class="w"> </span><span class="n">Real</span><span class="w"> </span><span class="n">temp</span><span class="p">,</span><span class="w"> </span><span class="n">Real</span><span class="w"> </span><span class="n">rhoYe</span><span class="p">,</span><span class="w"> </span><span class="n">Real</span><span class="w"> </span><span class="n">nu</span><span class="p">,</span>
+<span class="kt">void</span><span class="w"> </span><span class="n">actual_opacity</span><span class="w"> </span><span class="p">(</span><span class="n">amrex</span><span class="o">::</span><span class="n">Real</span><span class="o">&amp;</span><span class="w"> </span><span class="n">kp</span><span class="p">,</span><span class="w"> </span><span class="n">amrex</span><span class="o">::</span><span class="n">Real</span><span class="o">&amp;</span><span class="w"> </span><span class="n">kr</span><span class="p">,</span>
+<span class="w">                     </span><span class="n">amrex</span><span class="o">::</span><span class="n">Real</span><span class="w"> </span><span class="n">rho</span><span class="p">,</span><span class="w"> </span><span class="n">amrex</span><span class="o">::</span><span class="n">Real</span><span class="w"> </span><span class="n">temp</span><span class="p">,</span><span class="w"> </span><span class="n">amrex</span><span class="o">::</span><span class="n">Real</span><span class="w"> </span><span class="n">rhoYe</span><span class="p">,</span><span class="w"> </span><span class="n">amrex</span><span class="o">::</span><span class="n">Real</span><span class="w"> </span><span class="n">nu</span><span class="p">,</span>
 <span class="w">                     </span><span class="kt">bool</span><span class="w"> </span><span class="n">get_Planck_mean</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">get_Rosseland_mean</span><span class="p">)</span>
 </pre></div>
 </div>

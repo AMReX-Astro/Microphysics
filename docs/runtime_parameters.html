@@ -57,7 +57,7 @@
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="design.html">Design</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
-<li class="toctree-l1"><a class="reference internal" href="autodiff.html">Automatic Differentiation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_system.html">Build System</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="rp_intro.html">Runtime parameters</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Parameters by Namespace</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#namespace-cj">namespace: <code class="docutils literal notranslate"><span class="pre">cj</span></code></a></li>
@@ -98,10 +98,12 @@
 <p class="caption" role="heading"><span class="caption-text">Util / external libraries</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="util.html">Helper Functions and Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autodiff.html">Automatic Differentiation</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Unit tests</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Overview of Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unit_test_runtime_parameters.html">Unit Test Common Runtime Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="comprehensive_tests.html">Comprehensive Unit Tests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="one_zone_tests.html">One Zone Tests</a></li>
 </ul>
@@ -1964,6 +1966,19 @@ initial molar fraction check.</p></td>
 <td></td>
 <td><p>0.0e0</p></td>
 </tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">uniform_xn</span></code></p></td>
+<td><p>do we set all of the mass fractions equal (to
+1/NumSpec)?</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
+<td><p>lowest temperature allowed in the EOS</p></td>
+<td><p>1.e5</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
+<td><p>lowest density allowed in the EOS</p></td>
+<td><p>1.e5</p></td>
+</tr>
 </tbody>
 </table>
 <p><strong>nse_solver/make_table:</strong></p>
@@ -2074,14 +2089,6 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
-<td></td>
-<td><p>1.e5</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
-<td></td>
-<td><p>1.e5</p></td>
-</tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tmax</span></code></p></td>
 <td><p>the final time to integrate to</p></td>
 <td><p>1.e-2</p></td>
@@ -2104,10 +2111,6 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 <td><p>3.e9</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">skip_initial_normalization</span></code></p></td>
-<td></td>
-<td><p>0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">init_species_all_equal</span></code></p></td>
 <td></td>
 <td><p>0</p></td>
 </tr>
@@ -2412,14 +2415,6 @@ network (14 if including deuterium)</p></td>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
-<td></td>
-<td><p>1.e5</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
-<td></td>
-<td><p>1.e5</p></td>
-</tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tmax</span></code></p></td>
 <td><p>the final time to integrate to</p></td>
 <td><p>1.e-2</p></td>
@@ -2641,14 +2636,6 @@ as given in the inputs?</p></td>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
-<td></td>
-<td><p>1.e5</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
-<td></td>
-<td><p>1.e5</p></td>
-</tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">density</span></code></p></td>
 <td></td>
 <td><p>1.e7</p></td>
@@ -2668,31 +2655,6 @@ as given in the inputs?</p></td>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">run_prefix</span></code></p></td>
-<td></td>
-<td><p>“”</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
-<td></td>
-<td><p>1.e5</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
-<td></td>
-<td><p>1.e5</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tmax</span></code></p></td>
-<td><p>the final time to integrate to</p></td>
-<td><p>1.e-2</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tfirst</span></code></p></td>
-<td><p>first output time – we will output in nsteps
-logarithmically spaced steps between [tfirst, tmax]</p></td>
-<td><p>0.0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nsteps</span></code></p></td>
-<td><p>number of steps (logarithmically spaced)</p></td>
-<td><p>100</p></td>
-</tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">density</span></code></p></td>
 <td></td>
 <td><p>1.e7</p></td>
@@ -2720,14 +2682,6 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 <td></td>
 <td><p>“”</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
-<td></td>
-<td><p>1.e5</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
-<td></td>
-<td><p>1.e5</p></td>
-</tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">density</span></code></p></td>
 <td></td>
 <td><p>1.e7</p></td>
@@ -2748,90 +2702,6 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 <td></td>
 <td><p>-12.0</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X1</span></code></p></td>
-<td></td>
-<td><p>1.0e0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X2</span></code></p></td>
-<td></td>
-<td><p>0.0e0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X3</span></code></p></td>
-<td></td>
-<td><p>0.0e0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X4</span></code></p></td>
-<td></td>
-<td><p>0.0e0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X5</span></code></p></td>
-<td></td>
-<td><p>0.0e0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X6</span></code></p></td>
-<td></td>
-<td><p>0.0e0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X7</span></code></p></td>
-<td></td>
-<td><p>0.0e0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X8</span></code></p></td>
-<td></td>
-<td><p>0.0e0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X9</span></code></p></td>
-<td></td>
-<td><p>0.0e0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X10</span></code></p></td>
-<td></td>
-<td><p>0.0e0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X11</span></code></p></td>
-<td></td>
-<td><p>0.0e0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X12</span></code></p></td>
-<td></td>
-<td><p>0.0e0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X13</span></code></p></td>
-<td></td>
-<td><p>0.0e0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X14</span></code></p></td>
-<td></td>
-<td><p>0.0e0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X15</span></code></p></td>
-<td></td>
-<td><p>0.0e0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X16</span></code></p></td>
-<td></td>
-<td><p>0.0e0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X17</span></code></p></td>
-<td></td>
-<td><p>0.0e0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X18</span></code></p></td>
-<td></td>
-<td><p>0.0e0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X19</span></code></p></td>
-<td></td>
-<td><p>0.0e0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X20</span></code></p></td>
-<td></td>
-<td><p>0.0e0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X21</span></code></p></td>
-<td></td>
-<td><p>0.0e0</p></td>
-</tr>
 </tbody>
 </table>
 <p><strong>unit_test/nse_net_cell/make_table:</strong></p>
@@ -2843,14 +2713,6 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
-<td></td>
-<td><p>1.e5</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
-<td></td>
-<td><p>1.e5</p></td>
-</tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rho_min</span></code></p></td>
 <td></td>
 <td><p>1.e6</p></td>
@@ -2898,14 +2760,6 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
-<td></td>
-<td><p>1.e5</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
-<td></td>
-<td><p>1.e5</p></td>
-</tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">density</span></code></p></td>
 <td></td>
 <td><p>1.23e9</p></td>
@@ -2929,19 +2783,7 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
-<td></td>
-<td><p>1.e5</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
-<td></td>
-<td><p>1.e5</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">density</span></code></p></td>
-<td></td>
-<td><p>1.e9</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">temperature</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">temperature</span></code></p></td>
 <td></td>
 <td><p>5.e9</p></td>
 </tr>
@@ -2976,14 +2818,6 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 <td></td>
 <td><p>0.1e0</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
-<td></td>
-<td><p>1.e4</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
-<td></td>
-<td><p>1.e-4</p></td>
-</tr>
 </tbody>
 </table>
 <p><strong>unit_test/test_conductivity:</strong></p>
@@ -3015,14 +2849,6 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 <td></td>
 <td><p>0.1e0</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
-<td></td>
-<td><p>1.e4</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
-<td></td>
-<td><p>1.e-4</p></td>
-</tr>
 </tbody>
 </table>
 <p><strong>unit_test/test_eos:</strong></p>
@@ -3053,14 +2879,6 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">metalicity_max</span></code></p></td>
 <td></td>
 <td><p>0.1e0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
-<td></td>
-<td><p>1.e4</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
-<td></td>
-<td><p>1.e-4</p></td>
 </tr>
 </tbody>
 </table>
@@ -3097,33 +2915,6 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 <td></td>
 <td><p>0.1e0</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
-<td></td>
-<td><p>1.e5</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
-<td></td>
-<td><p>1.e5</p></td>
-</tr>
-</tbody>
-</table>
-<p><strong>unit_test/test_linear_algebra:</strong></p>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>parameter</p></th>
-<th class="head"><p>description</p></th>
-<th class="head"><p>default value</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
-<td></td>
-<td><p>1.e5</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
-<td></td>
-<td><p>1.e5</p></td>
-</tr>
 </tbody>
 </table>
 <p><strong>unit_test/test_neutrino_cooling:</strong></p>
@@ -3155,14 +2946,6 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 <td></td>
 <td><p>0.1e0</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
-<td></td>
-<td><p>1.e4</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
-<td></td>
-<td><p>1.e-4</p></td>
-</tr>
 </tbody>
 </table>
 <p><strong>unit_test/test_nse_interp:</strong></p>
@@ -3174,14 +2957,6 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
-<td></td>
-<td><p>1.e5</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
-<td></td>
-<td><p>1.e5</p></td>
-</tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">density</span></code></p></td>
 <td></td>
 <td><p>1.23e9</p></td>
@@ -3221,14 +2996,6 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 <td></td>
 <td><p>1.e12</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
-<td></td>
-<td><p>1.e4</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
-<td></td>
-<td><p>1.e-4</p></td>
-</tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_string</span></code></p></td>
 <td></td>
 <td><p>“test”</p></td>
@@ -3260,21 +3027,9 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 <td></td>
 <td><p>1.e15</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">uniform_xn</span></code></p></td>
-<td></td>
-<td><p>0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tmax</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tmax</span></code></p></td>
 <td></td>
 <td><p>0.1e0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
-<td></td>
-<td><p>1.e5</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
-<td></td>
-<td><p>1.e5</p></td>
 </tr>
 </tbody>
 </table>
@@ -3302,18 +3057,6 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">temp_max</span></code></p></td>
 <td></td>
 <td><p>1.e15</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">uniform_xn</span></code></p></td>
-<td></td>
-<td><p>0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
-<td></td>
-<td><p>1.e5</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
-<td></td>
-<td><p>1.e5</p></td>
 </tr>
 </tbody>
 </table>
@@ -3346,14 +3089,6 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 <td></td>
 <td><p>0.1e0</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
-<td></td>
-<td><p>1.e4</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
-<td></td>
-<td><p>1.e-4</p></td>
-</tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">loops</span></code></p></td>
 <td></td>
 <td><p>1</p></td>
@@ -3385,21 +3120,9 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 <td></td>
 <td><p>1.e15</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">uniform_xn</span></code></p></td>
-<td><p>uniform composition</p></td>
-<td><p>0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tmax</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tmax</span></code></p></td>
 <td></td>
 <td><p>0.1e0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
-<td></td>
-<td><p>1.e5</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
-<td></td>
-<td><p>1.e3</p></td>
 </tr>
 </tbody>
 </table>
@@ -3412,14 +3135,6 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
-<td></td>
-<td><p>1.e5</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
-<td></td>
-<td><p>1.e5</p></td>
-</tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">density</span></code></p></td>
 <td></td>
 <td><p>1.e7</p></td>

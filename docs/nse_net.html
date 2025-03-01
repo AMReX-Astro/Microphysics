@@ -1,0 +1,371 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Self-consistent NSE &mdash; Microphysics  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="_static/theme_overrides.css?v=2e394b92" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=f281be69"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["\\(", "\\)"]], "processEscapes": true, "displayMath": [["\\[", "\\]"]], "macros": {"rhozero": "{\\rho_0}", "pizero": "{\\pi_0}", "pizeroone": "{\\pi_0^{(1)}}", "pizerotwo": "{\\pi_0^{(2)}}", "gammabar": "{\\overline{\\Gamma}_1}", "ptl": "{{\\partial}}", "eb": "{{\\bf e}}", "fb": "{{\\bf f}}", "ib": "{{\\bf i}}", "Ub": "{{\\bf U}}", "Vb": "{{\\bf V}}", "xb": "{{\\bf x}}", "ut": "{\\tilde{u}}", "vt": "{\\tilde{v}}", "wt": "{\\tilde{w}}", "Ubt": "{\\widetilde{\\Ub}}", "edge": "{\\rm EDGE}", "mac": "{\\rm MAC}", "trans": "{\\rm TRANS}", "nablab": "{\\mathbf{\\nabla}}", "cdotb": "{\\mathbf{\\cdot}}", "half": "{\\frac{1}{2}}", "myhalf": "{\\frac{1}{2}}", "nph": "{{n + \\myhalf}}", "nmh": "{{n - \\myhalf}}", "Hext": "{{H_{\\rm ext}}}", "Hnuc": "{{H_{\\rm nuc}}}", "kth": "{k_{\\rm th}}", "pred": "{{\\rm pred}}", "Sbar": "{\\overline{S}}", "inp": "{\\mathrm{in}}", "initp": "{\\mathrm{init}}", "outp": "{\\mathrm{out}}", "uadv": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvone": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV},\\star}}", "uadvonedag": "{\\Ubt^{\\mathrm{ADV},\\dagger,\\star}}", "uadvtwo": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvtwodag": "{\\Ubt^{\\mathrm{ADV},\\dagger}}", "uadvsdcstar": "{\\mathbf{U}^{\\mathrm{ADV},\\star}}", "uadvsdcpred": "{\\mathbf{U}^{\\mathrm{ADV},\\mathrm{pred}}}", "uadvsdc": "{\\mathbf{U}^{\\mathrm{ADV}}}", "dt": "{\\Delta t}", "dr": "{\\Delta r}", "etarho": "{\\eta_{\\rho}}", "etarhoec": "{\\etarho^{\\rm ec}}", "etarhocc": "{\\etarho^{\\rm cc}}", "etarhoflux": "{\\etarho^{\\rm flux}}", "divetarho": "{\\nabla\\cdot(\\etarho\\eb_r)}", "ow": "{\\overline{w}_0}", "dw": "{\\delta w_0}", "thalf": "{\\sfrac{3}{2}}", "rhop": "{{\\rho^{\\prime}}}", "omegadot": "{\\dot{\\omega}}", "er": "{\\mathbf{e}_r}", "ex": "{\\mathbf{e}_x}", "ey": "{\\mathbf{e}_y}", "ez": "{\\mathbf{e}_z}", "Omegab": "{{\\bf \\Omega}}", "rb": "{{\\bf r}}", "isotm": ["{{}^{#2}\\mathrm{#1}}", 2], "edot": "{{{\\dot{e}_\\mathrm{nuc}}}}", "enuc": "{{{{e}_\\mathrm{nuc}}}}", "edotnu": "{{{\\dot{e}_\\nu}}}", "rt": "{\\tilde{r}_0}", "rhob": "{\\ensuremath{\\rho_\\mathrm{base}}}", "Tb": "{\\ensuremath{T_\\mathrm{base}}}", "gcc": "{\\mathrm{g~cm^{-3} }}", "pb": "{p_\\mathrm{base}}", "qburn": "{q_\\mathrm{burn}}", "Uc": "{{\\boldsymbol{\\mathcal{U}}}}", "Fb": "{\\mathbf{F}}", "Sc": "{\\mathbf{S}}", "Shydro": "{{{\\bf S}^{\\mathrm{hydro}}}}", "Rb": "{{\\bf R}}", "Rbs": ["{{\\bf R} \\left ( #1 \\right )}", 1], "Rq": "{{\\bf R}}", "Adv": ["{{\\left [\\boldsymbol{\\mathcal{A}} \\left(#1\\right)\\right]}}", 1], "Advs": ["{{\\boldsymbol{\\mathcal{A}} \\left(#1\\right)}}", 1], "Sdot": "{\\dot{S}}"}}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Spectral Deferred Corrections" href="sdc.html" />
+    <link rel="prev" title="Tabulated NSE and aprox19" href="nse_tabular.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Microphysics
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    <div class="branch">
+        Branch: <a href="./nse_net.html">main</a> | <a href="./dev/nse_net.html">development</a>
+    </div>
+
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Microphysics overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design.html">Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_system.html">Build System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="eos.html">Equations of State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eos_implementations.html">Available Equations of State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reaction networks</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="networks-overview.html">Overview of Reaction Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networks.html">Available Reaction Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="templated_networks.html">Templated Network Righthand Sides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="screening.html">Screening of Reaction Rates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="neutrinos.html">Neutrino Losses</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ODE integrators</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="integrators.html">Reaction ODE System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ode_integrators.html">ODE Integrators</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="nse.html">NSE</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="nse_tabular.html">Tabulated NSE and <code class="docutils literal notranslate"><span class="pre">aprox19</span></code></a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Self-consistent NSE</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#dynamic-nse-check">Dynamic NSE Check</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#additional-options">Additional Options</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Util / external libraries</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="util.html">Helper Functions and Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autodiff.html">Automatic Differentiation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Unit tests</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Overview of Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unit_test_runtime_parameters.html">Unit Test Common Runtime Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="comprehensive_tests.html">Comprehensive Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="one_zone_tests.html">One Zone Tests</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">References</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="citing.html">Citing Microphysics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changes.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zreferences.html">References</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Index</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="genindex.html">Index</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Microphysics</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="nse.html">NSE</a></li>
+      <li class="breadcrumb-item active">Self-consistent NSE</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/nse_net.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="self-consistent-nse">
+<span id="id1"></span><h1>Self-consistent NSE<a class="headerlink" href="#self-consistent-nse" title="Link to this heading"></a></h1>
+<p>The self-consistent NSE approach uses only the nuclei in the main
+reaction network.  It solves for the chemical potentials of the proton
+and neutron and from there gets the abundances of each of the nuclei
+under the assumption of NSE, following the procedure outlined in <span id="id2">[<a class="reference internal" href="zreferences.html#id36" title="A. C. Calder, D. M. Townsley, I. R. Seitenzahl, F. Peng, O. E. B. Messer, N. Vladimirova, E. F. Brown, J. W. Truran, and D. Q. Lamb. Capturing the fire: flame energetics and neutronization for type ia supernova simulations. The Astrophysical Journal, 656(1):313–332, feb 2007. URL: https://doi.org/10.1086/510709, doi:10.1086/510709.">30</a>]</span>.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Self-consistent NSE does not support the templated C++ networks
+(like <code class="docutils literal notranslate"><span class="pre">aprox13</span></code>).  You should use a pynucastro-generated network.</p>
+</div>
+<p>The solve is done using a port of the hybrid Powell method from
+MINPACK (we ported the solver to templated C++).</p>
+<p>The advantage of this approach is that it can be used with any
+reaction network, once the integration has reached NSE.</p>
+<p>This solver is enabled by compiling with</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><style type="text/css">
+span.prompt1:before {
+  content: "$ ";
+}
+</style><span class="prompt1"><span class="nv">USE_NSE_NET</span><span class="o">=</span>TRUE</span>
+</pre></div></div><p>The functions to find the NSE state are then found in <code class="docutils literal notranslate"><span class="pre">nse_solver.H</span></code>.</p>
+<section id="dynamic-nse-check">
+<h2>Dynamic NSE Check<a class="headerlink" href="#dynamic-nse-check" title="Link to this heading"></a></h2>
+<p>We have implemented a dynamic NSE check for the self-consistent nse procedure
+that tells us whether the network has reached the NSE state.
+The overall procedure is outlined in <span id="id3">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413-5433, April 2020. arXiv:1912.06151.">38</a>]</span>.
+The overall usage comes down to a single function <code class="docutils literal notranslate"><span class="pre">in_nse(state)</span></code>.
+By supplying the current state, this function returns a boolean that tells us
+whether we’re in NSE or not. The current status of this functionality only works
+for pynucastro-generated network since aprox networks have slightly
+different syntax.</p>
+<p>The overall framework is constructed following <span id="id4">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413-5433, April 2020. arXiv:1912.06151.">38</a>]</span> with slight
+variations. The overview of the steps we take are the following:</p>
+<ul>
+<li><p>Minimum Temperature Check: require <code class="docutils literal notranslate"><span class="pre">T</span> <span class="pre">&gt;</span> <span class="pre">nse.T_min_nse</span></code>, where <code class="docutils literal notranslate"><span class="pre">nse.T_min_nse</span></code> is
+a runtime parameter with a default value <code class="docutils literal notranslate"><span class="pre">nse.T_min_nse</span> <span class="pre">=</span> <span class="pre">4.0e9</span></code>.</p></li>
+<li><p>Mass Abundance Check: compare the current mass abundances of the nuclei to
+the NSE mass fractions. A detailed criteria are the following:</p>
+<p>We first determine whether the current molar fraction is close to NSE
+with a criteria of:</p>
+<div class="math notranslate nohighlight">
+\[\frac{r - r_{NSE}}{r_{NSE}} &lt; 0.5\]</div>
+<p>where <span class="math notranslate nohighlight">\(r = Y_\alpha/(Y_p^2 Y_n^2)\)</span> and
+<span class="math notranslate nohighlight">\(r_{NSE} = \left(Y_\alpha/(Y_p^2 Y_n^2)\right)_{NSE}\)</span> if there is
+neutron in the network.</p>
+<div class="math notranslate nohighlight">
+\[\frac{r - r_{NSE}}{r_{NSE}} &lt; 0.25\]</div>
+<p>where <span class="math notranslate nohighlight">\(r = Y_\alpha/(Y_p^2)\)</span> and
+<span class="math notranslate nohighlight">\(r_{NSE} = \left(Y_\alpha/(Y_p^2)\right)_{NSE}\)</span> if neutron
+is not in the network.</p>
+<p>If the molar check above failed, then we proceed with an overall molar
+fraction check:</p>
+<div class="math notranslate nohighlight">
+\[\epsilon_{abs} = Y^i - Y^i_{NSE} &lt; \mbox{nse.nse_abs_tol}\]</div>
+<div class="math notranslate nohighlight">
+\[\epsilon_{rel} = \frac{\epsilon_{abs}}{Y^i} &lt; \mbox{nse.nse_rel_tol}\]</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">nse.nse_rel_tol</span> <span class="pre">=</span> <span class="pre">0.2</span></code> and <code class="docutils literal notranslate"><span class="pre">nse.nse_abs_tol</span> <span class="pre">=</span> <span class="pre">0.005</span></code> by default.</p>
+</li>
+<li><p><strong>Removed</strong> <span id="id5">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413-5433, April 2020. arXiv:1912.06151.">38</a>]</span> also requires a fast reaction cycle that
+exchanges 1 <span class="math notranslate nohighlight">\(\alpha\)</span> particle with 2 <span class="math notranslate nohighlight">\(p\)</span> and 2 <span class="math notranslate nohighlight">\(n\)</span>
+particles. We used to have this check, but currently removed as
+we think it is not necessary. However, the description is as following:
+This reaction cycle should have the following reactions or
+their reverse:</p>
+<ul class="simple">
+<li><p>1 <span class="math notranslate nohighlight">\((\alpha, \gamma)\)</span>, 2 <span class="math notranslate nohighlight">\((\gamma, p)\)</span>, 2 <span class="math notranslate nohighlight">\((\gamma, n)\)</span></p></li>
+<li><p>1 <span class="math notranslate nohighlight">\((\alpha, p)\)</span>, 1 <span class="math notranslate nohighlight">\((\gamma, p)\)</span>, 2 <span class="math notranslate nohighlight">\((\gamma, n)\)</span></p></li>
+<li><p>1 <span class="math notranslate nohighlight">\((\alpha, n)\)</span>, 2 <span class="math notranslate nohighlight">\((\gamma, p)\)</span>, 1 <span class="math notranslate nohighlight">\((\gamma, n)\)</span></p></li>
+</ul>
+<p>To consider to be fast reaction cycle, every step in the cycle to have
+<span class="math notranslate nohighlight">\(Y_i/\textbf{min}(b_f, b_r) &lt; \epsilon t_s\)</span> for <span class="math notranslate nohighlight">\(i = n, p, \alpha\)</span>
+participated in this step, where <span class="math notranslate nohighlight">\(b_f\)</span> and <span class="math notranslate nohighlight">\(b_r\)</span>
+are the forward and reverse rate of the reaction,
+<span class="math notranslate nohighlight">\(\epsilon\)</span> is a tolerance which has a default value of
+<span class="math notranslate nohighlight">\(0.1\)</span>, and <span class="math notranslate nohighlight">\(t_s\)</span> is the sound crossing time of a simulation cell.</p>
+<p>An example of such reaction cycle would be:</p>
+<div class="math notranslate nohighlight">
+\[\isotm{S}{32} (\gamma, p)(\gamma, p)(\gamma, n)(\gamma, n) \isotm{Si}{28}
+(\alpha, \gamma) \isotm{S}{32}\]</div>
+</li>
+<li><p>NSE Grouping Process: Initially, <span class="math notranslate nohighlight">\(p\)</span>, <span class="math notranslate nohighlight">\(n\)</span>, and
+<span class="math notranslate nohighlight">\(\alpha\)</span> are grouped into a single group
+called the light-isotope-group, or LIG. Other isotopes belong to their
+own group, which only contains themselves. We need to start the grouping
+process with the reaction rate that has the fastest (smallest) timescale.
+In the original <span id="id6">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413-5433, April 2020. arXiv:1912.06151.">38</a>]</span> paper, they use the group molar fraction
+for evaluating the reaction timescale. This complicates things because
+now reaction timescale changes after each successful grouping. We’ve
+determined that the result is roughly the same even if we just use the
+molar fraction of the isotope that is involved in the actual reaction.
+Therefore, instead of using
+<span class="math notranslate nohighlight">\(t_{i,k} = \tilde{Y}_i/\textbf{min}(b_f(k), b_r(k))\)</span>, to evaluate
+the reaction timescale of the reaction, <span class="math notranslate nohighlight">\(k\)</span>, where
+<span class="math notranslate nohighlight">\(\tilde{Y}_i\)</span> represents the sum of molar fractions of the
+group that isotope <span class="math notranslate nohighlight">\(i\)</span> belongs to, we simply use the <span class="math notranslate nohighlight">\(Y_i\)</span>,
+which is the molar fraction of the isotope <span class="math notranslate nohighlight">\(i\)</span>, which is the
+isotope involved in the reaction that is different from
+<span class="math notranslate nohighlight">\(p\)</span>, <span class="math notranslate nohighlight">\(n\)</span>, and <span class="math notranslate nohighlight">\(\alpha\)</span>. After we settle on calculating
+the timescale, since <span class="math notranslate nohighlight">\(Y_i\)</span> doesn’t change, we can calculate all
+timescale at once and sort the reaction to determine the order at
+which we want to start merging.</p>
+<p>There are two requirements for us to check whether this reaction
+can be used to group the nuclei involved, which are:</p>
+<ul>
+<li><p>at least 1 isotope, <span class="math notranslate nohighlight">\(i\)</span>, that passes:</p>
+<div class="math notranslate nohighlight">
+\[t_{i,k} &lt; \epsilon t_s\]</div>
+</li>
+<li><div class="math notranslate nohighlight">
+\[2|b_f(k) - b_r(k)|/(b_f(k) + b_r(k) &lt; \epsilon\]</div>
+</li>
+</ul>
+<p>Here we only consider two cases of reactions:</p>
+<ul class="simple">
+<li><p>There are exactly two isotopes involved in reaction, <span class="math notranslate nohighlight">\(k\)</span>,
+that are not in the light-isotope-group. In this case,
+if the reaction passes the two criteria mentioned above,
+we merge the groups containing those two isotopes if they’re
+not yet in the same group.</p></li>
+<li><p>There is only one isotope involved in reaction, <span class="math notranslate nohighlight">\(k\)</span>,
+that is not in the light-isotope-group, which is not
+necessarily isotope <span class="math notranslate nohighlight">\(i\)</span> that passes the first criteria.
+In this case, we merge the isotope that is not in LIG into LIG.</p></li>
+</ul>
+<p>Here we skip over reactions of the following due to obvious reasons:</p>
+<ul class="simple">
+<li><p>Reactions that have no reverse rates.</p></li>
+<li><p>Reactions that involve more than 2 reactants and products</p></li>
+<li><p>Reactions that have more than 2 non-light-isotope-group.</p></li>
+<li><p>The nuclei that participate in the reaction is either in LIG or in
+another group. This means that the non-LIG nuclei have already merged.</p></li>
+</ul>
+<p>At the end of the grouping process,
+we define that the current state have reached NSE
+when there is only a single group left, or there are two groups
+left where one of them is the light-isotope-group.</p>
+<p>When there is no neutron in the network, it can be difficult
+for isotopes to form a single group due to the missing neutron rates.
+Therefore, there is an alternative criteria of defining a “single group”
+when neutron is not present in the network: for isotopes,
+<span class="math notranslate nohighlight">\(Z &gt;= 14\)</span>, isotopes with odd and even <span class="math notranslate nohighlight">\(N\)</span> form two
+distinct groups.</p>
+</li>
+</ul>
+</section>
+<section id="additional-options">
+<h2>Additional Options<a class="headerlink" href="#additional-options" title="Link to this heading"></a></h2>
+<p id="index-0">Here we have some runtime options to allow a more cruel estimation
+to the self-consistent nse check:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">nse.nse_dx_independent</span> <span class="pre">=</span> <span class="pre">1</span></code> in the input file allows the nse check
+to ignore the dependency on the cell size, <code class="docutils literal notranslate"><span class="pre">dx</span></code>, which calculates
+the sound crossing time, <code class="docutils literal notranslate"><span class="pre">t_s</span></code>. Naturally, we require the
+timescale of the rates to be smaller than <code class="docutils literal notranslate"><span class="pre">t_s</span></code> to ensure the
+states have time to achieve equilibrium. However, sometimes this
+check can be difficult to achieve, so we leave this as an option
+for the user to explore.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nse.nse_molar_independent</span> <span class="pre">=</span> <span class="pre">1</span></code> in the input file allows the
+user to use the nse mass fractions for nse check after the first
+check (the one that ensures we’re close enough to the nse mass fractions
+to get reasonable results) is passed. This allows the subsequent checks
+to only rely on the thermodynamic conditions instead of mass fractions.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nse.nse_skip_molar</span> <span class="pre">=</span> <span class="pre">1</span></code> in the input file allows the user to skip
+the molar fraction check after the integration has failed.
+This option is used to completely forgo the requirement on molar
+fractions and allow the check to only dependent on the thermodynamic
+conditions. By only applying this after option after the
+integration failure, we hope the integrator has evolved the
+system to the NSE state the best it can. By turning on this option,
+we hope to give relief to the integrator if the system is in
+NSE thermodynamically,  which is likely the case.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nse.T_nse_net</span></code> in the input file allows the user to define a simple
+temperature threshold to determine the NSE state instead of using
+the complicated procedure that looks for a balance between the
+forward and the reverse rates. Once this quantity is set to a positive
+value, then <code class="docutils literal notranslate"><span class="pre">in_nse</span></code> returns <code class="docutils literal notranslate"><span class="pre">true</span></code> if the current temperature
+is higher than <code class="docutils literal notranslate"><span class="pre">T_nse_net</span></code>, and <code class="docutils literal notranslate"><span class="pre">false</span></code> if the current
+temperature is lower than <code class="docutils literal notranslate"><span class="pre">T_nse_net</span></code>.
+Note that we still perform a simple molar fraction check to
+ensure that the current state is close enough to the NSE state.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nse.ase_tol</span></code> is the tolerance that determines the equilibrium
+condition for forward and reverse rates. This is set to 0.1 by default.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nse.nse_abs_tol</span></code> is the absolute tolerance of checking the difference
+between current molar fraction and the NSE molar fraction.
+This is set to 0.005 by default.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nse.nse_rel_tol</span></code> is the relative tolerance of checking the
+difference between current molar fraction and the NSE molar fraction.
+This is set to 0.2 by default.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nse.T_min_nse</span></code> is the minimum temperature required to consider
+the subsequent NSE checks. This is mainly to avoid unnecessary computations
+of computing the NSE mass fractions when the current temperature is too low.
+This is set to 4.0e9 by default.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="nse_tabular.html" class="btn btn-neutral float-left" title="Tabulated NSE and aprox19" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sdc.html" class="btn btn-neutral float-right" title="Spectral Deferred Corrections" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Microphysics Development Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+
+</body>
+</html>

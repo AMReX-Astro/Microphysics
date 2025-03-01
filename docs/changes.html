@@ -57,7 +57,7 @@
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="design.html">Design</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
-<li class="toctree-l1"><a class="reference internal" href="autodiff.html">Automatic Differentiation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_system.html">Build System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
@@ -84,10 +84,12 @@
 <p class="caption" role="heading"><span class="caption-text">Util / external libraries</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="util.html">Helper Functions and Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autodiff.html">Automatic Differentiation</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Unit tests</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Overview of Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unit_test_runtime_parameters.html">Unit Test Common Runtime Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="comprehensive_tests.html">Comprehensive Unit Tests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="one_zone_tests.html">One Zone Tests</a></li>
 </ul>
@@ -95,88 +97,89 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="citing.html">Citing Microphysics</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#id1">25.02</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id41">25.01</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id45">24.12</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id55">24.10</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id61">24.09</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id69">24.08</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id109">24.07</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id129">24.06</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id152">24.05</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id160">24.04</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id174">24.03</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id187">24.02</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id200">24.01</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id215">23.12</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id224">23.11</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id237">23.10</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id244">23.09</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id248">23.07</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id253">23.06</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id260">23.05</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id262">23.04</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id276">23.03</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id283">23.02</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id287">23.01</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id294">22.12</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id304">22.11</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id306">22.10</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id313">22.09</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id316">22.08</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id318">22.07</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id320">22.06</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id322">22.05</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id324">22.04</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id327">22.02</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id329">22.01</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id333">21.12</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id337">21.11</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id341">21.09</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id348">21.08</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id356">21.07</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id358">21.06</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id361">21.05</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id368">21.04</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id371">21.03</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id375">21.02</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id379">21.01</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id382">20.12</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id385">20.11</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id388">20.10</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id392">20.09</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id398">20.08</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id404">20.07</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id407">20.06</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id412">20.05</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id419">20.04</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id437">20.03</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id452">20.02</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id453">20.01</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id458">19.12</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id465">19.11</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id467">19.10</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id472">19.08</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id474">19.05</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id478">19.01</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id479">18.12</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id480">18.11</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id481">18.10</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id485">18.09</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id486">18.08</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id487">18.07</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id488">18.05</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id492">18.04</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id493">17.11</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id496">17.10</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id500">17.09</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id503">17.08</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id504">17.06</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id505">17.01</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id506">16.12</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id507">16.09</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id508">16.08</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id509">16.07</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id1">23.03</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id23">25.02</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id63">25.01</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id67">24.12</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id77">24.10</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id83">24.09</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id91">24.08</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id131">24.07</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id151">24.06</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id174">24.05</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id182">24.04</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id196">24.03</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id209">24.02</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id222">24.01</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id237">23.12</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id246">23.11</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id259">23.10</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id266">23.09</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id270">23.07</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id275">23.06</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id282">23.05</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id284">23.04</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id298">23.03</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id305">23.02</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id309">23.01</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id316">22.12</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id326">22.11</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id328">22.10</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id335">22.09</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id338">22.08</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id340">22.07</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id342">22.06</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id344">22.05</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id346">22.04</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id349">22.02</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id351">22.01</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id355">21.12</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id359">21.11</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id363">21.09</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id370">21.08</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id378">21.07</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id380">21.06</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id383">21.05</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id390">21.04</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id393">21.03</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id397">21.02</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id401">21.01</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id404">20.12</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id407">20.11</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id410">20.10</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id414">20.09</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id420">20.08</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id426">20.07</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id429">20.06</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id434">20.05</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id441">20.04</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id459">20.03</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id474">20.02</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id475">20.01</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id480">19.12</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id487">19.11</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id489">19.10</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id494">19.08</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id496">19.05</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id500">19.01</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id501">18.12</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id502">18.11</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id503">18.10</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id507">18.09</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id508">18.08</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id509">18.07</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id510">18.05</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id514">18.04</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id515">17.11</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id518">17.10</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id522">17.09</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id525">17.08</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id526">17.06</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id527">17.01</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id528">16.12</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id529">16.09</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id530">16.08</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id531">16.07</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="zreferences.html">References</a></li>
@@ -213,7 +216,26 @@
   <section id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Link to this heading"></a></h1>
 <section id="id1">
-<h2>25.02<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<h2>23.03<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>the <code class="docutils literal notranslate"><span class="pre">nova2</span></code> net was renamed <code class="docutils literal notranslate"><span class="pre">nova</span></code>, and the old <code class="docutils literal notranslate"><span class="pre">nova</span></code>
+net was removed (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1746">#1746</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1768">#1768</a>)</p></li>
+<li><p>small improvements to the he-burn scripts (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1765">#1765</a>)</p></li>
+<li><p>documentation updates (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1741">#1741</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1744">#1744</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1747">#1747</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1751">#1751</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1756">#1756</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1759">#1759</a>,
+<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1760">#1760</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1766">#1766</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1767">#1767</a>)</p></li>
+<li><p>restrict Sphinx &lt; 8.2.0 due to nbsphinx issues (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1762">#1762</a>)</p></li>
+<li><p>centralize some common unit test runtime parameters (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1749">#1749</a>) and
+explicitly set <code class="docutils literal notranslate"><span class="pre">small_dens</span></code> and <code class="docutils literal notranslate"><span class="pre">small_temp</span></code> for some tests
+(<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1757">#1757</a>)</p></li>
+<li><p>remove old, unneeded macros from the build system (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1717">#1717</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1753">#1753</a>,
+<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1754">#1754</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1755">#1755</a>)</p></li>
+<li><p>modernize parallel loops in some unit tests (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1752">#1752</a>)</p></li>
+<li><p>update the HIP CI action to a later runner</p></li>
+<li><p>namespace and clang-tidy fixes (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1745">#1745</a>)</p></li>
+</ul>
+</section>
+<section id="id23">
+<h2>25.02<a class="headerlink" href="#id23" title="Link to this heading"></a></h2>
 <ul>
 <li><p>documentation updates (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1678">#1678</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1690">#1690</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1692">#1692</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1695">#1695</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1700">#1700</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1702">#1702</a>,
 <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1703">#1703</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1707">#1707</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1709">#1709</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1712">#1712</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1713">#1713</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1714">#1714</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1715">#1715</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1716">#1716</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1723">#1723</a>,
@@ -250,16 +272,16 @@ add a new network with 31.</p>
 <li><p>remove old Doxygen (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1697">#1697</a>) and skynet (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1698">#1698</a>) scripts from <code class="docutils literal notranslate"><span class="pre">util/</span></code></p></li>
 </ul>
 </section>
-<section id="id41">
-<h2>25.01<a class="headerlink" href="#id41" title="Link to this heading"></a></h2>
+<section id="id63">
+<h2>25.01<a class="headerlink" href="#id63" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>update HIP/CUDA dependences to include sparse libraries (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1686">#1686</a>)</p></li>
 <li><p>rename <code class="docutils literal notranslate"><span class="pre">Opacity_dir</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">OPACITY_DIR</span></code> (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1679">#1679</a>)</p></li>
 <li><p>update the integration and NSE docs (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1682">#1682</a>)</p></li>
 </ul>
 </section>
-<section id="id45">
-<h2>24.12<a class="headerlink" href="#id45" title="Link to this heading"></a></h2>
+<section id="id67">
+<h2>24.12<a class="headerlink" href="#id67" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>documentation improvements (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1661">#1661</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1667">#1667</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1670">#1670</a>)</p></li>
 <li><p>optimize tabular NSE EOS calls (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1668">#1668</a>)</p></li>
@@ -269,16 +291,16 @@ add a new network with 31.</p>
 (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1665">#1665</a>)</p></li>
 </ul>
 </section>
-<section id="id55">
-<h2>24.10<a class="headerlink" href="#id55" title="Link to this heading"></a></h2>
+<section id="id77">
+<h2>24.10<a class="headerlink" href="#id77" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>metal chemistry updates (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1648">#1648</a>) with ices (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1650">#1650</a>) and cosmic rays (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1651">#1651</a>)</p></li>
 <li><p>added dust to primordial chemistry (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1649">#1649</a>)</p></li>
 <li><p>doc updates (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1652">#1652</a>)</p></li>
 </ul>
 </section>
-<section id="id61">
-<h2>24.09<a class="headerlink" href="#id61" title="Link to this heading"></a></h2>
+<section id="id83">
+<h2>24.09<a class="headerlink" href="#id83" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>Improvements to the primordial chemistry network and the addition
 of a new version that includes metals and dust (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1642">#1642</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1644">#1644</a>)</p></li>
@@ -290,8 +312,8 @@ in scientific notation (<a class="reference external" href="https://github.com/A
 integrators (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1636">#1636</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1640">#1640</a>)</p></li>
 </ul>
 </section>
-<section id="id69">
-<h2>24.08<a class="headerlink" href="#id69" title="Link to this heading"></a></h2>
+<section id="id91">
+<h2>24.08<a class="headerlink" href="#id91" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>autodiff is now used with the templated reaction networks (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1614">#1614</a>)
 and some autodiff clean-ups and derivative fixes (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1604">#1604</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1612">#1612</a>,
@@ -325,8 +347,8 @@ temperature we don’t consider composition (<a class="reference external" href=
 <li><p>fix potential Inf in constexpr linear algebra (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1603">#1603</a>)</p></li>
 </ul>
 </section>
-<section id="id109">
-<h2>24.07<a class="headerlink" href="#id109" title="Link to this heading"></a></h2>
+<section id="id131">
+<h2>24.07<a class="headerlink" href="#id131" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>added an autodiff library and converted all of the screening
 functions to use autodiff for the thermodynamic derivatives
@@ -344,8 +366,8 @@ are replaced by <code class="docutils literal notranslate"><span class="pre">sub
 attempt, unless they are explicitly set in an inputs file (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1573">#1573</a>)</p></li>
 </ul>
 </section>
-<section id="id129">
-<h2>24.06<a class="headerlink" href="#id129" title="Link to this heading"></a></h2>
+<section id="id151">
+<h2>24.06<a class="headerlink" href="#id151" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>added the ability to access the runtime parameters via a struct.
 This will eventually be used to remove the dependency on globals
@@ -364,8 +386,8 @@ runtime parameter (<a class="reference external" href="https://github.com/AMReX-
 <li><p>added an <code class="docutils literal notranslate"><span class="pre">eos_rh_t</span></code> EOS type (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1539">#1539</a>)</p></li>
 </ul>
 </section>
-<section id="id152">
-<h2>24.05<a class="headerlink" href="#id152" title="Link to this heading"></a></h2>
+<section id="id174">
+<h2>24.05<a class="headerlink" href="#id174" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>Runtime parameters can now be type <code class="docutils literal notranslate"><span class="pre">bool</span></code> (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1536">#1536</a>)</p></li>
 <li><p>more clang-tidy and compiler warning cleaning (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1527">#1527</a> <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1530">#1530</a>,
@@ -375,8 +397,8 @@ runtime parameter (<a class="reference external" href="https://github.com/AMReX-
 functions (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1529">#1529</a>)</p></li>
 </ul>
 </section>
-<section id="id160">
-<h2>24.04<a class="headerlink" href="#id160" title="Link to this heading"></a></h2>
+<section id="id182">
+<h2>24.04<a class="headerlink" href="#id182" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>A new <code class="docutils literal notranslate"><span class="pre">test_screening_templated</span></code> unit test was added – this
 works with any of the templated networks. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1525">#1525</a>)</p></li>
@@ -387,8 +409,8 @@ a bug in the RKC retry tolerances (<a class="reference external" href="https://g
 <li><p>A <code class="docutils literal notranslate"><span class="pre">reinterpret_cast</span></code> in <code class="docutils literal notranslate"><span class="pre">rhs.H</span></code> was removed (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1435">#1435</a>)</p></li>
 </ul>
 </section>
-<section id="id174">
-<h2>24.03<a class="headerlink" href="#id174" title="Link to this heading"></a></h2>
+<section id="id196">
+<h2>24.03<a class="headerlink" href="#id196" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>pivoting in the linear algebra routines can now be disabled
 (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1454">#1454</a>)</p></li>
@@ -404,8 +426,8 @@ running with <code class="docutils literal notranslate"><span class="pre">integr
 <li><p>added a zone-by-zone retry capability to the burner (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/969">#969</a>)</p></li>
 </ul>
 </section>
-<section id="id187">
-<h2>24.02<a class="headerlink" href="#id187" title="Link to this heading"></a></h2>
+<section id="id209">
+<h2>24.02<a class="headerlink" href="#id209" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>Lots of general code cleaning from coverity and clang-tidy
 (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1450">#1450</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1452">#1452</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1453">#1453</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1460">#1460</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1459">#1459</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1457">#1457</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1458">#1458</a>)</p></li>
@@ -419,8 +441,8 @@ running with <code class="docutils literal notranslate"><span class="pre">integr
 (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1422">#1422</a>)</p></li>
 </ul>
 </section>
-<section id="id200">
-<h2>24.01<a class="headerlink" href="#id200" title="Link to this heading"></a></h2>
+<section id="id222">
+<h2>24.01<a class="headerlink" href="#id222" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>The quantum corrections for the Chabrier screening are
 now optional (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1428">#1428</a>)</p></li>
@@ -444,8 +466,8 @@ self-consistent NSE was added (<a class="reference external" href="https://githu
 added (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1407">#1407</a>)</p></li>
 </ul>
 </section>
-<section id="id215">
-<h2>23.12<a class="headerlink" href="#id215" title="Link to this heading"></a></h2>
+<section id="id237">
+<h2>23.12<a class="headerlink" href="#id237" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>The SDC+NSE update now includes plasma neutrino losses (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1357">#1357</a>,
 <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1400">#1400</a>)</p></li>
@@ -461,8 +483,8 @@ there is a python script that can be used to regenerate it (<a class="reference 
 optimization last release (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1380">#1380</a>)</p></li>
 </ul>
 </section>
-<section id="id224">
-<h2>23.11<a class="headerlink" href="#id224" title="Link to this heading"></a></h2>
+<section id="id246">
+<h2>23.11<a class="headerlink" href="#id246" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>The <code class="docutils literal notranslate"><span class="pre">sneut5</span></code> neutrino cooling term was cleaned up (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1371">#1371</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1372">#1372</a>,
 <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1373">#1373</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1374">#1374</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1375">#1375</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1377">#1377</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1378">#1378</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1379">#1379</a>)</p></li>
@@ -476,8 +498,8 @@ weak reaction rates (<a class="reference external" href="https://github.com/AMRe
 reading (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1355">#1355</a>)</p></li>
 </ul>
 </section>
-<section id="id237">
-<h2>23.10<a class="headerlink" href="#id237" title="Link to this heading"></a></h2>
+<section id="id259">
+<h2>23.10<a class="headerlink" href="#id259" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>The simplified-SDC and true-SDC code paths for integration
 have been merged (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1338">#1338</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1340">#1340</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1341">#1341</a>).</p></li>
@@ -488,8 +510,8 @@ version of pynucastro (2.1.0) (<a class="reference external" href="https://githu
 <li><p><code class="docutils literal notranslate"><span class="pre">NUM_EXTRA_SPECIES</span></code> was removed (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1321">#1321</a>)</p></li>
 </ul>
 </section>
-<section id="id244">
-<h2>23.09<a class="headerlink" href="#id244" title="Link to this heading"></a></h2>
+<section id="id266">
+<h2>23.09<a class="headerlink" href="#id266" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>The file <code class="docutils literal notranslate"><span class="pre">NETWORK_PROPERTIES</span></code> has been removed from each network,
 as the legacy screening method is no longer used. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1310">#1310</a>)</p></li>
@@ -498,8 +520,8 @@ as the legacy screening method is no longer used. (<a class="reference external"
 inputs (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1302">#1302</a>)</p></li>
 </ul>
 </section>
-<section id="id248">
-<h2>23.07<a class="headerlink" href="#id248" title="Link to this heading"></a></h2>
+<section id="id270">
+<h2>23.07<a class="headerlink" href="#id270" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>The preprocessor variable <code class="docutils literal notranslate"><span class="pre">EXTRA_THERMO</span></code> has been removed.
 Use cases that depend on dpdA/dpdZ or dedA/dedZ should use
@@ -512,8 +534,8 @@ for estimating the spectral radius of our ODE system (<a class="reference extern
 <li><p>removed <code class="docutils literal notranslate"><span class="pre">SDC_EVOLVE_ENTHALPY</span></code> – this was not being used (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1204">#1204</a>)</p></li>
 </ul>
 </section>
-<section id="id253">
-<h2>23.06<a class="headerlink" href="#id253" title="Link to this heading"></a></h2>
+<section id="id275">
+<h2>23.06<a class="headerlink" href="#id275" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>Added a new Runge-Kutta-Chebyshev integrator (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1191">#1191</a>)</p></li>
 <li><p>Lots of clean-up to the primordial chem network (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1180">#1180</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1181">#1181</a>
@@ -523,14 +545,14 @@ for estimating the spectral radius of our ODE system (<a class="reference extern
 computing the energy release incorrectly (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1092">#1092</a>)</p></li>
 </ul>
 </section>
-<section id="id260">
-<h2>23.05<a class="headerlink" href="#id260" title="Link to this heading"></a></h2>
+<section id="id282">
+<h2>23.05<a class="headerlink" href="#id282" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>The <code class="docutils literal notranslate"><span class="pre">abort_on_failure</span></code> runtime parameter has been removed (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1174">#1174</a>)</p></li>
 </ul>
 </section>
-<section id="id262">
-<h2>23.04<a class="headerlink" href="#id262" title="Link to this heading"></a></h2>
+<section id="id284">
+<h2>23.04<a class="headerlink" href="#id284" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>added preliminary CMake support (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1151">#1151</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1164">#1164</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1166">#1166</a>)</p></li>
 <li><p>added code of conduct (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1152">#1152</a>)</p></li>
@@ -541,8 +563,8 @@ computing the energy release incorrectly (<a class="reference external" href="ht
 <li><p>a new CNO + rp network for XRBs (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1145">#1145</a>)</p></li>
 </ul>
 </section>
-<section id="id276">
-<h2>23.03<a class="headerlink" href="#id276" title="Link to this heading"></a></h2>
+<section id="id298">
+<h2>23.03<a class="headerlink" href="#id298" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>updated all of the pynucastro networks to the latest
 pynucastro version (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1134">#1134</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1136">#1136</a>)</p></li>
@@ -553,15 +575,15 @@ pynucastro version (<a class="reference external" href="https://github.com/AMReX
 solver more robust (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1122">#1122</a>)</p></li>
 </ul>
 </section>
-<section id="id283">
-<h2>23.02<a class="headerlink" href="#id283" title="Link to this heading"></a></h2>
+<section id="id305">
+<h2>23.02<a class="headerlink" href="#id305" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">T_fixed</span></code> now works with NSE (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1098">#1098</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1111">#1111</a>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">USE_NSE</span></code> was changed to <code class="docutils literal notranslate"><span class="pre">USE_NSE_TABLE</span></code> (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1108">#1108</a>)</p></li>
 </ul>
 </section>
-<section id="id287">
-<h2>23.01<a class="headerlink" href="#id287" title="Link to this heading"></a></h2>
+<section id="id309">
+<h2>23.01<a class="headerlink" href="#id309" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>a new test, <code class="docutils literal notranslate"><span class="pre">burn_cell_primordial_chem</span></code>, works with the primordial
 chemistry (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1064">#1064</a>)</p></li>
@@ -575,8 +597,8 @@ evaluate (<a class="reference external" href="https://github.com/AMReX-Astro/Mic
 was added (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/983">#983</a>)</p></li>
 </ul>
 </section>
-<section id="id294">
-<h2>22.12<a class="headerlink" href="#id294" title="Link to this heading"></a></h2>
+<section id="id316">
+<h2>22.12<a class="headerlink" href="#id316" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>A first order backward Euler integrator was added that works with
 both Strang and simplified-SDC integration (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/504">#504</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1041">#1041</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1042">#1042</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1045">#1045</a>)</p></li>
@@ -587,16 +609,16 @@ was added as well as one to evolve number densities (<a class="reference externa
 <li><p>An issue with reading the helmholtz table on GPUs was fixed (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1020">#1020</a>)</p></li>
 </ul>
 </section>
-<section id="id304">
-<h2>22.11<a class="headerlink" href="#id304" title="Link to this heading"></a></h2>
+<section id="id326">
+<h2>22.11<a class="headerlink" href="#id326" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>use of the auxiliary state to define composition is now enabled
 via <code class="docutils literal notranslate"><span class="pre">USE_AUX_THERMO</span></code> and the preprocessor variable <code class="docutils literal notranslate"><span class="pre">AUX_THERMO</span></code>
 (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1003">#1003</a>)</p></li>
 </ul>
 </section>
-<section id="id306">
-<h2>22.10<a class="headerlink" href="#id306" title="Link to this heading"></a></h2>
+<section id="id328">
+<h2>22.10<a class="headerlink" href="#id328" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>A <code class="docutils literal notranslate"><span class="pre">null</span></code> screening routine was added to disable screening for any network at
 compile time. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/992">#992</a>)</p></li>
@@ -610,23 +632,23 @@ added (<a class="reference external" href="https://github.com/AMReX-Astro/Microp
 (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/978">#978</a>)</p></li>
 </ul>
 </section>
-<section id="id313">
-<h2>22.09<a class="headerlink" href="#id313" title="Link to this heading"></a></h2>
+<section id="id335">
+<h2>22.09<a class="headerlink" href="#id335" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>An NSE solver was added (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/963">#963</a>)</p></li>
 <li><p>A new network, <code class="docutils literal notranslate"><span class="pre">subch_simple</span></code>, was added that further simplifies
 He/C burning (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/964">#964</a>)</p></li>
 </ul>
 </section>
-<section id="id316">
-<h2>22.08<a class="headerlink" href="#id316" title="Link to this heading"></a></h2>
+<section id="id338">
+<h2>22.08<a class="headerlink" href="#id338" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>The <code class="docutils literal notranslate"><span class="pre">subch</span></code> network was renamed <code class="docutils literal notranslate"><span class="pre">subch_approx</span></code> and the <code class="docutils literal notranslate"><span class="pre">subch2</span></code>
 network was renamed <code class="docutils literal notranslate"><span class="pre">subch_full</span></code> (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/947">#947</a>)</p></li>
 </ul>
 </section>
-<section id="id318">
-<h2>22.07<a class="headerlink" href="#id318" title="Link to this heading"></a></h2>
+<section id="id340">
+<h2>22.07<a class="headerlink" href="#id340" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>Two new screening formulations have been added for reaction rates,
 based on Chugunov, DeWitt, and Yakovlev 2007 and Chugunov and
@@ -634,22 +656,22 @@ DeWitt 2009.  These can be used with any network by setting
 <code class="docutils literal notranslate"><span class="pre">SCREEN_METHOD</span></code> at compile time. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/887">#887</a>)</p></li>
 </ul>
 </section>
-<section id="id320">
-<h2>22.06<a class="headerlink" href="#id320" title="Link to this heading"></a></h2>
+<section id="id342">
+<h2>22.06<a class="headerlink" href="#id342" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>The <code class="docutils literal notranslate"><span class="pre">subch2</span></code> network now has runtime parameters allowing for
 some key rates to be disabled (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/921">#921</a>).</p></li>
 </ul>
 </section>
-<section id="id322">
-<h2>22.05<a class="headerlink" href="#id322" title="Link to this heading"></a></h2>
+<section id="id344">
+<h2>22.05<a class="headerlink" href="#id344" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>The <code class="docutils literal notranslate"><span class="pre">subch2</span></code> network was improved by adding some missing C+C, C+O,
 and O+O rates. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/915">#915</a>)</p></li>
 </ul>
 </section>
-<section id="id324">
-<h2>22.04<a class="headerlink" href="#id324" title="Link to this heading"></a></h2>
+<section id="id346">
+<h2>22.04<a class="headerlink" href="#id346" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>aprox networks now use a templated C++ righthand side formulation
 that builds the ODE system at compile time. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/802">#802</a>)</p></li>
@@ -657,8 +679,8 @@ that builds the ODE system at compile time. (<a class="reference external" href=
 optimizations (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/901">#901</a>)</p></li>
 </ul>
 </section>
-<section id="id327">
-<h2>22.02<a class="headerlink" href="#id327" title="Link to this heading"></a></h2>
+<section id="id349">
+<h2>22.02<a class="headerlink" href="#id349" title="Link to this heading"></a></h2>
 <ul>
 <li><p>The Microphysics repo was moved to the AMReX-Astro github
 organization: <a class="reference external" href="https://github.com/amrex-astro/Microphysics">https://github.com/amrex-astro/Microphysics</a></p>
@@ -669,8 +691,8 @@ organization: <a class="reference external" href="https://github.com/amrex-astro
 scripts (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/869">#869</a>)</p></li>
 </ul>
 </section>
-<section id="id329">
-<h2>22.01<a class="headerlink" href="#id329" title="Link to this heading"></a></h2>
+<section id="id351">
+<h2>22.01<a class="headerlink" href="#id351" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>we added back in support for the “Nonaka plot”.  This outputs the
 state in the RHS routine for a single zone during the reaction
@@ -680,8 +702,8 @@ science calculations (<a class="reference external" href="https://github.com/AMR
 <li><p>the simplified-SDC step rejection logic in VODE was improved (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/818">#818</a>)</p></li>
 </ul>
 </section>
-<section id="id333">
-<h2>21.12<a class="headerlink" href="#id333" title="Link to this heading"></a></h2>
+<section id="id355">
+<h2>21.12<a class="headerlink" href="#id355" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>all of the pynucastro networks were regenerated with the latest
 pynucastro and converted to C++.  Performance was also improved
@@ -691,8 +713,8 @@ pynucastro and converted to C++.  Performance was also improved
 turn on more verbosity to help with debugging (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/817">#817</a>)</p></li>
 </ul>
 </section>
-<section id="id337">
-<h2>21.11<a class="headerlink" href="#id337" title="Link to this heading"></a></h2>
+<section id="id359">
+<h2>21.11<a class="headerlink" href="#id359" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">burn_cell</span></code> was not correctly doing substepping in some cases.
 This has been fixed (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/784">#784</a>)</p></li>
@@ -701,8 +723,8 @@ were not being correctly cast to <code class="docutils literal notranslate"><spa
 <li><p>Simplified-SDC now works with Fortran nets (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/786">#786</a>)</p></li>
 </ul>
 </section>
-<section id="id341">
-<h2>21.09<a class="headerlink" href="#id341" title="Link to this heading"></a></h2>
+<section id="id363">
+<h2>21.09<a class="headerlink" href="#id363" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>Added a new nova network (<code class="docutils literal notranslate"><span class="pre">nova2</span></code>) with pp and (hot-)CNO and some
 breakout reactions (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/751">#751</a>)</p></li>
@@ -711,8 +733,8 @@ the relaxation check on the NSE criteria (<a class="reference external" href="ht
 <li><p>Added a new unit test for single-zone SDC (<code class="docutils literal notranslate"><span class="pre">burn_cell_sdc</span></code>) (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/744">#744</a>)</p></li>
 </ul>
 </section>
-<section id="id348">
-<h2>21.08<a class="headerlink" href="#id348" title="Link to this heading"></a></h2>
+<section id="id370">
+<h2>21.08<a class="headerlink" href="#id370" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">test_react</span></code> can now be run with a uniform composition to test GPU
 performance (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/734">#734</a>)</p></li>
@@ -724,22 +746,22 @@ longer integrate (rho E) (<a class="reference external" href="https://github.com
 NSE after a failed burn (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/702">#702</a>)</p></li>
 </ul>
 </section>
-<section id="id356">
-<h2>21.07<a class="headerlink" href="#id356" title="Link to this heading"></a></h2>
+<section id="id378">
+<h2>21.07<a class="headerlink" href="#id378" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>The C++ networks now implement <code class="docutils literal notranslate"><span class="pre">abort_on_failure</span></code> functionality
 (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/697">#697</a>)</p></li>
 </ul>
 </section>
-<section id="id358">
-<h2>21.06<a class="headerlink" href="#id358" title="Link to this heading"></a></h2>
+<section id="id380">
+<h2>21.06<a class="headerlink" href="#id380" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>The ability to use a system BLAS library was removed (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/675">#675</a>)</p></li>
 <li><p>An equation of state for hypervelocity impacts was added (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/645">#645</a>)</p></li>
 </ul>
 </section>
-<section id="id361">
-<h2>21.05<a class="headerlink" href="#id361" title="Link to this heading"></a></h2>
+<section id="id383">
+<h2>21.05<a class="headerlink" href="#id383" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>For aprox19 + NSE, we now “bail out” of the integration
 immediately if the state enters NSE, and then do the rest of the
@@ -755,8 +777,8 @@ This has been fixed (<a class="reference external" href="https://github.com/AMRe
 networks was fixed (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/627">#627</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/634">#634</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/635">#635</a>)</p></li>
 </ul>
 </section>
-<section id="id368">
-<h2>21.04<a class="headerlink" href="#id368" title="Link to this heading"></a></h2>
+<section id="id390">
+<h2>21.04<a class="headerlink" href="#id390" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>We added a new mechanism to recover a failed burn when the state
 tries to enter NSE during the evolution, when using the <code class="docutils literal notranslate"><span class="pre">aprox19</span></code> +
@@ -766,8 +788,8 @@ if it satisfies the NSE criteria (<a class="reference external" href="https://gi
 fractions for both simplified-SDC and true SDC burns (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/619">#619</a>)</p></li>
 </ul>
 </section>
-<section id="id371">
-<h2>21.03<a class="headerlink" href="#id371" title="Link to this heading"></a></h2>
+<section id="id393">
+<h2>21.03<a class="headerlink" href="#id393" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>We now integrate internal energy (e) directly instead of
 integrating temperature (T) for the thermodynamic evolution. T is
@@ -777,8 +799,8 @@ rates. (<a class="reference external" href="https://github.com/AMReX-Astro/Micro
 (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/423">#423</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/497">#497</a>)</p></li>
 </ul>
 </section>
-<section id="id375">
-<h2>21.02<a class="headerlink" href="#id375" title="Link to this heading"></a></h2>
+<section id="id397">
+<h2>21.02<a class="headerlink" href="#id397" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>Fortran support for the VODE integrator has been removed (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/538">#538</a>)</p></li>
 <li><p>Runtime parameters can now be set in the inputs file instead of
@@ -789,16 +811,16 @@ a parameter is set in both places, then the inputs value is used.
 been removed. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/492">#492</a>)</p></li>
 </ul>
 </section>
-<section id="id379">
-<h2>21.01<a class="headerlink" href="#id379" title="Link to this heading"></a></h2>
+<section id="id401">
+<h2>21.01<a class="headerlink" href="#id401" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>Microphysics now requires C++17 (gcc &gt;= 7, CUDA &gt;= 11). (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/485">#485</a>)</p></li>
 <li><p>The BS integrator was removed.  This was Fortran only, doesn’t
 support SDC integration, and not well used. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/488">#488</a>)</p></li>
 </ul>
 </section>
-<section id="id382">
-<h2>20.12<a class="headerlink" href="#id382" title="Link to this heading"></a></h2>
+<section id="id404">
+<h2>20.12<a class="headerlink" href="#id404" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>The default absolute tolerance for species (<code class="docutils literal notranslate"><span class="pre">atol_spec</span></code>) has been
 increased to <code class="docutils literal notranslate"><span class="pre">1.e-8</span></code> (from <code class="docutils literal notranslate"><span class="pre">1.e-12</span></code>). (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/422">#422</a>)</p></li>
@@ -808,15 +830,15 @@ the use of <code class="docutils literal notranslate"><span class="pre">USE_CXX_
 is not currently supported for this case). (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/419">#419</a>)</p></li>
 </ul>
 </section>
-<section id="id385">
-<h2>20.11<a class="headerlink" href="#id385" title="Link to this heading"></a></h2>
+<section id="id407">
+<h2>20.11<a class="headerlink" href="#id407" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>The <code class="docutils literal notranslate"><span class="pre">aprox19</span></code> + NSE network was ported to C++ (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/362">#362</a>)</p></li>
 <li><p>The simplified-SDC code path was ported to C++ (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/389">#389</a>)</p></li>
 </ul>
 </section>
-<section id="id388">
-<h2>20.10<a class="headerlink" href="#id388" title="Link to this heading"></a></h2>
+<section id="id410">
+<h2>20.10<a class="headerlink" href="#id410" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>An option to use NSE instead of integrating the reaction
 network has been added to the <code class="docutils literal notranslate"><span class="pre">aprox19</span></code> network. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/332">#332</a>)</p></li>
@@ -825,8 +847,8 @@ network has been added to the <code class="docutils literal notranslate"><span c
 energies in MeV, consistent with the aprox nets (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/354">#354</a>)</p></li>
 </ul>
 </section>
-<section id="id392">
-<h2>20.09<a class="headerlink" href="#id392" title="Link to this heading"></a></h2>
+<section id="id414">
+<h2>20.09<a class="headerlink" href="#id414" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>Unit tests now write a <code class="docutils literal notranslate"><span class="pre">job_info</span></code> file (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/383">#383</a>)</p></li>
 <li><p>A new single-zone EOS test routine was created as <code class="docutils literal notranslate"><span class="pre">unit_test/eos_cell</span></code>
@@ -841,8 +863,8 @@ auxiliary quantities based on make setting (like <code class="docutils literal n
 (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/370">#370</a>)</p></li>
 </ul>
 </section>
-<section id="id398">
-<h2>20.08<a class="headerlink" href="#id398" title="Link to this heading"></a></h2>
+<section id="id420">
+<h2>20.08<a class="headerlink" href="#id420" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>Several of the unit tests had separate C++ and Fortran
 implementations.  These have been unified (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/343">#343</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/344">#344</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/345">#345</a>)</p></li>
@@ -852,15 +874,15 @@ change by more than a factor of 2, or an abundance &lt; 0 or &gt; 1, as
 well as timesteps where the temperature ends up negative. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/350">#350</a>)</p></li>
 </ul>
 </section>
-<section id="id404">
-<h2>20.07<a class="headerlink" href="#id404" title="Link to this heading"></a></h2>
+<section id="id426">
+<h2>20.07<a class="headerlink" href="#id426" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>The <code class="docutils literal notranslate"><span class="pre">master</span></code> branch has been renamed <code class="docutils literal notranslate"><span class="pre">main</span></code> (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/333">#333</a>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">NETWORK_PROPERTIES</span></code> now includes the number of Aux quantities (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/330">#330</a>)</p></li>
 </ul>
 </section>
-<section id="id407">
-<h2>20.06<a class="headerlink" href="#id407" title="Link to this heading"></a></h2>
+<section id="id429">
+<h2>20.06<a class="headerlink" href="#id429" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>For integration with simplified SDC, we now interpret <code class="docutils literal notranslate"><span class="pre">atol_spec</span></code>
 as an absolute tolerance on X alone instead of (rho X) (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/311">#311</a>)</p></li>
@@ -874,8 +896,8 @@ of the conserved fluid state and works for a wide range of
 problems (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/228">#228</a>)</p></li>
 </ul>
 </section>
-<section id="id412">
-<h2>20.05<a class="headerlink" href="#id412" title="Link to this heading"></a></h2>
+<section id="id434">
+<h2>20.05<a class="headerlink" href="#id434" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>We now have an option for using sparse storage for <code class="docutils literal notranslate"><span class="pre">aprox13</span></code> in C++
 (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/307">#307</a>)</p></li>
@@ -885,8 +907,8 @@ problems (<a class="reference external" href="https://github.com/AMReX-Astro/Mic
 <li><p>The VODE integrator is now available in C++ (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/299">#299</a>)</p></li>
 </ul>
 </section>
-<section id="id419">
-<h2>20.04<a class="headerlink" href="#id419" title="Link to this heading"></a></h2>
+<section id="id441">
+<h2>20.04<a class="headerlink" href="#id441" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>The <code class="docutils literal notranslate"><span class="pre">wion</span></code> network property was removed (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/294">#294</a>)</p></li>
 <li><p>There are new unit tests for the screening and aprox rates
@@ -906,8 +928,8 @@ feature was not widely used and greatly complicated the code
 paths. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/279">#279</a>)</p></li>
 </ul>
 </section>
-<section id="id437">
-<h2>20.03<a class="headerlink" href="#id437" title="Link to this heading"></a></h2>
+<section id="id459">
+<h2>20.03<a class="headerlink" href="#id459" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>The nuclei information for both Fortran and C++ is now
 automatically generated from a network inputs file at compile
@@ -930,8 +952,8 @@ and the nuclei information (aion and zion) have been
 added. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/244">#244</a>)</p></li>
 </ul>
 </section>
-<section id="id452">
-<h2>20.02<a class="headerlink" href="#id452" title="Link to this heading"></a></h2>
+<section id="id474">
+<h2>20.02<a class="headerlink" href="#id474" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>Added a C++ header file, <code class="docutils literal notranslate"><span class="pre">actual_network.H</span></code>, that defines the
 network size.  This is the start of making making the
@@ -940,8 +962,8 @@ microphysics routines available in C++.</p></li>
 formulations from pynucastro.</p></li>
 </ul>
 </section>
-<section id="id453">
-<h2>20.01<a class="headerlink" href="#id453" title="Link to this heading"></a></h2>
+<section id="id475">
+<h2>20.01<a class="headerlink" href="#id475" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>The <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> type no longer includes <code class="docutils literal notranslate"><span class="pre">ydot</span></code> or <code class="docutils literal notranslate"><span class="pre">jac</span></code> – this allows
 us to optimize the memory access on GPUs (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/220">#220</a>)</p></li>
@@ -956,8 +978,8 @@ file (<code class="docutils literal notranslate"><span class="pre">xin*</span></
 (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/211">#211</a>)</p></li>
 </ul>
 </section>
-<section id="id458">
-<h2>19.12<a class="headerlink" href="#id458" title="Link to this heading"></a></h2>
+<section id="id480">
+<h2>19.12<a class="headerlink" href="#id480" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>Simplified SDC integration now uses the same retry strategy
 as the default (non-SDC) integration. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/215">#215</a>)</p></li>
@@ -979,8 +1001,8 @@ fixed. (<a class="reference external" href="https://github.com/AMReX-Astro/Micro
 <code class="docutils literal notranslate"><span class="pre">eos_t</span></code> type.</p></li>
 </ul>
 </section>
-<section id="id465">
-<h2>19.11<a class="headerlink" href="#id465" title="Link to this heading"></a></h2>
+<section id="id487">
+<h2>19.11<a class="headerlink" href="#id487" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>VODE90 now works with the simplified SDC time step algorithms,
 and the preprocessor option for this SDC was changed to
@@ -988,8 +1010,8 @@ and the preprocessor option for this SDC was changed to
 <li><p><code class="docutils literal notranslate"><span class="pre">rprox</span></code> now works on GPUs</p></li>
 </ul>
 </section>
-<section id="id467">
-<h2>19.10<a class="headerlink" href="#id467" title="Link to this heading"></a></h2>
+<section id="id489">
+<h2>19.10<a class="headerlink" href="#id489" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>The <code class="docutils literal notranslate"><span class="pre">iso7</span></code> network was ported to GPUs (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/172">#172</a>)</p></li>
 <li><p>VODE90 now better agrees with VODE (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/192">#192</a>)</p></li>
@@ -1000,15 +1022,15 @@ quantity during the burn was added, and is enabled with
 <code class="docutils literal notranslate"><span class="pre">USE_NONAKA_PLOT=TRUE</span></code> (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/190">#190</a>)</p></li>
 </ul>
 </section>
-<section id="id472">
-<h2>19.08<a class="headerlink" href="#id472" title="Link to this heading"></a></h2>
+<section id="id494">
+<h2>19.08<a class="headerlink" href="#id494" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>A new network, <code class="docutils literal notranslate"><span class="pre">subch2</span></code>, was added that combines <code class="docutils literal notranslate"><span class="pre">aprox13</span></code> and the
 <code class="docutils literal notranslate"><span class="pre">subch</span></code> networks. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/184">#184</a>)</p></li>
 </ul>
 </section>
-<section id="id474">
-<h2>19.05<a class="headerlink" href="#id474" title="Link to this heading"></a></h2>
+<section id="id496">
+<h2>19.05<a class="headerlink" href="#id496" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>The <code class="docutils literal notranslate"><span class="pre">aprox21</span></code> network was missing the analytic Jacobian term for
 the derivative of He4 with respect to Ni56. This is fixed. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/175">#175</a>)</p></li>
@@ -1016,22 +1038,22 @@ the derivative of He4 with respect to Ni56. This is fixed. (<a class="reference 
 had some wrong scalings.  These have now been fixed (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/179">#179</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/180">#180</a>)</p></li>
 </ul>
 </section>
-<section id="id478">
-<h2>19.01<a class="headerlink" href="#id478" title="Link to this heading"></a></h2>
+<section id="id500">
+<h2>19.01<a class="headerlink" href="#id500" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>the docs are now automatically build from the sphinx source
 using travis on github.</p></li>
 </ul>
 </section>
-<section id="id479">
-<h2>18.12<a class="headerlink" href="#id479" title="Link to this heading"></a></h2>
+<section id="id501">
+<h2>18.12<a class="headerlink" href="#id501" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>simplify conductivity interface to match the eos interface by
 moving the conductivity into the eos type</p></li>
 </ul>
 </section>
-<section id="id480">
-<h2>18.11<a class="headerlink" href="#id480" title="Link to this heading"></a></h2>
+<section id="id502">
+<h2>18.11<a class="headerlink" href="#id502" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>new python bindings have been added</p></li>
 <li><p>the documentation has been switched to Sphinx and is now hosted
@@ -1040,8 +1062,8 @@ online.</p></li>
 was being applied incorrectly.</p></li>
 </ul>
 </section>
-<section id="id481">
-<h2>18.10<a class="headerlink" href="#id481" title="Link to this heading"></a></h2>
+<section id="id503">
+<h2>18.10<a class="headerlink" href="#id503" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">test_eos</span></code> and <code class="docutils literal notranslate"><span class="pre">test_react</span></code> now both work on GPUs (using the AMReX
 <code class="docutils literal notranslate"><span class="pre">gpu</span></code> branch)</p></li>
@@ -1055,8 +1077,8 @@ tradeoff is a small (to root finding tolerance) inconsistency in
 the thermodynamic state. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/154">#154</a>)</p></li>
 </ul>
 </section>
-<section id="id485">
-<h2>18.09<a class="headerlink" href="#id485" title="Link to this heading"></a></h2>
+<section id="id507">
+<h2>18.09<a class="headerlink" href="#id507" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>The Helmholtz parameters <code class="docutils literal notranslate"><span class="pre">ttol</span></code> and <code class="docutils literal notranslate"><span class="pre">dtol</span></code> (controlling the error
 for the Newton iteration when in a mode other than <code class="docutils literal notranslate"><span class="pre">eos_input_rt</span></code>)
@@ -1064,16 +1086,16 @@ are now runtime parameters in the extern namelist as <code class="docutils liter
 and <code class="docutils literal notranslate"><span class="pre">eos_dtol</span></code>.</p></li>
 </ul>
 </section>
-<section id="id486">
-<h2>18.08<a class="headerlink" href="#id486" title="Link to this heading"></a></h2>
+<section id="id508">
+<h2>18.08<a class="headerlink" href="#id508" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>the unit tests (<code class="docutils literal notranslate"><span class="pre">test_react</span></code>, <code class="docutils literal notranslate"><span class="pre">test_sdc</span></code>, and <code class="docutils literal notranslate"><span class="pre">test_eos</span></code>) have been
 ported from the Fortran to C++ build system in AMReX.  This will
 allow us to test the GPU framework in AMReX.</p></li>
 </ul>
 </section>
-<section id="id487">
-<h2>18.07<a class="headerlink" href="#id487" title="Link to this heading"></a></h2>
+<section id="id509">
+<h2>18.07<a class="headerlink" href="#id509" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>added CUDA support to the VODE90 integrator, the helmeos, and the
 networks <code class="docutils literal notranslate"><span class="pre">aprox13</span></code>, <code class="docutils literal notranslate"><span class="pre">aprox19</span></code>, <code class="docutils literal notranslate"><span class="pre">aprox21</span></code>, <code class="docutils literal notranslate"><span class="pre">ignition_simple</span></code>,
@@ -1081,8 +1103,8 @@ networks <code class="docutils literal notranslate"><span class="pre">aprox13</s
 <li><p>Ported the unit test frameworks to FBoxLib</p></li>
 </ul>
 </section>
-<section id="id488">
-<h2>18.05<a class="headerlink" href="#id488" title="Link to this heading"></a></h2>
+<section id="id510">
+<h2>18.05<a class="headerlink" href="#id510" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>lots of documentation updates</p></li>
 <li><p>some fixes to the numerical Jacobian involving X vs. Y (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/100">#100</a>)</p></li>
@@ -1099,16 +1121,16 @@ Chapman-Jouguet detonation velocity for any of the networks</p></li>
 uses looser tolerances before switching to a different integrator. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/96">#96</a>)</p></li>
 </ul>
 </section>
-<section id="id492">
-<h2>18.04<a class="headerlink" href="#id492" title="Link to this heading"></a></h2>
+<section id="id514">
+<h2>18.04<a class="headerlink" href="#id514" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>pynucastro (<a class="reference external" href="https://github.com/pynucastro/pynucastro">https://github.com/pynucastro/pynucastro</a>) can now
 generate reaction networks compatible with StarKiller.  See the
 <code class="docutils literal notranslate"><span class="pre">subch</span></code> network.</p></li>
 </ul>
 </section>
-<section id="id493">
-<h2>17.11<a class="headerlink" href="#id493" title="Link to this heading"></a></h2>
+<section id="id515">
+<h2>17.11<a class="headerlink" href="#id515" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>a new option to boost the reaction rates has been added
 to the integrators (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/64">#64</a>)</p></li>
@@ -1118,8 +1140,8 @@ be re-enabled by defining the preprocessor variable
 <code class="docutils literal notranslate"><span class="pre">EXTRA_THERMO</span></code> (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/59">#59</a>)</p></li>
 </ul>
 </section>
-<section id="id496">
-<h2>17.10<a class="headerlink" href="#id496" title="Link to this heading"></a></h2>
+<section id="id518">
+<h2>17.10<a class="headerlink" href="#id518" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>the compositional derivatives are no longer available
 by default from the EOS.  To get these, set the preprocessor
@@ -1137,8 +1159,8 @@ broadcast to other processors (<a class="reference external" href="https://githu
 state to ensure consistency (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/47">#47</a>)</p></li>
 </ul>
 </section>
-<section id="id500">
-<h2>17.09<a class="headerlink" href="#id500" title="Link to this heading"></a></h2>
+<section id="id522">
+<h2>17.09<a class="headerlink" href="#id522" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>a new rety mechanism was implemented that allows a different
 integrator to be used if the primary integrator fails (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/39">#39</a>)</p></li>
@@ -1147,8 +1169,8 @@ were updated from Mazurek (1973) to LMP (2000).  Thanks to
 Carl Fields for this contribution.  (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/40">#40</a>)</p></li>
 </ul>
 </section>
-<section id="id503">
-<h2>17.08<a class="headerlink" href="#id503" title="Link to this heading"></a></h2>
+<section id="id525">
+<h2>17.08<a class="headerlink" href="#id525" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>fix to <code class="docutils literal notranslate"><span class="pre">aprox21</span></code> from Aron Michel (HITS) that fills in missing
 reactions</p></li>
@@ -1159,15 +1181,15 @@ you are using the new table now.</p></li>
 <li><p>add stellar conductivities from Frank Timmes</p></li>
 </ul>
 </section>
-<section id="id504">
-<h2>17.06<a class="headerlink" href="#id504" title="Link to this heading"></a></h2>
+<section id="id526">
+<h2>17.06<a class="headerlink" href="#id526" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>a new Fortran 90 port of VODE has been added</p></li>
 <li><p>the unit tests now require AMReX instead of BoxLib to build</p></li>
 </ul>
 </section>
-<section id="id505">
-<h2>17.01<a class="headerlink" href="#id505" title="Link to this heading"></a></h2>
+<section id="id527">
+<h2>17.01<a class="headerlink" href="#id527" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>we’ve removed the option to integrate molar fractions and instead
 the ODE system always operates on mass fractions (the networks
@@ -1175,8 +1197,8 @@ return derivatives of molar fractions and they are automatically
 converted).</p></li>
 </ul>
 </section>
-<section id="id506">
-<h2>16.12<a class="headerlink" href="#id506" title="Link to this heading"></a></h2>
+<section id="id528">
+<h2>16.12<a class="headerlink" href="#id528" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>a new unit test, <code class="docutils literal notranslate"><span class="pre">test_sdc</span></code>, was created to test the SDC interface
 to the networks</p></li>
@@ -1184,8 +1206,8 @@ to the networks</p></li>
 <li><p>the VODE integrator now supports SDC integration</p></li>
 </ul>
 </section>
-<section id="id507">
-<h2>16.09<a class="headerlink" href="#id507" title="Link to this heading"></a></h2>
+<section id="id529">
+<h2>16.09<a class="headerlink" href="#id529" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>num_rate_groups is now a property of the individual networks</p></li>
 <li><p>a new integration method, Rosenbrock, was added to the BS
@@ -1197,8 +1219,8 @@ load-balancing use</p></li>
 burner and hydro was added to the BS integrator</p></li>
 </ul>
 </section>
-<section id="id508">
-<h2>16.08<a class="headerlink" href="#id508" title="Link to this heading"></a></h2>
+<section id="id530">
+<h2>16.08<a class="headerlink" href="#id530" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">Microphysics/eos/</span></code> has been renamed <code class="docutils literal notranslate"><span class="pre">Microphysics/EOS/</span></code> to better
 conform to the conventions used in Castro and Maestro</p></li>
@@ -1226,8 +1248,8 @@ algorithm that VODE uses (<code class="docutils literal notranslate"><span class
 <li><p>a centered difference numerical Jacobian option was added</p></li>
 </ul>
 </section>
-<section id="id509">
-<h2>16.07<a class="headerlink" href="#id509" title="Link to this heading"></a></h2>
+<section id="id531">
+<h2>16.07<a class="headerlink" href="#id531" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>we now use <code class="docutils literal notranslate"><span class="pre">MICROPHYSICS_HOME</span></code> instead of <code class="docutils literal notranslate"><span class="pre">MICROPHYSICS_DIR</span></code> as the
 environment variable to point to the <code class="docutils literal notranslate"><span class="pre">Microphysics/</span></code> directory.</p></li>

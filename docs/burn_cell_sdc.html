@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>burn_cell &mdash; Microphysics  documentation</title>
+  <title>burn_cell_sdc &mdash; Microphysics  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -26,8 +26,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="burn_cell_sdc" href="burn_cell_sdc.html" />
-    <link rel="prev" title="One Zone Tests" href="one_zone_tests.html" /> 
+    <link rel="next" title="eos_cell" href="eos_cell.html" />
+    <link rel="prev" title="burn_cell" href="burn_cell.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -50,7 +50,7 @@
   </form>
 </div>
     <div class="branch">
-        Branch: <a href="./burn_cell.html">main</a> | <a href="./dev/burn_cell.html">development</a>
+        Branch: <a href="./burn_cell_sdc.html">main</a> | <a href="./dev/burn_cell_sdc.html">development</a>
     </div>
 
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
@@ -94,18 +94,20 @@
 <li class="toctree-l1"><a class="reference internal" href="unit_test_runtime_parameters.html">Unit Test Common Runtime Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="comprehensive_tests.html">Comprehensive Unit Tests</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="one_zone_tests.html">One Zone Tests</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">burn_cell</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="burn_cell.html"><code class="docutils literal notranslate"><span class="pre">burn_cell</span></code></a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">burn_cell_sdc</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#getting-started">Getting Started</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#setting-the-thermodynamics">Setting the thermodynamics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#aux-composition">Aux composition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#advective-terms">Advective terms</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#controlling-time">Controlling time</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#integration-parameters">Integration parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rerunning-a-burn-fail">Rerunning a burn fail</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#building-and-running-the-code">Building and Running the Code</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#working-with-output">Working with Output</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="burn_cell_sdc.html"><code class="docutils literal notranslate"><span class="pre">burn_cell_sdc</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="eos_cell.html"><code class="docutils literal notranslate"><span class="pre">eos_cell</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="jac_cell.html"><code class="docutils literal notranslate"><span class="pre">jac_cell</span></code></a></li>
 </ul>
@@ -137,9 +139,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="one_zone_tests.html">One Zone Tests</a></li>
-      <li class="breadcrumb-item active"><code class="docutils literal notranslate"><span class="pre">burn_cell</span></code></li>
+      <li class="breadcrumb-item active"><code class="docutils literal notranslate"><span class="pre">burn_cell_sdc</span></code></li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/burn_cell.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/burn_cell_sdc.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -147,72 +149,90 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="burn-cell">
-<span id="sec-burn-cell"></span><h1><code class="docutils literal notranslate"><span class="pre">burn_cell</span></code><a class="headerlink" href="#burn-cell" title="Link to this heading"></a></h1>
-<p id="index-0"><code class="docutils literal notranslate"><span class="pre">burn_cell</span></code> is a simple one-zone burn that will evolve a state with
-a network for a specified amount of time.  This can be used to
-understand the timescales involved in a reaction sequence or to
-determine the needed ODE tolerances.  This is designed to work
-with the Strang-split integration wrappers.  The system that is evolved
+  <section id="burn-cell-sdc">
+<span id="sec-burn-cell-sdc"></span><h1><code class="docutils literal notranslate"><span class="pre">burn_cell_sdc</span></code><a class="headerlink" href="#burn-cell-sdc" title="Link to this heading"></a></h1>
+<p id="index-0"><code class="docutils literal notranslate"><span class="pre">burn_cell_sdc</span></code> is a simple one-zone burn analogous to <a class="reference internal" href="burn_cell.html#sec-burn-cell"><span class="std std-ref">burn_cell</span></a> that
+exercises the simplified-SDC code paths in the integrator.
+The system that is evolved
 has the form:</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{align*}
-   \frac{dX_k}{dt} &amp;= \dot{\omega}_k(\rho, X_k, T) \\
-   \frac{de}{dt} &amp;= \epsilon(\rho, X_k, T)
+   \frac{d(\rho X_k)}{dt} &amp;= \Adv{\rho X_k}^{n+1/2} + \rho \dot{\omega}_k(\rho, X_k, T) \\
+   \frac{d(\rho e)}{dt} &amp;= \Adv{\rho e}^{n+1/2} + \rho \epsilon(\rho, X_k, T)
 \end{align*}\end{split}\]</div>
-<p>with density held constant and the temperature found via the equation of state,
-<span class="math notranslate nohighlight">\(T = T(\rho, X_k, e)\)</span>.</p>
+<p>with density constructed as needed via:</p>
+<p><div class="math notranslate nohighlight">
+\[\rho(t) = \rho^n + \Adv{\rho}^{n+1/2} (t - t^n)\]</div>
+</p>
+<p>In this system, we now need to specify the advective terms for the unit test.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Since the energy evolves due to the heat release (or loss)
-from reactions, the temperature will change during the burn
-(unless <code class="docutils literal notranslate"><span class="pre">integrator.call_eos_in_rhs=0</span></code> is set).</p>
+<p>This test can also be used with NSE to test how the integration
+bails out into NSE if the <code class="docutils literal notranslate"><span class="pre">in_nse()</span></code> test is true.</p>
 </div>
 <section id="getting-started">
 <h2>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">burn_cell</span></code> code is located in
-<code class="docutils literal notranslate"><span class="pre">Microphysics/unit_test/burn_cell</span></code>.  An inputs file which sets the
-default parameters for your choice of network is needed to run the
-test.  There are a number of inputs files in the unit test directory
-already with a name list <code class="docutils literal notranslate"><span class="pre">inputs_network</span></code>, where <code class="docutils literal notranslate"><span class="pre">network</span></code>
-is the network you wish to use for your testing.  These can be
-used as a starting point for any explorations.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">burn_cell_sdc</span></code> code is located in
+<code class="docutils literal notranslate"><span class="pre">Microphysics/unit_test/burn_cell_sdc</span></code>.   By default, <code class="docutils literal notranslate"><span class="pre">USE_SIMPLIFIED_SDC=TRUE</span></code>
+is set in the <code class="docutils literal notranslate"><span class="pre">GNUmakefile</span></code>.</p>
 <section id="setting-the-thermodynamics">
 <h3>Setting the thermodynamics<a class="headerlink" href="#setting-the-thermodynamics" title="Link to this heading"></a></h3>
 <p>The parameters that affect the thermodynamics are:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">unit_test.density</span></code> : the initial density</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">unit_test.temperature</span></code> : the initial temperature</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.rhoe</span></code> : the initial <span class="math notranslate nohighlight">\((rho e)\)</span>.  If this is not set (or
+set to be <span class="math notranslate nohighlight">\(&lt; 0\)</span>), then it will be computed from the temperature
+using the EOS.</p></li>
 </ul>
 <p>The composition can be set either by specifying individual mass fractions
 or setting <code class="docutils literal notranslate"><span class="pre">unit_test.uniform_xn</span></code> as described in <a class="reference internal" href="unit_test_runtime_parameters.html#sec-defining-unit-test-composition"><span class="std std-ref">Defining composition</span></a>.</p>
-<p>If the values don’t sum to <code class="docutils literal notranslate"><span class="pre">1</span></code> initially, then the test will do a
-normalization.  This normalization can be disabled by setting:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">unit_test</span><span class="o">.</span><span class="n">skip_initial_normalization</span> <span class="o">=</span> <span class="mi">1</span>
-</pre></div>
-</div>
+</section>
+<section id="aux-composition">
+<h3>Aux composition<a class="headerlink" href="#aux-composition" title="Link to this heading"></a></h3>
+<p>When built with <code class="docutils literal notranslate"><span class="pre">USE_NSE_TABLE=TRUE</span></code> (see <a class="reference internal" href="nse_tabular.html#tabulated-nse"><span class="std std-ref">Tabulated NSE and aprox19</span></a>) or with
+<code class="docutils literal notranslate"><span class="pre">USE_AUX_THERMO=TRUE</span></code> (see <a class="reference internal" href="eos.html#aux-eos-comp"><span class="std std-ref">Auxiliary composition</span></a>) then the auxiliary
+composition, <span class="math notranslate nohighlight">\(Y_e\)</span>, <span class="math notranslate nohighlight">\(\bar{A}\)</span>, <span class="math notranslate nohighlight">\(\langle
+B/A\rangle\)</span>, is defined.</p>
+<p>The auxiliary composition can either be initialized directly via
+<code class="docutils literal notranslate"><span class="pre">unit_test.Aux1</span></code>, <code class="docutils literal notranslate"><span class="pre">unit_test.Aux2</span></code>, and <code class="docutils literal notranslate"><span class="pre">unit_test.Aux3</span></code>, or
+their values can be computed at initialization from the mass fractions
+if <code class="docutils literal notranslate"><span class="pre">unit_test.recompute_aux=1</span></code> is set.</p>
+</section>
+<section id="advective-terms">
+<h3>Advective terms<a class="headerlink" href="#advective-terms" title="Link to this heading"></a></h3>
+<p>But default, the advective terms are set to zero.  In this mode,
+<code class="docutils literal notranslate"><span class="pre">burn_cell_sdc</span></code> largely mimics <code class="docutils literal notranslate"><span class="pre">burn_cell</span></code> (although with a
+slightly different ODE system integrated).</p>
+<p>The advective terms can be set manually via</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.Adv_rho</span></code> : <span class="math notranslate nohighlight">\(\Adv{\rho}^{n+1/2}\)</span></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.Adv_rhoe</span></code> : <span class="math notranslate nohighlight">\(\Adv{\rho e}^{n+1/2}\)</span></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.Adv_X1</span></code>, <code class="docutils literal notranslate"><span class="pre">unit_test.Adv_X2</span></code>, … : <span class="math notranslate nohighlight">\(\Adv{\rho X_1}^{n+1/2}\)</span>, <span class="math notranslate nohighlight">\(\Adv{\rho X_2}^{n+1/2}\)</span>, … (up to <span class="math notranslate nohighlight">\(X_{35}\)</span>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.Adv_Aux1</span></code>, <code class="docutils literal notranslate"><span class="pre">unit_test.Adv_Aux2</span></code>, <code class="docutils literal notranslate"><span class="pre">unit_test.Adv_Aux3</span></code> : <span class="math notranslate nohighlight">\(\Adv{\rho \alpha_1}^{n+1/2}\)</span>, <span class="math notranslate nohighlight">\(\Adv{\rho \alpha_2}^{n+1/2}\)</span>, <span class="math notranslate nohighlight">\(\Adv{\rho \alpha_3}^{n+1/2}\)</span></p></li>
+</ul>
 </section>
 <section id="controlling-time">
-<span id="sec-burn-cell-time"></span><h3>Controlling time<a class="headerlink" href="#controlling-time" title="Link to this heading"></a></h3>
-<p>The test will run unit a time <code class="docutils literal notranslate"><span class="pre">unit_test.tmax</span></code>, outputting the state
-at regular intervals.  The parameters controlling the output are:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.tmax</span></code> : the end point of integration.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.tfirst</span></code> : the first time interval to output.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.nsteps</span></code> : the number of steps to divide the integration into,
-logarithmically-spaced.</p></li>
-</ul>
-<p>If there is only a single step, <code class="docutils literal notranslate"><span class="pre">unit_test.nsteps</span> <span class="pre">=</span> <span class="pre">1</span></code>, then we integrate
-from <span class="math notranslate nohighlight">\([0, \mathrm{tmax}]\)</span>.</p>
-<p>If there are multiple steps, then the first output will be at a time
-<span class="math notranslate nohighlight">\(\mathrm{tmax} / \mathrm{nsteps}\)</span>, and the steps will be
-logarithmically-spaced afterwards.</p>
+<h3>Controlling time<a class="headerlink" href="#controlling-time" title="Link to this heading"></a></h3>
+<p>The integration time and output frequency are controlled by the
+same set of parameters as in <code class="docutils literal notranslate"><span class="pre">burn_cell</span></code>. see <a class="reference internal" href="burn_cell.html#sec-burn-cell-time"><span class="std std-ref">Controlling time</span></a>.</p>
 </section>
 <section id="integration-parameters">
 <h3>Integration parameters<a class="headerlink" href="#integration-parameters" title="Link to this heading"></a></h3>
 <p>The tolerances, choice of Jacobian, and other integration parameters
 can be set via the usual Microphysics runtime parameters, e.g.
 <code class="docutils literal notranslate"><span class="pre">integrator.atol_spec</span></code>.</p>
+</section>
+<section id="rerunning-a-burn-fail">
+<h3>Rerunning a burn fail<a class="headerlink" href="#rerunning-a-burn-fail" title="Link to this heading"></a></h3>
+<p id="index-1">When a network integration encounters a failure, it will output the
+entire burn state to <code class="docutils literal notranslate"><span class="pre">stdout</span></code> (for GPU builds, this needs to be
+enabled explicitly by building with <code class="docutils literal notranslate"><span class="pre">USE_GPU_PRINTF</span></code>).</p>
+<p>The script <code class="docutils literal notranslate"><span class="pre">unit_test/burn_cell_sdc/parse_integration_failure.py</span></code>
+can be used to parse the output (copy and paste the full error into a
+file) and produce the runtime parameter settings needed to reproduce
+the burn.  This is especially important with SDC, since it will contain
+all of the advective terms.</p>
 </section>
 </section>
 <section id="building-and-running-the-code">
@@ -224,43 +244,17 @@ span.prompt1:before {
 }
 </style><span class="prompt1">make</span>
 </pre></div></div><p>and the network and integrator can be changed using the normal
-Microphysics build system parameters, e.g.,</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span class="prompt1">make<span class="w"> </span><span class="nv">NETWORK_DIR</span><span class="o">=</span>aprox19<span class="w"> </span><span class="nv">INTEGRATOR_DIR</span><span class="o">=</span>rkc</span>
-</pre></div></div><p>The build process will automatically create links in the build
-directory to the EOS table and any reaction rate tables needed by your
-choice of network.</p>
+Microphysics build system parameters.</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
 <p>You need to do a <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">clean</span></code> before rebuilding with a different
 network or integrator.</p>
 </div>
-<p>To run the code, in the <code class="docutils literal notranslate"><span class="pre">burn_cell</span></code> directory run:</p>
+<p>To run the code, in the <code class="docutils literal notranslate"><span class="pre">burn_cell_sdc</span></code> directory run:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">main3d</span><span class="o">.</span><span class="n">gnu</span><span class="o">.</span><span class="n">ex</span> <span class="n">inputs</span>
 </pre></div>
 </div>
 <p>where <code class="docutils literal notranslate"><span class="pre">inputs</span></code> is the name of your inputs file.</p>
-</section>
-<section id="working-with-output">
-<h2>Working with Output<a class="headerlink" href="#working-with-output" title="Link to this heading"></a></h2>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>For this part, we’ll assume that the default <code class="docutils literal notranslate"><span class="pre">aprox13</span></code> and
-<code class="docutils literal notranslate"><span class="pre">VODE</span></code> options were used for the network and integrator, and the
-test was run with <code class="docutils literal notranslate"><span class="pre">inputs.aprox13</span></code>.</p>
-</div>
-<p>As the code runs, it will output to <code class="docutils literal notranslate"><span class="pre">stdout</span></code> details of the initial
-and final state and the number of integration steps taken (along with whether
-the burn was successful).  The full history of the thermodynamic state will also be output to a file,
-<code class="docutils literal notranslate"><span class="pre">state_over_time.txt</span></code>, with each line corresponding to one of the
-<code class="docutils literal notranslate"><span class="pre">nsteps</span></code> requested in the time integration.</p>
-<p>The script <code class="docutils literal notranslate"><span class="pre">plot_burn_cell.py</span></code> can be used to visualize the evolution:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span class="prompt1">python<span class="w"> </span>plot_burn_cell.py<span class="w"> </span>state_over_time.txt</span>
-</pre></div></div><p>This will generate the following figure:</p>
-<figure class="align-default">
-<img alt="An example of a plot output by the burn_cell unit test." src="_images/state.png" />
-</figure>
-<p>Only the most abundant species are plotted.  The number of species to plot and the
-limits of <span class="math notranslate nohighlight">\(X\)</span> can be set via runtime parameters (see <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">plot_burn_cell.py</span> <span class="pre">-h</span></code>).</p>
 </section>
 </section>
 
@@ -268,8 +262,8 @@ limits of <span class="math notranslate nohighlight">\(X\)</span> can be set via
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="one_zone_tests.html" class="btn btn-neutral float-left" title="One Zone Tests" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="burn_cell_sdc.html" class="btn btn-neutral float-right" title="burn_cell_sdc" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="burn_cell.html" class="btn btn-neutral float-left" title="burn_cell" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="eos_cell.html" class="btn btn-neutral float-right" title="eos_cell" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

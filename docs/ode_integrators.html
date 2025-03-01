@@ -59,7 +59,7 @@
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="design.html">Design</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
-<li class="toctree-l1"><a class="reference internal" href="autodiff.html">Automatic Differentiation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_system.html">Build System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
@@ -95,10 +95,12 @@
 <p class="caption" role="heading"><span class="caption-text">Util / external libraries</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="util.html">Helper Functions and Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autodiff.html">Automatic Differentiation</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Unit tests</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Overview of Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unit_test_runtime_parameters.html">Unit Test Common Runtime Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="comprehensive_tests.html">Comprehensive Unit Tests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="one_zone_tests.html">One Zone Tests</a></li>
 </ul>
@@ -148,9 +150,12 @@ to store the integration progress, and each integrator needs to
 provide a routine to convert from the integrator’s internal
 representation to the <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> type required by the <code class="docutils literal notranslate"><span class="pre">actual_rhs</span></code>
 and <code class="docutils literal notranslate"><span class="pre">actual_jac</span></code> routine.</p>
-<p>The name of the integrator can be selected at compile time using
-the <code class="docutils literal notranslate"><span class="pre">INTEGRATOR_DIR</span></code> variable in the makefile. Presently,
-the allowed options are:</p>
+<div class="admonition note" id="index-0">
+<p class="admonition-title">Note</p>
+<p>The integrator is chosen at compile-time using
+the <code class="docutils literal notranslate"><span class="pre">INTEGRATOR_DIR</span></code> variable in the makefile.</p>
+</div>
+<p>Presently, allowed integrators are:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">BackwardEuler</span></code>: an implicit first-order accurate backward-Euler
 method.  An error estimate is done by taking 2 half steps and
@@ -158,15 +163,15 @@ comparing to a single full step.  This error is then used to control
 the timestep by using the local truncation error scaling.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">ForwardEuler</span></code>: an explicit first-order forward-Euler method.  This is
 meant for testing purposes only.  No Jacobian is needed.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">QSS</span></code>: the quasi-steady-state method of <span id="id1">[<a class="reference internal" href="zreferences.html#id37" title="David R. Mott, Elaine S. Oran, and Bram van Leer. A quasi-steady-state solver for the stiff ordinary differential equations of reaction kinetics. Journal of Computational Physics, 164(2):407-428, 2000. doi:https://doi.org/10.1006/jcph.2000.6605.">31</a>]</span> (see also
-<span id="id2">[<a class="reference internal" href="zreferences.html#id38" title="M W Guidry and J A Harris. Explicit integration of extremely stiff reaction networks: quasi-steady-state methods. Computational Science &amp; Discovery, 6(1):015002, jan 2013. URL: https://dx.doi.org/10.1088/1749-4699/6/1/015002, doi:10.1088/1749-4699/6/1/015002.">32</a>]</span>). This uses a second-order predictor-corrector method,
+<li><p><code class="docutils literal notranslate"><span class="pre">QSS</span></code>: the quasi-steady-state method of <span id="id1">[<a class="reference internal" href="zreferences.html#id37" title="David R. Mott, Elaine S. Oran, and Bram van Leer. A quasi-steady-state solver for the stiff ordinary differential equations of reaction kinetics. Journal of Computational Physics, 164(2):407-428, 2000. doi:https://doi.org/10.1006/jcph.2000.6605.">32</a>]</span> (see also
+<span id="id2">[<a class="reference internal" href="zreferences.html#id38" title="M W Guidry and J A Harris. Explicit integration of extremely stiff reaction networks: quasi-steady-state methods. Computational Science &amp; Discovery, 6(1):015002, jan 2013. URL: https://dx.doi.org/10.1088/1749-4699/6/1/015002, doi:10.1088/1749-4699/6/1/015002.">33</a>]</span>). This uses a second-order predictor-corrector method,
 and is designed specifically for handling coupled ODE systems for chemical
 and nuclear reactions. However, this integrator has difficulty near NSE,
 so we don’t recommend its use in production for nuclear astrophysics.</p></li>
 </ul>
-<ul id="index-0">
+<ul id="index-1">
 <li><p><code class="docutils literal notranslate"><span class="pre">RKC</span></code>: a stabilized explicit Runge-Kutta-Chebyshev integrator based
-on <span id="id3">[<a class="reference internal" href="zreferences.html#id44" title="B.P. Sommeijer, L.F. Shampine, and J.G. Verwer. RKC: An explicit solver for parabolic PDEs. Journal of Computational and Applied Mathematics, 88(2):315–326, March 1998. URL: https://linkinghub.elsevier.com/retrieve/pii/S0377042797002197, doi:10.1016/S0377-0427(97)00219-7.">33</a>]</span>.  This does not require a Jacobian, but
+on <span id="id3">[<a class="reference internal" href="zreferences.html#id44" title="B.P. Sommeijer, L.F. Shampine, and J.G. Verwer. RKC: An explicit solver for parabolic PDEs. Journal of Computational and Applied Mathematics, 88(2):315–326, March 1998. URL: https://linkinghub.elsevier.com/retrieve/pii/S0377042797002197, doi:10.1016/S0377-0427(97)00219-7.">34</a>]</span>.  This does not require a Jacobian, but
 does need to estimate the spectral radius of the system, which is
 done internally.  This works for moderately stiff problems.</p>
 <p>The spectral radius is estimated by default using the power method,
@@ -175,8 +180,8 @@ the <a class="reference external" href="https://en.wikipedia.org/wiki/Gershgorin
 is used instead.</p>
 </li>
 </ul>
-<ul id="index-1">
-<li><p><code class="docutils literal notranslate"><span class="pre">VODE</span></code>: the VODE <span id="id4">[<a class="reference internal" href="zreferences.html#id26" title="P. N. Brown, G. D. Byrne, and A. C. Hindmarsh. VODE: a variable coefficient ode solver. SIAM J. Sci. Stat. Comput., 10:1038-1051, 1989.">34</a>]</span> integration package.  We ported this
+<ul id="index-2">
+<li><p><code class="docutils literal notranslate"><span class="pre">VODE</span></code>: the VODE <span id="id4">[<a class="reference internal" href="zreferences.html#id26" title="P. N. Brown, G. D. Byrne, and A. C. Hindmarsh. VODE: a variable coefficient ode solver. SIAM J. Sci. Stat. Comput., 10:1038-1051, 1989.">35</a>]</span> integration package.  We ported this
 integrator to C++ and removed the non-stiff integration code paths.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -190,7 +195,7 @@ setting the build parameter <code class="docutils literal notranslate"><span cla
 </ul>
 <p>We recommend that you use the VODE solver, as it is the most
 robust.</p>
-<div class="admonition note" id="index-2">
+<div class="admonition note" id="index-3">
 <p class="admonition-title">Note</p>
 <p>The runtime parameter <code class="docutils literal notranslate"><span class="pre">integrator.scale_system</span></code>
 will scale the internal energy that the integrator sees by the initial
@@ -220,7 +225,7 @@ it will return an error.</p></li>
 <p>All implicit integrators use the LINPACK LU decomposition routines.</p>
 <p>For the templated networks (<code class="docutils literal notranslate"><span class="pre">aprox13</span></code>, <code class="docutils literal notranslate"><span class="pre">aprox19</span></code>, …) the implementation
 is done using <code class="docutils literal notranslate"><span class="pre">consexpr</span></code> loops over the equations and no pivoting is allowed.</p>
-<p id="index-3">For the other networks (usually pynucastro networks), the implementation is
+<p id="index-4">For the other networks (usually pynucastro networks), the implementation is
 provided in <code class="docutils literal notranslate"><span class="pre">Microphysics/util/linpack.H</span></code> and is templated on the number
 of equations.  Pivoting can be disabled by setting <code class="docutils literal notranslate"><span class="pre">integrator.linalg_do_pivoting=0</span></code>.</p>
 </section>
@@ -278,7 +283,7 @@ equations during a simulation.  Typically, the smaller the tolerance
 is, the more accurate the results will be.  However, if the tolerance
 is too small, the code may run for too long, the ODE solver will
 never converge, or it might require at timestep that underflows.</p>
-<p id="index-4">There are separate tolerances for the mass fractions and the energy,
+<p id="index-5">There are separate tolerances for the mass fractions and the energy,
 and there are both relative and absolute tolerances which act together.
 The tolerances are:</p>
 <ul class="simple">
@@ -302,7 +307,7 @@ best served via a relative tolerance.</p></li>
 will set the error that the integrator tries to achieve.  If the mass fraction
 is large, <span class="math notranslate nohighlight">\(\mathcal{O}(1)\)</span>, then the relative tolerance dominates.</p>
 <p>Some suggestions when setting tolerances:</p>
-<ul class="simple" id="index-5">
+<ul class="simple" id="index-6">
 <li><p>If a burn does not converge with one type of Jacobian (analytic or
 numerical) then it may do better with the other type.  This can be
 automated via the <code class="docutils literal notranslate"><span class="pre">integrator.use_burn_retry</span></code> mechanism described
@@ -338,7 +343,7 @@ fractions.  Looser than this can produce large errors.</p>
 </section>
 <section id="controlling-species-sum-k-x-k-1">
 <h2>Controlling Species <span class="math notranslate nohighlight">\(\sum_k X_k = 1\)</span><a class="headerlink" href="#controlling-species-sum-k-x-k-1" title="Link to this heading"></a></h2>
-<p id="index-6">The ODE integrators don’t know about the constraint that</p>
+<p id="index-7">The ODE integrators don’t know about the constraint that</p>
 <p><div class="math notranslate nohighlight">
 \[\sum_k X_k = 1\]</div>
 </p>
@@ -367,7 +372,7 @@ all in <span class="math notranslate nohighlight">\([\mathtt{SMALL\_X\_SAFE}, 1.
 </section>
 <section id="retry-mechanism">
 <h2>Retry Mechanism<a class="headerlink" href="#retry-mechanism" title="Link to this heading"></a></h2>
-<p id="index-7">Integration can fail for a number of reasons.  Some of the errors you may see are:</p>
+<p id="index-8">Integration can fail for a number of reasons.  Some of the errors you may see are:</p>
 <ol class="arabic simple">
 <li><p>Not enough steps allowed (<code class="docutils literal notranslate"><span class="pre">integrator.ode_max_steps</span></code>)</p></li>
 <li><p>The timestep selected by the integrator is too small (comparable to

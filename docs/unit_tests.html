@@ -26,8 +26,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Comprehensive Unit Tests" href="comprehensive_tests.html" />
-    <link rel="prev" title="Helper Functions and Libraries" href="util.html" /> 
+    <link rel="next" title="Unit Test Common Runtime Parameters" href="unit_test_runtime_parameters.html" />
+    <link rel="prev" title="Automatic Differentiation" href="autodiff.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -59,7 +59,7 @@
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="design.html">Design</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
-<li class="toctree-l1"><a class="reference internal" href="autodiff.html">Automatic Differentiation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_system.html">Build System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
@@ -86,6 +86,7 @@
 <p class="caption" role="heading"><span class="caption-text">Util / external libraries</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="util.html">Helper Functions and Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autodiff.html">Automatic Differentiation</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Unit tests</span></p>
 <ul class="current">
@@ -95,6 +96,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#infrastructure-tests">Infrastructure tests</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="unit_test_runtime_parameters.html">Unit Test Common Runtime Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="comprehensive_tests.html">Comprehensive Unit Tests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="one_zone_tests.html">One Zone Tests</a></li>
 </ul>
@@ -134,7 +136,7 @@
            <div itemprop="articleBody">
              
   <section id="overview-of-unit-tests">
-<h1>Overview of Unit Tests<a class="headerlink" href="#overview-of-unit-tests" title="Link to this heading"></a></h1>
+<span id="sec-unit-tests"></span><h1>Overview of Unit Tests<a class="headerlink" href="#overview-of-unit-tests" title="Link to this heading"></a></h1>
 <p>There are a few unit tests in Microphysics that operate on a generic
 EOS, reaction network, conductivity, or some smaller component to
 Microphysics.  Many of these tests exercise the main interfaces in
@@ -233,23 +235,26 @@ modeled.</p>
 <ul id="index-1">
 <li><p><code class="docutils literal notranslate"><span class="pre">burn_cell</span></code> :</p>
 <p>given a <span class="math notranslate nohighlight">\(\rho\)</span>, <span class="math notranslate nohighlight">\(T\)</span>, and <span class="math notranslate nohighlight">\(X_k\)</span>, integrate a reaction network through a specified time
-and output the new state.</p>
+and output the new state.  See <a class="reference internal" href="burn_cell.html#sec-burn-cell"><span class="std std-ref">burn_cell</span></a> for more information.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">burn_cell_primordial_chem</span></code> :</p>
 <p>similar to <code class="docutils literal notranslate"><span class="pre">burn_cell</span></code> except specific for the primordial chemistry network.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">burn_cell_sdc</span></code> :</p>
-<p>similar to <code class="docutils literal notranslate"><span class="pre">burn_cell</span></code> except this uses the SDC integration code paths.</p>
+<dl class="simple">
+<dt>similar to <code class="docutils literal notranslate"><span class="pre">burn_cell</span></code> except this uses the SDC integration code paths.</dt><dd><p>See <a class="reference internal" href="burn_cell_sdc.html#sec-burn-cell-sdc"><span class="std std-ref">burn_cell_sdc</span></a> for more information.</p>
+</dd>
+</dl>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">eos_cell</span></code> :</p>
 <p>given a <span class="math notranslate nohighlight">\(\rho\)</span>, <span class="math notranslate nohighlight">\(T\)</span>, and <span class="math notranslate nohighlight">\(X_k\)</span>, call the equation of state and print out
-the thermodynamic information.</p>
+the thermodynamic information.  See <a class="reference internal" href="eos_cell.html#sec-eos-cell"><span class="std std-ref">eos_cell</span></a> for more information.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">jac_cell</span></code> :</p>
 <p>for a single thermodynamic state, compute the analytic Jacobian
 (using the functions provided by the network) and a numerical
 finite-difference approximation to the Jacobian and output them,
-element-by-element, to the display.</p>
+element-by-element, to the display.  See <a class="reference internal" href="jac_cell.html#sec-jac-cell"><span class="std std-ref">jac_cell</span></a> for more information.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">nse_table_cell</span></code> :</p>
 <p>given a <span class="math notranslate nohighlight">\(\rho\)</span>, <span class="math notranslate nohighlight">\(T\)</span>, and <span class="math notranslate nohighlight">\(Y_e\)</span>, evaluate the NSE state via table interpolation
@@ -294,8 +299,8 @@ state, it outputs the RHS that the integrator will see.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="util.html" class="btn btn-neutral float-left" title="Helper Functions and Libraries" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="comprehensive_tests.html" class="btn btn-neutral float-right" title="Comprehensive Unit Tests" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="autodiff.html" class="btn btn-neutral float-left" title="Automatic Differentiation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="unit_test_runtime_parameters.html" class="btn btn-neutral float-right" title="Unit Test Common Runtime Parameters" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

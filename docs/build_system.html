@@ -1,0 +1,343 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Build System &mdash; Microphysics  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="_static/theme_overrides.css?v=2e394b92" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=f281be69"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Runtime parameters" href="rp_intro.html" />
+    <link rel="prev" title="Data Structures" href="data_structures.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Microphysics
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    <div class="branch">
+        Branch: <a href="./build_system.html">main</a> | <a href="./dev/build_system.html">development</a>
+    </div>
+
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Microphysics overview</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design.html">Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Build System</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#environment-variables">Environment variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#automatically-generated-files">Automatically generated files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#controlling-choice-of-physics">Controlling choice of physics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#targets">Targets</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="eos.html">Equations of State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eos_implementations.html">Available Equations of State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reaction networks</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="networks-overview.html">Overview of Reaction Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networks.html">Available Reaction Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="templated_networks.html">Templated Network Righthand Sides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="screening.html">Screening of Reaction Rates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="neutrinos.html">Neutrino Losses</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ODE integrators</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="integrators.html">Reaction ODE System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ode_integrators.html">ODE Integrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nse.html">NSE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Util / external libraries</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="util.html">Helper Functions and Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autodiff.html">Automatic Differentiation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Unit tests</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Overview of Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unit_test_runtime_parameters.html">Unit Test Common Runtime Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="comprehensive_tests.html">Comprehensive Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="one_zone_tests.html">One Zone Tests</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">References</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="citing.html">Citing Microphysics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changes.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zreferences.html">References</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Index</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="genindex.html">Index</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Microphysics</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Build System</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/build_system.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="build-system">
+<h1>Build System<a class="headerlink" href="#build-system" title="Link to this heading"></a></h1>
+<p>Microphysics leverages the AMReX build system.  GNU make is the
+primary build system, but CMake is partially supported.  Here we focus
+on the GNU make build system.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>All of the build variables supported by the AMReX build system can
+be used with Microphysics, for example:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">COMP</span></code> : the compiler system to use</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">USE_CUDA</span></code> : build for NVIDIA GPUs with CUDA</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">USE_HIP</span></code> : build for AMD GPUs with HIP/ROCm</p></li>
+</ul>
+<p>See the <a class="reference external" href="https://amrex-codes.github.io/amrex/docs_html/BuildingAMReX.html">AMReX GNU Make Docs</a></p>
+</div>
+<p>There are two main makefile stubs:</p>
+<ul class="simple" id="index-0">
+<li><p><code class="docutils literal notranslate"><span class="pre">Make.Microphysics</span></code> : this is used by the unit tests within Microphysics and it
+defines the variables needed by the AMReX build system, including specifying the
+location of the files.  It also defines the rules for some files that are created
+at build time.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Make.Microphysics_extern</span></code> : this is the core makefile stub for Microphysics
+that interprets the build variables that enable / disable different functionality.
+This is meant to be included into any application code’s build system.</p></li>
+</ul>
+<p>additionally directories have their own <code class="docutils literal notranslate"><span class="pre">Make.package</span></code> files that specify
+the files needed for the build and some rules for making intermediary files.</p>
+<section id="environment-variables">
+<h2>Environment variables<a class="headerlink" href="#environment-variables" title="Link to this heading"></a></h2>
+<p>The build system relies on some environment variables to find the source:</p>
+<ul class="simple" id="index-1">
+<li><p><code class="docutils literal notranslate"><span class="pre">AMREX_HOME</span></code> : this should point to the top-level <code class="docutils literal notranslate"><span class="pre">amrex/</span></code> directory</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MICROPHYSICS_HOME</span></code> : this is needed by application codes, and
+should point to the top level <code class="docutils literal notranslate"><span class="pre">Microphysics/</span></code> directory.  For
+building unit tests within the <code class="docutils literal notranslate"><span class="pre">Microphysics/</span></code> directory itself,
+this does not need to be explicitly set.</p></li>
+</ul>
+</section>
+<section id="automatically-generated-files">
+<h2>Automatically generated files<a class="headerlink" href="#automatically-generated-files" title="Link to this heading"></a></h2>
+<p>There are a few source files that are created automatically at
+compile-time.  These are placed in the
+<code class="docutils literal notranslate"><span class="pre">tmp_build_dir/microphysics_sources/</span></code> sub-directory under the
+directory you run <code class="docutils literal notranslate"><span class="pre">make</span></code> (if building through an application code,
+the sub-directory may have a different name).</p>
+<p id="index-2">The main files are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">network_properties.H</span></code> : this defines the properties of the composition that
+make up the network (and therefore, used by the equation of state and other
+physics).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">extern_parameters.H</span></code> : this defines all of the runtime parameters that are
+part of the build.  At the moment, they are treated as global variables
+(using managed memory on GPUs), but a <code class="docutils literal notranslate"><span class="pre">struct</span></code> that carries their values
+is also available through <code class="docutils literal notranslate"><span class="pre">extern_type.H</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">AMReX_buildInfo.cpp</span></code> : this defines functions that return the git hashes,
+compilers, compiler flags, and more meta-data about the build.  This file
+is automatically deleted once it is built to insure it is always up-to-date.
+The functions it defines are used when writing the <code class="docutils literal notranslate"><span class="pre">job_info</span></code> file
+in the plotfiles that some unit tests produce.</p></li>
+</ul>
+</section>
+<section id="controlling-choice-of-physics">
+<h2>Controlling choice of physics<a class="headerlink" href="#controlling-choice-of-physics" title="Link to this heading"></a></h2>
+<p>The choice of physics to include in an application is done at build time, and is
+controlled by a number of make variables.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>You can query the value of any variable in the Microphysics build system by doing
+<cite>make print-&lt;NAME&gt;</cite> where <cite>&lt;NAME&gt;</cite> is the name of the variable.</p>
+<p>For example,</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>print-EOS_DIR
+</pre></div>
+</div>
+<p>will tell you what EOS is being used.</p>
+</div>
+<p>The following control whether certain physics modules are included in
+the build process.  Note: an EOS and network are always required.
+These can be set to <code class="docutils literal notranslate"><span class="pre">TRUE</span></code> to enable and <code class="docutils literal notranslate"><span class="pre">FALSE</span></code> to disable specific features.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">USE_CONDUCTIVITY</span></code> : determines whether a conductivity routine
+should be included in the list of build packages.  If enabled, this
+also defines the <code class="docutils literal notranslate"><span class="pre">CONDUCTIVITY</span></code> preprocessor variable.  Default:
+<code class="docutils literal notranslate"><span class="pre">FALSE</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">USE_NEUTRINOS</span></code> : determines whether a neutrino cooling term
+should be applied in the reaction network energy generation
+equation.  See <a class="reference internal" href="neutrinos.html#neutrino-loss"><span class="std std-ref">Neutrino Losses</span></a>.  The default is set by each
+individual network.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">USE_NET_NET</span></code> : determines whether the self-consistent NSE
+infrastructure is included in the build.  See
+<a class="reference internal" href="nse_net.html#self-consistent-nse"><span class="std std-ref">Self-consistent NSE</span></a>.  No default is set.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">USE_NSE_TABLE</span></code> : determines whether the tabular NSE
+infrastructure is included in the build.  See <a class="reference internal" href="nse_tabular.html#tabulated-nse"><span class="std std-ref">Tabulated NSE and aprox19</span></a>.
+No default is set.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">USE_RATES</span></code> : for templated reaction networks (see
+<a class="reference internal" href="templated_networks.html#sec-templated-rhs"><span class="std std-ref">Templated Network Righthand Sides</span></a>) determines whether we include the
+<code class="docutils literal notranslate"><span class="pre">rates/</span></code> set of reaction rates in the build system.  Also defines
+the <code class="docutils literal notranslate"><span class="pre">RATES</span></code> preprocessor variable.  The default is set by each of
+the templated networks separately.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">USE_REACT</span></code> : determines whether we need to include any of the
+source related to reaction networks or integrators and sets the
+<code class="docutils literal notranslate"><span class="pre">REACTIONS</span></code> preprocessor variable.  Note: even if this is set to
+<code class="docutils literal notranslate"><span class="pre">TRUE</span></code>, the <code class="docutils literal notranslate"><span class="pre">network_properties.H</span></code> file is still generated.  No
+default is set.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">USE_SCREENING</span></code> : determines whether the screening routines are
+included in the list of build packages.  If enabled, this also
+defines the <code class="docutils literal notranslate"><span class="pre">SCREENING</span></code> preprocessor variable which is used in
+some networks to disable screening completely.  Note: it is also
+possible to set the screening routine to <code class="docutils literal notranslate"><span class="pre">null</span></code> which would have
+the same effect (see <a class="reference internal" href="screening.html#sec-screening"><span class="std std-ref">Screening of Reaction Rates</span></a>).  The default is set by
+each individual network.</p></li>
+</ul>
+<p>The following control the choice of implementation for the different physics modules:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">CONDUCTIVITY_DIR</span></code> : the name of the conductivity implementation to use,
+relative to <code class="docutils literal notranslate"><span class="pre">Microphysics/conductivity/</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">EOS_DIR</span></code> : the name of the EOS to use, relative to <code class="docutils literal notranslate"><span class="pre">Microphysics/EOS/</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">INTEGRATOR_DIR</span></code> : the name of the integrator to use, relative to
+<code class="docutils literal notranslate"><span class="pre">Microphysics/integration/</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">NETWORK_DIR</span></code> : the name of the network to use, relative to <code class="docutils literal notranslate"><span class="pre">Microphysics/networks/</span></code>.
+If <code class="docutils literal notranslate"><span class="pre">general_null</span></code> is chosen, then the inputs file is determined by
+either <code class="docutils literal notranslate"><span class="pre">GENERAL_NET_INPUTS</span></code> or <code class="docutils literal notranslate"><span class="pre">NETWORK_INPUTS</span></code> (see <a class="reference internal" href="networks.html#sec-networks-general-null"><span class="std std-ref">general_null</span></a>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">OPACITY_DIR</span></code> : the name of the opacity implementation to use, relative
+to <code class="docutils literal notranslate"><span class="pre">Microphysics/opacity/</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SCREEN_METHOD</span></code> : the name of the screening implementation to use.  The choices
+are listed in <a class="reference internal" href="screening.html#sec-screening"><span class="std std-ref">Screening of Reaction Rates</span></a>.</p></li>
+</ul>
+<p>The following control the time-integration method used by the reaction
+network integration:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">USE_SIMPLIFIED_SDC</span></code> : enable the simplified-SDC coupling of hydro and reactions.
+See <a class="reference internal" href="sdc.html#sec-simplified-sdc"><span class="std std-ref">Simplified SDC</span></a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">USE_TRUE_SDC</span></code> : enable the true-SDC coupling of hydro and reactions.
+See <a class="reference internal" href="sdc.html#sec-true-sdc"><span class="std std-ref">“True” SDC</span></a>.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If neither of these are set to <code class="docutils literal notranslate"><span class="pre">TRUE</span></code>, then Strang-splitting coupling
+will be used.</p>
+</div>
+</section>
+<section id="targets">
+<h2>Targets<a class="headerlink" href="#targets" title="Link to this heading"></a></h2>
+<p>For the unit tests, simply doing</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make
+</pre></div>
+</div>
+<p>in the test directory will build the test.  There are a few other targets defined.  The most important
+is <code class="docutils literal notranslate"><span class="pre">clean</span></code>.  Doing:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>clean
+</pre></div>
+</div>
+<p>will remove all the build temporary files (including the <code class="docutils literal notranslate"><span class="pre">tmp_build_dir/</span></code>).</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>If you want to use a different EOS or reaction network (or any other physics), then you
+should always do <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">clean</span></code> first in the build directory.</p>
+</div>
+<p>Some other targets include:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">nettables</span></code> : create the symlinks for any weak reaction rate tables that are part of the
+network.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">table</span></code> : create a symlink for the <code class="docutils literal notranslate"><span class="pre">helm_table.dat</span></code> EOS table if the <code class="docutils literal notranslate"><span class="pre">helmholtz</span></code> EOS is used.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nsetable</span></code> : create a symlink for the NSE table if <code class="docutils literal notranslate"><span class="pre">USE_NSE_TABLE=TRUE</span></code> is set.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">build_status</span></code> : report the current git versions of Microphysics and AMReX</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_extern_params</span></code> : this will simply parse the runtime parameters and execute the
+<code class="docutils literal notranslate"><span class="pre">write_probin.py</span></code> script that generates the headers and C++ files necessary to use
+the parameters.  These will be generated under <code class="docutils literal notranslate"><span class="pre">tmp_build_dir/microphysics_sources/</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">net_prop_debug</span></code> : this will simply create the <code class="docutils literal notranslate"><span class="pre">network_properties.H</span></code> file for the
+current network and output it into <code class="docutils literal notranslate"><span class="pre">tmp_build_dir/microphysics_sources/</span></code>.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="data_structures.html" class="btn btn-neutral float-left" title="Data Structures" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="rp_intro.html" class="btn btn-neutral float-right" title="Runtime parameters" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Microphysics Development Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+
+</body>
+</html>

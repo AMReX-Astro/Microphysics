@@ -1,3 +1,5 @@
+.. _sec:networks:
+
 ***************************
 Available Reaction Networks
 ***************************
@@ -7,6 +9,13 @@ of state and transport coefficient routines.  Even if there are no
 reactions taking place, a network still needs to be defined, so
 Microphysics knows the properties of the fluid.
 
+.. index:: NETWORK_DIR
+
+.. note::
+
+   The network is set at compile-time via the ``NETWORK_DIR``
+   make variable.
+
 .. tip::
 
    If reactions can be ignored, then the ``general_null`` network can
@@ -15,11 +24,15 @@ Microphysics knows the properties of the fluid.
 .. note::
 
    Many of the networks here are generated using `pynucastro
-   <https://pynucastro.github.io/>`_ using the ``AmrexAstroCxxNetwork``
+   <https://pynucastro.github.io/>`_ :cite:`pynucastro, pynucastro2` using the ``AmrexAstroCxxNetwork``
    class.
+
+.. _sec:networks:general_null:
 
 ``general_null``
 ================
+
+.. index:: general_null
 
 ``general_null`` is a bare interface for a nuclear reaction network ---
 no reactions are enabled. The
@@ -136,21 +149,34 @@ burning.  This network is managed by pynucastro.
    above).
 
 
-nova networks
-=============
+The ``nova`` network:
+=====================
 
-The ``nova`` and ``nova2`` networks both are intended for modeling classical novae.
+This network is composed of 17 nuclei: $\isotm{H}{1,2}$, $\isotm{He}{3,4}$, $\isotm{Be}{7}$, $\isotm{B}{8}$,
+$\isotm{C}{12,13}$, $\isotm{N}{13-15}$, $\isotm{O}{14-17}$, $\isotm{F}{17,18}$ and is used to model the onset of
+a classical novae thermonuclear runaway. The first set of nuclei, $\isotm{H}{1,2}$, $\isotm{He}{3,4}$ represent
+the pp-chain sector of the reaction network, while the second set, of $\isotm{Be}{7}$, and $\isotm{B}{8}$, describe
+the involvement of the x-process. Finally, all the remaining nuclei are active participants of
+the CNO cycle with endpoints at $\isotm{F}{17}$ and $\isotm{F}{18}$. The triple-$\alpha$ reaction
+$\alpha(\alpha\alpha,\gamma)\isotm{C}{12}$, serves as bridge between the nuclei of first and the last set.
 
+The the cold-CNO chain of reactions of the CN-branch are:
 
-* ``nova`` focuses just on CNO/hot-CNO:
+* :math:`\isotm{C}{12}(p,\gamma)\isotm{N}{13}(\beta^{+}\nu_e)\isotm{C}{13}(p,\gamma)`
 
-  .. figure:: nova.png
-     :align: center
+while the NO-branch chain of reactions is:
 
-* ``nova2`` expands ``nova`` by adding the pp-chain nuclei:
+* :math:`\isotm{N}{14}(p,\gamma)\isotm{O}{15}(\beta^{+})\isotm{N}{15}(p,\gamma)\isotm{O}{16}(p,\gamma)\isotm{F}{17}(\beta^{+}\nu_e)\isotm{O}{17}`
 
-  .. figure:: nova2.png
-     :align: center
+where the isotopes $\isotm{N}{15}$ and $\isotm{O}{17}$ may decay back into $\isotm{C}{12}$ and $\isotm{N}{14}$ through
+$\isotm{N}{15}(p,\alpha)\isotm{C}{12}$ and $\isotm{O}{17}(p,\alpha)\isotm{N}{14}$ respectively.
+
+.. figure:: ../../networks/nova/nova.png
+   :align: center
+
+Once the temperature reaches a threshold of $\gtrsim 10^8\,\mathrm{K}$, the fast $p$-captures, for example,
+$\isotm{N}{13}(p,\gamma)\isotm{O}{14}$, are more likely than the $\beta^{+}$-decays $\isotm{N}{13}(\beta^{+}\nu_e)\isotm{C}{13}$
+reactions. These rates are also included in this network.
 
 
 He-burning networks
@@ -238,6 +264,8 @@ It has the following features / simplifications:
   :math:`\isotm{P}{31}` are removed, since they're not in the
   original aprox13 network.
 
+Overall, there are 18 nuclei and 85 rates.
+
 The network appears as:
 
 .. figure:: ../../networks/he-burn/he-burn-18a/he-burn-18a.png
@@ -275,6 +303,9 @@ p)\isotm{Ne}{21}` rate sequence, which allows an enhancement to the
 :math:`\isotm{C}{12}(p, \gamma)\isotm{N}{13}(\alpha, p)\isotm{O}{16}`
 rate due to the additional proton release.
 
+Overall, there are 22 nuclei and 93 rates.
+
+
 .. figure:: ../../networks/he-burn/he-burn-22a/he-burn-22a.png
    :align: center
 
@@ -296,10 +327,20 @@ to double-neutron capture.  Finally, it splits the protons into two groups,
 with those participating in reactions with mass numbers > 48 treated as a separate
 group (for photo-disintegration reactions).
 
+Overall, there are 31 nuclei and 137 rates, including 6 tabular weak rates.
+
 The iron group here resembles ``aprox21``, but has the addition of stable $\isotm{Ni}{58}$
 and doesn't include the approximation to $\isotm{Cr}{56}$.
 
+The full network appears as:
+
 .. figure:: ../../networks/he-burn/he-burn-31anp/he-burn-31anp.png
+   :align: center
+
+and a zoom-in on the iron group with the weak rates highlighted appears
+as:
+
+.. figure:: ../../networks/he-burn/he-burn-31anp/he-burn-31anp-zoom.png
    :align: center
 
 
@@ -309,9 +350,18 @@ and doesn't include the approximation to $\isotm{Cr}{56}$.
 This has the most complete iron-group, with nuclei up to $\isotm{Zn}{60}$ and no approximations
 to the neutron captures.  This network can be quite slow.
 
+Overall, there are 36 nuclei and 173 rates, including 12 tabular weak rates.
+
+The full network appears as:
+
 .. figure:: ../../networks/he-burn/he-burn-36a/he-burn-36a.png
    :align: center
 
+and a zoom in on the iron group with the weak rates highlighted appears
+as:
+
+.. figure:: ../../networks/he-burn/he-burn-36a/he-burn-36a-zoom.png
+   :align: center
 
 
 ``CNO_He_burn``
@@ -461,7 +511,7 @@ triple-\ :math:`\alpha`, and rp-breakout burning up through :math:`^{56}\mathrm{
 using the ideas from :cite:`wallacewoosley:1981`, but with modern
 reaction rates from ReacLib :cite:`ReacLib` where available.
 This network was used for the X-ray burst studies in
-:cite:`xrb:II`, :cite:`xrb:III`, and more details are contained in those papers.
+:cite:`xrb:II, xrb:III`, and more details are contained in those papers.
 
 ``triple_alpha_plus_cago``
 ==========================

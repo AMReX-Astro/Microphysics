@@ -1,0 +1,474 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>jac_cell &mdash; Microphysics  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="_static/theme_overrides.css?v=2e394b92" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=f281be69"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Citing Microphysics" href="citing.html" />
+    <link rel="prev" title="eos_cell" href="eos_cell.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Microphysics
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    <div class="branch">
+        Branch: <a href="./jac_cell.html">main</a> | <a href="./dev/jac_cell.html">development</a>
+    </div>
+
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Microphysics overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design.html">Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_system.html">Build System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="eos.html">Equations of State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eos_implementations.html">Available Equations of State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reaction networks</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="networks-overview.html">Overview of Reaction Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networks.html">Available Reaction Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="templated_networks.html">Templated Network Righthand Sides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="screening.html">Screening of Reaction Rates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="neutrinos.html">Neutrino Losses</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ODE integrators</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="integrators.html">Reaction ODE System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ode_integrators.html">ODE Integrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nse.html">NSE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Util / external libraries</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="util.html">Helper Functions and Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autodiff.html">Automatic Differentiation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Unit tests</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Overview of Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unit_test_runtime_parameters.html">Unit Test Common Runtime Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="comprehensive_tests.html">Comprehensive Unit Tests</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="one_zone_tests.html">One Zone Tests</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="burn_cell.html"><code class="docutils literal notranslate"><span class="pre">burn_cell</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="burn_cell_sdc.html"><code class="docutils literal notranslate"><span class="pre">burn_cell_sdc</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="eos_cell.html"><code class="docutils literal notranslate"><span class="pre">eos_cell</span></code></a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">jac_cell</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#getting-started">Getting Started</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#setting-the-thermodynamics">Setting the thermodynamics</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#building-and-running-the-code">Building and Running the Code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#output">Output</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">References</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="citing.html">Citing Microphysics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changes.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zreferences.html">References</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Index</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="genindex.html">Index</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Microphysics</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="one_zone_tests.html">One Zone Tests</a></li>
+      <li class="breadcrumb-item active"><code class="docutils literal notranslate"><span class="pre">jac_cell</span></code></li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/jac_cell.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="jac-cell">
+<span id="sec-jac-cell"></span><h1><code class="docutils literal notranslate"><span class="pre">jac_cell</span></code><a class="headerlink" href="#jac-cell" title="Link to this heading"></a></h1>
+<p id="index-0"><code class="docutils literal notranslate"><span class="pre">jac_cell</span></code> is used to test the accuracy of an analytic Jacobian
+provided by a network, but comparing to a finite-difference
+approximation.  Given a thermodynamic state, <code class="docutils literal notranslate"><span class="pre">jac_cell</span></code> evaluates
+the analytic Jacobian as well as a numerical approximation to it, and
+then outputs (to <code class="docutils literal notranslate"><span class="pre">stdout</span></code>) the Jacobian elements side-by-side for
+each method of computing the Jacobian.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Some integrators, like VODE, have their own numerical Jacobian
+routines.  This test uses the implementation in
+<code class="docutils literal notranslate"><span class="pre">integration/util/numerical_jacobian.H</span></code>, which closely follows the ideas
+of the VODE numerical approximation, as described in <span id="id1">[<a class="reference internal" href="zreferences.html#id55" title="Krishnan Radhakrishnan and Alan C. Hindmarsh. Description and Use of LSODE, the Livermore Solver for Ordinary Differential Equations. Lawrence Livermore National Laboratory Report UCRL-ID-113855, pages 124, 1993.">42</a>]</span>.</p>
+</div>
+<section id="getting-started">
+<h2>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">jac_cell</span></code> code is located in
+<code class="docutils literal notranslate"><span class="pre">Microphysics/unit_test/jac_cell</span></code>.  An inputs file which sets the
+default parameters for your thermodynamic state is needed to run the
+test.</p>
+<section id="setting-the-thermodynamics">
+<h3>Setting the thermodynamics<a class="headerlink" href="#setting-the-thermodynamics" title="Link to this heading"></a></h3>
+<p>The parameters that affect the thermodynamics are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.density</span></code> : the initial density</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.temperature</span></code> : the initial temperature</p></li>
+</ul>
+<p>The composition can be set either by specifying individual mass fractions
+or setting <code class="docutils literal notranslate"><span class="pre">unit_test.uniform_xn</span></code> as described in <a class="reference internal" href="unit_test_runtime_parameters.html#sec-defining-unit-test-composition"><span class="std std-ref">Defining composition</span></a>.</p>
+<p>If the values don’t sum to <code class="docutils literal notranslate"><span class="pre">1</span></code> initially, then the test will do a
+normalization.  This normalization can be disabled by setting:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">unit_test</span><span class="o">.</span><span class="n">skip_initial_normalization</span> <span class="o">=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="building-and-running-the-code">
+<h2>Building and Running the Code<a class="headerlink" href="#building-and-running-the-code" title="Link to this heading"></a></h2>
+<p>The code can be built simply as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><style type="text/css">
+span.prompt1:before {
+  content: "$ ";
+}
+</style><span class="prompt1">make</span>
+</pre></div></div><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, this will build with the <code class="docutils literal notranslate"><span class="pre">aprox13</span></code> network, which
+uses the C++ templating method (<a class="reference internal" href="templated_networks.html#sec-templated-rhs"><span class="std std-ref">Templated Network Righthand Sides</span></a>) of
+building the analytic Jacobian at compile-time.  The network can be
+changed via the build parameter <code class="docutils literal notranslate"><span class="pre">NETWORK_DIR</span></code>.</p>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The screening routines provided by Microphysics do not return the
+derivative of the screening factor with respect to composition.  This
+means that the analytic Jacobian provided by the network will ignore
+this contribution, but the numerical Jacobian will implicitly include
+it.</p>
+<p>To compare just the network Jacobian elements, it is suggested that
+you build with <code class="docutils literal notranslate"><span class="pre">SCREEN_METHOD=null</span></code>.</p>
+</div>
+<p>The build process will automatically create links in the build
+directory to any required EOS table.</p>
+<p>To run the code, in the <code class="docutils literal notranslate"><span class="pre">jac_cell</span></code> directory run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">main3d</span><span class="o">.</span><span class="n">gnu</span><span class="o">.</span><span class="n">ex</span> <span class="n">inputs</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">inputs</span></code> is the provided inputs file.  You may edit the
+thermodynamic state in that file prior to running.</p>
+</section>
+<section id="output">
+<h2>Output<a class="headerlink" href="#output" title="Link to this heading"></a></h2>
+<p>All output is directed to <code class="docutils literal notranslate"><span class="pre">stdout</span></code>.  Example output is shown below
+(this output includes screening, highlighting the difference that the
+screening composition derivatives make):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Initializing</span> <span class="n">AMReX</span> <span class="p">(</span><span class="mf">24.12</span><span class="o">-</span><span class="mi">14</span><span class="o">-</span><span class="n">gb3f67385e62f</span><span class="p">)</span><span class="o">...</span>
+<span class="n">AMReX</span> <span class="p">(</span><span class="mf">24.12</span><span class="o">-</span><span class="mi">14</span><span class="o">-</span><span class="n">gb3f67385e62f</span><span class="p">)</span> <span class="n">initialized</span>
+<span class="n">starting</span> <span class="n">the</span> <span class="n">single</span> <span class="n">zone</span> <span class="n">burn</span><span class="o">...</span>
+         <span class="n">element</span>           <span class="n">numerical</span>            <span class="n">analytic</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">He4</span><span class="p">,</span>  <span class="n">He4</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">386901.0562</span>         <span class="o">-</span><span class="mf">389364.2481</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">He4</span><span class="p">,</span>  <span class="n">C12</span><span class="p">)</span> <span class="o">=</span>           <span class="mf">1538.83613</span>          <span class="mf">1527.484671</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">He4</span><span class="p">,</span>  <span class="n">O16</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">11984.43367</span>         <span class="o">-</span><span class="mf">11604.67208</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">He4</span><span class="p">,</span> <span class="n">Ne20</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">226229.9236</span>         <span class="o">-</span><span class="mf">225570.3475</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">He4</span><span class="p">,</span> <span class="n">Mg24</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">118533.7928</span>         <span class="o">-</span><span class="mf">117650.0754</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">He4</span><span class="p">,</span> <span class="n">Si28</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">13102.92749</span>         <span class="o">-</span><span class="mf">12026.86162</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">He4</span><span class="p">,</span>  <span class="n">S32</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">13739.13964</span>         <span class="o">-</span><span class="mf">12490.59603</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">He4</span><span class="p">,</span> <span class="n">Ar36</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">8735.824012</span>         <span class="o">-</span><span class="mf">7328.055338</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">He4</span><span class="p">,</span> <span class="n">Ca40</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">1917.505444</span>         <span class="o">-</span><span class="mf">359.8025782</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">He4</span><span class="p">,</span> <span class="n">Ti44</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">1801.580358</span>         <span class="o">-</span><span class="mf">100.6766494</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">He4</span><span class="p">,</span> <span class="n">Cr48</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">1902.430547</span>         <span class="o">-</span><span class="mf">63.38388515</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">He4</span><span class="p">,</span> <span class="n">Fe52</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">1987.160097</span>         <span class="o">-</span><span class="mf">13.86553734</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">He4</span><span class="p">,</span> <span class="n">Ni56</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">2104.486528</span>      <span class="mf">8.889625789e-06</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">He4</span><span class="p">,</span>    <span class="n">e</span><span class="p">)</span> <span class="o">=</span>     <span class="o">-</span><span class="mf">3.302305762e-14</span>     <span class="o">-</span><span class="mf">3.302305672e-14</span>
+
+<span class="n">J</span><span class="p">(</span> <span class="n">C12</span><span class="p">,</span>  <span class="n">He4</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">1544.888563</span>         <span class="o">-</span><span class="mf">1669.808542</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">C12</span><span class="p">,</span>  <span class="n">C12</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">14163.60628</span>         <span class="o">-</span><span class="mf">14170.71908</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">C12</span><span class="p">,</span>  <span class="n">O16</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">26.31037223</span>         <span class="o">-</span><span class="mf">15.90510669</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">C12</span><span class="p">,</span> <span class="n">Ne20</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">22.40516055</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">C12</span><span class="p">,</span> <span class="n">Mg24</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">31.64594981</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">C12</span><span class="p">,</span> <span class="n">Si28</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">39.31004354</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">C12</span><span class="p">,</span>  <span class="n">S32</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">45.98896291</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">C12</span><span class="p">,</span> <span class="n">Ar36</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">52.01096713</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">C12</span><span class="p">,</span> <span class="n">Ca40</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">57.57313075</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">C12</span><span class="p">,</span> <span class="n">Ti44</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">62.80086484</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">C12</span><span class="p">,</span> <span class="n">Cr48</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">67.77757842</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">C12</span><span class="p">,</span> <span class="n">Fe52</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">72.56164943</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">C12</span><span class="p">,</span> <span class="n">Ni56</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">77.19392628</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">C12</span><span class="p">,</span>    <span class="n">e</span><span class="p">)</span> <span class="o">=</span>     <span class="o">-</span><span class="mf">1.637120092e-15</span>     <span class="o">-</span><span class="mf">1.637119821e-15</span>
+
+<span class="n">J</span><span class="p">(</span> <span class="n">O16</span><span class="p">,</span>  <span class="n">He4</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">44251.69974</span>         <span class="o">-</span><span class="mf">44202.73796</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">O16</span><span class="p">,</span>  <span class="n">C12</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">2167.279422</span>          <span class="mf">2205.366875</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">O16</span><span class="p">,</span>  <span class="n">O16</span><span class="p">)</span> <span class="o">=</span>          <span class="o">-</span><span class="mf">46494.3376</span>         <span class="o">-</span><span class="mf">46450.60357</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">O16</span><span class="p">,</span> <span class="n">Ne20</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">6268.468387</span>          <span class="mf">6319.326423</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">O16</span><span class="p">,</span> <span class="n">Mg24</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">58.72063931</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">O16</span><span class="p">,</span> <span class="n">Si28</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">67.00603097</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">O16</span><span class="p">,</span>  <span class="n">S32</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">75.55571467</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">O16</span><span class="p">,</span> <span class="n">Ar36</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">84.28093184</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">O16</span><span class="p">,</span> <span class="n">Ca40</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">93.12930016</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">O16</span><span class="p">,</span> <span class="n">Ti44</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">102.0668362</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">O16</span><span class="p">,</span> <span class="n">Cr48</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">111.0723391</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">O16</span><span class="p">,</span> <span class="n">Fe52</span><span class="p">)</span> <span class="o">=</span>          <span class="o">-</span><span class="mf">120.129117</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">O16</span><span class="p">,</span> <span class="n">Ni56</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">129.2264943</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">O16</span><span class="p">,</span>    <span class="n">e</span><span class="p">)</span> <span class="o">=</span>      <span class="mf">4.384415228e-16</span>      <span class="mf">4.384411885e-16</span>
+
+<span class="n">J</span><span class="p">(</span><span class="n">Ne20</span><span class="p">,</span>  <span class="n">He4</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">1071437.231</span>         <span class="o">-</span><span class="mf">1077714.229</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ne20</span><span class="p">,</span>  <span class="n">C12</span><span class="p">)</span> <span class="o">=</span>           <span class="mf">10295.4965</span>          <span class="mf">10403.37149</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ne20</span><span class="p">,</span>  <span class="n">O16</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">56883.61948</span>          <span class="mf">58036.66646</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ne20</span><span class="p">,</span> <span class="n">Ne20</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">1145561.976</span>         <span class="o">-</span><span class="mf">1143650.054</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ne20</span><span class="p">,</span> <span class="n">Mg24</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">2527.616919</span>       <span class="mf">0.003495578555</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ne20</span><span class="p">,</span> <span class="n">Si28</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">3061.548719</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ne20</span><span class="p">,</span>  <span class="n">S32</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">3544.317148</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ne20</span><span class="p">,</span> <span class="n">Ar36</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">3993.040141</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ne20</span><span class="p">,</span> <span class="n">Ca40</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">4417.866583</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ne20</span><span class="p">,</span> <span class="n">Ti44</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">4825.366803</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ne20</span><span class="p">,</span> <span class="n">Cr48</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">5219.853315</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ne20</span><span class="p">,</span> <span class="n">Fe52</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">5604.291196</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ne20</span><span class="p">,</span> <span class="n">Ni56</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">5980.914429</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ne20</span><span class="p">,</span>    <span class="n">e</span><span class="p">)</span> <span class="o">=</span>     <span class="o">-</span><span class="mf">8.494068043e-14</span>     <span class="o">-</span><span class="mf">8.494067874e-14</span>
+
+<span class="n">J</span><span class="p">(</span><span class="n">Mg24</span><span class="p">,</span>  <span class="n">He4</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">654844.2806</span>          <span class="mf">657000.6182</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Mg24</span><span class="p">,</span>  <span class="n">C12</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">435.4230384</span>           <span class="mf">15.9212509</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Mg24</span><span class="p">,</span>  <span class="n">O16</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">929.9962063</span>           <span class="mf">15.9212509</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Mg24</span><span class="p">,</span> <span class="n">Ne20</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">1364203.922</span>          <span class="mf">1362901.075</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Mg24</span><span class="p">,</span> <span class="n">Mg24</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">704261.6416</span>         <span class="o">-</span><span class="mf">705900.4607</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Mg24</span><span class="p">,</span> <span class="n">Si28</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">1944.546334</span>      <span class="mf">0.0001724818945</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Mg24</span><span class="p">,</span>  <span class="n">S32</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">2231.306642</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Mg24</span><span class="p">,</span> <span class="n">Ar36</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">2505.576486</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Mg24</span><span class="p">,</span> <span class="n">Ca40</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">2770.981131</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Mg24</span><span class="p">,</span> <span class="n">Ti44</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">3030.000681</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Mg24</span><span class="p">,</span> <span class="n">Cr48</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">3284.193323</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Mg24</span><span class="p">,</span> <span class="n">Fe52</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">3534.649522</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Mg24</span><span class="p">,</span> <span class="n">Ni56</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">3782.237956</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Mg24</span><span class="p">,</span>    <span class="n">e</span><span class="p">)</span> <span class="o">=</span>      <span class="mf">3.138100654e-14</span>      <span class="mf">3.138100793e-14</span>
+
+<span class="n">J</span><span class="p">(</span><span class="n">Si28</span><span class="p">,</span>  <span class="n">He4</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">733740.6263</span>          <span class="mf">739362.5011</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Si28</span><span class="p">,</span>  <span class="n">C12</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">236.8292666</span>          <span class="mf">18.57479272</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Si28</span><span class="p">,</span>  <span class="n">O16</span><span class="p">)</span> <span class="o">=</span>           <span class="mf">574.578026</span>          <span class="mf">18.59079981</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Si28</span><span class="p">,</span> <span class="n">Ne20</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">1117.750234</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Si28</span><span class="p">,</span> <span class="n">Mg24</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">825105.1884</span>          <span class="mf">823550.5326</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Si28</span><span class="p">,</span> <span class="n">Si28</span><span class="p">)</span> <span class="o">=</span>          <span class="o">-</span><span class="mf">82267.7835</span>         <span class="o">-</span><span class="mf">84188.03177</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Si28</span><span class="p">,</span>  <span class="n">S32</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">2244.127686</span>          <span class="mf">2.723790242</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Si28</span><span class="p">,</span> <span class="n">Ar36</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">2532.726899</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Si28</span><span class="p">,</span> <span class="n">Ca40</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">2803.275313</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Si28</span><span class="p">,</span> <span class="n">Ti44</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">3058.658852</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Si28</span><span class="p">,</span> <span class="n">Cr48</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">3302.735385</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Si28</span><span class="p">,</span> <span class="n">Fe52</span><span class="p">)</span> <span class="o">=</span>            <span class="mf">3538.1484</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Si28</span><span class="p">,</span> <span class="n">Ni56</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">3766.666407</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Si28</span><span class="p">,</span>    <span class="n">e</span><span class="p">)</span> <span class="o">=</span>      <span class="mf">7.404959203e-14</span>      <span class="mf">7.404958884e-14</span>
+
+<span class="n">J</span><span class="p">(</span> <span class="n">S32</span><span class="p">,</span>  <span class="n">He4</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">3580.328682</span>         <span class="o">-</span><span class="mf">3712.987952</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">S32</span><span class="p">,</span>  <span class="n">C12</span><span class="p">)</span> <span class="o">=</span>           <span class="mf">8.04608259</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">S32</span><span class="p">,</span>  <span class="n">O16</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">10.40027404</span>       <span class="mf">0.002248083797</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">S32</span><span class="p">,</span> <span class="n">Ne20</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">22.96819788</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">S32</span><span class="p">,</span> <span class="n">Mg24</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">32.64411602</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">S32</span><span class="p">,</span> <span class="n">Si28</span><span class="p">)</span> <span class="o">=</span>           <span class="mf">96174.2781</span>          <span class="mf">96214.89322</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">S32</span><span class="p">,</span>  <span class="n">S32</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">99978.56511</span>         <span class="o">-</span><span class="mf">99930.99407</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">S32</span><span class="p">,</span> <span class="n">Ar36</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">42.78877369</span>          <span class="mf">11.02602735</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">S32</span><span class="p">,</span> <span class="n">Ca40</span><span class="p">)</span> <span class="o">=</span>           <span class="o">-</span><span class="mf">59.590923</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">S32</span><span class="p">,</span> <span class="n">Ti44</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">64.96182659</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">S32</span><span class="p">,</span> <span class="n">Cr48</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">70.09376854</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">S32</span><span class="p">,</span> <span class="n">Fe52</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">75.06398858</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">S32</span><span class="p">,</span> <span class="n">Ni56</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">79.83062948</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span> <span class="n">S32</span><span class="p">,</span>    <span class="n">e</span><span class="p">)</span> <span class="o">=</span>     <span class="o">-</span><span class="mf">1.735789154e-15</span>     <span class="o">-</span><span class="mf">1.735789442e-15</span>
+
+<span class="n">J</span><span class="p">(</span><span class="n">Ar36</span><span class="p">,</span>  <span class="n">He4</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">46086.53162</span>          <span class="mf">46453.96399</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ar36</span><span class="p">,</span>  <span class="n">C12</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">24.11889018</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ar36</span><span class="p">,</span>  <span class="n">O16</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">26.26894988</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ar36</span><span class="p">,</span> <span class="n">Ne20</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">60.49242539</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ar36</span><span class="p">,</span> <span class="n">Mg24</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">86.63689247</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ar36</span><span class="p">,</span> <span class="n">Si28</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">108.1539016</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ar36</span><span class="p">,</span>  <span class="n">S32</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">112545.6504</span>          <span class="mf">112418.8663</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ar36</span><span class="p">,</span> <span class="n">Ar36</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">65833.81509</span>          <span class="o">-</span><span class="mf">65977.3066</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ar36</span><span class="p">,</span> <span class="n">Ca40</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">160.4642177</span>          <span class="mf">1.609672543</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ar36</span><span class="p">,</span> <span class="n">Ti44</span><span class="p">)</span> <span class="o">=</span>           <span class="mf">173.235213</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ar36</span><span class="p">,</span> <span class="n">Cr48</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">186.8760509</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ar36</span><span class="p">,</span> <span class="n">Fe52</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">199.9634644</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ar36</span><span class="p">,</span> <span class="n">Ni56</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">212.5928074</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ar36</span><span class="p">,</span>    <span class="n">e</span><span class="p">)</span> <span class="o">=</span>      <span class="mf">4.796861622e-15</span>      <span class="mf">4.796861932e-15</span>
+
+<span class="n">J</span><span class="p">(</span><span class="n">Ca40</span><span class="p">,</span>  <span class="n">He4</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">68936.76349</span>          <span class="mf">69694.52161</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ca40</span><span class="p">,</span>  <span class="n">C12</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">21.37672362</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ca40</span><span class="p">,</span>  <span class="n">O16</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">92.60590241</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ca40</span><span class="p">,</span> <span class="n">Ne20</span><span class="p">)</span> <span class="o">=</span>           <span class="mf">172.688813</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ca40</span><span class="p">,</span> <span class="n">Mg24</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">235.8250397</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ca40</span><span class="p">,</span> <span class="n">Si28</span><span class="p">)</span> <span class="o">=</span>           <span class="mf">289.279374</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ca40</span><span class="p">,</span>  <span class="n">S32</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">336.6818312</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ca40</span><span class="p">,</span> <span class="n">Ar36</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">73674.38243</span>          <span class="mf">73294.33591</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ca40</span><span class="p">,</span> <span class="n">Ca40</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">3181.015849</span>         <span class="o">-</span><span class="mf">3601.602832</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ca40</span><span class="p">,</span> <span class="n">Ti44</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">605.9215887</span>          <span class="mf">146.8474287</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ca40</span><span class="p">,</span> <span class="n">Cr48</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">496.0195798</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ca40</span><span class="p">,</span> <span class="n">Fe52</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">531.7806992</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ca40</span><span class="p">,</span> <span class="n">Ni56</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">566.6106385</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ca40</span><span class="p">,</span>    <span class="n">e</span><span class="p">)</span> <span class="o">=</span>      <span class="mf">1.005604098e-14</span>       <span class="mf">1.00560404e-14</span>
+
+<span class="n">J</span><span class="p">(</span><span class="n">Ti44</span><span class="p">,</span>  <span class="n">He4</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">2668.743332</span>          <span class="mf">2690.820423</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ti44</span><span class="p">,</span>  <span class="n">C12</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">1.238968178</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ti44</span><span class="p">,</span>  <span class="n">O16</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">5.219659626</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ti44</span><span class="p">,</span> <span class="n">Ne20</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">8.176705476</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ti44</span><span class="p">,</span> <span class="n">Mg24</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">10.62185414</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ti44</span><span class="p">,</span> <span class="n">Si28</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">12.77460702</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ti44</span><span class="p">,</span>  <span class="n">S32</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">14.74456604</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ti44</span><span class="p">,</span> <span class="n">Ar36</span><span class="p">)</span> <span class="o">=</span>           <span class="mf">16.5926625</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ti44</span><span class="p">,</span> <span class="n">Ca40</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">3978.151195</span>          <span class="mf">3959.795738</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ti44</span><span class="p">,</span> <span class="n">Ti44</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">1410.451232</span>         <span class="o">-</span><span class="mf">1430.507487</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ti44</span><span class="p">,</span> <span class="n">Cr48</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">21.71303639</span>       <span class="mf">0.002593936486</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ti44</span><span class="p">,</span> <span class="n">Fe52</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">23.32886523</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ti44</span><span class="p">,</span> <span class="n">Ni56</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">24.91917548</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ti44</span><span class="p">,</span>    <span class="n">e</span><span class="p">)</span> <span class="o">=</span>      <span class="mf">3.036977677e-16</span>      <span class="mf">3.036977135e-16</span>
+
+<span class="n">J</span><span class="p">(</span><span class="n">Cr48</span><span class="p">,</span>  <span class="n">He4</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">614.7614844</span>          <span class="mf">623.7272557</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Cr48</span><span class="p">,</span>  <span class="n">C12</span><span class="p">)</span> <span class="o">=</span>        <span class="o">-</span><span class="mf">0.1747033379</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Cr48</span><span class="p">,</span>  <span class="n">O16</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">1.201593305</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Cr48</span><span class="p">,</span> <span class="n">Ne20</span><span class="p">)</span> <span class="o">=</span>            <span class="mf">2.1753907</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Cr48</span><span class="p">,</span> <span class="n">Mg24</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">2.947870284</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Cr48</span><span class="p">,</span> <span class="n">Si28</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">3.605375763</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Cr48</span><span class="p">,</span>  <span class="n">S32</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">4.190958113</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Cr48</span><span class="p">,</span> <span class="n">Ar36</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">4.728616507</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Cr48</span><span class="p">,</span> <span class="n">Ca40</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">5.232734331</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Cr48</span><span class="p">,</span> <span class="n">Ti44</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">1390.049151</span>          <span class="mf">1384.336707</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Cr48</span><span class="p">,</span> <span class="n">Cr48</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">754.4384225</span>         <span class="o">-</span><span class="mf">760.6122813</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Cr48</span><span class="p">,</span> <span class="n">Fe52</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">6.621805499</span>      <span class="mf">0.0006014485747</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Cr48</span><span class="p">,</span> <span class="n">Ni56</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">7.057441608</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Cr48</span><span class="p">,</span>    <span class="n">e</span><span class="p">)</span> <span class="o">=</span>       <span class="mf">1.19432887e-16</span>      <span class="mf">1.194328695e-16</span>
+
+<span class="n">J</span><span class="p">(</span><span class="n">Fe52</span><span class="p">,</span>  <span class="n">He4</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">632.9421872</span>          <span class="mf">643.7409355</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Fe52</span><span class="p">,</span>  <span class="n">C12</span><span class="p">)</span> <span class="o">=</span>        <span class="o">-</span><span class="mf">0.1711193576</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Fe52</span><span class="p">,</span>  <span class="n">O16</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">1.500523358</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Fe52</span><span class="p">,</span> <span class="n">Ne20</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">2.686529769</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Fe52</span><span class="p">,</span> <span class="n">Mg24</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">3.629742825</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Fe52</span><span class="p">,</span> <span class="n">Si28</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">4.434187596</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Fe52</span><span class="p">,</span>  <span class="n">S32</span><span class="p">)</span> <span class="o">=</span>           <span class="mf">5.15193241</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Fe52</span><span class="p">,</span> <span class="n">Ar36</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">5.811846257</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Fe52</span><span class="p">,</span> <span class="n">Ca40</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">6.431285246</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Fe52</span><span class="p">,</span> <span class="n">Ti44</span><span class="p">)</span> <span class="o">=</span>           <span class="mf">7.02131108</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Fe52</span><span class="p">,</span> <span class="n">Cr48</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">831.5828167</span>          <span class="mf">823.9935726</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Fe52</span><span class="p">,</span> <span class="n">Fe52</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">172.1130683</span>         <span class="o">-</span><span class="mf">180.2532886</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Fe52</span><span class="p">,</span> <span class="n">Ni56</span><span class="p">)</span> <span class="o">=</span>           <span class="mf">8.67797769</span>      <span class="mf">0.0001155651353</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Fe52</span><span class="p">,</span>    <span class="n">e</span><span class="p">)</span> <span class="o">=</span>        <span class="mf">1.4407613e-16</span>      <span class="mf">1.440761083e-16</span>
+
+<span class="n">J</span><span class="p">(</span><span class="n">Ni56</span><span class="p">,</span>  <span class="n">He4</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">190.5614891</span>          <span class="mf">194.1182245</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ni56</span><span class="p">,</span>  <span class="n">C12</span><span class="p">)</span> <span class="o">=</span>       <span class="o">-</span><span class="mf">0.04871014481</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ni56</span><span class="p">,</span>  <span class="n">O16</span><span class="p">)</span> <span class="o">=</span>         <span class="mf">0.5045792589</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ni56</span><span class="p">,</span> <span class="n">Ne20</span><span class="p">)</span> <span class="o">=</span>         <span class="mf">0.8977755497</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ni56</span><span class="p">,</span> <span class="n">Mg24</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">1.210925284</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ni56</span><span class="p">,</span> <span class="n">Si28</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">1.478328594</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ni56</span><span class="p">,</span>  <span class="n">S32</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">1.717144845</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ni56</span><span class="p">,</span> <span class="n">Ar36</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">1.936906672</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ni56</span><span class="p">,</span> <span class="n">Ca40</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">2.143324048</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ni56</span><span class="p">,</span> <span class="n">Ti44</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">2.340035525</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ni56</span><span class="p">,</span> <span class="n">Cr48</span><span class="p">)</span> <span class="o">=</span>           <span class="mf">2.52947455</span>                    <span class="mi">0</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ni56</span><span class="p">,</span> <span class="n">Fe52</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">196.8315355</span>          <span class="mf">194.1182245</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ni56</span><span class="p">,</span> <span class="n">Ni56</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">2.892625537</span>     <span class="o">-</span><span class="mf">0.0001244547611</span>
+<span class="n">J</span><span class="p">(</span><span class="n">Ni56</span><span class="p">,</span>    <span class="n">e</span><span class="p">)</span> <span class="o">=</span>      <span class="mf">4.749774962e-17</span>      <span class="mf">4.749774706e-17</span>
+
+<span class="n">J</span><span class="p">(</span>   <span class="n">e</span><span class="p">,</span>  <span class="n">He4</span><span class="p">)</span> <span class="o">=</span>      <span class="mf">8.557355646e+23</span>      <span class="mf">8.612933787e+23</span>
+<span class="n">J</span><span class="p">(</span>   <span class="n">e</span><span class="p">,</span>  <span class="n">C12</span><span class="p">)</span> <span class="o">=</span>      <span class="mf">3.253492329e+21</span>      <span class="mf">3.293956754e+21</span>
+<span class="n">J</span><span class="p">(</span>   <span class="n">e</span><span class="p">,</span>  <span class="n">O16</span><span class="p">)</span> <span class="o">=</span>      <span class="mf">1.407824852e+22</span>      <span class="mf">1.326089094e+22</span>
+<span class="n">J</span><span class="p">(</span>   <span class="n">e</span><span class="p">,</span> <span class="n">Ne20</span><span class="p">)</span> <span class="o">=</span>      <span class="mf">5.099953876e+23</span>      <span class="mf">5.085260898e+23</span>
+<span class="n">J</span><span class="p">(</span>   <span class="n">e</span><span class="p">,</span> <span class="n">Mg24</span><span class="p">)</span> <span class="o">=</span>      <span class="mf">2.852905494e+23</span>      <span class="mf">2.833327761e+23</span>
+<span class="n">J</span><span class="p">(</span>   <span class="n">e</span><span class="p">,</span> <span class="n">Si28</span><span class="p">)</span> <span class="o">=</span>      <span class="mf">2.258348807e+22</span>      <span class="mf">2.015807656e+22</span>
+<span class="n">J</span><span class="p">(</span>   <span class="n">e</span><span class="p">,</span>  <span class="n">S32</span><span class="p">)</span> <span class="o">=</span>      <span class="mf">2.278872757e+22</span>      <span class="mf">2.001064883e+22</span>
+<span class="n">J</span><span class="p">(</span>   <span class="n">e</span><span class="p">,</span> <span class="n">Ar36</span><span class="p">)</span> <span class="o">=</span>       <span class="mf">1.55712523e+22</span>      <span class="mf">1.244521857e+22</span>
+<span class="n">J</span><span class="p">(</span>   <span class="n">e</span><span class="p">,</span> <span class="n">Ca40</span><span class="p">)</span> <span class="o">=</span>      <span class="mf">3.918079028e+21</span>      <span class="mf">4.446572283e+20</span>
+<span class="n">J</span><span class="p">(</span>   <span class="n">e</span><span class="p">,</span> <span class="n">Ti44</span><span class="p">)</span> <span class="o">=</span>      <span class="mf">3.973002198e+21</span>      <span class="mf">1.959966253e+20</span>
+<span class="n">J</span><span class="p">(</span>   <span class="n">e</span><span class="p">,</span> <span class="n">Cr48</span><span class="p">)</span> <span class="o">=</span>       <span class="mf">4.23547637e+21</span>       <span class="mf">1.21440394e+20</span>
+<span class="n">J</span><span class="p">(</span>   <span class="n">e</span><span class="p">,</span> <span class="n">Fe52</span><span class="p">)</span> <span class="o">=</span>      <span class="mf">4.413681758e+21</span>      <span class="mf">2.675297734e+19</span>
+<span class="n">J</span><span class="p">(</span>   <span class="n">e</span><span class="p">,</span> <span class="n">Ni56</span><span class="p">)</span> <span class="o">=</span>      <span class="mf">4.682037199e+21</span>     <span class="o">-</span><span class="mf">1.725529485e+13</span>
+<span class="n">J</span><span class="p">(</span>   <span class="n">e</span><span class="p">,</span>    <span class="n">e</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">74499.43446</span>          <span class="mf">74499.57032</span>
+
+<span class="n">AMReX</span> <span class="p">(</span><span class="mf">24.12</span><span class="o">-</span><span class="mi">14</span><span class="o">-</span><span class="n">gb3f67385e62f</span><span class="p">)</span> <span class="n">finalized</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="eos_cell.html" class="btn btn-neutral float-left" title="eos_cell" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="citing.html" class="btn btn-neutral float-right" title="Citing Microphysics" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Microphysics Development Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+
+</body>
+</html>

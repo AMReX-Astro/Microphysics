@@ -57,11 +57,12 @@
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Design</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#structure">Structure</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#design-philosophy">Design Philosophy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#design-philosophy">Design philosophy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#gpu-considerations">GPU considerations</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
-<li class="toctree-l1"><a class="reference internal" href="autodiff.html">Automatic Differentiation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_system.html">Build System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
@@ -88,10 +89,12 @@
 <p class="caption" role="heading"><span class="caption-text">Util / external libraries</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="util.html">Helper Functions and Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autodiff.html">Automatic Differentiation</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Unit tests</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Overview of Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unit_test_runtime_parameters.html">Unit Test Common Runtime Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="comprehensive_tests.html">Comprehensive Unit Tests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="one_zone_tests.html">One Zone Tests</a></li>
 </ul>
@@ -137,9 +140,9 @@
 <p>The high-level directory structure delineates the types of microphysics
 and the generic solvers:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">conductivity</span></code>: thermal conductivity routines</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">constants</span></code>: fundamental constants</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">Docs</span></code>: the sphinx source for this documentation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">conductivity/</span></code>: thermal conductivity routines</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">constants/</span></code>: fundamental constants</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Docs/</span></code>: the sphinx source for this documentation</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">EOS/</span></code>: the various equations of state</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">integration/</span></code>: the ODE integration routines used for the
 reaction networks</p></li>
@@ -158,9 +161,14 @@ reaction networks.</p></li>
 need any application code to build, but will require AMReX.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">util/</span></code>: linear algebra solvers and other routines.</p></li>
 </ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>All quantities are assumed to be in CGS units, unless otherwise
+specified.</p>
+</div>
 </section>
 <section id="design-philosophy">
-<h2>Design Philosophy<a class="headerlink" href="#design-philosophy" title="Link to this heading"></a></h2>
+<h2>Design philosophy<a class="headerlink" href="#design-philosophy" title="Link to this heading"></a></h2>
 <p>Any application that uses Microphysics will at minimum need to
 choose an EOS and a network. These two components work together. The
 design philosophy is that the EOS depends on the network, but not the
@@ -178,13 +186,28 @@ specified via mass fractions of the species, and uses the properties
 of the species defined by the network to interpret the state.</p>
 <p>We try to maximize code reuse in the Microphysics source, so the
 solvers (ODE integration for the network and Newton-Raphson root
-finding for the EOS) is separated from the specific implementations of
+finding for the EOS) are separated from the specific implementations of
 the microphysics.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>All quantities are assumed to be in CGS units, unless otherwise
-specified.</p>
-</div>
+</section>
+<section id="gpu-considerations">
+<h2>GPU considerations<a class="headerlink" href="#gpu-considerations" title="Link to this heading"></a></h2>
+<p id="index-0">All of the Microphysics routines are written to run on GPUs.  This is
+enabled in application codes by using the AMReX lambda-capturing
+mechanism (see the <a class="reference external" href="https://amrex-codes.github.io/amrex/docs_html/GPU.html">AMReX GPU documentation</a>
+for more information).</p>
+<p>This means leveraging the AMReX data-structures, macros, and
+functions.  The unit tests (see <a class="reference internal" href="unit_tests.html#sec-unit-tests"><span class="std std-ref">Overview of Unit Tests</span></a>) provide a good
+reference for how to interface the Microphysics solvers and physics
+terms with an AMReX-based code.</p>
+<p>There are a few places where Microphysics behaves slightly differently
+when running on a CPU vs. a GPU:</p>
+<ul class="simple">
+<li><p>In the VODE integrator, we disable Jacobian-caching to save memory.
+See <a class="reference internal" href="ode_integrators.html#ch-networks-integrators"><span class="std std-ref">ODE Integrators</span></a>.</p></li>
+<li><p>In general we disable printing from GPU kernels, due to register
+pressure.  Some output can be enabled by compiling with
+<code class="docutils literal notranslate"><span class="pre">USE_GPU_PRINTF=TRUE</span></code>.</p></li>
+</ul>
 </section>
 </section>
 

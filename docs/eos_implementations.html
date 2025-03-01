@@ -59,7 +59,7 @@
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="design.html">Design</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
-<li class="toctree-l1"><a class="reference internal" href="autodiff.html">Automatic Differentiation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_system.html">Build System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
@@ -98,10 +98,12 @@
 <p class="caption" role="heading"><span class="caption-text">Util / external libraries</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="util.html">Helper Functions and Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autodiff.html">Automatic Differentiation</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Unit tests</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Overview of Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unit_test_runtime_parameters.html">Unit Test Common Runtime Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="comprehensive_tests.html">Comprehensive Unit Tests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="one_zone_tests.html">One Zone Tests</a></li>
 </ul>
@@ -143,6 +145,11 @@
   <section id="available-equations-of-state">
 <h1>Available Equations of State<a class="headerlink" href="#available-equations-of-state" title="Link to this heading"></a></h1>
 <p id="index-0">The following equations of state are available in Microphysics.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The EOS is chosen at compile-time via the <code class="docutils literal notranslate"><span class="pre">EOS_DIR</span></code> make
+variable.</p>
+</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Except where noted, each of these EOSs will provide the full
@@ -189,7 +196,7 @@ formulation here is only correct for a <span class="math notranslate nohighlight
 <p><code class="docutils literal notranslate"><span class="pre">helmholtz</span></code> contains a general, publicly available stellar
 equation of state based on the Helmholtz free energy, with
 contributions from ions, radiation, and electron degeneracy, as
-described in <span id="id1">[<a class="reference internal" href="zreferences.html#id11" title="F. X. Timmes and D. Arnett. The Accuracy, Consistency, and Speed of Five Equations of State for Stellar Hydrodynamics. ApJS, 125:277-294, November 1999. doi:10.1086/313271.">6</a>]</span>, <span id="id2">[<a class="reference internal" href="zreferences.html#id12" title="F. X. Timmes and F. D. Swesty. The Accuracy, Consistency, and Speed of an Electron-Positron Equation of State Based on Table Interpolation of the Helmholtz Free Energy. ApJS, 126:501-516, February 2000. doi:10.1086/313304.">7</a>]</span>, <span id="id3">[<a class="reference internal" href="zreferences.html#id10" title="B. Fryxell, K. Olson, P. Ricker, F. X. Timmes, M. Zingale, D. Q. Lamb, P. MacNeice, R. Rosner, J. W. Truran, and H. Tufo. FLASH: An Adaptive Mesh Hydrodynamics Code for Modeling Astrophysical Thermonuclear Flashes. ApJS, 131:273-334, November 2000. doi:10.1086/317361.">8</a>]</span>.</p>
+described in <span id="id1">[<a class="reference internal" href="zreferences.html#id11" title="F. X. Timmes and D. Arnett. The Accuracy, Consistency, and Speed of Five Equations of State for Stellar Hydrodynamics. ApJS, 125:277-294, November 1999. doi:10.1086/313271.">5</a>, <a class="reference internal" href="zreferences.html#id12" title="F. X. Timmes and F. D. Swesty. The Accuracy, Consistency, and Speed of an Electron-Positron Equation of State Based on Table Interpolation of the Helmholtz Free Energy. ApJS, 126:501-516, February 2000. doi:10.1086/313304.">6</a>, <a class="reference internal" href="zreferences.html#id10" title="B. Fryxell, K. Olson, P. Ricker, F. X. Timmes, M. Zingale, D. Q. Lamb, P. MacNeice, R. Rosner, J. W. Truran, and H. Tufo. FLASH: An Adaptive Mesh Hydrodynamics Code for Modeling Astrophysical Thermonuclear Flashes. ApJS, 131:273-334, November 2000. doi:10.1086/317361.">7</a>]</span>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Our implementation of the <code class="docutils literal notranslate"><span class="pre">helmholtz</span></code> EOS has been modified
@@ -337,7 +344,7 @@ a parameterization of the specific heat at constant volume:</p>
 </section>
 <section id="tillotson">
 <h2><code class="docutils literal notranslate"><span class="pre">tillotson</span></code><a class="headerlink" href="#tillotson" title="Link to this heading"></a></h2>
-<p>This is an equation of state for hypervelocity impacts based on <span id="id4">[<a class="reference internal" href="zreferences.html#id54" title="J. H. Tillotson. Metallic Equations of State for Hypervelocity Impact. Internal Report, General Atomics, 1962. URL: https://apps.dtic.mil/sti/citations/AD0486711.">9</a>]</span>.</p>
+<p>This is an equation of state for hypervelocity impacts based on <span id="id2">[<a class="reference internal" href="zreferences.html#id54" title="J. H. Tillotson. Metallic Equations of State for Hypervelocity Impact. Internal Report, General Atomics, 1962. URL: https://apps.dtic.mil/sti/citations/AD0486711.">8</a>]</span>.</p>
 </section>
 <section id="ztwd">
 <h2><code class="docutils literal notranslate"><span class="pre">ztwd</span></code><a class="headerlink" href="#ztwd" title="Link to this heading"></a></h2>
