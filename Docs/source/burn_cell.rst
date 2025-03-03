@@ -1,3 +1,5 @@
+.. _sec:burn_cell:
+
 *************
 ``burn_cell``
 *************
@@ -50,38 +52,18 @@ The parameters that affect the thermodynamics are:
 
 * ``unit_test.temperature`` : the initial temperature
 
-* ``unit_test.small_temp`` : the low temperature cutoff used in the equation of state
+The composition can be set either by specifying individual mass fractions
+or setting ``unit_test.uniform_xn`` as described in :ref:`sec:defining_unit_test_composition`.
 
-* ``unit_test.small_dens`` : the low density cutoff used in the equation of state
-
-The composition can be set either by setting each mass fraction explicitly via the
-parameters, ``unit_test.X1``, ``unit_test.X2``, ...,
-e.g.:
-
-::
-
-    unit_test.X1 = 0.5
-    unit_test.X2 = 0.2
-    unit_test.X3 = 0.2
-    unit_test.X4 = 0.1
-
-where parameters up to ``X35`` are available.  If the values don't sum to ``1``
-initially, then the test will do a normalization.  This normalization can be
-disabled by setting:
+If the values don't sum to ``1`` initially, then the test will do a
+normalization.  This normalization can be disabled by setting:
 
 ::
 
     unit_test.skip_initial_normalization = 1
 
 
-Alternately, the composition can be set automatically by initializing all
-of the mass fractions equally (to $1/N$, where $N$ is the number of species),
-by setting:
-
-::
-
-    unit_test.init_species_all_equal = 1
-
+.. _sec:burn_cell_time:
 
 Controlling time
 ----------------
@@ -139,7 +121,7 @@ choice of network.
    network or integrator.
 
 
-To run the code, enter the burn_cell directory and run::
+To run the code, in the ``burn_cell`` directory run::
 
    ./main3d.gnu.ex inputs
 

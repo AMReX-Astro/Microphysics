@@ -9,8 +9,6 @@
 #include <burner.H>
 #include <extern_parameters.H>
 
-using namespace unit_test_rp;
-
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 bool do_react (const plot_t& p, const int i, const int j, const int k,
                Array4<amrex::Real> const& state, Array4<int> const& n_rhs)
@@ -97,12 +95,12 @@ bool do_react (const plot_t& p, const int i, const int j, const int k,
     burn_state.sdc_iter = 1;
     burn_state.num_sdc_iters = 1;
 
-    burner(burn_state, tmax);
+    burner(burn_state, unit_test_rp::tmax);
 
     for (int n = 0; n < NumSpec; ++n) {
         state(i, j, k, p.ispec + n) = burn_state.y[SFS+n]/burn_state.rho;
         state(i, j, k, p.irodot + n) = (burn_state.y[SFS+n] -
-                                        state(i, j, k, p.irho) * state(i, j, k, p.ispec_old + n)) / tmax;
+                                        state(i, j, k, p.irho) * state(i, j, k, p.ispec_old + n)) / unit_test_rp::tmax;
     }
 
 #if NAUX_NET > 0
@@ -111,7 +109,7 @@ bool do_react (const plot_t& p, const int i, const int j, const int k,
     }
 #endif
 
-    state(i, j, k, p.irho_Hnuc) = (burn_state.y[SEINT] - rhoe_old) / tmax;
+    state(i, j, k, p.irho_Hnuc) = (burn_state.y[SEINT] - rhoe_old) / unit_test_rp::tmax;
 
     n_rhs(i, j, k, 0) = burn_state.n_rhs;
 

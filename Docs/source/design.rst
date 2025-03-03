@@ -8,11 +8,11 @@ Structure
 The high-level directory structure delineates the types of microphysics
 and the generic solvers:
 
-* ``conductivity``: thermal conductivity routines
+* ``conductivity/``: thermal conductivity routines
 
-* ``constants``: fundamental constants
+* ``constants/``: fundamental constants
 
-* ``Docs``: the sphinx source for this documentation
+* ``Docs/``: the sphinx source for this documentation
 
 * ``EOS/``: the various equations of state
 
@@ -41,7 +41,13 @@ and the generic solvers:
 
 * ``util/``: linear algebra solvers and other routines.
 
-Design Philosophy
+
+.. note::
+
+   All quantities are assumed to be in CGS units, unless otherwise
+   specified.
+
+Design philosophy
 =================
 
 Any application that uses Microphysics will at minimum need to
@@ -64,10 +70,32 @@ of the species defined by the network to interpret the state.
 
 We try to maximize code reuse in the Microphysics source, so the
 solvers (ODE integration for the network and Newton-Raphson root
-finding for the EOS) is separated from the specific implementations of
+finding for the EOS) are separated from the specific implementations of
 the microphysics.
 
-.. note::
 
-   All quantities are assumed to be in CGS units, unless otherwise
-   specified.
+
+GPU considerations
+==================
+
+.. index:: GPUs
+
+All of the Microphysics routines are written to run on GPUs.  This is
+enabled in application codes by using the AMReX lambda-capturing
+mechanism (see the `AMReX GPU documentation <https://amrex-codes.github.io/amrex/docs_html/GPU.html>`_
+for more information).
+
+This means leveraging the AMReX data-structures, macros, and
+functions.  The unit tests (see :ref:`sec:unit_tests`) provide a good
+reference for how to interface the Microphysics solvers and physics
+terms with an AMReX-based code.
+
+There are a few places where Microphysics behaves slightly differently
+when running on a CPU vs. a GPU:
+
+* In the VODE integrator, we disable Jacobian-caching to save memory.
+  See :ref:`ch:networks:integrators`.
+
+* In general we disable printing from GPU kernels, due to register
+  pressure.  Some output can be enabled by compiling with
+  ``USE_GPU_PRINTF=TRUE``.

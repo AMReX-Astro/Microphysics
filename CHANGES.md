@@ -1,5 +1,30 @@
 # Changelog
 
+## 23.03
+
+  * the `nova2` net was renamed `nova`, and the old `nova`
+    net was removed (#1746, #1768)
+
+  * small improvements to the he-burn scripts (#1765)
+
+  * documentation updates (#1741, #1744, #1747, #1751, #1756, #1759,
+    #1760, #1766, #1767)
+
+  * restrict Sphinx < 8.2.0 due to nbsphinx issues (#1762)
+
+  * centralize some common unit test runtime parameters (#1749) and
+    explicitly set `small_dens` and `small_temp` for some tests
+    (#1757)
+
+  * remove old, unneeded macros from the build system (#1717, #1753,
+    #1754, #1755)
+
+  * modernize parallel loops in some unit tests (#1752)
+
+  * update the HIP CI action to a later runner
+
+  * namespace and clang-tidy fixes (#1745)
+
 ## 25.02
 
   * documentation updates (#1678, #1690, #1692, #1695, #1700, #1702,
