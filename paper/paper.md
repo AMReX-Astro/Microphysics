@@ -27,8 +27,7 @@ authors:
 
 - name: Piyush Sharda
 
-- name:
-  given-names: Alexander
+- given-names: Alexander
   surname: Smith Clark
   affiliation: '1'
 
