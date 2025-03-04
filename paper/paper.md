@@ -42,7 +42,6 @@ affiliations:
 - index: 1
   name: Department of Physics and Astronomy, Stony Brook University, Stony Brook, NY, USA
 
-affiliations:
 
 date: 01 January 2025
 
