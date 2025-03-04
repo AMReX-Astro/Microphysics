@@ -17,7 +17,7 @@ affiliations:
 
 date: 01 January 2025
 
-bibliography: paper.bib
+bibliography: paper/paper.bib
 ---
 
 # Summary
