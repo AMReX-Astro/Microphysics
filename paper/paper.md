@@ -25,8 +25,9 @@ bibliography: paper.bib
 The AMReX-Astrophysics Microphysics library provides a common set of
 microphysics routines (reaction networks, equations of state, and
 other transport coefficients) for astrophysical simulation codes built
-around the AMReX library.  Several codes, including Castro, MAESTROeX,
-and Quokka use Microphysics to provide the physics and solvers needed
+around the AMReX library.  Several codes, including Castro
+[@castro_I], MAESTROeX [@maestroex], and Quokka [@quokka] use
+Microphysics to provide the physics and solvers needed
 to close the hydrodynamics systems that they evolve.  
 
 # History
