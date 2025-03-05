@@ -181,14 +181,14 @@ int be_integrator (BurnT& state, BeT& be)
 
     int ierr;
 
-		if (be.atol_enuc < 0.0_rt) {
-			// Do a single step to the final time
-    	const amrex::Real dt_single_step = be.tout - be.t;
-			ierr = single_step(state, be, dt_single_step);
-			be.t = be.tout;
-			++be.n_step;
-			return ierr;
-		}
+    if (be.atol_enuc < 0.0_rt) {
+        // Do a single step to the final time
+        const amrex::Real dt_single_step = be.tout - be.t;
+        ierr = single_step(state, be, dt_single_step);
+        be.t = be.tout;
+        ++be.n_step;
+        return ierr;
+    }
 
     // estimate the timestep
 
