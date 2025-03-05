@@ -27,7 +27,9 @@ Presently, allowed integrators are:
 * ``BackwardEuler``: an implicit first-order accurate backward-Euler
   method.  An error estimate is done by taking 2 half steps and
   comparing to a single full step.  This error is then used to control
-  the timestep by using the local truncation error scaling.
+  the timestep by using the local truncation error scaling. Optionally, the 
+  user can disable error estimation and force a single-step backward-Euler 
+  integration by setting `integrator.atol_enuc = -1`.
 
 * ``ForwardEuler``: an explicit first-order forward-Euler method.  This is
   meant for testing purposes only.  No Jacobian is needed.
