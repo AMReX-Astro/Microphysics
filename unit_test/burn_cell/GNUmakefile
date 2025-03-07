@@ -27,7 +27,7 @@ NETWORK_DIR := aprox13
 SCREEN_METHOD := screen5
 CONDUCTIVITY_DIR := stellar
 
-INTEGRATOR_DIR =  VODE
+INTEGRATOR_DIR =  BackwardEuler
 
 EXTERN_SEARCH += . ..
 
