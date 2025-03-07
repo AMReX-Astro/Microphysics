@@ -19,7 +19,7 @@ include(CMakePackageConfigHelpers)
 function(setup_target_for_microphysics_compilation network_name output_dir)
 
   set(networkparamfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/_parameters")
-  set(VODEparamfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/integration/BackwardEuler/_parameters")
+  set(VODEparamfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/integration/VODE/_parameters")
   set(integrationparamfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/integration/_parameters")
   set(unittestparamfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/unit_test/_parameters")
 
