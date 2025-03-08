@@ -50,8 +50,6 @@ IntegratorT integrator_setup (BurnT& state, amrex::Real dt, bool is_retry)
             integrator_rp::retry_rtol_enuc : integrator_rp::rtol_enuc; // energy generated
     }
 
-    int_state.do_single_step = integrator_rp::do_single_step;
-
     // set the Jacobian type
     if (is_retry && integrator_rp::retry_swap_jacobian) {
         int_state.jacobian_type = (integrator_rp::jacobian == 1) ? 2 : 1;

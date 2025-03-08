@@ -47,8 +47,6 @@ struct be_t {
     amrex::Real atol_enuc;
     amrex::Real rtol_enuc;
 
-    amrex::Real do_single_step;
-
     amrex::Array1D<amrex::Real, 1, int_neqs> y;
     ArrayUtil::MathArray2D<1, int_neqs, 1, int_neqs> jac;
 
