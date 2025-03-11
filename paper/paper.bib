@@ -693,40 +693,6 @@ author = {{Zhang}, W. and {Almgren}, A. and {Beckner}, V. and {Bell}, J. and
 }
 
 
-@article{castro-simple-sdc,
-doi = {10.3847/1538-4357/ac8478},
-url = {https://dx.doi.org/10.3847/1538-4357/ac8478},
-year = {2022},
-month = {aug},
-publisher = {The American Astronomical Society},
-volume = {936},
-number = {1},
-pages = {6},
-author = {Zingale, M. and Katz, M. P. and Nonaka, A. and Rasmussen, M.},
-title = {An Improved Method for Coupling Hydrodynamics with Astrophysical Reaction Networks},
-journal = {ApJ},
-abstract = {Reacting astrophysical flows can be challenging to model,
-                  because of the difficulty in accurately coupling
-                  hydrodynamics and reactions. This can be
-                  particularly acute during explosive burning or at
-                  high temperatures where nuclear statistical
-                  equilibrium is established. We develop a new
-                  approach, based on the ideas of spectral deferred
-                  corrections (SDC) coupling of explicit hydrodynamics
-                  and stiff reaction sources as an alternative to
-                  operator splitting, that is simpler than the more
-                  comprehensive SDC approach we demonstrated
-                  previously. We apply the new method to a
-                  double-detonation problem with a moderately sized
-                  astrophysical nuclear reaction network and explore
-                  the time step size and reaction network tolerances,
-                  to show that the simplified-SDC approach provides
-                  improved coupling with decreased computational
-                  expense compared to traditional Strang operator
-                  splitting. This is all done in the framework of the
-                  Castro hydrodynamics code, and all algorithm
-                  implementations are freely available.}
-}
 
 @ARTICLE{maestro,
    author = {{Nonaka}, A. and {Almgren}, A.~S. and {Bell}, J.~B. and {Lijewski}, M.~J. and
@@ -745,4 +711,51 @@ archivePrefix = "arXiv",
    adsurl = {http://adsabs.harvard.edu/abs/2010ApJS..188..358N},
   adsnote = {Provided by the SAO/NASA Astrophysics Data System},
   subject = {algorithms: low Mach hydro}
+}
+
+@article{pynucastro,
+author = {{Willcox}, D.~E. and {Zingale}, M.},
+    title = "{pynucastro: an interface to nuclear reaction rates and code generator for reaction net
+work equations}",
+  journal = {Journal of Open Source Software},
+     year = 2018,
+   volume = 3,
+   number = 23,
+   pages = 588,
+    url = {https://doi.org/10.21105/joss.00588},
+   doi = {10.21105/joss.00588},
+  subject = {nuclear astrophysics}
+}
+
+@article{pynucastro2,
+doi = {10.3847/1538-4357/acbaff},
+url = {https://dx.doi.org/10.3847/1538-4357/acbaff},
+year = {2023},
+month = {apr},
+publisher = {The American Astronomical Society},
+volume = {947},
+number = {2},
+pages = {65},
+author = {Alexander I. Smith and Eric T. Johnson and Zhi Chen and Kiran Eiden and
+   Donald E. Willcox and Brendan Boyd and Lyra Cao and Christopher J. DeGrendele and
+   Michael Zingale},
+title = {pynucastro: A Python Library for Nuclear Astrophysics},
+journal = {The Astrophysical Journal},
+abstract = {We describe pynucastro 2.0, an open-source library for
+                  interactively creating and explor ing astrophysical
+                  nuclear reaction networks. We demonstrate new
+                  methods for approximating rates and use detailed
+                  balance to create reverse rates, show how to build
+                  networks and determine whether they are appropriate
+                  for a particular science application, and discuss
+                  the changes made to the library ov er the past few
+                  years. Finally, we demonstrate the validity of the
+                  networks produced and share how w e use pynucastro
+                  networks in simulation codes.}
+}
+
+@mics{cococubed,
+  titled = {cococubed website}
+  author = {{Timmes}, F.~X.},
+  howpublished = {\url{https://cococubed.com/}}
 }

@@ -48,13 +48,14 @@ date: 01 January 2025
 bibliography: paper.bib
 ---
 
+
 # Summary
 
 The AMReX-Astrophysics Microphysics library provides a common set of
 microphysics routines (reaction networks, equations of state, and
 other transport coefficients) for astrophysical simulation codes built
 around the AMReX adaptive mesh refinement library [@amrex].  Several
-codes, including the compressible hydrodynamics code Castro
+multi-dimensional simulation codes, including the compressible hydrodynamics code Castro
 [@castro_I], the low-Mach number hydrodynamics code MAESTROeX
 [@maestroex], and the radiation-hydrodynamics code Quokka [@quokka]
 use Microphysics to provide the physics and solvers needed to close
@@ -64,27 +65,19 @@ the hydrodynamics systems that they evolve.
 
 This project in started out in 2013 as a way to centralize the
 reaction networks and equations of state used by Castro and MAESTRO
-[@maestro], the predecessor to MAESTROeX.  For a brief period, it was
+[@maestro], the predecessor to MAESTROeX.  Originally, Microphysics used Fortran and 
+for a brief period, it was
 referred to as Starkiller Microphysics, which was an attempt to
 co-develop microphysics routines for the Castro and the Flash [@flash]
-simulation codes.  Originally, Microphysics used Fortran and was
-restricted to CPUs, but C++ ports were added over time to take
-advantage of GPU-offloading afforded by the AMReX library and Castro was converted
-from a mix of C++ and Fortran to purely C++.  At this point,
+simulation codes.   As interest in GPUs grew (with early support added to Microphysics in 2015),
+Castro moved from a mixed of C++ and Fortran to pure C++ to take
+advantage of GPU-offloading afforded by the AMReX library and C++ ports were
+added to Microphysics.  At this point,
 the development focused solely on AMReX-based codes and C++ and the project
 was formally named the AMReX-Astrophysics Microphysics library and the
 Fortran implementations were removed over time.
 Today, the library is completely written in C++ and relies heavily on
 the AMReX data structures to take advantage of GPUs.
-
-Several classic Fortran libraries have been converted to header-only
-C++ implementations, including the VODE integrator [@vode], the hybrid
-Powell method of MINPACK [@powell], and the Runge-Kutta Chebyshev
-(RKC) integration method [@rkc].  The code was modernized where possible,
-with many `go to` statements removed and additional logic added
-to support our applications (see for example the discussion
-on VODE in [@castro-simple-sdc]).
-
 
 # Design
 
@@ -99,12 +92,6 @@ or as part of an (AMReX-based) application code.  In both cases, the core
 requirement is to select a network---this defines the composition that
 is then used by most of the other physics routines.
 
-A key design feature is the separation of the reaction network from
-the integrator.  This allows us to easily experiment with different
-integration methods (such as the RKC integrator) and also support
-different modes of coupling reactions to a simulation code (operator
-splitting and spectral deferred corrections [@castro_simple_sdc])
-
 We rely on header-only implementations as much as possible, to allow
 for easier compiler inlining.  We also leverage C++17 `if constexpr`
 templating to compile out unnecessary computations for performance.
@@ -116,25 +103,59 @@ smaller `eos_re_t` type, then only a few energy terms are computed
 (those that are needed when finding temperature from specific internal
 energy).
 
-
-pynucastro integration
-
+Several classic Fortran libraries have been converted to header-only
+C++ implementations, including the VODE integrator [@vode], the hybrid
+Powell method of MINPACK [@powell], and the Runge-Kutta Chebyshev
+(RKC) integration method [@rkc].  The code was modernized where possible,
+with many `go to` statements removed and additional logic added
+to support our applications (see for example the discussion
+on VODE in [@castro_simple_sdc]).
 We also make use of the C++ autodiff library [@autodiff] to compute
 thermodynamic derivatives required in the Jacobians of our reaction
 networks.
 
+Another key design feature is the separation of the reaction network
+from the integrator.  This allows us to easily experiment with
+different integration methods (such as the RKC integrator) and also
+support different modes of coupling reactions to a simulation code,
+including operator splitting and spectral deferred corrections (SDC)
+(see, e.g., [@castro_simple_sdc]).  The latter is especially important
+for explosive astrophysical flows.
+
+
 # Capabilities
 
 
-## equations of state
+## Reaction networks
 
-## networks
+A reaction network defines the composition (including the atomic
+weight and number) and the reactions that link the nuclei together.
+Even if reactions are not being modeled, a `general_null` network can
+be used to simply define the composition.
+
+In multidimensional simulations, there is a desire to make the
+reaction as small as possible (due to the memory and per-zone
+computational costs) while still being able to represent the
+nucleosynthesis reasonable accurately.  As a result, approximations
+to rates are common and a wide variety of networks are used depending
+on the burning state being modeled.
 
 We have ported many of the classic "aprox" networks used in the
-astrophysics community to C++ using templating to construct the
+astrophysics community (for example "aprox21" described in
+[@wallacewoosley:1981] to C++.  Many of these originated from
+the implementations of [@cococubed].  using templating to construct the
 righthand side of the network at compile time.
 
+Finally, we integrate with the pynucastro nuclear astrophysics library [@pynucastro,@pynucastro2],
+allowing us to gener
+
 Microphysics can also directly use networks created by the
+
+
+
+## Equations of state
+
+
 
 
 # Unit tests / examples
