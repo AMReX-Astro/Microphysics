@@ -142,15 +142,19 @@ on the burning state being modeled.
 
 We have ported many of the classic "aprox" networks used in the
 astrophysics community (for example "aprox21" described in
-[@wallacewoosley:1981] to C++.  Many of these originated from
-the implementations of [@cococubed].  using templating to construct the
-righthand side of the network at compile time.
+[@wallacewoosley:1981] to C++.  Many of these originated from the
+implementations of [@cococubed].  Our implementation relies heavily on
+C++ templates, allowing us to simply define the properties of the
+reactions and then the compiler builds the righthand side and Jacobian
+of the system at compile-time.  This reduces the maintenance costs of
+the networks and also eliminates some common indexing bugs.
 
-Finally, we integrate with the pynucastro nuclear astrophysics library [@pynucastro,@pynucastro2],
-allowing us to gener
-
-Microphysics can also directly use networks created by the
-
+We also integrate with the pynucastro nuclear astrophysics library
+[@pynucastro,@pynucastro2], allowing us to generate a custom network
+in a few lines of python simply by specifying the nuclei we want.  This
+makes use of the reaction rates from [@ReacLib] and others, and allows us
+to keep up to date with changes in rates and build more complex networks
+than the traditional aprox nets.
 
 
 ## Equations of state
