@@ -53,36 +53,46 @@ bibliography: paper.bib
 The AMReX-Astrophysics Microphysics library provides a common set of
 microphysics routines (reaction networks, equations of state, and
 other transport coefficients) for astrophysical simulation codes built
-around the AMReX library.  Several codes, including Castro
-[@castro_I], MAESTROeX [@maestroex], and Quokka [@quokka] use
-Microphysics to provide the physics and solvers needed
-to close the hydrodynamics systems that they evolve.
+around the AMReX adaptive mesh refinement library [@amrex].  Several
+codes, including the compressible hydrodynamics code Castro
+[@castro_I], the low-Mach number hydrodynamics code MAESTROeX
+[@maestroex], and the radiation-hydrodynamics code Quokka [@quokka]
+use Microphysics to provide the physics and solvers needed to close
+the hydrodynamics systems that they evolve.
 
 # History
 
-This project started out as Starkiller Microphysics, which was an
-attempt to codevelop microphysics routines for the Castro and Flash
-simulation codes.  Originally the library used Fortran and was
+This project in started out in 2013 as a way to centralize the
+reaction networks and equations of state used by Castro and MAESTRO
+[@maestro], the predecessor to MAESTROeX.  For a brief period, it was
+referred to as Starkiller Microphysics, which was an attempt to
+co-develop microphysics routines for the Castro and the Flash [@flash]
+simulation codes.  Originally, Microphysics used Fortran and was
 restricted to CPUs, but C++ ports were added over time to take
-advantage of GPU-offloading afforded by the AMReX library.  Eventually
-as the development of the two codes diverged, the C++ ports of the
-Microphysis were split off into the AMReX-Astrophysics Microphysics
-library.  Today, the library is completely written in C++ and relies
-on the AMReX data structures.
+advantage of GPU-offloading afforded by the AMReX library and Castro was converted
+from a mix of C++ and Fortran to purely C++.  At this point,
+the development focused solely on AMReX-based codes and C++ and the project
+was formally named the AMReX-Astrophysics Microphysics library and the
+Fortran implementations were removed over time.
+Today, the library is completely written in C++ and relies heavily on
+the AMReX data structures to take advantage of GPUs.
 
-Several classical Fortran libraries have been converted to header-only
+Several classic Fortran libraries have been converted to header-only
 C++ implementations, including the VODE integrator [@vode], the hybrid
 Powell method of MINPACK [@powell], and the Runge-Kutta Chebyshev
-integration method [@rkc].
+(RKC) integration method [@rkc].  The code was modernized where possible,
+with many `go to` statements removed and additional logic added
+to support our applications (see for example the discussion
+on VODE in [@castro-simple-sdc]).
 
 
 # Design
 
 Microphysics provides several different types of physics: equations of
 state, reaction networks and screening methods, nuclear statistical
-equilibrium solvers and table, conductivities, and opacities, as well
-as the tools needed to work with them, most notably the ODE
-integrators for the networks.
+equilibrium solvers and tabulations, thermal conductivities, and
+opacities, as well as the tools needed to work with them, most notably
+the suite of stiff ODE integrators for the networks.
 
 There are two ways to use Microphysics: standalone for simple investigations
 or as part of an (AMReX-based) application code.  In both cases, the core
