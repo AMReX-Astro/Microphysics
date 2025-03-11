@@ -109,7 +109,7 @@ Powell method of MINPACK [@powell], and the Runge-Kutta Chebyshev
 (RKC) integration method [@rkc].  The code was modernized where possible,
 with many `go to` statements removed and additional logic added
 to support our applications (see for example the discussion
-on VODE in [@castro_simple_sdc]).
+on VODE in @castro_simple_sdc).
 We also make use of the C++ autodiff library [@autodiff] to compute
 thermodynamic derivatives required in the Jacobians of our reaction
 networks.
@@ -119,7 +119,7 @@ from the integrator.  This allows us to easily experiment with
 different integration methods (such as the RKC integrator) and also
 support different modes of coupling reactions to a simulation code,
 including operator splitting and spectral deferred corrections (SDC)
-(see, e.g., [@castro_simple_sdc]).  The latter is especially important
+(see, e.g., @castro_simple_sdc).  The latter is especially important
 for explosive astrophysical flows.
 
 
@@ -142,17 +142,17 @@ on the burning state being modeled.
 
 We have ported many of the classic "aprox" networks used in the
 astrophysics community (for example "aprox21" described in
-[@wallacewoosley:1981] to C++.  Many of these originated from the
-implementations of [@cococubed].  Our implementation relies heavily on
+@wallacewoosley:1981 to C++.  Many of these originated from the
+implementations of @cococubed.  Our implementation relies heavily on
 C++ templates, allowing us to simply define the properties of the
 reactions and then the compiler builds the righthand side and Jacobian
 of the system at compile-time.  This reduces the maintenance costs of
 the networks and also eliminates some common indexing bugs.
 
 We also integrate with the pynucastro nuclear astrophysics library
-[@pynucastro,@pynucastro2], allowing us to generate a custom network
+[@pynucastro; @pynucastro2], allowing us to generate a custom network
 in a few lines of python simply by specifying the nuclei we want.  This
-makes use of the reaction rates from [@ReacLib] and others, and allows us
+makes use of the reaction rates from @ReacLib and others, and allows us
 to keep up to date with changes in rates and build more complex networks
 than the traditional aprox nets.
 
