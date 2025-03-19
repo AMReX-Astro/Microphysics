@@ -1,0 +1,10 @@
+# this is the null description for a network containing H only
+#
+
+# name short-name aion zion
+ neutrals N        1.0 0.0
+ ions     I        1.0 1.0
+
+# auxiliary variables
+__aux_e_h
+__aux_e_e
