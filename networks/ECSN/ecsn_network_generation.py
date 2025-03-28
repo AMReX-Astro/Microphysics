@@ -5,10 +5,14 @@ mylibrary = pyna.rates.ReacLibLibrary()
 
 data_list = mylibrary.get_rates()
 
-all_nuclei = ["p","he4","ne20","o20","f20","mg24","al27","o16","si28","s32","p31"]
+all_nuclei = ["p", "he4", "ne20", "o20", "f20",
+              "mg24", "al27", "o16", "si28",
+              "s32", "p31"]
 
-escn_library = mylibrary.linking_nuclei(all_nuclei,with_reverse=True)
-escn_tabular = ["f20--o20-toki","ne20--f20-toki","o20--f20-toki","f20--ne20-toki"]
+escn_library = mylibrary.linking_nuclei(all_nuclei, with_reverse=True)
+
+sl = pyna.SuzukiLibrary()
+tabular_rates = sl.linking_nuclei(["f20", "o20", "ne20"])
 
 rc = pyna.RateCollection(libraries=[escn_library])
 
@@ -36,7 +40,8 @@ for rate in rc.rates:
     if ydots[rate] >= 1.e-20 and rate.weak == False:
         new_rate_list.append(rate)
 
-wd_net = AmrexAstroCxxNetwork(rates=new_rate_list, rate_files=escn_tabular)
+
+wd_net = AmrexAstroCxxNetwork(rates=new_rate_list, libraries=[tabular_rates])
 wd_net.write_network()
 
 wd_net.plot(rho, T, comp, outfile="ECSN.png",
