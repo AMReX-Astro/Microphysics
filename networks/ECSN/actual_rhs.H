@@ -10,7 +10,9 @@
 #include <jacobian_utilities.H>
 #include <screen.H>
 #include <microphysics_autodiff.H>
+#ifdef NEUTRINOS
 #include <sneut5.H>
+#endif
 #include <reaclib_rates.H>
 #include <table_rates.H>
 
@@ -269,13 +271,21 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
 
     // Fill approximate rates
 
-    fill_approx_rates<do_T_derivatives, T>(tfactors, rate_eval);
+    fill_approx_rates<do_T_derivatives, T>(tfactors, state.rho, Y, rate_eval);
 
     // Calculate tabular rates
 
     [[maybe_unused]] amrex::Real rate, drate_dt, edot_nu, edot_gamma;
 
     rate_eval.enuc_weak = 0.0_rt;
+
+    tabular_evaluate(j_F20_Ne20_meta, j_F20_Ne20_rhoy, j_F20_Ne20_temp, j_F20_Ne20_data,
+                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+    rate_eval.screened_rates(k_F20_to_Ne20) = rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        rate_eval.dscreened_rates_dT(k_F20_to_Ne20) = drate_dt;
+    }
+    rate_eval.enuc_weak += C::Legacy::n_A * Y(F20) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_F20_O20_meta, j_F20_O20_rhoy, j_F20_O20_temp, j_F20_O20_data,
                      rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
@@ -300,14 +310,6 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
         rate_eval.dscreened_rates_dT(k_O20_to_F20) = drate_dt;
     }
     rate_eval.enuc_weak += C::Legacy::n_A * Y(O20) * (edot_nu + edot_gamma);
-
-    tabular_evaluate(j_F20_Ne20_meta, j_F20_Ne20_rhoy, j_F20_Ne20_temp, j_F20_Ne20_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
-    rate_eval.screened_rates(k_F20_to_Ne20) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_F20_to_Ne20) = drate_dt;
-    }
-    rate_eval.enuc_weak += C::Legacy::n_A * Y(F20) * (edot_nu + edot_gamma);
 
 
 }
@@ -340,6 +342,11 @@ void get_ydot_weak(const burn_t& state,
 
     // Calculate tabular rates and get ydot_weak
 
+    tabular_evaluate(j_F20_Ne20_meta, j_F20_Ne20_rhoy, j_F20_Ne20_temp, j_F20_Ne20_data,
+                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+    rate_eval.screened_rates(k_F20_to_Ne20) = rate;
+    rate_eval.enuc_weak += C::Legacy::n_A * Y(F20) * (edot_nu + edot_gamma);
+
     tabular_evaluate(j_F20_O20_meta, j_F20_O20_rhoy, j_F20_O20_temp, j_F20_O20_data,
                      rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_F20_to_O20) = rate;
@@ -355,11 +362,6 @@ void get_ydot_weak(const burn_t& state,
     rate_eval.screened_rates(k_O20_to_F20) = rate;
     rate_eval.enuc_weak += C::Legacy::n_A * Y(O20) * (edot_nu + edot_gamma);
 
-    tabular_evaluate(j_F20_Ne20_meta, j_F20_Ne20_rhoy, j_F20_Ne20_temp, j_F20_Ne20_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
-    rate_eval.screened_rates(k_F20_to_Ne20) = rate;
-    rate_eval.enuc_weak += C::Legacy::n_A * Y(F20) * (edot_nu + edot_gamma);
-
     auto screened_rates = rate_eval.screened_rates;
 
     ydot_nuc(H1) = 0.0_rt;
@@ -372,8 +374,8 @@ void get_ydot_weak(const burn_t& state,
         (-screened_rates(k_O20_to_F20)*Y(O20) + screened_rates(k_F20_to_O20)*Y(F20));
 
     ydot_nuc(F20) =
-        (screened_rates(k_O20_to_F20)*Y(O20) + -screened_rates(k_F20_to_O20)*Y(F20)) +
-        (-screened_rates(k_F20_to_Ne20)*Y(F20) + screened_rates(k_Ne20_to_F20)*Y(Ne20));
+        (-screened_rates(k_F20_to_Ne20)*Y(F20) + screened_rates(k_Ne20_to_F20)*Y(Ne20)) +
+        (screened_rates(k_O20_to_F20)*Y(O20) + -screened_rates(k_F20_to_O20)*Y(F20));
 
     ydot_nuc(Ne20) =
         (screened_rates(k_F20_to_Ne20)*Y(F20) + -screened_rates(k_Ne20_to_F20)*Y(Ne20));
@@ -427,13 +429,13 @@ void rhs_nuc(const burn_t& state,
         (-screened_rates(k_O20_to_F20)*Y(O20) + screened_rates(k_F20_to_O20)*Y(F20));
 
     ydot_nuc(F20) =
-        (screened_rates(k_O20_to_F20)*Y(O20) + -screened_rates(k_F20_to_O20)*Y(F20)) +
-        (-screened_rates(k_F20_to_Ne20)*Y(F20) + screened_rates(k_Ne20_to_F20)*Y(Ne20));
+        (-screened_rates(k_F20_to_Ne20)*Y(F20) + screened_rates(k_Ne20_to_F20)*Y(Ne20)) +
+        (screened_rates(k_O20_to_F20)*Y(O20) + -screened_rates(k_F20_to_O20)*Y(F20));
 
     ydot_nuc(Ne20) =
-        (screened_rates(k_F20_to_Ne20)*Y(F20) + -screened_rates(k_Ne20_to_F20)*Y(Ne20)) +
         (screened_rates(k_He4_O16_to_Ne20)*Y(He4)*Y(O16)*state.rho + -screened_rates(k_Ne20_to_He4_O16)*Y(Ne20)) +
-        -screened_rates(k_He4_Ne20_to_Mg24)*Y(He4)*Y(Ne20)*state.rho;
+        -screened_rates(k_He4_Ne20_to_Mg24)*Y(He4)*Y(Ne20)*state.rho +
+        (screened_rates(k_F20_to_Ne20)*Y(F20) + -screened_rates(k_Ne20_to_F20)*Y(Ne20));
 
     ydot_nuc(Mg24) =
         screened_rates(k_He4_Ne20_to_Mg24)*Y(He4)*Y(Ne20)*state.rho +
@@ -499,9 +501,12 @@ void actual_rhs (burn_t& state, amrex::Array1D<amrex::Real, 1, neqs>& ydot)
 
     // Get the thermal neutrino losses
 
-    amrex::Real sneut, dsneutdt, dsneutdd, dsnuda, dsnudz;
+    amrex::Real sneut{};
+#ifdef NEUTRINOS
     constexpr int do_derivatives{0};
+    amrex::Real dsneutdt{}, dsneutdd{}, dsnuda{}, dsnudz{};
     sneut5<do_derivatives>(state.T, state.rho, state.abar, state.zbar, sneut, dsneutdt, dsneutdd, dsnuda, dsnudz);
+#endif
 
     // Append the energy equation (this is erg/g/s)
 
@@ -717,7 +722,9 @@ void actual_jac(const burn_t& state, MatrixType& jac)
 
     // Account for the thermal neutrino losses
 
-    amrex::Real sneut, dsneutdt, dsneutdd, dsnuda, dsnudz;
+    amrex::Real dsneutdt{};
+#ifdef NEUTRINOS
+    amrex::Real sneut, dsneutdd, dsnuda, dsnudz;
     constexpr int do_derivatives{1};
     sneut5<do_derivatives>(state.T, state.rho, state.abar, state.zbar, sneut, dsneutdt, dsneutdd, dsnuda, dsnudz);
 
@@ -725,7 +732,7 @@ void actual_jac(const burn_t& state, MatrixType& jac)
        amrex::Real b1 = (-state.abar * state.abar * dsnuda + (zion[j-1] - state.zbar) * state.abar * dsnudz);
        jac.add(net_ienuc, j, -b1);
     }
-
+#endif
 
     // Evaluate the Jacobian elements with respect to energy by
     // calling the RHS using d(rate) / dT and then transform them
