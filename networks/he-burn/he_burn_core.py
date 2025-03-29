@@ -2,7 +2,8 @@
 # they can then adjust these via various approximations
 
 import pynucastro as pyna
-from pynucastro.rates import ReacLibRate, TabularRate
+from pynucastro.rates import ReacLibRate
+
 
 def get_core_library(*,
                      include_n14_sequence=False,
@@ -73,6 +74,9 @@ def get_core_library(*,
         _r = core_lib.get_rate_by_name(r)
         core_lib.remove_rate(_r)
 
+    iron_peak = []
+    all_lib = core_lib
+
     if include_iron_peak:
         # now create a list of iron group nuclei and find both the
         # ReacLib and weak / tabular rates linking these.
@@ -90,15 +94,11 @@ def get_core_library(*,
             iron_peak += ["mn55"]
 
 
-        iron_reaclib = reaclib_lib.linking_nuclei(iron_peak)
+        all_lib += reaclib_lib.linking_nuclei(iron_peak)
 
-        weak_lib = pyna.TabularLibrary()
-        iron_weak_lib = weak_lib.linking_nuclei(iron_peak)
-
-        all_lib = core_lib + iron_reaclib + iron_weak_lib
-
-    else:
-        all_lib = core_lib
+    weak_lib = pyna.TabularLibrary()
+    iron_weak_lib = weak_lib.linking_nuclei(iron_peak + nuclei)
+    all_lib += iron_weak_lib
 
     if do_detailed_balance:
         rates_to_derive = []
