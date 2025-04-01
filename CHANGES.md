@@ -1,6 +1,15 @@
 # Changelog
 
-## 23.03
+## 25.04
+
+  * the "he-burn" networks now will look for weak rates for
+    all nuclei, not just the Fe-group (#1763)
+
+  * clean up the ECSN network generation script (#1776)
+
+  * Allow for single-step backward Euler (#1773)
+
+## 25.03
 
   * the `nova2` net was renamed `nova`, and the old `nova`
     net was removed (#1746, #1768)
