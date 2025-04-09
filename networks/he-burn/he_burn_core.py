@@ -101,13 +101,7 @@ def get_core_library(*,
     all_lib += iron_weak_lib
 
     if do_detailed_balance:
-        rates_to_derive = []
-        for r in core_lib.get_rates():
-            if r.reverse:
-                # this rate was computed using detailed balance,
-                # regardless of whether Q < 0 or not.  We want to
-                # remove it and then recompute it
-                rates_to_derive.append(r)
+        rates_to_derive = core_lib.backward().get_rates()
 
         # now for each of those derived rates, look to see if the pair exists
 
