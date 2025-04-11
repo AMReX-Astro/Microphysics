@@ -20,7 +20,7 @@ void init_tabular();
 // Log(g/cm^3)   Log(K)   erg   erg   erg   Log(1/s)          Log(erg/s)           Log(erg/s)
 //
 
-const int num_tables = 0;
+const int num_tables = 8;
 
 enum TableVars : std::uint8_t
 {
@@ -55,6 +55,46 @@ const int add_vars              = 1;  // 1 Additional Var in entries
 
 namespace rate_tables
 {
+    extern AMREX_GPU_MANAGED table_t j_Ar39_K39_meta;
+    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, 6> j_Ar39_K39_data;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_Ar39_K39_rhoy;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 13> j_Ar39_K39_temp;
+
+    extern AMREX_GPU_MANAGED table_t j_K39_Ar39_meta;
+    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, 6> j_K39_Ar39_data;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_K39_Ar39_rhoy;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 13> j_K39_Ar39_temp;
+
+    extern AMREX_GPU_MANAGED table_t j_P30_Si30_meta;
+    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, 6> j_P30_Si30_data;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_P30_Si30_rhoy;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 13> j_P30_Si30_temp;
+
+    extern AMREX_GPU_MANAGED table_t j_P31_S31_meta;
+    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, 6> j_P31_S31_data;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_P31_S31_rhoy;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 13> j_P31_S31_temp;
+
+    extern AMREX_GPU_MANAGED table_t j_S31_P31_meta;
+    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, 6> j_S31_P31_data;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_S31_P31_rhoy;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 13> j_S31_P31_temp;
+
+    extern AMREX_GPU_MANAGED table_t j_Si30_P30_meta;
+    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, 6> j_Si30_P30_data;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_Si30_P30_rhoy;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 13> j_Si30_P30_temp;
+
+    extern AMREX_GPU_MANAGED table_t j_n_p_meta;
+    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, 6> j_n_p_data;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_n_p_rhoy;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 13> j_n_p_temp;
+
+    extern AMREX_GPU_MANAGED table_t j_p_n_meta;
+    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, 6> j_p_n_data;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_p_n_rhoy;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 13> j_p_n_temp;
+
 }
 
 template <typename R, typename T, typename D>
