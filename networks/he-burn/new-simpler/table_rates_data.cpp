@@ -8,26 +8,6 @@ using namespace amrex;
 namespace rate_tables
 {
 
-    AMREX_GPU_MANAGED table_t j_Mg23_Na23_meta;
-    AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, 6> j_Mg23_Na23_data;
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_Mg23_Na23_rhoy;
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 13> j_Mg23_Na23_temp;
-
-    AMREX_GPU_MANAGED table_t j_Na22_Ne22_meta;
-    AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, 6> j_Na22_Ne22_data;
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_Na22_Ne22_rhoy;
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 13> j_Na22_Ne22_temp;
-
-    AMREX_GPU_MANAGED table_t j_Na23_Mg23_meta;
-    AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, 6> j_Na23_Mg23_data;
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_Na23_Mg23_rhoy;
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 13> j_Na23_Mg23_temp;
-
-    AMREX_GPU_MANAGED table_t j_Ne22_Na22_meta;
-    AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, 6> j_Ne22_Na22_data;
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_Ne22_Na22_rhoy;
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 13> j_Ne22_Na22_temp;
-
     AMREX_GPU_MANAGED table_t j_Co56_Fe56_meta;
     AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, 6> j_Co56_Fe56_data;
     AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_Co56_Fe56_rhoy;
@@ -68,38 +48,6 @@ void init_tabular()
     amrex::Print() << "reading in network electron-capture / beta-decay tables..." << std::endl;
 
     using namespace rate_tables;
-
-    j_Mg23_Na23_meta.ntemp = 13;
-    j_Mg23_Na23_meta.nrhoy = 11;
-    j_Mg23_Na23_meta.nvars = 6;
-    j_Mg23_Na23_meta.nheader = 5;
-
-    init_tab_info(j_Mg23_Na23_meta, "ffn-23mg-23na_electroncapture.dat", j_Mg23_Na23_rhoy, j_Mg23_Na23_temp, j_Mg23_Na23_data);
-
-
-    j_Na22_Ne22_meta.ntemp = 13;
-    j_Na22_Ne22_meta.nrhoy = 11;
-    j_Na22_Ne22_meta.nvars = 6;
-    j_Na22_Ne22_meta.nheader = 5;
-
-    init_tab_info(j_Na22_Ne22_meta, "ffn-22na-22ne_electroncapture.dat", j_Na22_Ne22_rhoy, j_Na22_Ne22_temp, j_Na22_Ne22_data);
-
-
-    j_Na23_Mg23_meta.ntemp = 13;
-    j_Na23_Mg23_meta.nrhoy = 11;
-    j_Na23_Mg23_meta.nvars = 6;
-    j_Na23_Mg23_meta.nheader = 5;
-
-    init_tab_info(j_Na23_Mg23_meta, "ffn-23na-23mg_betadecay.dat", j_Na23_Mg23_rhoy, j_Na23_Mg23_temp, j_Na23_Mg23_data);
-
-
-    j_Ne22_Na22_meta.ntemp = 13;
-    j_Ne22_Na22_meta.nrhoy = 11;
-    j_Ne22_Na22_meta.nvars = 6;
-    j_Ne22_Na22_meta.nheader = 5;
-
-    init_tab_info(j_Ne22_Na22_meta, "ffn-22ne-22na_betadecay.dat", j_Ne22_Na22_rhoy, j_Ne22_Na22_temp, j_Ne22_Na22_data);
-
 
     j_Co56_Fe56_meta.ntemp = 13;
     j_Co56_Fe56_meta.nrhoy = 11;
