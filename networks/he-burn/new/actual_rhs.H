@@ -121,6 +121,32 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
 
 
     {
+        constexpr auto scn_fac = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 7.0_rt, 14.0_rt);
+
+
+        static_assert(scn_fac.z1 == 2.0_rt);
+
+
+        actual_screen(pstate, scn_fac, scor, dscor_dt);
+    }
+
+
+    ratraw = rate_eval.screened_rates(k_He4_N14_to_F18);
+    rate_eval.screened_rates(k_He4_N14_to_F18) *= scor;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_He4_N14_to_F18);
+        rate_eval.dscreened_rates_dT(k_He4_N14_to_F18) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
+
+    ratraw = rate_eval.screened_rates(k_He4_N14_to_p_O17_derived);
+    rate_eval.screened_rates(k_He4_N14_to_p_O17_derived) *= scor;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_He4_N14_to_p_O17_derived);
+        rate_eval.dscreened_rates_dT(k_He4_N14_to_p_O17_derived) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
+
+
+    {
         constexpr auto scn_fac = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 8.0_rt, 16.0_rt);
 
 
@@ -136,6 +162,136 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         dratraw_dT = rate_eval.dscreened_rates_dT(k_He4_O16_to_Ne20);
         rate_eval.dscreened_rates_dT(k_He4_O16_to_Ne20) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
+
+    ratraw = rate_eval.screened_rates(k_He4_O16_to_p_F19_derived);
+    rate_eval.screened_rates(k_He4_O16_to_p_F19_derived) *= scor;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_He4_O16_to_p_F19_derived);
+        rate_eval.dscreened_rates_dT(k_He4_O16_to_p_F19_derived) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
+
+
+    {
+        constexpr auto scn_fac = scrn::calculate_screen_factor(1.0_rt, 1.0_rt, 8.0_rt, 17.0_rt);
+
+
+        static_assert(scn_fac.z1 == 1.0_rt);
+
+
+        actual_screen(pstate, scn_fac, scor, dscor_dt);
+    }
+
+
+    ratraw = rate_eval.screened_rates(k_p_O17_to_F18);
+    rate_eval.screened_rates(k_p_O17_to_F18) *= scor;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_O17_to_F18);
+        rate_eval.dscreened_rates_dT(k_p_O17_to_F18) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
+
+    ratraw = rate_eval.screened_rates(k_p_O17_to_He4_N14);
+    rate_eval.screened_rates(k_p_O17_to_He4_N14) *= scor;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_O17_to_He4_N14);
+        rate_eval.dscreened_rates_dT(k_p_O17_to_He4_N14) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
+
+
+    {
+        constexpr auto scn_fac = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 8.0_rt, 17.0_rt);
+
+
+        static_assert(scn_fac.z1 == 2.0_rt);
+
+
+        actual_screen(pstate, scn_fac, scor, dscor_dt);
+    }
+
+
+    ratraw = rate_eval.screened_rates(k_He4_O17_to_Ne21);
+    rate_eval.screened_rates(k_He4_O17_to_Ne21) *= scor;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_He4_O17_to_Ne21);
+        rate_eval.dscreened_rates_dT(k_He4_O17_to_Ne21) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
+
+
+    {
+        constexpr auto scn_fac = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 9.0_rt, 18.0_rt);
+
+
+        static_assert(scn_fac.z1 == 2.0_rt);
+
+
+        actual_screen(pstate, scn_fac, scor, dscor_dt);
+    }
+
+
+    ratraw = rate_eval.screened_rates(k_He4_F18_to_Na22);
+    rate_eval.screened_rates(k_He4_F18_to_Na22) *= scor;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_He4_F18_to_Na22);
+        rate_eval.dscreened_rates_dT(k_He4_F18_to_Na22) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
+
+    ratraw = rate_eval.screened_rates(k_He4_F18_to_p_Ne21);
+    rate_eval.screened_rates(k_He4_F18_to_p_Ne21) *= scor;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_He4_F18_to_p_Ne21);
+        rate_eval.dscreened_rates_dT(k_He4_F18_to_p_Ne21) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
+
+
+    {
+        constexpr auto scn_fac = scrn::calculate_screen_factor(1.0_rt, 1.0_rt, 9.0_rt, 19.0_rt);
+
+
+        static_assert(scn_fac.z1 == 1.0_rt);
+
+
+        actual_screen(pstate, scn_fac, scor, dscor_dt);
+    }
+
+
+    ratraw = rate_eval.screened_rates(k_p_F19_to_Ne20);
+    rate_eval.screened_rates(k_p_F19_to_Ne20) *= scor;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_F19_to_Ne20);
+        rate_eval.dscreened_rates_dT(k_p_F19_to_Ne20) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
+
+    ratraw = rate_eval.screened_rates(k_p_F19_to_He4_O16);
+    rate_eval.screened_rates(k_p_F19_to_He4_O16) *= scor;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_F19_to_He4_O16);
+        rate_eval.dscreened_rates_dT(k_p_F19_to_He4_O16) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
+
+
+    {
+        constexpr auto scn_fac = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 9.0_rt, 19.0_rt);
+
+
+        static_assert(scn_fac.z1 == 2.0_rt);
+
+
+        actual_screen(pstate, scn_fac, scor, dscor_dt);
+    }
+
+
+    ratraw = rate_eval.screened_rates(k_He4_F19_to_Na23);
+    rate_eval.screened_rates(k_He4_F19_to_Na23) *= scor;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_He4_F19_to_Na23);
+        rate_eval.dscreened_rates_dT(k_He4_F19_to_Na23) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
+
+    ratraw = rate_eval.screened_rates(k_He4_F19_to_p_Ne22);
+    rate_eval.screened_rates(k_He4_F19_to_p_Ne22) *= scor;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_He4_F19_to_p_Ne22);
+        rate_eval.dscreened_rates_dT(k_He4_F19_to_p_Ne22) = ratraw * dscor_dt + dratraw_dT * scor;
     }
 
 
@@ -162,6 +318,77 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         dratraw_dT = rate_eval.dscreened_rates_dT(k_He4_Ne20_to_p_Na23_derived);
         rate_eval.dscreened_rates_dT(k_He4_Ne20_to_p_Na23_derived) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
+
+
+    {
+        constexpr auto scn_fac = scrn::calculate_screen_factor(1.0_rt, 1.0_rt, 10.0_rt, 21.0_rt);
+
+
+        static_assert(scn_fac.z1 == 1.0_rt);
+
+
+        actual_screen(pstate, scn_fac, scor, dscor_dt);
+    }
+
+
+    ratraw = rate_eval.screened_rates(k_p_Ne21_to_Na22);
+    rate_eval.screened_rates(k_p_Ne21_to_Na22) *= scor;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_Ne21_to_Na22);
+        rate_eval.dscreened_rates_dT(k_p_Ne21_to_Na22) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
+
+    ratraw = rate_eval.screened_rates(k_p_Ne21_to_He4_F18_derived);
+    rate_eval.screened_rates(k_p_Ne21_to_He4_F18_derived) *= scor;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_Ne21_to_He4_F18_derived);
+        rate_eval.dscreened_rates_dT(k_p_Ne21_to_He4_F18_derived) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
+
+
+    {
+        constexpr auto scn_fac = scrn::calculate_screen_factor(1.0_rt, 1.0_rt, 10.0_rt, 22.0_rt);
+
+
+        static_assert(scn_fac.z1 == 1.0_rt);
+
+
+        actual_screen(pstate, scn_fac, scor, dscor_dt);
+    }
+
+
+    ratraw = rate_eval.screened_rates(k_p_Ne22_to_Na23);
+    rate_eval.screened_rates(k_p_Ne22_to_Na23) *= scor;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_Ne22_to_Na23);
+        rate_eval.dscreened_rates_dT(k_p_Ne22_to_Na23) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
+
+    ratraw = rate_eval.screened_rates(k_p_Ne22_to_He4_F19_derived);
+    rate_eval.screened_rates(k_p_Ne22_to_He4_F19_derived) *= scor;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_Ne22_to_He4_F19_derived);
+        rate_eval.dscreened_rates_dT(k_p_Ne22_to_He4_F19_derived) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
+
+
+    {
+        constexpr auto scn_fac = scrn::calculate_screen_factor(1.0_rt, 1.0_rt, 11.0_rt, 22.0_rt);
+
+
+        static_assert(scn_fac.z1 == 1.0_rt);
+
+
+        actual_screen(pstate, scn_fac, scor, dscor_dt);
+    }
+
+
+    ratraw = rate_eval.screened_rates(k_p_Na22_to_Mg23);
+    rate_eval.screened_rates(k_p_Na22_to_Mg23) *= scor;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_Na22_to_Mg23);
+        rate_eval.dscreened_rates_dT(k_p_Na22_to_Mg23) = ratraw * dscor_dt + dratraw_dT * scor;
     }
 
 
@@ -622,44 +849,6 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
 
 
     {
-        constexpr auto scn_fac = scrn::calculate_screen_factor(1.0_rt, 1.0_rt, 8.0_rt, 17.0_rt);
-
-
-        static_assert(scn_fac.z1 == 1.0_rt);
-
-
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
-    }
-
-
-    ratraw = rate_eval.screened_rates(k_p_O17_to_He4_N14);
-    rate_eval.screened_rates(k_p_O17_to_He4_N14) *= scor;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_O17_to_He4_N14);
-        rate_eval.dscreened_rates_dT(k_p_O17_to_He4_N14) = ratraw * dscor_dt + dratraw_dT * scor;
-    }
-
-
-    {
-        constexpr auto scn_fac = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 8.0_rt, 17.0_rt);
-
-
-        static_assert(scn_fac.z1 == 2.0_rt);
-
-
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
-    }
-
-
-    ratraw = rate_eval.screened_rates(k_He4_O17_to_n_Ne20);
-    rate_eval.screened_rates(k_He4_O17_to_n_Ne20) *= scor;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        dratraw_dT = rate_eval.dscreened_rates_dT(k_He4_O17_to_n_Ne20);
-        rate_eval.dscreened_rates_dT(k_He4_O17_to_n_Ne20) = ratraw * dscor_dt + dratraw_dT * scor;
-    }
-
-
-    {
         constexpr auto scn_fac = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 2.0_rt, 4.0_rt);
 
 
@@ -818,25 +1007,6 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         dratraw_dT = rate_eval.dscreened_rates_dT(k_p_nse_Ni58_to_He4_Co55_derived);
         rate_eval.dscreened_rates_dT(k_p_nse_Ni58_to_He4_Co55_derived) = ratraw * dscor_dt + dratraw_dT * scor;
-    }
-
-
-    {
-        constexpr auto scn_fac = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 7.0_rt, 14.0_rt);
-
-
-        static_assert(scn_fac.z1 == 2.0_rt);
-
-
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
-    }
-
-
-    ratraw = rate_eval.screened_rates(k_He4_N14_to_p_O17_derived);
-    rate_eval.screened_rates(k_He4_N14_to_p_O17_derived) *= scor;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        dratraw_dT = rate_eval.dscreened_rates_dT(k_He4_N14_to_p_O17_derived);
-        rate_eval.dscreened_rates_dT(k_He4_N14_to_p_O17_derived) = ratraw * dscor_dt + dratraw_dT * scor;
     }
 
 
@@ -1115,6 +1285,38 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
 
     rate_eval.enuc_weak = 0.0_rt;
 
+    tabular_evaluate(j_Mg23_Na23_meta, j_Mg23_Na23_rhoy, j_Mg23_Na23_temp, j_Mg23_Na23_data,
+                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+    rate_eval.screened_rates(k_Mg23_to_Na23) = rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        rate_eval.dscreened_rates_dT(k_Mg23_to_Na23) = drate_dt;
+    }
+    rate_eval.enuc_weak += C::Legacy::n_A * Y(Mg23) * (edot_nu + edot_gamma);
+
+    tabular_evaluate(j_Na22_Ne22_meta, j_Na22_Ne22_rhoy, j_Na22_Ne22_temp, j_Na22_Ne22_data,
+                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+    rate_eval.screened_rates(k_Na22_to_Ne22) = rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        rate_eval.dscreened_rates_dT(k_Na22_to_Ne22) = drate_dt;
+    }
+    rate_eval.enuc_weak += C::Legacy::n_A * Y(Na22) * (edot_nu + edot_gamma);
+
+    tabular_evaluate(j_Na23_Mg23_meta, j_Na23_Mg23_rhoy, j_Na23_Mg23_temp, j_Na23_Mg23_data,
+                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+    rate_eval.screened_rates(k_Na23_to_Mg23) = rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        rate_eval.dscreened_rates_dT(k_Na23_to_Mg23) = drate_dt;
+    }
+    rate_eval.enuc_weak += C::Legacy::n_A * Y(Na23) * (edot_nu + edot_gamma);
+
+    tabular_evaluate(j_Ne22_Na22_meta, j_Ne22_Na22_rhoy, j_Ne22_Na22_temp, j_Ne22_Na22_data,
+                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+    rate_eval.screened_rates(k_Ne22_to_Na22) = rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        rate_eval.dscreened_rates_dT(k_Ne22_to_Na22) = drate_dt;
+    }
+    rate_eval.enuc_weak += C::Legacy::n_A * Y(Ne22) * (edot_nu + edot_gamma);
+
     tabular_evaluate(j_Co56_Fe56_meta, j_Co56_Fe56_rhoy, j_Co56_Fe56_temp, j_Co56_Fe56_data,
                      rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_Co56_to_Fe56) = rate;
@@ -1194,6 +1396,26 @@ void get_ydot_weak(const burn_t& state,
 
     // Calculate tabular rates and get ydot_weak
 
+    tabular_evaluate(j_Mg23_Na23_meta, j_Mg23_Na23_rhoy, j_Mg23_Na23_temp, j_Mg23_Na23_data,
+                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+    rate_eval.screened_rates(k_Mg23_to_Na23) = rate;
+    rate_eval.enuc_weak += C::Legacy::n_A * Y(Mg23) * (edot_nu + edot_gamma);
+
+    tabular_evaluate(j_Na22_Ne22_meta, j_Na22_Ne22_rhoy, j_Na22_Ne22_temp, j_Na22_Ne22_data,
+                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+    rate_eval.screened_rates(k_Na22_to_Ne22) = rate;
+    rate_eval.enuc_weak += C::Legacy::n_A * Y(Na22) * (edot_nu + edot_gamma);
+
+    tabular_evaluate(j_Na23_Mg23_meta, j_Na23_Mg23_rhoy, j_Na23_Mg23_temp, j_Na23_Mg23_data,
+                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+    rate_eval.screened_rates(k_Na23_to_Mg23) = rate;
+    rate_eval.enuc_weak += C::Legacy::n_A * Y(Na23) * (edot_nu + edot_gamma);
+
+    tabular_evaluate(j_Ne22_Na22_meta, j_Ne22_Na22_rhoy, j_Ne22_Na22_temp, j_Ne22_Na22_data,
+                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+    rate_eval.screened_rates(k_Ne22_to_Na22) = rate;
+    rate_eval.enuc_weak += C::Legacy::n_A * Y(Ne22) * (edot_nu + edot_gamma);
+
     tabular_evaluate(j_Co56_Fe56_meta, j_Co56_Fe56_rhoy, j_Co56_Fe56_temp, j_Co56_Fe56_data,
                      rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_Co56_to_Fe56) = rate;
@@ -1246,9 +1468,25 @@ void get_ydot_weak(const burn_t& state,
 
     ydot_nuc(O17) = 0.0_rt;
 
+    ydot_nuc(F18) = 0.0_rt;
+
+    ydot_nuc(F19) = 0.0_rt;
+
     ydot_nuc(Ne20) = 0.0_rt;
 
-    ydot_nuc(Na23) = 0.0_rt;
+    ydot_nuc(Ne21) = 0.0_rt;
+
+    ydot_nuc(Ne22) =
+        (screened_rates(k_Na22_to_Ne22)*Y(Na22) + -screened_rates(k_Ne22_to_Na22)*Y(Ne22));
+
+    ydot_nuc(Na22) =
+        (-screened_rates(k_Na22_to_Ne22)*Y(Na22) + screened_rates(k_Ne22_to_Na22)*Y(Ne22));
+
+    ydot_nuc(Na23) =
+        (screened_rates(k_Mg23_to_Na23)*Y(Mg23) + -screened_rates(k_Na23_to_Mg23)*Y(Na23));
+
+    ydot_nuc(Mg23) =
+        (-screened_rates(k_Mg23_to_Na23)*Y(Mg23) + screened_rates(k_Na23_to_Mg23)*Y(Na23));
 
     ydot_nuc(Mg24) = 0.0_rt;
 
@@ -1308,9 +1546,6 @@ void rhs_nuc(const burn_t& state,
     using namespace Rates;
 
     ydot_nuc(N) =
-        (-screened_rates(k_n_N13_to_N14)*Y(N13)*Y(N)*state.rho + screened_rates(k_N14_to_n_N13_derived)*Y(N14)) +
-        (-screened_rates(k_n_O16_to_O17)*Y(O16)*Y(N)*state.rho + screened_rates(k_O17_to_n_O16_derived)*Y(O17)) +
-        (screened_rates(k_He4_O17_to_n_Ne20)*Y(He4)*Y(O17)*state.rho + -screened_rates(k_n_Ne20_to_He4_O17_derived)*Y(Ne20)*Y(N)*state.rho) +
         (-screened_rates(k_n_Co55_to_Co56)*Y(Co55)*Y(N)*state.rho + screened_rates(k_Co56_to_n_Co55_derived)*Y(Co56)) +
         (-screened_rates(k_n_Co56_to_Co57)*Y(Co56)*Y(N)*state.rho + screened_rates(k_Co57_to_n_Co56_derived)*Y(Co57)) +
         (-screened_rates(k_n_Co56_to_p_nse_Fe56)*Y(Co56)*Y(N)*state.rho + screened_rates(k_p_nse_Fe56_to_n_Co56_derived)*Y(Fe56)*Y(P_nse)*state.rho) +
@@ -1323,6 +1558,11 @@ void rhs_nuc(const burn_t& state,
 
     ydot_nuc(H1) =
         (-screened_rates(k_p_C12_to_N13)*Y(C12)*Y(H1)*state.rho + screened_rates(k_N13_to_p_C12_derived)*Y(N13)) +
+        (-screened_rates(k_p_O17_to_F18)*Y(O17)*Y(H1)*state.rho + screened_rates(k_F18_to_p_O17_derived)*Y(F18)) +
+        (-screened_rates(k_p_F19_to_Ne20)*Y(F19)*Y(H1)*state.rho + screened_rates(k_Ne20_to_p_F19_derived)*Y(Ne20)) +
+        (-screened_rates(k_p_Ne21_to_Na22)*Y(Ne21)*Y(H1)*state.rho + screened_rates(k_Na22_to_p_Ne21_derived)*Y(Na22)) +
+        (-screened_rates(k_p_Ne22_to_Na23)*Y(Ne22)*Y(H1)*state.rho + screened_rates(k_Na23_to_p_Ne22_derived)*Y(Na23)) +
+        (-screened_rates(k_p_Na22_to_Mg23)*Y(Na22)*Y(H1)*state.rho + screened_rates(k_Mg23_to_p_Na22_derived)*Y(Mg23)) +
         (-screened_rates(k_p_Na23_to_Mg24)*Y(Na23)*Y(H1)*state.rho + screened_rates(k_Mg24_to_p_Na23_derived)*Y(Mg24)) +
         (-screened_rates(k_p_Al27_to_Si28)*Y(Al27)*Y(H1)*state.rho + screened_rates(k_Si28_to_p_Al27_derived)*Y(Si28)) +
         (-screened_rates(k_p_P31_to_S32)*Y(P31)*Y(H1)*state.rho + screened_rates(k_S32_to_p_P31_derived)*Y(S32)) +
@@ -1331,6 +1571,9 @@ void rhs_nuc(const burn_t& state,
         screened_rates(k_C12_O16_to_p_Al27)*Y(C12)*Y(O16)*state.rho +
         0.5*screened_rates(k_O16_O16_to_p_P31)*amrex::Math::powi<2>(Y(O16))*state.rho +
         (-screened_rates(k_p_O17_to_He4_N14)*Y(O17)*Y(H1)*state.rho + screened_rates(k_He4_N14_to_p_O17_derived)*Y(He4)*Y(N14)*state.rho) +
+        (screened_rates(k_He4_F18_to_p_Ne21)*Y(F18)*Y(He4)*state.rho + -screened_rates(k_p_Ne21_to_He4_F18_derived)*Y(Ne21)*Y(H1)*state.rho) +
+        (-screened_rates(k_p_F19_to_He4_O16)*Y(F19)*Y(H1)*state.rho + screened_rates(k_He4_O16_to_p_F19_derived)*Y(He4)*Y(O16)*state.rho) +
+        (screened_rates(k_He4_F19_to_p_Ne22)*Y(F19)*Y(He4)*state.rho + -screened_rates(k_p_Ne22_to_He4_F19_derived)*Y(Ne22)*Y(H1)*state.rho) +
         (-screened_rates(k_p_Na23_to_He4_Ne20)*Y(Na23)*Y(H1)*state.rho + screened_rates(k_He4_Ne20_to_p_Na23_derived)*Y(He4)*Y(Ne20)*state.rho) +
         (-screened_rates(k_p_Al27_to_He4_Mg24)*Y(Al27)*Y(H1)*state.rho + screened_rates(k_He4_Mg24_to_p_Al27_derived)*Y(He4)*Y(Mg24)*state.rho) +
         (-screened_rates(k_p_P31_to_He4_Si28)*Y(P31)*Y(H1)*state.rho + screened_rates(k_He4_Si28_to_p_P31_derived)*Y(He4)*Y(Si28)*state.rho) +
@@ -1355,7 +1598,11 @@ void rhs_nuc(const burn_t& state,
 
     ydot_nuc(He4) =
         (-screened_rates(k_He4_C12_to_O16)*Y(C12)*Y(He4)*state.rho + screened_rates(k_O16_to_He4_C12_derived)*Y(O16)) +
+        (-screened_rates(k_He4_N14_to_F18)*Y(He4)*Y(N14)*state.rho + screened_rates(k_F18_to_He4_N14_derived)*Y(F18)) +
         (-screened_rates(k_He4_O16_to_Ne20)*Y(He4)*Y(O16)*state.rho + screened_rates(k_Ne20_to_He4_O16_derived)*Y(Ne20)) +
+        (-screened_rates(k_He4_O17_to_Ne21)*Y(He4)*Y(O17)*state.rho + screened_rates(k_Ne21_to_He4_O17_derived)*Y(Ne21)) +
+        (-screened_rates(k_He4_F18_to_Na22)*Y(F18)*Y(He4)*state.rho + screened_rates(k_Na22_to_He4_F18_derived)*Y(Na22)) +
+        (-screened_rates(k_He4_F19_to_Na23)*Y(F19)*Y(He4)*state.rho + screened_rates(k_Na23_to_He4_F19_derived)*Y(Na23)) +
         (-screened_rates(k_He4_Ne20_to_Mg24)*Y(He4)*Y(Ne20)*state.rho + screened_rates(k_Mg24_to_He4_Ne20_derived)*Y(Mg24)) +
         (-screened_rates(k_He4_Mg24_to_Si28)*Y(He4)*Y(Mg24)*state.rho + screened_rates(k_Si28_to_He4_Mg24_derived)*Y(Si28)) +
         (-screened_rates(k_He4_Si28_to_S32)*Y(He4)*Y(Si28)*state.rho + screened_rates(k_S32_to_He4_Si28_derived)*Y(S32)) +
@@ -1369,7 +1616,9 @@ void rhs_nuc(const burn_t& state,
         screened_rates(k_C12_O16_to_He4_Mg24)*Y(C12)*Y(O16)*state.rho +
         0.5*screened_rates(k_O16_O16_to_He4_Si28)*amrex::Math::powi<2>(Y(O16))*state.rho +
         (screened_rates(k_p_O17_to_He4_N14)*Y(O17)*Y(H1)*state.rho + -screened_rates(k_He4_N14_to_p_O17_derived)*Y(He4)*Y(N14)*state.rho) +
-        (-screened_rates(k_He4_O17_to_n_Ne20)*Y(He4)*Y(O17)*state.rho + screened_rates(k_n_Ne20_to_He4_O17_derived)*Y(Ne20)*Y(N)*state.rho) +
+        (-screened_rates(k_He4_F18_to_p_Ne21)*Y(F18)*Y(He4)*state.rho + screened_rates(k_p_Ne21_to_He4_F18_derived)*Y(Ne21)*Y(H1)*state.rho) +
+        (screened_rates(k_p_F19_to_He4_O16)*Y(F19)*Y(H1)*state.rho + -screened_rates(k_He4_O16_to_p_F19_derived)*Y(He4)*Y(O16)*state.rho) +
+        (-screened_rates(k_He4_F19_to_p_Ne22)*Y(F19)*Y(He4)*state.rho + screened_rates(k_p_Ne22_to_He4_F19_derived)*Y(Ne22)*Y(H1)*state.rho) +
         (screened_rates(k_p_Na23_to_He4_Ne20)*Y(Na23)*Y(H1)*state.rho + -screened_rates(k_He4_Ne20_to_p_Na23_derived)*Y(He4)*Y(Ne20)*state.rho) +
         (screened_rates(k_p_Al27_to_He4_Mg24)*Y(Al27)*Y(H1)*state.rho + -screened_rates(k_He4_Mg24_to_p_Al27_derived)*Y(He4)*Y(Mg24)*state.rho) +
         (screened_rates(k_p_P31_to_He4_Si28)*Y(P31)*Y(H1)*state.rho + -screened_rates(k_He4_Si28_to_p_P31_derived)*Y(He4)*Y(Si28)*state.rho) +
@@ -1400,41 +1649,75 @@ void rhs_nuc(const burn_t& state,
 
     ydot_nuc(N13) =
         (screened_rates(k_p_C12_to_N13)*Y(C12)*Y(H1)*state.rho + -screened_rates(k_N13_to_p_C12_derived)*Y(N13)) +
-        (-screened_rates(k_n_N13_to_N14)*Y(N13)*Y(N)*state.rho + screened_rates(k_N14_to_n_N13_derived)*Y(N14)) +
         (-screened_rates(k_He4_N13_to_p_O16)*Y(He4)*Y(N13)*state.rho + screened_rates(k_p_O16_to_He4_N13_derived)*Y(O16)*Y(H1)*state.rho);
 
     ydot_nuc(N14) =
-        (screened_rates(k_n_N13_to_N14)*Y(N13)*Y(N)*state.rho + -screened_rates(k_N14_to_n_N13_derived)*Y(N14)) +
+        (-screened_rates(k_He4_N14_to_F18)*Y(He4)*Y(N14)*state.rho + screened_rates(k_F18_to_He4_N14_derived)*Y(F18)) +
         (screened_rates(k_p_O17_to_He4_N14)*Y(O17)*Y(H1)*state.rho + -screened_rates(k_He4_N14_to_p_O17_derived)*Y(He4)*Y(N14)*state.rho);
 
     ydot_nuc(O16) =
         (screened_rates(k_He4_C12_to_O16)*Y(C12)*Y(He4)*state.rho + -screened_rates(k_O16_to_He4_C12_derived)*Y(O16)) +
-        (-screened_rates(k_n_O16_to_O17)*Y(O16)*Y(N)*state.rho + screened_rates(k_O17_to_n_O16_derived)*Y(O17)) +
         (-screened_rates(k_He4_O16_to_Ne20)*Y(He4)*Y(O16)*state.rho + screened_rates(k_Ne20_to_He4_O16_derived)*Y(Ne20)) +
         (screened_rates(k_He4_N13_to_p_O16)*Y(He4)*Y(N13)*state.rho + -screened_rates(k_p_O16_to_He4_N13_derived)*Y(O16)*Y(H1)*state.rho) +
         -screened_rates(k_C12_O16_to_p_Al27)*Y(C12)*Y(O16)*state.rho +
         -screened_rates(k_C12_O16_to_He4_Mg24)*Y(C12)*Y(O16)*state.rho +
         -screened_rates(k_O16_O16_to_p_P31)*amrex::Math::powi<2>(Y(O16))*state.rho +
         -screened_rates(k_O16_O16_to_He4_Si28)*amrex::Math::powi<2>(Y(O16))*state.rho +
+        (screened_rates(k_p_F19_to_He4_O16)*Y(F19)*Y(H1)*state.rho + -screened_rates(k_He4_O16_to_p_F19_derived)*Y(He4)*Y(O16)*state.rho) +
         -screened_rates(k_O16_O16_to_S32_modified)*amrex::Math::powi<2>(Y(O16))*state.rho +
         -screened_rates(k_C12_O16_to_Si28_modified)*Y(C12)*Y(O16)*state.rho;
 
     ydot_nuc(O17) =
-        (screened_rates(k_n_O16_to_O17)*Y(O16)*Y(N)*state.rho + -screened_rates(k_O17_to_n_O16_derived)*Y(O17)) +
-        (-screened_rates(k_p_O17_to_He4_N14)*Y(O17)*Y(H1)*state.rho + screened_rates(k_He4_N14_to_p_O17_derived)*Y(He4)*Y(N14)*state.rho) +
-        (-screened_rates(k_He4_O17_to_n_Ne20)*Y(He4)*Y(O17)*state.rho + screened_rates(k_n_Ne20_to_He4_O17_derived)*Y(Ne20)*Y(N)*state.rho);
+        (-screened_rates(k_p_O17_to_F18)*Y(O17)*Y(H1)*state.rho + screened_rates(k_F18_to_p_O17_derived)*Y(F18)) +
+        (-screened_rates(k_He4_O17_to_Ne21)*Y(He4)*Y(O17)*state.rho + screened_rates(k_Ne21_to_He4_O17_derived)*Y(Ne21)) +
+        (-screened_rates(k_p_O17_to_He4_N14)*Y(O17)*Y(H1)*state.rho + screened_rates(k_He4_N14_to_p_O17_derived)*Y(He4)*Y(N14)*state.rho);
+
+    ydot_nuc(F18) =
+        (screened_rates(k_He4_N14_to_F18)*Y(He4)*Y(N14)*state.rho + -screened_rates(k_F18_to_He4_N14_derived)*Y(F18)) +
+        (screened_rates(k_p_O17_to_F18)*Y(O17)*Y(H1)*state.rho + -screened_rates(k_F18_to_p_O17_derived)*Y(F18)) +
+        (-screened_rates(k_He4_F18_to_Na22)*Y(F18)*Y(He4)*state.rho + screened_rates(k_Na22_to_He4_F18_derived)*Y(Na22)) +
+        (-screened_rates(k_He4_F18_to_p_Ne21)*Y(F18)*Y(He4)*state.rho + screened_rates(k_p_Ne21_to_He4_F18_derived)*Y(Ne21)*Y(H1)*state.rho);
+
+    ydot_nuc(F19) =
+        (-screened_rates(k_p_F19_to_Ne20)*Y(F19)*Y(H1)*state.rho + screened_rates(k_Ne20_to_p_F19_derived)*Y(Ne20)) +
+        (-screened_rates(k_He4_F19_to_Na23)*Y(F19)*Y(He4)*state.rho + screened_rates(k_Na23_to_He4_F19_derived)*Y(Na23)) +
+        (-screened_rates(k_p_F19_to_He4_O16)*Y(F19)*Y(H1)*state.rho + screened_rates(k_He4_O16_to_p_F19_derived)*Y(He4)*Y(O16)*state.rho) +
+        (-screened_rates(k_He4_F19_to_p_Ne22)*Y(F19)*Y(He4)*state.rho + screened_rates(k_p_Ne22_to_He4_F19_derived)*Y(Ne22)*Y(H1)*state.rho);
 
     ydot_nuc(Ne20) =
         (screened_rates(k_He4_O16_to_Ne20)*Y(He4)*Y(O16)*state.rho + -screened_rates(k_Ne20_to_He4_O16_derived)*Y(Ne20)) +
+        (screened_rates(k_p_F19_to_Ne20)*Y(F19)*Y(H1)*state.rho + -screened_rates(k_Ne20_to_p_F19_derived)*Y(Ne20)) +
         (-screened_rates(k_He4_Ne20_to_Mg24)*Y(He4)*Y(Ne20)*state.rho + screened_rates(k_Mg24_to_He4_Ne20_derived)*Y(Mg24)) +
         0.5*screened_rates(k_C12_C12_to_He4_Ne20)*amrex::Math::powi<2>(Y(C12))*state.rho +
-        (screened_rates(k_He4_O17_to_n_Ne20)*Y(He4)*Y(O17)*state.rho + -screened_rates(k_n_Ne20_to_He4_O17_derived)*Y(Ne20)*Y(N)*state.rho) +
         (screened_rates(k_p_Na23_to_He4_Ne20)*Y(Na23)*Y(H1)*state.rho + -screened_rates(k_He4_Ne20_to_p_Na23_derived)*Y(He4)*Y(Ne20)*state.rho);
 
+    ydot_nuc(Ne21) =
+        (screened_rates(k_He4_O17_to_Ne21)*Y(He4)*Y(O17)*state.rho + -screened_rates(k_Ne21_to_He4_O17_derived)*Y(Ne21)) +
+        (-screened_rates(k_p_Ne21_to_Na22)*Y(Ne21)*Y(H1)*state.rho + screened_rates(k_Na22_to_p_Ne21_derived)*Y(Na22)) +
+        (screened_rates(k_He4_F18_to_p_Ne21)*Y(F18)*Y(He4)*state.rho + -screened_rates(k_p_Ne21_to_He4_F18_derived)*Y(Ne21)*Y(H1)*state.rho);
+
+    ydot_nuc(Ne22) =
+        (-screened_rates(k_p_Ne22_to_Na23)*Y(Ne22)*Y(H1)*state.rho + screened_rates(k_Na23_to_p_Ne22_derived)*Y(Na23)) +
+        (screened_rates(k_He4_F19_to_p_Ne22)*Y(F19)*Y(He4)*state.rho + -screened_rates(k_p_Ne22_to_He4_F19_derived)*Y(Ne22)*Y(H1)*state.rho) +
+        (screened_rates(k_Na22_to_Ne22)*Y(Na22) + -screened_rates(k_Ne22_to_Na22)*Y(Ne22));
+
+    ydot_nuc(Na22) =
+        (screened_rates(k_He4_F18_to_Na22)*Y(F18)*Y(He4)*state.rho + -screened_rates(k_Na22_to_He4_F18_derived)*Y(Na22)) +
+        (screened_rates(k_p_Ne21_to_Na22)*Y(Ne21)*Y(H1)*state.rho + -screened_rates(k_Na22_to_p_Ne21_derived)*Y(Na22)) +
+        (-screened_rates(k_p_Na22_to_Mg23)*Y(Na22)*Y(H1)*state.rho + screened_rates(k_Mg23_to_p_Na22_derived)*Y(Mg23)) +
+        (-screened_rates(k_Na22_to_Ne22)*Y(Na22) + screened_rates(k_Ne22_to_Na22)*Y(Ne22));
+
     ydot_nuc(Na23) =
+        (screened_rates(k_He4_F19_to_Na23)*Y(F19)*Y(He4)*state.rho + -screened_rates(k_Na23_to_He4_F19_derived)*Y(Na23)) +
+        (screened_rates(k_p_Ne22_to_Na23)*Y(Ne22)*Y(H1)*state.rho + -screened_rates(k_Na23_to_p_Ne22_derived)*Y(Na23)) +
         (-screened_rates(k_p_Na23_to_Mg24)*Y(Na23)*Y(H1)*state.rho + screened_rates(k_Mg24_to_p_Na23_derived)*Y(Mg24)) +
         0.5*screened_rates(k_C12_C12_to_p_Na23)*amrex::Math::powi<2>(Y(C12))*state.rho +
-        (-screened_rates(k_p_Na23_to_He4_Ne20)*Y(Na23)*Y(H1)*state.rho + screened_rates(k_He4_Ne20_to_p_Na23_derived)*Y(He4)*Y(Ne20)*state.rho);
+        (-screened_rates(k_p_Na23_to_He4_Ne20)*Y(Na23)*Y(H1)*state.rho + screened_rates(k_He4_Ne20_to_p_Na23_derived)*Y(He4)*Y(Ne20)*state.rho) +
+        (screened_rates(k_Mg23_to_Na23)*Y(Mg23) + -screened_rates(k_Na23_to_Mg23)*Y(Na23));
+
+    ydot_nuc(Mg23) =
+        (screened_rates(k_p_Na22_to_Mg23)*Y(Na22)*Y(H1)*state.rho + -screened_rates(k_Mg23_to_p_Na22_derived)*Y(Mg23)) +
+        (-screened_rates(k_Mg23_to_Na23)*Y(Mg23) + screened_rates(k_Na23_to_Mg23)*Y(Na23));
 
     ydot_nuc(Mg24) =
         (screened_rates(k_He4_Ne20_to_Mg24)*Y(He4)*Y(Ne20)*state.rho + -screened_rates(k_Mg24_to_He4_Ne20_derived)*Y(Mg24)) +
@@ -1624,7 +1907,7 @@ void jac_nuc(const burn_t& state,
 
     amrex::Real scratch;
 
-    scratch = -4.0*screened_rates(k_Fe52_n_n_to_Fe54_approx)*Y(Fe52)*Y(N)*amrex::Math::powi<2>(state.rho) - 4.0*screened_rates(k_Fe54_n_n_to_Fe56_approx)*Y(Fe54)*Y(N)*amrex::Math::powi<2>(state.rho) - 4.0*screened_rates(k_Ni56_n_n_to_Ni58_approx)*Y(Ni56)*Y(N)*amrex::Math::powi<2>(state.rho) - screened_rates(k_n_Co55_to_Co56)*Y(Co55)*state.rho - screened_rates(k_n_Co56_to_Co57)*Y(Co56)*state.rho - screened_rates(k_n_Co56_to_p_nse_Fe56)*Y(Co56)*state.rho - screened_rates(k_n_Cu59_to_He4_Co56)*Y(Cu59)*state.rho - screened_rates(k_n_N13_to_N14)*Y(N13)*state.rho - screened_rates(k_n_Ne20_to_He4_O17_derived)*Y(Ne20)*state.rho - screened_rates(k_n_Ni56_to_p_nse_Co56)*Y(Ni56)*state.rho - screened_rates(k_n_O16_to_O17)*Y(O16)*state.rho - screened_rates(k_n_to_p);
+    scratch = -4.0*screened_rates(k_Fe52_n_n_to_Fe54_approx)*Y(Fe52)*Y(N)*amrex::Math::powi<2>(state.rho) - 4.0*screened_rates(k_Fe54_n_n_to_Fe56_approx)*Y(Fe54)*Y(N)*amrex::Math::powi<2>(state.rho) - 4.0*screened_rates(k_Ni56_n_n_to_Ni58_approx)*Y(Ni56)*Y(N)*amrex::Math::powi<2>(state.rho) - screened_rates(k_n_Co55_to_Co56)*Y(Co55)*state.rho - screened_rates(k_n_Co56_to_Co57)*Y(Co56)*state.rho - screened_rates(k_n_Co56_to_p_nse_Fe56)*Y(Co56)*state.rho - screened_rates(k_n_Cu59_to_He4_Co56)*Y(Cu59)*state.rho - screened_rates(k_n_Ni56_to_p_nse_Co56)*Y(Ni56)*state.rho - screened_rates(k_n_to_p);
     jac.set(N, N, scratch);
 
     scratch = screened_rates(k_p_to_n);
@@ -1633,23 +1916,8 @@ void jac_nuc(const burn_t& state,
     scratch = screened_rates(k_p_nse_Co56_to_n_Ni56_derived)*Y(Co56)*state.rho + screened_rates(k_p_nse_Fe56_to_n_Co56_derived)*Y(Fe56)*state.rho;
     jac.set(N, P_nse, scratch);
 
-    scratch = screened_rates(k_He4_Co56_to_n_Cu59_derived)*Y(Co56)*state.rho + screened_rates(k_He4_O17_to_n_Ne20)*Y(O17)*state.rho;
+    scratch = screened_rates(k_He4_Co56_to_n_Cu59_derived)*Y(Co56)*state.rho;
     jac.set(N, He4, scratch);
-
-    scratch = -screened_rates(k_n_N13_to_N14)*Y(N)*state.rho;
-    jac.set(N, N13, scratch);
-
-    scratch = screened_rates(k_N14_to_n_N13_derived);
-    jac.set(N, N14, scratch);
-
-    scratch = -screened_rates(k_n_O16_to_O17)*Y(N)*state.rho;
-    jac.set(N, O16, scratch);
-
-    scratch = screened_rates(k_He4_O17_to_n_Ne20)*Y(He4)*state.rho + screened_rates(k_O17_to_n_O16_derived);
-    jac.set(N, O17, scratch);
-
-    scratch = -screened_rates(k_n_Ne20_to_He4_O17_derived)*Y(N)*state.rho;
-    jac.set(N, Ne20, scratch);
 
     scratch = -2.0*screened_rates(k_Fe52_n_n_to_Fe54_approx)*amrex::Math::powi<2>(Y(N))*amrex::Math::powi<2>(state.rho);
     jac.set(N, Fe52, scratch);
@@ -1681,10 +1949,10 @@ void jac_nuc(const burn_t& state,
     scratch = screened_rates(k_n_to_p);
     jac.set(H1, N, scratch);
 
-    scratch = -screened_rates(k_p_Al27_to_He4_Mg24)*Y(Al27)*state.rho - screened_rates(k_p_Al27_to_Si28)*Y(Al27)*state.rho - screened_rates(k_p_C12_to_N13)*Y(C12)*state.rho - screened_rates(k_p_Na23_to_He4_Ne20)*Y(Na23)*state.rho - screened_rates(k_p_Na23_to_Mg24)*Y(Na23)*state.rho - screened_rates(k_p_O16_to_He4_N13_derived)*Y(O16)*state.rho - screened_rates(k_p_O17_to_He4_N14)*Y(O17)*state.rho - screened_rates(k_p_P31_to_He4_Si28)*Y(P31)*state.rho - screened_rates(k_p_P31_to_S32)*Y(P31)*state.rho - screened_rates(k_p_to_n);
+    scratch = -screened_rates(k_p_Al27_to_He4_Mg24)*Y(Al27)*state.rho - screened_rates(k_p_Al27_to_Si28)*Y(Al27)*state.rho - screened_rates(k_p_C12_to_N13)*Y(C12)*state.rho - screened_rates(k_p_F19_to_He4_O16)*Y(F19)*state.rho - screened_rates(k_p_F19_to_Ne20)*Y(F19)*state.rho - screened_rates(k_p_Na22_to_Mg23)*Y(Na22)*state.rho - screened_rates(k_p_Na23_to_He4_Ne20)*Y(Na23)*state.rho - screened_rates(k_p_Na23_to_Mg24)*Y(Na23)*state.rho - screened_rates(k_p_Ne21_to_He4_F18_derived)*Y(Ne21)*state.rho - screened_rates(k_p_Ne21_to_Na22)*Y(Ne21)*state.rho - screened_rates(k_p_Ne22_to_He4_F19_derived)*Y(Ne22)*state.rho - screened_rates(k_p_Ne22_to_Na23)*Y(Ne22)*state.rho - screened_rates(k_p_O16_to_He4_N13_derived)*Y(O16)*state.rho - screened_rates(k_p_O17_to_F18)*Y(O17)*state.rho - screened_rates(k_p_O17_to_He4_N14)*Y(O17)*state.rho - screened_rates(k_p_P31_to_He4_Si28)*Y(P31)*state.rho - screened_rates(k_p_P31_to_S32)*Y(P31)*state.rho - screened_rates(k_p_to_n);
     jac.set(H1, H1, scratch);
 
-    scratch = screened_rates(k_He4_Mg24_to_p_Al27_derived)*Y(Mg24)*state.rho + screened_rates(k_He4_N13_to_p_O16)*Y(N13)*state.rho + screened_rates(k_He4_N14_to_p_O17_derived)*Y(N14)*state.rho + screened_rates(k_He4_Ne20_to_p_Na23_derived)*Y(Ne20)*state.rho + screened_rates(k_He4_Si28_to_p_P31_derived)*Y(Si28)*state.rho;
+    scratch = screened_rates(k_He4_F18_to_p_Ne21)*Y(F18)*state.rho + screened_rates(k_He4_F19_to_p_Ne22)*Y(F19)*state.rho + screened_rates(k_He4_Mg24_to_p_Al27_derived)*Y(Mg24)*state.rho + screened_rates(k_He4_N13_to_p_O16)*Y(N13)*state.rho + screened_rates(k_He4_N14_to_p_O17_derived)*Y(N14)*state.rho + screened_rates(k_He4_Ne20_to_p_Na23_derived)*Y(Ne20)*state.rho + screened_rates(k_He4_O16_to_p_F19_derived)*Y(O16)*state.rho + screened_rates(k_He4_Si28_to_p_P31_derived)*Y(Si28)*state.rho;
     jac.set(H1, He4, scratch);
 
     scratch = 1.0*screened_rates(k_C12_C12_to_p_Na23)*Y(C12)*state.rho + screened_rates(k_C12_O16_to_p_Al27)*Y(O16)*state.rho - screened_rates(k_p_C12_to_N13)*Y(H1)*state.rho;
@@ -1696,17 +1964,35 @@ void jac_nuc(const burn_t& state,
     scratch = screened_rates(k_He4_N14_to_p_O17_derived)*Y(He4)*state.rho;
     jac.set(H1, N14, scratch);
 
-    scratch = screened_rates(k_C12_O16_to_p_Al27)*Y(C12)*state.rho + 1.0*screened_rates(k_O16_O16_to_p_P31)*Y(O16)*state.rho - screened_rates(k_p_O16_to_He4_N13_derived)*Y(H1)*state.rho;
+    scratch = screened_rates(k_C12_O16_to_p_Al27)*Y(C12)*state.rho + screened_rates(k_He4_O16_to_p_F19_derived)*Y(He4)*state.rho + 1.0*screened_rates(k_O16_O16_to_p_P31)*Y(O16)*state.rho - screened_rates(k_p_O16_to_He4_N13_derived)*Y(H1)*state.rho;
     jac.set(H1, O16, scratch);
 
-    scratch = -screened_rates(k_p_O17_to_He4_N14)*Y(H1)*state.rho;
+    scratch = -screened_rates(k_p_O17_to_F18)*Y(H1)*state.rho - screened_rates(k_p_O17_to_He4_N14)*Y(H1)*state.rho;
     jac.set(H1, O17, scratch);
 
-    scratch = screened_rates(k_He4_Ne20_to_p_Na23_derived)*Y(He4)*state.rho;
+    scratch = screened_rates(k_F18_to_p_O17_derived) + screened_rates(k_He4_F18_to_p_Ne21)*Y(He4)*state.rho;
+    jac.set(H1, F18, scratch);
+
+    scratch = screened_rates(k_He4_F19_to_p_Ne22)*Y(He4)*state.rho - screened_rates(k_p_F19_to_He4_O16)*Y(H1)*state.rho - screened_rates(k_p_F19_to_Ne20)*Y(H1)*state.rho;
+    jac.set(H1, F19, scratch);
+
+    scratch = screened_rates(k_He4_Ne20_to_p_Na23_derived)*Y(He4)*state.rho + screened_rates(k_Ne20_to_p_F19_derived);
     jac.set(H1, Ne20, scratch);
 
-    scratch = -screened_rates(k_p_Na23_to_He4_Ne20)*Y(H1)*state.rho - screened_rates(k_p_Na23_to_Mg24)*Y(H1)*state.rho;
+    scratch = -screened_rates(k_p_Ne21_to_He4_F18_derived)*Y(H1)*state.rho - screened_rates(k_p_Ne21_to_Na22)*Y(H1)*state.rho;
+    jac.set(H1, Ne21, scratch);
+
+    scratch = -screened_rates(k_p_Ne22_to_He4_F19_derived)*Y(H1)*state.rho - screened_rates(k_p_Ne22_to_Na23)*Y(H1)*state.rho;
+    jac.set(H1, Ne22, scratch);
+
+    scratch = screened_rates(k_Na22_to_p_Ne21_derived) - screened_rates(k_p_Na22_to_Mg23)*Y(H1)*state.rho;
+    jac.set(H1, Na22, scratch);
+
+    scratch = screened_rates(k_Na23_to_p_Ne22_derived) - screened_rates(k_p_Na23_to_He4_Ne20)*Y(H1)*state.rho - screened_rates(k_p_Na23_to_Mg24)*Y(H1)*state.rho;
     jac.set(H1, Na23, scratch);
+
+    scratch = screened_rates(k_Mg23_to_p_Na22_derived);
+    jac.set(H1, Mg23, scratch);
 
     scratch = screened_rates(k_He4_Mg24_to_p_Al27_derived)*Y(He4)*state.rho + screened_rates(k_Mg24_to_p_Na23_derived);
     jac.set(H1, Mg24, scratch);
@@ -1768,16 +2054,16 @@ void jac_nuc(const burn_t& state,
     scratch = screened_rates(k_Zn60_to_p_nse_Cu59_derived);
     jac.set(P_nse, Zn60, scratch);
 
-    scratch = screened_rates(k_n_Cu59_to_He4_Co56)*Y(Cu59)*state.rho + screened_rates(k_n_Ne20_to_He4_O17_derived)*Y(Ne20)*state.rho;
+    scratch = screened_rates(k_n_Cu59_to_He4_Co56)*Y(Cu59)*state.rho;
     jac.set(He4, N, scratch);
 
-    scratch = screened_rates(k_p_Al27_to_He4_Mg24)*Y(Al27)*state.rho + screened_rates(k_p_Na23_to_He4_Ne20)*Y(Na23)*state.rho + screened_rates(k_p_O16_to_He4_N13_derived)*Y(O16)*state.rho + screened_rates(k_p_O17_to_He4_N14)*Y(O17)*state.rho + screened_rates(k_p_P31_to_He4_Si28)*Y(P31)*state.rho;
+    scratch = screened_rates(k_p_Al27_to_He4_Mg24)*Y(Al27)*state.rho + screened_rates(k_p_F19_to_He4_O16)*Y(F19)*state.rho + screened_rates(k_p_Na23_to_He4_Ne20)*Y(Na23)*state.rho + screened_rates(k_p_Ne21_to_He4_F18_derived)*Y(Ne21)*state.rho + screened_rates(k_p_Ne22_to_He4_F19_derived)*Y(Ne22)*state.rho + screened_rates(k_p_O16_to_He4_N13_derived)*Y(O16)*state.rho + screened_rates(k_p_O17_to_He4_N14)*Y(O17)*state.rho + screened_rates(k_p_P31_to_He4_Si28)*Y(P31)*state.rho;
     jac.set(He4, H1, scratch);
 
     scratch = screened_rates(k_p_nse_Co55_to_He4_Fe52_derived)*Y(Co55)*state.rho + screened_rates(k_p_nse_Co57_to_He4_Fe54)*Y(Co57)*state.rho + screened_rates(k_p_nse_Cu59_to_He4_Ni56)*Y(Cu59)*state.rho + screened_rates(k_p_nse_Fe54_to_He4_Mn51_derived)*Y(Fe54)*state.rho + screened_rates(k_p_nse_Mn51_to_He4_Cr48_derived)*Y(Mn51)*state.rho + screened_rates(k_p_nse_Ni58_to_He4_Co55_derived)*Y(Ni58)*state.rho;
     jac.set(He4, P_nse, scratch);
 
-    scratch = -screened_rates(k_Ar36_He4_to_Ca40_approx)*Y(Ar36)*state.rho - screened_rates(k_Ca40_He4_to_Ti44_approx)*Y(Ca40)*state.rho - screened_rates(k_He4_C12_to_O16)*Y(C12)*state.rho - screened_rates(k_He4_Co55_to_Cu59)*Y(Co55)*state.rho - screened_rates(k_He4_Co55_to_p_nse_Ni58)*Y(Co55)*state.rho - screened_rates(k_He4_Co56_to_n_Cu59_derived)*Y(Co56)*state.rho - screened_rates(k_He4_Cr48_to_Fe52)*Y(Cr48)*state.rho - screened_rates(k_He4_Cr48_to_p_nse_Mn51)*Y(Cr48)*state.rho - screened_rates(k_He4_Fe52_to_Ni56)*Y(Fe52)*state.rho - screened_rates(k_He4_Fe52_to_p_nse_Co55)*Y(Fe52)*state.rho - screened_rates(k_He4_Fe54_to_Ni58)*Y(Fe54)*state.rho - screened_rates(k_He4_Fe54_to_p_nse_Co57_derived)*Y(Fe54)*state.rho - 1.5*screened_rates(k_He4_He4_He4_to_C12)*amrex::Math::powi<2>(Y(He4))*amrex::Math::powi<2>(state.rho) - screened_rates(k_He4_Mg24_to_Si28)*Y(Mg24)*state.rho - screened_rates(k_He4_Mg24_to_p_Al27_derived)*Y(Mg24)*state.rho - screened_rates(k_He4_Mn51_to_Co55)*Y(Mn51)*state.rho - screened_rates(k_He4_Mn51_to_p_nse_Fe54)*Y(Mn51)*state.rho - screened_rates(k_He4_N13_to_p_O16)*Y(N13)*state.rho - screened_rates(k_He4_N14_to_p_O17_derived)*Y(N14)*state.rho - screened_rates(k_He4_Ne20_to_Mg24)*Y(Ne20)*state.rho - screened_rates(k_He4_Ne20_to_p_Na23_derived)*Y(Ne20)*state.rho - screened_rates(k_He4_Ni56_to_Zn60)*Y(Ni56)*state.rho - screened_rates(k_He4_Ni56_to_p_nse_Cu59_derived)*Y(Ni56)*state.rho - screened_rates(k_He4_O16_to_Ne20)*Y(O16)*state.rho - screened_rates(k_He4_O17_to_n_Ne20)*Y(O17)*state.rho - screened_rates(k_He4_Si28_to_S32)*Y(Si28)*state.rho - screened_rates(k_He4_Si28_to_p_P31_derived)*Y(Si28)*state.rho - screened_rates(k_S32_He4_to_Ar36_approx)*Y(S32)*state.rho - screened_rates(k_Ti44_He4_to_Cr48_approx)*Y(Ti44)*state.rho;
+    scratch = -screened_rates(k_Ar36_He4_to_Ca40_approx)*Y(Ar36)*state.rho - screened_rates(k_Ca40_He4_to_Ti44_approx)*Y(Ca40)*state.rho - screened_rates(k_He4_C12_to_O16)*Y(C12)*state.rho - screened_rates(k_He4_Co55_to_Cu59)*Y(Co55)*state.rho - screened_rates(k_He4_Co55_to_p_nse_Ni58)*Y(Co55)*state.rho - screened_rates(k_He4_Co56_to_n_Cu59_derived)*Y(Co56)*state.rho - screened_rates(k_He4_Cr48_to_Fe52)*Y(Cr48)*state.rho - screened_rates(k_He4_Cr48_to_p_nse_Mn51)*Y(Cr48)*state.rho - screened_rates(k_He4_F18_to_Na22)*Y(F18)*state.rho - screened_rates(k_He4_F18_to_p_Ne21)*Y(F18)*state.rho - screened_rates(k_He4_F19_to_Na23)*Y(F19)*state.rho - screened_rates(k_He4_F19_to_p_Ne22)*Y(F19)*state.rho - screened_rates(k_He4_Fe52_to_Ni56)*Y(Fe52)*state.rho - screened_rates(k_He4_Fe52_to_p_nse_Co55)*Y(Fe52)*state.rho - screened_rates(k_He4_Fe54_to_Ni58)*Y(Fe54)*state.rho - screened_rates(k_He4_Fe54_to_p_nse_Co57_derived)*Y(Fe54)*state.rho - 1.5*screened_rates(k_He4_He4_He4_to_C12)*amrex::Math::powi<2>(Y(He4))*amrex::Math::powi<2>(state.rho) - screened_rates(k_He4_Mg24_to_Si28)*Y(Mg24)*state.rho - screened_rates(k_He4_Mg24_to_p_Al27_derived)*Y(Mg24)*state.rho - screened_rates(k_He4_Mn51_to_Co55)*Y(Mn51)*state.rho - screened_rates(k_He4_Mn51_to_p_nse_Fe54)*Y(Mn51)*state.rho - screened_rates(k_He4_N13_to_p_O16)*Y(N13)*state.rho - screened_rates(k_He4_N14_to_F18)*Y(N14)*state.rho - screened_rates(k_He4_N14_to_p_O17_derived)*Y(N14)*state.rho - screened_rates(k_He4_Ne20_to_Mg24)*Y(Ne20)*state.rho - screened_rates(k_He4_Ne20_to_p_Na23_derived)*Y(Ne20)*state.rho - screened_rates(k_He4_Ni56_to_Zn60)*Y(Ni56)*state.rho - screened_rates(k_He4_Ni56_to_p_nse_Cu59_derived)*Y(Ni56)*state.rho - screened_rates(k_He4_O16_to_Ne20)*Y(O16)*state.rho - screened_rates(k_He4_O16_to_p_F19_derived)*Y(O16)*state.rho - screened_rates(k_He4_O17_to_Ne21)*Y(O17)*state.rho - screened_rates(k_He4_Si28_to_S32)*Y(Si28)*state.rho - screened_rates(k_He4_Si28_to_p_P31_derived)*Y(Si28)*state.rho - screened_rates(k_S32_He4_to_Ar36_approx)*Y(S32)*state.rho - screened_rates(k_Ti44_He4_to_Cr48_approx)*Y(Ti44)*state.rho;
     jac.set(He4, He4, scratch);
 
     scratch = 1.0*screened_rates(k_C12_C12_to_He4_Ne20)*Y(C12)*state.rho + screened_rates(k_C12_O16_to_He4_Mg24)*Y(O16)*state.rho + 3.0*screened_rates(k_C12_to_He4_He4_He4_derived) - screened_rates(k_He4_C12_to_O16)*Y(He4)*state.rho;
@@ -1786,19 +2072,34 @@ void jac_nuc(const burn_t& state,
     scratch = -screened_rates(k_He4_N13_to_p_O16)*Y(He4)*state.rho;
     jac.set(He4, N13, scratch);
 
-    scratch = -screened_rates(k_He4_N14_to_p_O17_derived)*Y(He4)*state.rho;
+    scratch = -screened_rates(k_He4_N14_to_F18)*Y(He4)*state.rho - screened_rates(k_He4_N14_to_p_O17_derived)*Y(He4)*state.rho;
     jac.set(He4, N14, scratch);
 
-    scratch = screened_rates(k_C12_O16_to_He4_Mg24)*Y(C12)*state.rho - screened_rates(k_He4_O16_to_Ne20)*Y(He4)*state.rho + 1.0*screened_rates(k_O16_O16_to_He4_Si28)*Y(O16)*state.rho + screened_rates(k_O16_to_He4_C12_derived) + screened_rates(k_p_O16_to_He4_N13_derived)*Y(H1)*state.rho;
+    scratch = screened_rates(k_C12_O16_to_He4_Mg24)*Y(C12)*state.rho - screened_rates(k_He4_O16_to_Ne20)*Y(He4)*state.rho - screened_rates(k_He4_O16_to_p_F19_derived)*Y(He4)*state.rho + 1.0*screened_rates(k_O16_O16_to_He4_Si28)*Y(O16)*state.rho + screened_rates(k_O16_to_He4_C12_derived) + screened_rates(k_p_O16_to_He4_N13_derived)*Y(H1)*state.rho;
     jac.set(He4, O16, scratch);
 
-    scratch = -screened_rates(k_He4_O17_to_n_Ne20)*Y(He4)*state.rho + screened_rates(k_p_O17_to_He4_N14)*Y(H1)*state.rho;
+    scratch = -screened_rates(k_He4_O17_to_Ne21)*Y(He4)*state.rho + screened_rates(k_p_O17_to_He4_N14)*Y(H1)*state.rho;
     jac.set(He4, O17, scratch);
 
-    scratch = -screened_rates(k_He4_Ne20_to_Mg24)*Y(He4)*state.rho - screened_rates(k_He4_Ne20_to_p_Na23_derived)*Y(He4)*state.rho + screened_rates(k_Ne20_to_He4_O16_derived) + screened_rates(k_n_Ne20_to_He4_O17_derived)*Y(N)*state.rho;
+    scratch = screened_rates(k_F18_to_He4_N14_derived) - screened_rates(k_He4_F18_to_Na22)*Y(He4)*state.rho - screened_rates(k_He4_F18_to_p_Ne21)*Y(He4)*state.rho;
+    jac.set(He4, F18, scratch);
+
+    scratch = -screened_rates(k_He4_F19_to_Na23)*Y(He4)*state.rho - screened_rates(k_He4_F19_to_p_Ne22)*Y(He4)*state.rho + screened_rates(k_p_F19_to_He4_O16)*Y(H1)*state.rho;
+    jac.set(He4, F19, scratch);
+
+    scratch = -screened_rates(k_He4_Ne20_to_Mg24)*Y(He4)*state.rho - screened_rates(k_He4_Ne20_to_p_Na23_derived)*Y(He4)*state.rho + screened_rates(k_Ne20_to_He4_O16_derived);
     jac.set(He4, Ne20, scratch);
 
-    scratch = screened_rates(k_p_Na23_to_He4_Ne20)*Y(H1)*state.rho;
+    scratch = screened_rates(k_Ne21_to_He4_O17_derived) + screened_rates(k_p_Ne21_to_He4_F18_derived)*Y(H1)*state.rho;
+    jac.set(He4, Ne21, scratch);
+
+    scratch = screened_rates(k_p_Ne22_to_He4_F19_derived)*Y(H1)*state.rho;
+    jac.set(He4, Ne22, scratch);
+
+    scratch = screened_rates(k_Na22_to_He4_F18_derived);
+    jac.set(He4, Na22, scratch);
+
+    scratch = screened_rates(k_Na23_to_He4_F19_derived) + screened_rates(k_p_Na23_to_He4_Ne20)*Y(H1)*state.rho;
     jac.set(He4, Na23, scratch);
 
     scratch = -screened_rates(k_He4_Mg24_to_Si28)*Y(He4)*state.rho - screened_rates(k_He4_Mg24_to_p_Al27_derived)*Y(He4)*state.rho + screened_rates(k_Mg24_to_He4_Ne20_derived);
@@ -1873,9 +2174,6 @@ void jac_nuc(const burn_t& state,
     scratch = -screened_rates(k_C12_O16_to_He4_Mg24)*Y(C12)*state.rho - screened_rates(k_C12_O16_to_Si28_modified)*Y(C12)*state.rho - screened_rates(k_C12_O16_to_p_Al27)*Y(C12)*state.rho + screened_rates(k_O16_to_He4_C12_derived);
     jac.set(C12, O16, scratch);
 
-    scratch = -screened_rates(k_n_N13_to_N14)*Y(N13)*state.rho;
-    jac.set(N13, N, scratch);
-
     scratch = screened_rates(k_p_C12_to_N13)*Y(C12)*state.rho + screened_rates(k_p_O16_to_He4_N13_derived)*Y(O16)*state.rho;
     jac.set(N13, H1, scratch);
 
@@ -1885,40 +2183,31 @@ void jac_nuc(const burn_t& state,
     scratch = screened_rates(k_p_C12_to_N13)*Y(H1)*state.rho;
     jac.set(N13, C12, scratch);
 
-    scratch = -screened_rates(k_He4_N13_to_p_O16)*Y(He4)*state.rho - screened_rates(k_N13_to_p_C12_derived) - screened_rates(k_n_N13_to_N14)*Y(N)*state.rho;
+    scratch = -screened_rates(k_He4_N13_to_p_O16)*Y(He4)*state.rho - screened_rates(k_N13_to_p_C12_derived);
     jac.set(N13, N13, scratch);
-
-    scratch = screened_rates(k_N14_to_n_N13_derived);
-    jac.set(N13, N14, scratch);
 
     scratch = screened_rates(k_p_O16_to_He4_N13_derived)*Y(H1)*state.rho;
     jac.set(N13, O16, scratch);
 
-    scratch = screened_rates(k_n_N13_to_N14)*Y(N13)*state.rho;
-    jac.set(N14, N, scratch);
-
     scratch = screened_rates(k_p_O17_to_He4_N14)*Y(O17)*state.rho;
     jac.set(N14, H1, scratch);
 
-    scratch = -screened_rates(k_He4_N14_to_p_O17_derived)*Y(N14)*state.rho;
+    scratch = -screened_rates(k_He4_N14_to_F18)*Y(N14)*state.rho - screened_rates(k_He4_N14_to_p_O17_derived)*Y(N14)*state.rho;
     jac.set(N14, He4, scratch);
 
-    scratch = screened_rates(k_n_N13_to_N14)*Y(N)*state.rho;
-    jac.set(N14, N13, scratch);
-
-    scratch = -screened_rates(k_He4_N14_to_p_O17_derived)*Y(He4)*state.rho - screened_rates(k_N14_to_n_N13_derived);
+    scratch = -screened_rates(k_He4_N14_to_F18)*Y(He4)*state.rho - screened_rates(k_He4_N14_to_p_O17_derived)*Y(He4)*state.rho;
     jac.set(N14, N14, scratch);
 
     scratch = screened_rates(k_p_O17_to_He4_N14)*Y(H1)*state.rho;
     jac.set(N14, O17, scratch);
 
-    scratch = -screened_rates(k_n_O16_to_O17)*Y(O16)*state.rho;
-    jac.set(O16, N, scratch);
+    scratch = screened_rates(k_F18_to_He4_N14_derived);
+    jac.set(N14, F18, scratch);
 
-    scratch = -screened_rates(k_p_O16_to_He4_N13_derived)*Y(O16)*state.rho;
+    scratch = screened_rates(k_p_F19_to_He4_O16)*Y(F19)*state.rho - screened_rates(k_p_O16_to_He4_N13_derived)*Y(O16)*state.rho;
     jac.set(O16, H1, scratch);
 
-    scratch = screened_rates(k_He4_C12_to_O16)*Y(C12)*state.rho + screened_rates(k_He4_N13_to_p_O16)*Y(N13)*state.rho - screened_rates(k_He4_O16_to_Ne20)*Y(O16)*state.rho;
+    scratch = screened_rates(k_He4_C12_to_O16)*Y(C12)*state.rho + screened_rates(k_He4_N13_to_p_O16)*Y(N13)*state.rho - screened_rates(k_He4_O16_to_Ne20)*Y(O16)*state.rho - screened_rates(k_He4_O16_to_p_F19_derived)*Y(O16)*state.rho;
     jac.set(O16, He4, scratch);
 
     scratch = -screened_rates(k_C12_O16_to_He4_Mg24)*Y(O16)*state.rho - screened_rates(k_C12_O16_to_Si28_modified)*Y(O16)*state.rho - screened_rates(k_C12_O16_to_p_Al27)*Y(O16)*state.rho + screened_rates(k_He4_C12_to_O16)*Y(He4)*state.rho;
@@ -1927,43 +2216,79 @@ void jac_nuc(const burn_t& state,
     scratch = screened_rates(k_He4_N13_to_p_O16)*Y(He4)*state.rho;
     jac.set(O16, N13, scratch);
 
-    scratch = -screened_rates(k_C12_O16_to_He4_Mg24)*Y(C12)*state.rho - screened_rates(k_C12_O16_to_Si28_modified)*Y(C12)*state.rho - screened_rates(k_C12_O16_to_p_Al27)*Y(C12)*state.rho - screened_rates(k_He4_O16_to_Ne20)*Y(He4)*state.rho - 2.0*screened_rates(k_O16_O16_to_He4_Si28)*Y(O16)*state.rho - 2.0*screened_rates(k_O16_O16_to_S32_modified)*Y(O16)*state.rho - 2.0*screened_rates(k_O16_O16_to_p_P31)*Y(O16)*state.rho - screened_rates(k_O16_to_He4_C12_derived) - screened_rates(k_n_O16_to_O17)*Y(N)*state.rho - screened_rates(k_p_O16_to_He4_N13_derived)*Y(H1)*state.rho;
+    scratch = -screened_rates(k_C12_O16_to_He4_Mg24)*Y(C12)*state.rho - screened_rates(k_C12_O16_to_Si28_modified)*Y(C12)*state.rho - screened_rates(k_C12_O16_to_p_Al27)*Y(C12)*state.rho - screened_rates(k_He4_O16_to_Ne20)*Y(He4)*state.rho - screened_rates(k_He4_O16_to_p_F19_derived)*Y(He4)*state.rho - 2.0*screened_rates(k_O16_O16_to_He4_Si28)*Y(O16)*state.rho - 2.0*screened_rates(k_O16_O16_to_S32_modified)*Y(O16)*state.rho - 2.0*screened_rates(k_O16_O16_to_p_P31)*Y(O16)*state.rho - screened_rates(k_O16_to_He4_C12_derived) - screened_rates(k_p_O16_to_He4_N13_derived)*Y(H1)*state.rho;
     jac.set(O16, O16, scratch);
 
-    scratch = screened_rates(k_O17_to_n_O16_derived);
-    jac.set(O16, O17, scratch);
+    scratch = screened_rates(k_p_F19_to_He4_O16)*Y(H1)*state.rho;
+    jac.set(O16, F19, scratch);
 
     scratch = screened_rates(k_Ne20_to_He4_O16_derived);
     jac.set(O16, Ne20, scratch);
 
-    scratch = screened_rates(k_n_Ne20_to_He4_O17_derived)*Y(Ne20)*state.rho + screened_rates(k_n_O16_to_O17)*Y(O16)*state.rho;
-    jac.set(O17, N, scratch);
-
-    scratch = -screened_rates(k_p_O17_to_He4_N14)*Y(O17)*state.rho;
+    scratch = -screened_rates(k_p_O17_to_F18)*Y(O17)*state.rho - screened_rates(k_p_O17_to_He4_N14)*Y(O17)*state.rho;
     jac.set(O17, H1, scratch);
 
-    scratch = screened_rates(k_He4_N14_to_p_O17_derived)*Y(N14)*state.rho - screened_rates(k_He4_O17_to_n_Ne20)*Y(O17)*state.rho;
+    scratch = screened_rates(k_He4_N14_to_p_O17_derived)*Y(N14)*state.rho - screened_rates(k_He4_O17_to_Ne21)*Y(O17)*state.rho;
     jac.set(O17, He4, scratch);
 
     scratch = screened_rates(k_He4_N14_to_p_O17_derived)*Y(He4)*state.rho;
     jac.set(O17, N14, scratch);
 
-    scratch = screened_rates(k_n_O16_to_O17)*Y(N)*state.rho;
-    jac.set(O17, O16, scratch);
-
-    scratch = -screened_rates(k_He4_O17_to_n_Ne20)*Y(He4)*state.rho - screened_rates(k_O17_to_n_O16_derived) - screened_rates(k_p_O17_to_He4_N14)*Y(H1)*state.rho;
+    scratch = -screened_rates(k_He4_O17_to_Ne21)*Y(He4)*state.rho - screened_rates(k_p_O17_to_F18)*Y(H1)*state.rho - screened_rates(k_p_O17_to_He4_N14)*Y(H1)*state.rho;
     jac.set(O17, O17, scratch);
 
-    scratch = screened_rates(k_n_Ne20_to_He4_O17_derived)*Y(N)*state.rho;
-    jac.set(O17, Ne20, scratch);
+    scratch = screened_rates(k_F18_to_p_O17_derived);
+    jac.set(O17, F18, scratch);
 
-    scratch = -screened_rates(k_n_Ne20_to_He4_O17_derived)*Y(Ne20)*state.rho;
-    jac.set(Ne20, N, scratch);
+    scratch = screened_rates(k_Ne21_to_He4_O17_derived);
+    jac.set(O17, Ne21, scratch);
 
-    scratch = screened_rates(k_p_Na23_to_He4_Ne20)*Y(Na23)*state.rho;
+    scratch = screened_rates(k_p_Ne21_to_He4_F18_derived)*Y(Ne21)*state.rho + screened_rates(k_p_O17_to_F18)*Y(O17)*state.rho;
+    jac.set(F18, H1, scratch);
+
+    scratch = -screened_rates(k_He4_F18_to_Na22)*Y(F18)*state.rho - screened_rates(k_He4_F18_to_p_Ne21)*Y(F18)*state.rho + screened_rates(k_He4_N14_to_F18)*Y(N14)*state.rho;
+    jac.set(F18, He4, scratch);
+
+    scratch = screened_rates(k_He4_N14_to_F18)*Y(He4)*state.rho;
+    jac.set(F18, N14, scratch);
+
+    scratch = screened_rates(k_p_O17_to_F18)*Y(H1)*state.rho;
+    jac.set(F18, O17, scratch);
+
+    scratch = -screened_rates(k_F18_to_He4_N14_derived) - screened_rates(k_F18_to_p_O17_derived) - screened_rates(k_He4_F18_to_Na22)*Y(He4)*state.rho - screened_rates(k_He4_F18_to_p_Ne21)*Y(He4)*state.rho;
+    jac.set(F18, F18, scratch);
+
+    scratch = screened_rates(k_p_Ne21_to_He4_F18_derived)*Y(H1)*state.rho;
+    jac.set(F18, Ne21, scratch);
+
+    scratch = screened_rates(k_Na22_to_He4_F18_derived);
+    jac.set(F18, Na22, scratch);
+
+    scratch = -screened_rates(k_p_F19_to_He4_O16)*Y(F19)*state.rho - screened_rates(k_p_F19_to_Ne20)*Y(F19)*state.rho + screened_rates(k_p_Ne22_to_He4_F19_derived)*Y(Ne22)*state.rho;
+    jac.set(F19, H1, scratch);
+
+    scratch = -screened_rates(k_He4_F19_to_Na23)*Y(F19)*state.rho - screened_rates(k_He4_F19_to_p_Ne22)*Y(F19)*state.rho + screened_rates(k_He4_O16_to_p_F19_derived)*Y(O16)*state.rho;
+    jac.set(F19, He4, scratch);
+
+    scratch = screened_rates(k_He4_O16_to_p_F19_derived)*Y(He4)*state.rho;
+    jac.set(F19, O16, scratch);
+
+    scratch = -screened_rates(k_He4_F19_to_Na23)*Y(He4)*state.rho - screened_rates(k_He4_F19_to_p_Ne22)*Y(He4)*state.rho - screened_rates(k_p_F19_to_He4_O16)*Y(H1)*state.rho - screened_rates(k_p_F19_to_Ne20)*Y(H1)*state.rho;
+    jac.set(F19, F19, scratch);
+
+    scratch = screened_rates(k_Ne20_to_p_F19_derived);
+    jac.set(F19, Ne20, scratch);
+
+    scratch = screened_rates(k_p_Ne22_to_He4_F19_derived)*Y(H1)*state.rho;
+    jac.set(F19, Ne22, scratch);
+
+    scratch = screened_rates(k_Na23_to_He4_F19_derived);
+    jac.set(F19, Na23, scratch);
+
+    scratch = screened_rates(k_p_F19_to_Ne20)*Y(F19)*state.rho + screened_rates(k_p_Na23_to_He4_Ne20)*Y(Na23)*state.rho;
     jac.set(Ne20, H1, scratch);
 
-    scratch = -screened_rates(k_He4_Ne20_to_Mg24)*Y(Ne20)*state.rho - screened_rates(k_He4_Ne20_to_p_Na23_derived)*Y(Ne20)*state.rho + screened_rates(k_He4_O16_to_Ne20)*Y(O16)*state.rho + screened_rates(k_He4_O17_to_n_Ne20)*Y(O17)*state.rho;
+    scratch = -screened_rates(k_He4_Ne20_to_Mg24)*Y(Ne20)*state.rho - screened_rates(k_He4_Ne20_to_p_Na23_derived)*Y(Ne20)*state.rho + screened_rates(k_He4_O16_to_Ne20)*Y(O16)*state.rho;
     jac.set(Ne20, He4, scratch);
 
     scratch = 1.0*screened_rates(k_C12_C12_to_He4_Ne20)*Y(C12)*state.rho;
@@ -1972,10 +2297,10 @@ void jac_nuc(const burn_t& state,
     scratch = screened_rates(k_He4_O16_to_Ne20)*Y(He4)*state.rho;
     jac.set(Ne20, O16, scratch);
 
-    scratch = screened_rates(k_He4_O17_to_n_Ne20)*Y(He4)*state.rho;
-    jac.set(Ne20, O17, scratch);
+    scratch = screened_rates(k_p_F19_to_Ne20)*Y(H1)*state.rho;
+    jac.set(Ne20, F19, scratch);
 
-    scratch = -screened_rates(k_He4_Ne20_to_Mg24)*Y(He4)*state.rho - screened_rates(k_He4_Ne20_to_p_Na23_derived)*Y(He4)*state.rho - screened_rates(k_Ne20_to_He4_O16_derived) - screened_rates(k_n_Ne20_to_He4_O17_derived)*Y(N)*state.rho;
+    scratch = -screened_rates(k_He4_Ne20_to_Mg24)*Y(He4)*state.rho - screened_rates(k_He4_Ne20_to_p_Na23_derived)*Y(He4)*state.rho - screened_rates(k_Ne20_to_He4_O16_derived) - screened_rates(k_Ne20_to_p_F19_derived);
     jac.set(Ne20, Ne20, scratch);
 
     scratch = screened_rates(k_p_Na23_to_He4_Ne20)*Y(H1)*state.rho;
@@ -1984,23 +2309,101 @@ void jac_nuc(const burn_t& state,
     scratch = screened_rates(k_Mg24_to_He4_Ne20_derived);
     jac.set(Ne20, Mg24, scratch);
 
-    scratch = -screened_rates(k_p_Na23_to_He4_Ne20)*Y(Na23)*state.rho - screened_rates(k_p_Na23_to_Mg24)*Y(Na23)*state.rho;
+    scratch = -screened_rates(k_p_Ne21_to_He4_F18_derived)*Y(Ne21)*state.rho - screened_rates(k_p_Ne21_to_Na22)*Y(Ne21)*state.rho;
+    jac.set(Ne21, H1, scratch);
+
+    scratch = screened_rates(k_He4_F18_to_p_Ne21)*Y(F18)*state.rho + screened_rates(k_He4_O17_to_Ne21)*Y(O17)*state.rho;
+    jac.set(Ne21, He4, scratch);
+
+    scratch = screened_rates(k_He4_O17_to_Ne21)*Y(He4)*state.rho;
+    jac.set(Ne21, O17, scratch);
+
+    scratch = screened_rates(k_He4_F18_to_p_Ne21)*Y(He4)*state.rho;
+    jac.set(Ne21, F18, scratch);
+
+    scratch = -screened_rates(k_Ne21_to_He4_O17_derived) - screened_rates(k_p_Ne21_to_He4_F18_derived)*Y(H1)*state.rho - screened_rates(k_p_Ne21_to_Na22)*Y(H1)*state.rho;
+    jac.set(Ne21, Ne21, scratch);
+
+    scratch = screened_rates(k_Na22_to_p_Ne21_derived);
+    jac.set(Ne21, Na22, scratch);
+
+    scratch = -screened_rates(k_p_Ne22_to_He4_F19_derived)*Y(Ne22)*state.rho - screened_rates(k_p_Ne22_to_Na23)*Y(Ne22)*state.rho;
+    jac.set(Ne22, H1, scratch);
+
+    scratch = screened_rates(k_He4_F19_to_p_Ne22)*Y(F19)*state.rho;
+    jac.set(Ne22, He4, scratch);
+
+    scratch = screened_rates(k_He4_F19_to_p_Ne22)*Y(He4)*state.rho;
+    jac.set(Ne22, F19, scratch);
+
+    scratch = -screened_rates(k_Ne22_to_Na22) - screened_rates(k_p_Ne22_to_He4_F19_derived)*Y(H1)*state.rho - screened_rates(k_p_Ne22_to_Na23)*Y(H1)*state.rho;
+    jac.set(Ne22, Ne22, scratch);
+
+    scratch = screened_rates(k_Na22_to_Ne22);
+    jac.set(Ne22, Na22, scratch);
+
+    scratch = screened_rates(k_Na23_to_p_Ne22_derived);
+    jac.set(Ne22, Na23, scratch);
+
+    scratch = -screened_rates(k_p_Na22_to_Mg23)*Y(Na22)*state.rho + screened_rates(k_p_Ne21_to_Na22)*Y(Ne21)*state.rho;
+    jac.set(Na22, H1, scratch);
+
+    scratch = screened_rates(k_He4_F18_to_Na22)*Y(F18)*state.rho;
+    jac.set(Na22, He4, scratch);
+
+    scratch = screened_rates(k_He4_F18_to_Na22)*Y(He4)*state.rho;
+    jac.set(Na22, F18, scratch);
+
+    scratch = screened_rates(k_p_Ne21_to_Na22)*Y(H1)*state.rho;
+    jac.set(Na22, Ne21, scratch);
+
+    scratch = screened_rates(k_Ne22_to_Na22);
+    jac.set(Na22, Ne22, scratch);
+
+    scratch = -screened_rates(k_Na22_to_He4_F18_derived) - screened_rates(k_Na22_to_Ne22) - screened_rates(k_Na22_to_p_Ne21_derived) - screened_rates(k_p_Na22_to_Mg23)*Y(H1)*state.rho;
+    jac.set(Na22, Na22, scratch);
+
+    scratch = screened_rates(k_Mg23_to_p_Na22_derived);
+    jac.set(Na22, Mg23, scratch);
+
+    scratch = -screened_rates(k_p_Na23_to_He4_Ne20)*Y(Na23)*state.rho - screened_rates(k_p_Na23_to_Mg24)*Y(Na23)*state.rho + screened_rates(k_p_Ne22_to_Na23)*Y(Ne22)*state.rho;
     jac.set(Na23, H1, scratch);
 
-    scratch = screened_rates(k_He4_Ne20_to_p_Na23_derived)*Y(Ne20)*state.rho;
+    scratch = screened_rates(k_He4_F19_to_Na23)*Y(F19)*state.rho + screened_rates(k_He4_Ne20_to_p_Na23_derived)*Y(Ne20)*state.rho;
     jac.set(Na23, He4, scratch);
 
     scratch = 1.0*screened_rates(k_C12_C12_to_p_Na23)*Y(C12)*state.rho;
     jac.set(Na23, C12, scratch);
 
+    scratch = screened_rates(k_He4_F19_to_Na23)*Y(He4)*state.rho;
+    jac.set(Na23, F19, scratch);
+
     scratch = screened_rates(k_He4_Ne20_to_p_Na23_derived)*Y(He4)*state.rho;
     jac.set(Na23, Ne20, scratch);
 
-    scratch = -screened_rates(k_p_Na23_to_He4_Ne20)*Y(H1)*state.rho - screened_rates(k_p_Na23_to_Mg24)*Y(H1)*state.rho;
+    scratch = screened_rates(k_p_Ne22_to_Na23)*Y(H1)*state.rho;
+    jac.set(Na23, Ne22, scratch);
+
+    scratch = -screened_rates(k_Na23_to_He4_F19_derived) - screened_rates(k_Na23_to_Mg23) - screened_rates(k_Na23_to_p_Ne22_derived) - screened_rates(k_p_Na23_to_He4_Ne20)*Y(H1)*state.rho - screened_rates(k_p_Na23_to_Mg24)*Y(H1)*state.rho;
     jac.set(Na23, Na23, scratch);
+
+    scratch = screened_rates(k_Mg23_to_Na23);
+    jac.set(Na23, Mg23, scratch);
 
     scratch = screened_rates(k_Mg24_to_p_Na23_derived);
     jac.set(Na23, Mg24, scratch);
+
+    scratch = screened_rates(k_p_Na22_to_Mg23)*Y(Na22)*state.rho;
+    jac.set(Mg23, H1, scratch);
+
+    scratch = screened_rates(k_p_Na22_to_Mg23)*Y(H1)*state.rho;
+    jac.set(Mg23, Na22, scratch);
+
+    scratch = screened_rates(k_Na23_to_Mg23);
+    jac.set(Mg23, Na23, scratch);
+
+    scratch = -screened_rates(k_Mg23_to_Na23) - screened_rates(k_Mg23_to_p_Na22_derived);
+    jac.set(Mg23, Mg23, scratch);
 
     scratch = screened_rates(k_p_Al27_to_He4_Mg24)*Y(Al27)*state.rho + screened_rates(k_p_Na23_to_Mg24)*Y(Na23)*state.rho;
     jac.set(Mg24, H1, scratch);
