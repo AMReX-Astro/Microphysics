@@ -1,5 +1,88 @@
 # Changelog
 
+## 25.04
+
+  * the "he-burn" networks now will look for weak rates for
+    all nuclei, not just the Fe-group (#1763)
+
+  * clean up the ECSN network generation script (#1776)
+
+  * Allow for single-step backward Euler (#1773)
+
+## 25.03
+
+  * the `nova2` net was renamed `nova`, and the old `nova`
+    net was removed (#1746, #1768)
+
+  * small improvements to the he-burn scripts (#1765)
+
+  * documentation updates (#1741, #1744, #1747, #1751, #1756, #1759,
+    #1760, #1766, #1767)
+
+  * restrict Sphinx < 8.2.0 due to nbsphinx issues (#1762)
+
+  * centralize some common unit test runtime parameters (#1749) and
+    explicitly set `small_dens` and `small_temp` for some tests
+    (#1757)
+
+  * remove old, unneeded macros from the build system (#1717, #1753,
+    #1754, #1755)
+
+  * modernize parallel loops in some unit tests (#1752)
+
+  * update the HIP CI action to a later runner
+
+  * namespace and clang-tidy fixes (#1745)
+
+## 25.02
+
+  * documentation updates (#1678, #1690, #1692, #1695, #1700, #1702,
+    #1703, #1707, #1709, #1712, #1713, #1714, #1715, #1716, #1723,
+    #1726, #1732, #1733) including renaming the docs directory to
+    `Docs` (#1689) and the addition of a CITATION.md (#1731)
+
+  * codespell fixes (#1724)
+
+  * rename `test_nse_net` -> `nse_net_cell`; `test_part_func` ->
+    `part_func_cell` (#1729)
+
+  * remove old testing scripts (#1727)
+
+  * update `test_react` `README.md` (#1722)
+
+  * implement Debye-Huckel screening and allow it to be used as a test
+    for whether screening is needed (#1688)
+
+  * remove the `use_raw_inputs` option from the EOS (#1721)
+
+  * remove some old Fortran references (#1718, #1719)
+
+  * switch from `std::clamp` to `amrex::Clamp` due to HIP compiler
+    issues (#1711)
+
+  * reorganize the He nets -- they are now all under
+    `networks/he-burn` and share a common python setup (#1687, #1710)
+    also update these nets with pynucastro (#1685).  This also
+    add a new network with 31.
+
+    Renamed nets are:
+    * `subch_base` -> `he-burn/he-burn-18a`
+    * `subch_simple` -> `he-burn/he-burn-22a`
+    * `He-C-Fe-group` -> `he-burn/he-burn-36a`
+    * `CNO_He_burn` -> `he-burn/cno-he-burn-33a`
+
+  * fix the Chapman-Jouguet detonation utility (#1699)
+
+  * update the mailmap (#1706)
+
+  * switch `std::pow(x, 1./3.)` to `std::cbrt(x)` (#1705)
+
+  * remove `do_acc` option (#1708)
+
+  * make the breakout EOS check if 1/mu is defined (#1694)
+
+  * remove old Doxygen (#1697) and skynet (#1698) scripts from `util/`
+
 ## 25.01
 
   * update HIP/CUDA dependences to include sparse libraries (#1686)
@@ -834,7 +917,7 @@
 ## 19.01
 
   * the docs are now automatically build from the sphinx source
-    using travis on github. 
+    using travis on github.
 
 ## 18.12
 
@@ -894,7 +977,7 @@
 
   * some fixes to the numerical Jacobian involving X vs. Y (#100)
 
-  * a new `subCh` network for He burning was added. 
+  * a new `subCh` network for He burning was added.
 
   * implemented the new c12(a,g)o16 nuclear reaction rate and its
     corresponding inverse from the work of Deboer et al. 2017 (Rev Mod

@@ -15,14 +15,21 @@ provide a routine to convert from the integrator’s internal
 representation to the ``burn_t`` type required by the ``actual_rhs``
 and ``actual_jac`` routine.
 
-The name of the integrator can be selected at compile time using
-the ``INTEGRATOR_DIR`` variable in the makefile. Presently,
-the allowed options are:
+.. index:: INTEGRATOR_DIR
+
+.. note::
+
+   The integrator is chosen at compile-time using
+   the ``INTEGRATOR_DIR`` variable in the makefile.
+
+Presently, allowed integrators are:
 
 * ``BackwardEuler``: an implicit first-order accurate backward-Euler
   method.  An error estimate is done by taking 2 half steps and
   comparing to a single full step.  This error is then used to control
-  the timestep by using the local truncation error scaling.
+  the timestep by using the local truncation error scaling. Optionally, the
+  user can disable error estimation and force a single-step backward-Euler
+  integration by setting `integrator.do_single_step = 1`.
 
 * ``ForwardEuler``: an explicit first-order forward-Euler method.  This is
   meant for testing purposes only.  No Jacobian is needed.

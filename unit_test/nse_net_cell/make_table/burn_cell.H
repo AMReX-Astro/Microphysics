@@ -10,8 +10,6 @@
 #include <nse_solver.H>
 #include <cmath>
 
-using namespace unit_test_rp;
-
 AMREX_INLINE
 void burn_cell_c()
 {
@@ -22,17 +20,17 @@ void burn_cell_c()
 
     state.dx = 1.0e6_rt;
 
-    amrex::Real dlogrho = (std::log10(rho_max) - std::log10(rho_min))/static_cast<amrex::Real>(nrho-1);
-    amrex::Real dlogT = (std::log10(T_max) - std::log10(T_min))/static_cast<amrex::Real>(nT-1);
-    amrex::Real dYe = (Ye_max - Ye_min)/(nye-1);
+    amrex::Real dlogrho = (std::log10(unit_test_rp::rho_max) - std::log10(unit_test_rp::rho_min)) / static_cast<amrex::Real>(unit_test_rp::nrho-1);
+    amrex::Real dlogT = (std::log10(unit_test_rp::T_max) - std::log10(unit_test_rp::T_min)) / static_cast<amrex::Real>(unit_test_rp::nT-1);
+    amrex::Real dYe = (unit_test_rp::Ye_max - unit_test_rp::Ye_min) / static_cast<amrex::Real>(unit_test_rp::nye-1);
 
-    for (int iye = 0; iye < nye; ++iye) {
-        for (int irho = 0; irho < nrho; ++irho) {
-            for (int itemp = 0; itemp < nT; ++itemp) {
+    for (int iye = 0; iye < unit_test_rp::nye; ++iye) {
+        for (int irho = 0; irho < unit_test_rp::nrho; ++irho) {
+            for (int itemp = 0; itemp < unit_test_rp::nT; ++itemp) {
 
-                amrex::Real T = std::pow(10.0, std::log10(T_min) + itemp * dlogT);
-                amrex::Real rho = std::pow(10.0, std::log10(rho_min) + irho * dlogrho);
-                amrex::Real Ye = Ye_min + iye * dYe;
+                amrex::Real T = std::pow(10.0, std::log10(unit_test_rp::T_min) + itemp * dlogT);
+                amrex::Real rho = std::pow(10.0, std::log10(unit_test_rp::rho_min) + irho * dlogrho);
+                amrex::Real Ye = unit_test_rp::Ye_min + iye * dYe;
                 state.T = T;
                 state.rho = rho;
                 state.y_e = Ye;

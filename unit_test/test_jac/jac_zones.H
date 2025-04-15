@@ -9,7 +9,6 @@
 #include <burner.H>
 #include <extern_parameters.H>
 #include <ArrayUtilities.H>
-#include <variables.H>
 #include <numerical_jacobian.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE

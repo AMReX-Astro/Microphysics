@@ -1,3 +1,5 @@
+.. _sec:screening:
+
 ***************************
 Screening of Reaction Rates
 ***************************
@@ -60,7 +62,7 @@ The options are:
   :math:`\Gamma < 0.3`, it uses screening described in
   :cite:`graboske:1973`. In the strong screening regime,
   :math:`\Gamma > 0.8`, it uses screening described in
-  :cite:`jancovici:1977`, :cite:`alastuey:1978`, :cite:`itoh:1979`.
+  :cite:`jancovici:1977, alastuey:1978, itoh:1979`.
   For the intermediate screening regime, :math:`0.3 < \Gamma < 0.8`,
   a weighted blending between the weak and strong screening are used.
   The overall procedure is described in :cite:`Wallace:1982`.

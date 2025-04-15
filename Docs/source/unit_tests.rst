@@ -1,3 +1,5 @@
+.. _sec:unit_tests:
+
 **********************
 Overview of Unit Tests
 **********************
@@ -120,7 +122,7 @@ One-zone tests
 * ``burn_cell`` :
 
   given a $\rho$, $T$, and $X_k$, integrate a reaction network through a specified time
-  and output the new state.
+  and output the new state.  See :ref:`sec:burn_cell` for more information.
 
 * ``burn_cell_primordial_chem`` :
 
@@ -129,18 +131,19 @@ One-zone tests
 * ``burn_cell_sdc`` :
 
   similar to ``burn_cell`` except this uses the SDC integration code paths.
+   See :ref:`sec:burn_cell_sdc` for more information.
 
 * ``eos_cell`` :
 
   given a $\rho$, $T$, and $X_k$, call the equation of state and print out
-  the thermodynamic information.
+  the thermodynamic information.  See :ref:`sec:eos_cell` for more information.
 
 * ``jac_cell`` :
 
   for a single thermodynamic state, compute the analytic Jacobian
   (using the functions provided by the network) and a numerical
   finite-difference approximation to the Jacobian and output them,
-  element-by-element, to the display.
+  element-by-element, to the display.  See :ref:`sec:jac_cell` for more information.
 
 * ``nse_table_cell`` :
 

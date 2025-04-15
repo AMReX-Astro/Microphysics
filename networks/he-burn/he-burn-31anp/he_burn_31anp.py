@@ -1,5 +1,4 @@
 import pynucastro as pyna
-from pynucastro.networks import AmrexAstroCxxNetwork
 
 import he_burn_core
 
@@ -31,6 +30,7 @@ def doit():
 
     print(f"number of nuclei = {len(net.unique_nuclei)}")
     print(f"number of ReacLib rates = {len(net.reaclib_rates)}")
+    print(f"number of derived rates = {len(net.derived_rates)}")
     print(f"number of tabular rates = {len(net.tabular_rates)}")
 
     # let's make a figure
@@ -44,9 +44,18 @@ def doit():
     fig = net.plot(rho, T, comp,
                    rotated=True, curved_edges=True, hide_xalpha=True,
                    size=(1800, 900),
-                   node_size=500, node_shape="s", node_color="#337dff", node_font_size=10)
+                   node_size=500, node_shape="s", node_color="#337dff",
+                   node_font_size=10)
 
     fig.savefig("he-burn-31anp.png", bbox_inches="tight")
+
+    fig = net.plot(rotated=True, curved_edges=True, hide_xalpha=True,
+                   size=(600, 700), Z_range=[24, 29], N_range=[-1, 4],
+                   node_size=500, node_shape="s", node_color="#337dff",
+                   node_font_size=10,
+                   highlight_filter_function=lambda rate: isinstance(rate, pyna.rates.TabularRate))
+
+    fig.savefig("he-burn-31anp-zoom.png", bbox_inches="tight")
 
     net.write_network()
 

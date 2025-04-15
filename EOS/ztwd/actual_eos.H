@@ -27,9 +27,9 @@ using namespace amrex::literals;
 
 const std::string eos_name = "ztwd";
 
-const Real A = M_PI * amrex::Math::powi<4>(C::m_e) * amrex::Math::powi<5>(C::c_light) / (3.0_rt * amrex::Math::powi<3>(C::hplanck));
-const Real B2 = 8.0_rt * M_PI * amrex::Math::powi<3>(C::m_e) * amrex::Math::powi<3>(C::c_light) * C::m_p  / (3.0_rt * amrex::Math::powi<3>(C::hplanck));
-const Real iter_tol = 1.e-10_rt;
+const amrex::Real A = M_PI * amrex::Math::powi<4>(C::m_e) * amrex::Math::powi<5>(C::c_light) / (3.0_rt * amrex::Math::powi<3>(C::hplanck));
+const amrex::Real B2 = 8.0_rt * M_PI * amrex::Math::powi<3>(C::m_e) * amrex::Math::powi<3>(C::c_light) * C::m_p  / (3.0_rt * amrex::Math::powi<3>(C::hplanck));
+const amrex::Real iter_tol = 1.e-10_rt;
 const int  max_iter = 1000;
 
 inline
@@ -43,7 +43,7 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 bool is_input_valid (I input)
 {
   static_assert(std::is_same_v<I, eos_input_t>, "input must be an eos_input_t");
-
+  amrex::ignore_unused(input);
   bool valid = true;
 
   return valid;
@@ -52,7 +52,7 @@ bool is_input_valid (I input)
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real pressure (Real x)
+amrex::Real pressure (amrex::Real x)
 {
     return A * (x * (2.0_rt * x * x - 3.0_rt) * std::sqrt(x * x + 1.0_rt) + 3.0_rt * std::asinh(x));
 }
@@ -60,7 +60,7 @@ Real pressure (Real x)
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real enthalpy (Real x, Real B)
+amrex::Real enthalpy (amrex::Real x, amrex::Real B)
 {
     return (8.0_rt * A / B) * std::sqrt(1.0_rt + x * x);
 }
@@ -68,7 +68,7 @@ Real enthalpy (Real x, Real B)
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real dpdx (Real x)
+amrex::Real dpdx (amrex::Real x)
 {
     return A * ((2.0_rt * x * x - 3.0_rt) * std::sqrt(x * x + 1.0_rt) +
                 x * (4.0_rt * x) * std::sqrt(x * x + 1.0_rt) +
@@ -79,7 +79,7 @@ Real dpdx (Real x)
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real dhdx (Real x, Real B)
+amrex::Real dhdx (amrex::Real x, amrex::Real B)
 {
     return enthalpy(x, B) * (x / (x * x + 1.0_rt));
 }
@@ -88,12 +88,12 @@ Real dhdx (Real x, Real B)
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void pres_iter (Real pres, Real& dens, Real B)
+void pres_iter (amrex::Real pres, amrex::Real& dens, amrex::Real B)
 {
 
     // Starting guess for the iteration.
 
-    Real x = 1.0_rt;
+    amrex::Real x = 1.0_rt;
 
     // We are solving the equation:
     // f(x) = p_want - p(x) = 0.
@@ -104,7 +104,7 @@ void pres_iter (Real pres, Real& dens, Real B)
 
     for (iter = 1; iter <= max_iter; ++iter)
     {
-        Real dx = (pres - pressure(x)) / dpdx(x);
+        amrex::Real dx = (pres - pressure(x)) / dpdx(x);
 
         x = x + dx;
 
@@ -131,32 +131,32 @@ void actual_eos (I input, T& state)
 {
     static_assert(std::is_same_v<I, eos_input_t>, "input must be an eos_input_t");
 
-    Real dens = state.rho;
-    Real temp = state.T;
+    amrex::Real dens = state.rho;
+    amrex::Real temp = state.T;
 
-    Real pres = 1.0_rt;
+    amrex::Real pres = 1.0_rt;
     if constexpr (has_pressure<T>::value) {
         pres = state.p;
     }
 
-    Real enth = 1.0_rt;
+    amrex::Real enth = 1.0_rt;
     if constexpr (has_enthalpy<T>::value) {
         enth = state.h;
     }
 
-    Real eint = 1.0_rt;
+    amrex::Real eint = 1.0_rt;
     if constexpr (has_energy<T>::value) {
         eint = state.e;
     }
 
-    Real entr = 1.0_rt;
+    amrex::Real entr = 1.0_rt;
     if constexpr (has_entropy<T>::value) {
         entr = state.s;
     }
 
-    Real B = B2 * state.mu_e;
+    amrex::Real B = B2 * state.mu_e;
 
-    Real x, dxdr;
+    amrex::Real x, dxdr;
 
     switch (input) {
 
@@ -321,8 +321,8 @@ void actual_eos (I input, T& state)
     x = std::cbrt(dens / B);
     dxdr = (1.0_rt / 3.0_rt) * x / dens;
 
-    Real dpdr = dxdr * dpdx(x);
-    Real dhdr = dxdr * dhdx(x, B);
+    amrex::Real dpdr = dxdr * dpdx(x);
+    amrex::Real dhdr = dxdr * dhdx(x, B);
 
     if constexpr (has_pressure<T>::value) {
         state.dpdr = dpdr;

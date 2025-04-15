@@ -1,8 +1,6 @@
 #ifndef NSE_UPDATE_H
 #define NSE_UPDATE_H
 
-#include <AMReX_Algorithm.H>
-
 #include <iostream>
 #include <fstream>
 #include <actual_network.H>
