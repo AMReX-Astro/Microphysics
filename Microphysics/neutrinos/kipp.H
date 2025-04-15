@@ -1,4 +1,4 @@
-// This routine calculates the neutrino cooling rates using the aproximations from Kippenhahn et al. 1989
+// This routine calculates the neutrino cooling rates using the approximations from Kippenhahn et al. 1989
 // using autodiff
 
 #ifndef KIP_NEUT_H
@@ -10,22 +10,20 @@
 #include<AMReX_REAL.H>
 #include<fundamental_constants.H>
 #include<microphysics_autodiff.H>
-// #include<tuple>
 
 using namespace amrex::literals;
 
 template<typename number_t>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-// pair annhilation
+// pair annihilation
 number_t kip_pair(const number_t& rho, const number_t& T9, const number_t& abar, const number_t& zbar){
     // eq. 18.81
-    if (T9 < 1.0){
-        return (4.9e8_rt/rho) * amrex::Math::powi<3>(T9) * admath::exp(-11.86*T9);
+    if (T9 < 2.0){
+        return (4.9e18_rt/rho) * amrex::Math::powi<3>(T9) * admath::exp(-11.86*T9);
     }
-    if (T9 > 3.0){
+    if (T9 > 2.0){
         return (4.45e15_rt/rho) * amrex::Math::powi<9>(T9);
     }
-    return 0.0e0_rt; // Need to figire out what to do in the range 1.0 < T9 < 3.0
 }
 
 template<typename number_t>
@@ -48,9 +46,9 @@ number_t kip_plas(const number_t& rho, const number_t& T9, const number_t& abar,
     number_t n_e = rho / (C::m_u);
     // assuming non-degeneracy
     // 18.83
-    number_t w0 = admath::sqrt((4.0e0_rt * M_PI * gcem::pow(C::q_e, 2.0e0_rt) * n_e) / C::m_e);
+    number_t w0 = admath::sqrt((4.0e0_rt * M_PI * amrex::Math::powi<2>(C::q_e) * n_e) / C::m_e);
     number_t gamma = (C::hbar * w0) / (C::k_B * T9);
-    number_t lambda = (C::k_B * T9) / (C::m_e * gcem::pow(C::c_light, 2.0e0_rt));
+    number_t lambda = (C::k_B * T9) / (C::m_e * amrex::Math::powi<2>(C::c_light));
     // 18.85
     if (gamma < 1) {
         return (3.356e19_rt/rho) * amrex::Math::powi<6>(lambda) * (1.0e0_rt + 0.0158_rt * amrex::Math::powi<2>(gamma)) * amrex::Math::powi<3>(T9);
@@ -92,14 +90,14 @@ void kipp(const amrex::Real& temp, const amrex::Real& rho, const amrex::Real& ab
 
     number_t snu_dual = kip_pair_dual + kip_phot_dual + kip_plas_dual + kip_brem_dual;
 
-    // std::tie(dsnudrho, dsnudt, dsnuda, dsnudz) = autodiff::derivative(snu_dual);
-
+    // extract derivatives
     auto derivatives = autodiff::derivative(snu_dual);
     dsnudrho = derivatives(1);
     dsnudt = derivatives(2);
     dsnuda = derivatives(3);
     dsnudz = derivatives(4);
 
+    // extract value
     snu = autodiff::val(snu_dual);
 }
 #endif // KIP_NEUT_H
