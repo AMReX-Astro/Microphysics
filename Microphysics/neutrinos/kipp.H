@@ -18,10 +18,10 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 // pair annihilation
 number_t kip_pair(const number_t& rho, const number_t& T9, const number_t& abar, const number_t& zbar){
     // eq. 18.81
-    if (T9 < 2.0){
+    if (T9 < 2.0e0_rt){
         return (4.9e18_rt/rho) * amrex::Math::powi<3>(T9) * admath::exp(-11.86*T9);
     }
-    if (T9 > 2.0){
+    else{
         return (4.45e15_rt/rho) * amrex::Math::powi<9>(T9);
     }
 }
