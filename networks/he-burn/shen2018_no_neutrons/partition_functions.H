@@ -149,11 +149,9 @@ constexpr amrex::Real get_spin_state(const int inuc) {
     case N13:
     case Si29:
     case P31:
-    case S31:
         spin = 2;
         break;
 
-    case N14:
     case P30:
         spin = 3;
         break;
@@ -161,21 +159,18 @@ constexpr amrex::Real get_spin_state(const int inuc) {
     case B11:
     case Na23:
     case Cl35:
-    case Ar37:
     case K39:
     case V47:
     case Ni59:
         spin = 4;
         break;
 
-    case O17:
     case Mg25:
     case Al27:
     case Mn51:
         spin = 6;
         break;
 
-    case Ar39:
     case Sc43:
     case Co55:
         spin = 8;

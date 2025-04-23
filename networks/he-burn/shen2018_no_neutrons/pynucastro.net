@@ -4,9 +4,7 @@ helium-4                  He4       4.0    2.0
 boron-11                  B11      11.0    5.0
 carbon-12                 C12      12.0    6.0
 nitrogen-13               N13      13.0    7.0
-nitrogen-14               N14      14.0    7.0
 oxygen-16                 O16      16.0    8.0
-oxygen-17                 O17      17.0    8.0
 neon-20                   Ne20     20.0   10.0
 neon-22                   Ne22     22.0   10.0
 sodium-23                 Na23     23.0   11.0
@@ -19,13 +17,10 @@ silicon-29                Si29     29.0   14.0
 silicon-30                Si30     30.0   14.0
 phosphorus-30             P30      30.0   15.0
 phosphorus-31             P31      31.0   15.0
-sulfur-31                 S31      31.0   16.0
 sulfur-32                 S32      32.0   16.0
 chlorine-35               Cl35     35.0   17.0
 argon-36                  Ar36     36.0   18.0
-argon-37                  Ar37     37.0   18.0
 argon-38                  Ar38     38.0   18.0
-argon-39                  Ar39     39.0   18.0
 potassium-39              K39      39.0   19.0
 calcium-40                Ca40     40.0   20.0
 scandium-43               Sc43     43.0   21.0
