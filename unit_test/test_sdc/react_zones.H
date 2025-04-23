@@ -76,8 +76,8 @@ bool do_react (const plot_t& p, const int i, const int j, const int k,
 
     // zero out the advective terms
 
-    for (int n = 0; n < SVAR; n++) {
-        burn_state.ydot_a[n] = 0.0;
+    for (auto& e : burn_state.ydot_a) {
+        e = 0.0;
     }
 
 
