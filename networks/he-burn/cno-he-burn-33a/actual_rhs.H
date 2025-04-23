@@ -10,7 +10,9 @@
 #include <jacobian_utilities.H>
 #include <screen.H>
 #include <microphysics_autodiff.H>
+#ifdef NEUTRINOS
 #include <sneut5.H>
+#endif
 #include <reaclib_rates.H>
 #include <table_rates.H>
 
@@ -1570,6 +1572,22 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
 
     rate_eval.enuc_weak = 0.0_rt;
 
+    tabular_evaluate(j_Mg22_Na22_meta, j_Mg22_Na22_rhoy, j_Mg22_Na22_temp, j_Mg22_Na22_data,
+                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+    rate_eval.screened_rates(k_Mg22_to_Na22) = rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        rate_eval.dscreened_rates_dT(k_Mg22_to_Na22) = drate_dt;
+    }
+    rate_eval.enuc_weak += C::Legacy::n_A * Y(Mg22) * (edot_nu + edot_gamma);
+
+    tabular_evaluate(j_Na22_Mg22_meta, j_Na22_Mg22_rhoy, j_Na22_Mg22_temp, j_Na22_Mg22_data,
+                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+    rate_eval.screened_rates(k_Na22_to_Mg22) = rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        rate_eval.dscreened_rates_dT(k_Na22_to_Mg22) = drate_dt;
+    }
+    rate_eval.enuc_weak += C::Legacy::n_A * Y(Na22) * (edot_nu + edot_gamma);
+
 
 }
 
@@ -1601,6 +1619,17 @@ void get_ydot_weak(const burn_t& state,
 
     // Calculate tabular rates and get ydot_weak
 
+    tabular_evaluate(j_Mg22_Na22_meta, j_Mg22_Na22_rhoy, j_Mg22_Na22_temp, j_Mg22_Na22_data,
+                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+    rate_eval.screened_rates(k_Mg22_to_Na22) = rate;
+    rate_eval.enuc_weak += C::Legacy::n_A * Y(Mg22) * (edot_nu + edot_gamma);
+
+    tabular_evaluate(j_Na22_Mg22_meta, j_Na22_Mg22_rhoy, j_Na22_Mg22_temp, j_Na22_Mg22_data,
+                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+    rate_eval.screened_rates(k_Na22_to_Mg22) = rate;
+    rate_eval.enuc_weak += C::Legacy::n_A * Y(Na22) * (edot_nu + edot_gamma);
+
+    auto screened_rates = rate_eval.screened_rates;
 
     ydot_nuc(H1) = 0.0_rt;
 
@@ -1640,11 +1669,13 @@ void get_ydot_weak(const burn_t& state,
 
     ydot_nuc(Ne21) = 0.0_rt;
 
-    ydot_nuc(Na22) = 0.0_rt;
+    ydot_nuc(Na22) =
+        (screened_rates(k_Mg22_to_Na22)*Y(Mg22) + -screened_rates(k_Na22_to_Mg22)*Y(Na22));
 
     ydot_nuc(Na23) = 0.0_rt;
 
-    ydot_nuc(Mg22) = 0.0_rt;
+    ydot_nuc(Mg22) =
+        (-screened_rates(k_Mg22_to_Na22)*Y(Mg22) + screened_rates(k_Na22_to_Mg22)*Y(Na22));
 
     ydot_nuc(Mg24) = 0.0_rt;
 
@@ -1876,10 +1907,10 @@ void rhs_nuc(const burn_t& state,
         (screened_rates(k_He4_F18_to_p_Ne21)*Y(F18)*Y(He4)*state.rho + -screened_rates(k_p_Ne21_to_He4_F18)*Y(Ne21)*Y(H1)*state.rho);
 
     ydot_nuc(Na22) =
-        screened_rates(k_Mg22_to_Na22_weak_wc12)*Y(Mg22) +
         (screened_rates(k_He4_F18_to_Na22)*Y(F18)*Y(He4)*state.rho + -screened_rates(k_Na22_to_He4_F18)*Y(Na22)) +
         (screened_rates(k_p_Ne21_to_Na22)*Y(Ne21)*Y(H1)*state.rho + -screened_rates(k_Na22_to_p_Ne21)*Y(Na22)) +
-        (screened_rates(k_He4_Ne19_to_p_Na22)*Y(He4)*Y(Ne19)*state.rho + -screened_rates(k_p_Na22_to_He4_Ne19)*Y(Na22)*Y(H1)*state.rho);
+        (screened_rates(k_He4_Ne19_to_p_Na22)*Y(He4)*Y(Ne19)*state.rho + -screened_rates(k_p_Na22_to_He4_Ne19)*Y(Na22)*Y(H1)*state.rho) +
+        (screened_rates(k_Mg22_to_Na22)*Y(Mg22) + -screened_rates(k_Na22_to_Mg22)*Y(Na22));
 
     ydot_nuc(Na23) =
         (screened_rates(k_He4_F19_to_Na23)*Y(F19)*Y(He4)*state.rho + -screened_rates(k_Na23_to_He4_F19)*Y(Na23)) +
@@ -1888,8 +1919,8 @@ void rhs_nuc(const burn_t& state,
         (-screened_rates(k_p_Na23_to_He4_Ne20)*Y(Na23)*Y(H1)*state.rho + screened_rates(k_He4_Ne20_to_p_Na23)*Y(He4)*Y(Ne20)*state.rho);
 
     ydot_nuc(Mg22) =
-        -screened_rates(k_Mg22_to_Na22_weak_wc12)*Y(Mg22) +
-        (screened_rates(k_He4_Ne18_to_Mg22)*Y(He4)*Y(Ne18)*state.rho + -screened_rates(k_Mg22_to_He4_Ne18)*Y(Mg22));
+        (screened_rates(k_He4_Ne18_to_Mg22)*Y(He4)*Y(Ne18)*state.rho + -screened_rates(k_Mg22_to_He4_Ne18)*Y(Mg22)) +
+        (-screened_rates(k_Mg22_to_Na22)*Y(Mg22) + screened_rates(k_Na22_to_Mg22)*Y(Na22));
 
     ydot_nuc(Mg24) =
         (screened_rates(k_He4_Ne20_to_Mg24)*Y(He4)*Y(Ne20)*state.rho + -screened_rates(k_Mg24_to_He4_Ne20)*Y(Mg24)) +
@@ -1983,9 +2014,12 @@ void actual_rhs (burn_t& state, amrex::Array1D<amrex::Real, 1, neqs>& ydot)
 
     // Get the thermal neutrino losses
 
-    amrex::Real sneut, dsneutdt, dsneutdd, dsnuda, dsnudz;
+    amrex::Real sneut{};
+#ifdef NEUTRINOS
     constexpr int do_derivatives{0};
+    amrex::Real dsneutdt{}, dsneutdd{}, dsnuda{}, dsnudz{};
     sneut5<do_derivatives>(state.T, state.rho, state.abar, state.zbar, sneut, dsneutdt, dsneutdd, dsnuda, dsnudz);
+#endif
 
     // Append the energy equation (this is erg/g/s)
 
@@ -2550,10 +2584,10 @@ void jac_nuc(const burn_t& state,
     scratch = screened_rates(k_p_Ne21_to_Na22)*Y(H1)*state.rho;
     jac.set(Na22, Ne21, scratch);
 
-    scratch = -screened_rates(k_Na22_to_He4_F18) - screened_rates(k_Na22_to_p_Ne21) - screened_rates(k_p_Na22_to_He4_Ne19)*Y(H1)*state.rho;
+    scratch = -screened_rates(k_Na22_to_He4_F18) - screened_rates(k_Na22_to_Mg22) - screened_rates(k_Na22_to_p_Ne21) - screened_rates(k_p_Na22_to_He4_Ne19)*Y(H1)*state.rho;
     jac.set(Na22, Na22, scratch);
 
-    scratch = screened_rates(k_Mg22_to_Na22_weak_wc12);
+    scratch = screened_rates(k_Mg22_to_Na22);
     jac.set(Na22, Mg22, scratch);
 
     scratch = -screened_rates(k_p_Na23_to_He4_Ne20)*Y(Na23)*state.rho - screened_rates(k_p_Na23_to_Mg24)*Y(Na23)*state.rho;
@@ -2583,7 +2617,10 @@ void jac_nuc(const burn_t& state,
     scratch = screened_rates(k_He4_Ne18_to_Mg22)*Y(He4)*state.rho;
     jac.set(Mg22, Ne18, scratch);
 
-    scratch = -screened_rates(k_Mg22_to_He4_Ne18) - screened_rates(k_Mg22_to_Na22_weak_wc12);
+    scratch = screened_rates(k_Na22_to_Mg22);
+    jac.set(Mg22, Na22, scratch);
+
+    scratch = -screened_rates(k_Mg22_to_He4_Ne18) - screened_rates(k_Mg22_to_Na22);
     jac.set(Mg22, Mg22, scratch);
 
     scratch = screened_rates(k_p_Al27_to_He4_Mg24)*Y(Al27)*state.rho + screened_rates(k_p_Na23_to_Mg24)*Y(Na23)*state.rho;
@@ -2807,7 +2844,9 @@ void actual_jac(const burn_t& state, MatrixType& jac)
 
     // Account for the thermal neutrino losses
 
-    amrex::Real sneut, dsneutdt, dsneutdd, dsnuda, dsnudz;
+    amrex::Real dsneutdt{};
+#ifdef NEUTRINOS
+    amrex::Real sneut, dsneutdd, dsnuda, dsnudz;
     constexpr int do_derivatives{1};
     sneut5<do_derivatives>(state.T, state.rho, state.abar, state.zbar, sneut, dsneutdt, dsneutdd, dsnuda, dsnudz);
 
@@ -2815,7 +2854,7 @@ void actual_jac(const burn_t& state, MatrixType& jac)
        amrex::Real b1 = (-state.abar * state.abar * dsnuda + (zion[j-1] - state.zbar) * state.abar * dsnudz);
        jac.add(net_ienuc, j, -b1);
     }
-
+#endif
 
     // Evaluate the Jacobian elements with respect to energy by
     // calling the RHS using d(rate) / dT and then transform them
