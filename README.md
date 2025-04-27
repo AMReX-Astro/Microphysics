@@ -34,11 +34,6 @@ There are several core types of microphysics routines hosted here:
   density of various chemical species and the gas specific internal
   energy.
 
-  > [!TIP]
-  > New networks for Microphysics can easily be generated using
-  > [pynucastro](https://pynucastro.github.io/pynucastro/) via the
-  > [`AmrexAstroCxxNetwork`](https://pynucastro.github.io/pynucastro/amrex-astro-cxx-networks.html)
-
 * `neutrinos/`: this holds the plasma neutrino cooling routines used
   in the reaction networks.
 
@@ -64,6 +59,11 @@ There are several core types of microphysics routines hosted here:
 * `util`: linear algebra routines for the integrators (specifically a
   linear system solver from LINPACK), the hybrid Powell solver, other
   math routines, and build scripts
+
+> [!TIP]
+> New networks for Microphysics can easily be generated using
+> [pynucastro](https://pynucastro.github.io/pynucastro/) via the
+> [`AmrexAstroCxxNetwork`](https://pynucastro.github.io/pynucastro/amrex-astro-cxx-networks.html)
 
 
 # AMReX-Astro Codes
@@ -106,8 +106,10 @@ Development generally follows the following ideas:
 
   * New features are committed to the `development` branch.
 
-    Nightly regression testing is used to ensure that no answers
-    change (or if they do, that the changes were expected).
+    GitHub actions will run automatically to test the different
+    physics solvers.  Additionally, nightly regression tests will
+    run to ensure that we work with the latest version of AMReX
+    and that more extensive simulations don't change answers.
 
     If a change is critical, we can cherry-pick the commit from
     `development` to `main`.
@@ -128,9 +130,8 @@ Development generally follows the following ideas:
     request numbers or git commit hashes where the problem was
     introduced and fixed, respectively.
 
-    > [!NOTE]
-    > All pull requests will be squashed into a single commit when
-    > merged.
+    All pull requests will be squashed into a single commit when
+    merged.
 
   * On the first workday of each month, we perform a merge of
     `development` into `main`, in coordination with `AMReX`, `Castro`,
@@ -176,7 +177,7 @@ Core developers will be recognized in the following ways:
 
 ## Getting help
 
-We use github discussions for requesting help and interacting with the
+We use GitHub discussions for requesting help and interacting with the
 community:
 
 https://github.com/amrex-astro/Microphysics/discussions
