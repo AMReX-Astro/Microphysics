@@ -1,5 +1,15 @@
 # Changelog
 
+## 25.05
+
+  * some clang-tidy cleaning (#1784)
+
+  * with HIP we were disabling inlining due to ROCm issues.  This is
+    now an option, with the default enabling inlining, since it works
+    as expected for ROCm >= 6.3.1 (#1780)
+
+  * clean up the pynucastro scripts that derived reverse rates (#1781)
+
 ## 25.04
 
   * the "he-burn" networks now will look for weak rates for
