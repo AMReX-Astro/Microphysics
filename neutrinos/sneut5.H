@@ -1438,7 +1438,7 @@ void nu_recomb(const sneutf_t& sf,
 
 }
 
-template <int do_derivatives>
+template <int do_derivatives, bool include_recomb = false> // default set to false to save computation time !KB
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void sneut5(const amrex::Real temp, const amrex::Real den,
             const amrex::Real abar, const amrex::Real zbar,
@@ -1507,7 +1507,10 @@ void sneut5(const amrex::Real temp, const amrex::Real den,
 
     nu_brem<do_derivatives>(sf, sbrem, sbremdt, sbremda, sbremdz);
 
-    nu_recomb<do_derivatives>(sf, sreco, srecodt, srecoda, srecodz);
+    // If we want to include the recombination term !KB
+    if constexpr (include_recomb) {
+        nu_recomb<do_derivatives>(sf, sreco, srecodt, srecoda, srecodz);
+    }
 
     // convert from erg/cm^3/s to erg/g/s
     // comment these out to duplicate the itoh et al plots
@@ -1548,11 +1551,22 @@ void sneut5(const amrex::Real temp, const amrex::Real den,
     }
 
     // the total neutrino loss rate
-    snu    =  splas + spair + sphot + sbrem + sreco;
+
+    snu    =  splas + spair + sphot + sbrem;
+    if constexpr (include_recomb) {
+        snu += sreco;
+    }
+
+    // If we want to include recombination term !KB
     if constexpr (do_derivatives) {
-        dsnudt =  splasdt + spairdt + sphotdt + sbremdt + srecodt;
-        dsnuda =  splasda + spairda + sphotda + sbremda + srecoda;
-        dsnudz =  splasdz + spairdz + sphotdz + sbremdz + srecodz;
+        dsnudt =  splasdt + spairdt + sphotdt + sbremdt;
+        dsnuda =  splasda + spairda + sphotda + sbremda;
+        dsnudz =  splasdz + spairdz + sphotdz + sbremdz;
+        if constexpr (include_recomb) {
+            dsnudt += srecodt;
+            dsnuda += srecoda;
+            dsnudz += srecodz;
+        }
     }
 
 }
