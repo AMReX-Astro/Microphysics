@@ -12,7 +12,7 @@
 #include <extern_parameters.H>
 
 #include <sneut5.H>
-
+#include <kipp.H>
 #include <cmath>
 
 using namespace amrex;
@@ -82,12 +82,9 @@ void neut_test_C(const Box& bx,
 
     constexpr int do_derivatives{1};
 
-    // The default does not include the recombination term !KB
-    sneut5<do_derivatives>(temp_zone, dens_zone, abar, zbar,
-      snu, dsnudt, dsnudd, dsnuda, dsnudz);
-
-    // To include the recombination term, uncomment the following line and comment out the one above !KB
-    //sneut5<do_derivatives, true>(temp_zone, dens_zone, abar, zbar, snu, dsnudt, dsnudd, dsnuda, dsnudz);
+    // compute the neutrino energy loss rate
+    // By default, we include recombination term
+    sneut5<do_derivatives>(temp_zone, dens_zone, abar, zbar, snu, dsnudt, dsnudd, dsnuda, dsnudz);
 
     sp(i, j, k, vars.isneut) = snu;
     sp(i, j, k, vars.isneutdt) = dsnudt;
