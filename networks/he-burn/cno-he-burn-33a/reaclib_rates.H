@@ -242,37 +242,6 @@ void rate_Ne19_to_F19_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Mg22_to_Na22_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Mg22 --> Na22
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -1.72235;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void rate_N13_to_p_C12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // N13 --> p + C12
@@ -7554,12 +7523,6 @@ fill_reaclib_rates(const tf_t& tfactors, T& rate_eval)
     rate_eval.screened_rates(k_Ne19_to_F19_weak_wc12) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Ne19_to_F19_weak_wc12) = drate_dT;
-
-    }
-    rate_Mg22_to_Na22_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Mg22_to_Na22_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Mg22_to_Na22_weak_wc12) = drate_dT;
 
     }
     rate_N13_to_p_C12<do_T_derivatives>(tfactors, rate, drate_dT);
