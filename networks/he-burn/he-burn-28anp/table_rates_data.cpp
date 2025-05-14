@@ -54,7 +54,7 @@ void init_tabular()
     j_Co56_Fe56_meta.nvars = 6;
     j_Co56_Fe56_meta.nheader = 5;
 
-    init_tab_info(j_Co56_Fe56_meta, "56co-56fe_electroncapture.dat", j_Co56_Fe56_rhoy, j_Co56_Fe56_temp, j_Co56_Fe56_data);
+    init_tab_info(j_Co56_Fe56_meta, "langanke-56co-56fe_electroncapture.dat", j_Co56_Fe56_rhoy, j_Co56_Fe56_temp, j_Co56_Fe56_data);
 
 
     j_Co56_Ni56_meta.ntemp = 13;
@@ -62,7 +62,7 @@ void init_tabular()
     j_Co56_Ni56_meta.nvars = 6;
     j_Co56_Ni56_meta.nheader = 5;
 
-    init_tab_info(j_Co56_Ni56_meta, "56co-56ni_betadecay.dat", j_Co56_Ni56_rhoy, j_Co56_Ni56_temp, j_Co56_Ni56_data);
+    init_tab_info(j_Co56_Ni56_meta, "langanke-56co-56ni_betadecay.dat", j_Co56_Ni56_rhoy, j_Co56_Ni56_temp, j_Co56_Ni56_data);
 
 
     j_Fe56_Co56_meta.ntemp = 13;
@@ -70,7 +70,7 @@ void init_tabular()
     j_Fe56_Co56_meta.nvars = 6;
     j_Fe56_Co56_meta.nheader = 5;
 
-    init_tab_info(j_Fe56_Co56_meta, "56fe-56co_betadecay.dat", j_Fe56_Co56_rhoy, j_Fe56_Co56_temp, j_Fe56_Co56_data);
+    init_tab_info(j_Fe56_Co56_meta, "langanke-56fe-56co_betadecay.dat", j_Fe56_Co56_rhoy, j_Fe56_Co56_temp, j_Fe56_Co56_data);
 
 
     j_n_p_meta.ntemp = 13;
@@ -78,7 +78,7 @@ void init_tabular()
     j_n_p_meta.nvars = 6;
     j_n_p_meta.nheader = 5;
 
-    init_tab_info(j_n_p_meta, "n-p_betadecay.dat", j_n_p_rhoy, j_n_p_temp, j_n_p_data);
+    init_tab_info(j_n_p_meta, "langanke-n-p_betadecay.dat", j_n_p_rhoy, j_n_p_temp, j_n_p_data);
 
 
     j_Ni56_Co56_meta.ntemp = 13;
@@ -86,7 +86,7 @@ void init_tabular()
     j_Ni56_Co56_meta.nvars = 6;
     j_Ni56_Co56_meta.nheader = 5;
 
-    init_tab_info(j_Ni56_Co56_meta, "56ni-56co_electroncapture.dat", j_Ni56_Co56_rhoy, j_Ni56_Co56_temp, j_Ni56_Co56_data);
+    init_tab_info(j_Ni56_Co56_meta, "langanke-56ni-56co_electroncapture.dat", j_Ni56_Co56_rhoy, j_Ni56_Co56_temp, j_Ni56_Co56_data);
 
 
     j_p_n_meta.ntemp = 13;
@@ -94,7 +94,7 @@ void init_tabular()
     j_p_n_meta.nvars = 6;
     j_p_n_meta.nheader = 5;
 
-    init_tab_info(j_p_n_meta, "p-n_electroncapture.dat", j_p_n_rhoy, j_p_n_temp, j_p_n_data);
+    init_tab_info(j_p_n_meta, "langanke-p-n_electroncapture.dat", j_p_n_rhoy, j_p_n_temp, j_p_n_data);
 
 
 
