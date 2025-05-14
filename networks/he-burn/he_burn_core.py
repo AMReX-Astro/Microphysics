@@ -44,8 +44,8 @@ def get_core_library(*,
 
     for r, mp in other_rates:
         _r = reaclib_lib.get_rate_by_name(r)
-        _r.modify_products(mp)
-        core_lib += pyna.Library(rates=[_r])
+        new_rate = pyna.ModifiedRate(_r, new_products=[mp])
+        core_lib += pyna.Library(rates=[new_rate])
 
     # finally, the aprox nets don't include the reverse rates for
     # C12+C12, C12+O16, and O16+O16, so remove those
@@ -92,7 +92,6 @@ def get_core_library(*,
 
         if include_low_ye:
             iron_peak += ["mn55"]
-
 
         all_lib += reaclib_lib.linking_nuclei(iron_peak)
 
