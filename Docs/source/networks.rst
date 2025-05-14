@@ -292,29 +292,29 @@ Together, these parameters allow us to turn off the sequence
 acts as a bypass for :math:`\isotm{C}{12}(\alpha, \gamma)\isotm{O}{16}`.
 
 
-``he-burn-31anp``
+``he-burn-28anp``
 -----------------
 
-This builds on ``he-burn-22a`` by adding some iron-peak nuclei.  It no longer
+This builds on ``he-burn-19a`` by adding some iron-peak nuclei.  It no longer
 approximates out $\isotm{Mn}{51}$ or $\isotm{Co}{55}$, and includes approximations
 to double-neutron capture.  Finally, it splits the protons into two groups,
 with those participating in reactions with mass numbers > 48 treated as a separate
 group (for photo-disintegration reactions).
 
-Overall, there are 31 nuclei and 137 rates, including 6 tabular weak rates.
+Overall, there are 28 nuclei and 136 rates, including 6 tabular weak rates.
 
 The iron group here resembles ``aprox21``, but has the addition of stable $\isotm{Ni}{58}$
 and doesn't include the approximation to $\isotm{Cr}{56}$.
 
 The full network appears as:
 
-.. figure:: ../../networks/he-burn/he-burn-31anp/he-burn-31anp.png
+.. figure:: ../../networks/he-burn/he-burn-28anp/he-burn-28anp.png
    :align: center
 
 and a zoom-in on the iron group with the weak rates highlighted appears
 as:
 
-.. figure:: ../../networks/he-burn/he-burn-31anp/he-burn-31anp-zoom.png
+.. figure:: ../../networks/he-burn/he-burn-28anp/he-burn-28anp-zoom.png
    :align: center
 
 
