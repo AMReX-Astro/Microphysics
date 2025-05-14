@@ -310,6 +310,10 @@ constexpr amrex::Real get_spin_state(const int inuc) {
         spin = 2;
         break;
 
+    case N14:
+        spin = 3;
+        break;
+
     case Na23:
     case Cl35:
     case K39:
