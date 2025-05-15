@@ -25,19 +25,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> F18_pf_array;
-
-    // this is log10(partition function)
-
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Ne20_pf_array;
-
-    // this is log10(partition function)
-
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Ne21_pf_array;
-
-    // this is log10(partition function)
-
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Na22_pf_array;
 
     // this is log10(partition function)
 
@@ -233,20 +221,8 @@ void get_partition_function(const int inuc, [[maybe_unused]] const tf_t& tfactor
         part_fun::interpolate_pf(tfactors.T9, part_fun::temp_array_1, part_fun::O16_pf_array, pf, dpf_dT);
         break;
 
-    case F18:
-        part_fun::interpolate_pf(tfactors.T9, part_fun::temp_array_1, part_fun::F18_pf_array, pf, dpf_dT);
-        break;
-
     case Ne20:
         part_fun::interpolate_pf(tfactors.T9, part_fun::temp_array_1, part_fun::Ne20_pf_array, pf, dpf_dT);
-        break;
-
-    case Ne21:
-        part_fun::interpolate_pf(tfactors.T9, part_fun::temp_array_1, part_fun::Ne21_pf_array, pf, dpf_dT);
-        break;
-
-    case Na22:
-        part_fun::interpolate_pf(tfactors.T9, part_fun::temp_array_1, part_fun::Na22_pf_array, pf, dpf_dT);
         break;
 
     case Na23:
@@ -428,11 +404,9 @@ constexpr amrex::Real get_spin_state(const int inuc) {
         break;
 
     case N14:
-    case F18:
         spin = 3;
         break;
 
-    case Ne21:
     case Na23:
     case Fe55:
     case Ni57:
@@ -447,10 +421,6 @@ constexpr amrex::Real get_spin_state(const int inuc) {
     case Mn51:
     case Mn55:
         spin = 6;
-        break;
-
-    case Na22:
-        spin = 7;
         break;
 
     case Fe53:
