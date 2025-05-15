@@ -52,8 +52,9 @@ def get_core_library(*,
                                         new_products=["o17"])
         else:
             o16_new = pyna.ModifiedRate(o16pgf17,
-                                        new_reactants=["p", "p", "o16"],
-                                        new_products=["n14", "he4"])
+                                        new_reactants=["p", "o16"],
+                                        new_products=["n14", "he4"],
+                                        stoichiometry={pyna.Nucleus("p"): 2})
 
         core_lib.add_rate(o16_new)
 

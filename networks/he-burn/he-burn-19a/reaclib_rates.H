@@ -4425,7 +4425,7 @@ void rate_He4_N14_to_Ne20_modified(const tf_t& tfactors, amrex::Real& rate, amre
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_p_p_O16_to_N14_He4_modified(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
+void rate_p_O16_to_N14_He4_modified(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O16 + p + p --> N14 + He4 (calls the underlying rate)
 
@@ -5156,10 +5156,10 @@ fill_reaclib_rates(const tf_t& tfactors, T& rate_eval)
         rate_eval.dscreened_rates_dT(k_He4_N14_to_Ne20_modified) = drate_dT;
 
     }
-    rate_p_p_O16_to_N14_He4_modified<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_p_p_O16_to_N14_He4_modified) = rate;
+    rate_p_O16_to_N14_He4_modified<do_T_derivatives>(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_p_O16_to_N14_He4_modified) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_p_p_O16_to_N14_He4_modified) = drate_dT;
+        rate_eval.dscreened_rates_dT(k_p_O16_to_N14_He4_modified) = drate_dT;
 
     }
     rate_C12_C12_to_Mg24_modified<do_T_derivatives>(tfactors, rate, drate_dT);
