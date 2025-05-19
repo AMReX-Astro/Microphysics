@@ -40,9 +40,6 @@ void neut_test_C(const Box& bx,
 
     Real xn[NumSpec];
 
-    // for now... the screening using 1-based indexing
-    Array1D<Real, 1, NumSpec> ymass;
-
     for (double& X : xn) {
       X = metalicity / static_cast<Real>(NumSpec - 2);
     }
