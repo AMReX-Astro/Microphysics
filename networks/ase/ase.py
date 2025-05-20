@@ -69,13 +69,7 @@ def get_library():
             subch.remove_rate(r)
 
     if DO_DERIVED_RATES:
-        rates_to_derive = []
-        for r in subch.get_rates():
-            if r.reverse:
-                # this rate was computed using detailed balance, regardless
-                # of whether Q < 0 or not.  We want to remove it and then
-                # recompute it
-                rates_to_derive.append(r)
+        rates_to_derive = subch.backward().get_rates()
 
         # now for each of those derived rates, look to see if the pair exists
 
