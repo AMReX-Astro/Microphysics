@@ -252,7 +252,8 @@ void main_main ()
 
     // print statistics
     std::cout << "min number of rhs calls: " << n_rhs_min << std::endl;
-    std::cout << "avg number of rhs calls: " << n_rhs_sum / (n_cell*n_cell*n_cell) << std::endl;
+    std::cout << "avg number of rhs calls: "
+              << static_cast<Real>(n_rhs_sum) / static_cast<Real>(n_cell*n_cell*n_cell) << std::endl;
     std::cout << "max number of rhs calls: " << n_rhs_max << std::endl;
 
 }
