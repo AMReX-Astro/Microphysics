@@ -45,3 +45,5 @@ is used.  The output is
 * ``dsnuda`` : $d\epsilon_\nu/d\bar{A}$
 
 * ``dsnudz`` : $d\epsilon_\nu/d\bar{Z}$
+
+By default, we do not include the recombination terms when calculating the total losses since its effect is negligible. This is controlled by the ``include_recomb`` parameter defined in ``Microphysics/neutrinos/_parameters``.
