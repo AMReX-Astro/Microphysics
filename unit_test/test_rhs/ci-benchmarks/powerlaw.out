@@ -1,5 +1,29 @@
-Initializing AMReX (25.01-6-g041f225dc5c9)...
-AMReX (25.01-6-g041f225dc5c9) initialized
-reading extern runtime parameters ...
-Run time = 0.001953814
-AMReX (25.01-6-g041f225dc5c9) finalized
+ plotfile = react_powerlaw_test_rhs.VODE
+ time = 0
+              variables          minimum value          maximum value
+ density                                   0.1                      2
+ temperature                             50000                 700000
+ Ydot_fuel                        -1.94481e+23              -1.25e+16
+ Ydot_ash                             6.25e+15            9.72405e+22
+ Ydot_inert                                  0                      0
+ Xold_fuel                                 0.2                    0.9
+ Xold_ash                                 0.05                    0.4
+ Xold_inert                               0.05                    0.4
+ Edot                                  2.5e+17            3.88962e+24
+ J_fuel_fuel                       -8.6436e+23               -2.5e+17
+ J_ash_fuel                           1.25e+17             4.3218e+23
+ J_inert_fuel                                0                      0
+ J_E_fuel                                5e+18            1.72872e+25
+ J_fuel_ash                                  0                      0
+ J_ash_ash                                   0                      0
+ J_inert_ash                                 0                      0
+ J_E_ash                                     0                      0
+ J_fuel_inert                                0                      0
+ J_ash_inert                                 0                      0
+ J_inert_inert                               0                      0
+ J_E_inert                                   0                      0
+ J_fuel_E                        -9120177709.1          -10061.863238
+ J_ash_E                          5030.9316188           4560088854.6
+ J_inert_E                                   0                      0
+ J_E_E                            201237.26475       1.8240355418e+11
+

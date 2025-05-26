@@ -1,5 +1,29 @@
-Initializing AMReX (25.01-6-g041f225dc5c9)...
-AMReX (25.01-6-g041f225dc5c9) initialized
-reading extern runtime parameters ...
-Run time = 0.003012697
-AMReX (25.01-6-g041f225dc5c9) finalized
+ plotfile = react_chamulak_test_rhs.VODE
+ time = 0
+              variables          minimum value          maximum value
+ density                                 10000              100000000
+ temperature                          50000000             5000000000
+ Ydot_carbon-12                  -2263658781.5      -3.2218541118e-71
+ Ydot_oxygen-16                              0                      0
+ Ydot_ash                     2.1479027412e-71           1509105854.4
+ Xold_carbon-12                            0.2                    0.9
+ Xold_oxygen-16                           0.05                    0.4
+ Xold_ash                                 0.05                    0.4
+ Edot                         9.3682885505e-53        6.584051211e+27
+ J_carbon-12_carbon-12            -60364234175      -3.8662249342e-69
+ J_oxygen-16_carbon-12                       0                      0
+ J_ash_carbon-12              2.5774832894e-69            40242822783
+ J_E_carbon-12                1.1241946261e-50       1.7557469896e+29
+ J_carbon-12_oxygen-16                       0                      0
+ J_oxygen-16_oxygen-16                       0                      0
+ J_ash_oxygen-16                             0                      0
+ J_E_oxygen-16                               0                      0
+ J_carbon-12_ash                             0                      0
+ J_oxygen-16_ash                             0                      0
+ J_ash_ash                                   0                      0
+ J_E_ash                                     0                      0
+ J_carbon-12_E               -4.4154660816e-08      -7.3754668622e-85
+ J_oxygen-16_E                               0                      0
+ J_ash_E                      4.9169779082e-85       2.9436440544e-08
+ J_E_E                        2.1445881583e-66       1.2842772523e+11
+
