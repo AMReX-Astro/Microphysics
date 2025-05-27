@@ -12,7 +12,7 @@ tags:
 
 authors:
 - name: AMReX-Astro Microphysics Development Team
-  affiliation: none
+  affiliation:
   
 - name: Khanak Bhargava
   affiliation: '1'
