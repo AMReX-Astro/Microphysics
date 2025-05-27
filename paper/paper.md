@@ -12,7 +12,7 @@ tags:
 
 authors:
 - name: AMReX-Astro Microphysics Development Team
-  affiliation:
+  affiliation: '†'
   
 - name: Khanak Bhargava
   affiliation: '1'
@@ -42,6 +42,8 @@ authors:
   affiliation: '1'
 
 affiliations:
+- index: †
+  name: https://github.com/amrex-astro/Microphysics
 - index: 1
   name: Department of Physics and Astronomy, Stony Brook University, Stony Brook, NY, USA
 - index: 2
