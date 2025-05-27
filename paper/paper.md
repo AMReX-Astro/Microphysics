@@ -11,7 +11,7 @@ tags:
 - differential equations
 
 authors:
-- name: AMReX-Astro Microphysics Development Team
+- name: AMReX-Astro Microphysics Team
   affiliation: '†'
   
 - name: Khanak Bhargava
@@ -60,32 +60,35 @@ bibliography: paper.bib
 # Summary
 
 The AMReX-Astrophysics Microphysics library provides a common set of
-microphysics routines (reaction networks, equations of state, and
-other transport coefficients) for astrophysical simulation codes built
-around the AMReX adaptive mesh refinement library [@amrex].  Several
-multi-dimensional simulation codes, including the compressible hydrodynamics code Castro
+microphysics routines (reaction networks and associated physics,
+equations of state, and various transport coefficients) as well as
+solvers (stiff ODE integrators, nonlinear system solvers) for
+astrophysical simulation codes built around the AMReX adaptive mesh
+refinement library [@amrex].  Several multi-dimensional simulation
+codes, including the compressible hydrodynamics code Castro
 [@castro_I], the low-Mach number hydrodynamics code MAESTROeX
 [@maestroex], and the radiation-hydrodynamics code Quokka [@quokka]
 use Microphysics to provide the physics and solvers needed to close
-the hydrodynamics systems that they evolve.
+the hydrodynamics systems that they evolve.  The library is
+implemented in C++ with GPU-offloading a key design feature.
 
 # History
 
-This project in started out in 2013 as a way to centralize the
+The Microphysics project started in 2013 as a way to centralize the
 reaction networks and equations of state used by Castro and MAESTRO
-[@maestro], the predecessor to MAESTROeX.  Originally, Microphysics used Fortran and 
-for a brief period, it was
-referred to as Starkiller Microphysics, which was an attempt to
-co-develop microphysics routines for the Castro and the Flash [@flash]
-simulation codes.   As interest in GPUs grew (with early support added to Microphysics in 2015),
-Castro moved from a mixed of C++ and Fortran to pure C++ to take
-advantage of GPU-offloading afforded by the AMReX library and C++ ports were
-added to Microphysics.  At this point,
-the development focused solely on AMReX-based codes and C++ and the project
-was formally named the AMReX-Astrophysics Microphysics library and the
-Fortran implementations were removed over time.
-Today, the library is completely written in C++ and relies heavily on
-the AMReX data structures to take advantage of GPUs.
+[@maestro], the predecessor to MAESTROeX.  Originally, Microphysics
+used Fortran and for a brief period, it was referred to as Starkiller
+Microphysics, which was an attempt to co-develop microphysics routines
+for the Castro and the Flash [@flash] simulation codes.  As interest
+in GPUs grew (with early support added to Microphysics in 2015),
+Castro moved from a mix of C++ and Fortran to pure C++ to take
+advantage of GPU-offloading afforded by the AMReX library and C++
+ports of all physics routines and solvers were added to Microphysics.
+At this point, the development focused solely on AMReX-based codes and
+C++ and the project was formally named the AMReX-Astrophysics
+Microphysics library.  Today, the library is completely written in C++
+and relies heavily on the AMReX data structures to take advantage of
+GPUs.
 
 # Design
 
@@ -95,17 +98,23 @@ equilibrium solvers and tabulations, thermal conductivities, and
 opacities, as well as the tools needed to work with them, most notably
 the suite of stiff ODE integrators for the networks.
 
-There are two ways to use Microphysics: standalone for simple investigations
-or as part of an (AMReX-based) application code.  In both cases, the core
-requirement is to select a network---this defines the composition that
-is then used by most of the other physics routines.
+There are two ways to use Microphysics: in a standalone fashion (via
+the unit tests) for simple investigations or as part of an
+(AMReX-based) application code.  In both cases, the core
+(compile-time) requirement is to select a network---this defines the
+composition that is then used by most of the other physics routines.
 
-We rely on header-only implementations as much as possible, to allow
-for easier compiler inlining.  We also leverage C++17 `if constexpr`
-templating to compile out unnecessary computations for performance.
-For example, our equations of state can compute a lot of thermodynamic
-quantities and derivatives, but for some operations, we only need a
-few of these.  If we pass the general `eos_t` type into the EOS, then
+Microphysics uses header-only implementations of all functionality as
+much as possible, to allow for easier compiler inlining.  Generally,
+the physics routines and solvers are written to work on a single zone
+from a simulation code, and in AMReX, a C++ lambda-capturing approach
+is used to loop over zones (and offload to GPUs if desired).  We also
+leverage C++17 `if constexpr` templating to compile out unnecessary
+computations for performance.  For example, our equations of state can
+compute a lot of thermodynamic quantities and derivatives, but for
+some operations, we only need a few of these.  All of the equations of
+state are templated on the `struct` that holds the thermodynamic
+state.  If we pass the general `eos_t` type into the EOS, then
 everything is calculated, but if we pass in to the same interface the
 smaller `eos_re_t` type, then only a few energy terms are computed
 (those that are needed when finding temperature from specific internal
@@ -130,6 +139,10 @@ including operator splitting and spectral deferred corrections (SDC)
 (see, e.g., @castro_simple_sdc).  The latter is especially important
 for explosive astrophysical flows.
 
+Finally, most of the physics is chosen at compile-time.  This allows
+Microphysics to provide the number of species as a `constexpr` value
+(which many application codes need), and also greatly reduces the
+compilation time (due to the templating used throughout the library).
 
 # Capabilities
 
@@ -150,7 +163,7 @@ on the burning state being modeled.
 
 We have ported many of the classic "aprox" networks used in the
 astrophysics community (for example "aprox21" described in
-@wallacewoosley:1981 to C++.  Many of these originated from the
+@wallacewoosley:1981) to C++.  Many of these originated from the
 implementations of @cococubed.  Our implementation relies heavily on
 C++ templates, allowing us to simply define the properties of the
 reactions and then the compiler builds the righthand side and Jacobian
@@ -165,9 +178,37 @@ to keep up to date with changes in rates and build more complex networks
 than the traditional aprox nets.
 
 
+### Screening
+
+Nuclear reaction rates are screened by the electrons in the plasma
+(which reduce the Coulomb barrier for the positively charged nuclei to
+fuse).  Microphysics provides several different screening
+implementations: the widely-used `screen5` method based on
+[@grabose:1973; @jancovici:1977, @alastuey:1978; @itoh:1979], the
+methods of [@chugunov:2007] and [@chugunov:2009], and the method of
+[@chabrier1998].
+
+
+### Nuclear statistical equilibrium
+
+At high temperatures ($T > 4\times 10^9~\mathrm{K}$), forward and
+reverse reactions can come into equilibrium (nuclear statistical
+equilibrium, NSE).  Integrating the reaction network directly in this
+regime can be difficult, since the large, but oppositely signed rates,
+may not cancel exactly.  In this case, instead of integrating the
+network, we can impose the equilibrium state.  Microphysics has two
+
+
+### Thermal neutrinos
+
+
+
+
 ## Equations of state
 
 
+
+## Transport Coefficients
 
 
 # Unit tests / examples
