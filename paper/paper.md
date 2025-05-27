@@ -12,7 +12,8 @@ tags:
 
 authors:
 - name: AMReX-Astro Microphysics Development Team
-
+  affiliation: none
+  
 - name: Khanak Bhargava
   affiliation: '1'
   
@@ -26,12 +27,14 @@ authors:
   affiliation: '1'
 
 - name: Piyush Sharda
-
+  affiliation: '2'
+  
 - given-names: Alexander
   surname: Smith Clark
   affiliation: '1'
 
 - name: Ben Wibking
+  affiliation: '3'
 
 - name: Donald Willcox
 
@@ -41,7 +44,10 @@ authors:
 affiliations:
 - index: 1
   name: Department of Physics and Astronomy, Stony Brook University, Stony Brook, NY, USA
-
+- index: 2
+  name: Leiden Observatory, Leiden, The Netherlands
+- index: 3
+  name: Department of Physics and Astronomy, Michigan State University, E. Lansing, MI, USA
 
 date: 01 January 2025
 
