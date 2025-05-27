@@ -200,7 +200,7 @@ network, we can impose the equilibrium state.  Microphysics has two
 different approaches to NSE: a self-consistent solve for the NSE state
 using the nuclei in the present reaction network and an interpolation
 from a tabulated NSE state that was generated with $\mathcal{O}(100)$
-nuclei (see [@Zingale_2024]).
+nuclei (see @Zingale_2024).
 
 ### Thermal neutrinos
 
