@@ -184,7 +184,7 @@ Nuclear reaction rates are screened by the electrons in the plasma
 (which reduce the Coulomb barrier for the positively charged nuclei to
 fuse).  Microphysics provides several different screening
 implementations: the widely-used `screen5` method based on
-[@grabose:1973; @jancovici:1977; @alastuey:1978; @itoh:1979], the
+[@graboske:1973; @jancovici:1977; @alastuey:1978; @itoh:1979], the
 methods of [@chugunov:2007] and [@chugunov:2009], and the method of
 [@Chabrier_1998].
 
