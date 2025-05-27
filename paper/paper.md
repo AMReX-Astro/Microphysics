@@ -184,9 +184,9 @@ Nuclear reaction rates are screened by the electrons in the plasma
 (which reduce the Coulomb barrier for the positively charged nuclei to
 fuse).  Microphysics provides several different screening
 implementations: the widely-used `screen5` method based on
-[@grabose:1973; @jancovici:1977, @alastuey:1978; @itoh:1979], the
+[@grabose:1973; @jancovici:1977; @alastuey:1978; @itoh:1979], the
 methods of [@chugunov:2007] and [@chugunov:2009], and the method of
-[@chabrier1998].
+[@Chabrier_1998].
 
 
 ### Nuclear statistical equilibrium
@@ -197,9 +197,13 @@ equilibrium, NSE).  Integrating the reaction network directly in this
 regime can be difficult, since the large, but oppositely signed rates,
 may not cancel exactly.  In this case, instead of integrating the
 network, we can impose the equilibrium state.  Microphysics has two
-
+different approaches to NSE: a self-consistent solve for the NSE state
+using the nuclei in the present reaction network and an interpolation
+from a tabulated NSE state that was generated with $\mathcal{O}(100)$
+nuclei (see [@Zingale_2024]).
 
 ### Thermal neutrinos
+
 
 
 
