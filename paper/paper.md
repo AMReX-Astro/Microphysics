@@ -233,6 +233,10 @@ chemistry.
 
 ## Transport Coefficients
 
+For thermal diffusion or radiation transport, conductivities and
+opacities are needed.  We provide a C++ port of the stellar
+conductivity opacities from @timmes:2000b.  These are appropriate for
+modeling thermonuclear flames in supernovae and X-ray bursts.
 
 # Unit tests / examples
 
@@ -242,10 +246,12 @@ in `Microphysics/unit_test/`.  There are 2 types of tests here:
 * *comprehensive tests*: these test performance by setting up a cube
   of data (with density, temperature, and composition varying in a
   dimension) and performing an operation on the entire cube (calling
-  the EOS, integrating a network, ...).
+  the EOS, integrating a network, ...).  A separate test is provided
+  for each major physics module.
 
 * *one-zone tests*: these simply call one of the physics modules with
   a single thermodynamic state.  This can be used to explore the
-  physics that is implemented.
+  physics that is implemented, and also serve to demonstrate the interfaces
+  used in Microphysics.
 
 # References
