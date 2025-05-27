@@ -198,19 +198,38 @@ regime can be difficult, since the large, but oppositely signed rates,
 may not cancel exactly.  In this case, instead of integrating the
 network, we can impose the equilibrium state.  Microphysics has two
 different approaches to NSE: a self-consistent solve for the NSE state
-using the nuclei in the present reaction network and an interpolation
-from a tabulated NSE state that was generated with $\mathcal{O}(100)$
-nuclei (see @Zingale_2024).
+using the nuclei in the present reaction network (similar to
+@Kushnir_2020) and an interpolation from a tabulated NSE state that
+was generated with $\mathcal{O}(100)$ nuclei (see @Zingale_2024).
 
 ### Thermal neutrinos
 
+There are a number of thermal mechanisms for producing neutrinos,
+including plasma, photo, pair, recombination, and Bremsstrahlung
+neutrinos.  These act as an energy loss term to the reaction network
+and are implemented following @itoh:1996.
 
 
 
 
 ## Equations of state
 
+The equations of hydrodynamics are closed via an equation of state
+that related internal energy, pressure, and density (along with
+composition).  For systems with reactions or thermal diffusion, it
+also provides temperature.  Traditionally, equations of state are
+implemented in terms of density and temperature, so a Newton-Raphson
+method is used to invert the EOS given energy and density (or some
+other thermodynamic quantities).  A wide range of thermodynamic
+quantities are needed by simulation codes, including pressure,
+internal energy, enthalphy, entropy, and their derivatives with
+respect to density, temperature, and composition.  The various EOS
+`struct` types carry this thermodynamic state.
 
+A variety of EOSs are implemented, to allow for application to a range
+of problems.  These include a simple gamma-law EOS, the stellar EOS of
+@timmes:2000, and an equation of state applicable to primordial
+chemistry.
 
 ## Transport Coefficients
 
