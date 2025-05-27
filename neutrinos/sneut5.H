@@ -1507,7 +1507,10 @@ void sneut5(const amrex::Real temp, const amrex::Real den,
 
     nu_brem<do_derivatives>(sf, sbrem, sbremdt, sbremda, sbremdz);
 
-    nu_recomb<do_derivatives>(sf, sreco, srecodt, srecoda, srecodz);
+    // check for recombination neutrinos
+    if (neutrino_cooling_rp::include_recomb) {
+        nu_recomb<do_derivatives>(sf, sreco, srecodt, srecoda, srecodz);
+    }
 
     // convert from erg/cm^3/s to erg/g/s
     // comment these out to duplicate the itoh et al plots
@@ -1548,11 +1551,23 @@ void sneut5(const amrex::Real temp, const amrex::Real den,
     }
 
     // the total neutrino loss rate
-    snu    =  splas + spair + sphot + sbrem + sreco;
+    snu    =  splas + spair + sphot + sbrem;
+
+    // With recombination neutrinos
+    if(neutrino_cooling_rp::include_recomb) {
+        snu += sreco;
+    }
+
     if constexpr (do_derivatives) {
-        dsnudt =  splasdt + spairdt + sphotdt + sbremdt + srecodt;
-        dsnuda =  splasda + spairda + sphotda + sbremda + srecoda;
-        dsnudz =  splasdz + spairdz + sphotdz + sbremdz + srecodz;
+        dsnudt =  splasdt + spairdt + sphotdt + sbremdt;
+        dsnuda =  splasda + spairda + sphotda + sbremda;
+        dsnudz =  splasdz + spairdz + sphotdz + sbremdz;
+        // With recombination neutrinos
+        if (neutrino_cooling_rp::include_recomb) {
+            dsnudt += srecodt;
+            dsnuda += srecoda;
+            dsnudz += srecodz;
+        }
     }
 
 }

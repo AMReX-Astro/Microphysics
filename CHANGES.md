@@ -1,6 +1,25 @@
 # Changelog
 
-## 23.03
+## 25.05
+
+  * some clang-tidy cleaning (#1784)
+
+  * with HIP we were disabling inlining due to ROCm issues.  This is
+    now an option, with the default enabling inlining, since it works
+    as expected for ROCm >= 6.3.1 (#1780)
+
+  * clean up the pynucastro scripts that derived reverse rates (#1781)
+
+## 25.04
+
+  * the "he-burn" networks now will look for weak rates for
+    all nuclei, not just the Fe-group (#1763)
+
+  * clean up the ECSN network generation script (#1776)
+
+  * Allow for single-step backward Euler (#1773)
+
+## 25.03
 
   * the `nova2` net was renamed `nova`, and the old `nova`
     net was removed (#1746, #1768)
