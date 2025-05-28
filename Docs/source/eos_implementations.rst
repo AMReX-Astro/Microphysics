@@ -262,13 +262,14 @@ where the runtime parameters provide the constants:
 =============
 
 This is an equation of state for hypervelocity impacts based on :cite:`tillotson:1962`.
+It can be used to model planetary impacts.
 
 
 ``ztwd``
 ========
 
 ``ztwd`` is the zero-temperature degenerate electron equation
-of state of Chandrasekhar (1935), which is designed to describe
+of state of Chandrasekhar :cite:`chandra:1939`, which is designed to describe
 white dward material. The pressure satisfies the equation:
 
 .. math:: p(x) = A \left( x(2x^2-3)(x^2 + 1)^{1/2} + 3\, \text{sinh}^{-1}(x) \right),
@@ -278,7 +279,7 @@ measure of the Fermi momentum, with :math:`\rho = B x^3` and :math:`B = 8\pi \mu
 m_p m_e^3 c^3 / (3h^3)`, where :math:`\mu_e` is the mean molecular weight
 per electron and :math:`h` is the Planck constant.
 
-The enthalpy was worked out by Hachisu (1986):
+The enthalpy was worked out by Hachisu :cite:`hachisu:1986`:
 
 .. math:: h(x) = \frac{8A}{B}\left(x^2 + 1\right)^{1/2}.
 

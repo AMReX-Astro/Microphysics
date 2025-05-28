@@ -31,7 +31,7 @@ There are two main makefile stubs:
   that interprets the build variables that enable / disable different functionality.
   This is meant to be included into any application code's build system.
 
-additionally directories have their own ``Make.package`` files that specify
+In addition, directories have their own ``Make.package`` files that specify
 the files needed for the build and some rules for making intermediary files.
 
 

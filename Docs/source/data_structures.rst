@@ -5,7 +5,8 @@ Data Structures
 ***************
 
 All of the routines in this software package are standardized so that
-you interact with them using the same type of data structure, a C++ struct.
+you interact with them using the same type of data structure, a C++ ``struct``.
+Here we describe the most important data structures.
 
 EOS
 ===
@@ -42,8 +43,9 @@ network, and they will come in through the ``network_properties.H`` header file.
 
 There is a lot more information that can be saved here, such as the
 partial derivatives of the thermodynamic state variables with respect
-to each other. To see a complete list, examine the ``eos_type.H``
-file.
+to each other.
+
+To see a complete list, examine the `eos_type.H <https://github.com/AMReX-Astro/Microphysics/blob/main/interfaces/eos_type.H>`_ header.
 
 Networks
 ========
@@ -65,17 +67,20 @@ the user will only need to fill/use the following information:
 
 * ``burn_state.e``: the specific internal energy [:math:`\mathrm{erg~g^{-1}}`]
 
-   Note: this has two different contexts, depending on when it is
-   accessed.
+   .. note::
 
-   When you call the integrator and are in the process of integrating
-   the reaction system, e will be an integration variable and
-   will account for the nuclear energy release.  It will also be used to
-   derive the temperature via the EOS.
+      This has two different contexts, depending on when it is
+      accessed.
 
-   Upon exit of the integration, the initial internal energy (offset)
-   is subtracted off, and e now represents the specific nuclear
-   energy release from the reactions.
+      When you call the integrator and are in the process of integrating
+      the reaction system, e will be an integration variable and
+      will account for the nuclear energy release.  It will also be used to
+      derive the temperature via the EOS.
+
+      Upon exit of the integration, the initial internal energy
+      (offset) may be subtracted off (depending on runtime options),
+      and e would then represent just the specific nuclear energy release
+      from the reactions.
 
 * ``burn_state.xn[]``: the mass fractions
 
@@ -85,32 +90,24 @@ the user will only need to fill/use the following information:
 
 * ``burn_state.time``: the time since the start of the integration [s]
 
-   Note this is not the same as the simulation time. Each integrator
-   will also store the simulation time at the start of integration
-   in their local storage—this can be used as an offset to convert
-   between integration and simulation time.
+   .. important::
 
-``rate_t``, ``rate_fr_t``
--------------------------
+      This is not the same as the simulation time. Each integrator
+      will also store the simulation time at the start of integration
+      in their local storage---this can be used as an offset to convert
+      between integration and simulation time.
 
-.. index:: rate_t
-
-The ``rate_t`` structure is used internally in a network to pass the
-raw reaction rate information (usually just the temperature-dependent
-terms) between various subroutines. It does not come out of the
-network-specific righthand side or Jacobian routines.
 
 ``burn_type.H``
 ---------------
 
 .. index:: burn_type.H
 
-In addition to defining the ``burn_t`` type, the header ``burn_type.H``
+In addition to defining the ``burn_t`` type, the header `burn_type.H <https://github.com/AMReX-Astro/Microphysics/blob/main/interfaces/burn_type.H>`_
 also defines integer indices into the solution vector that can be used
 to access the different components of the state:
 
 * ``neqs`` : the total number of variables we are integrating.
-
   It is assumed that the first ``nspec`` are the species.
 
 * ``net_ienuc`` : the index of the specific internal energy in the solution vector
@@ -148,9 +145,13 @@ Converting Between Types
 ========================
 
 There is significant overlap between ``eos_t`` and ``burn_t``.
-The ``burn_type.H`` header two routines,
+The ``burn_type.H`` header defines two functions,
 ``burn_to_eos`` and ``eos_to_burn`` that convert a ``burn_t``
 state to an ``eos_t`` state, and back. Only the thermodynamic
-variables that are common in the two types are copied. This is
-useful, for example, if you have a burn_t state and what to get
-thermodynamic information by calling the EOS.
+variables that are common in the two types are copied.
+
+.. tip::
+
+   The equation of state call be called directly with a ``burn_t`` and
+   the EOS will fill the thermodynamic quantities it defines.  This
+   eliminates the need to convert between types in many cases.
