@@ -13,10 +13,10 @@ tags:
 authors:
 - name: AMReX-Astro Microphysics Team
   affiliation: '†'
-  
+
 - name: Khanak Bhargava
   affiliation: '1'
-  
+
 - name: Zhi Chen
   affiliation: '1'
 
@@ -28,7 +28,7 @@ authors:
 
 - name: Piyush Sharda
   affiliation: '2'
-  
+
 - given-names: Alexander
   surname: Smith Clark
   affiliation: '1'
@@ -51,7 +51,7 @@ affiliations:
 - index: 3
   name: Department of Physics and Astronomy, Michigan State University, E. Lansing, MI, USA
 
-date: 01 January 2025
+date: 28 May 2025
 
 bibliography: paper.bib
 ---
@@ -72,7 +72,19 @@ use Microphysics to provide the physics and solvers needed to close
 the hydrodynamics systems that they evolve.  The library is
 implemented in C++ with GPU-offloading a key design feature.
 
-# History
+# Statement of need
+
+Astrophysical simulation codes need many different smallscale
+(microphysics) physics inputs to close the system of equations.  There
+are many astrophysics simulation codes built around the AMReX library,
+with each specializing in different astrophysics phenomena.  Each
+of these codes share some common needs.  The Microphysics library was
+created to minimize developer effort across these codes and coordinate
+the approach to exascale compute architectures.  Microphysics has been
+used for simulations of convective Urca (MAESTROeX), nova, X-ray bursts,
+and thermonuclear supernovae (Castro), and star formation (Quokka).
+
+# Project history
 
 The Microphysics project started in 2013 as a way to centralize the
 reaction networks and equations of state used by Castro and MAESTRO
@@ -145,7 +157,6 @@ Microphysics to provide the number of species as a `constexpr` value
 compilation time (due to the templating used throughout the library).
 
 # Capabilities
-
 
 ## Reaction networks
 
@@ -240,6 +251,20 @@ modeling thermonuclear flames in supernovae and X-ray bursts.
 
 # GPU Strategy
 
+Microphysics is designed such that all computation takes place on
+GPUs.  When used with an application code, this permits the simulation
+state data to be allocated directly in GPU memory and left there for
+the entire simulation.  For the ODE integration, the integrator
+(e.g. VODE) is run on the GPU directly.  Since each zone in a
+simulation usually will have a different thermodynamic state, this can
+lead to thread divergence issues, since some zones will have an easier
+burn than others.  To help mitigate this issue, we can cap the number
+of integration steps and either retry an integration on a zone-by-zone
+basis with different tolerances or Jacobian approximations or pass the
+failure back to the application code to deal with.  This strategy
+has been successful for many large scale simulations [@Zingale_2025].
+
+
 # Unit tests / examples
 
 Microphysics can be used as a standalone tool through the tests
@@ -255,5 +280,10 @@ in `Microphysics/unit_test/`.  There are 2 types of tests here:
   a single thermodynamic state.  This can be used to explore the
   physics that is implemented, and also serve to demonstrate the interfaces
   used in Microphysics.
+
+# Acknowledgements
+
+The work at Stony Brook was supported by the US Department of Energy,
+Office of Nuclear Physics grant DE-FG02-87ER40317.
 
 # References
