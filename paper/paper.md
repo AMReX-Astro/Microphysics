@@ -77,12 +77,15 @@ implemented in C++ with GPU-offloading a key design feature.
 Astrophysical simulation codes need many different smallscale
 (microphysics) physics inputs to close the system of equations.  There
 are many astrophysics simulation codes built around the AMReX library,
-with each specializing in different astrophysics phenomena.  Each
-of these codes share some common needs.  The Microphysics library was
+with each specializing in different astrophysics phenomena.  Each of
+these codes share some common needs.  The Microphysics library was
 created to minimize developer effort across these codes and coordinate
 the approach to exascale compute architectures.  Microphysics has been
-used for simulations of convective Urca (MAESTROeX), nova, X-ray bursts,
-and thermonuclear supernovae (Castro), and star formation (Quokka).
+used for simulations of convective Urca [@Boyd_2025] and X-ray bursts
+[@Guichandut_2024] with MAESTROeX; and for simulations of nova
+[@Smith2025], X-ray bursts [@Harpole_2021], thermonuclear supernovae
+[@Zingale_2024_dd], and convection in massive stars [@Zingale_2024]
+with Castro.
 
 # Project history
 
@@ -100,7 +103,8 @@ At this point, the development focused solely on AMReX-based codes and
 C++ and the project was formally named the AMReX-Astrophysics
 Microphysics library.  Today, the library is completely written in C++
 and relies heavily on the AMReX data structures to take advantage of
-GPUs.
+GPUs.  The GPU-enabled reaction network integrators led to the Quokka
+code adopting Microphysics for their simulations.
 
 # Design
 
@@ -287,3 +291,4 @@ The work at Stony Brook was supported by the US Department of Energy,
 Office of Nuclear Physics grant DE-FG02-87ER40317.
 
 # References
+
