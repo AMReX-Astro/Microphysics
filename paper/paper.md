@@ -231,12 +231,14 @@ of problems.  These include a simple gamma-law EOS, the stellar EOS of
 @timmes:2000, and an equation of state applicable to primordial
 chemistry.
 
-## Transport Coefficients
+## Transport coefficients
 
 For thermal diffusion or radiation transport, conductivities and
 opacities are needed.  We provide a C++ port of the stellar
 conductivity opacities from @timmes:2000b.  These are appropriate for
 modeling thermonuclear flames in supernovae and X-ray bursts.
+
+# GPU Strategy
 
 # Unit tests / examples
 
