@@ -115,13 +115,13 @@ to access the different components of the state:
 For :ref:`sdc-evolution`, it also defines integer indices for the
 ``burn_t y[]`` array:
 
-* ``SFS``:  the first species
+* ``SFS`` :  the first species
 
-* ``SEINT`` the energy
+* ``SEINT`` : the energy
 
 and then a number of components that are not evolved:
 
-* ``SRHO`` density
+* ``SRHO`` : density
 
 * ``SMX``, ``SMY``, ``SMZ`` : the momenta
 
