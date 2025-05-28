@@ -114,7 +114,7 @@ Development generally follows the following ideas:
     If a change is critical, we can cherry-pick the commit from
     `development` to `main`.
 
-  * Contributions are welcomed from anyone. *All contributionss should
+  * Contributions are welcomed from anyone. *All contributions should
     be done via pull requests.* A pull request should be generated
     from your fork of `Microphysics` and target the `development`
     branch. (If you mistakenly target `main`, we can change it for
