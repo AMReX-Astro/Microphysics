@@ -65,7 +65,6 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#networks">Networks</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#burn-t"><code class="docutils literal notranslate"><span class="pre">burn_t</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#rate-t-rate-fr-t"><code class="docutils literal notranslate"><span class="pre">rate_t</span></code>, <code class="docutils literal notranslate"><span class="pre">rate_fr_t</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#burn-type-h"><code class="docutils literal notranslate"><span class="pre">burn_type.H</span></code></a></li>
 </ul>
 </li>
@@ -147,7 +146,8 @@
   <section id="data-structures">
 <span id="id1"></span><h1>Data Structures<a class="headerlink" href="#data-structures" title="Link to this heading"></a></h1>
 <p>All of the routines in this software package are standardized so that
-you interact with them using the same type of data structure, a C++ struct.</p>
+you interact with them using the same type of data structure, a C++ <code class="docutils literal notranslate"><span class="pre">struct</span></code>.
+Here we describe the most important data structures.</p>
 <section id="eos">
 <h2>EOS<a class="headerlink" href="#eos" title="Link to this heading"></a></h2>
 <section id="eos-t">
@@ -171,8 +171,8 @@ data is the following:</p>
 network, and they will come in through the <code class="docutils literal notranslate"><span class="pre">network_properties.H</span></code> header file.</p>
 <p>There is a lot more information that can be saved here, such as the
 partial derivatives of the thermodynamic state variables with respect
-to each other. To see a complete list, examine the <code class="docutils literal notranslate"><span class="pre">eos_type.H</span></code>
-file.</p>
+to each other.</p>
+<p>To see a complete list, examine the <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/blob/main/interfaces/eos_type.H">eos_type.H</a> header.</p>
 </section>
 </section>
 <section id="networks">
@@ -189,15 +189,19 @@ the user will only need to fill/use the following information:</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">burn_state.T</span></code>: temperature [K]</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">burn_state.e</span></code>: the specific internal energy [<span class="math notranslate nohighlight">\(\mathrm{erg~g^{-1}}\)</span>]</p>
 <blockquote>
-<div><p>Note: this has two different contexts, depending on when it is
+<div><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This has two different contexts, depending on when it is
 accessed.</p>
 <p>When you call the integrator and are in the process of integrating
 the reaction system, e will be an integration variable and
 will account for the nuclear energy release.  It will also be used to
 derive the temperature via the EOS.</p>
-<p>Upon exit of the integration, the initial internal energy (offset)
-is subtracted off, and e now represents the specific nuclear
-energy release from the reactions.</p>
+<p>Upon exit of the integration, the initial internal energy
+(offset) may be subtracted off (depending on runtime options),
+and e would then represent just the specific nuclear energy release
+from the reactions.</p>
+</div>
 </div></blockquote>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">burn_state.xn[]</span></code>: the mass fractions</p></li>
@@ -205,41 +209,36 @@ energy release from the reactions.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">burn_state.i</span></code>, <code class="docutils literal notranslate"><span class="pre">.j</span></code>, <code class="docutils literal notranslate"><span class="pre">.k</span></code>: hydrodynamic zone i, j, k for bug reporting, diagnostics</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">burn_state.time</span></code>: the time since the start of the integration [s]</p>
 <blockquote>
-<div><p>Note this is not the same as the simulation time. Each integrator
+<div><div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>This is not the same as the simulation time. Each integrator
 will also store the simulation time at the start of integration
 in their local storage—this can be used as an offset to convert
 between integration and simulation time.</p>
+</div>
 </div></blockquote>
 </li>
 </ul>
 </section>
-<section id="rate-t-rate-fr-t">
-<h3><code class="docutils literal notranslate"><span class="pre">rate_t</span></code>, <code class="docutils literal notranslate"><span class="pre">rate_fr_t</span></code><a class="headerlink" href="#rate-t-rate-fr-t" title="Link to this heading"></a></h3>
-<p id="index-2">The <code class="docutils literal notranslate"><span class="pre">rate_t</span></code> structure is used internally in a network to pass the
-raw reaction rate information (usually just the temperature-dependent
-terms) between various subroutines. It does not come out of the
-network-specific righthand side or Jacobian routines.</p>
-</section>
 <section id="burn-type-h">
 <h3><code class="docutils literal notranslate"><span class="pre">burn_type.H</span></code><a class="headerlink" href="#burn-type-h" title="Link to this heading"></a></h3>
-<p id="index-3">In addition to defining the <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> type, the header <code class="docutils literal notranslate"><span class="pre">burn_type.H</span></code>
+<p id="index-2">In addition to defining the <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> type, the header <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/blob/main/interfaces/burn_type.H">burn_type.H</a>
 also defines integer indices into the solution vector that can be used
 to access the different components of the state:</p>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">neqs</span></code> : the total number of variables we are integrating.</p>
-<p>It is assumed that the first <code class="docutils literal notranslate"><span class="pre">nspec</span></code> are the species.</p>
-</li>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">neqs</span></code> : the total number of variables we are integrating.
+It is assumed that the first <code class="docutils literal notranslate"><span class="pre">nspec</span></code> are the species.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">net_ienuc</span></code> : the index of the specific internal energy in the solution vector</p></li>
 </ul>
 <p>For <a class="reference internal" href="sdc.html#sdc-evolution"><span class="std std-ref">Spectral Deferred Corrections</span></a>, it also defines integer indices for the
 <code class="docutils literal notranslate"><span class="pre">burn_t</span> <span class="pre">y[]</span></code> array:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">SFS</span></code>:  the first species</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">SEINT</span></code> the energy</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SFS</span></code> :  the first species</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SEINT</span></code> : the energy</p></li>
 </ul>
 <p>and then a number of components that are not evolved:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">SRHO</span></code> density</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SRHO</span></code> : density</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">SMX</span></code>, <code class="docutils literal notranslate"><span class="pre">SMY</span></code>, <code class="docutils literal notranslate"><span class="pre">SMZ</span></code> : the momenta</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">SEDEN</span></code> : the total energy density</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">SFX</span></code> : the first auxiliary quantity</p></li>
@@ -259,12 +258,16 @@ particular state (<span class="math notranslate nohighlight">\(X_k\)</span>, <sp
 <section id="converting-between-types">
 <h2>Converting Between Types<a class="headerlink" href="#converting-between-types" title="Link to this heading"></a></h2>
 <p>There is significant overlap between <code class="docutils literal notranslate"><span class="pre">eos_t</span></code> and <code class="docutils literal notranslate"><span class="pre">burn_t</span></code>.
-The <code class="docutils literal notranslate"><span class="pre">burn_type.H</span></code> header two routines,
+The <code class="docutils literal notranslate"><span class="pre">burn_type.H</span></code> header defines two functions,
 <code class="docutils literal notranslate"><span class="pre">burn_to_eos</span></code> and <code class="docutils literal notranslate"><span class="pre">eos_to_burn</span></code> that convert a <code class="docutils literal notranslate"><span class="pre">burn_t</span></code>
 state to an <code class="docutils literal notranslate"><span class="pre">eos_t</span></code> state, and back. Only the thermodynamic
-variables that are common in the two types are copied. This is
-useful, for example, if you have a burn_t state and what to get
-thermodynamic information by calling the EOS.</p>
+variables that are common in the two types are copied.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>The equation of state can be called directly with a <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> and
+the EOS will fill the thermodynamic quantities it defines.  This
+eliminates the need to convert between types in many cases.</p>
+</div>
 </section>
 </section>
 
