@@ -74,9 +74,6 @@ exercise all modes of calling the EOS, in order:
 
   We store the relative error in :math:`\rho` in the output file.
 
-This unit test is marked up with OpenMP directives and therefore also
-tests whether the EOS is threadsafe.
-
 To compile for a specific EOS, e.g., helmholtz, do::
 
     make EOS_DIR=helmholtz -j 4
@@ -99,13 +96,9 @@ each zone.
 The state in each zone of our data cube is determined by the runtime
 parameters ``dens_min``, ``dens_max``, ``temp_min``, and ``temp_max``
 for :math:`(\rho, T)`. Because each network carries different
-compositions, we specify the composition through runtime parameters in
-the ``&extern`` namelist: ``primary_species_1``,
-``primary_species_2``, ``primary_species_3``. These primary species
-will vary from X = 0.2 to X = 0.7 to 0.9 (depending on the number).
-Only one primary species varies at a time. The non-primary species
-will be set equally to share whatever fraction of 1 is not accounted
-for by the primary species mass fractions.
+compositions, we specify the composition through runtime parameters
+described in :ref:`sec:defining_unit_test_composition` for comprehensive
+tests.
 
 This test calls the network on each zone, running for a time
 ``tmax``. The full state, including new mass fractions and energy
