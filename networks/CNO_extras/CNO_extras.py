@@ -12,7 +12,7 @@ h_burn = rl.linking_nuclei(["h1", "he4",
                            with_reverse=True)
 
 
-rc = pyna.StarKillerCxxNetwork(libraries=[h_burn], inert_nuclei=["fe56"])
+rc = pyna.AmrexAstroCxxNetwork(libraries=[h_burn], inert_nuclei=["fe56"])
 
 rc.write_network()
 

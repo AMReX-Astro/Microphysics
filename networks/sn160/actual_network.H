@@ -561,7 +561,7 @@ namespace Rates
 {
 
     enum NetworkRates :
-    std::unit16_t
+    std::uint16_t
     {
         k_n_to_p_weak_wc12 = 1,
         k_Be7_to_Li7_weak_electron_capture = 2,
