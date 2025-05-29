@@ -20,7 +20,7 @@ authors:
 - name: Zhi Chen
   affiliation: '1'
 
-- name: Eric Johnson
+- name: Eric T. Johnson
   affiliation: '1'
 
 - name: Max P. Katz
