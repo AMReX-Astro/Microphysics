@@ -269,8 +269,8 @@ It can be used to model planetary impacts.
 ========
 
 ``ztwd`` is the zero-temperature degenerate electron equation
-of state of Chandrasekhar :cite:`chandra:1939`, which is designed to describe
-white dward material. The pressure satisfies the equation:
+of state of :cite:t:`chandra:1939`, which is designed to describe
+white dwarf material. The pressure satisfies the equation:
 
 .. math:: p(x) = A \left( x(2x^2-3)(x^2 + 1)^{1/2} + 3\, \text{sinh}^{-1}(x) \right),
 
