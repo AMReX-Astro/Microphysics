@@ -22,7 +22,7 @@ void init_tabular();
 
 const int num_tables = 0;
 
-enum TableVars : std::uint8_t
+enum TableVars
 {
     jtab_mu      = 1,
     jtab_dq      = 2,
