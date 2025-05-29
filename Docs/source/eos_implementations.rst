@@ -279,7 +279,7 @@ measure of the Fermi momentum, with :math:`\rho = B x^3` and :math:`B = 8\pi \mu
 m_p m_e^3 c^3 / (3h^3)`, where :math:`\mu_e` is the mean molecular weight
 per electron and :math:`h` is the Planck constant.
 
-The enthalpy was worked out by Hachisu :cite:`hachisu:1986`:
+The enthalpy was worked out by :cite:t:`hachisu:1986`:
 
 .. math:: h(x) = \frac{8A}{B}\left(x^2 + 1\right)^{1/2}.
 
