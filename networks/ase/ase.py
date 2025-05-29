@@ -113,8 +113,8 @@ def doit():
     net.plot(rho, T, comp, outfile="ase.png",
              rotated=True, hide_xalpha=True, curved_edges=True,
              size=(1500, 450),
-             node_size=500, node_font_size=11, node_color="#337dff", node_shape="s",
-             Z_range=(1,29))
+             node_size=600, node_font_size=11,
+             Z_range=(1, 29))
 
     net.write_network()
 

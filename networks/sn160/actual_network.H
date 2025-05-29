@@ -33,478 +33,478 @@ namespace network
             return 0.0_rt;
         }
         else if constexpr (spec == H2) {
-            return 2.224566_rt;
+            return 2.2245662689997516_rt;
         }
         else if constexpr (spec == He3) {
-            return 7.7180399999999985_rt;
+            return 7.718041347999588_rt;
         }
         else if constexpr (spec == He4) {
-            return 28.29566_rt;
+            return 28.295662457999697_rt;
         }
         else if constexpr (spec == Li6) {
-            return 31.993986_rt;
+            return 31.99398709199886_rt;
         }
         else if constexpr (spec == Li7) {
-            return 39.245073_rt;
+            return 39.245080591999795_rt;
         }
         else if constexpr (spec == Be7) {
-            return 37.600836_rt;
+            return 37.60083855599987_rt;
         }
         else if constexpr (spec == Be9) {
-            return 58.164012_rt;
+            return 58.1640247560008_rt;
         }
         else if constexpr (spec == B8) {
-            return 37.73724_rt;
+            return 37.7372096199997_rt;
         }
         else if constexpr (spec == B10) {
-            return 64.75083_rt;
+            return 64.750834819999_rt;
         }
         else if constexpr (spec == B11) {
-            return 76.205052_rt;
+            return 76.20505591999972_rt;
         }
         else if constexpr (spec == C12) {
-            return 92.16172800000001_rt;
+            return 92.16173498399803_rt;
         }
         else if constexpr (spec == C13) {
-            return 97.108037_rt;
+            return 97.10804378399916_rt;
         }
         else if constexpr (spec == C14) {
-            return 105.28446600000001_rt;
+            return 105.28447818399945_rt;
         }
         else if constexpr (spec == N13) {
-            return 94.105219_rt;
+            return 94.10522604799917_rt;
         }
         else if constexpr (spec == N14) {
-            return 104.65859599999999_rt;
+            return 104.65860734799753_rt;
         }
         else if constexpr (spec == N15) {
-            return 115.4919_rt;
+            return 115.49190414799887_rt;
         }
         else if constexpr (spec == O14) {
-            return 98.731892_rt;
+            return 98.73189611199996_rt;
         }
         else if constexpr (spec == O15) {
-            return 111.95538_rt;
+            return 111.95539521199862_rt;
         }
         else if constexpr (spec == O16) {
-            return 127.619296_rt;
+            return 127.6193154119992_rt;
         }
         else if constexpr (spec == O17) {
-            return 131.76237600000002_rt;
+            return 131.76239561199873_rt;
         }
         else if constexpr (spec == O18) {
-            return 139.807746_rt;
+            return 139.8077658120019_rt;
         }
         else if constexpr (spec == F17) {
-            return 128.21957600000002_rt;
+            return 128.21958437599824_rt;
         }
         else if constexpr (spec == F18) {
-            return 137.369484_rt;
+            return 137.36950247599816_rt;
         }
         else if constexpr (spec == F19) {
-            return 147.801342_rt;
+            return 147.80136567599766_rt;
         }
         else if constexpr (spec == Ne18) {
-            return 132.142626_rt;
+            return 132.14265544000227_rt;
         }
         else if constexpr (spec == Ne19) {
-            return 143.779517_rt;
+            return 143.7795235400008_rt;
         }
         else if constexpr (spec == Ne20) {
-            return 160.6448_rt;
+            return 160.64482384000075_rt;
         }
         else if constexpr (spec == Ne21) {
-            return 167.405973_rt;
+            return 167.40598973999658_rt;
         }
         else if constexpr (spec == Ne22) {
-            return 177.77023_rt;
+            return 177.77024384000106_rt;
         }
         else if constexpr (spec == Na21) {
-            return 163.076487_rt;
+            return 163.07672270400144_rt;
         }
         else if constexpr (spec == Na22) {
-            return 174.144674_rt;
+            return 174.14457080400098_rt;
         }
         else if constexpr (spec == Na23) {
-            return 186.56433900000002_rt;
+            return 186.56435240400242_rt;
         }
         else if constexpr (spec == Mg23) {
-            return 181.725645_rt;
+            return 181.7258218679999_rt;
         }
         else if constexpr (spec == Mg24) {
-            return 198.25701600000002_rt;
+            return 198.2570479679962_rt;
         }
         else if constexpr (spec == Mg25) {
-            return 205.58755_rt;
+            return 205.5875680680001_rt;
         }
         else if constexpr (spec == Mg26) {
-            return 216.68062000000003_rt;
+            return 216.68065016799665_rt;
         }
         else if constexpr (spec == Al25) {
-            return 200.5284_rt;
+            return 200.52841103199896_rt;
         }
         else if constexpr (spec == Al26) {
-            return 211.89389_rt;
+            return 211.89389913199557_rt;
         }
         else if constexpr (spec == Al27) {
-            return 224.951931_rt;
+            return 224.95193723199915_rt;
         }
         else if constexpr (spec == Si28) {
-            return 236.536832_rt;
+            return 236.53684539599638_rt;
         }
         else if constexpr (spec == Si29) {
-            return 245.010415_rt;
+            return 245.01044789599834_rt;
         }
         else if constexpr (spec == Si30) {
-            return 255.61962_rt;
+            return 255.61964649599756_rt;
         }
         else if constexpr (spec == Si31) {
-            return 262.207021_rt;
+            return 262.207042596001_rt;
         }
         else if constexpr (spec == Si32) {
-            return 271.40697600000004_rt;
+            return 271.4070106959989_rt;
         }
         else if constexpr (spec == P29) {
-            return 239.28584400000003_rt;
+            return 239.28581936000046_rt;
         }
         else if constexpr (spec == P30) {
-            return 250.60518_rt;
+            return 250.60519745999775_rt;
         }
         else if constexpr (spec == P31) {
-            return 262.91617699999995_rt;
+            return 262.9161999600037_rt;
         }
         else if constexpr (spec == P32) {
-            return 270.85184000000004_rt;
+            return 270.8518536599986_rt;
         }
         else if constexpr (spec == P33) {
-            return 280.955598_rt;
+            return 280.95569175999844_rt;
         }
         else if constexpr (spec == S32) {
-            return 271.78012800000005_rt;
+            return 271.78016372399725_rt;
         }
         else if constexpr (spec == S33) {
-            return 280.42179_rt;
+            return 280.42180302400084_rt;
         }
         else if constexpr (spec == S34) {
-            return 291.83893199999994_rt;
+            return 291.83895282400044_rt;
         }
         else if constexpr (spec == S35) {
-            return 298.82475_rt;
+            return 298.8247909240017_rt;
         }
         else if constexpr (spec == S36) {
-            return 308.714004_rt;
+            return 308.714039024002_rt;
         }
         else if constexpr (spec == Cl33) {
-            return 274.05691499999995_rt;
+            return 274.05689768799857_rt;
         }
         else if constexpr (spec == Cl34) {
-            return 285.56497999999993_rt;
+            return 285.5650057879975_rt;
         }
         else if constexpr (spec == Cl35) {
-            return 298.20973000000004_rt;
+            return 298.20976388800045_rt;
         }
         else if constexpr (spec == Cl36) {
-            return 306.789516_rt;
+            return 306.78956198800006_rt;
         }
         else if constexpr (spec == Cl37) {
-            return 317.10039700000004_rt;
+            return 317.10042008799786_rt;
         }
         else if constexpr (spec == Ar36) {
-            return 306.716724_rt;
+            return 306.7167469519991_rt;
         }
         else if constexpr (spec == Ar37) {
-            return 315.504143_rt;
+            return 315.50420305199077_rt;
         }
         else if constexpr (spec == Ar38) {
-            return 327.34264_rt;
+            return 327.3426711519933_rt;
         }
         else if constexpr (spec == Ar39) {
-            return 333.94132199999996_rt;
+            return 333.9411592519973_rt;
         }
         else if constexpr (spec == Ar40) {
-            return 343.81036_rt;
+            return 343.81037735200516_rt;
         }
         else if constexpr (spec == K37) {
-            return 308.57433899999995_rt;
+            return 308.5743760159967_rt;
         }
         else if constexpr (spec == K38) {
-            return 320.64620400000007_rt;
+            return 320.64625411599985_rt;
         }
         else if constexpr (spec == K39) {
-            return 333.723975_rt;
+            return 333.7240072160057_rt;
         }
         else if constexpr (spec == K40) {
-            return 341.5236_rt;
+            return 341.52363031599816_rt;
         }
         else if constexpr (spec == K41) {
-            return 351.618952_rt;
+            return 351.6189974159933_rt;
         }
         else if constexpr (spec == Ca40) {
-            return 342.05212000000006_rt;
+            return 342.05218528000114_rt;
         }
         else if constexpr (spec == Ca41) {
-            return 350.414946_rt;
+            return 350.4150113799915_rt;
         }
         else if constexpr (spec == Ca42) {
-            return 361.89564599999994_rt;
+            return 361.8957094799989_rt;
         }
         else if constexpr (spec == Ca43) {
-            return 369.82850900000005_rt;
+            return 369.82860757999885_rt;
         }
         else if constexpr (spec == Ca44) {
-            return 380.9597_rt;
+            return 380.95975567999994_rt;
         }
         else if constexpr (spec == Ca45) {
-            return 388.374525_rt;
+            return 388.3745737799982_rt;
         }
         else if constexpr (spec == Ca46) {
-            return 398.773034_rt;
+            return 398.77329187999567_rt;
         }
         else if constexpr (spec == Ca47) {
-            return 406.049403_rt;
+            return 406.0497099799977_rt;
         }
         else if constexpr (spec == Ca48) {
-            return 416.00092800000004_rt;
+            return 416.0011960799966_rt;
         }
         else if constexpr (spec == Sc43) {
-            return 366.825475_rt;
+            return 366.82549054399715_rt;
         }
         else if constexpr (spec == Sc44) {
-            return 376.52467600000006_rt;
+            return 376.5247086439995_rt;
         }
         else if constexpr (spec == Sc45) {
-            return 387.851895_rt;
+            return 387.8523267439959_rt;
         }
         else if constexpr (spec == Sc46) {
-            return 396.612552_rt;
+            return 396.61294484399696_rt;
         }
         else if constexpr (spec == Sc47) {
-            return 407.25922999999995_rt;
+            return 407.25946294399176_rt;
         }
         else if constexpr (spec == Sc48) {
-            return 415.49779199999995_rt;
+            return 415.49798104399815_rt;
         }
         else if constexpr (spec == Sc49) {
-            return 425.626544_rt;
+            return 425.6276991440027_rt;
         }
         else if constexpr (spec == Ti44) {
-            return 375.47488000000004_rt;
+            return 375.47496160800074_rt;
         }
         else if constexpr (spec == Ti45) {
-            return 385.00748999999996_rt;
+            return 385.0079797080034_rt;
         }
         else if constexpr (spec == Ti46) {
-            return 398.19674599999996_rt;
+            return 398.19726780800556_rt;
         }
         else if constexpr (spec == Ti47) {
-            return 407.077669_rt;
+            return 407.0779259080009_rt;
         }
         else if constexpr (spec == Ti48) {
-            return 418.704288_rt;
+            return 418.70458400799544_rt;
         }
         else if constexpr (spec == Ti49) {
-            return 426.846693_rt;
+            return 426.84696210800035_rt;
         }
         else if constexpr (spec == Ti50) {
-            return 437.78589999999997_rt;
+            return 437.7861402080016_rt;
         }
         else if constexpr (spec == Ti51) {
-            return 444.158388_rt;
+            return 444.1585883080042_rt;
         }
         else if constexpr (spec == V46) {
-            return 390.36197999999996_rt;
+            return 390.3625507720062_rt;
         }
         else if constexpr (spec == V47) {
-            return 403.36457500000006_rt;
+            return 403.3650388719979_rt;
         }
         else if constexpr (spec == V48) {
-            return 413.906928_rt;
+            return 413.90728697199665_rt;
         }
         else if constexpr (spec == V49) {
-            return 425.462492_rt;
+            return 425.4628050719984_rt;
         }
         else if constexpr (spec == V50) {
-            return 434.79589999999996_rt;
+            return 434.79516317199887_rt;
         }
         else if constexpr (spec == V51) {
-            return 445.84704899999997_rt;
+            return 445.84635127200454_rt;
         }
         else if constexpr (spec == V52) {
-            return 453.15826400000003_rt;
+            return 453.1575893720001_rt;
         }
         else if constexpr (spec == Cr48) {
-            return 411.46891200000005_rt;
+            return 411.4679399359957_rt;
         }
         else if constexpr (spec == Cr49) {
-            return 422.0512589999999_rt;
+            return 422.05065803600155_rt;
         }
         else if constexpr (spec == Cr50) {
-            return 435.0516_rt;
+            return 435.0509361359945_rt;
         }
         else if constexpr (spec == Cr51) {
-            return 444.312255_rt;
+            return 444.31160423599795_rt;
         }
         else if constexpr (spec == Cr52) {
-            return 456.35142799999994_rt;
+            return 456.35172233599593_rt;
         }
         else if constexpr (spec == Cr53) {
-            return 464.290494_rt;
+            return 464.2911504360018_rt;
         }
         else if constexpr (spec == Cr54) {
-            return 474.00957_rt;
+            return 474.01022853599716_rt;
         }
         else if constexpr (spec == Mn50) {
-            return 426.6348_rt;
+            return 426.63411910000286_rt;
         }
         else if constexpr (spec == Mn51) {
-            return 440.32237200000003_rt;
+            return 440.321747199996_rt;
         }
         else if constexpr (spec == Mn52) {
-            return 450.8571079999999_rt;
+            return 450.8612552999912_rt;
         }
         else if constexpr (spec == Mn53) {
-            return 462.91127499999993_rt;
+            return 462.9114833999993_rt;
         }
         else if constexpr (spec == Mn54) {
-            return 471.85011000000003_rt;
+            return 471.85070149999956_rt;
         }
         else if constexpr (spec == Mn55) {
-            return 482.07621_rt;
+            return 482.07635959999607_rt;
         }
         else if constexpr (spec == Fe52) {
-            return 447.697848_rt;
+            return 447.6996182639923_rt;
         }
         else if constexpr (spec == Fe53) {
-            return 458.386347_rt;
+            return 458.38633636399754_rt;
         }
         else if constexpr (spec == Fe54) {
-            return 471.76462799999996_rt;
+            return 471.76475446399854_rt;
         }
         else if constexpr (spec == Fe55) {
-            return 481.06272499999994_rt;
+            return 481.06287256399816_rt;
         }
         else if constexpr (spec == Fe56) {
-            return 492.2598239999999_rt;
+            return 492.2599506639962_rt;
         }
         else if constexpr (spec == Fe57) {
-            return 499.905903_rt;
+            return 499.9061287639925_rt;
         }
         else if constexpr (spec == Fe58) {
-            return 509.9505_rt;
+            return 509.9507268639936_rt;
         }
         else if constexpr (spec == Co53) {
-            return 449.315874_rt;
+            return 449.3158893279979_rt;
         }
         else if constexpr (spec == Co54) {
-            return 462.73771800000003_rt;
+            return 462.7379074280034_rt;
         }
         else if constexpr (spec == Co55) {
-            return 476.82899_rt;
+            return 476.82912552799826_rt;
         }
         else if constexpr (spec == Co56) {
-            return 486.91081599999995_rt;
+            return 486.91094362799777_rt;
         }
         else if constexpr (spec == Co57) {
-            return 498.287274_rt;
+            return 498.28746172798856_rt;
         }
         else if constexpr (spec == Co58) {
-            return 506.86020199999996_rt;
+            return 506.8603798280019_rt;
         }
         else if constexpr (spec == Co59) {
-            return 517.3140649999999_rt;
+            return 517.3141979280044_rt;
         }
         else if constexpr (spec == Ni56) {
-            return 483.995624_rt;
+            return 483.9956965919919_rt;
         }
         else if constexpr (spec == Ni57) {
-            return 494.2431810000001_rt;
+            return 494.2434146919986_rt;
         }
         else if constexpr (spec == Ni58) {
-            return 506.45942199999996_rt;
+            return 506.4596327920008_rt;
         }
         else if constexpr (spec == Ni59) {
-            return 515.4586919999999_rt;
+            return 515.4588508919987_rt;
         }
         else if constexpr (spec == Ni60) {
-            return 526.8464399999999_rt;
+            return 526.8465689919976_rt;
         }
         else if constexpr (spec == Ni61) {
-            return 534.666525_rt;
+            return 534.6666870919944_rt;
         }
         else if constexpr (spec == Ni62) {
-            return 545.262286_rt;
+            return 545.2624051920066_rt;
         }
         else if constexpr (spec == Ni63) {
-            return 552.100059_rt;
+            return 552.1002232920073_rt;
         }
         else if constexpr (spec == Ni64) {
-            return 561.7575039999999_rt;
+            return 561.7576413920033_rt;
         }
         else if constexpr (spec == Cu57) {
-            return 484.6859340000001_rt;
+            return 484.68606765599543_rt;
         }
         else if constexpr (spec == Cu58) {
-            return 497.11608600000005_rt;
+            return 497.11628575600486_rt;
         }
         else if constexpr (spec == Cu59) {
-            return 509.878_rt;
+            return 509.8782038560021_rt;
         }
         else if constexpr (spec == Cu60) {
-            return 519.9361200000001_rt;
+            return 519.9363219559964_rt;
         }
         else if constexpr (spec == Cu61) {
-            return 531.646354_rt;
+            return 531.6464400559926_rt;
         }
         else if constexpr (spec == Cu62) {
-            return 540.521022_rt;
+            return 540.5211581559997_rt;
         }
         else if constexpr (spec == Cu63) {
-            return 551.3846940000001_rt;
+            return 551.384876256001_rt;
         }
         else if constexpr (spec == Cu64) {
-            return 559.3008000000001_rt;
+            return 559.3006943560031_rt;
         }
         else if constexpr (spec == Cu65) {
-            return 569.21124_rt;
+            return 569.2113124559983_rt;
         }
         else if constexpr (spec == Zn59) {
-            return 499.95284300000003_rt;
+            return 499.95305681999895_rt;
         }
         else if constexpr (spec == Zn60) {
-            return 514.983_rt;
+            return 514.9831749199948_rt;
         }
         else if constexpr (spec == Zn61) {
-            return 525.228849_rt;
+            return 525.2289930199986_rt;
         }
         else if constexpr (spec == Zn62) {
-            return 538.119266_rt;
+            return 538.1194111200093_rt;
         }
         else if constexpr (spec == Zn63) {
-            return 547.235955_rt;
+            return 547.2360292200028_rt;
         }
         else if constexpr (spec == Zn64) {
-            return 559.09792_rt;
+            return 559.0979473199986_rt;
         }
         else if constexpr (spec == Zn65) {
-            return 567.0772249999999_rt;
+            return 567.0772654199973_rt;
         }
         else if constexpr (spec == Zn66) {
-            return 578.135712_rt;
+            return 578.135783519996_rt;
         }
         else if constexpr (spec == Ga62) {
-            return 528.155804_rt;
+            return 528.155964084006_rt;
         }
         else if constexpr (spec == Ga63) {
-            return 540.787338_rt;
+            return 540.787382184004_rt;
         }
         else if constexpr (spec == Ga64) {
-            return 551.144384_rt;
+            return 551.1444002839926_rt;
         }
         else if constexpr (spec == Ge63) {
-            return 530.379108_rt;
+            return 530.377935147997_rt;
         }
         else if constexpr (spec == Ge64) {
-            return 545.8446720000001_rt;
+            return 545.8452532479932_rt;
         }
 
 
@@ -560,7 +560,8 @@ namespace network
 namespace Rates
 {
 
-    enum NetworkRates
+    enum NetworkRates :
+    std::unit16_t
     {
         k_n_to_p_weak_wc12 = 1,
         k_Be7_to_Li7_weak_electron_capture = 2,

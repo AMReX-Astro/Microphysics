@@ -44,7 +44,7 @@ void init_tabular()
     j_Na23_Ne23_meta.nvars = 6;
     j_Na23_Ne23_meta.nheader = 7;
 
-    init_tab_info(j_Na23_Ne23_meta, "23na-23ne_electroncapture.dat", j_Na23_Ne23_rhoy, j_Na23_Ne23_temp, j_Na23_Ne23_data);
+    init_tab_info(j_Na23_Ne23_meta, "suzuki-23na-23ne_electroncapture.dat", j_Na23_Ne23_rhoy, j_Na23_Ne23_temp, j_Na23_Ne23_data);
 
 
     j_Ne23_Na23_meta.ntemp = 39;
@@ -52,7 +52,7 @@ void init_tabular()
     j_Ne23_Na23_meta.nvars = 6;
     j_Ne23_Na23_meta.nheader = 5;
 
-    init_tab_info(j_Ne23_Na23_meta, "23ne-23na_betadecay.dat", j_Ne23_Na23_rhoy, j_Ne23_Na23_temp, j_Ne23_Na23_data);
+    init_tab_info(j_Ne23_Na23_meta, "suzuki-23ne-23na_betadecay.dat", j_Ne23_Na23_rhoy, j_Ne23_Na23_temp, j_Ne23_Na23_data);
 
 
     j_n_p_meta.ntemp = 13;
@@ -60,7 +60,7 @@ void init_tabular()
     j_n_p_meta.nvars = 6;
     j_n_p_meta.nheader = 5;
 
-    init_tab_info(j_n_p_meta, "n-p_betadecay.dat", j_n_p_rhoy, j_n_p_temp, j_n_p_data);
+    init_tab_info(j_n_p_meta, "langanke-n-p_betadecay.dat", j_n_p_rhoy, j_n_p_temp, j_n_p_data);
 
 
     j_p_n_meta.ntemp = 13;
@@ -68,7 +68,7 @@ void init_tabular()
     j_p_n_meta.nvars = 6;
     j_p_n_meta.nheader = 5;
 
-    init_tab_info(j_p_n_meta, "p-n_electroncapture.dat", j_p_n_rhoy, j_p_n_temp, j_p_n_data);
+    init_tab_info(j_p_n_meta, "langanke-p-n_electroncapture.dat", j_p_n_rhoy, j_p_n_temp, j_p_n_data);
 
 
 
