@@ -152,6 +152,6 @@ variables that are common in the two types are copied.
 
 .. tip::
 
-   The equation of state call be called directly with a ``burn_t`` and
+   The equation of state can be called directly with a ``burn_t`` and
    the EOS will fill the thermodynamic quantities it defines.  This
    eliminates the need to convert between types in many cases.
