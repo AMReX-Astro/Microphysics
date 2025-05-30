@@ -10,7 +10,7 @@ all_nuclei = ["p", "h2", "he3", "he4",
               "f17", "f18", "f19",
               "ne18", "ne19", "ne20", "ne21"]
 
-nova_library = rl.linking_nuclei(all_nuclei, with_reverse=True)
+nova_library = rl.linking_nuclei(all_nuclei, with_reverse=False)
 
 tl = pyna.TabularLibrary(ordering=["ffn", "langanke"])
 #weak_library = tl.linking_nuclei(all_nuclei)
