@@ -876,6 +876,7 @@ number_t sneut5(const number_t& temp, const amrex::Real den,
 }
 
 template <int do_derivatives>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void sneut5(const amrex::Real temp, const amrex::Real den,
             const amrex::Real abar, const amrex::Real zbar,
             amrex::Real& snu, amrex::Real& dsnudt, amrex::Real& dsnudd,

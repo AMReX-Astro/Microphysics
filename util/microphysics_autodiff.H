@@ -276,19 +276,20 @@ AUTODIFF_DEVICE_FUNC constexpr void apply(Dual<T, G>& self, CbrtOp)
 // sincos from amrex::Math
 // returns two values, so we can't define it as a UnaryExpr
 template <typename R, Requires<isExpr<R>> = true, typename dual_t = DualType<R>>
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+AUTODIFF_DEVICE_FUNC AMREX_FORCE_INLINE
 auto sincos(R&& expr) -> std::pair<dual_t, dual_t>
 {
     // ensure any passed expressions are evaluated first
     dual_t x = std::forward<R>(expr);
     std::pair<dual_t, dual_t> result;
-    std::tie(result.first.val, result.second.val) = amrex::Math::sincos(x.val);
+    auto [sin, cos] = amrex::Math::sincos(x.val);
+    result.first.val = sin;
     result.first.grad = x.grad;
+    result.first.grad *= cos;
+
+    result.second.val = cos;
     result.second.grad = std::move(x).grad;
-    // d(sin(x)) = cos(x)dx
-    result.first.grad *= result.second.val;
-    // d(cos(x)) = -sin(x)dx
-    result.second.grad *= -result.first.val;
+    result.second.grad *= -sin;
     return result;
 }
 
