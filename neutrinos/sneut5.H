@@ -889,7 +889,7 @@ void sneut5(const amrex::Real temp, const amrex::Real den,
         dual_t abar_dual = abar;
         dual_t zbar_dual = zbar;
         autodiff::seed_array(temp_dual, abar_dual, zbar_dual);
-        dual_t snu_dual = sneut5<dual_t>(temp_dual, den, abar_dual, zbar_dual);
+        dual_t snu_dual = sneut5(temp_dual, den, abar_dual, zbar_dual);
         snu = autodiff::val(snu_dual);
         const auto& grad = autodiff::derivative(snu_dual);
         dsnudt = grad(1);
@@ -897,7 +897,7 @@ void sneut5(const amrex::Real temp, const amrex::Real den,
         dsnuda = grad(2);
         dsnudz = grad(3);
     } else {
-        snu = sneut5<amrex::Real>(temp, den, abar, zbar);
+        snu = sneut5(temp, den, abar, zbar);
         dsnudt = 0.0e0_rt;
         dsnudd = 0.0e0_rt;
         dsnuda = 0.0e0_rt;
