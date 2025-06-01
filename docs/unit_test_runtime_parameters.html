@@ -172,11 +172,20 @@ should take care to ensure that the mass fractions sum to unity.</p>
 is initialized to <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">/</span> <span class="pre">NumSpec</span></code>.</p></li>
 </ul>
 </li>
-<li><p>Comprehensive tests (see <a class="reference internal" href="comprehensive_tests.html#sec-comprehensive-tests"><span class="std std-ref">Comprehensive Unit Tests</span></a>) need many different compositions, since they are creating a cube</p>
-<p>of varying thermodynamic properties, and thus require a prescription
-to create the composition.  This is done by setting <code class="docutils literal notranslate"><span class="pre">unit_test.primary_species_1</span></code>,
-<code class="docutils literal notranslate"><span class="pre">unit_test.primary_species_2</span></code>, and <code class="docutils literal notranslate"><span class="pre">unit_test.primary_species_3</span></code> to one of the
-<em>names</em> of the species in the network.</p>
+<li><p>Comprehensive tests (see <a class="reference internal" href="comprehensive_tests.html#sec-comprehensive-tests"><span class="std std-ref">Comprehensive Unit Tests</span></a>) need many
+different compositions, since they are creating a cube of varying
+thermodynamic properties, and thus require a prescription to create
+the composition.  This is done by setting:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.primary_species_1</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.primary_species_2</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.primary_species_3</span></code></p></li>
+</ul>
+<p>to one of the <em>names</em> of the species in the network.  These primary
+species will vary from X = 0.2 to X = 0.7 to 0.9 (depending on the
+number).  Only one primary species varies at a time. The non-primary
+species will be set equally to share whatever fraction of 1 is not
+accounted for by the primary species mass fractions.</p>
 <p>The function <code class="docutils literal notranslate"><span class="pre">setup_composition()</span></code> is then used to set limits on
 the species abundances (it takes a parameter which is the index into
 the cube of data that is being initialized) which is then used by

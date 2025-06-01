@@ -65,6 +65,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#namespace-eos">namespace: <code class="docutils literal notranslate"><span class="pre">eos</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#namespace-integrator">namespace: <code class="docutils literal notranslate"><span class="pre">integrator</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#namespace-network">namespace: <code class="docutils literal notranslate"><span class="pre">network</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#namespace-neutrino-cooling">namespace: <code class="docutils literal notranslate"><span class="pre">neutrino_cooling</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#namespace-nse">namespace: <code class="docutils literal notranslate"><span class="pre">nse</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#namespace-opacity">namespace: <code class="docutils literal notranslate"><span class="pre">opacity</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#namespace-screening">namespace: <code class="docutils literal notranslate"><span class="pre">screening</span></code></a></li>
@@ -1425,57 +1426,57 @@ compatibility</p></td>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rho_nse</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_x</span></code></p></td>
+<td><p>cutoff for species mass fractions</p></td>
+<td><p>1.e-30</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">use_tables</span></code></p></td>
+<td><p>Should we use rate tables if they are present in the
+network?</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">use_c12ag_deboer17</span></code></p></td>
+<td><p>Should we use Deboer + 2017 rate for c12(a,g)o16?</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rho_nse</span></code></p></td>
 <td></td>
 <td><p>3.e8</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">T_nse</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">T_nse</span></code></p></td>
 <td></td>
 <td><p>3.e9</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">C_nse</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">C_nse</span></code></p></td>
 <td></td>
 <td><p>0.01</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">O_nse</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">O_nse</span></code></p></td>
 <td></td>
 <td><p>0.01</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Si_nse</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Si_nse</span></code></p></td>
 <td></td>
 <td><p>0.01</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">He_Fe_nse</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">He_Fe_nse</span></code></p></td>
 <td></td>
 <td><p>0.88</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">T_always_nse</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">T_always_nse</span></code></p></td>
 <td><p>temperature above which we always assume NSE,
 regardless of composition note: rho_nse is still
 considered.</p></td>
 <td><p>9.e9</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nse_relax_factor</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nse_relax_factor</span></code></p></td>
 <td><p>factor (&lt; 1) by which to relax the criteria for
 entering NSE. This is only applied after a failed burn.</p></td>
 <td><p>1.0</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nse_table_interp_linear</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nse_table_interp_linear</span></code></p></td>
 <td><p>do we do tri-linear or tri-cubic interpolation on the
 table?</p></td>
-<td><p>0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_x</span></code></p></td>
-<td><p>cutoff for species mass fractions</p></td>
-<td><p>1.e-30</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">use_tables</span></code></p></td>
-<td><p>Should we use rate tables if they are present in the
-network?</p></td>
-<td><p>0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">use_c12ag_deboer17</span></code></p></td>
-<td><p>Should we use Deboer + 2017 rate for c12(a,g)o16?</p></td>
 <td><p>0</p></td>
 </tr>
 </tbody>
@@ -1648,6 +1649,23 @@ network?</p></td>
 <td><p>assumed redshift for primordial chem (Pop III star
 formation)</p></td>
 <td><p>30e0</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="namespace-neutrino-cooling">
+<h2>namespace: <code class="docutils literal notranslate"><span class="pre">neutrino_cooling</span></code><a class="headerlink" href="#namespace-neutrino-cooling" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">include_recomb</span></code></p></td>
+<td></td>
+<td><p>1</p></td>
 </tr>
 </tbody>
 </table>
@@ -2880,10 +2898,6 @@ as given in the inputs?</p></td>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">temp_max</span></code></p></td>
 <td></td>
 <td><p>1.e12</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">metalicity_max</span></code></p></td>
-<td></td>
-<td><p>0.1e0</p></td>
 </tr>
 </tbody>
 </table>

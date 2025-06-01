@@ -243,8 +243,8 @@ and nuclear energy release), as well as the analytic Jacobian.
 Both <code class="docutils literal notranslate"><span class="pre">actual_rhs</span></code> and <code class="docutils literal notranslate"><span class="pre">actual_jac</span></code> take as arguments a burn_t
 state and (respectively) the time-derivatives and Jacobian
 elements to fill in.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
 <p>Some networks do not provide an analytic Jacobian and instead
 rely on the numerical difference-approximation to the Jacobian. In
 this case, the interface <code class="docutils literal notranslate"><span class="pre">actual_jac</span></code> is still needed to compile.</p>
@@ -260,8 +260,11 @@ this case, the interface <code class="docutils literal notranslate"><span class=
 <p>These must be called upon initialization. These should be not called
 within OpenMP parallel regions, because in general they will modify
 global data.</p>
-<p>Note, depending on the network, some of these may do nothing, but
-these interfaces are all required for maximum flexibility.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Depending on the network, some of these may do nothing, but these
+interfaces are all required for maximum flexibility.</p>
+</div>
 </section>
 </section>
 

@@ -137,17 +137,26 @@
 parameters. These parameters are defined in plain-text files
 <code class="docutils literal notranslate"><span class="pre">_parameters</span></code> located in the different directories that hold the
 microphysics code. At compile time, a script in the AMReX build
-system, <code class="docutils literal notranslate"><span class="pre">findparams.py</span></code>, locates all of the <code class="docutils literal notranslate"><span class="pre">_parameters</span></code> files that
-are needed for the given choice of network, integrator, and EOS, and
-assembles all of the runtime parameters into a set of header files
-(using the <code class="docutils literal notranslate"><span class="pre">write_probin.py</span></code> script).</p>
-<p>Parameter definitions take the form:</p>
+system, <code class="docutils literal notranslate"><span class="pre">findparams.py</span></code>, locates all of the <code class="docutils literal notranslate"><span class="pre">_parameters</span></code> files
+that are needed for the given choice of network, integrator, and EOS,
+and other modules, and assembles all of the runtime parameters into a
+set of header files (using the <code class="docutils literal notranslate"><span class="pre">write_probin.py</span></code> script).</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">_parameter</span></code> file starts with a namespace declaration like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@namespace</span><span class="p">:</span> <span class="n">integrator</span>
+</pre></div>
+</div>
+<p>Followed by a list of parameters.  Each parameter defined after the namespace
+declaration would be prefixed by the namespace in an inputs file or commandline,
+like <code class="docutils literal notranslate"><span class="pre">integrator.parameter</span></code>.</p>
+<p>The individual parameter definitions take the form:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># comment describing the parameter</span>
 <span class="n">name</span>              <span class="n">data</span><span class="o">-</span><span class="nb">type</span>       <span class="n">default</span><span class="o">-</span><span class="n">value</span>      <span class="n">priority</span>
 </pre></div>
 </div>
-<p>Here, the priority is simply an integer. When two directories
-define the same parameter, but with different defaults, the version of
+<p>where “data-type” can be: <code class="docutils literal notranslate"><span class="pre">real</span></code>, <code class="docutils literal notranslate"><span class="pre">bool</span></code>, <code class="docutils literal notranslate"><span class="pre">int</span></code>, <code class="docutils literal notranslate"><span class="pre">string</span></code>.</p>
+<p>The “priority” is simply an integer that is used to determine
+what happens when two different <code class="docutils literal notranslate"><span class="pre">_paramerter</span></code> files define the same
+parameter but with different defaults.  In this case, the version of
 the parameter with the highest priority takes precedence. This allows
 specific implementations to override the general parameter defaults.</p>
 <p>The documentation below is automatically generated, using the comments
@@ -163,6 +172,7 @@ noted in separate tables.</p>
 <li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#namespace-eos">namespace: <code class="docutils literal notranslate"><span class="pre">eos</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#namespace-integrator">namespace: <code class="docutils literal notranslate"><span class="pre">integrator</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#namespace-network">namespace: <code class="docutils literal notranslate"><span class="pre">network</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#namespace-neutrino-cooling">namespace: <code class="docutils literal notranslate"><span class="pre">neutrino_cooling</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#namespace-nse">namespace: <code class="docutils literal notranslate"><span class="pre">nse</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#namespace-opacity">namespace: <code class="docutils literal notranslate"><span class="pre">opacity</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#namespace-screening">namespace: <code class="docutils literal notranslate"><span class="pre">screening</span></code></a></li>
