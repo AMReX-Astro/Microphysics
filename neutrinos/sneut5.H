@@ -12,12 +12,12 @@ using namespace amrex::literals;
 namespace nu_constants {
 
     // numerical constants
-    constexpr amrex::Real fac1   = 5.0e0_rt * M_PI / 3.0e0_rt;
-    constexpr amrex::Real fac2   = 10.0e0_rt * M_PI;
-    constexpr amrex::Real fac3   = M_PI / 5.0e0_rt;
-    constexpr amrex::Real oneth  = 1.0e0_rt/3.0e0_rt;
-    constexpr amrex::Real twoth  = 2.0e0_rt/3.0e0_rt;
-    constexpr amrex::Real sixth  = 1.0e0_rt/6.0e0_rt;
+    AMREX_GPU_DEVICE constexpr amrex::Real fac1   = 5.0e0_rt * M_PI / 3.0e0_rt;
+    AMREX_GPU_DEVICE constexpr amrex::Real fac2   = 10.0e0_rt * M_PI;
+    AMREX_GPU_DEVICE constexpr amrex::Real fac3   = M_PI / 5.0e0_rt;
+    AMREX_GPU_DEVICE constexpr amrex::Real oneth  = 1.0e0_rt/3.0e0_rt;
+    AMREX_GPU_DEVICE constexpr amrex::Real twoth  = 2.0e0_rt/3.0e0_rt;
+    AMREX_GPU_DEVICE constexpr amrex::Real sixth  = 1.0e0_rt/6.0e0_rt;
 
     // theta is sin**2(theta_weinberg) = 0.2319 plus/minus 0.00005 (1996)
     // xnufam is the number of neutrino flavors = 3.02 plus/minus 0.005 (1998)
@@ -32,10 +32,10 @@ namespace nu_constants {
     constexpr amrex::Real cap    = 1.0e0_rt - ca;
     constexpr amrex::Real tfac1  = cv*cv + ca*ca + (xnufam-1.0e0_rt) * (cvp*cvp+cap*cap);
     constexpr amrex::Real tfac2  = cv*cv - ca*ca + (xnufam-1.0e0_rt) * (cvp*cvp - cap*cap);
-    constexpr amrex::Real tfac3  = tfac2/tfac1;
-    constexpr amrex::Real tfac4  = 0.5e0_rt * tfac1;
-    constexpr amrex::Real tfac5  = 0.5e0_rt * tfac2;
-    constexpr amrex::Real tfac6  = cv*cv + 1.5e0_rt*ca*ca + (xnufam - 1.0e0_rt)*(cvp*cvp + 1.5e0_rt*cap*cap);
+    AMREX_GPU_DEVICE constexpr amrex::Real tfac3  = tfac2/tfac1;
+    AMREX_GPU_DEVICE constexpr amrex::Real tfac4  = 0.5e0_rt * tfac1;
+    AMREX_GPU_DEVICE constexpr amrex::Real tfac5  = 0.5e0_rt * tfac2;
+    AMREX_GPU_DEVICE constexpr amrex::Real tfac6  = cv*cv + 1.5e0_rt*ca*ca + (xnufam - 1.0e0_rt)*(cvp*cvp + 1.5e0_rt*cap*cap);
 
 }
 
