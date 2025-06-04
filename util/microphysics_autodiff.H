@@ -273,6 +273,26 @@ AUTODIFF_DEVICE_FUNC constexpr void apply(Dual<T, G>& self, CbrtOp)
     self.grad *= 1.0 / (3.0 * self.val * self.val);
 }
 
+// sincos from amrex::Math
+// returns two values, so we can't define it as a UnaryExpr
+template <typename R, Requires<isExpr<R>> = true, typename dual_t = DualType<R>>
+AUTODIFF_DEVICE_FUNC AMREX_FORCE_INLINE
+auto sincos(R&& expr) -> std::pair<dual_t, dual_t>
+{
+    // ensure any passed expressions are evaluated first
+    dual_t x = std::forward<R>(expr);
+    std::pair<dual_t, dual_t> result;
+    auto [sin, cos] = amrex::Math::sincos(x.val);
+    result.first.val = sin;
+    result.first.grad = x.grad;
+    result.first.grad *= cos;
+
+    result.second.val = cos;
+    result.second.grad = std::move(x).grad;
+    result.second.grad *= -sin;
+    return result;
+}
+
 // custom functions from approx_math.H
 
 // fast_atan
@@ -363,6 +383,7 @@ using std::hypot, autodiff::detail::hypot;
 
 using std::log1p, autodiff::detail::log1p;
 using std::cbrt, autodiff::detail::cbrt;
+using amrex::Math::sincos, autodiff::detail::sincos;
 
 using amrex::min, autodiff::detail::min;
 using amrex::max, autodiff::detail::max;
