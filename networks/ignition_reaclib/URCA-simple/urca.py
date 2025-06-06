@@ -16,3 +16,4 @@ tl_rates = tl.get_rate_by_name(["na23(,)ne23",
 
 urca_net = pyna.AmrexAstroCxxNetwork(rates=rl_rates+tl_rates)
 urca_net.write_network()
+urca_net.summary()

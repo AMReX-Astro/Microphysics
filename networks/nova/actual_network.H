@@ -131,7 +131,8 @@ namespace network
 namespace Rates
 {
 
-    enum NetworkRates
+    enum NetworkRates :
+    std::uint8_t
     {
         k_N13_to_C13_weak_wc12 = 1,
         k_O14_to_N14_weak_wc12 = 2,
