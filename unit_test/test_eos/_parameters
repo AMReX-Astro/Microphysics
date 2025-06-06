@@ -4,5 +4,3 @@ dens_min      real       1.e6
 dens_max      real       1.e9
 temp_min      real       1.e6
 temp_max      real       1.e12
-
-metalicity_max  real     0.1e0
