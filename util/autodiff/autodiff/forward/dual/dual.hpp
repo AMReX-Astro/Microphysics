@@ -487,11 +487,15 @@ AUTODIFF_DEVICE_FUNC constexpr auto auxCommonDualType()
         return DualType<L>();
     else if constexpr (isArithmetic<L> && isExpr<R>)
         return DualType<R>();
-    else if constexpr (isExpr<L> && isExpr<R>) {
+    else if constexpr (isDual<L> && isDual<R>) {
         using DualTypeL = DualType<L>;
         using DualTypeR = DualType<R>;
         static_assert(isSame<DualTypeL, DualTypeR>);
         return DualTypeL();
+    } else if constexpr (isExpr<L> && isExpr<R>) {
+        using DualTypeL = DualType<L>;
+        using DualTypeR = DualType<R>;
+        return CommonDualType<DualTypeL, DualTypeR>();
     }
     else return CommonDualTypeNotDefinedFor<L, R>();
 }
@@ -1240,7 +1244,7 @@ AUTODIFF_DEVICE_FUNC constexpr void assignMul(Dual<T, G>& self, U&& other)
     }
     // ASSIGN-MULTIPLY A DUAL NUMBER: self *= dual
     else if constexpr (isDual<U>) {
-        const G aux = other.grad; // to avoid aliasing when self === other
+        const auto aux = other.grad; // to avoid aliasing when self === other
         self.grad *= other.val;
         self.grad += self.val * aux;
         self.val *= other.val;
@@ -1713,7 +1717,7 @@ AUTODIFF_DEVICE_FUNC constexpr void apply(Dual<T, G>& self, SqrtOp)
 template<typename T, typename G>
 AUTODIFF_DEVICE_FUNC constexpr void apply(Dual<T, G>& self, AbsOp)
 {
-    self.grad *= self.val < T(0) ? G(-1) : (self.val > T(0) ? G(1) : G(0));
+    self.grad *= self.val < T(0) ? T(-1) : (self.val > T(0) ? T(1) : T(0));
     self.val = abs(self.val);
 }
 
