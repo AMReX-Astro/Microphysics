@@ -7,6 +7,7 @@
 #include <AMReX_Algorithm.H>
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>
+#include <AMReX_Loop.H>
 
 #include <approx_math.H>
 
@@ -24,6 +25,10 @@ namespace microphysics_autodiff {
  * A static-sized array that supports the math operations needed on the
  * gradient component of a Dual number (namely, elementwise addition and
  * subtraction, and multiplication and division by scalars).
+ *
+ * Arrays of different sizes may be combined, which will produce an array with
+ * a range equal to the union of the ranges of the operands. Only components
+ * present in both operands will be added or subtracted.
  *
  * \tparam XLO Index for lower bound. Can be other than 0.
  * \tparam XHI Index for upper bound (inclusive).
@@ -50,27 +55,76 @@ struct GradArray : public amrex::Array1D<T, XLO, XHI>
         }
     }
 
+    /// Construct a GradArray from an initializer_list.
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    constexpr GradArray(std::initializer_list<T> l) : amrex::Array1D<T, XLO, XHI>()
+    {
+        auto it = l.begin();
+        for(size_type i = 0; it != l.end(); ++i, ++it) {
+#if defined(AMREX_DEBUG) || defined(AMREX_BOUND_CHECK)
+            amrex::Array1D<T, XLO, XHI>::index_assert(XLO + i);
+#endif
+            this->arr[i] = *it;
+        }
+    }
+
+    /// Copy-construct a GradArray (source may be narrower).
+    template <int YLO, int YHI,
+              typename Enable = std::enable_if_t<YLO >= XLO && YHI <= XHI>>
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    constexpr GradArray(const GradArray<T, YLO, YHI>& p) noexcept : amrex::Array1D<T, XLO, XHI>()
+    {
+        amrex::constexpr_for<amrex::max(XLO, YLO), amrex::min(XHI, YHI)+1>([&] (auto n) {
+            constexpr int i = n - XLO;
+            constexpr int j = n - YLO;
+            this->arr[i] = p.arr[j];
+        });
+    }
+
+    /**
+     * Allow assigning a narrower GradArray to a wider one, but not the other
+     * way around.
+     */
+    template <int YLO, int YHI,
+              typename Enable = std::enable_if_t<YLO >= XLO && YHI <= XHI>>
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    constexpr GradArray& operator=(const GradArray<T, YLO, YHI>& p)
+    {
+        amrex::constexpr_for<amrex::max(XLO, YLO), amrex::min(XHI, YHI)+1>([&] (auto n) {
+            constexpr int i = n - XLO;
+            constexpr int j = n - YLO;
+            this->arr[i] = p.arr[j];
+        });
+        return *this;
+    }
+
     /**
      * Arithmetic operators
      */
 
     /// Modifies this GradArray by component-wise addition by argument.
+    template <int YLO, int YHI>
     AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-    constexpr GradArray& operator+=(const GradArray& p) noexcept
+    constexpr GradArray& operator+=(const GradArray<T, YLO, YHI>& p) noexcept
     {
-        for(size_type i = 0; i < this->size(); ++i) {
-            this->arr[i] += p.arr[i];
-        }
+        amrex::constexpr_for<amrex::max(XLO, YLO), amrex::min(XHI, YHI)+1>([&] (auto n) {
+            constexpr int i = n - XLO;
+            constexpr int j = n - YLO;
+            this->arr[i] += p.arr[j];
+        });
         return *this;
     }
 
     /// Modifies this GradArray by component-wise subtraction by argument.
+    template <int YLO, int YHI>
     AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-    constexpr GradArray& operator-=(const GradArray& p) noexcept
+    constexpr GradArray& operator-=(const GradArray<T, YLO, YHI>& p) noexcept
     {
-        for(size_type i = 0; i < this->size(); ++i) {
-            this->arr[i] -= p.arr[i];
-        }
+        amrex::constexpr_for<amrex::max(XLO, YLO), amrex::min(XHI, YHI)+1>([&] (auto n) {
+            constexpr int i = n - XLO;
+            constexpr int j = n - YLO;
+            this->arr[i] -= p.arr[j];
+        });
         return *this;
     }
 
@@ -92,6 +146,28 @@ struct GradArray : public amrex::Array1D<T, XLO, XHI>
             this->arr[i] /= s;
         }
         return *this;
+    }
+
+    /**
+     * Explicitly narrow a GradArray. The template parameter is the target
+     * type, which must be strictly narrower than this type.
+     */
+    template <typename TargetT,
+              typename Enable = std::enable_if_t<
+                  std::is_same_v<typename TargetT::value_type, T> &&
+                  (XLO < TargetT::lo() || XHI > TargetT::hi())>>
+    [[nodiscard]] AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    constexpr TargetT narrow() const
+    {
+        TargetT narrowed;
+        constexpr int YLO = TargetT::lo();
+        constexpr int YHI = TargetT::hi();
+        amrex::constexpr_for<amrex::max(XLO, YLO), amrex::min(XHI, YHI)+1>([&] (auto n) {
+            constexpr int i = n - XLO;
+            constexpr int j = n - YLO;
+            narrowed.arr[j] = this->arr[i];
+        });
+        return narrowed;
     }
 };
 
@@ -143,22 +219,22 @@ GradArray<T, XLO, XHI> operator*(T s, const GradArray<T, XLO, XHI>& p) noexcept
 /**
  * Binary arithmetic operators: GradArray @ GradArray
  */
-template<typename T, int XLO, int XHI>
+template<typename T, int XLO, int XHI, int YLO, int YHI>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-GradArray<T, XLO, XHI> operator+(const GradArray<T, XLO, XHI>& s,
-                                 const GradArray<T, XLO, XHI>& p) noexcept
+auto operator+(const GradArray<T, XLO, XHI>& s,
+               const GradArray<T, YLO, YHI>& p) noexcept
 {
-    GradArray<T, XLO, XHI> tmp(s);
+    GradArray<T, amrex::min(XLO, YLO), amrex::max(XHI, YHI)> tmp(s);
     tmp += p;
     return tmp;
 }
 
-template<typename T, int XLO, int XHI>
+template<typename T, int XLO, int XHI, int YLO, int YHI>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-GradArray<T, XLO, XHI> operator-(const GradArray<T, XLO, XHI>& s,
-                                 const GradArray<T, XLO, XHI>& p) noexcept
+auto operator-(const GradArray<T, XLO, XHI>& s,
+               const GradArray<T, YLO, YHI>& p) noexcept
 {
-    GradArray<T, XLO, XHI> tmp(s);
+    GradArray<T, amrex::min(XLO, YLO), amrex::max(XHI, YHI)> tmp(s);
     tmp -= p;
     return tmp;
 }
@@ -168,6 +244,31 @@ GradArray<T, XLO, XHI> operator-(const GradArray<T, XLO, XHI>& s,
 template<std::size_t I, typename T, int XLO, int XHI>
 T get(const GradArray<T, XLO, XHI>& arr) {
     return arr.arr[I];
+}
+
+namespace detail {
+
+template <typename number_t, typename narrowed_t, typename = void>
+constexpr bool has_narrow_method = false;
+
+template <typename T, int XLO, int XHI, int YLO, int YHI>
+constexpr bool has_narrow_method<
+    autodiff::Dual<T, GradArray<T, XLO, XHI>>,
+    autodiff::Dual<T, GradArray<T, YLO, YHI>>,
+    std::void_t<decltype(std::declval<GradArray<T, XLO, XHI>>().template narrow<GradArray<T, YLO, YHI>>())>> = true;
+
+} // namespace detail
+
+template<typename narrowed_t, typename number_t>
+[[nodiscard]] AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+narrowed_t narrow_array(const number_t& number) {
+    if constexpr (detail::has_narrow_method<number_t, narrowed_t>) {
+        narrowed_t narrowed = number.val;
+        narrowed.grad = number.grad.template narrow<decltype(autodiff::derivative(narrowed))>();
+        return narrowed;
+    } else {
+        return number;
+    }
 }
 
 } // namespace microphysics_autodiff
@@ -190,6 +291,12 @@ template<typename T, int XLO, int XHI>
 struct ArithmeticTraits<microphysics_autodiff::GradArray<T, XLO, XHI>>
 {
     static constexpr bool isArithmetic = true;
+};
+
+template<typename T, int XLO, int XHI, int YLO, int YHI>
+struct AuxCommonDualType<Dual<T, microphysics_autodiff::GradArray<T, XLO, XHI>>,
+                         Dual<T, microphysics_autodiff::GradArray<T, YLO, YHI>>> {
+    using type = Dual<T, microphysics_autodiff::GradArray<T, amrex::min(XLO, YLO), amrex::max(XHI, YHI)>>;
 };
 
 // add a couple of missing math functions
