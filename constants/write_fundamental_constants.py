@@ -20,8 +20,7 @@ else:
 
 
 text = \
-f"""
-#ifndef FUNDAMENTAL_CONSTANTS_H
+f"""#ifndef FUNDAMENTAL_CONSTANTS_H
 #define FUNDAMENTAL_CONSTANTS_H
 
 #include <AMReX.H>
