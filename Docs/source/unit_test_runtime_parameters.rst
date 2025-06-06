@@ -46,12 +46,20 @@ initial mass-fractions, $X_k$).  There are a few ways this can be done
     ``unit_test.uniform_xn``.  If this is set to ``1``, then each mass fraction
     is initialized to ``1 / NumSpec``.
 
-* Comprehensive tests (see :ref:`sec:comprehensive_tests`) need many different compositions, since they are creating a cube
+* Comprehensive tests (see :ref:`sec:comprehensive_tests`) need many
+  different compositions, since they are creating a cube of varying
+  thermodynamic properties, and thus require a prescription to create
+  the composition.  This is done by setting:
 
-  of varying thermodynamic properties, and thus require a prescription
-  to create the composition.  This is done by setting ``unit_test.primary_species_1``,
-  ``unit_test.primary_species_2``, and ``unit_test.primary_species_3`` to one of the
-  *names* of the species in the network.
+  * ``unit_test.primary_species_1``
+  * ``unit_test.primary_species_2``
+  * ``unit_test.primary_species_3``
+
+  to one of the *names* of the species in the network.  These primary
+  species will vary from X = 0.2 to X = 0.7 to 0.9 (depending on the
+  number).  Only one primary species varies at a time. The non-primary
+  species will be set equally to share whatever fraction of 1 is not
+  accounted for by the primary species mass fractions.
 
   The function ``setup_composition()`` is then used to set limits on
   the species abundances (it takes a parameter which is the index into

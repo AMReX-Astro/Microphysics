@@ -35,8 +35,6 @@ void burner (BurnT& state, amrex::Real dt)
         // call the table
 #ifdef SDC
         sdc_nse_burn(state, dt);
-#else
-        nse_burn(state, dt);
 #endif
 
     } else {
@@ -74,8 +72,6 @@ void burner (BurnT& state, amrex::Real dt)
             // energy released from adjusting to the new NSE state
 #ifdef SDC
             sdc_nse_burn(state, dt_remaining);
-#else
-            nse_burn(state, dt_remaining);
 #endif
         }
     }

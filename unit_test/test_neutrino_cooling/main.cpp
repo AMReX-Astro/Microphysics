@@ -142,6 +142,49 @@ void main_main ()
 
       neut_test_C(bx, dlogrho, dlogT, dmetal, vars, sp);
 
+#ifdef AMREX_USE_GPU
+      // check that sneut5 works when called from the host as well, just in case
+      Dim3 cell{n_cell-1, n_cell-1, 0};
+      if (bx.contains(cell)) {
+        // copy the data from device to host
+        FArrayBox hostfab(bx, state.nComp(), The_Pinned_Arena());
+        const FArrayBox &fab = state[mfi];
+        Gpu::dtoh_memcpy_async(hostfab.dataPtr(), fab.dataPtr(), fab.size()*sizeof(Real));
+        Gpu::streamSynchronize();
+
+        Array4<Real> const host_sp = hostfab.array();
+        Real temp_zone = host_sp(cell, vars.itemp);
+        Real dens_zone = host_sp(cell, vars.irho);
+        Real abar = 1.0_rt / (0.75_rt / 1 + 0.25_rt / 4);
+        Real zbar = abar * (1 * 0.75_rt / 1 + 2 * 0.25_rt / 4);
+
+        Real snu, dsnudt, dsnudd, dsnuda, dsnudz;
+        constexpr int do_derivatives{1};
+
+        sneut5<do_derivatives>(temp_zone, dens_zone, abar, zbar,
+                               snu, dsnudt, dsnudd, dsnuda, dsnudz);
+
+        auto check_value = [=] (int idx, Real actual, const char* name) {
+          Real expected = host_sp(cell, idx);
+          Real rel_diff = std::abs((expected - actual) / expected);
+          const Real tol = 1.0e-15_rt;
+          if (rel_diff > tol) {
+            std::cerr << "values for " << name << " don't match to within tolerance:\n"
+              << std::setprecision(17)
+              << "  device: " << expected << "\n"
+              << "  host:   " << actual << "\n"
+              << "  rel. diff: " << rel_diff << "\n";
+          }
+          AMREX_ALWAYS_ASSERT(rel_diff <= tol);
+        };
+
+        check_value(vars.isneut, snu, "snu");
+        check_value(vars.isneutdt, dsnudt, "dsnudt");
+        check_value(vars.isneutda, dsnuda, "dsnuda");
+        check_value(vars.isneutdz, dsnudz, "dsnudz");
+      }
+#endif
+
     }
 
     // Call the timer again and compute the maximum difference between

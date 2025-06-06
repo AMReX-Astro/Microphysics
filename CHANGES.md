@@ -1,5 +1,18 @@
 # Changelog
 
+## 25.06
+
+  * update `README.md` (#1785)
+
+  * doc updates (#1787, #1795)
+
+  * `test_eos` now uses the composition runtime parameters (#1792)
+
+  * code cleaning (#1790, #1791)
+
+  * neutrino cooling can now has an option to remove the recombination
+    contribution (#1789)
+
 ## 25.05
 
   * some clang-tidy cleaning (#1784)

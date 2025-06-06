@@ -93,7 +93,7 @@ Auxiliary composition
 .. note::
 
    The main use-case for the auxiliary composition is when using a reaction
-   network together with the tabulated NSE state.
+   network together with the tabulated NSE state---see :ref:`tabulated_nse`.
 
 With ``USE_AUX_THERMO=TRUE``, we interpret the composition from the auxiliary variables.
 For ``eos_t eos_state``, the auxiliary variables are
