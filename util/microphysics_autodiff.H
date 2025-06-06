@@ -441,6 +441,7 @@ AUTODIFF_DEVICE_FUNC void seed_array(dual_array<XLO, XHI>& first_arg, Args&... a
 // on autodiff::dual or amrex::Real.
 namespace math_functions {
 
+// NOLINTBEGIN(misc-unused-using-decls)
 using std::abs, autodiff::detail::abs;
 using std::acos, autodiff::detail::acos;
 using std::asin, autodiff::detail::asin;
@@ -470,11 +471,13 @@ using amrex::max, autodiff::detail::max;
 
 using ::fast_atan, autodiff::detail::fast_atan;
 using ::fast_exp, autodiff::detail::fast_exp;
+// NOLINTEND(misc-unused-using-decls)
 
 } // namespace math_functions
 
 } // namespace autodiff
 
+// NOLINTNEXTLINE(misc-unused-alias-decls)
 namespace admath = autodiff::math_functions;
 
 #endif
