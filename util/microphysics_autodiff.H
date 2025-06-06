@@ -300,6 +300,19 @@ auto sincos(R&& expr) -> std::pair<dual_t, dual_t>
     return result;
 }
 
+// exponentiation by a compile-time integer (amrex::Math::powi)
+
+// this needs to go in its own namespace, to avoid an ambiguous overload error
+// due to ADL from the recursive call in amrex::Math::powi
+namespace aux {
+template <int Power, typename R>
+AUTODIFF_DEVICE_FUNC AMREX_FORCE_INLINE
+constexpr auto powi(R&& r) {
+    return amrex::Math::powi<Power>(autodiff::eval(std::forward<R>(r)));
+}
+}
+
+
 // custom functions from approx_math.H
 
 // fast_atan
@@ -391,6 +404,7 @@ using std::hypot, autodiff::detail::hypot;
 using std::log1p, autodiff::detail::log1p;
 using std::cbrt, autodiff::detail::cbrt;
 using amrex::Math::sincos, autodiff::detail::sincos;
+using autodiff::detail::aux::powi;
 
 using amrex::min, autodiff::detail::min;
 using amrex::max, autodiff::detail::max;
