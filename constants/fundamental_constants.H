@@ -22,7 +22,7 @@ namespace C
     constexpr amrex::Real Gconst = 6.67428e-8;  // cm^3/g/s^2
 
     // new value; if uncommented initial models will need to be re-HSE'ed
-    // constexpr amrex::Real Gconst = 6.67384e-8;  // cm^3/g/s^2
+    // constexpr amrex::Real Gconst = 6.674299999999998e-08;  // cm^3/g/s^2
 
     // boltzmann's constant
     constexpr amrex::Real k_B = 1.3806490000000002e-16;  // erg/K

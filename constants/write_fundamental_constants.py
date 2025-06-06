@@ -44,7 +44,7 @@ namespace C
     constexpr amrex::Real Gconst = 6.67428e-8;  // cm^3/g/s^2
 
     // new value; if uncommented initial models will need to be re-HSE'ed
-    // constexpr amrex::Real Gconst = 6.67384e-8;  // cm^3/g/s^2
+    // constexpr amrex::Real Gconst = {constants.value("Newtonian constant of gravitation") / (constants.kilo * constants.centi**3)};  // cm^3/g/s^2
 
     // boltzmann's constant
     constexpr amrex::Real k_B = {constants.value("Boltzmann constant") / constants.erg};  // erg/K
