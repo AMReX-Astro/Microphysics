@@ -21,11 +21,12 @@
 namespace microphysics_autodiff {
 
 /**
- * A static-sized array that supports the math operations needed on the gradient
- * component of a Dual number.
+ * A static-sized array that supports the math operations needed on the
+ * gradient component of a Dual number (namely, elementwise addition and
+ * subtraction, and multiplication and division by scalars).
  *
  * \tparam XLO Index for lower bound. Can be other than 0.
- * \tparam XHI Index for upper bound.
+ * \tparam XHI Index for upper bound (inclusive).
  */
 template<typename T, int XLO, int XHI>
 struct GradArray : public amrex::Array1D<T, XLO, XHI>
@@ -83,32 +84,12 @@ struct GradArray : public amrex::Array1D<T, XLO, XHI>
         return *this;
     }
 
-    /// Modifies this GradArray by component-wise multiplication by argument.
-    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-    constexpr GradArray& operator*=(const GradArray& p) noexcept
-    {
-        for(size_type i = 0; i < this->size(); ++i) {
-            this->arr[i] *= p.arr[i];
-        }
-        return *this;
-    }
-
     /// Modifies this GradArray by dividing each component by a scalar.
     AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
     constexpr GradArray& operator/=(T s) noexcept
     {
         for(size_type i = 0; i < this->size(); ++i) {
             this->arr[i] /= s;
-        }
-        return *this;
-    }
-
-    /// Modifies this GradArray by component-wise division by argument.
-    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-    constexpr GradArray& operator/=(const GradArray& p) noexcept
-    {
-        for(size_type i = 0; i < this->size(); ++i) {
-            this->arr[i] /= p.arr[i];
         }
         return *this;
     }
@@ -159,15 +140,6 @@ GradArray<T, XLO, XHI> operator*(T s, const GradArray<T, XLO, XHI>& p) noexcept
     return tmp;
 }
 
-template<typename T, int XLO, int XHI>
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-GradArray<T, XLO, XHI> operator/(T s, const GradArray<T, XLO, XHI>& p) noexcept
-{
-    GradArray<T, XLO, XHI> tmp(s);
-    tmp /= p;
-    return tmp;
-}
-
 /**
  * Binary arithmetic operators: GradArray @ GradArray
  */
@@ -188,26 +160,6 @@ GradArray<T, XLO, XHI> operator-(const GradArray<T, XLO, XHI>& s,
 {
     GradArray<T, XLO, XHI> tmp(s);
     tmp -= p;
-    return tmp;
-}
-
-template<typename T, int XLO, int XHI>
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-GradArray<T, XLO, XHI> operator*(const GradArray<T, XLO, XHI>& s,
-                                 const GradArray<T, XLO, XHI>& p) noexcept
-{
-    GradArray<T, XLO, XHI> tmp(s);
-    tmp *= p;
-    return tmp;
-}
-
-template<typename T, int XLO, int XHI>
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-GradArray<T, XLO, XHI> operator/(const GradArray<T, XLO, XHI>& s,
-                                 const GradArray<T, XLO, XHI>& p) noexcept
-{
-    GradArray<T, XLO, XHI> tmp(s);
-    tmp /= p;
     return tmp;
 }
 
