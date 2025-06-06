@@ -119,10 +119,11 @@ struct GradArray : public amrex::Array1D<T, XLO, XHI>
  */
 template<typename T, int XLO, int XHI>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-GradArray<T, XLO, XHI> operator-(GradArray<T, XLO, XHI> s) noexcept
+GradArray<T, XLO, XHI> operator-(const GradArray<T, XLO, XHI>& s) noexcept
 {
-    s *= -1;
-    return s;
+    GradArray<T, XLO, XHI> tmp(s);
+    tmp *= -1;
+    return tmp;
 }
 
 /**
@@ -130,18 +131,20 @@ GradArray<T, XLO, XHI> operator-(GradArray<T, XLO, XHI> s) noexcept
  */
 template<typename T, int XLO, int XHI>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-GradArray<T, XLO, XHI> operator*(GradArray<T, XLO, XHI> arr, T s) noexcept
+GradArray<T, XLO, XHI> operator*(const GradArray<T, XLO, XHI>& p, T s) noexcept
 {
-    arr *= s;
-    return arr;
+    GradArray<T, XLO, XHI> tmp(p);
+    tmp *= s;
+    return tmp;
 }
 
 template<typename T, int XLO, int XHI>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-GradArray<T, XLO, XHI> operator/(GradArray<T, XLO, XHI> arr, T s) noexcept
+GradArray<T, XLO, XHI> operator/(const GradArray<T, XLO, XHI>& p, T s) noexcept
 {
-    arr /= s;
-    return arr;
+    GradArray<T, XLO, XHI> tmp(p);
+    tmp /= s;
+    return tmp;
 }
 
 /**
@@ -151,18 +154,18 @@ template<typename T, int XLO, int XHI>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 GradArray<T, XLO, XHI> operator*(T s, const GradArray<T, XLO, XHI>& p) noexcept
 {
-    GradArray<T, XLO, XHI> result{s};
-    result *= p;
-    return result;
+    GradArray<T, XLO, XHI> tmp(p);
+    tmp *= s;
+    return tmp;
 }
 
 template<typename T, int XLO, int XHI>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 GradArray<T, XLO, XHI> operator/(T s, const GradArray<T, XLO, XHI>& p) noexcept
 {
-    GradArray<T, XLO, XHI> result{s};
-    result /= p;
-    return result;
+    GradArray<T, XLO, XHI> tmp(s);
+    tmp /= p;
+    return tmp;
 }
 
 /**
@@ -170,38 +173,42 @@ GradArray<T, XLO, XHI> operator/(T s, const GradArray<T, XLO, XHI>& p) noexcept
  */
 template<typename T, int XLO, int XHI>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-GradArray<T, XLO, XHI> operator+(GradArray<T, XLO, XHI> s,
+GradArray<T, XLO, XHI> operator+(const GradArray<T, XLO, XHI>& s,
                                  const GradArray<T, XLO, XHI>& p) noexcept
 {
-    s += p;
-    return s;
+    GradArray<T, XLO, XHI> tmp(s);
+    tmp += p;
+    return tmp;
 }
 
 template<typename T, int XLO, int XHI>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-GradArray<T, XLO, XHI> operator-(GradArray<T, XLO, XHI> s,
+GradArray<T, XLO, XHI> operator-(const GradArray<T, XLO, XHI>& s,
                                  const GradArray<T, XLO, XHI>& p) noexcept
 {
-    s -= p;
-    return s;
+    GradArray<T, XLO, XHI> tmp(s);
+    tmp -= p;
+    return tmp;
 }
 
 template<typename T, int XLO, int XHI>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-GradArray<T, XLO, XHI> operator*(GradArray<T, XLO, XHI> s,
+GradArray<T, XLO, XHI> operator*(const GradArray<T, XLO, XHI>& s,
                                  const GradArray<T, XLO, XHI>& p) noexcept
 {
-    s *= p;
-    return s;
+    GradArray<T, XLO, XHI> tmp(s);
+    tmp *= p;
+    return tmp;
 }
 
 template<typename T, int XLO, int XHI>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-GradArray<T, XLO, XHI> operator/(GradArray<T, XLO, XHI> s,
+GradArray<T, XLO, XHI> operator/(const GradArray<T, XLO, XHI>& s,
                                  const GradArray<T, XLO, XHI>& p) noexcept
 {
-    s /= p;
-    return s;
+    GradArray<T, XLO, XHI> tmp(s);
+    tmp /= p;
+    return tmp;
 }
 
 // get<i>(arr) is needed to be able to do structured binding declarations like:
