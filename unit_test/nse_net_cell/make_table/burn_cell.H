@@ -25,36 +25,40 @@ void burn_cell_c()
     amrex::Real dYe = (unit_test_rp::Ye_max - unit_test_rp::Ye_min) / static_cast<amrex::Real>(unit_test_rp::nye-1);
 
     for (int iye = 0; iye < unit_test_rp::nye; ++iye) {
+        amrex::Real Ye = unit_test_rp::Ye_min + iye * dYe;
         for (int irho = 0; irho < unit_test_rp::nrho; ++irho) {
+            if (state.y_e >= 0.63_rt) {
+                state.mu_p = -3.0_rt;
+                state.mu_n = -14.9_rt;
+            }
+            else if (state.y_e > 0.52_rt){
+                state.mu_p = -4.0_rt;
+                state.mu_n = -12.0_rt;
+            }
+            else if (state.y_e > 0.48_rt){
+                state.mu_p = -8.0_rt;
+                state.mu_n = -11.0_rt;
+            }
+            else if (state.y_e > 0.4_rt){
+                state.mu_p = -10.0_rt;
+                state.mu_n = -7.0_rt;
+            }
+            else{
+                state.mu_p = -15.0_rt;
+                state.mu_n = -5.0_rt;
+            }
             for (int itemp = 0; itemp < unit_test_rp::nT; ++itemp) {
-
                 amrex::Real T = std::pow(10.0, std::log10(unit_test_rp::T_min) + itemp * dlogT);
                 amrex::Real rho = std::pow(10.0, std::log10(unit_test_rp::rho_min) + irho * dlogrho);
-                amrex::Real Ye = unit_test_rp::Ye_min + iye * dYe;
+
+                if (rho >= 1e10 && Ye >= 0.55_rt) {
+                    state.mu_p = -2.0_rt;
+                    state.mu_n = -15.0_rt;
+                }
+
                 state.T = T;
                 state.rho = rho;
                 state.y_e = Ye;
-
-                if (state.y_e >= 0.63_rt) {
-                    state.mu_p = -3.0_rt;
-                    state.mu_n = -14.9_rt;
-                }
-                else if (state.y_e > 0.52_rt){
-                    state.mu_p = -6.0_rt;
-                    state.mu_n = -11.0_rt;
-                }
-                else if (state.y_e > 0.48_rt){
-                    state.mu_p = -8.0_rt;
-                    state.mu_n = -11.0_rt;
-                }
-                else if (state.y_e > 0.4_rt){
-                    state.mu_p = -10.0_rt;
-                    state.mu_n = -7.0_rt;
-                }
-                else{
-                    state.mu_p = -15.0_rt;
-                    state.mu_n = -5.0_rt;
-                }
 
                 // find the  nse state
 
