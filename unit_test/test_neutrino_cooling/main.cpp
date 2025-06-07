@@ -14,6 +14,9 @@ using namespace amrex;
 
 #include <network.H>
 #include <eos.H>
+
+#include <neutrino.H>
+#include <kipp.H>
 #include <sneut5.H>
 
 #include <variables.H>
@@ -194,7 +197,7 @@ void main_main ()
     ParallelDescriptor::ReduceRealMax(stop_time, IOProc);
 
 
-    std::string name = "test_sneut5";
+    std::string name = "test_neutrino." + neutrino_name;
 
     // Write a plotfile
     WriteSingleLevelPlotfile(name, state, names, geom, time, 0);
