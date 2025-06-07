@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NSE &mdash; Microphysics  documentation</title>
+  <title>Fundamental Constants &mdash; Microphysics  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -26,8 +26,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Tabulated NSE and aprox19" href="nse_tabular.html" />
-    <link rel="prev" title="ODE Integrators" href="ode_integrators.html" /> 
+    <link rel="next" title="Equations of State" href="eos.html" />
+    <link rel="prev" title="Parameters by Namespace" href="runtime_parameters.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -50,18 +50,18 @@
   </form>
 </div>
     <div class="branch">
-        Branch: <a href="../nse.html">main</a> | <a href="./nse.html">development</a>
+        Branch: <a href="../fundamental_constants.html">main</a> | <a href="./fundamental_constants.html">development</a>
     </div>
 
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Microphysics overview</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="design.html">Design</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
 <li class="toctree-l1"><a class="reference internal" href="build_system.html">Build System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
-<li class="toctree-l1"><a class="reference internal" href="fundamental_constants.html">Fundamental Constants</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Fundamental Constants</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
 <ul>
@@ -78,14 +78,10 @@
 <li class="toctree-l1"><a class="reference internal" href="neutrinos.html">Neutrino Losses</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">ODE integrators</span></p>
-<ul class="current">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="integrators.html">Reaction ODE System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ode_integrators.html">ODE Integrators</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">NSE</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="nse_tabular.html">Tabulated NSE and <code class="docutils literal notranslate"><span class="pre">aprox19</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="nse_net.html">Self-consistent NSE</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="nse.html">NSE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Util / external libraries</span></p>
@@ -125,9 +121,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">NSE</li>
+      <li class="breadcrumb-item active">Fundamental Constants</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/nse.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/fundamental_constants.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -135,63 +131,34 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="nse">
-<span id="ch-nse"></span><h1>NSE<a class="headerlink" href="#nse" title="Link to this heading"></a></h1>
-<div class="admonition important">
-<p class="admonition-title">Important</p>
-<p>NSE is only supported with the simplified-SDC method for
-coupling hydrodynamics and reactions.  We do not support
-operator-splitting (Strang) coupling with NSE.</p>
-</div>
-<p>The reaction networks in Microphysics have the ability to use NSE
-instead of integrating the entire network when the conditions are
-appropriate.  There are 2 different implementations of NSE in
-Microphysics, that have slightly different use cases.</p>
-<ul id="index-0">
-<li><p><a class="reference internal" href="nse_tabular.html#tabulated-nse"><span class="std std-ref">Tabulated NSE and aprox19</span></a> : this uses a table of NSE abundances given
-<span class="math notranslate nohighlight">\((\rho, T, Y_e)\)</span> generate from a large network (96 isotopes).
-The table also returns <span class="math notranslate nohighlight">\(dY_e/dt\)</span> resulting from
-electron-captures, to allow for the NSE state to evolve.  This is
-meant to be used in the cores of massive stars and works only with the
-<code class="docutils literal notranslate"><span class="pre">aprox19</span></code> reaction network.</p>
-<p>Furthermore, since the table can achieve <span class="math notranslate nohighlight">\(Y_e\)</span> and
-<span class="math notranslate nohighlight">\(\bar{A}\)</span> that are not representable by the 19 isotopes in
-<code class="docutils literal notranslate"><span class="pre">aprox19</span></code>, this table requires that we use the auxiliary
-composition and advect <span class="math notranslate nohighlight">\(Y_e\)</span>, <span class="math notranslate nohighlight">\(\bar{A}\)</span>, and
-<span class="math notranslate nohighlight">\(\langle B/A\rangle\)</span>.  All of the EOS calls will work with
-these quantities.</p>
-<p>This algorithm was described in <span id="id1">[<a class="reference internal" href="zreferences.html#id47" title="Michael Zingale, Zhi Chen, Eric T. Johnson, Max P. Katz, and Alexander Smith Clark. Strong coupling of hydrodynamics and reactions in nuclear statistical equilibrium for modeling convection in massive stars. The Astrophysical Journal, 977(1):30, nov 2024. URL: https://dx.doi.org/10.3847/1538-4357/ad8a66, doi:10.3847/1538-4357/ad8a66.">38</a>]</span>.</p>
-<p>This is enabled via <code class="docutils literal notranslate"><span class="pre">USE_NSE_TABLE</span></code></p>
-</li>
-<li><p><a class="reference internal" href="nse_net.html#self-consistent-nse"><span class="std std-ref">Self-consistent NSE</span></a> : this adds an NSE solver to the network that
-can be called to find the equilibrium abundances of each of the
-species defined in the network.  It works with any of the
-pynucastro-generated networks.  Unlike the tabulated NSE, there is
-no need to advect the auxiliary composition, since this only deals
-with the isotopes defined in the main reaction network.</p>
-<p>This is enabled via <code class="docutils literal notranslate"><span class="pre">USE_NSE_NET</span></code></p>
-</li>
-</ul>
-<p>Both solvers define a number of preprocessor variables, and both will
-provide a function <code class="docutils literal notranslate"><span class="pre">in_nse()</span></code> that can be used to determine if a
-state is currently in NSE.</p>
-<table class="docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p>make option</p></td>
-<td><p>preprocessor variables set</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">USE_NSE_TABLE</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">NSE</span></code>, <code class="docutils literal notranslate"><span class="pre">NSE_TABLE</span></code>, <code class="docutils literal notranslate"><span class="pre">AUX_THERMO</span></code></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">USE_NSE_NET</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">NSE</span></code>, <code class="docutils literal notranslate"><span class="pre">NSE_NET</span></code></p></td>
-</tr>
-</tbody>
-</table>
-<p>The directive <code class="docutils literal notranslate"><span class="pre">NSE</span></code> should be used whether the specific
-implementation of NSE does not matter.</p>
-<p>These two NSE solvers are in the next sections.</p>
-<div class="toctree-wrapper compound">
+  <section id="fundamental-constants">
+<h1>Fundamental Constants<a class="headerlink" href="#fundamental-constants" title="Link to this heading"></a></h1>
+<p>Fundamental constants are defined in <code class="docutils literal notranslate"><span class="pre">constants/fundamental_constants.H</span></code>.
+This file contains physical constants and unit conversion factors, such as
+Boltzmann’s constant, <span class="math notranslate nohighlight">\(k_B\)</span>, and is <strong>automatically generated</strong> by the
+Python script <code class="docutils literal notranslate"><span class="pre">write_fundamental_constants.py</span></code>.</p>
+<p>All constant values are obtained from <code class="docutils literal notranslate"><span class="pre">scipy.constants</span></code> to ensure consistency
+between <code class="docutils literal notranslate"><span class="pre">Microphysics</span></code> and <code class="docutils literal notranslate"><span class="pre">pynucastro</span></code>, the latter is used for
+generating the reaction networks used by <code class="docutils literal notranslate"><span class="pre">Microphysics</span></code>.</p>
+<p>There are two exceptions:</p>
+<ol class="arabic simple">
+<li><p>Constants under the <code class="docutils literal notranslate"><span class="pre">Legacy</span></code> namespace represent outdated values
+historically used in networks such as <code class="docutils literal notranslate"><span class="pre">aprox13</span></code>, <code class="docutils literal notranslate"><span class="pre">aprox19</span></code>,
+and <code class="docutils literal notranslate"><span class="pre">aprox21</span></code>. These constants are retained for backward compatibility
+and should <strong>NOT</strong> be used in other places.</p></li>
+<li><p>Newton’s gravitational constant continues to use an older value to preserve
+<strong>hydrostatic equilibrium</strong> in existing initial models used by <code class="docutils literal notranslate"><span class="pre">Castro</span></code>.</p></li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The consistency of physical constants between <code class="docutils literal notranslate"><span class="pre">pynucastro</span></code> and
+<code class="docutils literal notranslate"><span class="pre">Microphysics</span></code> is particularly important when using inverse rates derived
+from detailed balance. Discrepancies in constant values can affect the
+agreement between mass fractions obtained from direct integration and those
+computed from nuclear statistical equilibrium (NSE).</p>
+<p>This a subtle point, but important when using NSE evolution mode
+(i.e., when compiled with <code class="docutils literal notranslate"><span class="pre">USE_NSE_NET=TRUE</span></code> and <code class="docutils literal notranslate"><span class="pre">USE_NSE_TABLE=TRUE</span></code>).
+See <a class="reference internal" href="nse.html#ch-nse"><span class="std std-ref">NSE</span></a> for more details.</p>
 </div>
 </section>
 
@@ -199,8 +166,8 @@ implementation of NSE does not matter.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="ode_integrators.html" class="btn btn-neutral float-left" title="ODE Integrators" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="nse_tabular.html" class="btn btn-neutral float-right" title="Tabulated NSE and aprox19" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="runtime_parameters.html" class="btn btn-neutral float-left" title="Parameters by Namespace" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="eos.html" class="btn btn-neutral float-right" title="Equations of State" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
