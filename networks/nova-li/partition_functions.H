@@ -123,7 +123,6 @@ constexpr amrex::Real get_spin_state(const int inuc) {
     switch (inuc) {  // NOLINT(bugprone-switch-missing-default-case)
 
     case He4:
-    case Be8:
     case C12:
     case O14:
     case O16:
@@ -145,7 +144,6 @@ constexpr amrex::Real get_spin_state(const int inuc) {
         break;
 
     case H2:
-    case Li6:
     case N14:
     case F18:
         spin = 3;
@@ -153,6 +151,7 @@ constexpr amrex::Real get_spin_state(const int inuc) {
 
     case Li7:
     case Be7:
+    case B11:
     case Ne21:
         spin = 4;
         break;
