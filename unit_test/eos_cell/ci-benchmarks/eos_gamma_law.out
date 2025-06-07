@@ -1,24 +1,25 @@
-AMReX (23.06-31-g9c256b12b89f) initialized
+Initializing AMReX (24.10-178-g5a2390e00837)...
+AMReX (24.10-178-g5a2390e00837) initialized
 calling the EOS on a single zone state...
 rho = 1000000
 T =   1000000000
 xn = 1 0 0 0 0 0 0 0 0 0 0 0 0 
-p = 2.078615354e+22
-e = 3.117923031e+16
-h = 5.196538385e+16
-s = 315177017.1
-dpdT = 2.078615354e+13
-dpdr = 2.078615354e+16
-dedT = 31179230.31
+p = 2.078615652e+22
+e = 3.117923479e+16
+h = 5.196539131e+16
+s = 315177061.5
+dpdT = 2.078615652e+13
+dpdr = 2.078615652e+16
+dedT = 31179234.79
 dedr = 0
-dhdT = 51965383.85
+dhdT = 51965391.31
 dhdr = 0
-dsdT = 0.03117923031
-dsdr = -20.78615354
+dsdT = 0.03117923479
+dsdr = -20.78615652
 dpde = 666666.6667
-dpdr_e = 2.078615354e+16
-cv = 31179230.31
-cp = 51965383.85
+dpdr_e = 2.078615652e+16
+cv = 31179234.79
+cp = 51965391.31
 xne = 0
 xnp = 0
 eta = 0
@@ -28,7 +29,12 @@ mu = 4
 mu_e = 2
 y_e = 0.5
 gam1 = 1.666666667
-cs = 186127884.1
+cs = 186127897.4
 abar = 4
 zbar = 2
-AMReX (23.06-31-g9c256b12b89f) finalized
+Unused ParmParse Variables:
+  [TOP]::amrex.fpe_trapinvalid(nvals = 1)  :: [1]
+  [TOP]::amrex.fpe_trapoverflow(nvals = 1)  :: [1]
+  [TOP]::amrex.fpe_trapzero(nvals = 1)  :: [1]
+
+AMReX (24.10-178-g5a2390e00837) finalized
