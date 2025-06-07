@@ -32,9 +32,4 @@ gam1 = 1.666666667
 cs = 186127897.4
 abar = 4
 zbar = 2
-Unused ParmParse Variables:
-  [TOP]::amrex.fpe_trapinvalid(nvals = 1)  :: [1]
-  [TOP]::amrex.fpe_trapoverflow(nvals = 1)  :: [1]
-  [TOP]::amrex.fpe_trapzero(nvals = 1)  :: [1]
-
 AMReX (24.10-178-g5a2390e00837) finalized
