@@ -20,12 +20,12 @@ successful? 1
 e initial = 1.253426044e+18
 e final =   1.261790194e+18
 ------------------------------------
-new mass fractions:
+new mass fractions: 
 C12 0.9657916864
 O16 1e-30
 ash 0.03420831361
 ------------------------------------
-species creation rates:
+species creation rates: 
 omegadot(C12): -2.158253225
 omegadot(O16): 1.989224949e-43
 omegadot(ash): 2.158253225
