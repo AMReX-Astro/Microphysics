@@ -173,9 +173,9 @@ x.  The <code class="docutils literal notranslate"><span class="pre">static_cast
 numbers as well.</p>
 <p><code class="docutils literal notranslate"><span class="pre">autodiff::seed(x)</span></code> sets the derivative term of <code class="docutils literal notranslate"><span class="pre">x</span></code> to 1 (it is equivalent
 to <code class="docutils literal notranslate"><span class="pre">x.grad</span> <span class="pre">=</span> <span class="pre">1.0</span></code>), which effectively tells the code that
-<span class="math notranslate nohighlight">\(\frac{\partial x}{\partial x} = 1\)</span>. This propagates through any
-operations that <code class="docutils literal notranslate"><span class="pre">f(x)</span></code> does, and we end up with <span class="math notranslate nohighlight">\(\frac{\partial
-f(x)}{\partial x}\)</span> in the derivative term of <code class="docutils literal notranslate"><span class="pre">result</span></code>.</p>
+<span class="math notranslate nohighlight">\({\partial x}/{\partial x} = 1\)</span>. This propagates through any
+operations that <code class="docutils literal notranslate"><span class="pre">f(x)</span></code> does, and we end up with <span class="math notranslate nohighlight">\({\partial
+f(x)}/{\partial x}\)</span> in the derivative term of <code class="docutils literal notranslate"><span class="pre">result</span></code>.</p>
 </section>
 <section id="derivatives-of-multi-variable-functions">
 <h2>Derivatives of multi-variable functions<a class="headerlink" href="#derivatives-of-multi-variable-functions" title="Link to this heading"></a></h2>

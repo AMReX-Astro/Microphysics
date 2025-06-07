@@ -163,7 +163,7 @@ method.  An error estimate is done by taking 2 half steps and
 comparing to a single full step.  This error is then used to control
 the timestep by using the local truncation error scaling. Optionally, the
 user can disable error estimation and force a single-step backward-Euler
-integration by setting <cite>integrator.do_single_step = 1</cite>.</p></li>
+integration by setting <code class="docutils literal notranslate"><span class="pre">integrator.do_single_step</span> <span class="pre">=</span> <span class="pre">1</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">ForwardEuler</span></code>: an explicit first-order forward-Euler method.  This is
 meant for testing purposes only.  No Jacobian is needed.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">QSS</span></code>: the quasi-steady-state method of <span id="id1">[<a class="reference internal" href="zreferences.html#id37" title="David R. Mott, Elaine S. Oran, and Bram van Leer. A quasi-steady-state solver for the stiff ordinary differential equations of reaction kinetics. Journal of Computational Physics, 164(2):407-428, 2000. doi:https://doi.org/10.1006/jcph.2000.6605.">34</a>]</span> (see also
