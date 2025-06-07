@@ -16,7 +16,8 @@ using namespace amrex::literals;
 template<typename number_t>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 // pair annihilation
-number_t kip_pair(const number_t& rho, const number_t& temp, const number_t& abar, const number_t& zbar){
+number_t kip_pair(const number_t& temp, const amrex::Real& rho,
+                  const number_t& abar, const number_t& zbar){
     number_t T9 = temp * 1.0e-9_rt;
     // eq. 18.81 - fixed using woosley lecture notes
     if (T9 < 2.0e0_rt){
@@ -30,7 +31,8 @@ number_t kip_pair(const number_t& rho, const number_t& temp, const number_t& aba
 template<typename number_t>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 // photoneutrinos
-number_t kip_phot(const number_t& rho, const number_t& temp, const number_t& abar, const number_t& zbar){
+number_t kip_phot(const number_t& temp, const amrex::Real& rho,
+                  const number_t& abar, const number_t& zbar){
     number_t T9 = temp * 1.0e-9_rt;
     // eq. 18.82
     number_t ep_1 = (1.103e13_rt/rho) * amrex::Math::powi<9>(T9) * admath::exp(-5.93e0_rt / T9);
@@ -44,7 +46,8 @@ number_t kip_phot(const number_t& rho, const number_t& temp, const number_t& aba
 template<typename number_t>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 // plasmaneutrinos
-number_t kip_plas(const number_t& rho, const number_t& temp, const number_t& abar, const number_t& zbar){
+number_t kip_plas(const number_t& temp, const amrex::Real& rho,
+                  const number_t& abar, const number_t& zbar){
     number_t n_e = rho / (C::m_u * abar/zbar);
     number_t T9 = temp * 1.0e-9_rt;
     // assuming non-degeneracy
@@ -54,9 +57,12 @@ number_t kip_plas(const number_t& rho, const number_t& temp, const number_t& aba
     number_t lambda = (C::k_B * temp) / (C::m_e * amrex::Math::powi<2>(C::c_light));
     // 18.85
    if (gamma <= 1.0e0_rt) {
-        return (7.4e21_rt * admath::pow(C::hbar * w0/(C::m_e * amrex::Math::powi<2>(C::c_light)),6.0e0_rt)
-                * amrex::Math::powi<3>(lambda))/rho;
-   }else{
+       // return (7.4e21_rt * amrex::Math::powi<6>(C::hbar * w0/(C::m_e * amrex::Math::powi<2>(C::c_light)))
+       //         * amrex::Math::powi<3>(lambda))/rho;
+        auto epsilon_p = (C::hbar * w0) / (C::m_e * C::c_light * C::c_light);
+        return (7.4e21_rt * admath::pow(epsilon_p, 6.0_rt) * admath::pow(lambda, 3.0_rt)) / rho;
+
+   } else{
         return (3.3e21_rt * admath::pow((C::hbar * w0/(C::m_e * amrex::Math::powi<2>(C::c_light))),7.5e0_rt)
                 * admath::pow(lambda, 3.0e0_rt/2.0e0_rt) * admath::exp(-gamma))/rho;
     }
@@ -66,49 +72,106 @@ number_t kip_plas(const number_t& rho, const number_t& temp, const number_t& aba
 template<typename number_t>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 // bremsstrahlung neutrinos
-number_t kip_brem(const number_t& rho, const number_t& temp, const number_t& abar, const number_t& zbar){
+number_t kip_brem(const number_t& temp, const amrex::Real& rho,
+                  const number_t& abar, const number_t& zbar){
     // eq. 18.86
     number_t T8 = temp * 1.0e-8_rt;
     return 0.76e0_rt * (amrex::Math::powi<2>(zbar)/abar) * amrex::Math::powi<6>(T8);
 }
 
+template<typename number_t>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+number_t kipp(const number_t& temp, const amrex::Real rho,
+                  const number_t& abar, const number_t& zbar, amrex::Real& pair,
+                  amrex::Real& phot, amrex::Real& plas, amrex::Real& brem){
+
+                    if (temp < 1.0e7_rt){
+                        return 0.0e0_rt;
+                    }
+
+                    // caluclating individual contributions of all processes
+                    number_t kip_pair_dual = kip_pair(temp, rho, abar, zbar);
+                    number_t kip_phot_dual = kip_phot(temp, rho, abar, zbar);
+                    number_t kip_plas_dual = kip_plas(temp, rho, abar, zbar);
+                    number_t kip_brem_dual = kip_brem(temp, rho, abar, zbar);
+
+                    // extracting contributions to store in plotfile
+                    pair = autodiff::val(kip_pair_dual);
+                    phot = autodiff::val(kip_phot_dual);
+                    plas = autodiff::val(kip_plas_dual);
+                    brem = autodiff::val(kip_brem_dual);
+
+                    // total neutrino cooling rate
+                    number_t snu = kip_pair_dual + kip_phot_dual + kip_plas_dual + kip_brem_dual;
+
+                    return snu;
+
+                  }
+
 template <int do_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void kipp(const amrex::Real& temp, const amrex::Real& rho, const amrex::Real& abar,
-    const amrex::Real& zbar, amrex::Real& snu, amrex::Real& dsnudt, amrex::Real& dsnudrho,
-    amrex::Real& dsnudz, amrex::Real& dsnuda, amrex::Real& pair,
-    amrex::Real& phot, amrex::Real& plas, amrex::Real& brem) {
+        const amrex::Real& zbar, amrex::Real& snu, amrex::Real& dsnudt,
+        amrex::Real& dsnudrho, amrex::Real& dsnudz, amrex::Real& dsnuda,
+        amrex::Real& pair, amrex::Real& phot, amrex::Real& plas, amrex::Real& brem) {
 
-    using number_t = autodiff::dual_array<1,4>;
+       /*
+        input:
+        temp = temperature
+        rho = density
+        abar = mean atomic weight
+        zbar = mean charge
 
-    number_t rho_dual = rho;
-    number_t temp_dual = temp;
-    number_t abar_dual = abar;
-    number_t zbar_dual = zbar;
+        output:
+        snu = total neutrino cooling rate in erg/g/s
+        dsnudt = derivative of snu with respect to temp
+        dsnudz = derivative of snu with respect to zbar
+        dsnuda = derivative of snu with respect to abar
+        pair = pair annihilation contribution in erg/g/s
+        phot = photoneutrino contribution in erg/g/s
+        plas = plasma neutrino contribution in erg/g/s
+        brem = bremsstrahlung contribution rate in erg/g/s
+        */
 
-    autodiff::seed_array(rho_dual, temp_dual, abar_dual, zbar_dual);
+    // autodiff wrapper
+    if constexpr (do_derivatives){
 
-    number_t kip_pair_dual = kip_pair(rho_dual, temp_dual, abar_dual, zbar_dual);
-    number_t kip_phot_dual = kip_phot(rho_dual, temp_dual, abar_dual, zbar_dual);
-    number_t kip_plas_dual = kip_plas(rho_dual, temp_dual, abar_dual, zbar_dual);
-    number_t kip_brem_dual = kip_brem(rho_dual, temp_dual, abar_dual, zbar_dual);
+    using dual_t = autodiff::dual_array<1,3>;
+    dual_t temp_dual = temp;
+    dual_t abar_dual = abar;
+    dual_t zbar_dual = zbar;
 
-    // sum of all neutrino cooling rates
+    autodiff::seed_array(temp_dual, abar_dual, zbar_dual);
+    dual_t snu_dual = kipp(temp_dual, rho, abar_dual, zbar_dual,
+                                 pair, phot, plas, brem);
 
-    number_t snu_dual = kip_pair_dual + kip_phot_dual + kip_plas_dual + kip_brem_dual;
-
-    // extract derivatives
-    auto derivatives = autodiff::derivative(snu_dual);
-    dsnudrho = derivatives(1);
-    dsnudt = derivatives(2);
-    dsnuda = derivatives(3);
-    dsnudz = derivatives(4);
-
-    // extract value
     snu = autodiff::val(snu_dual);
-    pair = autodiff::val(kip_pair_dual);
-    phot = autodiff::val(kip_phot_dual);
-    plas = autodiff::val(kip_plas_dual);
-    brem = autodiff::val(kip_brem_dual);
+    const auto& grad = autodiff::derivative(snu_dual);
+    dsnudt = grad(1);
+    dsnudrho = 0.0e0_rt;
+    dsnuda = grad(2);
+    dsnudz = grad(3);
+    } else {
+        snu = kipp(temp, rho, abar, zbar, pair, phot, plas, brem);
+        dsnudt = 0.0e0_rt;
+        dsnudrho = 0.0e0_rt;
+        dsnuda = 0.0e0_rt;
+        dsnudz = 0.0e0_rt;
+    }
 }
+
+//overloading to pass arguments in all cases
+template <int do_derivatives>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void kipp(const amrex::Real temp, const amrex::Real den,
+            const amrex::Real abar, const amrex::Real zbar,
+            amrex::Real& snu, amrex::Real& dsnudt, amrex::Real& dsnudd,
+            amrex::Real& dsnuda, amrex::Real& dsnudz)
+            {
+                amrex::Real pair, phot, plas, brem;
+                kipp<do_derivatives>(temp, den, abar, zbar,
+                                       snu, dsnudt, dsnudd, dsnuda, dsnudz,
+                                       pair, phot, plas, brem);
+            }
+
 #endif // KIP_NEUT_H
