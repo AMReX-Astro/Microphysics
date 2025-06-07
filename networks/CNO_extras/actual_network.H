@@ -98,12 +98,79 @@ namespace network
     template<int spec>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
     constexpr amrex::Real mion () {
+        using namespace Species;
+
         static_assert(spec >= 1 && spec <= NumSpec);
 
-        constexpr amrex::Real A = NetworkProperties::aion(spec);
-        constexpr amrex::Real Z = NetworkProperties::zion(spec);
+        // Set the mass of the element
 
-        return (A - Z) * C::Legacy::m_n + Z * (C::Legacy::m_p + C::Legacy::m_e) - bion<spec>() * C::Legacy::MeV2gr;
+        if constexpr (spec == H1) {
+            return 1.6735328377636005e-24_rt;
+        }
+        else if constexpr (spec == He4) {
+            return 6.646479071584587e-24_rt;
+        }
+        else if constexpr (spec == C12) {
+            return 1.99264687992e-23_rt;
+        }
+        else if constexpr (spec == C13) {
+            return 2.1592578700883826e-23_rt;
+        }
+        else if constexpr (spec == N13) {
+            return 2.1596537049448796e-23_rt;
+        }
+        else if constexpr (spec == N14) {
+            return 2.3252651436495096e-23_rt;
+        }
+        else if constexpr (spec == N15) {
+            return 2.490826682883827e-23_rt;
+        }
+        else if constexpr (spec == O14) {
+            return 2.3261822098665393e-23_rt;
+        }
+        else if constexpr (spec == O15) {
+            return 2.4913176568383383e-23_rt;
+        }
+        else if constexpr (spec == O16) {
+            return 2.6560180592333686e-23_rt;
+        }
+        else if constexpr (spec == O17) {
+            return 2.822772237905709e-23_rt;
+        }
+        else if constexpr (spec == O18) {
+            return 2.9888307701990364e-23_rt;
+        }
+        else if constexpr (spec == F17) {
+            return 2.8232643353472436e-23_rt;
+        }
+        else if constexpr (spec == F18) {
+            return 2.989125964092377e-23_rt;
+        }
+        else if constexpr (spec == F19) {
+            return 3.1547590653659727e-23_rt;
+        }
+        else if constexpr (spec == Ne18) {
+            return 2.9899182681834417e-23_rt;
+        }
+        else if constexpr (spec == Ne19) {
+            return 3.155336557821978e-23_rt;
+        }
+        else if constexpr (spec == Ne20) {
+            return 3.3198227947612416e-23_rt;
+        }
+        else if constexpr (spec == Mg22) {
+            return 3.653114641825797e-23_rt;
+        }
+        else if constexpr (spec == Mg24) {
+            return 3.9828098739467446e-23_rt;
+        }
+        else if constexpr (spec == Fe56) {
+            return 9.288214565329033e-23_rt;
+        }
+
+
+        // Return zero if we don't recognize the species.
+        return 0.0_rt;
     }
 
     // Legacy (non-templated) interfaces

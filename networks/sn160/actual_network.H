@@ -515,12 +515,496 @@ namespace network
     template<int spec>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
     constexpr amrex::Real mion () {
+        using namespace Species;
+
         static_assert(spec >= 1 && spec <= NumSpec);
 
-        constexpr amrex::Real A = NetworkProperties::aion(spec);
-        constexpr amrex::Real Z = NetworkProperties::zion(spec);
+        // Set the mass of the element
 
-        return (A - Z) * C::Legacy::m_n + Z * (C::Legacy::m_p + C::Legacy::m_e) - bion<spec>() * C::Legacy::MeV2gr;
+        if constexpr (spec == N) {
+            return 1.674927498034172e-24_rt;
+        }
+        else if constexpr (spec == H1) {
+            return 1.6735328377636005e-24_rt;
+        }
+        else if constexpr (spec == H2) {
+            return 3.3444946862179e-24_rt;
+        }
+        else if constexpr (spec == He3) {
+            return 5.008234515140786e-24_rt;
+        }
+        else if constexpr (spec == He4) {
+            return 6.646479071584587e-24_rt;
+        }
+        else if constexpr (spec == Li6) {
+            return 9.988346544883529e-24_rt;
+        }
+        else if constexpr (spec == Li7) {
+            return 1.1650347794645127e-23_rt;
+        }
+        else if constexpr (spec == Be7) {
+            return 1.1651884262042064e-23_rt;
+        }
+        else if constexpr (spec == Be9) {
+            return 1.4965082049084434e-23_rt;
+        }
+        else if constexpr (spec == B8) {
+            return 1.332517399630266e-23_rt;
+        }
+        else if constexpr (spec == B10) {
+            return 1.6626872831361982e-23_rt;
+        }
+        else if constexpr (spec == B11) {
+            return 1.828138132559934e-23_rt;
+        }
+        else if constexpr (spec == C12) {
+            return 1.99264687992e-23_rt;
+        }
+        else if constexpr (spec == C13) {
+            return 2.1592578700883826e-23_rt;
+        }
+        else if constexpr (spec == C14) {
+            return 2.3252930380658474e-23_rt;
+        }
+        else if constexpr (spec == N13) {
+            return 2.1596537049448796e-23_rt;
+        }
+        else if constexpr (spec == N14) {
+            return 2.3252651436495096e-23_rt;
+        }
+        else if constexpr (spec == N15) {
+            return 2.490826682883827e-23_rt;
+        }
+        else if constexpr (spec == O14) {
+            return 2.3261822098665393e-23_rt;
+        }
+        else if constexpr (spec == O15) {
+            return 2.4913176568383383e-23_rt;
+        }
+        else if constexpr (spec == O16) {
+            return 2.6560180592333686e-23_rt;
+        }
+        else if constexpr (spec == O17) {
+            return 2.822772237905709e-23_rt;
+        }
+        else if constexpr (spec == O18) {
+            return 2.9888307701990364e-23_rt;
+        }
+        else if constexpr (spec == F17) {
+            return 2.8232643353472436e-23_rt;
+        }
+        else if constexpr (spec == F18) {
+            return 2.989125964092377e-23_rt;
+        }
+        else if constexpr (spec == F19) {
+            return 3.1547590653659727e-23_rt;
+        }
+        else if constexpr (spec == Ne18) {
+            return 2.9899182681834417e-23_rt;
+        }
+        else if constexpr (spec == Ne19) {
+            return 3.155336557821978e-23_rt;
+        }
+        else if constexpr (spec == Ne20) {
+            return 3.3198227947612416e-23_rt;
+        }
+        else if constexpr (spec == Ne21) {
+            return 3.4861102572650884e-23_rt;
+        }
+        else if constexpr (spec == Ne22) {
+            return 3.651755410955497e-23_rt;
+        }
+        else if constexpr (spec == Na21) {
+            return 3.486742553187392e-23_rt;
+        }
+        else if constexpr (spec == Na22) {
+            return 3.652262279854593e-23_rt;
+        }
+        else if constexpr (spec == Na23) {
+            return 3.817541002484691e-23_rt;
+        }
+        else if constexpr (spec == Mg23) {
+            return 3.8182640828719474e-23_rt;
+        }
+        else if constexpr (spec == Mg24) {
+            return 3.9828098739467446e-23_rt;
+        }
+        else if constexpr (spec == Mg25) {
+            return 4.148995839845366e-23_rt;
+        }
+        else if constexpr (spec == Mg26) {
+            return 4.314511068143473e-23_rt;
+        }
+        else if constexpr (spec == Al25) {
+            return 4.149758250478667e-23_rt;
+        }
+        else if constexpr (spec == Al26) {
+            return 4.315224917996432e-23_rt;
+        }
+        else if constexpr (spec == Al27) {
+            return 4.480389861070653e-23_rt;
+        }
+        else if constexpr (spec == Si28) {
+            return 4.6456779473820677e-23_rt;
+        }
+        else if constexpr (spec == Si29) {
+            return 4.811660140333913e-23_rt;
+        }
+        else if constexpr (spec == Si30) {
+            return 4.977261628701015e-23_rt;
+        }
+        else if constexpr (spec == Si31) {
+            return 5.143580068485421e-23_rt;
+        }
+        else if constexpr (spec == Si32) {
+            return 5.309432775007637e-23_rt;
+        }
+        else if constexpr (spec == P29) {
+            return 4.812541182037512e-23_rt;
+        }
+        else if constexpr (spec == P30) {
+            return 4.978016069409398e-23_rt;
+        }
+        else if constexpr (spec == P31) {
+            return 5.14331418367544e-23_rt;
+        }
+        else if constexpr (spec == P32) {
+            return 5.30939227471144e-23_rt;
+        }
+        else if constexpr (spec == P33) {
+            return 5.475083851770546e-23_rt;
+        }
+        else if constexpr (spec == S32) {
+            return 5.309087322384128e-23_rt;
+        }
+        else if constexpr (spec == S33) {
+            return 5.475039560055494e-23_rt;
+        }
+        else if constexpr (spec == S34) {
+            return 5.64049701803872e-23_rt;
+        }
+        else if constexpr (spec == S35) {
+            return 5.806744429084988e-23_rt;
+        }
+        else if constexpr (spec == S36) {
+            return 5.97247426028627e-23_rt;
+        }
+        else if constexpr (spec == Cl33) {
+            return 5.476034741466158e-23_rt;
+        }
+        else if constexpr (spec == Cl34) {
+            return 5.641475984659597e-23_rt;
+        }
+        else if constexpr (spec == Cl35) {
+            return 5.806714601585715e-23_rt;
+        }
+        else if constexpr (spec == Cl36) {
+            return 5.972677863452325e-23_rt;
+        }
+        else if constexpr (spec == Cl37) {
+            return 6.13833253584433e-23_rt;
+        }
+        else if constexpr (spec == Ar36) {
+            return 5.972551377884467e-23_rt;
+        }
+        else if constexpr (spec == Ar37) {
+            return 6.138477621350144e-23_rt;
+        }
+        else if constexpr (spec == Ar38) {
+            return 6.303859972524341e-23_rt;
+        }
+        else if constexpr (spec == Ar39) {
+            return 6.470176434980143e-23_rt;
+        }
+        else if constexpr (spec == Ar40) {
+            return 6.635909836853254e-23_rt;
+        }
+        else if constexpr (spec == K37) {
+            return 6.139573509201139e-23_rt;
+        }
+        else if constexpr (spec == K38) {
+            return 6.304914251263421e-23_rt;
+        }
+        else if constexpr (spec == K39) {
+            return 6.470075679819664e-23_rt;
+        }
+        else if constexpr (spec == K40) {
+            return 6.636178020512743e-23_rt;
+        }
+        else if constexpr (spec == K41) {
+            return 6.801871107664764e-23_rt;
+        }
+        else if constexpr (spec == Ca40) {
+            return 6.635944331004904e-23_rt;
+        }
+        else if constexpr (spec == Ca41) {
+            return 6.801946271643761e-23_rt;
+        }
+        else if constexpr (spec == Ca42) {
+            return 6.967392401113526e-23_rt;
+        }
+        else if constexpr (spec == Ca43) {
+            return 7.133470983379846e-23_rt;
+        }
+        else if constexpr (spec == Ca44) {
+            return 7.298979425797081e-23_rt;
+        }
+        else if constexpr (spec == Ca45) {
+            return 7.465150364212236e-23_rt;
+        }
+        else if constexpr (spec == Ca46) {
+            return 7.630789374136599e-23_rt;
+        }
+        else if constexpr (spec == Ca47) {
+            return 7.796984984592748e-23_rt;
+        }
+        else if constexpr (spec == Ca48) {
+            return 7.962703720862762e-23_rt;
+        }
+        else if constexpr (spec == Sc43) {
+            return 7.133866871591414e-23_rt;
+        }
+        else if constexpr (spec == Sc44) {
+            return 7.299630578717192e-23_rt;
+        }
+        else if constexpr (spec == Sc45) {
+            return 7.465103997175656e-23_rt;
+        }
+        else if constexpr (spec == Sc46) {
+            return 7.631035024949397e-23_rt;
+        }
+        else if constexpr (spec == Sc47) {
+            return 7.796629860511342e-23_rt;
+        }
+        else if constexpr (spec == Sc48) {
+            return 7.962653961064011e-23_rt;
+        }
+        else if constexpr (spec == Sc49) {
+            return 8.128340924594064e-23_rt;
+        }
+        else if constexpr (spec == Ti44) {
+            return 7.299678247096977e-23_rt;
+        }
+        else if constexpr (spec == Ti45) {
+            return 7.465471582063894e-23_rt;
+        }
+        else if constexpr (spec == Ti46) {
+            return 7.630613127700392e-23_rt;
+        }
+        else if constexpr (spec == Ti47) {
+            return 7.796522756400429e-23_rt;
+        }
+        else if constexpr (spec == Ti48) {
+            return 7.961942866136786e-23_rt;
+        }
+        else if constexpr (spec == Ti49) {
+            return 8.12798410520117e-23_rt;
+        }
+        else if constexpr (spec == Ti50) {
+            return 8.293526769379317e-23_rt;
+        }
+        else if constexpr (spec == Ti51) {
+            return 8.459883527125195e-23_rt;
+        }
+        else if constexpr (spec == V46) {
+            return 7.631870326846012e-23_rt;
+        }
+        else if constexpr (spec == V47) {
+            return 7.797045172607207e-23_rt;
+        }
+        else if constexpr (spec == V48) {
+            return 7.962658595985007e-23_rt;
+        }
+        else if constexpr (spec == V49) {
+            return 8.128091387578276e-23_rt;
+        }
+        else if constexpr (spec == V50) {
+            return 8.293920493439312e-23_rt;
+        }
+        else if constexpr (spec == V51) {
+            return 8.459443190021272e-23_rt;
+        }
+        else if constexpr (spec == V52) {
+            return 8.625632593248613e-23_rt;
+        }
+        else if constexpr (spec == Cr48) {
+            return 7.962953983065421e-23_rt;
+        }
+        else if constexpr (spec == Cr49) {
+            return 8.128560192010424e-23_rt;
+        }
+        else if constexpr (spec == Cr50) {
+            return 8.293735431739904e-23_rt;
+        }
+        else if constexpr (spec == Cr51) {
+            return 8.459577317504256e-23_rt;
+        }
+        else if constexpr (spec == Cr52) {
+            return 8.624923721300802e-23_rt;
+        }
+        else if constexpr (spec == Cr53) {
+            return 8.791001139488887e-23_rt;
+        }
+        else if constexpr (spec == Cr54) {
+            return 8.956761306248089e-23_rt;
+        }
+        else if constexpr (spec == Mn50) {
+            return 8.295096399635981e-23_rt;
+        }
+        else if constexpr (spec == Mn51) {
+            return 8.460149108098279e-23_rt;
+        }
+        else if constexpr (spec == Mn52) {
+            return 8.625763019925445e-23_rt;
+        }
+        else if constexpr (spec == Mn53) {
+            return 8.79110762145079e-23_rt;
+        }
+        else if constexpr (spec == Mn54) {
+            return 8.957006810882611e-23_rt;
+        }
+        else if constexpr (spec == Mn55) {
+            return 9.122676671554189e-23_rt;
+        }
+        else if constexpr (spec == Fe52) {
+            return 8.626187166893794e-23_rt;
+        }
+        else if constexpr (spec == Fe53) {
+            return 8.791774836154814e-23_rt;
+        }
+        else if constexpr (spec == Fe54) {
+            return 8.95688266630639e-23_rt;
+        }
+        else if constexpr (spec == Fe55) {
+            return 9.122717876001846e-23_rt;
+        }
+        else if constexpr (spec == Fe56) {
+            return 9.288214565329033e-23_rt;
+        }
+        else if constexpr (spec == Fe57) {
+            return 9.454344260077968e-23_rt;
+        }
+        else if constexpr (spec == Fe58) {
+            return 9.620046397626297e-23_rt;
+        }
+        else if constexpr (spec == Co53) {
+            return 8.793252324182073e-23_rt;
+        }
+        else if constexpr (spec == Co54) {
+            return 8.958352381927671e-23_rt;
+        }
+        else if constexpr (spec == Co55) {
+            return 9.123333143937473e-23_rt;
+        }
+        else if constexpr (spec == Co56) {
+            return 9.289028646418131e-23_rt;
+        }
+        else if constexpr (spec == Co57) {
+            return 9.454493347659797e-23_rt;
+        }
+        else if constexpr (spec == Co58) {
+            return 9.620457835997809e-23_rt;
+        }
+        else if constexpr (spec == Co59) {
+            return 9.786087023454982e-23_rt;
+        }
+        else if constexpr (spec == Ni56) {
+            return 9.289408870379396e-23_rt;
+        }
+        else if constexpr (spec == Ni57) {
+            return 9.455074798498772e-23_rt;
+        }
+        else if constexpr (spec == Ni58) {
+            return 9.620389809618879e-23_rt;
+        }
+        else if constexpr (spec == Ni59) {
+            return 9.786278303079172e-23_rt;
+        }
+        else if constexpr (spec == Ni60) {
+            return 9.951741007739486e-23_rt;
+        }
+        else if constexpr (spec == Ni61) {
+            return 1.0117839694866957e-22_rt;
+        }
+        else if constexpr (spec == Ni62) {
+            return 1.0283443586351462e-22_rt;
+        }
+        else if constexpr (spec == Ni63) {
+            return 1.0449717384359494e-22_rt;
+        }
+        else if constexpr (spec == Ni64) {
+            return 1.0615488543012106e-22_rt;
+        }
+        else if constexpr (spec == Cu57) {
+            return 9.456639084334996e-23_rt;
+        }
+        else if constexpr (spec == Cu58) {
+            return 9.62191594648998e-23_rt;
+        }
+        else if constexpr (spec == Cu59) {
+            return 9.787133677749025e-23_rt;
+        }
+        else if constexpr (spec == Cu60) {
+            return 9.952833405138436e-23_rt;
+        }
+        else if constexpr (spec == Cu61) {
+            return 1.0118238636778396e-22_rt;
+        }
+        else if constexpr (spec == Cu62) {
+            return 1.0284149324379613e-22_rt;
+        }
+        else if constexpr (spec == Cu63) {
+            return 1.044970544052462e-22_rt;
+        }
+        else if constexpr (spec == Cu64) {
+            return 1.0615787067577502e-22_rt;
+        }
+        else if constexpr (spec == Cu65) {
+            return 1.0781513089230255e-22_rt;
+        }
+        else if constexpr (spec == Zn59) {
+            return 9.788763529890726e-23_rt;
+        }
+        else if constexpr (spec == Zn60) {
+            return 9.953576917772707e-23_rt;
+        }
+        else if constexpr (spec == Zn61) {
+            return 1.0119243184597849e-22_rt;
+        }
+        else if constexpr (spec == Zn62) {
+            return 1.0284438008651201e-22_rt;
+        }
+        else if constexpr (spec == Zn63) {
+            return 1.0450305573660534e-22_rt;
+        }
+        else if constexpr (spec == Zn64) {
+            return 1.0615683744492522e-22_rt;
+        }
+        else if constexpr (spec == Zn65) {
+            return 1.07817540516422e-22_rt;
+        }
+        else if constexpr (spec == Zn66) {
+            return 1.0947275441532975e-22_rt;
+        }
+        else if constexpr (spec == Ga62) {
+            return 1.0286074688388061e-22_rt;
+        }
+        else if constexpr (spec == Ga63) {
+            return 1.0451315683385183e-22_rt;
+        }
+        else if constexpr (spec == Ga64) {
+            return 1.0616962127009758e-22_rt;
+        }
+        else if constexpr (spec == Ge63) {
+            return 1.0453031869843748e-22_rt;
+        }
+        else if constexpr (spec == Ge64) {
+            return 1.0617767319746517e-22_rt;
+        }
+
+
+        // Return zero if we don't recognize the species.
+        return 0.0_rt;
     }
 
     // Legacy (non-templated) interfaces
