@@ -138,7 +138,7 @@ variations. The overview of the steps we take are the following:
 
        t_{i,k} < \epsilon t_s
 
-  *
+  * the forward and reverse rates satisfy:
 
     .. math::
 
