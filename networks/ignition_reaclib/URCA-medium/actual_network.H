@@ -33,31 +33,31 @@ namespace network
             return 0.0_rt;
         }
         else if constexpr (spec == He4) {
-            return 28.29566_rt;
+            return 28.295662457999697_rt;
         }
         else if constexpr (spec == C12) {
-            return 92.16172800000001_rt;
+            return 92.16173498399803_rt;
         }
         else if constexpr (spec == N13) {
-            return 94.105219_rt;
+            return 94.10522604799917_rt;
         }
         else if constexpr (spec == O16) {
-            return 127.619296_rt;
+            return 127.6193154119992_rt;
         }
         else if constexpr (spec == Ne20) {
-            return 160.6448_rt;
+            return 160.64482384000075_rt;
         }
         else if constexpr (spec == Ne23) {
-            return 182.970888_rt;
+            return 182.97089593999772_rt;
         }
         else if constexpr (spec == Na23) {
-            return 186.56433900000002_rt;
+            return 186.56435240400242_rt;
         }
         else if constexpr (spec == Mg23) {
-            return 181.725645_rt;
+            return 181.7258218679999_rt;
         }
         else if constexpr (spec == Mg24) {
-            return 198.25701600000002_rt;
+            return 198.2570479679962_rt;
         }
 
 
@@ -68,12 +68,49 @@ namespace network
     template<int spec>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
     constexpr amrex::Real mion () {
+        using namespace Species;
+
         static_assert(spec >= 1 && spec <= NumSpec);
 
-        constexpr amrex::Real A = NetworkProperties::aion(spec);
-        constexpr amrex::Real Z = NetworkProperties::zion(spec);
+        // Set the mass of the element
 
-        return (A - Z) * C::Legacy::m_n + Z * (C::Legacy::m_p + C::Legacy::m_e) - bion<spec>() * C::Legacy::MeV2gr;
+        if constexpr (spec == N) {
+            return 1.674927498034172e-24_rt;
+        }
+        else if constexpr (spec == H1) {
+            return 1.6735328377636005e-24_rt;
+        }
+        else if constexpr (spec == He4) {
+            return 6.646479071584587e-24_rt;
+        }
+        else if constexpr (spec == C12) {
+            return 1.99264687992e-23_rt;
+        }
+        else if constexpr (spec == N13) {
+            return 2.1596537049448796e-23_rt;
+        }
+        else if constexpr (spec == O16) {
+            return 2.6560180592333686e-23_rt;
+        }
+        else if constexpr (spec == Ne20) {
+            return 3.3198227947612416e-23_rt;
+        }
+        else if constexpr (spec == Ne23) {
+            return 3.818321060312286e-23_rt;
+        }
+        else if constexpr (spec == Na23) {
+            return 3.817541002484691e-23_rt;
+        }
+        else if constexpr (spec == Mg23) {
+            return 3.8182640828719474e-23_rt;
+        }
+        else if constexpr (spec == Mg24) {
+            return 3.9828098739467446e-23_rt;
+        }
+
+
+        // Return zero if we don't recognize the species.
+        return 0.0_rt;
     }
 
     // Legacy (non-templated) interfaces
@@ -113,7 +150,8 @@ namespace network
 namespace Rates
 {
 
-    enum NetworkRates
+    enum NetworkRates :
+    std::uint8_t
     {
         k_p_C12_to_N13 = 1,
         k_He4_C12_to_O16 = 2,
