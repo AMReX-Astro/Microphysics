@@ -46,4 +46,4 @@ wd_net.write_network()
 
 wd_net.plot(rho, T, comp, outfile="ECSN.png",
             hide_xalpha=True, curved_edges=True,
-            node_size=500, node_font_size=11, node_color="#337dff", node_shape="s")
+            node_size=600, node_font_size=11)
