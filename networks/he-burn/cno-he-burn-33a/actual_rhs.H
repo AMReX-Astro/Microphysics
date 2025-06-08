@@ -42,7 +42,7 @@ void ener_gener_rate(T const& dydt, amrex::Real& enuc)
         enuc += dydt(n) * network::mion(n);
     }
 
-    enuc *= C::Legacy::enuc_conv2;
+    enuc *= C::enuc_conv2;
 }
 
 
@@ -1321,7 +1321,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Mg22_to_Na22) = drate_dt;
     }
-    rate_eval.enuc_weak += C::Legacy::n_A * Y(Mg22) * (edot_nu + edot_gamma);
+    rate_eval.enuc_weak += C::n_A * Y(Mg22) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_Na22_Mg22_meta, j_Na22_Mg22_rhoy, j_Na22_Mg22_temp, j_Na22_Mg22_data,
                      rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
@@ -1329,7 +1329,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Na22_to_Mg22) = drate_dt;
     }
-    rate_eval.enuc_weak += C::Legacy::n_A * Y(Na22) * (edot_nu + edot_gamma);
+    rate_eval.enuc_weak += C::n_A * Y(Na22) * (edot_nu + edot_gamma);
 
 
 }
@@ -1365,12 +1365,12 @@ void get_ydot_weak(const burn_t& state,
     tabular_evaluate(j_Mg22_Na22_meta, j_Mg22_Na22_rhoy, j_Mg22_Na22_temp, j_Mg22_Na22_data,
                      rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_Mg22_to_Na22) = rate;
-    rate_eval.enuc_weak += C::Legacy::n_A * Y(Mg22) * (edot_nu + edot_gamma);
+    rate_eval.enuc_weak += C::n_A * Y(Mg22) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_Na22_Mg22_meta, j_Na22_Mg22_rhoy, j_Na22_Mg22_temp, j_Na22_Mg22_data,
                      rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_Na22_to_Mg22) = rate;
-    rate_eval.enuc_weak += C::Legacy::n_A * Y(Na22) * (edot_nu + edot_gamma);
+    rate_eval.enuc_weak += C::n_A * Y(Na22) * (edot_nu + edot_gamma);
 
     auto screened_rates = rate_eval.screened_rates;
 
