@@ -324,12 +324,7 @@ void nse_hybrid_solver(nse_solver_data<T>& state_data,
                 return;
             }
 
-            if (f(1) > 0.0_rt && f(2) > 0.0_rt) {
-                is_pos_new = true;
-            }
-            else{
-                is_pos_new = false;
-            }
+            is_pos_new = f(1) > 0.0_rt && f(2) > 0.0_rt;
 
             if (is_pos_old != is_pos_new) {
                 dx *= 0.8_rt;
@@ -542,7 +537,7 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt,
             }
         }
 
-        if (singular_network == true) {
+        if (singular_network) {
             amrex::Error("This network always results in singular jacobian matrix, thus can't find nse mass fraction using nr!");
         }
 
