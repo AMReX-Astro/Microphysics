@@ -178,6 +178,23 @@ void test_autodiff_arrays() {
         ASSERT_EQUAL(autodiff::derivative(result), GradArray<Real, 1, 3>{72.0_rt, 16.0_rt, 6.0_rt});
     }
 
+    {
+        autodiff::dual_array<1, 2> x = 1.0_rt;
+        x.grad(1) = 1.0_rt;
+
+        autodiff::dual_array<2, 2> y = 2.0_rt;
+        y.grad(2) = 1.0_rt;
+
+        x += 1.0_rt;
+        x -= 2.0_rt;
+        x *= 3.0_rt;
+        x /= 4.0_rt;
+        x += y;
+        x *= y;
+        x -= y;
+        x /= y;
+    }
+
     std::cout << "\nall tests passed!" << std::endl;
 }
 
