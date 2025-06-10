@@ -436,6 +436,43 @@ AUTODIFF_DEVICE_FUNC void seed_array(dual_array<XLO, XHI>& first_arg, Args&... a
     } (), ...);
 }
 
+namespace detail {
+
+template <typename T, typename G>
+AUTODIFF_DEVICE_FUNC
+auto make_dual(T&& val, G&& grad) {
+    Dual<PlainType<T>, PlainType<G>> x = std::forward<T>(val);
+    x.grad = std::forward<G>(grad);
+    return x;
+}
+
+// https://stackoverflow.com/q/39041236
+template <int XLO, typename... Ts, size_t... Idx>
+AUTODIFF_DEVICE_FUNC
+auto make_partial_arrays_impl(std::index_sequence<Idx...>, const Ts... values) {
+    return std::make_tuple(make_dual(values,
+        microphysics_autodiff::GradArray<Ts, XLO+Idx, XLO+Idx>{1.0_rt})...);
+}
+
+} // namespace detail
+
+/**
+ * Helper function to create a seeded single-element dual_array for each input
+ * variable.
+ *
+ * Usage example:
+ * auto [temp_dual, abar_dual, zbar_dual] = make_partial_arrays<1, 3>(temp, abar, zbar);
+ */
+template <int XLO, int XHI, typename... Ts>
+AUTODIFF_DEVICE_FUNC auto make_partial_arrays(const Ts... values) {
+    static_assert(sizeof...(values) == XHI - XLO + 1,
+                  "number of arguments to make_partial_arrays does not match range");
+    static_assert((std::is_same_v<Ts, amrex::Real> && ...),
+                  "arguments to make_partial_arrays must all be amrex::Real");
+    return detail::make_partial_arrays_impl<XLO>(
+        std::index_sequence_for<Ts...>{}, values...);
+}
+
 // A new namespace that has both the STL math functions and the overloads for
 // dual numbers, so we can write the same function name whether we're operating
 // on autodiff::dual or amrex::Real.
