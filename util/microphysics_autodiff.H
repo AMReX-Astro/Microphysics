@@ -259,6 +259,10 @@ constexpr bool has_narrow_method<
 
 } // namespace detail
 
+/**
+ * Explicitly narrows a dual_array into the target type, discarding any
+ * extra derivative components. No-op for non-array types.
+ */
 template<typename narrowed_t, typename number_t>
 [[nodiscard]] AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 narrowed_t narrow_array(const number_t& number) {
@@ -270,6 +274,14 @@ narrowed_t narrow_array(const number_t& number) {
         return number;
     }
 }
+template<int YLO, int YHI, typename T, int XLO, int XHI,
+         typename narrowed_t = autodiff::Dual<T, GradArray<T, YLO, YHI>>,
+         typename number_t = autodiff::Dual<T, GradArray<T, XLO, XHI>>>
+[[nodiscard]] AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+narrowed_t narrow_array(const number_t& number) {
+    return narrow_array<narrowed_t, number_t>(number);
+}
+
 
 } // namespace microphysics_autodiff
 

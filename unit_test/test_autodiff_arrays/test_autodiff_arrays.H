@@ -136,6 +136,12 @@ void test_autodiff_arrays() {
                 ASSERT_EQUAL(tmp.grad.size(), 1U);
                 ASSERT_EQUAL(tmp.grad(n), x.grad(n));
                 });
+        amrex::constexpr_for<1, 3>([&] (auto n) {
+                auto tmp = microphysics_autodiff::narrow_array<n, n>(x);
+                ASSERT_EQUAL(tmp.val, 1.0_rt);
+                ASSERT_EQUAL(tmp.grad.size(), 1U);
+                ASSERT_EQUAL(tmp.grad(n), x.grad(n));
+                });
         {
             auto tmp = microphysics_autodiff::narrow_array<autodiff::dual_array<2, 3>>(x);
             ASSERT_EQUAL(tmp.val, 1.0_rt);
