@@ -1244,7 +1244,7 @@ AUTODIFF_DEVICE_FUNC constexpr void assignMul(Dual<T, G>& self, U&& other)
     }
     // ASSIGN-MULTIPLY A DUAL NUMBER: self *= dual
     else if constexpr (isDual<U>) {
-        const auto aux = other.grad; // to avoid aliasing when self === other
+        const G aux = other.grad; // to avoid aliasing when self === other
         self.grad *= other.val;
         self.grad += self.val * aux;
         self.val *= other.val;
