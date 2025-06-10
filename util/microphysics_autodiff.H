@@ -275,11 +275,10 @@ narrowed_t narrow_array(const number_t& number) {
     }
 }
 template<int YLO, int YHI, typename T, int XLO, int XHI,
-         typename narrowed_t = autodiff::Dual<T, GradArray<T, YLO, YHI>>,
-         typename number_t = autodiff::Dual<T, GradArray<T, XLO, XHI>>>
+         typename narrowed_t = autodiff::Dual<T, GradArray<T, YLO, YHI>>>
 [[nodiscard]] AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-narrowed_t narrow_array(const number_t& number) {
-    return narrow_array<narrowed_t, number_t>(number);
+narrowed_t narrow_array(const autodiff::Dual<T, GradArray<T, XLO, XHI>>& number) {
+    return narrow_array<narrowed_t>(number);
 }
 
 
