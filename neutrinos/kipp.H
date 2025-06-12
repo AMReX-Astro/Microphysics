@@ -47,7 +47,6 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 number_t kip_plas(const number_t& temp, const amrex::Real& rho,
                   const number_t& abar, const number_t& zbar){
     number_t n_e = rho / (C::m_u * abar/zbar);
-    number_t T9 = temp * 1.0e-9_rt;
     // assuming non-degeneracy
     // 18.83 replaced by aprox in woosley lecture notes
     number_t w0 = admath::sqrt((4.0e0_rt * M_PI * amrex::Math::powi<2>(C::q_e) * n_e) / C::m_e);
