@@ -115,6 +115,9 @@ pygments_style = 'sphinx'
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
 
+# Don't include the extra CSS from sphinx-prompt when using the copy button
+copybutton_exclude = 'style'
+
 
 # -- Options for MathJax
 mathjax3_config = {}
