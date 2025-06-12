@@ -24,7 +24,7 @@ const std::string neutrino_name = "sneut5";
 template <typename number_t>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 number_t neutrino_cooling(const number_t& temp, const amrex::Real dens,
-                          const number_t& abar, const number_t& zbar) {
+                          const number_t& abar, const number_t& zbar){
 
 #if NEUTRINO_METHOD == NEUTRINO_METHOD_kipp
     amrex::Real pair, phot, plas, brem;
