@@ -89,7 +89,10 @@
 <li class="toctree-l1"><a class="reference internal" href="util.html">Helper Functions and Libraries</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Automatic Differentiation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#derivatives-of-single-variable-functions">Derivatives of single-variable functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#derivatives-of-multi-variable-functions">Derivatives of multi-variable functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#derivatives-of-multi-variable-functions">Derivatives of multi-variable functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#partial-arrays">Partial arrays</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -150,10 +153,20 @@ machinery needed for use in Microphysics is located in
 template parameter for the numeric type (the current code calls it
 <code class="docutils literal notranslate"><span class="pre">number_t</span></code>).  This should be used for any values that depend on the
 variables we’re differentiating with respect to.  Calls to functions
-from <code class="docutils literal notranslate"><span class="pre">&lt;cmath&gt;</span></code> as well as <code class="docutils literal notranslate"><span class="pre">amrex::min</span></code> and <code class="docutils literal notranslate"><span class="pre">amrex::max</span></code> can be
+from <code class="docutils literal notranslate"><span class="pre">&lt;cmath&gt;</span></code> as well as <code class="docutils literal notranslate"><span class="pre">amrex::min</span></code>, <code class="docutils literal notranslate"><span class="pre">amrex::max</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">amrex::Math::powi</span></code> can be
 replaced with ones in the <code class="docutils literal notranslate"><span class="pre">admath</span></code> namespace.  This namespace also
 exports the original functions, so they work fine on normal numeric
 types too.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">autodiff</span></code> library uses expression templates to optimize some
+expressions, which can cause compilation errors when trying to pass
+expressions using <code class="docutils literal notranslate"><span class="pre">autodiff::dual</span></code> to other templated functions.
+To avoid this, either use the corresponding function from <code class="docutils literal notranslate"><span class="pre">admath</span></code>,
+or wrap the expression with <code class="docutils literal notranslate"><span class="pre">autodiff::eval()</span></code> before passing it to
+the templated function.</p>
+</div>
 <p>To manually check whether a type is a dual number or not, use
 <code class="docutils literal notranslate"><span class="pre">autodiff::detail::isDual&lt;number_t&gt;</span></code>.</p>
 <section id="derivatives-of-single-variable-functions">
@@ -181,7 +194,10 @@ f(x)}/{\partial x}\)</span> in the derivative term of <code class="docutils lite
 <h2>Derivatives of multi-variable functions<a class="headerlink" href="#derivatives-of-multi-variable-functions" title="Link to this heading"></a></h2>
 <p>It is possible to calculate derivatives with respect to several input
 variables in a single pass, by using a (mathematical) vector of
-derivative terms instead of a single number.  The interface is very
+derivative terms instead of a single number.  This is known as “vector
+mode” automatic differentiation, and can save time when the function
+evaluation code is much more expensive than the derivative calculations.</p>
+<p>The interface is very
 similar to the single-variable case, with slight modifications: for
 <code class="docutils literal notranslate"><span class="pre">N</span></code> input variables, we use <code class="docutils literal notranslate"><span class="pre">autodiff::dual_array&lt;1,</span> <span class="pre">N&gt;</span></code> in place of
 <code class="docutils literal notranslate"><span class="pre">autodiff::dual</span></code>, and pass the variables in order to
@@ -215,6 +231,68 @@ following example program:</p>
 <span class="p">}</span>
 </pre></div>
 </div>
+<section id="partial-arrays">
+<h3>Partial arrays<a class="headerlink" href="#partial-arrays" title="Link to this heading"></a></h3>
+<p>If an intermediate value only depends on some of the variables in an
+<code class="docutils literal notranslate"><span class="pre">autodiff::dual_array</span></code>, we can save time and memory by not calculating
+or storing the derivatives with respect to the other variables.  This is
+done by assigning such values to a smaller <code class="docutils literal notranslate"><span class="pre">dual_array</span></code> with indices
+that match the full <code class="docutils literal notranslate"><span class="pre">dual_array</span></code>.  Any operations between these
+partial arrays will skip the unused components at compile time.
+Operations that combine different ranges will produce a promoted type
+that holds all the components between the minimum and maximum indices
+present.  For example, multiplying a <code class="docutils literal notranslate"><span class="pre">dual_array&lt;1,</span> <span class="pre">1&gt;</span></code> and a
+<code class="docutils literal notranslate"><span class="pre">dual_array&lt;2,</span> <span class="pre">3&gt;</span></code> will produce a <code class="docutils literal notranslate"><span class="pre">dual_array&lt;1,</span> <span class="pre">3&gt;</span></code>.  Partial
+arrays can be implicitly converted into a wider array type, but
+converting to a narrower array type must explicitly use the
+<code class="docutils literal notranslate"><span class="pre">autodiff::narrow_array</span></code> function (to prevent derivative components
+from being accidentally discarded).  This function takes the target type
+as a template parameter, and returns its argument converted to that
+type.</p>
+<p>Partial <code class="docutils literal notranslate"><span class="pre">dual_arrays</span></code> can be created with the
+<code class="docutils literal notranslate"><span class="pre">autodiff::make_partial_arrays()</span></code> helper function, which takes the
+full array range as template parameters and the values for each variable
+as arguments.  It returns a tuple of seeded partial arrays, which can be
+unpacked using a structured binding declaration.  The following line
+defines <code class="docutils literal notranslate"><span class="pre">dual_array&lt;1,</span> <span class="pre">1&gt;</span> <span class="pre">x</span> <span class="pre">=</span> <span class="pre">1.0_rt</span></code> and <code class="docutils literal notranslate"><span class="pre">dual_array&lt;2,</span> <span class="pre">2&gt;</span> <span class="pre">y</span> <span class="pre">=</span>
+<span class="pre">2.0_rt</span></code> and seeds both of their derivative terms.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">autodiff</span><span class="o">::</span><span class="n">make_partial_arrays</span><span class="o">&lt;</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="o">&gt;</span><span class="p">(</span><span class="mf">1.0</span><span class="n">_rt</span><span class="p">,</span><span class="w"> </span><span class="mf">2.0</span><span class="n">_rt</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The recommended way to use partial arrays is to declare each
+intermediate value with <code class="docutils literal notranslate"><span class="pre">auto</span></code> and wrap each expression with
+<code class="docutils literal notranslate"><span class="pre">autodiff::eval()</span></code>, as shown in this example code (using the variables
+declared above):</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">using</span><span class="w"> </span><span class="n">autodiff</span><span class="o">::</span><span class="n">eval</span><span class="p">;</span>
+
+<span class="c1">// this only computes the derivative terms with respect to x</span>
+<span class="c1">// (type is dual_array&lt;1, 1&gt;)</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">x_squared</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">eval</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">x</span><span class="p">);</span>
+
+<span class="c1">// this only computes the derivative terms with respect to y</span>
+<span class="c1">// (type is dual_array&lt;2, 2&gt;)</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">sin_2y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">eval</span><span class="p">(</span><span class="n">admath</span><span class="o">::</span><span class="n">sin</span><span class="p">(</span><span class="mf">2.0</span><span class="n">_rt</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">y</span><span class="p">));</span>
+
+<span class="c1">// partial arrays are promoted as needed by overloaded operators</span>
+<span class="c1">// (type is dual_array&lt;1, 2&gt;)</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">z</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">eval</span><span class="p">(</span><span class="n">x_squared</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">sin_2y</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The following is equivalent to the code above, but requires more care to
+keep the types and expressions in sync:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">using</span><span class="w"> </span><span class="n">autodiff</span><span class="o">::</span><span class="n">dual_array</span><span class="p">;</span>
+
+<span class="w"> </span><span class="c1">// this only computes the derivative terms with respect to x</span>
+<span class="w"> </span><span class="n">dual_array</span><span class="o">&lt;</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="n">x_squared</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">x</span><span class="p">;</span>
+
+<span class="w"> </span><span class="c1">// this only computes the derivative terms with respect to y</span>
+<span class="w"> </span><span class="n">dual_array</span><span class="o">&lt;</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="o">&gt;</span><span class="w"> </span><span class="n">sin_2y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">admath</span><span class="o">::</span><span class="n">sin</span><span class="p">(</span><span class="mf">2.0</span><span class="n">_rt</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">y</span><span class="p">);</span>
+
+<span class="w"> </span><span class="c1">// partial arrays are promoted as needed by overloaded operators</span>
+<span class="w"> </span><span class="n">dual_array</span><span class="o">&lt;</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="o">&gt;</span><span class="w"> </span><span class="n">z</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x_squared</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">sin_2y</span><span class="p">;</span>
+</pre></div>
+</div>
+</section>
 </section>
 </section>
 
