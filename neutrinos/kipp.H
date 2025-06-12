@@ -4,8 +4,6 @@
 #ifndef KIP_NEUT_H
 #define KIP_NEUT_H
 
-#define _USE_MATH_DEFINES
-
 #include<iostream>
 #include<AMReX_REAL.H>
 #include<fundamental_constants.H>
