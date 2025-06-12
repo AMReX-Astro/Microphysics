@@ -59,8 +59,8 @@ number_t kip_plas(const number_t& temp, const amrex::Real& rho,
    if (gamma <= 1.0e0_rt) {
        // return (7.4e21_rt * amrex::Math::powi<6>(C::hbar * w0/(C::m_e * amrex::Math::powi<2>(C::c_light)))
        //         * amrex::Math::powi<3>(lambda))/rho;
-        auto epsilon_p = (C::hbar * w0) / (C::m_e * C::c_light * C::c_light);
-        return (7.4e21_rt * admath::pow(epsilon_p, 6.0_rt) * admath::pow(lambda, 3.0_rt)) / rho;
+        number_t epsilon_p = (C::hbar * w0) / (C::m_e * C::c_light * C::c_light);
+        return (7.4e21_rt * amrex::Math::powi<6>(epsilon_p) * amrex::Math::powi<3>(lambda)) / rho;
 
    } else{
         return (3.3e21_rt * admath::pow((C::hbar * w0/(C::m_e * amrex::Math::powi<2>(C::c_light))),7.5e0_rt)
@@ -89,7 +89,7 @@ number_t kipp(const number_t& temp, const amrex::Real rho,
                         return 0.0e0_rt;
                     }
 
-                    // caluclating individual contributions of all processes
+                    // calculating individual contributions of all processes
                     number_t kip_pair_dual = kip_pair(temp, rho, abar, zbar);
                     number_t kip_phot_dual = kip_phot(temp, rho, abar, zbar);
                     number_t kip_plas_dual = kip_plas(temp, rho, abar, zbar);
