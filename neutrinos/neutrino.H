@@ -31,8 +31,8 @@ number_t neutrino_cooling(const number_t& temp, const amrex::Real dens,
     return kipp(temp, dens, abar, zbar, pair, phot, plas, brem);
 
 #elif NEUTRINO_METHOD == NEUTRINO_METHOD_sneut5
-    auto sf = get_sneut_factors(dens, temp, abar, zbar);
-    return nu_pair(sf) + nu_photo(sf) + nu_plasma(sf) + nu_brem(sf);
+    amrex::Real pair, phot, plas, brem;
+    return sneut5(temp, dens, abar, zbar, pair, phot, plas, brem);
 #endif
 }
 
