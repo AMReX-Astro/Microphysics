@@ -82,40 +82,40 @@ number_t kip_brem(const number_t& temp, const amrex::Real& rho,
 template<typename number_t>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 number_t kipp(const number_t& temp, const amrex::Real rho,
-                  const number_t& abar, const number_t& zbar, amrex::Real& pair,
-                  amrex::Real& phot, amrex::Real& plas, amrex::Real& brem){
+              const number_t& abar, const number_t& zbar, amrex::Real& pair,
+              amrex::Real& phot, amrex::Real& plas, amrex::Real& brem){
 
-                    if (temp < 1.0e7_rt){
-                        return 0.0e0_rt;
-                    }
+    if (temp < 1.0e7_rt){
+        return 0.0e0_rt;
+    }
 
-                    // calculating individual contributions of all processes
-                    number_t kip_pair_dual = kip_pair(temp, rho, abar, zbar);
-                    number_t kip_phot_dual = kip_phot(temp, rho, abar, zbar);
-                    number_t kip_plas_dual = kip_plas(temp, rho, abar, zbar);
-                    number_t kip_brem_dual = kip_brem(temp, rho, abar, zbar);
+    // calculating individual contributions of all processes
+    number_t kip_pair_dual = kip_pair(temp, rho, abar, zbar);
+    number_t kip_phot_dual = kip_phot(temp, rho, abar, zbar);
+    number_t kip_plas_dual = kip_plas(temp, rho, abar, zbar);
+    number_t kip_brem_dual = kip_brem(temp, rho, abar, zbar);
 
-                    // extracting contributions to store in plotfile
-                    pair = autodiff::val(kip_pair_dual);
-                    phot = autodiff::val(kip_phot_dual);
-                    plas = autodiff::val(kip_plas_dual);
-                    brem = autodiff::val(kip_brem_dual);
+    // extracting contributions to store in plotfile
+    pair = autodiff::val(kip_pair_dual);
+    phot = autodiff::val(kip_phot_dual);
+    plas = autodiff::val(kip_plas_dual);
+    brem = autodiff::val(kip_brem_dual);
 
-                    // total neutrino cooling rate
-                    number_t snu = kip_pair_dual + kip_phot_dual + kip_plas_dual + kip_brem_dual;
+    // total neutrino cooling rate
+    number_t snu = kip_pair_dual + kip_phot_dual + kip_plas_dual + kip_brem_dual;
 
-                    return snu;
+    return snu;
 
-                  }
+}
 
 template <int do_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void kipp(const amrex::Real& temp, const amrex::Real& rho, const amrex::Real& abar,
-        const amrex::Real& zbar, amrex::Real& snu, amrex::Real& dsnudt,
-        amrex::Real& dsnudrho, amrex::Real& dsnudz, amrex::Real& dsnuda,
-        amrex::Real& pair, amrex::Real& phot, amrex::Real& plas, amrex::Real& brem) {
+          const amrex::Real& zbar, amrex::Real& snu, amrex::Real& dsnudt,
+          amrex::Real& dsnudrho, amrex::Real& dsnudz, amrex::Real& dsnuda,
+          amrex::Real& pair, amrex::Real& phot, amrex::Real& plas, amrex::Real& brem) {
 
-       /*
+    /*
         input:
         temp = temperature
         rho = density
@@ -131,7 +131,7 @@ void kipp(const amrex::Real& temp, const amrex::Real& rho, const amrex::Real& ab
         phot = photoneutrino contribution in erg/g/s
         plas = plasma neutrino contribution in erg/g/s
         brem = bremsstrahlung contribution rate in erg/g/s
-        */
+    */
 
     // autodiff wrapper
     if constexpr (do_derivatives){
@@ -142,8 +142,7 @@ void kipp(const amrex::Real& temp, const amrex::Real& rho, const amrex::Real& ab
     dual_t zbar_dual = zbar;
 
     autodiff::seed_array(temp_dual, abar_dual, zbar_dual);
-    dual_t snu_dual = kipp(temp_dual, rho, abar_dual, zbar_dual,
-                                 pair, phot, plas, brem);
+    dual_t snu_dual = kipp(temp_dual, rho, abar_dual, zbar_dual, pair, phot, plas, brem);
 
     snu = autodiff::val(snu_dual);
     const auto& grad = autodiff::derivative(snu_dual);
@@ -164,14 +163,13 @@ void kipp(const amrex::Real& temp, const amrex::Real& rho, const amrex::Real& ab
 template <int do_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void kipp(const amrex::Real temp, const amrex::Real den,
-            const amrex::Real abar, const amrex::Real zbar,
-            amrex::Real& snu, amrex::Real& dsnudt, amrex::Real& dsnudd,
-            amrex::Real& dsnuda, amrex::Real& dsnudz)
-            {
-                amrex::Real pair, phot, plas, brem;
-                kipp<do_derivatives>(temp, den, abar, zbar,
-                                       snu, dsnudt, dsnudd, dsnuda, dsnudz,
-                                       pair, phot, plas, brem);
-            }
+          const amrex::Real abar, const amrex::Real zbar,
+          amrex::Real& snu, amrex::Real& dsnudt, amrex::Real& dsnudd,
+          amrex::Real& dsnuda, amrex::Real& dsnudz){
+
+    amrex::Real pair, phot, plas, brem;
+    kipp<do_derivatives>(temp, den, abar, zbar, snu, dsnudt, dsnudd, dsnuda,
+                         dsnudz, pair, phot, plas, brem);
+}
 
 #endif // KIP_NEUT_H

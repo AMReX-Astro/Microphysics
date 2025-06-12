@@ -923,12 +923,11 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void sneut5(const amrex::Real temp, const amrex::Real den,
             const amrex::Real abar, const amrex::Real zbar,
             amrex::Real& snu, amrex::Real& dsnudt, amrex::Real& dsnudd,
-            amrex::Real& dsnuda, amrex::Real& dsnudz)
-            {
-                amrex::Real pair, phot, plas, brem;
-                sneut5<do_derivatives>(temp, den, abar, zbar,
-                                       snu, dsnudt, dsnudd, dsnuda, dsnudz,
-                                       pair, phot, plas, brem);
-            }
+            amrex::Real& dsnuda, amrex::Real& dsnudz){
+
+    amrex::Real pair, phot, plas, brem;
+    sneut5<do_derivatives>(temp, den, abar, zbar, snu, dsnudt, dsnudd, dsnuda,
+                           dsnudz, pair, phot, plas, brem);
+}
 
 #endif
