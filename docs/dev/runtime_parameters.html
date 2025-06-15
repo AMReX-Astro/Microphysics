@@ -2067,7 +2067,7 @@ initial molar fraction check.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tmax</span></code></p></td>
 <td><p>the final time to integrate to</p></td>
-<td><p>1.e3</p></td>
+<td><p>1.e-1</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tfirst</span></code></p></td>
 <td><p>first output time – we will output in nsteps
@@ -2078,29 +2078,21 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 <td><p>number of steps (logarithmically spaced)</p></td>
 <td><p>100</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rho_min</span></code></p></td>
-<td></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rho</span></code></p></td>
+<td><p>density</p></td>
 <td><p>1.e7</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rho_max</span></code></p></td>
-<td></td>
-<td><p>1.e9</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nrho</span></code></p></td>
-<td></td>
-<td><p>4</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">T_min</span></code></p></td>
-<td></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">T</span></code></p></td>
+<td><p>temperature</p></td>
 <td><p>6.e9</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">T_max</span></code></p></td>
-<td></td>
-<td><p>8.e9</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mu_p</span></code></p></td>
+<td><p>Initial guess for proton chemical potential</p></td>
+<td><p>-3.0</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nT</span></code></p></td>
-<td></td>
-<td><p>4</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mu_n</span></code></p></td>
+<td><p>Initial guess for neutron chemical potential</p></td>
+<td><p>-12.0</p></td>
 </tr>
 </tbody>
 </table>
