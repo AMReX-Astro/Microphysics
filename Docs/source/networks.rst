@@ -139,7 +139,7 @@ network <https://docs.mesastar.org/en/latest/net/nets.html>`_ which is
 meant to study hot-CNO burning and the start of the breakout from CNO
 burning.  This network is managed by pynucastro.
 
-.. figure:: cno_extras_hide_alpha.png
+.. figure:: ../../networks/CNO_extras/cno_extras_hide_alpha.png
    :align: center
 
 .. note::
@@ -149,16 +149,21 @@ burning.  This network is managed by pynucastro.
    above).
 
 
-The ``nova`` network:
-=====================
+``nova``
+========
 
-This network is composed of 17 nuclei: $\isotm{H}{1,2}$, $\isotm{He}{3,4}$, $\isotm{Be}{7}$, $\isotm{B}{8}$,
-$\isotm{C}{12,13}$, $\isotm{N}{13-15}$, $\isotm{O}{14-17}$, $\isotm{F}{17,18}$ and is used to model the onset of
-a classical novae thermonuclear runaway. The first set of nuclei, $\isotm{H}{1,2}$, $\isotm{He}{3,4}$ represent
-the pp-chain sector of the reaction network, while the second set, of $\isotm{Be}{7}$, and $\isotm{B}{8}$, describe
-the involvement of the x-process. Finally, all the remaining nuclei are active participants of
-the CNO cycle with endpoints at $\isotm{F}{17}$ and $\isotm{F}{18}$. The triple-$\alpha$ reaction
-$\alpha(\alpha\alpha,\gamma)\isotm{C}{12}$, serves as bridge between the nuclei of first and the last set.
+This network is composed of 17 nuclei: $\isotm{H}{1,2}$,
+$\isotm{He}{3,4}$, $\isotm{Be}{7}$, $\isotm{B}{8}$,
+$\isotm{C}{12,13}$, $\isotm{N}{13-15}$, $\isotm{O}{14-17}$,
+$\isotm{F}{17,18}$ and is used to model the onset of a classical novae
+thermonuclear runaway. The first set of nuclei, $\isotm{H}{1,2}$,
+$\isotm{He}{3,4}$ represent the pp-chain sector of the reaction
+network, while the second set, of $\isotm{Be}{7}$, and $\isotm{B}{8}$,
+describe the involvement of the x-process. Finally, all the remaining
+nuclei are active participants of the CNO cycle with endpoints at
+$\isotm{F}{17}$ and $\isotm{F}{18}$. The triple-$\alpha$ reaction
+$\alpha(\alpha\alpha,\gamma)\isotm{C}{12}$, serves as bridge between
+the nuclei of first and the last set.
 
 The the cold-CNO chain of reactions of the CN-branch are:
 
@@ -381,7 +386,7 @@ He burning.
 ``ECSN`` is meant to model electron-capture supernovae in O-Ne white dwarfs.
 It includes various weak rates that are important to this process.
 
-.. figure:: ECSN.png
+.. figure:: ../../networks/ECSN/ECSN.png
    :align: center
 
 C-ignition networks
