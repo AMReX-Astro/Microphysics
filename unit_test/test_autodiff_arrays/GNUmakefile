@@ -5,36 +5,25 @@ DEBUG      = FALSE
 
 DIM        = 3
 
-COMP	   = gnu
+COMP       = gnu
 
 USE_MPI    = FALSE
 USE_OMP    = FALSE
 
 USE_REACT = TRUE
 
-USE_NSE_NET = TRUE
 EBASE = main
 
 # define the location of the Microphysics top directory
-MICROPHYSICS_HOME ?= ../..
+MICROPHYSICS_HOME  := ../..
 
 # This sets the EOS directory
 EOS_DIR     := helmholtz
 
 # This sets the network directory
-NETWORK_DIR := ase
-
-SCREEN_METHOD = chabrier1998
-
-USE_SIMPLIFIED_SDC = TRUE
+NETWORK_DIR := aprox13
 
 CONDUCTIVITY_DIR := stellar
-
-INTEGRATOR_DIR =  VODE
-
-ifeq ($(USE_CUDA), TRUE)
-  INTEGRATOR_DIR := VODE
-endif
 
 EXTERN_SEARCH += .
 
