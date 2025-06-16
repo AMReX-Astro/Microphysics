@@ -1,5 +1,5 @@
-Initializing AMReX (25.01-6-g041f225dc5c9)...
-AMReX (25.01-6-g041f225dc5c9) initialized
+Initializing AMReX (23.05-658-g0165b6743355)...
+AMReX (23.05-658-g0165b6743355) initialized
 starting the single zone burn...
 reading in network electron-capture / beta-decay tables...
 Maximum Time (s): 1e-05
@@ -107,4 +107,4 @@ omegadot(Cr48): 66.42930459
 omegadot(Fe52): 1.283819153
 omegadot(Ni56): 0.00468317219
 number of steps taken: 9520
-AMReX (25.01-6-g041f225dc5c9) finalized
+AMReX (23.05-658-g0165b6743355) finalized
