@@ -13,21 +13,21 @@ RHS at t = 0
    ash 0.01230280576
 ------------------------------------
 successful? 1
- - Hnuc = 5.277036926e+17
- - added e = 8.364103527e+15
- - final T = 1433684587
+ - Hnuc = 5.277066077e+17
+ - added e = 8.364149732e+15
+ - final T = 1433686831
 ------------------------------------
 e initial = 1.253426044e+18
-e final =   1.261790148e+18
+e final =   1.261790194e+18
 ------------------------------------
 new mass fractions: 
-C12 0.9657918752
+C12 0.9657916864
 O16 1e-30
-ash 0.03420812477
+ash 0.03420831361
 ------------------------------------
 species creation rates: 
-omegadot(C12): -2.15824131
-omegadot(O16): 7.735874803e-44
-omegadot(ash): 2.15824131
+omegadot(C12): -2.158253225
+omegadot(O16): 1.989224949e-43
+omegadot(ash): 2.158253225
 number of steps taken: 381
 AMReX (25.01-6-g041f225dc5c9) finalized

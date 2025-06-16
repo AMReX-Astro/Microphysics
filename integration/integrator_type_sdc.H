@@ -123,7 +123,9 @@ void int_to_burn(const amrex::Real time, const T& int_state, BurnT& state)
 
     state.e = state.y[SEINT] * rhoInv;
 
-    eos(eos_input_re, state);
+    if (integrator_rp::call_eos_in_rhs) {
+        eos(eos_input_re, state);
+    }
 
 
     // override T if we are fixing it (e.g. due to
