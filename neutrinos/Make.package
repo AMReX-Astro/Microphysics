@@ -1,1 +1,2 @@
-CEXE_headers += sneut5.H
+CEXE_headers += neutrino.H
+CEXE_headers += sneut5.H kipp.H
