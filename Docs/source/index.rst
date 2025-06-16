@@ -48,6 +48,7 @@ system.
    data_structures
    build_system
    rp_intro
+   fundamental_constants
 
 .. toctree::
    :maxdepth: 1

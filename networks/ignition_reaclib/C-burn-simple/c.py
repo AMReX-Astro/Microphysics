@@ -1,15 +1,21 @@
 # C-burning rate module generator
 
-from pynucastro.networks import AmrexAstroCxxNetwork
+import pynucastro as pyna
 
-files = ["c12-c12a-ne20-cf88",
-         "c12-c12n-mg23-cf88",
-         "c12-c12p-na23-cf88",
-         "c12-ag-o16-nac2",
-         "n--p-wc12"]
+srates = ["c12(c12,a)ne20",
+         "c12(c12,n)mg23",
+         "c12(c12,p)na23",
+         "c12(a,g)o16"]
 
-c_net = AmrexAstroCxxNetwork(files)
+rl = pyna.ReacLibLibrary()
+rates = rl.get_rate_by_name(srates)
+
+tl = pyna.TabularLibrary()
+rates.append(tl.get_rate_by_name("n(,)p"))
+
+lib = pyna.Library(rates=rates)
+
+c_net = pyna.AmrexAstroCxxNetwork(libraries=[lib])
 c_net.write_network()
 
-
-
+c_net.summary()

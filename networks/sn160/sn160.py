@@ -2,9 +2,9 @@
 # Reaclib rates linking the specified nuclei.
 
 import pynucastro as pyna
-from pynucastro.networks import AmrexAstroCxxNetwork
 
-mylibrary = pyna.rates.ReacLibLibrary()
+rl = pyna.ReacLibLibrary()
+tl = pyna.TabularLibrary(ordering=["ffn", "langanke"])
 
 all_nuclei = ['n',
               'h1', 'h2',
@@ -40,7 +40,24 @@ all_nuclei = ['n',
               'ga62', 'ga63', 'ga64',
               'ge63', 'ge64']
 
-sn160 = mylibrary.linking_nuclei(all_nuclei, with_reverse=True)
+sn160_rl = rl.linking_nuclei(all_nuclei, with_reverse=True)
+sn160_tl = tl.linking_nuclei(all_nuclei)
 
-net = AmrexAstroCxxNetwork(libraries=[sn160])
+all_lib = sn160_rl + sn160_tl
+
+dupes = all_lib.find_duplicate_links()
+
+rates_to_remove = []
+for d in dupes:
+    for r in d:
+        if isinstance(r, pyna.rates.ReacLibRate):
+            rates_to_remove.append(r)
+
+for r in rates_to_remove:
+    all_lib.remove_rate(r)
+
+
+net = pyna.AmrexAstroCxxNetwork(libraries=[all_lib])
 net.write_network()
+
+net.summary()

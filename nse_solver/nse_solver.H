@@ -51,7 +51,7 @@ T get_nonexponent_nse_state(const T& state) {
     // the temperature that comes in through T_fixed
 
     amrex::Real T_in = state.T_fixed > 0.0_rt ? state.T_fixed : state.T;
-    constexpr amrex::Real ihplanck2 = 1.0_rt / (C::hplanck * C::hplanck);
+    constexpr amrex::Real i2PiHbar2 = 1.0_rt / (2.0_rt * M_PI * C::hbar * C::hbar);
 
 #ifndef NEW_NETWORK_IMPLEMENTATION
     auto tfactors = evaluate_tfactors(T_in);
@@ -74,8 +74,7 @@ T get_nonexponent_nse_state(const T& state) {
 
         // find nse mass frac without the exponent term.
 
-        amrex::Real power = 2.0_rt * M_PI * network::mion(n+1) *
-            C::k_B * T_in * ihplanck2;
+        amrex::Real power = network::mion(n+1) * C::k_B * T_in * i2PiHbar2;
 
         nse_state.xn[n] = network::mion(n+1) * pf * spin / state.rho *
             std::sqrt(amrex::Math::powi<3>(power));
@@ -104,7 +103,7 @@ void compute_coulomb_contribution(amrex::Array1D<amrex::Real, 1, NumSpec>& u_c,
     // so we just treat u_c as a constant.
     //
 
-    const amrex::Real n_e = state.rho * state.y_e * C::Legacy::n_A;
+    const amrex::Real n_e = state.rho * state.y_e * C::n_A;
     const amrex::Real Gamma_e = C::q_e * C::q_e *
         std::cbrt(1.333333333333_rt * M_PI * n_e) / (C::k_B * T_in);
     amrex::Real gamma;
@@ -128,7 +127,7 @@ void compute_coulomb_contribution(amrex::Array1D<amrex::Real, 1, NumSpec>& u_c,
         //
         // Here u_c is a dimensionless quantity.
         // Otherwise:
-        // u_c = C::k_B * T_in / C::Legacy::MeV2erg * f;
+        // u_c = C::k_B * T_in / C::MeV2erg * f;
         //
 
         u_c(n+1) = f;
@@ -147,7 +146,7 @@ void apply_nse_exponent(T& nse_state,
     // the temperature that comes in through T_fixed
 
     amrex::Real T_in = nse_state.T_fixed > 0.0_rt ? nse_state.T_fixed : nse_state.T;
-    amrex::Real ikTMeV = C::Legacy::MeV2erg / (C::k_B * T_in);
+    amrex::Real ikTMeV = C::MeV2erg / (C::k_B * T_in);
     amrex::Real exponent;
 
     for (int n = 0; n < NumSpec; ++n) {
@@ -250,7 +249,7 @@ void jcn(amrex::Array1D<amrex::Real, 1, 2>& x, amrex::Array2D<amrex::Real, 1, 2,
     // the temperature that comes in through T_fixed
 
     amrex::Real T_in = nse_state.T_fixed > 0.0_rt ? nse_state.T_fixed : nse_state.T;
-    amrex::Real ikTMeV = C::Legacy::MeV2erg / (C::k_B * T_in);
+    amrex::Real ikTMeV = C::MeV2erg / (C::k_B * T_in);
 
     for (int n = 0; n < NumSpec; ++n) {
 #ifdef NEW_NETWORK_IMPLEMENTATION
@@ -325,12 +324,7 @@ void nse_hybrid_solver(nse_solver_data<T>& state_data,
                 return;
             }
 
-            if (f(1) > 0.0_rt && f(2) > 0.0_rt) {
-                is_pos_new = true;
-            }
-            else{
-                is_pos_new = false;
-            }
+            is_pos_new = f(1) > 0.0_rt && f(2) > 0.0_rt;
 
             if (is_pos_old != is_pos_new) {
                 dx *= 0.8_rt;
@@ -543,7 +537,7 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt,
             }
         }
 
-        if (singular_network == true) {
+        if (singular_network) {
             amrex::Error("This network always results in singular jacobian matrix, thus can't find nse mass fraction using nr!");
         }
 

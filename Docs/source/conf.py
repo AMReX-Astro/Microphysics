@@ -85,7 +85,7 @@ main_doc = 'index'
 
 # General information about the project.
 project = 'Microphysics'
-copyright = '2024, Microphysics Development Team'
+copyright = '2025, Microphysics Development Team'
 author = 'Microphysics Development Team'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -114,6 +114,9 @@ pygments_style = 'sphinx'
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
+
+# Don't include the extra CSS from sphinx-prompt when using the copy button
+copybutton_exclude = 'style'
 
 
 # -- Options for MathJax

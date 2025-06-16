@@ -20,10 +20,28 @@ void burn_cell_c(const eos_t& eos_state)
 
     burn_state.rho = eos_state.rho;
     burn_state.T = eos_state.T;
+    burn_state.e = eos_state.e;
+
+    burn_state.y[SRHO] = eos_state.rho;
+    burn_state.y[SMX] = 0.0;
+    burn_state.y[SMY] = 0.0;
+    burn_state.y[SMZ] = 0.0;
+
+    burn_state.y[SEINT] = eos_state.rho * eos_state.e;
+    burn_state.y[SEDEN] = burn_state.y[SEINT];
+
+    burn_state.ydot_a[SRHO] = 0.0;
+    burn_state.ydot_a[SEINT] = 0.0;
+
     for (int n = 0; n < NumSpec; ++n) {
         burn_state.xn[n] = eos_state.xn[n];
+        burn_state.y[SFS+n] = eos_state.xn[n] * burn_state.rho;
     }
+
     burn_state.y_e = eos_state.y_e;
+
+    burn_state.sdc_iter = 1;
+    burn_state.num_sdc_iters = 1;
 
     burn_state.i = 0;
     burn_state.j = 0;
@@ -68,6 +86,13 @@ void burn_cell_c(const eos_t& eos_state)
 
     amrex::Real energy_initial = burn_state.e;
 
+    // Now since we compiled with USE_NSE_NET=TRUE,
+    // it will try to burn using NSE, to prevent that, set extremely small tolerance
+
+    ase_tol = 1.e-100;
+    burn_state.mu_p = mu_p;
+    burn_state.mu_n = mu_n;
+
     // loop over steps, burn, and output the current state
 
     for (int n = 0; n < nsteps; n++){
@@ -96,34 +121,33 @@ void burn_cell_c(const eos_t& eos_state)
     }
 
     // Now find the mass fraction via NSE calculation
-    burn_state.mu_p = -3.0_rt;
-    burn_state.mu_n = -12.0_rt;
-    auto nse_state = get_actual_nse_state(burn_state);
+    auto nse_state = get_actual_nse_state(burn_state, 1.e-12);
 
-    if (nse_dx_independent != 1 || (nse_dx_independent == 1 && !burn_state.nse)) {
-        std::cout << std::scientific << std::setprecision(3);
-        std::cout << "------------------------------------" << std::endl;
-        std::cout << " - added e = " << burn_state.e - burn_state_in.e << std::endl;
-        std::cout << " Initial vs. Final T = " << burn_state_in.T << "  "
-                  << burn_state.T << std::endl;
-        std::cout << " Initial vs. Final density = " << burn_state_in.rho << "  "
-                  << burn_state.rho << std::endl;
-        std::cout << " Initial vs. Final vs. NSE y_e = " << burn_state_in.y_e << "  "
-                  << burn_state.y_e << "  " <<  nse_state.y_e << std::endl;
-        std::cout << "------------------------------------" << std::endl;
-        std::cout << "Element" << std::setw(14) << "Burn Xs" << std::setw(20) << "NSE Xs "
-                  << std::setw(20) << "abs err" << std::setw(20) << "rel err" << std::endl;
-        for (int n = 0; n < NumSpec; ++n) {
-            const std::string& element = short_spec_names_cxx[n];
-            amrex::Real abs_err = std::abs(burn_state.xn[n] - nse_state.xn[n]);
-            amrex::Real rel_err = abs_err / burn_state.xn[n];
-            std::cout << "  " << element << std::setw(20-element.size())
-                      << burn_state.xn[n] << std::setw(20)
-                      << nse_state.xn[n] << std::setw(20) << abs_err << std::setw(20)
-                      << rel_err << std::endl;
-        }
-        std::cout << "------------------------------------" << std::endl;
+    // Now print out the result.
+    std::cout << std::scientific << std::setprecision(8);
+    std::cout << "------------------------------------" << std::endl;
+    std::cout << " - added e = " << burn_state.e - burn_state_in.e << std::endl;
+    std::cout << " Initial vs. Final T = " << burn_state_in.T << "  "
+              << burn_state.T << std::endl;
+    std::cout << " Initial vs. Final density = " << burn_state_in.rho << "  "
+              << burn_state.rho << std::endl;
+    std::cout << " Initial vs. Final vs. NSE y_e = " << burn_state_in.y_e << "  "
+              << burn_state.y_e << "  " <<  nse_state.y_e << std::endl;
+    std::cout << " Solved Chemical Potentials are: " << burn_state.mu_p << " and "
+              << burn_state.mu_n << std::endl;
+    std::cout << "------------------------------------" << std::endl;
+    std::cout << "Element" << std::setw(14) << "Burn Xs" << std::setw(20) << "NSE Xs "
+              << std::setw(20) << "abs err" << std::setw(20) << "rel err" << std::endl;
+    for (int n = 0; n < NumSpec; ++n) {
+        const std::string& element = short_spec_names_cxx[n];
+        amrex::Real abs_err = std::abs(burn_state.xn[n] - nse_state.xn[n]);
+        amrex::Real rel_err = abs_err / burn_state.xn[n];
+        std::cout << "  " << element << std::setw(20-element.size())
+                  << burn_state.xn[n] << std::setw(20)
+                  << nse_state.xn[n] << std::setw(20) << abs_err << std::setw(20)
+                  << rel_err << std::endl;
     }
+    std::cout << "------------------------------------" << std::endl;
 }
 
 void nse_network_compatibility()
@@ -132,65 +156,14 @@ void nse_network_compatibility()
     // with the results from NSE calculations given any network.
     // Note that this network should not have any weak rates.
 
-    amrex::Real dlogrho = (std::log10(rho_max) - std::log10(rho_min))/static_cast<amrex::Real>(nrho-1);
-    amrex::Real dlogT = (std::log10(T_max) - std::log10(T_min))/static_cast<amrex::Real>(nT-1);
-
-    // Create massfraction 2d array to hold 3 different sets of initial mass fractions
-    // Corresponding to ye < 0.5, ye = 0.5, and ye > 0.5
-
-    amrex::Array2D<amrex::Real, 1, 3, 1, NumSpec+1, Order::C> massfractions;
-
-    bool condition1_met = false;
-    bool condition2_met = false;
-    bool condition3_met = false;
-
-    for (int n = 0; n < NumSpec; ++n) {
-        if (aion[n] == 2 * zion[n] && !condition1_met) {
-
-            // Set the first encountered nuclei with Z/A = 0.5
-            massfractions(1, n+1) = 0.7_rt;
-            massfractions(2, n+1) = 1.0_rt;
-            massfractions(3, n+1) = 0.7_rt;
-            condition1_met = true;
-            continue;
-        }
-        if (aion[n] > 2 * zion[n] && !condition2_met) {
-
-            // This is for achieving ye < 0.5
-            massfractions(1, n+1) = 0.3_rt;
-            condition2_met = true;
-            continue;
-        }
-        if (aion[n] < 2 * zion[n] && !condition3_met) {
-
-            // This is for achieving ye > 0.5
-            massfractions(3, n+1) = 0.3_rt;
-            condition3_met = true;
-            continue;
-        }
-        massfractions(1, n+1) = 0.0_rt;
-        massfractions(2, n+1) = 0.0_rt;
-        massfractions(3, n+1) = 0.0_rt;
-    }
-
     eos_t eos_state;
-
-    for (int iye = 0; iye < 3; ++iye) {
-        for (int irho = 0; irho < nrho; ++irho) {
-            for (int itemp = 0; itemp < nT; ++itemp) {
-
-                amrex::Real T = std::pow(10.0, std::log10(T_min) + itemp * dlogT);
-                amrex::Real rho = std::pow(10.0, std::log10(rho_min) + irho * dlogrho);
-
-                eos_state.T = T;
-                eos_state.rho = rho;
-                for (int n = 0; n < NumSpec; ++n) {
-                    eos_state.xn[n] = massfractions(iye+1, n+1);
-                }
-                eos(eos_input_rt, eos_state);
-                burn_cell_c(eos_state);
-            }
-        }
+    eos_state.T = T;
+    eos_state.rho = rho;
+    for (int n = 0; n < NumSpec; ++n) {
+        eos_state.xn[n] = 1.0_rt;
     }
+    normalize_abundances_burn(eos_state);
+    eos(eos_input_rt, eos_state);
+    burn_cell_c(eos_state);
 }
 #endif

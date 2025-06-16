@@ -68,12 +68,49 @@ namespace network
     template<int spec>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
     constexpr amrex::Real mion () {
+        using namespace Species;
+
         static_assert(spec >= 1 && spec <= NumSpec);
 
-        constexpr amrex::Real A = NetworkProperties::aion(spec);
-        constexpr amrex::Real Z = NetworkProperties::zion(spec);
+        // Set the mass of the element
 
-        return (A - Z) * C::Legacy::m_n + Z * (C::Legacy::m_p + C::Legacy::m_e) - bion<spec>() * C::Legacy::MeV2gr;
+        if constexpr (spec == H1) {
+            return 1.6735328377636005e-24_rt;
+        }
+        else if constexpr (spec == He4) {
+            return 6.646479071584587e-24_rt;
+        }
+        else if constexpr (spec == O16) {
+            return 2.6560180592333686e-23_rt;
+        }
+        else if constexpr (spec == O20) {
+            return 3.3217548673186867e-23_rt;
+        }
+        else if constexpr (spec == F20) {
+            return 3.321075020137486e-23_rt;
+        }
+        else if constexpr (spec == Ne20) {
+            return 3.3198227947612416e-23_rt;
+        }
+        else if constexpr (spec == Mg24) {
+            return 3.9828098739467446e-23_rt;
+        }
+        else if constexpr (spec == Al27) {
+            return 4.480389861070653e-23_rt;
+        }
+        else if constexpr (spec == Si28) {
+            return 4.6456779473820677e-23_rt;
+        }
+        else if constexpr (spec == P31) {
+            return 5.14331418367544e-23_rt;
+        }
+        else if constexpr (spec == S32) {
+            return 5.309087322384128e-23_rt;
+        }
+
+
+        // Return zero if we don't recognize the species.
+        return 0.0_rt;
     }
 
     // Legacy (non-templated) interfaces
@@ -113,7 +150,8 @@ namespace network
 namespace Rates
 {
 
-    enum NetworkRates
+    enum NetworkRates :
+    std::uint8_t
     {
         k_Ne20_to_He4_O16 = 1,
         k_He4_O16_to_Ne20 = 2,

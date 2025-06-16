@@ -343,7 +343,7 @@ number_t nu_plasma(const sneutf_t<number_t>& sf) {
 
         a1 = 0.39e0_rt - 1.25e0_rt * xnum - 0.35e0_rt * admath::sin(4.5e0_rt * xnum);
 
-        b1 = 0.3e0_rt * admath::exp(-amrex::Math::powi<2>(autodiff::eval(4.5e0_rt*xnum + 0.9e0_rt)));
+        b1 = 0.3e0_rt * admath::exp(-admath::powi<2>(4.5e0_rt*xnum + 0.9e0_rt));
 
         c = admath::min(0.0e0_rt, xden - 1.6e0_rt + 1.25e0_rt * xnum);
 
@@ -822,7 +822,7 @@ number_t nu_recomb(const sneutf_t<number_t>& sf) {
         dum   = 1.0e0_rt + z;
         tmp   = 1.0e0_rt/dum;
 
-        sreco   = amrex::Real(nu_constants::tfac6) * 2.649e-18_rt * sf.ye * amrex::Math::powi<13>(sf.zbar) * sf.den * bigj * tmp;
+        sreco   = amrex::Real(nu_constants::tfac6) * 2.649e-18_rt * sf.ye * admath::powi<13>(sf.zbar) * sf.den * bigj * tmp;
     }
     return sreco;
 

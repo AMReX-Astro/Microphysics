@@ -22,9 +22,11 @@ MICROPHYSICS_HOME ?= ../..
 EOS_DIR     := helmholtz
 
 # This sets the network directory
-NETWORK_DIR := subch_base
+NETWORK_DIR := ase
 
 SCREEN_METHOD = chabrier1998
+
+USE_SIMPLIFIED_SDC = TRUE
 
 CONDUCTIVITY_DIR := stellar
 
@@ -40,5 +42,3 @@ Bpack   := ./Make.package
 Blocs   := .
 
 include $(MICROPHYSICS_HOME)/unit_test/Make.unit_test
-
-
