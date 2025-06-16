@@ -1,5 +1,5 @@
-Initializing AMReX (25.01-6-g041f225dc5c9)...
-AMReX (25.01-6-g041f225dc5c9) initialized
+Initializing AMReX (23.05-658-g0165b6743355)...
+AMReX (23.05-658-g0165b6743355) initialized
 starting the single zone burn...
 Maximum Time (s): 0.01
 State Density (g/cm^3): 1000000
@@ -70,4 +70,4 @@ omegadot(Cr48): 3.272104685e-12
 omegadot(Fe52): 7.126141581e-18
 omegadot(Ni56): 1.22471994e-24
 number of steps taken: 255
-AMReX (25.01-6-g041f225dc5c9) finalized
+AMReX (23.05-658-g0165b6743355) finalized
