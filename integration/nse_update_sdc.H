@@ -469,6 +469,7 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
     drhoedt *= C::enuc_conv2 / tau;
 
     // include neutrino terms again
+    // I should probably update snu and enu here?
 
     drhoedt -= rho1 * snu;
     if (integrator_rp::nse_include_enu_weak == 1) {
@@ -516,7 +517,7 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
     amrex::Real drhoyedt_weak{0.0_rt};
     amrex::Real drhoyedt_a{0.0_rt};
 
-    // find the advection contribution: drhoyedt_a and drhoabardt_a
+    // find the advection contribution: drhoyedt_a
 
     for (int n = 0; n < NumSpec; ++n) {
         drhoyedt_a += state.ydot_a[SFS+n] * zion[n] * aion_inv[n];
