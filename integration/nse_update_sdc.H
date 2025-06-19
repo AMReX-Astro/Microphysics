@@ -349,27 +349,22 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
 
     auto nse_state0 = get_actual_nse_state(burn_state, 1.0e-10_rt, true);
 
-    // Still need to get abar for T_fixed > 0
-
-    if (T_fixed > 0) {
-        for (int n = 0; n < NumSpec; ++n) {
-            abar += nse_state0.xn[n] * aion_inv[n];
-        }
-        abar = 1.0_rt / abar;
-    }
-
+#ifdef NEUTRINOS
     // compute the plasma neutrino losses
-    // here abar should already be in-sync with NSE
+
+    // Get abar
+    for (int n = 0; n < NumSpec; ++n) {
+        abar += nse_state0.xn[n] * aion_inv[n];
+    }
+    abar = 1.0_rt / abar;
 
     amrex::Real snu{0.0_rt};
     amrex::Real dsnudt{0.0_rt};
     amrex::Real dsnudd{0.0_rt};
     amrex::Real dsnuda{0.0_rt};
     amrex::Real dsnudz{0.0_rt};
-
     amrex::Real zbar = abar * Ye0;
 
-#ifdef NEUTRINOS
     {
         constexpr int do_derivatives = 0;
         sneut5<do_derivatives>(T0, rho0, abar, zbar,
@@ -421,6 +416,8 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
         rhoe_source += rho0 * e_nu;
     }
 
+    drhoedt = rhoe_source;
+    return;
     //
     // evolve for eps * dt;
     //
@@ -469,7 +466,6 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
     drhoedt *= C::enuc_conv2 / tau;
 
     // include neutrino terms again
-    // I should probably update snu and enu here?
 
     drhoedt -= rho1 * snu;
     if (integrator_rp::nse_include_enu_weak == 1) {
