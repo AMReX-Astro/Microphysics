@@ -310,9 +310,8 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
                 const amrex::Real rhoYe0, const amrex::Real T_old,
-                const amrex::Real dt, amrex::Real &mu_p, amrex::Real &mu_n,
-                amrex::Real &drhoyedt_weak, const amrex::Real drhoyedt_a,
-                const amrex::Real *ydot_a, amrex::Real& drhoedt,
+                amrex::Real &mu_p, amrex::Real &mu_n,
+                amrex::Real &drhoyedt_weak, amrex::Real& drhoedt,
                 const amrex::Real T_fixed) {
 
     // start with the current state and compute T
@@ -457,10 +456,9 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
 
     nse_derivs(rho_old, rhoe_old,
                rhoye_old, T_old,
-               dt, mu_p, mu_n,
-               drhoyedt_weak, drhoyedt_a,
-               state.ydot_a,
-               drhoedt, state.T_fixed);
+               mu_p, mu_n,
+               drhoyedt_weak, drhoedt,
+               state.T_fixed);
 
     // evolve to the midpoint in time
 
@@ -472,10 +470,9 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
 
     nse_derivs(rho_tmp, rhoe_tmp,
                rhoye_tmp, T_old,
-               dt, mu_p, mu_n,
-               drhoyedt_weak, drhoyedt_a,
-               state.ydot_a,
-               drhoedt, state.T_fixed);
+               mu_p, mu_n,
+               drhoyedt_weak, drhoedt,
+               state.T_fixed);
 
     // evolve to the new time
 
