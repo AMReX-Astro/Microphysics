@@ -510,7 +510,7 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
     // These should be already normalized due to NSE constraint
 
     for (int n = 0; n < NumSpec; ++n) {
-        state.y[SFS+n] = rho_new * nse_state.y[SFS+n];
+        state.y[SFS+n] = nse_state.y[SFS+n];
     }
 
     // Update total and internal energy.
