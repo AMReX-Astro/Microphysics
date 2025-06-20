@@ -506,21 +506,11 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
 
     auto nse_state = get_actual_nse_state(burn_state, 1.0e-10_rt, true);
 
-    // store the new state
-    // make sure they are normalized
-
-    amrex::Real sum_X{0.0_rt};
-    for (auto & xn : nse_state.xn) {
-        xn = amrex::Clamp(xn, small_x, 1.0_rt);
-        sum_X += xn;
-    }
-
-    for (auto & xn : nse_state.xn) {
-        xn /= sum_X;
-    }
+    // Update rho X using new NSE state
+    // These should be already normalized due to NSE constraint
 
     for (int n = 0; n < NumSpec; ++n) {
-        state.y[SFS+n] = rho_new * nse_state.xn[n];
+        state.y[SFS+n] = rho_new * nse_state.y[SFS+n];
     }
 
     // Update total and internal energy.
