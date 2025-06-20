@@ -309,24 +309,22 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
 ///
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
-                const amrex::Real rhoYe0, const amrex::Real T_old,
+                const amrex::Real rhoYe0, amrex::Real &T0,
                 amrex::Real &mu_p, amrex::Real &mu_n,
                 amrex::Real &drhoyedt_weak, amrex::Real& drhoedt,
                 const amrex::Real T_fixed) {
 
     // start with the current state and compute T
 
-    amrex::Real T0;
     amrex::Real Ye0 = rhoYe0 / rho0;
     amrex::Real abar{0.0_rt};
 
-    // Get initial temperature and abar for
+    // Get initial temperature.
 
     if (T_fixed > 0) {
         T0 = T_fixed;
     } else {
-        // initial guess for eos
-        T0 = T_old;
+        // updates T0 to be consistent with e0 and NSE
         amrex::Real e0 = rhoe0 / rho0;
         nse_T_abar_from_e(rho0, e0, Ye0, T0, abar, mu_p, mu_n);
     }
