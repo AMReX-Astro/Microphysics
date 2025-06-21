@@ -20,7 +20,7 @@ void init_tabular();
 // Log(g/cm^3)   Log(K)   erg   erg   erg   Log(1/s)          Log(erg/s)           Log(erg/s)
 //
 
-const int num_tables = 2;
+const int num_tables = 12;
 
 enum TableVars : std::uint8_t
 {
@@ -55,15 +55,65 @@ const int add_vars              = 1;  // 1 Additional Var in entries
 
 namespace rate_tables
 {
-    extern AMREX_GPU_MANAGED table_t j_Mg22_Na22_meta;
-    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, 6> j_Mg22_Na22_data;
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_Mg22_Na22_rhoy;
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 13> j_Mg22_Na22_temp;
+    extern AMREX_GPU_MANAGED table_t j_Co55_Fe55_meta;
+    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, 6> j_Co55_Fe55_data;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_Co55_Fe55_rhoy;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 13> j_Co55_Fe55_temp;
 
-    extern AMREX_GPU_MANAGED table_t j_Na22_Mg22_meta;
-    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, 6> j_Na22_Mg22_data;
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_Na22_Mg22_rhoy;
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 13> j_Na22_Mg22_temp;
+    extern AMREX_GPU_MANAGED table_t j_Co56_Fe56_meta;
+    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, 6> j_Co56_Fe56_data;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_Co56_Fe56_rhoy;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 13> j_Co56_Fe56_temp;
+
+    extern AMREX_GPU_MANAGED table_t j_Co56_Ni56_meta;
+    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, 6> j_Co56_Ni56_data;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_Co56_Ni56_rhoy;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 13> j_Co56_Ni56_temp;
+
+    extern AMREX_GPU_MANAGED table_t j_Co57_Ni57_meta;
+    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, 6> j_Co57_Ni57_data;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_Co57_Ni57_rhoy;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 13> j_Co57_Ni57_temp;
+
+    extern AMREX_GPU_MANAGED table_t j_Fe55_Co55_meta;
+    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, 6> j_Fe55_Co55_data;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_Fe55_Co55_rhoy;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 13> j_Fe55_Co55_temp;
+
+    extern AMREX_GPU_MANAGED table_t j_Fe55_Mn55_meta;
+    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, 6> j_Fe55_Mn55_data;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_Fe55_Mn55_rhoy;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 13> j_Fe55_Mn55_temp;
+
+    extern AMREX_GPU_MANAGED table_t j_Fe56_Co56_meta;
+    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, 6> j_Fe56_Co56_data;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_Fe56_Co56_rhoy;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 13> j_Fe56_Co56_temp;
+
+    extern AMREX_GPU_MANAGED table_t j_Mn55_Fe55_meta;
+    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, 6> j_Mn55_Fe55_data;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_Mn55_Fe55_rhoy;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 13> j_Mn55_Fe55_temp;
+
+    extern AMREX_GPU_MANAGED table_t j_n_p_meta;
+    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, 6> j_n_p_data;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_n_p_rhoy;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 13> j_n_p_temp;
+
+    extern AMREX_GPU_MANAGED table_t j_Ni56_Co56_meta;
+    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, 6> j_Ni56_Co56_data;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_Ni56_Co56_rhoy;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 13> j_Ni56_Co56_temp;
+
+    extern AMREX_GPU_MANAGED table_t j_Ni57_Co57_meta;
+    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, 6> j_Ni57_Co57_data;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_Ni57_Co57_rhoy;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 13> j_Ni57_Co57_temp;
+
+    extern AMREX_GPU_MANAGED table_t j_p_n_meta;
+    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, 6> j_p_n_data;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_p_n_rhoy;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 13> j_p_n_temp;
 
 }
 
