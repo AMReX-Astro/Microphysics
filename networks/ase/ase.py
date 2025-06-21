@@ -1,6 +1,6 @@
 # an approximate network for He/C burning with key rates
-# to bypass the C12(a,g)O16 rate.  This version uses some
-# (a,p)(p,g) approximations.
+# to bypass the C12(a,g)O16 rate.
+# This is fully-compatible with NSE.
 
 import pynucastro as pyna
 from pynucastro.networks import AmrexAstroCxxNetwork
@@ -30,9 +30,6 @@ def get_library():
         forward_rate = pyna.ModifiedRate(_r, new_products=[mp])
         derived_rate = pyna.DerivedRate(rate=forward_rate, compute_Q=True, use_pf=True)
         subch += pyna.Library(rates=[forward_rate, derived_rate])
-
-    # # finally, the aprox nets don't include the reverse rates for
-    # # C12+C12, C12+O16, and O16+O16, so remove those
 
     # C12+Ne20 and reverse
     # (a,g) links between Na23 and Al27
