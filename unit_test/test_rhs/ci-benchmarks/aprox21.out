@@ -375,7 +375,7 @@
  J_nickel-56_chromium-56                      0                      0
  J_neutron_chromium-56                       0                      0
  J_proton_chromium-56                        0                      0
- J_E_chromium-56             -1.8093693678e+15        2.256453157e+17
+ J_E_chromium-56             -1.8093693676e+15        2.256453157e+17
  J_hydrogen-1_iron-52                        0                      0
  J_helium-3_iron-52                          0                      0
  J_helium-4_iron-52              -743179296.84           493082.01674
@@ -397,7 +397,7 @@
  J_nickel-56_iron-52          4.5459700269e-78           539742599.12
  J_neutron_iron-52           -5.7770422246e+12                      0
  J_proton_iron-52                            0           463978849.94
- J_E_iron-52                 -2.4561809471e+11       6.7059665045e+31
+ J_E_iron-52                 -2.4561809456e+11       6.7059665045e+31
  J_hydrogen-1_iron-54                        0                      0
  J_helium-3_iron-54                          0                      0
  J_helium-4_iron-54              -416714108.26           89938.022334
@@ -419,7 +419,7 @@
  J_nickel-56_iron-54                         0            12628008866
  J_neutron_iron-54           -5.8420788754e+13                      0
  J_proton_iron-54                 -25242800365           49264281.385
- J_E_iron-54                 -2.5384087204e+11       5.7722247891e+32
+ J_E_iron-54                 -2.5384087188e+11       5.7722247891e+32
  J_hydrogen-1_iron-56                        0                      0
  J_helium-3_iron-56                          0                      0
  J_helium-4_iron-56                          0       1.0853220404e+11
@@ -485,7 +485,7 @@
  J_nickel-56_neutron                         0                      0
  J_neutron_neutron           -2.5037983869e+12     -2.7518382457e-292
  J_proton_neutron            -2.6964850938e+11          0.01990199797
- J_E_neutron                    0.001081498578       2.6133983736e+31
+ J_E_neutron                     0.00107327876       2.6133983736e+31
  J_hydrogen-1_proton                         0                      0
  J_helium-3_proton                           0                      0
  J_helium-4_proton                           0       1.3489464877e+11
