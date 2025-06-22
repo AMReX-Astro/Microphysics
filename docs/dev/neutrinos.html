@@ -133,7 +133,7 @@
              
   <section id="neutrino-losses">
 <span id="neutrino-loss"></span><h1>Neutrino Losses<a class="headerlink" href="#neutrino-losses" title="Link to this heading"></a></h1>
-<p>We model thermal neutrino losses (plasma, photo-, pair-,
+<p id="index-0">We model thermal neutrino losses (plasma, photo-, pair-,
 recombination, and Bremsstrahlung) using the method described in
 <span id="id1">[<a class="reference internal" href="zreferences.html#id49" title="Naoki Itoh, Hiroshi Hayashi, Akinori Nishikawa, and Yasuharu Kohyama. Neutrino Energy Loss in Stellar Interiors. VII. Pair, Photo-, Plasma, Bremsstrahlung, and Recombination Neutrino Processes. ApJS, 102:411, February 1996. doi:10.1086/192264.">33</a>]</span>.  This neutrino loss term is included in all of the
 reaction networks by default, and modifies the energy equation to have
@@ -165,6 +165,9 @@ is used.  The output is</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">dsnuda</span></code> : <span class="math notranslate nohighlight">\(d\epsilon_\nu/d\bar{A}\)</span></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">dsnudz</span></code> : <span class="math notranslate nohighlight">\(d\epsilon_\nu/d\bar{Z}\)</span></p></li>
 </ul>
+<p>By default, we do not include the recombination terms when calculating the total losses since its effect is negligible.
+This is controlled by the <code class="docutils literal notranslate"><span class="pre">include_recomb</span></code> parameter defined in <code class="docutils literal notranslate"><span class="pre">Microphysics/neutrinos/_parameters</span></code>.
+To include the recombination terms, set <code class="docutils literal notranslate"><span class="pre">neutrino_cooling.include_recomb</span> <span class="pre">=</span> <span class="pre">1</span></code> in the inputs file.</p>
 </section>
 
 
