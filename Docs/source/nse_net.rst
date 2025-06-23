@@ -65,7 +65,7 @@ Here we give outline on how the reactive update is done with NSE.
       * Compute the thermal neutrino losses,
         $\epsilon_{\nu,\mathrm{thermal}}$, using the NSE composition.
 
-      * Evaluate $\dot{Y}_{\mathrm{weak}} and neutrino losses,
+      * Evaluate $\dot{Y}_{\mathrm{weak}}$ and neutrino losses,
         $\epsilon_{\nu,\mathrm{react}}$,
         from weak reactions only as they are the only contributing
         reactions in NSE.
@@ -85,7 +85,7 @@ Here we give outline on how the reactive update is done with NSE.
         .. math::
            m_k c^2 = (A_k - Z_k) m_n c^2 + Z_k (m_p + m_e) c^2 - B_k
 
-      * The full reactive source term, $[\Rb(\rho e)}]^n$ is then:
+      * The full reactive source term, $[\Rb(\rho e)]^n$ is then:
 
         .. math::
            [\Rb(\rho e)]^n = [\Rb(\rho e)_{\mathrm{nuc}}]^n - [\rho]^n \left(\epsilon_{\nu,\mathrm{thermal}} + \epsilon_{\nu,\mathrm{react}}\right)
