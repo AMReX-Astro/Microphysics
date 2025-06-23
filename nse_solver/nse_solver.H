@@ -186,10 +186,10 @@ void apply_nse_exponent(T& nse_state,
 
 // constraint equation
 
-template <typename T>
+template <int neqs, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void nse_fcn(amrex::Array1D<amrex::Real, 1, 2>& x,
-             amrex::Array1D<amrex::Real, 1, 2>& fvec,
+void nse_fcn(amrex::Array1D<amrex::Real, 1, neqs>& x,
+             amrex::Array1D<amrex::Real, 1, neqs>& fvec,
              const nse_solver_data<T>& state_data, int& iflag) {
     // here state is the nse_state from get_nonexponent_nse_state
 
@@ -225,10 +225,10 @@ void nse_fcn(amrex::Array1D<amrex::Real, 1, 2>& x,
 
 // constraint jacobian
 
-template <typename T>
+template <int neqs, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void nse_jcn(amrex::Array1D<amrex::Real, 1, 2>& x,
-             amrex::Array2D<amrex::Real, 1, 2, 1, 2>& fjac,
+void nse_jcn(amrex::Array1D<amrex::Real, 1, neqs>& x,
+             amrex::Array2D<amrex::Real, 1, neqs, 1, neqs>& fjac,
              const nse_solver_data<T>& state_data, int& iflag) {
     // here state is the nse_state from get_nonexponent_nse_state
 
