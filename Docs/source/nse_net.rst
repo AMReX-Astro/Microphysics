@@ -93,10 +93,10 @@ Here we give outline on how the reactive update is done with NSE.
     * Now evolve $\rho$, $\rho e$, and $\rho Y_e$ to midpoint in time:
 
       .. math::
-         \Uc^{\prime,n+1/2} = \Uc^{\prime,n} + \frac{\Delta t}{2} \left([\Advs{\Uc^\prime}]^{n} + [\Rb(\Uc^\prime)]^{n}\right)
+         \Uc^{\prime,n+1/2} = \Uc^{\prime,n} + \frac{\Delta t}{2} \left([\Advs{\Uc^\prime}]^{n+1/2} + [\Rb(\Uc^\prime)]^{n}\right)
 
       Note that there is no reactive source term for $\rho$ and the advective
-      source term is constant throughout the reactive update.
+      source term is already time-centered from the simplified-SDC algorithm.
 
     * Compute $[\Rb(\rho Y_e)]^{n+1/2}$ and
       $[\Rb(\rho e)_{\mathrm{nuc}}]^{n+1/2}$ following the same
