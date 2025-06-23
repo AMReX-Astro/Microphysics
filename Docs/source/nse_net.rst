@@ -50,7 +50,7 @@ Here we give outline on how the reactive update is done with NSE.
 
       .. math::
 
-         \Advs{Y_e} = \sum_k \frac{Z_k}{A_k} \Advs{\rho X_k}
+         \Advs{\rho Y_e} = \sum_k \frac{Z_k}{A_k} \Advs{\rho X_k}
 
     * Compute $[\Rb(\rho Y_e)]^n$ and $[\Rb(\rho e)_{\mathrm{nuc}}]^n$ using
       $[\rho]^n$, $[T]^n$, $[Y_e]^n$ and $[e]^n$:
@@ -73,12 +73,12 @@ Here we give outline on how the reactive update is done with NSE.
       * Evaluate $[\Rb(\rho Y_e)]^n$ as:
 
         .. math::
-           [\Rb(\rho Y_e)]^n = [\rho]^n \sum_k Z_k \dot{Y}_{\mathrm{k, weak}}
+           [\Rb(\rho Y_e)]^n = [\rho]^n \sum_k Z_k \dot{Y}_{\mathrm{k, weak}}^n
 
       * Evaluate $[\Rb(\rho e)_{\mathrm{nuc}}]^n$ as:
 
         .. math::
-           [\Rb(\rho e)_{\mathrm{nuc}}]^n = - N_A c^2 \sum_k \dot{Y}_{\mathrm{k, weak}} m_k
+           [\Rb(\rho e)_{\mathrm{nuc}}]^n = - N_A c^2 \sum_k \dot{Y}_{\mathrm{k, weak}}^n m_k
 
         where the nuclei mass, $m_k$ is defined as:
 
@@ -93,7 +93,7 @@ Here we give outline on how the reactive update is done with NSE.
     * Now evolve $\rho$, $\rho e$, and $\rho Y_e$ to midpoint in time:
 
       .. math::
-         \Uc^{\prime,n+1/2} = \Uc^{\prime,n} + \frac{\Delta t}{2} \left([\Advs{\Uc^\prime}]^{n+1/2} + [\Rb(\Uc^\prime)]^{n+1/2}\right)
+         \Uc^{\prime,n+1/2} = \Uc^{\prime,n} + \frac{\Delta t}{2} \left([\Advs{\Uc^\prime}]^{n} + [\Rb(\Uc^\prime)]^{n}\right)
 
       Note that there is no reactive source term for $\rho$ and the advective
       source term is constant throughout the reactive update.
