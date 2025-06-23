@@ -314,7 +314,10 @@ void nse_hybrid_solver(nse_solver_data<T>& state_data,
             hj.x(1) = inner_x(1);
             hj.x(2) = inner_x(2);
 
-            hybrj<2, T>(hj, state_data, nse_fcn<2, T>, nse_jcn<2, T>);
+            hybrj<2, nse_solver_data<T>>(hj, state_data,
+                                         nse_fcn<2, nse_solver_data<T>>,
+                                         nse_jcn<2, nse_solver_data<T>>);
+
             nse_fcn(hj.x, f, state_data, flag);
 
             if (std::abs(f(1)) < eps && std::abs(f(2)) < eps) {
