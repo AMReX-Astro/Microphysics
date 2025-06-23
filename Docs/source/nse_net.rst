@@ -73,12 +73,12 @@ Here we give outline on how the reactive update is done with NSE.
       * Evaluate $[\Rb(\rho Y_e)]^n$ as:
 
         .. math::
-           [\Rb(\rho Y_e)]^n = [\rho]^n \sum_k Z_k \dot{Y}_{\mathrm{k, weak}}^n
+           [\Rb(\rho Y_e)]^n = [\rho]^n \sum_k Z_k [\dot{Y}_{\mathrm{k, weak}}]^n
 
       * Evaluate $[\Rb(\rho e)_{\mathrm{nuc}}]^n$ as:
 
         .. math::
-           [\Rb(\rho e)_{\mathrm{nuc}}]^n = - N_A c^2 \sum_k \dot{Y}_{\mathrm{k, weak}}^n m_k
+           [\Rb(\rho e)_{\mathrm{nuc}}]^n = - N_A c^2 \sum_k [\dot{Y}_{\mathrm{k, weak}}]^n m_k
 
         where the nuclei mass, $m_k$ is defined as:
 
@@ -102,7 +102,7 @@ Here we give outline on how the reactive update is done with NSE.
       $[\Rb(\rho e)_{\mathrm{nuc}}]^{n+1/2}$ following the same
       procedure as above. This time, it uses
       $[\rho]^{n+1/2}$, $[Y_e]^{n+1/2}$ and $[e]^{n+1/2}$ as input
-      and uses the updated $[T]^n$ as initial guess for the inversion
+      and uses the updated $[T]^n$ as initial guess for the EOS inversion
       algorithm.
 
     * Now evolve all thermodynamic quantities to new time, $t^{n+1}$, using the
