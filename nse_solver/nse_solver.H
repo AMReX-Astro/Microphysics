@@ -188,8 +188,9 @@ void apply_nse_exponent(T& nse_state,
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void fcn(amrex::Array1D<amrex::Real, 1, 2>& x, amrex::Array1D<amrex::Real, 1, 2>& fvec,
-         const nse_solver_data<T>& state_data, int& iflag) {
+void nse_fcn(amrex::Array1D<amrex::Real, 1, 2>& x,
+             amrex::Array1D<amrex::Real, 1, 2>& fvec,
+             const nse_solver_data<T>& state_data, int& iflag) {
     // here state is the nse_state from get_nonexponent_nse_state
 
     amrex::ignore_unused(iflag);
@@ -226,8 +227,9 @@ void fcn(amrex::Array1D<amrex::Real, 1, 2>& x, amrex::Array1D<amrex::Real, 1, 2>
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void jcn(amrex::Array1D<amrex::Real, 1, 2>& x, amrex::Array2D<amrex::Real, 1, 2, 1, 2>& fjac,
-         const nse_solver_data<T>& state_data, int& iflag) {
+void nse_jcn(amrex::Array1D<amrex::Real, 1, 2>& x,
+             amrex::Array2D<amrex::Real, 1, 2, 1, 2>& fjac,
+             const nse_solver_data<T>& state_data, int& iflag) {
     // here state is the nse_state from get_nonexponent_nse_state
 
     amrex::ignore_unused(iflag);
@@ -312,8 +314,8 @@ void nse_hybrid_solver(nse_solver_data<T>& state_data,
             hj.x(1) = inner_x(1);
             hj.x(2) = inner_x(2);
 
-            // hybrj<2, T>(hj, state, fcn_hybrid<T>, jcn_hybrid<T>);
-            hybrj(hj, state_data);
+            hybrj<2, T>(hj, state, nse_fcn<2, T>, nse_jcn<2, T>);
+            // hybrj(hj, state_data);
 
             fcn(hj.x, f, state_data, flag);
 
