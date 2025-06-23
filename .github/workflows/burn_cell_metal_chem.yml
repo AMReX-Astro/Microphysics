@@ -39,14 +39,14 @@ jobs:
           cd unit_test/burn_cell_metal_chem
 
           declare -A line_numbers_map=(
-            ["Z=1"]="4450 4452 4454 4456 4457 4460 4461 4464 4470 4475"
+            ["Z=1"]="4438 4440 4442 4444 4445 4448 4449 4452 4458 4463"
             ["Z=1_z10"]="1613 1615 4456 4458 4460 4463 4470 4476 4481"
             ["Z=1e-1"]="4438 4440 4442 4444 4445 4448 4449 4452 4458 4463"
             ["Z=1e-2"]="4438 4440 4442 4444 4445 4448 4449 4452 4458 4463"
             ["Z=1e-3"]="4438 4440 4442 4444 4445 4448 4449 4452 4458 4463"
             ["Z=1e-4"]="4438 4440 4442 4444 4445 4448 4449 4452 4458 4463"
             ["Z=1e-5"]="4438 4440 4442 4444 4445 4448 4449 4452 4458 4463"
-            ["Z=1e-6"]="4463 4465 4467 4469 4470 4473 4474 4477 4483 4488"
+            ["Z=1e-6"]="4439 4441 4443 4445 4446 4449 4450 4453 4459 4464"
             ["Z=1_cr"]="652 654 656 658 659 662 663 666 672 677"
             ["Z=1e-4_cr"]="652 654 656 658 659 662 663 666 672 677"
           )
@@ -107,12 +107,10 @@ jobs:
               value1=$(awk 'NR=='"$line_number"' {match($0, /[+-]?[0-9]+([.][0-9]+)?[eE]?[+-]?[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH); else print 0}' $output_file)
 
               # Adjust the line number for the reference file
-              if [[ "$Z" == "Z=1" ]]; then
-                reference_line_number=$((line_number - 4449))
-              elif [[ "$Z" == "Z=1_z10" ]]; then
+              if [[ "$Z" == "Z=1_z10" ]]; then
                 reference_line_number=${ref_line_number_z10[$index]}
               elif [[ "$Z" == "Z=1e-6" ]]; then
-                reference_line_number=$((line_number - 4462))
+                reference_line_number=$((line_number - 4438))
               elif [[ "$Z" == "Z=1_cr" || "$Z" == "Z=1e-4_cr" ]]; then
                 reference_line_number=$((line_number - 651))
               else

@@ -1,6 +1,7 @@
 #ifndef REACT_UTIL_H
 #define REACT_UTIL_H
 
+#include <network.H>
 #include <extern_parameters.H>
 
 using namespace amrex::literals;

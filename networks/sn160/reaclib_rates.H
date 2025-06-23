@@ -25,37 +25,6 @@ struct rate_derivs_t {
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_n_to_p_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // n --> p
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -6.78161;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void rate_Be7_to_Li7_weak_electron_capture(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Be7 --> Li7
@@ -336,2177 +305,6 @@ void rate_Ne19_to_F19_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Na21_to_Ne21_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Na21 --> Ne21
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -3.48003;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Na22_to_Ne22_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Na22 --> Ne22
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -18.59;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Mg23_to_Na23_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Mg23 --> Na23
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -2.79132;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Al25_to_Mg25_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Al25 --> Mg25
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -2.33781;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Al26_to_Mg26_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Al26 --> Mg26
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -4.62175 + -2.64931 * tfactors.T9i + -0.025978 * tfactors.T913
-                         + -0.0291284 * tfactors.T9 + 0.00389774 * tfactors.T953;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  2.64931 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -0.025978 * tfactors.T923i
-                                  + -0.0291284 + (5.0/3.0) * 0.00389774 * tfactors.T923;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Si31_to_P31_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Si31 --> P31
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -9.51922;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Si32_to_P32_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Si32 --> P32
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -22.6646;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_P29_to_Si29_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // P29 --> Si29
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -1.78721;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_P30_to_Si30_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // P30 --> Si30
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -5.37715;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_P32_to_S32_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // P32 --> S32
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -14.389;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_P33_to_S33_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // P33 --> S33
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -14.9659;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_S35_to_Cl35_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // S35 --> Cl35
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -16.2036;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Cl33_to_S33_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Cl33 --> S33
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -1.2868;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Cl34_to_S34_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Cl34 --> S34
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -0.791781;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Cl36_to_Ar36_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Cl36 --> Ar36
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -30.268;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Cl36_to_S36_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Cl36 --> S36
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -34.2121;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Ar37_to_Cl37_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Ar37 --> Cl37
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -15.2906;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Ar39_to_K39_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Ar39 --> K39
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -23.2287;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_K37_to_Ar37_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // K37 --> Ar37
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -0.573527;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_K38_to_Ar38_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // K38 --> Ar38
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -6.49338;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_K40_to_Ca40_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // K40 --> Ca40
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -38.6925;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_K40_to_Ar40_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // K40 --> Ar40
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -40.8121;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Ca41_to_K41_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Ca41 --> K41
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -29.1669;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Ca45_to_Sc45_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Ca45 --> Sc45
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -16.8211;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Ca47_to_Sc47_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Ca47 --> Sc47
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -13.2455;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Ca48_to_Sc48_weak_mo03(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Ca48 --> Sc48
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // mo03w
-    ln_set_rate =  -20.9981;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Sc43_to_Ca43_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Sc43 --> Ca43
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -9.91333;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Sc44_to_Ca44_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Sc44 --> Ca44
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -9.93453;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Sc46_to_Ti46_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Sc46 --> Ti46
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -16.1616;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Sc47_to_Ti47_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Sc47 --> Ti47
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -12.9407;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Sc48_to_Ti48_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Sc48 --> Ti48
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -12.3305;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Sc49_to_Ti49_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Sc49 --> Ti49
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -8.50683;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Ti44_to_Sc44_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Ti44 --> Sc44
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -21.7264;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Ti45_to_Sc45_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Ti45 --> Sc45
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -9.68121;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Ti51_to_V51_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Ti51 --> V51
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -6.21295;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_V46_to_Ti46_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // V46 --> Ti46
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  0.49387;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_V47_to_Ti47_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // V47 --> Ti47
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -7.94721;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_V48_to_Ti48_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // V48 --> Ti48
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -14.5041;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_V49_to_Ti49_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // V49 --> Ti49
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -17.5319;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_V50_to_Ti50_weak_mo03(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // V50 --> Ti50
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // mo03w
-    ln_set_rate =  -16.3221;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_V52_to_Cr52_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // V52 --> Cr52
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -5.78261;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Cr48_to_V48_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Cr48 --> V48
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -11.6258;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Cr49_to_V49_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Cr49 --> V49
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -8.20643;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Cr51_to_V51_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Cr51 --> V51
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -15.0533;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Mn50_to_Cr50_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Mn50 --> Cr50
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  0.895796;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Mn51_to_Cr51_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Mn51 --> Cr51
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -8.29312;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Mn52_to_Cr52_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Mn52 --> Cr52
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -13.4543;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Mn53_to_Cr53_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Mn53 --> Cr53
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -32.7682;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Mn54_to_Cr54_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Mn54 --> Cr54
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -17.4779;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Fe52_to_Mn52_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Fe52 --> Mn52
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -10.6688;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Fe53_to_Mn53_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Fe53 --> Mn53
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -6.60288;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Fe55_to_Mn55_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Fe55 --> Mn55
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -18.6433;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Co53_to_Fe53_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Co53 --> Fe53
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  1.0606;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Co54_to_Fe54_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Co54 --> Fe54
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  1.27855;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Co55_to_Fe55_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Co55 --> Fe55
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -11.419;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Co56_to_Fe56_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Co56 --> Fe56
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -16.0796;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Co57_to_Fe57_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Co57 --> Fe57
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -17.339;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Co58_to_Fe58_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Co58 --> Fe58
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -15.9936;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Ni56_to_Co56_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Ni56 --> Co56
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -13.5377;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Ni57_to_Co57_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Ni57 --> Co57
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -12.1263;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Ni59_to_Co59_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Ni59 --> Co59
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -28.873;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Ni63_to_Cu63_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Ni63 --> Cu63
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -22.2498;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Cu57_to_Ni57_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Cu57 --> Ni57
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  1.26313;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Cu58_to_Ni58_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Cu58 --> Ni58
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -1.52966;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Cu59_to_Ni59_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Cu59 --> Ni59
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -4.76712;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Cu60_to_Ni60_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Cu60 --> Ni60
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -7.62493;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Cu61_to_Ni61_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Cu61 --> Ni61
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -9.75918;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Cu62_to_Ni62_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Cu62 --> Ni62
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -6.72954;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Cu64_to_Ni64_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Cu64 --> Ni64
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -11.5825;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Cu64_to_Zn64_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Cu64 --> Zn64
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -12.0509;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void rate_Zn59_to_Cu59_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn59 --> Cu59
@@ -2520,254 +318,6 @@ void rate_Zn59_to_Cu59_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex:
 
     // wc12w
     ln_set_rate =  1.33624;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Zn60_to_Cu60_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Zn60 --> Cu60
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -5.32936;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Zn61_to_Cu61_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Zn61 --> Cu61
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -4.85627;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Zn62_to_Cu62_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Zn62 --> Cu62
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -10.7738;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Zn63_to_Cu63_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Zn63 --> Cu63
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -8.11152;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Zn65_to_Cu65_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Zn65 --> Cu65
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -17.2313;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Ga62_to_Zn62_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Ga62 --> Zn62
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  1.78765;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Ga63_to_Zn63_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Ga63 --> Zn63
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -3.84467;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Ga64_to_Zn64_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Ga64 --> Zn64
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -5.42911;
     amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
@@ -2817,37 +367,6 @@ void rate_Ge63_to_Ga63_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex:
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Ge64_to_Ga64_weak_wc12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // Ge64 --> Ga64
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -4.5207;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void rate_d_to_n_p(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // d --> n + p
@@ -2858,23 +377,6 @@ void rate_d_to_n_p(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_d
     amrex::Real ln_set_rate{0.0};
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
-
-    // an06n
-    ln_set_rate =  33.0154 + -25.815 * tfactors.T9i + -2.30472 * tfactors.T913
-                         + -0.887862 * tfactors.T9 + 0.137663 * tfactors.T953 + 1.5 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  25.815 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -2.30472 * tfactors.T923i
-                                  + -0.887862 + (5.0/3.0) * 0.137663 * tfactors.T923 + 1.5 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
 
     // an06n
     ln_set_rate =  34.6293 + -25.815 * tfactors.T9i + -2.70618 * tfactors.T913
@@ -2900,6 +402,23 @@ void rate_d_to_n_p(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_d
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  25.815 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -0.0102082 * tfactors.T923i
                                   + -0.0893959 + (5.0/3.0) * 0.00696704 * tfactors.T923 + 2.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // an06n
+    ln_set_rate =  33.0154 + -25.815 * tfactors.T9i + -2.30472 * tfactors.T913
+                         + -0.887862 * tfactors.T9 + 0.137663 * tfactors.T953 + 1.5 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  25.815 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -2.30472 * tfactors.T923i
+                                  + -0.887862 + (5.0/3.0) * 0.137663 * tfactors.T923 + 1.5 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -3215,13 +734,11 @@ void rate_B8_to_p_Be7(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drat
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // nacrn
-    ln_set_rate =  35.8138 + -1.58982 * tfactors.T9i + -10.264 * tfactors.T913i + -0.203472 * tfactors.T913
-                         + 0.121083 * tfactors.T9 + -0.00700063 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+    // nacrr
+    ln_set_rate =  31.0163 + -8.93482 * tfactors.T9i;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  1.58982 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -10.264 * tfactors.T943i + (1.0/3.0) * -0.203472 * tfactors.T923i
-                                  + 0.121083 + (5.0/3.0) * -0.00700063 * tfactors.T923 + 0.833333 * tfactors.T9i;
+        dln_set_rate_dT9 =  8.93482 * tfactors.T9i * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -3232,11 +749,13 @@ void rate_B8_to_p_Be7(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drat
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
-    // nacrr
-    ln_set_rate =  31.0163 + -8.93482 * tfactors.T9i;
+    // nacrn
+    ln_set_rate =  35.8138 + -1.58982 * tfactors.T9i + -10.264 * tfactors.T913i + -0.203472 * tfactors.T913
+                         + 0.121083 * tfactors.T9 + -0.00700063 * tfactors.T953 + 0.833333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  8.93482 * tfactors.T9i * tfactors.T9i;
+        dln_set_rate_dT9 =  1.58982 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -10.264 * tfactors.T943i + (1.0/3.0) * -0.203472 * tfactors.T923i
+                                  + 0.121083 + (5.0/3.0) * -0.00700063 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -3355,13 +874,13 @@ void rate_B10_to_He4_Li6(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // cf88r
-    ln_set_rate =  24.5212 + -55.4692 * tfactors.T9i + 3.33334 * tfactors.T913i + 3.25335 * tfactors.T913
-                         + 0.374434 * tfactors.T9 + -0.0706244 * tfactors.T953;
+    // cf88n
+    ln_set_rate =  38.6952 + -51.7561 * tfactors.T9i + -18.79 * tfactors.T913i + 0.234225 * tfactors.T913
+                         + 3.23344 * tfactors.T9 + -1.14529 * tfactors.T953 + 0.833333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  55.4692 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 3.33334 * tfactors.T943i + (1.0/3.0) * 3.25335 * tfactors.T923i
-                                  + 0.374434 + (5.0/3.0) * -0.0706244 * tfactors.T923;
+        dln_set_rate_dT9 =  51.7561 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -18.79 * tfactors.T943i + (1.0/3.0) * 0.234225 * tfactors.T923i
+                                  + 3.23344 + (5.0/3.0) * -1.14529 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -3372,13 +891,13 @@ void rate_B10_to_He4_Li6(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
-    // cf88n
-    ln_set_rate =  38.6952 + -51.7561 * tfactors.T9i + -18.79 * tfactors.T913i + 0.234225 * tfactors.T913
-                         + 3.23344 * tfactors.T9 + -1.14529 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+    // cf88r
+    ln_set_rate =  24.5212 + -55.4692 * tfactors.T9i + 3.33334 * tfactors.T913i + 3.25335 * tfactors.T913
+                         + 0.374434 * tfactors.T9 + -0.0706244 * tfactors.T953;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  51.7561 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -18.79 * tfactors.T943i + (1.0/3.0) * 0.234225 * tfactors.T923i
-                                  + 3.23344 + (5.0/3.0) * -1.14529 * tfactors.T923 + 0.833333 * tfactors.T9i;
+        dln_set_rate_dT9 =  55.4692 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 3.33334 * tfactors.T943i + (1.0/3.0) * 3.25335 * tfactors.T923i
+                                  + 0.374434 + (5.0/3.0) * -0.0706244 * tfactors.T923;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -3436,21 +955,6 @@ void rate_B11_to_He4_Li7(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // nacrr
-    ln_set_rate =  30.2249 + -103.501 * tfactors.T9i;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  103.501 * tfactors.T9i * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
     // nacrn
     ln_set_rate =  42.8425 + -100.541 * tfactors.T9i + -19.163 * tfactors.T913i + 0.0587651 * tfactors.T913
                          + 0.773338 * tfactors.T9 + -0.201519 * tfactors.T953 + 0.833333 * tfactors.lnT9;
@@ -3485,6 +989,21 @@ void rate_B11_to_He4_Li7(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
+    // nacrr
+    ln_set_rate =  30.2249 + -103.501 * tfactors.T9i;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  103.501 * tfactors.T9i * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
 }
 
 template <int do_T_derivatives>
@@ -3499,6 +1018,23 @@ void rate_C12_to_p_B11(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dra
     amrex::Real ln_set_rate{0.0};
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
+
+    // nw00n
+    ln_set_rate =  43.578 + -185.173 * tfactors.T9i + -12.095 * tfactors.T913i + -1.95046 * tfactors.T913
+                         + 9.56928 * tfactors.T9 + -10.0637 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  185.173 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -12.095 * tfactors.T943i + (1.0/3.0) * -1.95046 * tfactors.T923i
+                                  + 9.56928 + (5.0/3.0) * -10.0637 * tfactors.T923 + 0.833333 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
 
     // nw00r
     ln_set_rate =  33.6351 + -186.885 * tfactors.T9i;
@@ -3522,23 +1058,6 @@ void rate_C12_to_p_B11(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dra
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  185.173 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -12.095 * tfactors.T943i + (1.0/3.0) * -6.68421 * tfactors.T923i
                                   + -0.0148736 + (5.0/3.0) * 0.0364288 * tfactors.T923 + 2.83333 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // nw00n
-    ln_set_rate =  43.578 + -185.173 * tfactors.T9i + -12.095 * tfactors.T913i + -1.95046 * tfactors.T913
-                         + 9.56928 * tfactors.T9 + -10.0637 * tfactors.T953 + 0.833333 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  185.173 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -12.095 * tfactors.T943i + (1.0/3.0) * -1.95046 * tfactors.T923i
-                                  + 9.56928 + (5.0/3.0) * -10.0637 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -4128,12 +1647,12 @@ void rate_O16_to_He4_C12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     amrex::Real set_rate{0.0};
 
     // nac2 
-    ln_set_rate =  279.295 + -84.9515 * tfactors.T9i + 103.411 * tfactors.T913i + -420.567 * tfactors.T913
-                         + 64.0874 * tfactors.T9 + -12.4624 * tfactors.T953 + 138.803 * tfactors.lnT9;
+    ln_set_rate =  94.3131 + -84.503 * tfactors.T9i + 58.9128 * tfactors.T913i + -148.273 * tfactors.T913
+                         + 9.08324 * tfactors.T9 + -0.541041 * tfactors.T953 + 71.8554 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  84.9515 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 103.411 * tfactors.T943i + (1.0/3.0) * -420.567 * tfactors.T923i
-                                  + 64.0874 + (5.0/3.0) * -12.4624 * tfactors.T923 + 138.803 * tfactors.T9i;
+        dln_set_rate_dT9 =  84.503 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 58.9128 * tfactors.T943i + (1.0/3.0) * -148.273 * tfactors.T923i
+                                  + 9.08324 + (5.0/3.0) * -0.541041 * tfactors.T923 + 71.8554 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -4145,12 +1664,12 @@ void rate_O16_to_He4_C12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     }
 
     // nac2 
-    ln_set_rate =  94.3131 + -84.503 * tfactors.T9i + 58.9128 * tfactors.T913i + -148.273 * tfactors.T913
-                         + 9.08324 * tfactors.T9 + -0.541041 * tfactors.T953 + 71.8554 * tfactors.lnT9;
+    ln_set_rate =  279.295 + -84.9515 * tfactors.T9i + 103.411 * tfactors.T913i + -420.567 * tfactors.T913
+                         + 64.0874 * tfactors.T9 + -12.4624 * tfactors.T953 + 138.803 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  84.503 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 58.9128 * tfactors.T943i + (1.0/3.0) * -148.273 * tfactors.T923i
-                                  + 9.08324 + (5.0/3.0) * -0.541041 * tfactors.T923 + 71.8554 * tfactors.T9i;
+        dln_set_rate_dT9 =  84.9515 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 103.411 * tfactors.T943i + (1.0/3.0) * -420.567 * tfactors.T923i
+                                  + 64.0874 + (5.0/3.0) * -12.4624 * tfactors.T923 + 138.803 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -4208,13 +1727,13 @@ void rate_O18_to_n_O17(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dra
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // bb92r
-    ln_set_rate =  45.5915 + -95.4845 * tfactors.T9i + 16.8052 * tfactors.T913i + -30.138 * tfactors.T913
-                         + 1.14711 * tfactors.T9 + -0.0220312 * tfactors.T953 + 15.2452 * tfactors.lnT9;
+    // bb92n
+    ln_set_rate =  29.682 + -93.3549 * tfactors.T9i + 7.48144e-11 * tfactors.T913i + -2.47239e-10 * tfactors.T913
+                         + 2.48052e-11 * tfactors.T9 + -2.07736e-12 * tfactors.T953 + 1.5 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  95.4845 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 16.8052 * tfactors.T943i + (1.0/3.0) * -30.138 * tfactors.T923i
-                                  + 1.14711 + (5.0/3.0) * -0.0220312 * tfactors.T923 + 15.2452 * tfactors.T9i;
+        dln_set_rate_dT9 =  93.3549 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 7.48144e-11 * tfactors.T943i + (1.0/3.0) * -2.47239e-10 * tfactors.T923i
+                                  + 2.48052e-11 + (5.0/3.0) * -2.07736e-12 * tfactors.T923 + 1.5 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -4225,13 +1744,13 @@ void rate_O18_to_n_O17(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dra
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
-    // bb92n
-    ln_set_rate =  29.682 + -93.3549 * tfactors.T9i + 7.48144e-11 * tfactors.T913i + -2.47239e-10 * tfactors.T913
-                         + 2.48052e-11 * tfactors.T9 + -2.07736e-12 * tfactors.T953 + 1.5 * tfactors.lnT9;
+    // bb92r
+    ln_set_rate =  45.5915 + -95.4845 * tfactors.T9i + 16.8052 * tfactors.T913i + -30.138 * tfactors.T913
+                         + 1.14711 * tfactors.T9 + -0.0220312 * tfactors.T953 + 15.2452 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  93.3549 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 7.48144e-11 * tfactors.T943i + (1.0/3.0) * -2.47239e-10 * tfactors.T923i
-                                  + 2.48052e-11 + (5.0/3.0) * -2.07736e-12 * tfactors.T923 + 1.5 * tfactors.T9i;
+        dln_set_rate_dT9 =  95.4845 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 16.8052 * tfactors.T943i + (1.0/3.0) * -30.138 * tfactors.T923i
+                                  + 1.14711 + (5.0/3.0) * -0.0220312 * tfactors.T923 + 15.2452 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -4449,23 +1968,6 @@ void rate_F18_to_He4_N14(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // il10n
-    ln_set_rate =  46.249 + -51.2292 * tfactors.T9i + -36.2504 * tfactors.T913i
-                         + -5.0 * tfactors.T953 + 0.833333 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  51.2292 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -36.2504 * tfactors.T943i
-                                  + (5.0/3.0) * -5.0 * tfactors.T923 + 0.833333 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
     // il10r
     ln_set_rate =  38.6146 + -62.1948 * tfactors.T9i + -5.6227 * tfactors.T913i;
 
@@ -4486,6 +1988,23 @@ void rate_F18_to_He4_N14(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  56.3896 * tfactors.T9i * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // il10n
+    ln_set_rate =  46.249 + -51.2292 * tfactors.T9i + -36.2504 * tfactors.T913i
+                         + -5.0 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  51.2292 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -36.2504 * tfactors.T943i
+                                  + (5.0/3.0) * -5.0 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -4543,23 +2062,6 @@ void rate_F19_to_p_O18(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dra
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // il10n
-    ln_set_rate =  42.8485 + -92.7757 * tfactors.T9i + -16.7246 * tfactors.T913i
-                         + -3.0 * tfactors.T953 + 0.833333 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  92.7757 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -16.7246 * tfactors.T943i
-                                  + (5.0/3.0) * -3.0 * tfactors.T923 + 0.833333 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
     // il10r
     ln_set_rate =  30.2003 + -99.501 * tfactors.T9i + 3.99059 * tfactors.T913
                          + -0.593127 * tfactors.T9 + 0.0877534 * tfactors.T953;
@@ -4607,6 +2109,23 @@ void rate_F19_to_p_O18(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dra
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
+    // il10n
+    ln_set_rate =  42.8485 + -92.7757 * tfactors.T9i + -16.7246 * tfactors.T913i
+                         + -3.0 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  92.7757 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -16.7246 * tfactors.T943i
+                                  + (5.0/3.0) * -3.0 * tfactors.T923 + 0.833333 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
 }
 
 template <int do_T_derivatives>
@@ -4621,38 +2140,6 @@ void rate_F19_to_He4_N15(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     amrex::Real ln_set_rate{0.0};
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
-
-    // il10r
-    ln_set_rate =  15.3186 + -50.7554 * tfactors.T9i;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  50.7554 * tfactors.T9i * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // il10n
-    ln_set_rate =  50.1291 + -46.5774 * tfactors.T9i + -36.2324 * tfactors.T913i
-                         + -2.0 * tfactors.T953 + 0.833333 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  46.5774 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -36.2324 * tfactors.T943i
-                                  + (5.0/3.0) * -2.0 * tfactors.T923 + 0.833333 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
 
     // il10r
     ln_set_rate =  -4.06142 + -50.7773 * tfactors.T9i + 35.4292 * tfactors.T913
@@ -4676,6 +2163,38 @@ void rate_F19_to_He4_N15(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  53.5621 * tfactors.T9i * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // il10r
+    ln_set_rate =  15.3186 + -50.7554 * tfactors.T9i;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  50.7554 * tfactors.T9i * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // il10n
+    ln_set_rate =  50.1291 + -46.5774 * tfactors.T9i + -36.2324 * tfactors.T913i
+                         + -2.0 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  46.5774 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -36.2324 * tfactors.T943i
+                                  + (5.0/3.0) * -2.0 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -4861,23 +2380,6 @@ void rate_Ne19_to_p_F18(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dr
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // il10r
-    ln_set_rate =  -5.41887 + -74.7977 * tfactors.T9i + 22.4903 * tfactors.T913
-                         + 0.307872 * tfactors.T9 + -0.296226 * tfactors.T953;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  74.7977 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 22.4903 * tfactors.T923i
-                                  + 0.307872 + (5.0/3.0) * -0.296226 * tfactors.T923;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
     // il10n
     ln_set_rate =  81.4385 + -74.3988 * tfactors.T9i + -21.4023 * tfactors.T913i + -93.766 * tfactors.T913
                          + 179.258 * tfactors.T9 + -202.561 * tfactors.T953 + 0.833333 * tfactors.lnT9;
@@ -4912,6 +2414,23 @@ void rate_Ne19_to_p_F18(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dr
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
+    // il10r
+    ln_set_rate =  -5.41887 + -74.7977 * tfactors.T9i + 22.4903 * tfactors.T913
+                         + 0.307872 * tfactors.T9 + -0.296226 * tfactors.T953;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  74.7977 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 22.4903 * tfactors.T923i
+                                  + 0.307872 + (5.0/3.0) * -0.296226 * tfactors.T923;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
 }
 
 template <int do_T_derivatives>
@@ -4926,23 +2445,6 @@ void rate_Ne19_to_He4_O15(const tf_t& tfactors, amrex::Real& rate, amrex::Real& 
     amrex::Real ln_set_rate{0.0};
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
-
-    // dc11n
-    ln_set_rate =  51.0289 + -40.9534 * tfactors.T9i + -39.578 * tfactors.T913i
-                         + -3.0 * tfactors.T953 + 0.833333 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  40.9534 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -39.578 * tfactors.T943i
-                                  + (5.0/3.0) * -3.0 * tfactors.T923 + 0.833333 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
 
     // dc11r
     ln_set_rate =  -7.51212 + -45.1578 * tfactors.T9i + -3.24609 * tfactors.T913i + 44.4647 * tfactors.T913
@@ -4966,6 +2468,23 @@ void rate_Ne19_to_He4_O15(const tf_t& tfactors, amrex::Real& rate, amrex::Real& 
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  46.8378 * tfactors.T9i * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // dc11n
+    ln_set_rate =  51.0289 + -40.9534 * tfactors.T9i + -39.578 * tfactors.T913i
+                         + -3.0 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  40.9534 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -39.578 * tfactors.T943i
+                                  + (5.0/3.0) * -3.0 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -5090,23 +2609,6 @@ void rate_Ne20_to_He4_O16(const tf_t& tfactors, amrex::Real& rate, amrex::Real& 
     amrex::Real set_rate{0.0};
 
     // co10r
-    ln_set_rate =  34.2658 + -67.6518 * tfactors.T9i + -3.65925 * tfactors.T913
-                         + 0.714224 * tfactors.T9 + -0.00107508 * tfactors.T953;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  67.6518 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -3.65925 * tfactors.T923i
-                                  + 0.714224 + (5.0/3.0) * -0.00107508 * tfactors.T923;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // co10r
     ln_set_rate =  28.6431 + -65.246 * tfactors.T9i;
 
     if constexpr (do_T_derivatives) {
@@ -5138,6 +2640,23 @@ void rate_Ne20_to_He4_O16(const tf_t& tfactors, amrex::Real& rate, amrex::Real& 
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
+    // co10r
+    ln_set_rate =  34.2658 + -67.6518 * tfactors.T9i + -3.65925 * tfactors.T913
+                         + 0.714224 * tfactors.T9 + -0.00107508 * tfactors.T953;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  67.6518 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -3.65925 * tfactors.T923i
+                                  + 0.714224 + (5.0/3.0) * -0.00107508 * tfactors.T923;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
 }
 
 template <int do_T_derivatives>
@@ -5153,11 +2672,13 @@ void rate_Ne21_to_n_Ne20(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // ka02r
-    ln_set_rate =  34.9807 + -80.162 * tfactors.T9i;
+    // ka02n
+    ln_set_rate =  30.8228 + -78.458 * tfactors.T9i
+                         + 1.5 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  80.162 * tfactors.T9i * tfactors.T9i;
+        dln_set_rate_dT9 =  78.458 * tfactors.T9i * tfactors.T9i
+                                  + 1.5 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -5168,13 +2689,11 @@ void rate_Ne21_to_n_Ne20(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
-    // ka02n
-    ln_set_rate =  30.8228 + -78.458 * tfactors.T9i
-                         + 1.5 * tfactors.lnT9;
+    // ka02r
+    ln_set_rate =  34.9807 + -80.162 * tfactors.T9i;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  78.458 * tfactors.T9i * tfactors.T9i
-                                  + 1.5 * tfactors.T9i;
+        dln_set_rate_dT9 =  80.162 * tfactors.T9i * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -5201,23 +2720,6 @@ void rate_Ne21_to_He4_O17(const tf_t& tfactors, amrex::Real& rate, amrex::Real& 
     amrex::Real set_rate{0.0};
 
     // be13r
-    ln_set_rate =  27.3205 + -91.2722 * tfactors.T9i + 2.87641 * tfactors.T913i + -3.54489 * tfactors.T913
-                         + -2.11222e-08 * tfactors.T9 + -3.90649e-09 * tfactors.T953 + 6.25778 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  91.2722 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 2.87641 * tfactors.T943i + (1.0/3.0) * -3.54489 * tfactors.T923i
-                                  + -2.11222e-08 + (5.0/3.0) * -3.90649e-09 * tfactors.T923 + 6.25778 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // be13r
     ln_set_rate =  0.0906657 + -90.782 * tfactors.T9i + 123.363 * tfactors.T913i + -87.4351 * tfactors.T913
                          + -3.40974e-06 * tfactors.T9 + -57.0469 * tfactors.T953 + 83.7218 * tfactors.lnT9;
 
@@ -5241,6 +2743,23 @@ void rate_Ne21_to_He4_O17(const tf_t& tfactors, amrex::Real& rate, amrex::Real& 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  98.9487 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 3.31162e-08 * tfactors.T943i + (1.0/3.0) * 130.258 * tfactors.T923i
                                   + -7.92551e-05 + (5.0/3.0) * -4.13772 * tfactors.T923 + -41.2753 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // be13r
+    ln_set_rate =  27.3205 + -91.2722 * tfactors.T9i + 2.87641 * tfactors.T913i + -3.54489 * tfactors.T913
+                         + -2.11222e-08 * tfactors.T9 + -3.90649e-09 * tfactors.T953 + 6.25778 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  91.2722 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 2.87641 * tfactors.T943i + (1.0/3.0) * -3.54489 * tfactors.T923i
+                                  + -2.11222e-08 + (5.0/3.0) * -3.90649e-09 * tfactors.T923 + 6.25778 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -5299,21 +2818,6 @@ void rate_Ne22_to_He4_O18(const tf_t& tfactors, amrex::Real& rate, amrex::Real& 
     amrex::Real set_rate{0.0};
 
     // il10r
-    ln_set_rate =  39.7659 + -143.24 * tfactors.T9i;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  143.24 * tfactors.T9i * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // il10r
     ln_set_rate =  106.996 + -113.779 * tfactors.T9i + -44.3823 * tfactors.T913i + -46.6617 * tfactors.T913
                          + 7.88059 * tfactors.T9 + -0.590829 * tfactors.T953;
 
@@ -5360,6 +2864,21 @@ void rate_Ne22_to_He4_O18(const tf_t& tfactors, amrex::Real& rate, amrex::Real& 
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
+    // il10r
+    ln_set_rate =  39.7659 + -143.24 * tfactors.T9i;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  143.24 * tfactors.T9i * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
 }
 
 template <int do_T_derivatives>
@@ -5374,23 +2893,6 @@ void rate_Na21_to_p_Ne20(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     amrex::Real ln_set_rate{0.0};
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
-
-    // ly18 
-    ln_set_rate =  195320.0 + -89.3596 * tfactors.T9i + 21894.7 * tfactors.T913i + -319153.0 * tfactors.T913
-                         + 224369.0 * tfactors.T9 + -188049.0 * tfactors.T953 + 48704.9 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  89.3596 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 21894.7 * tfactors.T943i + (1.0/3.0) * -319153.0 * tfactors.T923i
-                                  + 224369.0 + (5.0/3.0) * -188049.0 * tfactors.T923 + 48704.9 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
 
     // ly18 
     ln_set_rate =  230.123 + -28.3722 * tfactors.T9i + 15.325 * tfactors.T913i + -294.859 * tfactors.T913
@@ -5433,6 +2935,23 @@ void rate_Na21_to_p_Ne20(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  32.6731 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 258.57 * tfactors.T943i + (1.0/3.0) * -506.387 * tfactors.T923i
                                   + 22.1576 + (5.0/3.0) * -0.721182 * tfactors.T923 + 231.788 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // ly18 
+    ln_set_rate =  195320.0 + -89.3596 * tfactors.T9i + 21894.7 * tfactors.T913i + -319153.0 * tfactors.T913
+                         + 224369.0 * tfactors.T9 + -188049.0 * tfactors.T953 + 48704.9 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  89.3596 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 21894.7 * tfactors.T943i + (1.0/3.0) * -319153.0 * tfactors.T923i
+                                  + 224369.0 + (5.0/3.0) * -188049.0 * tfactors.T923 + 48704.9 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -5523,23 +3042,6 @@ void rate_Na22_to_p_Ne21(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     amrex::Real set_rate{0.0};
 
     // il10r
-    ln_set_rate =  -16.4098 + -82.4235 * tfactors.T9i + 21.1176 * tfactors.T913i + 34.0411 * tfactors.T913
-                         + -4.45593 * tfactors.T9 + 0.328613 * tfactors.T953;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  82.4235 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 21.1176 * tfactors.T943i + (1.0/3.0) * 34.0411 * tfactors.T923i
-                                  + -4.45593 + (5.0/3.0) * 0.328613 * tfactors.T923;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // il10r
     ln_set_rate =  24.8334 + -79.6093 * tfactors.T9i;
 
     if constexpr (do_T_derivatives) {
@@ -5576,6 +3078,23 @@ void rate_Na22_to_p_Ne21(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  78.2097 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -19.2096 * tfactors.T943i
                                   + (5.0/3.0) * -1.0 * tfactors.T923 + 0.833333 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // il10r
+    ln_set_rate =  -16.4098 + -82.4235 * tfactors.T9i + 21.1176 * tfactors.T913i + 34.0411 * tfactors.T913
+                         + -4.45593 * tfactors.T9 + 0.328613 * tfactors.T953;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  82.4235 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 21.1176 * tfactors.T943i + (1.0/3.0) * 34.0411 * tfactors.T923i
+                                  + -4.45593 + (5.0/3.0) * 0.328613 * tfactors.T923;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -5666,23 +3185,6 @@ void rate_Na23_to_p_Ne22(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     amrex::Real set_rate{0.0};
 
     // ke17r
-    ln_set_rate =  18.2467 + -104.673 * tfactors.T9i
-                         + -2.79964 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  104.673 * tfactors.T9i * tfactors.T9i
-                                  + -2.79964 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // ke17r
     ln_set_rate =  21.6534 + -103.776 * tfactors.T9i
                          + 1.18923 * tfactors.lnT9;
 
@@ -5767,6 +3269,23 @@ void rate_Na23_to_p_Ne22(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
+    // ke17r
+    ln_set_rate =  18.2467 + -104.673 * tfactors.T9i
+                         + -2.79964 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  104.673 * tfactors.T9i * tfactors.T9i
+                                  + -2.79964 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
 }
 
 template <int do_T_derivatives>
@@ -5815,23 +3334,6 @@ void rate_Mg23_to_p_Na22(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     amrex::Real set_rate{0.0};
 
     // il10r
-    ln_set_rate =  12.9256 + -90.3923 * tfactors.T9i + 4.86658 * tfactors.T913i + 16.4592 * tfactors.T913
-                         + -1.95129 * tfactors.T9 + 0.132972 * tfactors.T953;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  90.3923 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 4.86658 * tfactors.T943i + (1.0/3.0) * 16.4592 * tfactors.T923i
-                                  + -1.95129 + (5.0/3.0) * 0.132972 * tfactors.T923;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // il10r
     ln_set_rate =  7.95641 + -88.7434 * tfactors.T9i;
 
     if constexpr (do_T_derivatives) {
@@ -5851,6 +3353,23 @@ void rate_Mg23_to_p_Na22(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  88.4655 * tfactors.T9i * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // il10r
+    ln_set_rate =  12.9256 + -90.3923 * tfactors.T9i + 4.86658 * tfactors.T913i + 16.4592 * tfactors.T913
+                         + -1.95129 * tfactors.T9 + 0.132972 * tfactors.T953;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  90.3923 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 4.86658 * tfactors.T943i + (1.0/3.0) * 16.4592 * tfactors.T923i
+                                  + -1.95129 + (5.0/3.0) * 0.132972 * tfactors.T923;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -6004,23 +3523,6 @@ void rate_Mg24_to_He4_Ne20(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // il10n
-    ln_set_rate =  49.3244 + -108.114 * tfactors.T9i + -46.2525 * tfactors.T913i + 5.58901 * tfactors.T913
-                         + 7.61843 * tfactors.T9 + -3.683 * tfactors.T953 + 0.833333 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  108.114 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -46.2525 * tfactors.T943i + (1.0/3.0) * 5.58901 * tfactors.T923i
-                                  + 7.61843 + (5.0/3.0) * -3.683 * tfactors.T923 + 0.833333 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
     // il10r
     ln_set_rate =  16.0203 + -120.895 * tfactors.T9i + 16.9229 * tfactors.T913
                          + -2.57325 * tfactors.T9 + 0.208997 * tfactors.T953;
@@ -6058,6 +3560,23 @@ void rate_Mg24_to_He4_Ne20(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  110.62 * tfactors.T9i * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // il10n
+    ln_set_rate =  49.3244 + -108.114 * tfactors.T9i + -46.2525 * tfactors.T913i + 5.58901 * tfactors.T913
+                         + 7.61843 * tfactors.T9 + -3.683 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  108.114 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -46.2525 * tfactors.T943i + (1.0/3.0) * 5.58901 * tfactors.T923i
+                                  + 7.61843 + (5.0/3.0) * -3.683 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -6197,36 +3716,6 @@ void rate_Mg26_to_He4_Ne22(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     amrex::Real set_rate{0.0};
 
     // li12r
-    ln_set_rate =  1.08878 + -127.062 * tfactors.T9i;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  127.062 * tfactors.T9i * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // li12r
-    ln_set_rate =  -18.0225 + -125.401 * tfactors.T9i;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  125.401 * tfactors.T9i * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // li12r
     ln_set_rate =  -67.5662 + -124.09 * tfactors.T9i;
 
     if constexpr (do_T_derivatives) {
@@ -6275,6 +3764,36 @@ void rate_Mg26_to_He4_Ne22(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
+    // li12r
+    ln_set_rate =  1.08878 + -127.062 * tfactors.T9i;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  127.062 * tfactors.T9i * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // li12r
+    ln_set_rate =  -18.0225 + -125.401 * tfactors.T9i;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  125.401 * tfactors.T9i * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
 }
 
 template <int do_T_derivatives>
@@ -6290,13 +3809,13 @@ void rate_Al25_to_p_Mg24(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // il10n
-    ln_set_rate =  41.7494 + -26.3608 * tfactors.T9i + -22.0227 * tfactors.T913i + 0.361297 * tfactors.T913
-                         + 2.61292 * tfactors.T9 + -1.0 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+    // il10r
+    ln_set_rate =  30.093 + -28.8453 * tfactors.T9i + -1.57811 * tfactors.T913
+                         + 1.52232 * tfactors.T9 + -0.183001 * tfactors.T953;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  26.3608 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -22.0227 * tfactors.T943i + (1.0/3.0) * 0.361297 * tfactors.T923i
-                                  + 2.61292 + (5.0/3.0) * -1.0 * tfactors.T923 + 0.833333 * tfactors.T9i;
+        dln_set_rate_dT9 =  28.8453 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -1.57811 * tfactors.T923i
+                                  + 1.52232 + (5.0/3.0) * -0.183001 * tfactors.T923;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -6307,13 +3826,13 @@ void rate_Al25_to_p_Mg24(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
-    // il10r
-    ln_set_rate =  30.093 + -28.8453 * tfactors.T9i + -1.57811 * tfactors.T913
-                         + 1.52232 * tfactors.T9 + -0.183001 * tfactors.T953;
+    // il10n
+    ln_set_rate =  41.7494 + -26.3608 * tfactors.T9i + -22.0227 * tfactors.T913i + 0.361297 * tfactors.T913
+                         + 2.61292 * tfactors.T9 + -1.0 * tfactors.T953 + 0.833333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  28.8453 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -1.57811 * tfactors.T923i
-                                  + 1.52232 + (5.0/3.0) * -0.183001 * tfactors.T923;
+        dln_set_rate_dT9 =  26.3608 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -22.0227 * tfactors.T943i + (1.0/3.0) * 0.361297 * tfactors.T923i
+                                  + 2.61292 + (5.0/3.0) * -1.0 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -6629,23 +4148,6 @@ void rate_Si28_to_p_Al27(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // il10r
-    ln_set_rate =  11.7765 + -136.349 * tfactors.T9i + 23.8634 * tfactors.T913
-                         + -3.70135 * tfactors.T9 + 0.28964 * tfactors.T953;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  136.349 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 23.8634 * tfactors.T923i
-                                  + -3.70135 + (5.0/3.0) * 0.28964 * tfactors.T923;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
     // il10n
     ln_set_rate =  46.5494 + -134.445 * tfactors.T9i + -23.2205 * tfactors.T913i
                          + -2.0 * tfactors.T953 + 0.833333 * tfactors.lnT9;
@@ -6670,6 +4172,23 @@ void rate_Si28_to_p_Al27(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  134.832 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -26.8327 * tfactors.T943i + (1.0/3.0) * -116.137 * tfactors.T923i
                                   + 0.00950567 + (5.0/3.0) * 0.00999755 * tfactors.T923;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // il10r
+    ln_set_rate =  11.7765 + -136.349 * tfactors.T9i + 23.8634 * tfactors.T913
+                         + -3.70135 * tfactors.T9 + 0.28964 * tfactors.T953;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  136.349 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 23.8634 * tfactors.T923i
+                                  + -3.70135 + (5.0/3.0) * 0.28964 * tfactors.T923;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -6742,13 +4261,13 @@ void rate_Si29_to_n_Si28(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // ka02r
-    ln_set_rate =  29.8758 + -98.7165 * tfactors.T9i + 7.68863 * tfactors.T913
-                         + -1.7991 * tfactors.T9;
+    // ka02 
+    ln_set_rate =  31.7355 + -98.3365 * tfactors.T9i
+                         + 1.5 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  98.7165 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 7.68863 * tfactors.T923i
-                                  + -1.7991;
+        dln_set_rate_dT9 =  98.3365 * tfactors.T9i * tfactors.T9i
+                                  + 1.5 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -6759,13 +4278,13 @@ void rate_Si29_to_n_Si28(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
-    // ka02 
-    ln_set_rate =  31.7355 + -98.3365 * tfactors.T9i
-                         + 1.5 * tfactors.lnT9;
+    // ka02r
+    ln_set_rate =  29.8758 + -98.7165 * tfactors.T9i + 7.68863 * tfactors.T913
+                         + -1.7991 * tfactors.T9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  98.3365 * tfactors.T9i * tfactors.T9i
-                                  + 1.5 * tfactors.T9i;
+        dln_set_rate_dT9 =  98.7165 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 7.68863 * tfactors.T923i
+                                  + -1.7991;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -6823,13 +4342,13 @@ void rate_Si30_to_n_Si29(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // ka02r
-    ln_set_rate =  33.9492 + -123.292 * tfactors.T9i + 5.50678 * tfactors.T913
-                         + -2.85656 * tfactors.T9;
+    // ka02n
+    ln_set_rate =  36.1504 + -123.112 * tfactors.T9i + 0.650904 * tfactors.T913
+                         + 1.5 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  123.292 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 5.50678 * tfactors.T923i
-                                  + -2.85656;
+        dln_set_rate_dT9 =  123.112 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 0.650904 * tfactors.T923i
+                                  + 1.5 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -6840,13 +4359,13 @@ void rate_Si30_to_n_Si29(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
-    // ka02n
-    ln_set_rate =  36.1504 + -123.112 * tfactors.T9i + 0.650904 * tfactors.T913
-                         + 1.5 * tfactors.lnT9;
+    // ka02r
+    ln_set_rate =  33.9492 + -123.292 * tfactors.T9i + 5.50678 * tfactors.T913
+                         + -2.85656 * tfactors.T9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  123.112 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 0.650904 * tfactors.T923i
-                                  + 1.5 * tfactors.T9i;
+        dln_set_rate_dT9 =  123.292 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 5.50678 * tfactors.T923i
+                                  + -2.85656;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -6985,11 +4504,13 @@ void rate_P29_to_p_Si28(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dr
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // il10r
-    ln_set_rate =  28.6997 + -36.0408 * tfactors.T9i;
+    // il10n
+    ln_set_rate =  39.1379 + -31.8984 * tfactors.T9i + -23.8173 * tfactors.T913i + 7.08203 * tfactors.T913
+                         + -1.44753 * tfactors.T9 + 0.0804296 * tfactors.T953 + 0.833333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  36.0408 * tfactors.T9i * tfactors.T9i;
+        dln_set_rate_dT9 =  31.8984 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -23.8173 * tfactors.T943i + (1.0/3.0) * 7.08203 * tfactors.T923i
+                                  + -1.44753 + (5.0/3.0) * 0.0804296 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -7000,13 +4521,11 @@ void rate_P29_to_p_Si28(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dr
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
-    // il10n
-    ln_set_rate =  39.1379 + -31.8984 * tfactors.T9i + -23.8173 * tfactors.T913i + 7.08203 * tfactors.T913
-                         + -1.44753 * tfactors.T9 + 0.0804296 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+    // il10r
+    ln_set_rate =  28.6997 + -36.0408 * tfactors.T9i;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  31.8984 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -23.8173 * tfactors.T943i + (1.0/3.0) * 7.08203 * tfactors.T923i
-                                  + -1.44753 + (5.0/3.0) * 0.0804296 * tfactors.T923 + 0.833333 * tfactors.T9i;
+        dln_set_rate_dT9 =  36.0408 * tfactors.T9i * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -7225,40 +4744,6 @@ void rate_P31_to_p_Si30(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dr
     amrex::Real set_rate{0.0};
 
     // de20r
-    ln_set_rate =  31.761 + -89.8588 * tfactors.T9i
-                         + 2.7883 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  89.8588 * tfactors.T9i * tfactors.T9i
-                                  + 2.7883 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // de20r
-    ln_set_rate =  -311.303 + -85.8097 * tfactors.T9i
-                         + -77.047 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  85.8097 * tfactors.T9i * tfactors.T9i
-                                  + -77.047 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // de20r
     ln_set_rate =  18.7213 + -85.9282 * tfactors.T9i
                          + 6.49034 * tfactors.lnT9;
 
@@ -7350,6 +4835,40 @@ void rate_P31_to_p_Si30(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dr
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  91.3175 * tfactors.T9i * tfactors.T9i
                                   + 0.3809 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // de20r
+    ln_set_rate =  31.761 + -89.8588 * tfactors.T9i
+                         + 2.7883 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  89.8588 * tfactors.T9i * tfactors.T9i
+                                  + 2.7883 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // de20r
+    ln_set_rate =  -311.303 + -85.8097 * tfactors.T9i
+                         + -77.047 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  85.8097 * tfactors.T9i * tfactors.T9i
+                                  + -77.047 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -7966,6 +5485,23 @@ void rate_Cl33_to_p_S32(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dr
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
+    // il10r
+    ln_set_rate =  91.6078 + -29.4248 * tfactors.T9i + -33.7204 * tfactors.T913i + -32.7355 * tfactors.T913
+                         + 3.92526 * tfactors.T9 + -0.250479 * tfactors.T953;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  29.4248 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -33.7204 * tfactors.T943i + (1.0/3.0) * -32.7355 * tfactors.T923i
+                                  + 3.92526 + (5.0/3.0) * -0.250479 * tfactors.T923;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
     // il10n
     ln_set_rate =  74.7432 + -26.4211 * tfactors.T9i + -29.7741 * tfactors.T913i + -87.4473 * tfactors.T913
                          + 182.189 * tfactors.T9 + -128.625 * tfactors.T953 + 0.833333 * tfactors.lnT9;
@@ -7988,23 +5524,6 @@ void rate_Cl33_to_p_S32(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dr
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  27.2952 * tfactors.T9i * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // il10r
-    ln_set_rate =  91.6078 + -29.4248 * tfactors.T9i + -33.7204 * tfactors.T913i + -32.7355 * tfactors.T913
-                         + 3.92526 * tfactors.T9 + -0.250479 * tfactors.T953;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  29.4248 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -33.7204 * tfactors.T943i + (1.0/3.0) * -32.7355 * tfactors.T923i
-                                  + 3.92526 + (5.0/3.0) * -0.250479 * tfactors.T923;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -8191,66 +5710,6 @@ void rate_Cl35_to_p_S34(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dr
     amrex::Real set_rate{0.0};
 
     // se19r
-    ln_set_rate =  7.39781 + -75.3374 * tfactors.T9i;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  75.3374 * tfactors.T9i * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // se19r
-    ln_set_rate =  29.2773 + -79.0392 * tfactors.T9i;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  79.0392 * tfactors.T9i * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // se19r
-    ln_set_rate =  4.33927 + -75.1053 * tfactors.T9i;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  75.1053 * tfactors.T9i * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // se19r
-    ln_set_rate =  28.0819 + -78.5751 * tfactors.T9i;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  78.5751 * tfactors.T9i * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // se19r
     ln_set_rate =  22.7104 + -77.1013 * tfactors.T9i;
 
     if constexpr (do_T_derivatives) {
@@ -8302,6 +5761,66 @@ void rate_Cl35_to_p_S34(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dr
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  79.6891 * tfactors.T9i * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // se19r
+    ln_set_rate =  7.39781 + -75.3374 * tfactors.T9i;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  75.3374 * tfactors.T9i * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // se19r
+    ln_set_rate =  29.2773 + -79.0392 * tfactors.T9i;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  79.0392 * tfactors.T9i * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // se19r
+    ln_set_rate =  4.33927 + -75.1053 * tfactors.T9i;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  75.1053 * tfactors.T9i * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // se19r
+    ln_set_rate =  28.0819 + -78.5751 * tfactors.T9i;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  78.5751 * tfactors.T9i * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -8551,23 +6070,6 @@ void rate_Ar36_to_p_Cl35(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // il10n
-    ln_set_rate =  60.7366 + -98.7191 * tfactors.T9i + -27.8971 * tfactors.T913i + -16.2304 * tfactors.T913
-                         + 35.255 * tfactors.T9 + -25.8411 * tfactors.T953 + 0.833333 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  98.7191 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -27.8971 * tfactors.T943i + (1.0/3.0) * -16.2304 * tfactors.T923i
-                                  + 35.255 + (5.0/3.0) * -25.8411 * tfactors.T923 + 0.833333 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
     // il10r
     ln_set_rate =  17.2028 + -102.37 * tfactors.T9i + 18.0179 * tfactors.T913
                          + -2.86304 * tfactors.T9 + 0.250854 * tfactors.T953;
@@ -8605,6 +6107,23 @@ void rate_Ar36_to_p_Cl35(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  99.2838 * tfactors.T9i * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // il10n
+    ln_set_rate =  60.7366 + -98.7191 * tfactors.T9i + -27.8971 * tfactors.T913i + -16.2304 * tfactors.T913
+                         + 35.255 * tfactors.T9 + -25.8411 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  98.7191 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -27.8971 * tfactors.T943i + (1.0/3.0) * -16.2304 * tfactors.T923i
+                                  + 35.255 + (5.0/3.0) * -25.8411 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -9463,6 +6982,23 @@ void rate_Ca40_to_p_K39(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dr
     amrex::Real set_rate{0.0};
 
     // lo18r
+    ln_set_rate =  2786.44 + -101.871 * tfactors.T9i + 802.18 * tfactors.T913i + -4010.27 * tfactors.T913
+                         + 1137.69 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  101.871 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 802.18 * tfactors.T943i + (1.0/3.0) * -4010.27 * tfactors.T923i
+                                  + 1137.69 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // lo18r
     ln_set_rate =  613.153 + -109.213 * tfactors.T9i + 641.844 * tfactors.T913i + -1248.49 * tfactors.T913
                          + 566.426 * tfactors.lnT9;
 
@@ -9486,23 +7022,6 @@ void rate_Ca40_to_p_K39(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dr
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  98.3134 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 41.1723 * tfactors.T943i + (1.0/3.0) * -149.299 * tfactors.T923i
                                   + 10.5229 + (5.0/3.0) * -0.68208 * tfactors.T923 + 60.7367 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // lo18r
-    ln_set_rate =  2786.44 + -101.871 * tfactors.T9i + 802.18 * tfactors.T913i + -4010.27 * tfactors.T913
-                         + 1137.69 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  101.871 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 802.18 * tfactors.T943i + (1.0/3.0) * -4010.27 * tfactors.T923i
-                                  + 1137.69 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -9688,13 +7207,13 @@ void rate_Ca42_to_p_K41(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dr
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // SM86r
-    ln_set_rate =  41.0777 + -131.259 * tfactors.T9i + -1.68317 * tfactors.T913
-                         + 0.692171 * tfactors.T9 + -0.0831029 * tfactors.T953;
+    // SM86n
+    ln_set_rate =  57.2573 + -119.259 * tfactors.T9i + -30.08 * tfactors.T913i + 2.93877 * tfactors.T913
+                         + 2.77388 * tfactors.T9 + -4.8284 * tfactors.T953 + 0.833333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  131.259 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -1.68317 * tfactors.T923i
-                                  + 0.692171 + (5.0/3.0) * -0.0831029 * tfactors.T923;
+        dln_set_rate_dT9 =  119.259 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -30.08 * tfactors.T943i + (1.0/3.0) * 2.93877 * tfactors.T923i
+                                  + 2.77388 + (5.0/3.0) * -4.8284 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -9705,13 +7224,13 @@ void rate_Ca42_to_p_K41(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dr
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
-    // SM86n
-    ln_set_rate =  57.2573 + -119.259 * tfactors.T9i + -30.08 * tfactors.T913i + 2.93877 * tfactors.T913
-                         + 2.77388 * tfactors.T9 + -4.8284 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+    // SM86r
+    ln_set_rate =  41.0777 + -131.259 * tfactors.T9i + -1.68317 * tfactors.T913
+                         + 0.692171 * tfactors.T9 + -0.0831029 * tfactors.T953;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  119.259 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -30.08 * tfactors.T943i + (1.0/3.0) * 2.93877 * tfactors.T923i
-                                  + 2.77388 + (5.0/3.0) * -4.8284 * tfactors.T923 + 0.833333 * tfactors.T9i;
+        dln_set_rate_dT9 =  131.259 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -1.68317 * tfactors.T923i
+                                  + 0.692171 + (5.0/3.0) * -0.0831029 * tfactors.T923;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -11850,6 +9369,23 @@ void rate_Cr48_to_p_V47(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dr
     amrex::Real set_rate{0.0};
 
     // nfisn
+    ln_set_rate =  48.892 + -93.8243 * tfactors.T9i + -45.9868 * tfactors.T913i + 13.6822 * tfactors.T913
+                         + -0.376902 * tfactors.T9 + -0.0194875 * tfactors.T953 + -6.92325 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  93.8243 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -45.9868 * tfactors.T943i + (1.0/3.0) * 13.6822 * tfactors.T923i
+                                  + -0.376902 + (5.0/3.0) * -0.0194875 * tfactors.T923 + -6.92325 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // nfisn
     ln_set_rate =  65.6231 + -94.5854 * tfactors.T9i + -110.655 * tfactors.T913i + 83.0232 * tfactors.T913
                          + -19.7762 * tfactors.T9 + 3.03961 * tfactors.T953 + -47.9742 * tfactors.lnT9;
 
@@ -11890,23 +9426,6 @@ void rate_Cr48_to_p_V47(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dr
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  99.3659 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 317.171 * tfactors.T943i + (1.0/3.0) * -911.679 * tfactors.T923i
                                   + 94.4245 + (5.0/3.0) * -10.1973 * tfactors.T923 + 332.227 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // nfisn
-    ln_set_rate =  48.892 + -93.8243 * tfactors.T9i + -45.9868 * tfactors.T913i + 13.6822 * tfactors.T913
-                         + -0.376902 * tfactors.T9 + -0.0194875 * tfactors.T953 + -6.92325 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  93.8243 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -45.9868 * tfactors.T943i + (1.0/3.0) * 13.6822 * tfactors.T923i
-                                  + -0.376902 + (5.0/3.0) * -0.0194875 * tfactors.T923 + -6.92325 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -14876,6 +12395,40 @@ void rate_Cu57_to_p_Ni56(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
+    // wienr
+    ln_set_rate =  18.6884 + -12.8235 * tfactors.T9i + -0.0409988 * tfactors.T913
+                         + 0.0619696 * tfactors.T9 + -0.0172498 * tfactors.T953;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  12.8235 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -0.0409988 * tfactors.T923i
+                                  + 0.0619696 + (5.0/3.0) * -0.0172498 * tfactors.T923;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // wienr
+    ln_set_rate =  9.42903 + -11.9135 * tfactors.T9i + -0.0409988 * tfactors.T913
+                         + 0.0619696 * tfactors.T9 + -0.0172498 * tfactors.T953;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  11.9135 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -0.0409988 * tfactors.T923i
+                                  + 0.0619696 + (5.0/3.0) * -0.0172498 * tfactors.T923;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
     // wienn
     ln_set_rate =  43.8092 + -8.05352 * tfactors.T9i + -39.3 * tfactors.T913i + -0.0409988 * tfactors.T913
                          + 0.0619696 * tfactors.T9 + -0.0172498 * tfactors.T953 + 0.833333 * tfactors.lnT9;
@@ -14916,40 +12469,6 @@ void rate_Cu57_to_p_Ni56(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  27.8535 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -0.0409988 * tfactors.T923i
-                                  + 0.0619696 + (5.0/3.0) * -0.0172498 * tfactors.T923;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // wienr
-    ln_set_rate =  18.6884 + -12.8235 * tfactors.T9i + -0.0409988 * tfactors.T913
-                         + 0.0619696 * tfactors.T9 + -0.0172498 * tfactors.T953;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  12.8235 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -0.0409988 * tfactors.T923i
-                                  + 0.0619696 + (5.0/3.0) * -0.0172498 * tfactors.T923;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // wienr
-    ln_set_rate =  9.42903 + -11.9135 * tfactors.T9i + -0.0409988 * tfactors.T913
-                         + 0.0619696 * tfactors.T9 + -0.0172498 * tfactors.T953;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  11.9135 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -0.0409988 * tfactors.T923i
                                   + 0.0619696 + (5.0/3.0) * -0.0172498 * tfactors.T923;
     }
 
@@ -16823,40 +14342,6 @@ void rate_Ge63_to_p_Ga62(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     amrex::Real set_rate{0.0};
 
     // nfisn
-    ln_set_rate =  45.3582 + -27.0759 * tfactors.T9i + -107.856 * tfactors.T913i + 80.6244 * tfactors.T913
-                         + -2.84514 * tfactors.T9 + 0.087641 * tfactors.T953 + -55.0078 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  27.0759 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -107.856 * tfactors.T943i + (1.0/3.0) * 80.6244 * tfactors.T923i
-                                  + -2.84514 + (5.0/3.0) * 0.087641 * tfactors.T923 + -55.0078 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // nfisn
-    ln_set_rate =  76.0205 + -30.5116 * tfactors.T9i + 11.0703 * tfactors.T913i + -66.0297 * tfactors.T913
-                         + 2.89115 * tfactors.T9 + -0.129107 * tfactors.T953 + 30.8214 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  30.5116 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 11.0703 * tfactors.T943i + (1.0/3.0) * -66.0297 * tfactors.T923i
-                                  + 2.89115 + (5.0/3.0) * -0.129107 * tfactors.T923 + 30.8214 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // nfisn
     ln_set_rate =  9653.53 + -138.896 * tfactors.T9i + 6926.61 * tfactors.T913i + -18459.0 * tfactors.T913
                          + 2374.61 * tfactors.T9 + -366.508 * tfactors.T953 + 6588.46 * tfactors.lnT9;
 
@@ -16897,6 +14382,40 @@ void rate_Ge63_to_p_Ga62(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  26.1495 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -8.15451 * tfactors.T943i + (1.0/3.0) * -301.681 * tfactors.T923i
                                   + 33.0147 + (5.0/3.0) * -2.8672 * tfactors.T923 + 72.2354 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // nfisn
+    ln_set_rate =  45.3582 + -27.0759 * tfactors.T9i + -107.856 * tfactors.T913i + 80.6244 * tfactors.T913
+                         + -2.84514 * tfactors.T9 + 0.087641 * tfactors.T953 + -55.0078 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  27.0759 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -107.856 * tfactors.T943i + (1.0/3.0) * 80.6244 * tfactors.T923i
+                                  + -2.84514 + (5.0/3.0) * 0.087641 * tfactors.T923 + -55.0078 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // nfisn
+    ln_set_rate =  76.0205 + -30.5116 * tfactors.T9i + 11.0703 * tfactors.T913i + -66.0297 * tfactors.T913
+                         + 2.89115 * tfactors.T9 + -0.129107 * tfactors.T953 + 30.8214 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  30.5116 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 11.0703 * tfactors.T943i + (1.0/3.0) * -66.0297 * tfactors.T923i
+                                  + 2.89115 + (5.0/3.0) * -0.129107 * tfactors.T923 + 30.8214 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -17082,23 +14601,6 @@ void rate_Be9_to_n_He4_He4(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // ac12r
-    ln_set_rate =  38.6902 + -19.2792 * tfactors.T9i + -1.56673 * tfactors.T913i + -5.43497 * tfactors.T913
-                         + 0.673807 * tfactors.T9 + -0.041014 * tfactors.T953 + 1.5 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  19.2792 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -1.56673 * tfactors.T943i + (1.0/3.0) * -5.43497 * tfactors.T923i
-                                  + 0.673807 + (5.0/3.0) * -0.041014 * tfactors.T923 + 1.5 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
     // ac12n
     ln_set_rate =  37.273 + -18.2597 * tfactors.T9i + -13.3317 * tfactors.T913i + 13.2237 * tfactors.T913
                          + -9.06339 * tfactors.T9 + 2.33333 * tfactors.lnT9;
@@ -17116,28 +14618,13 @@ void rate_Be9_to_n_He4_He4(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_C12_to_He4_He4_He4(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // C12 --> He4 + He4 + He4
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // fy05n
-    ln_set_rate =  45.7734 + -84.4227 * tfactors.T9i + -37.06 * tfactors.T913i + 29.3493 * tfactors.T913
-                         + -115.507 * tfactors.T9 + -10.0 * tfactors.T953 + 1.66667 * tfactors.lnT9;
+    // ac12r
+    ln_set_rate =  38.6902 + -19.2792 * tfactors.T9i + -1.56673 * tfactors.T913i + -5.43497 * tfactors.T913
+                         + 0.673807 * tfactors.T9 + -0.041014 * tfactors.T953 + 1.5 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  84.4227 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -37.06 * tfactors.T943i + (1.0/3.0) * 29.3493 * tfactors.T923i
-                                  + -115.507 + (5.0/3.0) * -10.0 * tfactors.T923 + 1.66667 * tfactors.T9i;
+        dln_set_rate_dT9 =  19.2792 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -1.56673 * tfactors.T943i + (1.0/3.0) * -5.43497 * tfactors.T923i
+                                  + 0.673807 + (5.0/3.0) * -0.041014 * tfactors.T923 + 1.5 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -17147,6 +14634,21 @@ void rate_C12_to_He4_He4_He4(const tf_t& tfactors, amrex::Real& rate, amrex::Rea
     if constexpr (do_T_derivatives) {
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
+
+}
+
+template <int do_T_derivatives>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_C12_to_He4_He4_He4(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
+
+    // C12 --> 3 He4
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
 
     // fy05r
     ln_set_rate =  22.394 + -88.5493 * tfactors.T9i + -13.49 * tfactors.T913i + 21.4259 * tfactors.T913
@@ -17172,6 +14674,23 @@ void rate_C12_to_He4_He4_He4(const tf_t& tfactors, amrex::Real& rate, amrex::Rea
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  85.4472 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -23.57 * tfactors.T943i + (1.0/3.0) * 20.4886 * tfactors.T923i
                                   + -12.9882 + (5.0/3.0) * -20.0 * tfactors.T923 + 0.83333 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // fy05n
+    ln_set_rate =  45.7734 + -84.4227 * tfactors.T9i + -37.06 * tfactors.T913i + 29.3493 * tfactors.T913
+                         + -115.507 * tfactors.T9 + -10.0 * tfactors.T953 + 1.66667 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  84.4227 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -37.06 * tfactors.T943i + (1.0/3.0) * 29.3493 * tfactors.T923i
+                                  + -115.507 + (5.0/3.0) * -10.0 * tfactors.T923 + 1.66667 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -17764,13 +15283,13 @@ void rate_p_Be7_to_B8(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drat
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // nacrn
-    ln_set_rate =  12.5315 + -10.264 * tfactors.T913i + -0.203472 * tfactors.T913
-                         + 0.121083 * tfactors.T9 + -0.00700063 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+    // nacrr
+    ln_set_rate =  7.73399 + -7.345 * tfactors.T9i
+                         + -1.5 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  + -(1.0/3.0) * -10.264 * tfactors.T943i + (1.0/3.0) * -0.203472 * tfactors.T923i
-                                  + 0.121083 + (5.0/3.0) * -0.00700063 * tfactors.T923 + -0.666667 * tfactors.T9i;
+        dln_set_rate_dT9 =  7.345 * tfactors.T9i * tfactors.T9i
+                                  + -1.5 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -17781,13 +15300,13 @@ void rate_p_Be7_to_B8(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drat
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
-    // nacrr
-    ln_set_rate =  7.73399 + -7.345 * tfactors.T9i
-                         + -1.5 * tfactors.lnT9;
+    // nacrn
+    ln_set_rate =  12.5315 + -10.264 * tfactors.T913i + -0.203472 * tfactors.T913
+                         + 0.121083 * tfactors.T9 + -0.00700063 * tfactors.T953 + -0.666667 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  7.345 * tfactors.T9i * tfactors.T9i
-                                  + -1.5 * tfactors.T9i;
+        dln_set_rate_dT9 =  + -(1.0/3.0) * -10.264 * tfactors.T943i + (1.0/3.0) * -0.203472 * tfactors.T923i
+                                  + 0.121083 + (5.0/3.0) * -0.00700063 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -17814,23 +15333,6 @@ void rate_p_Be9_to_B10(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dra
     amrex::Real set_rate{0.0};
 
     // nacrr
-    ln_set_rate =  14.9657 + -11.5391 * tfactors.T9i
-                         + -1.5 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  11.5391 * tfactors.T9i * tfactors.T9i
-                                  + -1.5 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // nacrr
     ln_set_rate =  7.68698 + -2.59506 * tfactors.T9i
                          + -1.5 * tfactors.lnT9;
 
@@ -17854,6 +15356,23 @@ void rate_p_Be9_to_B10(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dra
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  + -(1.0/3.0) * -10.361 * tfactors.T943i + (1.0/3.0) * 0.695179 * tfactors.T923i
                                   + 0.342365 + (5.0/3.0) * -0.356569 * tfactors.T923 + -0.666667 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // nacrr
+    ln_set_rate =  14.9657 + -11.5391 * tfactors.T9i
+                         + -1.5 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  11.5391 * tfactors.T9i * tfactors.T9i
+                                  + -1.5 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -17911,23 +15430,6 @@ void rate_p_B11_to_C12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dra
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // nw00r
-    ln_set_rate =  8.67352 + -1.71197 * tfactors.T9i
-                         + -1.5 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  1.71197 * tfactors.T9i * tfactors.T9i
-                                  + -1.5 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
     // nw00n
     ln_set_rate =  25.5647 + -12.095 * tfactors.T913i + -6.68421 * tfactors.T913
                          + -0.0148736 * tfactors.T9 + 0.0364288 * tfactors.T953 + 1.33333 * tfactors.lnT9;
@@ -17952,6 +15454,23 @@ void rate_p_B11_to_C12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dra
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  + -(1.0/3.0) * -12.095 * tfactors.T943i + (1.0/3.0) * -1.95046 * tfactors.T923i
                                   + 9.56928 + (5.0/3.0) * -10.0637 * tfactors.T923 + -0.666667 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // nw00r
+    ln_set_rate =  8.67352 + -1.71197 * tfactors.T9i
+                         + -1.5 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  1.71197 * tfactors.T9i * tfactors.T9i
+                                  + -1.5 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -18139,23 +15658,6 @@ void rate_p_C13_to_N14(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dra
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // nacrr
-    ln_set_rate =  15.1825 + -13.5543 * tfactors.T9i
-                         + -1.5 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  13.5543 * tfactors.T9i * tfactors.T9i
-                                  + -1.5 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
     // nacrn
     ln_set_rate =  18.5155 + -13.72 * tfactors.T913i + -0.450018 * tfactors.T913
                          + 3.70823 * tfactors.T9 + -1.70545 * tfactors.T953 + -0.666667 * tfactors.lnT9;
@@ -18190,6 +15692,23 @@ void rate_p_C13_to_N14(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dra
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
+    // nacrr
+    ln_set_rate =  15.1825 + -13.5543 * tfactors.T9i
+                         + -1.5 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  13.5543 * tfactors.T9i * tfactors.T9i
+                                  + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
 }
 
 template <int do_T_derivatives>
@@ -18205,13 +15724,13 @@ void rate_p_C14_to_N15(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dra
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // il10n
-    ln_set_rate =  20.119 + -13.9619 * tfactors.T913i + -4.34315 * tfactors.T913
-                         + 6.64922 * tfactors.T9 + -3.22592 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+    // il10r
+    ln_set_rate =  17.1024 + -1.52341 * tfactors.T9i + -10.658 * tfactors.T913i + 1.73644 * tfactors.T913
+                         + -0.350498 * tfactors.T9 + 0.0279902 * tfactors.T953 + -1.5 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  + -(1.0/3.0) * -13.9619 * tfactors.T943i + (1.0/3.0) * -4.34315 * tfactors.T923i
-                                  + 6.64922 + (5.0/3.0) * -3.22592 * tfactors.T923 + -0.666667 * tfactors.T9i;
+        dln_set_rate_dT9 =  1.52341 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -10.658 * tfactors.T943i + (1.0/3.0) * 1.73644 * tfactors.T923i
+                                  + -0.350498 + (5.0/3.0) * 0.0279902 * tfactors.T923 + -1.5 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -18222,13 +15741,13 @@ void rate_p_C14_to_N15(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dra
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
-    // il10r
-    ln_set_rate =  17.1024 + -1.52341 * tfactors.T9i + -10.658 * tfactors.T913i + 1.73644 * tfactors.T913
-                         + -0.350498 * tfactors.T9 + 0.0279902 * tfactors.T953 + -1.5 * tfactors.lnT9;
+    // il10n
+    ln_set_rate =  20.119 + -13.9619 * tfactors.T913i + -4.34315 * tfactors.T913
+                         + 6.64922 * tfactors.T9 + -3.22592 * tfactors.T953 + -0.666667 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  1.52341 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -10.658 * tfactors.T943i + (1.0/3.0) * 1.73644 * tfactors.T923i
-                                  + -0.350498 + (5.0/3.0) * 0.0279902 * tfactors.T923 + -1.5 * tfactors.T9i;
+        dln_set_rate_dT9 =  + -(1.0/3.0) * -13.9619 * tfactors.T943i + (1.0/3.0) * -4.34315 * tfactors.T923i
+                                  + 6.64922 + (5.0/3.0) * -3.22592 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -18320,13 +15839,13 @@ void rate_n_N13_to_N14(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dra
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // wiesr
-    ln_set_rate =  -3.63074 + -2.99547 * tfactors.T9i + 9.44873e-10 * tfactors.T913i + -2.33713e-09 * tfactors.T913
-                         + 1.97507e-10 * tfactors.T9 + -1.49747e-11 * tfactors.T953 + -1.5 * tfactors.lnT9;
+    // wiesn
+    ln_set_rate =  13.9377 + -0.0054652 * tfactors.T9i + 1.72241e-10 * tfactors.T913i + -5.62522e-10 * tfactors.T913
+                         + 5.59212e-11 * tfactors.T9 + -4.6549e-12 * tfactors.T953;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  2.99547 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 9.44873e-10 * tfactors.T943i + (1.0/3.0) * -2.33713e-09 * tfactors.T923i
-                                  + 1.97507e-10 + (5.0/3.0) * -1.49747e-11 * tfactors.T923 + -1.5 * tfactors.T9i;
+        dln_set_rate_dT9 =  0.0054652 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 1.72241e-10 * tfactors.T943i + (1.0/3.0) * -5.62522e-10 * tfactors.T923i
+                                  + 5.59212e-11 + (5.0/3.0) * -4.6549e-12 * tfactors.T923;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -18337,13 +15856,13 @@ void rate_n_N13_to_N14(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dra
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
-    // wiesn
-    ln_set_rate =  13.9377 + -0.0054652 * tfactors.T9i + 1.72241e-10 * tfactors.T913i + -5.62522e-10 * tfactors.T913
-                         + 5.59212e-11 * tfactors.T9 + -4.6549e-12 * tfactors.T953;
+    // wiesr
+    ln_set_rate =  -3.63074 + -2.99547 * tfactors.T9i + 9.44873e-10 * tfactors.T913i + -2.33713e-09 * tfactors.T913
+                         + 1.97507e-10 * tfactors.T9 + -1.49747e-11 * tfactors.T953 + -1.5 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  0.0054652 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 1.72241e-10 * tfactors.T943i + (1.0/3.0) * -5.62522e-10 * tfactors.T923i
-                                  + 5.59212e-11 + (5.0/3.0) * -4.6549e-12 * tfactors.T923;
+        dln_set_rate_dT9 =  2.99547 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 9.44873e-10 * tfactors.T943i + (1.0/3.0) * -2.33713e-09 * tfactors.T923i
+                                  + 1.97507e-10 + (5.0/3.0) * -1.49747e-11 * tfactors.T923 + -1.5 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -18450,23 +15969,6 @@ void rate_p_N14_to_O15(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dra
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // im05n
-    ln_set_rate =  17.01 + -15.193 * tfactors.T913i + -0.161954 * tfactors.T913
-                         + -7.52123 * tfactors.T9 + -0.987565 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  + -(1.0/3.0) * -15.193 * tfactors.T943i + (1.0/3.0) * -0.161954 * tfactors.T923i
-                                  + -7.52123 + (5.0/3.0) * -0.987565 * tfactors.T923 + -0.666667 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
     // im05r
     ln_set_rate =  6.73578 + -4.891 * tfactors.T9i
                          + 0.0682 * tfactors.lnT9;
@@ -18518,6 +16020,23 @@ void rate_p_N14_to_O15(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dra
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
+    // im05n
+    ln_set_rate =  17.01 + -15.193 * tfactors.T913i + -0.161954 * tfactors.T913
+                         + -7.52123 * tfactors.T9 + -0.987565 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  + -(1.0/3.0) * -15.193 * tfactors.T943i + (1.0/3.0) * -0.161954 * tfactors.T923i
+                                  + -7.52123 + (5.0/3.0) * -0.987565 * tfactors.T923 + -0.666667 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
 }
 
 template <int do_T_derivatives>
@@ -18532,23 +16051,6 @@ void rate_He4_N14_to_F18(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     amrex::Real ln_set_rate{0.0};
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
-
-    // il10n
-    ln_set_rate =  21.5339 + -36.2504 * tfactors.T913i
-                         + -5.0 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  + -(1.0/3.0) * -36.2504 * tfactors.T943i
-                                  + (5.0/3.0) * -5.0 * tfactors.T923 + -0.666667 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
 
     // il10r
     ln_set_rate =  13.8995 + -10.9656 * tfactors.T9i + -5.6227 * tfactors.T913i
@@ -18584,6 +16086,23 @@ void rate_He4_N14_to_F18(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
+    // il10n
+    ln_set_rate =  21.5339 + -36.2504 * tfactors.T913i
+                         + -5.0 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  + -(1.0/3.0) * -36.2504 * tfactors.T943i
+                                  + (5.0/3.0) * -5.0 * tfactors.T923 + -0.666667 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
 }
 
 template <int do_T_derivatives>
@@ -18598,23 +16117,6 @@ void rate_p_N15_to_O16(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dra
     amrex::Real ln_set_rate{0.0};
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
-
-    // li10n
-    ln_set_rate =  20.0176 + -15.24 * tfactors.T913i + 0.334926 * tfactors.T913
-                         + 4.59088 * tfactors.T9 + -4.78468 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  + -(1.0/3.0) * -15.24 * tfactors.T943i + (1.0/3.0) * 0.334926 * tfactors.T923i
-                                  + 4.59088 + (5.0/3.0) * -4.78468 * tfactors.T923 + -0.666667 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
 
     // li10r
     ln_set_rate =  14.5444 + -10.2295 * tfactors.T9i
@@ -18650,6 +16152,23 @@ void rate_p_N15_to_O16(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dra
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
+    // li10n
+    ln_set_rate =  20.0176 + -15.24 * tfactors.T913i + 0.334926 * tfactors.T913
+                         + 4.59088 * tfactors.T9 + -4.78468 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  + -(1.0/3.0) * -15.24 * tfactors.T943i + (1.0/3.0) * 0.334926 * tfactors.T923i
+                                  + 4.59088 + (5.0/3.0) * -4.78468 * tfactors.T923 + -0.666667 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
 }
 
 template <int do_T_derivatives>
@@ -18664,40 +16183,6 @@ void rate_He4_N15_to_F19(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     amrex::Real ln_set_rate{0.0};
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
-
-    // il10r
-    ln_set_rate =  -9.41892 + -4.17795 * tfactors.T9i
-                         + -1.5 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  4.17795 * tfactors.T9i * tfactors.T9i
-                                  + -1.5 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // il10n
-    ln_set_rate =  25.3916 + -36.2324 * tfactors.T913i
-                         + -2.0 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  + -(1.0/3.0) * -36.2324 * tfactors.T943i
-                                  + (5.0/3.0) * -2.0 * tfactors.T923 + -0.666667 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
 
     // il10r
     ln_set_rate =  -28.7989 + -4.19986 * tfactors.T9i + 35.4292 * tfactors.T913
@@ -18723,6 +16208,40 @@ void rate_He4_N15_to_F19(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  6.98462 * tfactors.T9i * tfactors.T9i
                                   + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // il10r
+    ln_set_rate =  -9.41892 + -4.17795 * tfactors.T9i
+                         + -1.5 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  4.17795 * tfactors.T9i * tfactors.T9i
+                                  + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // il10n
+    ln_set_rate =  25.3916 + -36.2324 * tfactors.T913i
+                         + -2.0 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  + -(1.0/3.0) * -36.2324 * tfactors.T943i
+                                  + (5.0/3.0) * -2.0 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -18780,6 +16299,23 @@ void rate_He4_O14_to_Ne18(const tf_t& tfactors, amrex::Real& rate, amrex::Real& 
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
+    // wh87n
+    ln_set_rate =  26.4429 + -39.38 * tfactors.T913i + -0.0772187 * tfactors.T913
+                         + -0.635361 * tfactors.T9 + 0.106236 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  + -(1.0/3.0) * -39.38 * tfactors.T943i + (1.0/3.0) * -0.0772187 * tfactors.T923i
+                                  + -0.635361 + (5.0/3.0) * 0.106236 * tfactors.T923 + -0.666667 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
     // wh87r
     ln_set_rate =  -4.69948 + -12.159 * tfactors.T9i
                          + 5.0 * tfactors.lnT9;
@@ -18821,23 +16357,6 @@ void rate_He4_O14_to_Ne18(const tf_t& tfactors, amrex::Real& rate, amrex::Real& 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  11.73 * tfactors.T9i * tfactors.T9i
                                   + -1.5 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // wh87n
-    ln_set_rate =  26.4429 + -39.38 * tfactors.T913i + -0.0772187 * tfactors.T913
-                         + -0.635361 * tfactors.T9 + 0.106236 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  + -(1.0/3.0) * -39.38 * tfactors.T943i + (1.0/3.0) * -0.0772187 * tfactors.T923i
-                                  + -0.635361 + (5.0/3.0) * 0.106236 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -19026,23 +16545,6 @@ void rate_He4_O16_to_Ne20(const tf_t& tfactors, amrex::Real& rate, amrex::Real& 
     amrex::Real set_rate{0.0};
 
     // co10r
-    ln_set_rate =  9.50848 + -12.7643 * tfactors.T9i + -3.65925 * tfactors.T913
-                         + 0.714224 * tfactors.T9 + -0.00107508 * tfactors.T953 + -1.5 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  12.7643 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -3.65925 * tfactors.T923i
-                                  + 0.714224 + (5.0/3.0) * -0.00107508 * tfactors.T923 + -1.5 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // co10r
     ln_set_rate =  3.88571 + -10.3585 * tfactors.T9i
                          + -1.5 * tfactors.lnT9;
 
@@ -19066,6 +16568,23 @@ void rate_He4_O16_to_Ne20(const tf_t& tfactors, amrex::Real& rate, amrex::Real& 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  + -(1.0/3.0) * -39.7262 * tfactors.T943i + (1.0/3.0) * -0.210799 * tfactors.T923i
                                   + 0.442879 + (5.0/3.0) * -0.0797753 * tfactors.T923 + -0.666667 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // co10r
+    ln_set_rate =  9.50848 + -12.7643 * tfactors.T9i + -3.65925 * tfactors.T913
+                         + 0.714224 * tfactors.T9 + -0.00107508 * tfactors.T953 + -1.5 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  12.7643 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -3.65925 * tfactors.T923i
+                                  + 0.714224 + (5.0/3.0) * -0.00107508 * tfactors.T923 + -1.5 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -19140,23 +16659,6 @@ void rate_p_O17_to_F18(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dra
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // il10n
-    ln_set_rate =  15.8929 + -16.4035 * tfactors.T913i + 4.31885 * tfactors.T913
-                         + -0.709921 * tfactors.T9 + -2.0 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  + -(1.0/3.0) * -16.4035 * tfactors.T943i + (1.0/3.0) * 4.31885 * tfactors.T923i
-                                  + -0.709921 + (5.0/3.0) * -2.0 * tfactors.T923 + -0.666667 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
     // il10r
     ln_set_rate =  9.39048 + -6.22828 * tfactors.T9i + 2.31435 * tfactors.T913
                          + -0.302835 * tfactors.T9 + 0.020133 * tfactors.T953 + -1.5 * tfactors.lnT9;
@@ -19181,6 +16683,23 @@ void rate_p_O17_to_F18(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dra
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  0.746296 * tfactors.T9i * tfactors.T9i
                                   + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // il10n
+    ln_set_rate =  15.8929 + -16.4035 * tfactors.T913i + 4.31885 * tfactors.T913
+                         + -0.709921 * tfactors.T9 + -2.0 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  + -(1.0/3.0) * -16.4035 * tfactors.T943i + (1.0/3.0) * 4.31885 * tfactors.T923i
+                                  + -0.709921 + (5.0/3.0) * -2.0 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -19272,23 +16791,6 @@ void rate_p_O18_to_F19(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dra
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // il10r
-    ln_set_rate =  -35.0079 + -0.244743 * tfactors.T9i
-                         + -1.5 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  0.244743 * tfactors.T9i * tfactors.T9i
-                                  + -1.5 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
     // il10n
     ln_set_rate =  19.917 + -16.7246 * tfactors.T913i
                          + -3.0 * tfactors.T953 + -0.666667 * tfactors.lnT9;
@@ -19340,6 +16842,23 @@ void rate_p_O18_to_F19(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dra
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
+    // il10r
+    ln_set_rate =  -35.0079 + -0.244743 * tfactors.T9i
+                         + -1.5 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  0.244743 * tfactors.T9i * tfactors.T9i
+                                  + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
 }
 
 template <int do_T_derivatives>
@@ -19354,6 +16873,23 @@ void rate_He4_O18_to_Ne22(const tf_t& tfactors, amrex::Real& rate, amrex::Real& 
     amrex::Real ln_set_rate{0.0};
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
+
+    // il10r
+    ln_set_rate =  -31.9126 + -2.00306 * tfactors.T9i
+                         + -1.5 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  2.00306 * tfactors.T9i * tfactors.T9i
+                                  + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
 
     // il10r
     ln_set_rate =  -81.3036 + -0.676112 * tfactors.T9i
@@ -19396,23 +16932,6 @@ void rate_He4_O18_to_Ne22(const tf_t& tfactors, amrex::Real& rate, amrex::Real& 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  1.58534 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -44.3823 * tfactors.T943i + (1.0/3.0) * -46.6617 * tfactors.T923i
                                   + 7.88059 + (5.0/3.0) * -0.590829 * tfactors.T923 + -1.5 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // il10r
-    ln_set_rate =  -31.9126 + -2.00306 * tfactors.T9i
-                         + -1.5 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  2.00306 * tfactors.T9i * tfactors.T9i
-                                  + -1.5 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -19583,23 +17102,6 @@ void rate_p_F18_to_Ne19(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dr
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // il10n
-    ln_set_rate =  57.4084 + -21.4023 * tfactors.T913i + -93.766 * tfactors.T913
-                         + 179.258 * tfactors.T9 + -202.561 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  + -(1.0/3.0) * -21.4023 * tfactors.T943i + (1.0/3.0) * -93.766 * tfactors.T923i
-                                  + 179.258 + (5.0/3.0) * -202.561 * tfactors.T923 + -0.666667 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
     // il10r
     ln_set_rate =  -5.85727 + -2.89147 * tfactors.T9i + 13.1683 * tfactors.T913
                          + -1.92023 * tfactors.T9 + 0.16901 * tfactors.T953 + -1.5 * tfactors.lnT9;
@@ -19624,6 +17126,23 @@ void rate_p_F18_to_Ne19(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dr
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  0.39895 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 22.4903 * tfactors.T923i
                                   + 0.307872 + (5.0/3.0) * -0.296226 * tfactors.T923 + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // il10n
+    ln_set_rate =  57.4084 + -21.4023 * tfactors.T913i + -93.766 * tfactors.T913
+                         + 179.258 * tfactors.T9 + -202.561 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  + -(1.0/3.0) * -21.4023 * tfactors.T943i + (1.0/3.0) * -93.766 * tfactors.T923i
+                                  + 179.258 + (5.0/3.0) * -202.561 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -19924,23 +17443,6 @@ void rate_p_Ne20_to_Na21(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     amrex::Real set_rate{0.0};
 
     // ly18 
-    ln_set_rate =  230.019 + -4.45358 * tfactors.T9i + 258.57 * tfactors.T913i + -506.387 * tfactors.T913
-                         + 22.1576 * tfactors.T9 + -0.721182 * tfactors.T953 + 230.288 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  4.45358 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 258.57 * tfactors.T943i + (1.0/3.0) * -506.387 * tfactors.T923i
-                                  + 22.1576 + (5.0/3.0) * -0.721182 * tfactors.T923 + 230.288 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // ly18 
     ln_set_rate =  195297.0 + -61.14 * tfactors.T9i + 21894.7 * tfactors.T913i + -319153.0 * tfactors.T913
                          + 224369.0 * tfactors.T9 + -188049.0 * tfactors.T953 + 48703.4 * tfactors.lnT9;
 
@@ -19991,6 +17493,23 @@ void rate_p_Ne20_to_Na21(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
+    // ly18 
+    ln_set_rate =  230.019 + -4.45358 * tfactors.T9i + 258.57 * tfactors.T913i + -506.387 * tfactors.T913
+                         + 22.1576 * tfactors.T9 + -0.721182 * tfactors.T953 + 230.288 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  4.45358 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 258.57 * tfactors.T943i + (1.0/3.0) * -506.387 * tfactors.T923i
+                                  + 22.1576 + (5.0/3.0) * -0.721182 * tfactors.T923 + 230.288 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
 }
 
 template <int do_T_derivatives>
@@ -20005,40 +17524,6 @@ void rate_He4_Ne20_to_Mg24(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     amrex::Real ln_set_rate{0.0};
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
-
-    // il10r
-    ln_set_rate =  -38.7055 + -2.50605 * tfactors.T9i
-                         + -1.5 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  2.50605 * tfactors.T9i * tfactors.T9i
-                                  + -1.5 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // il10n
-    ln_set_rate =  24.5058 + -46.2525 * tfactors.T913i + 5.58901 * tfactors.T913
-                         + 7.61843 * tfactors.T9 + -3.683 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  + -(1.0/3.0) * -46.2525 * tfactors.T943i + (1.0/3.0) * 5.58901 * tfactors.T923i
-                                  + 7.61843 + (5.0/3.0) * -3.683 * tfactors.T923 + -0.666667 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
 
     // il10r
     ln_set_rate =  -8.79827 + -12.7809 * tfactors.T9i + 16.9229 * tfactors.T913
@@ -20064,6 +17549,40 @@ void rate_He4_Ne20_to_Mg24(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  9.22026 * tfactors.T9i * tfactors.T9i
                                   + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // il10r
+    ln_set_rate =  -38.7055 + -2.50605 * tfactors.T9i
+                         + -1.5 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  2.50605 * tfactors.T9i * tfactors.T9i
+                                  + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // il10n
+    ln_set_rate =  24.5058 + -46.2525 * tfactors.T913i + 5.58901 * tfactors.T913
+                         + 7.61843 * tfactors.T9 + -3.683 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  + -(1.0/3.0) * -46.2525 * tfactors.T943i + (1.0/3.0) * 5.58901 * tfactors.T923i
+                                  + 7.61843 + (5.0/3.0) * -3.683 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -20121,23 +17640,6 @@ void rate_p_Ne21_to_Na22(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // il10r
-    ln_set_rate =  -47.6554 + -0.19618 * tfactors.T9i
-                         + -1.5 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  0.19618 * tfactors.T9i * tfactors.T9i
-                                  + -1.5 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
     // il10n
     ln_set_rate =  19.0696 + -19.2096 * tfactors.T913i
                          + -1.0 * tfactors.T953 + -0.666667 * tfactors.lnT9;
@@ -20178,6 +17680,23 @@ void rate_p_Ne21_to_Na22(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  1.39957 * tfactors.T9i * tfactors.T9i
+                                  + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // il10r
+    ln_set_rate =  -47.6554 + -0.19618 * tfactors.T9i
+                         + -1.5 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  0.19618 * tfactors.T9i * tfactors.T9i
                                   + -1.5 * tfactors.T9i;
     }
 
@@ -20252,23 +17771,6 @@ void rate_p_Ne22_to_Na23(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     amrex::Real ln_set_rate{0.0};
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
-
-    // ke17r
-    ln_set_rate =  -4.00597 + -2.6179 * tfactors.T9i
-                         + -4.29964 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  2.6179 * tfactors.T9i * tfactors.T9i
-                                  + -4.29964 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
 
     // ke17r
     ln_set_rate =  -0.599331 + -1.72007 * tfactors.T9i
@@ -20355,6 +17857,23 @@ void rate_p_Ne22_to_Na23(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
+    // ke17r
+    ln_set_rate =  -4.00597 + -2.6179 * tfactors.T9i
+                         + -4.29964 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  2.6179 * tfactors.T9i * tfactors.T9i
+                                  + -4.29964 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
 }
 
 template <int do_T_derivatives>
@@ -20369,6 +17888,23 @@ void rate_He4_Ne22_to_Mg26(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     amrex::Real ln_set_rate{0.0};
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
+
+    // li12r
+    ln_set_rate =  -29.3146 + -6.44772 * tfactors.T9i + 43.2654 * tfactors.T913
+                         + -18.5982 * tfactors.T9 + 2.80101 * tfactors.T953 + -1.5 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  6.44772 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 43.2654 * tfactors.T923i
+                                  + -18.5982 + (5.0/3.0) * 2.80101 * tfactors.T923 + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
 
     // li12r
     ln_set_rate =  -23.7527 + -3.88217 * tfactors.T9i
@@ -20428,23 +17964,6 @@ void rate_He4_Ne22_to_Mg26(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  6.36421 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 35.9878 * tfactors.T923i
                                   + -4.10684 + (5.0/3.0) * 0.259345 * tfactors.T923 + -1.5 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // li12r
-    ln_set_rate =  -29.3146 + -6.44772 * tfactors.T9i + 43.2654 * tfactors.T913
-                         + -18.5982 * tfactors.T9 + 2.80101 * tfactors.T953 + -1.5 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  6.44772 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 43.2654 * tfactors.T923i
-                                  + -18.5982 + (5.0/3.0) * 2.80101 * tfactors.T923 + -1.5 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -20664,23 +18183,6 @@ void rate_p_Na23_to_Mg24(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // il10n
-    ln_set_rate =  18.9075 + -20.6428 * tfactors.T913i + 1.52954 * tfactors.T913
-                         + 2.7487 * tfactors.T9 + -1.0 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  + -(1.0/3.0) * -20.6428 * tfactors.T943i + (1.0/3.0) * 1.52954 * tfactors.T923i
-                                  + 2.7487 + (5.0/3.0) * -1.0 * tfactors.T923 + -0.666667 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
     // il10r
     ln_set_rate =  9.0594 + -3.28029 * tfactors.T9i + -0.360588 * tfactors.T913
                          + 1.4187 * tfactors.T9 + -0.184061 * tfactors.T953 + -1.5 * tfactors.lnT9;
@@ -20705,6 +18207,23 @@ void rate_p_Na23_to_Mg24(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  1.61219 * tfactors.T9i * tfactors.T9i
                                   + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // il10n
+    ln_set_rate =  18.9075 + -20.6428 * tfactors.T913i + 1.52954 * tfactors.T913
+                         + 2.7487 * tfactors.T9 + -1.0 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  + -(1.0/3.0) * -20.6428 * tfactors.T943i + (1.0/3.0) * 1.52954 * tfactors.T923i
+                                  + 2.7487 + (5.0/3.0) * -1.0 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -20876,12 +18395,12 @@ void rate_He4_Mg24_to_Si28(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     amrex::Real set_rate{0.0};
 
     // st08r
-    ln_set_rate =  -50.5494 + -12.8332 * tfactors.T9i + 21.3721 * tfactors.T913i + 37.7649 * tfactors.T913
-                         + -4.10635 * tfactors.T9 + 0.249618 * tfactors.T953 + -1.5 * tfactors.lnT9;
+    ln_set_rate =  8.03977 + -15.629 * tfactors.T9i
+                         + -1.5 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  12.8332 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 21.3721 * tfactors.T943i + (1.0/3.0) * 37.7649 * tfactors.T923i
-                                  + -4.10635 + (5.0/3.0) * 0.249618 * tfactors.T923 + -1.5 * tfactors.T9i;
+        dln_set_rate_dT9 =  15.629 * tfactors.T9i * tfactors.T9i
+                                  + -1.5 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -20893,12 +18412,12 @@ void rate_He4_Mg24_to_Si28(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     }
 
     // st08r
-    ln_set_rate =  8.03977 + -15.629 * tfactors.T9i
-                         + -1.5 * tfactors.lnT9;
+    ln_set_rate =  -50.5494 + -12.8332 * tfactors.T9i + 21.3721 * tfactors.T913i + 37.7649 * tfactors.T913
+                         + -4.10635 * tfactors.T9 + 0.249618 * tfactors.T953 + -1.5 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  15.629 * tfactors.T9i * tfactors.T9i
-                                  + -1.5 * tfactors.T9i;
+        dln_set_rate_dT9 =  12.8332 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 21.3721 * tfactors.T943i + (1.0/3.0) * 37.7649 * tfactors.T923i
+                                  + -4.10635 + (5.0/3.0) * 0.249618 * tfactors.T923 + -1.5 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -20957,23 +18476,6 @@ void rate_p_Mg25_to_Al26(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     amrex::Real set_rate{0.0};
 
     // il10r
-    ln_set_rate =  2.22778 + -3.22353 * tfactors.T9i + 8.46334 * tfactors.T913
-                         + -0.907024 * tfactors.T9 + 0.0642981 * tfactors.T953 + -1.5 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  3.22353 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 8.46334 * tfactors.T923i
-                                  + -0.907024 + (5.0/3.0) * 0.0642981 * tfactors.T923 + -1.5 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // il10r
     ln_set_rate =  4.21826 + -0.71983 * tfactors.T9i + -88.9297 * tfactors.T913
                          + 302.948 * tfactors.T9 + -346.461 * tfactors.T953 + -1.5 * tfactors.lnT9;
 
@@ -20997,6 +18499,23 @@ void rate_p_Mg25_to_Al26(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  0.429366 * tfactors.T9i * tfactors.T9i
                                   + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // il10r
+    ln_set_rate =  2.22778 + -3.22353 * tfactors.T9i + 8.46334 * tfactors.T913
+                         + -0.907024 * tfactors.T9 + 0.0642981 * tfactors.T953 + -1.5 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  3.22353 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 8.46334 * tfactors.T923i
+                                  + -0.907024 + (5.0/3.0) * 0.0642981 * tfactors.T923 + -1.5 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -21055,23 +18574,6 @@ void rate_p_Mg26_to_Al27(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     amrex::Real set_rate{0.0};
 
     // il10r
-    ln_set_rate =  5.26056 + -3.35921 * tfactors.T9i + 6.78105 * tfactors.T913
-                         + -1.25771 * tfactors.T9 + 0.140754 * tfactors.T953 + -1.5 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  3.35921 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 6.78105 * tfactors.T923i
-                                  + -1.25771 + (5.0/3.0) * 0.140754 * tfactors.T923 + -1.5 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // il10r
     ln_set_rate =  -27.2168 + -0.888689 * tfactors.T9i + 35.6312 * tfactors.T913
                          + -5.27265 * tfactors.T9 + 0.392932 * tfactors.T953 + -1.5 * tfactors.lnT9;
 
@@ -21095,6 +18597,23 @@ void rate_p_Mg26_to_Al27(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  0.469464 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 251.281 * tfactors.T923i
                                   + -730.009 + (5.0/3.0) * -224.016 * tfactors.T923 + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // il10r
+    ln_set_rate =  5.26056 + -3.35921 * tfactors.T9i + 6.78105 * tfactors.T913
+                         + -1.25771 * tfactors.T9 + 0.140754 * tfactors.T953 + -1.5 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  3.35921 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 6.78105 * tfactors.T923i
+                                  + -1.25771 + (5.0/3.0) * 0.140754 * tfactors.T923 + -1.5 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -21571,23 +19090,6 @@ void rate_p_Si29_to_P30(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dr
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // il10n
-    ln_set_rate =  16.5182 + -23.9101 * tfactors.T913i + 10.7796 * tfactors.T913
-                         + -3.04181 * tfactors.T9 + 0.274565 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  + -(1.0/3.0) * -23.9101 * tfactors.T943i + (1.0/3.0) * 10.7796 * tfactors.T923i
-                                  + -3.04181 + (5.0/3.0) * 0.274565 * tfactors.T923 + -0.666667 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
     // il10r
     ln_set_rate =  -1.24791 + -3.33929 * tfactors.T9i + 14.0921 * tfactors.T913
                          + -3.92096 * tfactors.T9 + 0.447706 * tfactors.T953 + -1.5 * tfactors.lnT9;
@@ -21612,6 +19114,23 @@ void rate_p_Si29_to_P30(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dr
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  1.25026 * tfactors.T9i * tfactors.T9i
                                   + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // il10n
+    ln_set_rate =  16.5182 + -23.9101 * tfactors.T913i + 10.7796 * tfactors.T913
+                         + -3.04181 * tfactors.T9 + 0.274565 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  + -(1.0/3.0) * -23.9101 * tfactors.T943i + (1.0/3.0) * 10.7796 * tfactors.T923i
+                                  + -3.04181 + (5.0/3.0) * 0.274565 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -21700,40 +19219,6 @@ void rate_p_Si30_to_P31(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dr
     amrex::Real ln_set_rate{0.0};
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
-
-    // de20r
-    ln_set_rate =  9.96544 + -5.58963 * tfactors.T9i
-                         + -1.57082 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  5.58963 * tfactors.T9i * tfactors.T9i
-                                  + -1.57082 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // de20r
-    ln_set_rate =  -34.8594 + -0.592934 * tfactors.T9i
-                         + -1.62839 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  0.592934 * tfactors.T9i * tfactors.T9i
-                                  + -1.62839 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
 
     // de20r
     ln_set_rate =  12.3695 + -6.64105 * tfactors.T9i
@@ -21827,6 +19312,40 @@ void rate_p_Si30_to_P31(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dr
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  95.8769 * tfactors.T9i * tfactors.T9i
                                   + -896.758 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // de20r
+    ln_set_rate =  9.96544 + -5.58963 * tfactors.T9i
+                         + -1.57082 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  5.58963 * tfactors.T9i * tfactors.T9i
+                                  + -1.57082 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // de20r
+    ln_set_rate =  -34.8594 + -0.592934 * tfactors.T9i
+                         + -1.62839 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  0.592934 * tfactors.T9i * tfactors.T9i
+                                  + -1.62839 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -22172,13 +19691,13 @@ void rate_n_P31_to_P32(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dra
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // ka02n
-    ln_set_rate =  12.5332 + 0.327031 * tfactors.T913
-                         + 1.0 * tfactors.lnT9;
+    // ka02r
+    ln_set_rate =  9.48567 + -0.246803 * tfactors.T9i + 2.13185 * tfactors.T913
+                         + -1.5 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  + (1.0/3.0) * 0.327031 * tfactors.T923i
-                                  + 1.0 * tfactors.T9i;
+        dln_set_rate_dT9 =  0.246803 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 2.13185 * tfactors.T923i
+                                  + -1.5 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -22189,13 +19708,13 @@ void rate_n_P31_to_P32(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dra
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
-    // ka02r
-    ln_set_rate =  9.48567 + -0.246803 * tfactors.T9i + 2.13185 * tfactors.T913
-                         + -1.5 * tfactors.lnT9;
+    // ka02n
+    ln_set_rate =  12.5332 + 0.327031 * tfactors.T913
+                         + 1.0 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  0.246803 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 2.13185 * tfactors.T923i
-                                  + -1.5 * tfactors.T9i;
+        dln_set_rate_dT9 =  + (1.0/3.0) * 0.327031 * tfactors.T923i
+                                  + 1.0 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -22511,23 +20030,6 @@ void rate_p_S32_to_Cl33(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dr
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // il10r
-    ln_set_rate =  -27.2382 + -0.874107 * tfactors.T9i
-                         + -1.5 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  0.874107 * tfactors.T9i * tfactors.T9i
-                                  + -1.5 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
     // il10n
     ln_set_rate =  52.47 + -29.7741 * tfactors.T913i + -87.4473 * tfactors.T913
                          + 182.189 * tfactors.T9 + -128.625 * tfactors.T953 + -0.666667 * tfactors.lnT9;
@@ -22552,6 +20054,23 @@ void rate_p_S32_to_Cl33(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dr
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  3.00371 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -33.7204 * tfactors.T943i + (1.0/3.0) * -32.7355 * tfactors.T923i
                                   + 3.92526 + (5.0/3.0) * -0.250479 * tfactors.T923 + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // il10r
+    ln_set_rate =  -27.2382 + -0.874107 * tfactors.T9i
+                         + -1.5 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  0.874107 * tfactors.T9i * tfactors.T9i
+                                  + -1.5 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -22738,23 +20257,6 @@ void rate_p_S34_to_Cl35(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dr
     amrex::Real set_rate{0.0};
 
     // se19r
-    ln_set_rate =  -60.0247 + -27.689 * tfactors.T9i + 454.53 * tfactors.T913i + -375.557 * tfactors.T913
-                         + 12.6533 * tfactors.T9 + -0.408677 * tfactors.T953 + 245.118 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  27.689 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 454.53 * tfactors.T943i + (1.0/3.0) * -375.557 * tfactors.T923i
-                                  + 12.6533 + (5.0/3.0) * -0.408677 * tfactors.T923 + 245.118 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // se19r
     ln_set_rate =  -7.70046 + -2.02615 * tfactors.T9i
                          + -1.5 * tfactors.lnT9;
 
@@ -22863,6 +20365,23 @@ void rate_p_S34_to_Cl35(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dr
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  3.16803 * tfactors.T9i * tfactors.T9i
                                   + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // se19r
+    ln_set_rate =  -60.0247 + -27.689 * tfactors.T9i + 454.53 * tfactors.T913i + -375.557 * tfactors.T913
+                         + 12.6533 * tfactors.T9 + -0.408677 * tfactors.T953 + 245.118 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  27.689 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 454.53 * tfactors.T943i + (1.0/3.0) * -375.557 * tfactors.T923i
+                                  + 12.6533 + (5.0/3.0) * -0.408677 * tfactors.T923 + 245.118 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -23241,23 +20760,6 @@ void rate_p_Cl35_to_Ar36(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     amrex::Real set_rate{0.0};
 
     // il10r
-    ln_set_rate =  -9.03294 + -2.00996 * tfactors.T9i
-                         + -1.5 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  2.00996 * tfactors.T9i * tfactors.T9i
-                                  + -1.5 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // il10r
     ln_set_rate =  -42.5249 + -0.564651 * tfactors.T9i
                          + -1.5 * tfactors.lnT9;
 
@@ -23298,6 +20800,23 @@ void rate_p_Cl35_to_Ar36(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  3.65092 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 18.0179 * tfactors.T923i
                                   + -2.86304 + (5.0/3.0) * 0.250854 * tfactors.T923 + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // il10r
+    ln_set_rate =  -9.03294 + -2.00996 * tfactors.T9i
+                         + -1.5 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  2.00996 * tfactors.T9i * tfactors.T9i
+                                  + -1.5 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -23547,23 +21066,6 @@ void rate_p_Ar36_to_K37(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dr
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // il10n
-    ln_set_rate =  21.4923 + -28.9682 * tfactors.T913i
-                         + -1.0 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  + -(1.0/3.0) * -28.9682 * tfactors.T943i
-                                  + (5.0/3.0) * -1.0 * tfactors.T923 + -0.666667 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
     // il10r
     ln_set_rate =  3.18278 + -8.98031 * tfactors.T9i + 7.50962 * tfactors.T913
                          + -1.68675 * tfactors.T9 + 0.189725 * tfactors.T953 + -1.5 * tfactors.lnT9;
@@ -23588,6 +21090,23 @@ void rate_p_Ar36_to_K37(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dr
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  3.6251 * tfactors.T9i * tfactors.T9i
                                   + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // il10n
+    ln_set_rate =  21.4923 + -28.9682 * tfactors.T913i
+                         + -1.0 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  + -(1.0/3.0) * -28.9682 * tfactors.T943i
+                                  + (5.0/3.0) * -1.0 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -30248,23 +27767,6 @@ void rate_p_Cu58_to_Zn59(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     amrex::Real set_rate{0.0};
 
     // nfisn
-    ln_set_rate =  34.9479 + 2.4317 * tfactors.T9i + -209.408 * tfactors.T913i + 176.007 * tfactors.T913
-                         + -6.98867 * tfactors.T9 + 0.295678 * tfactors.T953 + -110.548 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  -2.4317 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -209.408 * tfactors.T943i + (1.0/3.0) * 176.007 * tfactors.T923i
-                                  + -6.98867 + (5.0/3.0) * 0.295678 * tfactors.T923 + -110.548 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // nfisn
     ln_set_rate =  -6.80287 + 1.08057 * tfactors.T9i + -142.882 * tfactors.T913i + 138.901 * tfactors.T913
                          + -5.7482 * tfactors.T9 + 0.223571 * tfactors.T953 + -84.6553 * tfactors.lnT9;
 
@@ -30288,6 +27790,23 @@ void rate_p_Cu58_to_Zn59(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  0.0837118 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -36.2109 * tfactors.T943i + (1.0/3.0) * -10.0201 * tfactors.T923i
                                   + 0.882265 + (5.0/3.0) * -0.0954725 * tfactors.T923 + 3.28794 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // nfisn
+    ln_set_rate =  34.9479 + 2.4317 * tfactors.T9i + -209.408 * tfactors.T913i + 176.007 * tfactors.T913
+                         + -6.98867 * tfactors.T9 + 0.295678 * tfactors.T953 + -110.548 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  -2.4317 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -209.408 * tfactors.T943i + (1.0/3.0) * 176.007 * tfactors.T923i
+                                  + -6.98867 + (5.0/3.0) * 0.295678 * tfactors.T923 + -110.548 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -30986,23 +28505,6 @@ void rate_p_Zn61_to_Ga62(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     amrex::Real set_rate{0.0};
 
     // nfisn
-    ln_set_rate =  -19.8777 + -14.8223 * tfactors.T9i + 207.487 * tfactors.T913i + -181.718 * tfactors.T913
-                         + 5.86358 * tfactors.T9 + -0.221479 * tfactors.T953 + 119.805 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  14.8223 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 207.487 * tfactors.T943i + (1.0/3.0) * -181.718 * tfactors.T923i
-                                  + 5.86358 + (5.0/3.0) * -0.221479 * tfactors.T923 + 119.805 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // nfisn
     ln_set_rate =  11276.1 + -91.1775 * tfactors.T9i + 6932.15 * tfactors.T913i + -20433.4 * tfactors.T913
                          + 2726.25 * tfactors.T9 + -416.477 * tfactors.T953 + 7003.74 * tfactors.lnT9;
 
@@ -31026,6 +28528,23 @@ void rate_p_Zn61_to_Ga62(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  0.068885 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -36.9213 * tfactors.T943i + (1.0/3.0) * -12.8434 * tfactors.T923i
                                   + 1.30735 + (5.0/3.0) * -0.136745 * tfactors.T923 + 3.91008 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // nfisn
+    ln_set_rate =  -19.8777 + -14.8223 * tfactors.T9i + 207.487 * tfactors.T913i + -181.718 * tfactors.T913
+                         + 5.86358 * tfactors.T9 + -0.221479 * tfactors.T953 + 119.805 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  14.8223 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 207.487 * tfactors.T943i + (1.0/3.0) * -181.718 * tfactors.T923i
+                                  + 5.86358 + (5.0/3.0) * -0.221479 * tfactors.T923 + 119.805 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -31084,23 +28603,6 @@ void rate_p_Zn62_to_Ga63(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     amrex::Real set_rate{0.0};
 
     // nfisn
-    ln_set_rate =  -38.4285 + -21.8336 * tfactors.T9i + 181.058 * tfactors.T913i + -128.039 * tfactors.T913
-                         + 5.3613 * tfactors.T9 + -0.329542 * tfactors.T953 + 87.4371 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  21.8336 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 181.058 * tfactors.T943i + (1.0/3.0) * -128.039 * tfactors.T923i
-                                  + 5.3613 + (5.0/3.0) * -0.329542 * tfactors.T923 + 87.4371 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // nfisn
     ln_set_rate =  37.1867 + -0.194242 * tfactors.T9i + -31.4331 * tfactors.T913i + -19.7752 * tfactors.T913
                          + 1.69239 * tfactors.T9 + -0.16473 * tfactors.T953 + 7.6608 * tfactors.lnT9;
 
@@ -31141,6 +28643,23 @@ void rate_p_Zn62_to_Ga63(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  22.0155 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 516.062 * tfactors.T943i + (1.0/3.0) * -567.538 * tfactors.T923i
                                   + 23.7454 + (5.0/3.0) * -1.02526 * tfactors.T923 + 327.86 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // nfisn
+    ln_set_rate =  -38.4285 + -21.8336 * tfactors.T9i + 181.058 * tfactors.T913i + -128.039 * tfactors.T913
+                         + 5.3613 * tfactors.T9 + -0.329542 * tfactors.T953 + 87.4371 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  21.8336 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 181.058 * tfactors.T943i + (1.0/3.0) * -128.039 * tfactors.T923i
+                                  + 5.3613 + (5.0/3.0) * -0.329542 * tfactors.T923 + 87.4371 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -31327,23 +28846,6 @@ void rate_p_Ga62_to_Ge63(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     amrex::Real set_rate{0.0};
 
     // nfisn
-    ln_set_rate =  53.7251 + -4.53179 * tfactors.T9i + 11.0703 * tfactors.T913i + -66.0297 * tfactors.T913
-                         + 2.89115 * tfactors.T9 + -0.129107 * tfactors.T953 + 29.3214 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  4.53179 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 11.0703 * tfactors.T943i + (1.0/3.0) * -66.0297 * tfactors.T923i
-                                  + 2.89115 + (5.0/3.0) * -0.129107 * tfactors.T923 + 29.3214 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // nfisn
     ln_set_rate =  23.0628 + -1.09614 * tfactors.T9i + -107.856 * tfactors.T913i + 80.6244 * tfactors.T913
                          + -2.84514 * tfactors.T9 + 0.087641 * tfactors.T953 + -56.5078 * tfactors.lnT9;
 
@@ -31401,6 +28903,23 @@ void rate_p_Ga62_to_Ge63(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  112.916 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 6926.61 * tfactors.T943i + (1.0/3.0) * -18459.0 * tfactors.T923i
                                   + 2374.61 + (5.0/3.0) * -366.508 * tfactors.T923 + 6586.96 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // nfisn
+    ln_set_rate =  53.7251 + -4.53179 * tfactors.T9i + 11.0703 * tfactors.T913i + -66.0297 * tfactors.T913
+                         + 2.89115 * tfactors.T9 + -0.129107 * tfactors.T953 + 29.3214 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  4.53179 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 11.0703 * tfactors.T943i + (1.0/3.0) * -66.0297 * tfactors.T923i
+                                  + 2.89115 + (5.0/3.0) * -0.129107 * tfactors.T923 + 29.3214 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -31587,12 +29106,12 @@ void rate_d_He3_to_p_He4(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     amrex::Real set_rate{0.0};
 
     // de04 
-    ln_set_rate =  24.6839 + -7.182 * tfactors.T913i + 0.473288 * tfactors.T913
-                         + 1.46847 * tfactors.T9 + -27.9603 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+    ln_set_rate =  41.2969 + -7.182 * tfactors.T913i + -17.1349 * tfactors.T913
+                         + 1.36908 * tfactors.T9 + -0.0814423 * tfactors.T953 + 3.35395 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  + -(1.0/3.0) * -7.182 * tfactors.T943i + (1.0/3.0) * 0.473288 * tfactors.T923i
-                                  + 1.46847 + (5.0/3.0) * -27.9603 * tfactors.T923 + -0.666667 * tfactors.T9i;
+        dln_set_rate_dT9 =  + -(1.0/3.0) * -7.182 * tfactors.T943i + (1.0/3.0) * -17.1349 * tfactors.T923i
+                                  + 1.36908 + (5.0/3.0) * -0.0814423 * tfactors.T923 + 3.35395 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -31604,12 +29123,12 @@ void rate_d_He3_to_p_He4(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     }
 
     // de04 
-    ln_set_rate =  41.2969 + -7.182 * tfactors.T913i + -17.1349 * tfactors.T913
-                         + 1.36908 * tfactors.T9 + -0.0814423 * tfactors.T953 + 3.35395 * tfactors.lnT9;
+    ln_set_rate =  24.6839 + -7.182 * tfactors.T913i + 0.473288 * tfactors.T913
+                         + 1.46847 * tfactors.T9 + -27.9603 * tfactors.T953 + -0.666667 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  + -(1.0/3.0) * -7.182 * tfactors.T943i + (1.0/3.0) * -17.1349 * tfactors.T923i
-                                  + 1.36908 + (5.0/3.0) * -0.0814423 * tfactors.T923 + 3.35395 * tfactors.T9i;
+        dln_set_rate_dT9 =  + -(1.0/3.0) * -7.182 * tfactors.T943i + (1.0/3.0) * 0.473288 * tfactors.T923i
+                                  + 1.46847 + (5.0/3.0) * -27.9603 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -31668,12 +29187,12 @@ void rate_p_He4_to_d_He3(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     amrex::Real set_rate{0.0};
 
     // de04 
-    ln_set_rate =  43.0037 + -212.977 * tfactors.T9i + -7.182 * tfactors.T913i + -17.1349 * tfactors.T913
-                         + 1.36908 * tfactors.T9 + -0.0814423 * tfactors.T953 + 3.35395 * tfactors.lnT9;
+    ln_set_rate =  26.3907 + -212.977 * tfactors.T9i + -7.182 * tfactors.T913i + 0.473288 * tfactors.T913
+                         + 1.46847 * tfactors.T9 + -27.9603 * tfactors.T953 + -0.666667 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  212.977 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -7.182 * tfactors.T943i + (1.0/3.0) * -17.1349 * tfactors.T923i
-                                  + 1.36908 + (5.0/3.0) * -0.0814423 * tfactors.T923 + 3.35395 * tfactors.T9i;
+        dln_set_rate_dT9 =  212.977 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -7.182 * tfactors.T943i + (1.0/3.0) * 0.473288 * tfactors.T923i
+                                  + 1.46847 + (5.0/3.0) * -27.9603 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -31685,12 +29204,12 @@ void rate_p_He4_to_d_He3(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     }
 
     // de04 
-    ln_set_rate =  26.3907 + -212.977 * tfactors.T9i + -7.182 * tfactors.T913i + 0.473288 * tfactors.T913
-                         + 1.46847 * tfactors.T9 + -27.9603 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+    ln_set_rate =  43.0037 + -212.977 * tfactors.T9i + -7.182 * tfactors.T913i + -17.1349 * tfactors.T913
+                         + 1.36908 * tfactors.T9 + -0.0814423 * tfactors.T953 + 3.35395 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  212.977 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -7.182 * tfactors.T943i + (1.0/3.0) * 0.473288 * tfactors.T923i
-                                  + 1.46847 + (5.0/3.0) * -27.9603 * tfactors.T923 + -0.666667 * tfactors.T9i;
+        dln_set_rate_dT9 =  212.977 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -7.182 * tfactors.T943i + (1.0/3.0) * -17.1349 * tfactors.T923i
+                                  + 1.36908 + (5.0/3.0) * -0.0814423 * tfactors.T923 + 3.35395 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -31749,40 +29268,6 @@ void rate_He4_He4_to_p_Li7(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     amrex::Real set_rate{0.0};
 
     // de04r
-    ln_set_rate =  23.4325 + -227.465 * tfactors.T9i
-                         + -1.5 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  227.465 * tfactors.T9i * tfactors.T9i
-                                  + -1.5 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // de04 
-    ln_set_rate =  21.9764 + -201.312 * tfactors.T9i + -8.4727 * tfactors.T913i + 0.297934 * tfactors.T913
-                         + 0.0582335 * tfactors.T9 + -0.00413383 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  201.312 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -8.4727 * tfactors.T943i + (1.0/3.0) * 0.297934 * tfactors.T923i
-                                  + 0.0582335 + (5.0/3.0) * -0.00413383 * tfactors.T923 + -0.666667 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // de04r
     ln_set_rate =  15.7864 + -205.79 * tfactors.T9i
                          + -1.5 * tfactors.lnT9;
 
@@ -31806,6 +29291,40 @@ void rate_He4_He4_to_p_Li7(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  201.312 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -8.4727 * tfactors.T943i + (1.0/3.0) * 0.417943 * tfactors.T923i
                                   + 5.34565 + (5.0/3.0) * -4.8684 * tfactors.T923 + -0.666667 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // de04r
+    ln_set_rate =  23.4325 + -227.465 * tfactors.T9i
+                         + -1.5 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  227.465 * tfactors.T9i * tfactors.T9i
+                                  + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // de04 
+    ln_set_rate =  21.9764 + -201.312 * tfactors.T9i + -8.4727 * tfactors.T913i + 0.297934 * tfactors.T913
+                         + 0.0582335 * tfactors.T9 + -0.00413383 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  201.312 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -8.4727 * tfactors.T943i + (1.0/3.0) * 0.297934 * tfactors.T923i
+                                  + 0.0582335 + (5.0/3.0) * -0.00413383 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -31927,6 +29446,23 @@ void rate_He4_Li6_to_p_Be9(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
+    // cf88n
+    ln_set_rate =  25.5847 + -24.6712 * tfactors.T9i + -10.359 * tfactors.T913i + 0.102577 * tfactors.T913
+                         + 4.43544 * tfactors.T9 + -5.97105 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  24.6712 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -10.359 * tfactors.T943i + (1.0/3.0) * 0.102577 * tfactors.T923i
+                                  + 4.43544 + (5.0/3.0) * -5.97105 * tfactors.T923 + -0.666667 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
     // cf88r
     ln_set_rate =  19.8324 + -29.8312 * tfactors.T9i
                          + -0.75 * tfactors.lnT9;
@@ -31951,23 +29487,6 @@ void rate_He4_Li6_to_p_Be9(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  27.7172 * tfactors.T9i * tfactors.T9i
                                   + -1.0 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // cf88n
-    ln_set_rate =  25.5847 + -24.6712 * tfactors.T9i + -10.359 * tfactors.T913i + 0.102577 * tfactors.T913
-                         + 4.43544 * tfactors.T9 + -5.97105 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  24.6712 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -10.359 * tfactors.T943i + (1.0/3.0) * 0.102577 * tfactors.T923i
-                                  + 4.43544 + (5.0/3.0) * -5.97105 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -32057,23 +29576,6 @@ void rate_p_Li7_to_He4_He4(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // de04 
-    ln_set_rate =  11.9576 + -8.4727 * tfactors.T913i + 0.417943 * tfactors.T913
-                         + 5.34565 * tfactors.T9 + -4.8684 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  + -(1.0/3.0) * -8.4727 * tfactors.T943i + (1.0/3.0) * 0.417943 * tfactors.T923i
-                                  + 5.34565 + (5.0/3.0) * -4.8684 * tfactors.T923 + -0.666667 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
     // de04r
     ln_set_rate =  21.8999 + -26.1527 * tfactors.T9i
                          + -1.5 * tfactors.lnT9;
@@ -32115,6 +29617,23 @@ void rate_p_Li7_to_He4_He4(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  4.478 * tfactors.T9i * tfactors.T9i
                                   + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // de04 
+    ln_set_rate =  11.9576 + -8.4727 * tfactors.T913i + 0.417943 * tfactors.T913
+                         + 5.34565 * tfactors.T9 + -4.8684 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  + -(1.0/3.0) * -8.4727 * tfactors.T943i + (1.0/3.0) * 0.417943 * tfactors.T923i
+                                  + 5.34565 + (5.0/3.0) * -4.8684 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -32266,13 +29785,13 @@ void rate_He4_Be7_to_p_B10(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // nacrr
-    ln_set_rate =  -6.7467 + -13.8479 * tfactors.T9i + 0.532995 * tfactors.T913i + 22.8893 * tfactors.T913
-                         + -3.08149 * tfactors.T9 + 0.218269 * tfactors.T953 + -1.5 * tfactors.lnT9;
+    // nacrn
+    ln_set_rate =  43.9213 + -13.2872 * tfactors.T9i + -12.9754 * tfactors.T913i + -44.3224 * tfactors.T913
+                         + 62.9626 * tfactors.T9 + -49.5228 * tfactors.T953 + -0.666667 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  13.8479 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 0.532995 * tfactors.T943i + (1.0/3.0) * 22.8893 * tfactors.T923i
-                                  + -3.08149 + (5.0/3.0) * 0.218269 * tfactors.T923 + -1.5 * tfactors.T9i;
+        dln_set_rate_dT9 =  13.2872 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -12.9754 * tfactors.T943i + (1.0/3.0) * -44.3224 * tfactors.T923i
+                                  + 62.9626 + (5.0/3.0) * -49.5228 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -32283,13 +29802,13 @@ void rate_He4_Be7_to_p_B10(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
-    // nacrn
-    ln_set_rate =  43.9213 + -13.2872 * tfactors.T9i + -12.9754 * tfactors.T913i + -44.3224 * tfactors.T913
-                         + 62.9626 * tfactors.T9 + -49.5228 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+    // nacrr
+    ln_set_rate =  -6.7467 + -13.8479 * tfactors.T9i + 0.532995 * tfactors.T913i + 22.8893 * tfactors.T913
+                         + -3.08149 * tfactors.T9 + 0.218269 * tfactors.T953 + -1.5 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  13.2872 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -12.9754 * tfactors.T943i + (1.0/3.0) * -44.3224 * tfactors.T923i
-                                  + 62.9626 + (5.0/3.0) * -49.5228 * tfactors.T923 + -0.666667 * tfactors.T9i;
+        dln_set_rate_dT9 =  13.8479 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 0.532995 * tfactors.T943i + (1.0/3.0) * 22.8893 * tfactors.T923i
+                                  + -3.08149 + (5.0/3.0) * 0.218269 * tfactors.T923 + -1.5 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -32315,23 +29834,6 @@ void rate_p_Be9_to_He4_Li6(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // cf88r
-    ln_set_rate =  19.927 + -3.046 * tfactors.T9i
-                         + -1.0 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  3.046 * tfactors.T9i * tfactors.T9i
-                                  + -1.0 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
     // cf88n
     ln_set_rate =  26.0751 + -10.359 * tfactors.T913i + 0.102577 * tfactors.T913
                          + 4.43544 * tfactors.T9 + -5.97105 * tfactors.T953 + -0.666667 * tfactors.lnT9;
@@ -32356,6 +29858,23 @@ void rate_p_Be9_to_He4_Li6(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  5.16 * tfactors.T9i * tfactors.T9i
                                   + -0.75 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // cf88r
+    ln_set_rate =  19.927 + -3.046 * tfactors.T9i
+                         + -1.0 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  3.046 * tfactors.T9i * tfactors.T9i
+                                  + -1.0 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -32623,23 +30142,6 @@ void rate_He4_B11_to_n_N14(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // cf88r
-    ln_set_rate =  0.582216 + -2.827 * tfactors.T9i
-                         + -1.5 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  2.827 * tfactors.T9i * tfactors.T9i
-                                  + -1.5 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
     // cf88n
     ln_set_rate =  29.5726 + -28.234 * tfactors.T913i + -0.325987 * tfactors.T913
                          + 30.135 * tfactors.T9 + -78.4165 * tfactors.T953 + -0.666667 * tfactors.lnT9;
@@ -32691,6 +30193,23 @@ void rate_He4_B11_to_n_N14(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
+    // cf88r
+    ln_set_rate =  0.582216 + -2.827 * tfactors.T9i
+                         + -1.5 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  2.827 * tfactors.T9i * tfactors.T9i
+                                  + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
 }
 
 template <int do_T_derivatives>
@@ -32705,23 +30224,6 @@ void rate_He4_B11_to_p_C14(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     amrex::Real ln_set_rate{0.0};
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
-
-    // bb92r
-    ln_set_rate =  -5.21398 + -2.868 * tfactors.T9i + 2.62625e-09 * tfactors.T913i + -6.58921e-09 * tfactors.T913
-                         + 5.62244e-10 * tfactors.T9 + -4.28925e-11 * tfactors.T953 + -1.5 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  2.868 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 2.62625e-09 * tfactors.T943i + (1.0/3.0) * -6.58921e-09 * tfactors.T923i
-                                  + 5.62244e-10 + (5.0/3.0) * -4.28925e-11 * tfactors.T923 + -1.5 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
 
     // bb92r
     ln_set_rate =  5.48852 + -5.147 * tfactors.T9i + -5.81643e-09 * tfactors.T913i + 1.24374e-08 * tfactors.T913
@@ -32791,6 +30293,23 @@ void rate_He4_B11_to_p_C14(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
+    // bb92r
+    ln_set_rate =  -5.21398 + -2.868 * tfactors.T9i + 2.62625e-09 * tfactors.T913i + -6.58921e-09 * tfactors.T913
+                         + 5.62244e-10 * tfactors.T9 + -4.28925e-11 * tfactors.T953 + -1.5 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  2.868 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 2.62625e-09 * tfactors.T943i + (1.0/3.0) * -6.58921e-09 * tfactors.T923i
+                                  + 5.62244e-10 + (5.0/3.0) * -4.28925e-11 * tfactors.T923 + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
 }
 
 template <int do_T_derivatives>
@@ -32805,6 +30324,23 @@ void rate_n_C12_to_He4_Be9(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     amrex::Real ln_set_rate{0.0};
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
+
+    // cf88r
+    ln_set_rate =  0.858256 + -67.9913 * tfactors.T9i
+                         + -1.5 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  67.9913 * tfactors.T9i * tfactors.T9i
+                                  + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
 
     // cf88r
     ln_set_rate =  -7.17852 + -67.3413 * tfactors.T9i
@@ -32861,23 +30397,6 @@ void rate_n_C12_to_He4_Be9(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  70.3363 * tfactors.T9i * tfactors.T9i
-                                  + -1.5 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // cf88r
-    ln_set_rate =  0.858256 + -67.9913 * tfactors.T9i
-                         + -1.5 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  67.9913 * tfactors.T9i * tfactors.T9i
                                   + -1.5 * tfactors.T9i;
     }
 
@@ -33212,12 +30731,12 @@ void rate_He4_C13_to_n_O16(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     amrex::Real set_rate{0.0};
 
     // gl12 
-    ln_set_rate =  79.3008 + -0.30489 * tfactors.T9i + 7.43132 * tfactors.T913i + -84.8689 * tfactors.T913
-                         + 3.65083 * tfactors.T9 + -0.148015 * tfactors.T953 + 37.6008 * tfactors.lnT9;
+    ln_set_rate =  62.5775 + -0.0277331 * tfactors.T9i + -32.3917 * tfactors.T913i + -48.934 * tfactors.T913
+                         + 44.1843 * tfactors.T9 + -20.8743 * tfactors.T953 + 2.02494 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  0.30489 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 7.43132 * tfactors.T943i + (1.0/3.0) * -84.8689 * tfactors.T923i
-                                  + 3.65083 + (5.0/3.0) * -0.148015 * tfactors.T923 + 37.6008 * tfactors.T9i;
+        dln_set_rate_dT9 =  0.0277331 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -32.3917 * tfactors.T943i + (1.0/3.0) * -48.934 * tfactors.T923i
+                                  + 44.1843 + (5.0/3.0) * -20.8743 * tfactors.T923 + 2.02494 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -33229,12 +30748,12 @@ void rate_He4_C13_to_n_O16(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     }
 
     // gl12 
-    ln_set_rate =  62.5775 + -0.0277331 * tfactors.T9i + -32.3917 * tfactors.T913i + -48.934 * tfactors.T913
-                         + 44.1843 * tfactors.T9 + -20.8743 * tfactors.T953 + 2.02494 * tfactors.lnT9;
+    ln_set_rate =  79.3008 + -0.30489 * tfactors.T9i + 7.43132 * tfactors.T913i + -84.8689 * tfactors.T913
+                         + 3.65083 * tfactors.T9 + -0.148015 * tfactors.T953 + 37.6008 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  0.0277331 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -32.3917 * tfactors.T943i + (1.0/3.0) * -48.934 * tfactors.T923i
-                                  + 44.1843 + (5.0/3.0) * -20.8743 * tfactors.T923 + 2.02494 * tfactors.T9i;
+        dln_set_rate_dT9 =  0.30489 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 7.43132 * tfactors.T943i + (1.0/3.0) * -84.8689 * tfactors.T923i
+                                  + 3.65083 + (5.0/3.0) * -0.148015 * tfactors.T923 + 37.6008 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -33310,23 +30829,6 @@ void rate_p_C14_to_He4_B11(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     amrex::Real set_rate{0.0};
 
     // bb92r
-    ln_set_rate =  17.8245 + -20.357 * tfactors.T9i + -1.87598e-08 * tfactors.T913i + 3.26423e-08 * tfactors.T913
-                         + -2.18782e-09 * tfactors.T9 + 1.43323e-10 * tfactors.T953 + 0.6 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  20.357 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -1.87598e-08 * tfactors.T943i + (1.0/3.0) * 3.26423e-08 * tfactors.T923i
-                                  + -2.18782e-09 + (5.0/3.0) * 1.43323e-10 * tfactors.T923 + 0.6 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // bb92r
     ln_set_rate =  -2.80313 + -11.965 * tfactors.T9i + 2.62625e-09 * tfactors.T913i + -6.58921e-09 * tfactors.T913
                          + 5.62244e-10 * tfactors.T9 + -4.28925e-11 * tfactors.T953 + -1.5 * tfactors.lnT9;
 
@@ -33394,6 +30896,23 @@ void rate_p_C14_to_He4_B11(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
+    // bb92r
+    ln_set_rate =  17.8245 + -20.357 * tfactors.T9i + -1.87598e-08 * tfactors.T913i + 3.26423e-08 * tfactors.T913
+                         + -2.18782e-09 * tfactors.T9 + 1.43323e-10 * tfactors.T953 + 0.6 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  20.357 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -1.87598e-08 * tfactors.T943i + (1.0/3.0) * 3.26423e-08 * tfactors.T923i
+                                  + -2.18782e-09 + (5.0/3.0) * 1.43323e-10 * tfactors.T923 + 0.6 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
 }
 
 template <int do_T_derivatives>
@@ -33410,12 +30929,12 @@ void rate_d_C14_to_n_N15(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     amrex::Real set_rate{0.0};
 
     // bk92 
-    ln_set_rate =  30.6841 + -16.939 * tfactors.T913i + -0.582342 * tfactors.T913
-                         + -8.17066 * tfactors.T9 + 1.70865 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+    ln_set_rate =  33.5637 + -16.939 * tfactors.T913i + -4.14392 * tfactors.T913
+                         + 0.438623 * tfactors.T9 + -0.0354193 * tfactors.T953 + 0.333333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  + -(1.0/3.0) * -16.939 * tfactors.T943i + (1.0/3.0) * -0.582342 * tfactors.T923i
-                                  + -8.17066 + (5.0/3.0) * 1.70865 * tfactors.T923 + -0.666667 * tfactors.T9i;
+        dln_set_rate_dT9 =  + -(1.0/3.0) * -16.939 * tfactors.T943i + (1.0/3.0) * -4.14392 * tfactors.T923i
+                                  + 0.438623 + (5.0/3.0) * -0.0354193 * tfactors.T923 + 0.333333 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -33427,12 +30946,12 @@ void rate_d_C14_to_n_N15(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     }
 
     // bk92 
-    ln_set_rate =  33.5637 + -16.939 * tfactors.T913i + -4.14392 * tfactors.T913
-                         + 0.438623 * tfactors.T9 + -0.0354193 * tfactors.T953 + 0.333333 * tfactors.lnT9;
+    ln_set_rate =  30.6841 + -16.939 * tfactors.T913i + -0.582342 * tfactors.T913
+                         + -8.17066 * tfactors.T9 + 1.70865 * tfactors.T953 + -0.666667 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  + -(1.0/3.0) * -16.939 * tfactors.T943i + (1.0/3.0) * -4.14392 * tfactors.T923i
-                                  + 0.438623 + (5.0/3.0) * -0.0354193 * tfactors.T923 + 0.333333 * tfactors.T9i;
+        dln_set_rate_dT9 =  + -(1.0/3.0) * -16.939 * tfactors.T943i + (1.0/3.0) * -0.582342 * tfactors.T923i
+                                  + -8.17066 + (5.0/3.0) * 1.70865 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -33618,13 +31137,13 @@ void rate_n_N14_to_p_C14(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // cf88n
-    ln_set_rate =  13.6622 + -4.33989 * tfactors.T913
-                         + 11.4311 * tfactors.T9 + -11.7764 * tfactors.T953;
+    // cf88 
+    ln_set_rate =  4.13728 + 12.3428 * tfactors.T913
+                         + -2.70025 * tfactors.T9 + 0.236625 * tfactors.T953 + 1.0 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  + (1.0/3.0) * -4.33989 * tfactors.T923i
-                                  + 11.4311 + (5.0/3.0) * -11.7764 * tfactors.T923;
+        dln_set_rate_dT9 =  + (1.0/3.0) * 12.3428 * tfactors.T923i
+                                  + -2.70025 + (5.0/3.0) * 0.236625 * tfactors.T923 + 1.0 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -33635,13 +31154,13 @@ void rate_n_N14_to_p_C14(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
-    // cf88 
-    ln_set_rate =  4.13728 + 12.3428 * tfactors.T913
-                         + -2.70025 * tfactors.T9 + 0.236625 * tfactors.T953 + 1.0 * tfactors.lnT9;
+    // cf88n
+    ln_set_rate =  13.6622 + -4.33989 * tfactors.T913
+                         + 11.4311 * tfactors.T9 + -11.7764 * tfactors.T953;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  + (1.0/3.0) * 12.3428 * tfactors.T923i
-                                  + -2.70025 + (5.0/3.0) * 0.236625 * tfactors.T923 + 1.0 * tfactors.T9i;
+        dln_set_rate_dT9 =  + (1.0/3.0) * -4.33989 * tfactors.T923i
+                                  + 11.4311 + (5.0/3.0) * -11.7764 * tfactors.T923;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -33700,6 +31219,23 @@ void rate_n_N14_to_He4_B11(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     amrex::Real set_rate{0.0};
 
     // cf88r
+    ln_set_rate =  8.75648 + -7.01151 * tfactors.T9i
+                         + -1.5 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  7.01151 * tfactors.T9i * tfactors.T9i
+                                  + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // cf88r
     ln_set_rate =  1.89445 + -4.66051 * tfactors.T9i
                          + -1.5 * tfactors.lnT9;
 
@@ -33740,23 +31276,6 @@ void rate_n_N14_to_He4_B11(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  10.4295 * tfactors.T9i * tfactors.T9i
                                   + 0.6 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // cf88r
-    ln_set_rate =  8.75648 + -7.01151 * tfactors.T9i
-                         + -1.5 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  7.01151 * tfactors.T9i * tfactors.T9i
-                                  + -1.5 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -33847,6 +31366,23 @@ void rate_He4_N14_to_p_O17(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     amrex::Real set_rate{0.0};
 
     // il10r
+    ln_set_rate =  5.13169 + -15.9452 * tfactors.T9i
+                         + -1.5 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  15.9452 * tfactors.T9i * tfactors.T9i
+                                  + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // il10r
     ln_set_rate =  -7.60954 + -14.5839 * tfactors.T9i
                          + -1.5 * tfactors.lnT9;
 
@@ -33887,23 +31423,6 @@ void rate_He4_N14_to_p_O17(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  18.7891 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 5.10182 * tfactors.T923i
                                   + 0.379373 + (5.0/3.0) * -0.0672515 * tfactors.T923 + -1.5 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // il10r
-    ln_set_rate =  5.13169 + -15.9452 * tfactors.T9i
-                         + -1.5 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  15.9452 * tfactors.T9i * tfactors.T9i
-                                  + -1.5 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -34126,6 +31645,23 @@ void rate_He4_N15_to_p_O18(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     amrex::Real set_rate{0.0};
 
     // il10r
+    ln_set_rate =  8.46654 + -47.8616 * tfactors.T9i
+                         + -1.5 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  47.8616 * tfactors.T9i * tfactors.T9i
+                                  + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // il10r
     ln_set_rate =  -29.7104 + -46.4444 * tfactors.T9i
                          + -1.5 * tfactors.lnT9;
 
@@ -34166,23 +31702,6 @@ void rate_He4_N15_to_p_O18(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  51.5219 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 11.6568 * tfactors.T923i
                                   + -2.16303 + (5.0/3.0) * 0.209965 * tfactors.T923 + -1.5 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // il10r
-    ln_set_rate =  8.46654 + -47.8616 * tfactors.T9i
-                         + -1.5 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  47.8616 * tfactors.T9i * tfactors.T9i
-                                  + -1.5 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -34239,6 +31758,40 @@ void rate_He4_O14_to_p_F17(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     amrex::Real ln_set_rate{0.0};
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
+
+    // Ha96r
+    ln_set_rate =  12.1289 + -12.0223 * tfactors.T9i
+                         + -1.5 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  12.0223 * tfactors.T9i * tfactors.T9i
+                                  + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // Ha96r
+    ln_set_rate =  18.6518 + -26.0 * tfactors.T9i
+                         + -1.5 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  26.0 * tfactors.T9i * tfactors.T9i
+                                  + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
 
     // Ha96n
     ln_set_rate =  40.8358 + -39.388 * tfactors.T913i + -17.4673 * tfactors.T913
@@ -34297,40 +31850,6 @@ void rate_He4_O14_to_p_F17(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  0.453036 * tfactors.T9i * tfactors.T9i
-                                  + -1.5 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // Ha96r
-    ln_set_rate =  12.1289 + -12.0223 * tfactors.T9i
-                         + -1.5 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  12.0223 * tfactors.T9i * tfactors.T9i
-                                  + -1.5 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // Ha96r
-    ln_set_rate =  18.6518 + -26.0 * tfactors.T9i
-                         + -1.5 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  26.0 * tfactors.T9i * tfactors.T9i
                                   + -1.5 * tfactors.T9i;
     }
 
@@ -34453,6 +31972,23 @@ void rate_He4_O15_to_p_F18(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
+    // il10n
+    ln_set_rate =  61.2985 + -33.4459 * tfactors.T9i + -21.4023 * tfactors.T913i + -80.8891 * tfactors.T913
+                         + 134.6 * tfactors.T9 + -126.504 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  33.4459 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -21.4023 * tfactors.T943i + (1.0/3.0) * -80.8891 * tfactors.T923i
+                                  + 134.6 + (5.0/3.0) * -126.504 * tfactors.T923 + -0.666667 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
     // il10r
     ln_set_rate =  1.04969 + -36.4627 * tfactors.T9i + 13.3223 * tfactors.T913
                          + -1.36696 * tfactors.T9 + 0.0757363 * tfactors.T953 + -1.5 * tfactors.lnT9;
@@ -34487,23 +32023,6 @@ void rate_He4_O15_to_p_F18(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
-    // il10n
-    ln_set_rate =  61.2985 + -33.4459 * tfactors.T9i + -21.4023 * tfactors.T913i + -80.8891 * tfactors.T913
-                         + 134.6 * tfactors.T9 + -126.504 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  33.4459 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -21.4023 * tfactors.T943i + (1.0/3.0) * -80.8891 * tfactors.T923i
-                                  + 134.6 + (5.0/3.0) * -126.504 * tfactors.T923 + -0.666667 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
 }
 
 template <int do_T_derivatives>
@@ -34520,12 +32039,12 @@ void rate_n_O16_to_He4_C13(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     amrex::Real set_rate{0.0};
 
     // gl12 
-    ln_set_rate =  81.0688 + -26.0159 * tfactors.T9i + 7.43132 * tfactors.T913i + -84.8689 * tfactors.T913
-                         + 3.65083 * tfactors.T9 + -0.148015 * tfactors.T953 + 37.6008 * tfactors.lnT9;
+    ln_set_rate =  64.3455 + -25.7388 * tfactors.T9i + -32.3917 * tfactors.T913i + -48.934 * tfactors.T913
+                         + 44.1843 * tfactors.T9 + -20.8743 * tfactors.T953 + 2.02494 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  26.0159 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 7.43132 * tfactors.T943i + (1.0/3.0) * -84.8689 * tfactors.T923i
-                                  + 3.65083 + (5.0/3.0) * -0.148015 * tfactors.T923 + 37.6008 * tfactors.T9i;
+        dln_set_rate_dT9 =  25.7388 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -32.3917 * tfactors.T943i + (1.0/3.0) * -48.934 * tfactors.T923i
+                                  + 44.1843 + (5.0/3.0) * -20.8743 * tfactors.T923 + 2.02494 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -34537,12 +32056,12 @@ void rate_n_O16_to_He4_C13(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     }
 
     // gl12 
-    ln_set_rate =  64.3455 + -25.7388 * tfactors.T9i + -32.3917 * tfactors.T913i + -48.934 * tfactors.T913
-                         + 44.1843 * tfactors.T9 + -20.8743 * tfactors.T953 + 2.02494 * tfactors.lnT9;
+    ln_set_rate =  81.0688 + -26.0159 * tfactors.T9i + 7.43132 * tfactors.T913i + -84.8689 * tfactors.T913
+                         + 3.65083 * tfactors.T9 + -0.148015 * tfactors.T953 + 37.6008 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  25.7388 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -32.3917 * tfactors.T943i + (1.0/3.0) * -48.934 * tfactors.T923i
-                                  + 44.1843 + (5.0/3.0) * -20.8743 * tfactors.T923 + 2.02494 * tfactors.T9i;
+        dln_set_rate_dT9 =  26.0159 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 7.43132 * tfactors.T943i + (1.0/3.0) * -84.8689 * tfactors.T923i
+                                  + 3.65083 + (5.0/3.0) * -0.148015 * tfactors.T923 + 37.6008 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -34633,6 +32152,23 @@ void rate_He4_O16_to_p_F19(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     amrex::Real set_rate{0.0};
 
     // nacr 
+    ln_set_rate =  7.80363 + -96.6272 * tfactors.T9i
+                         + -1.5 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  96.6272 * tfactors.T9i * tfactors.T9i
+                                  + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // nacr 
     ln_set_rate =  -53.1397 + -94.2866 * tfactors.T9i
                          + -1.5 * tfactors.lnT9;
 
@@ -34689,23 +32225,6 @@ void rate_He4_O16_to_p_F19(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  97.9108 * tfactors.T9i * tfactors.T9i
-                                  + -1.5 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // nacr 
-    ln_set_rate =  7.80363 + -96.6272 * tfactors.T9i
-                         + -1.5 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  96.6272 * tfactors.T9i * tfactors.T9i
                                   + -1.5 * tfactors.T9i;
     }
 
@@ -34956,23 +32475,6 @@ void rate_p_O17_to_He4_N14(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     amrex::Real set_rate{0.0};
 
     // il10r
-    ln_set_rate =  5.5336 + -2.11477 * tfactors.T9i
-                         + -1.5 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  2.11477 * tfactors.T9i * tfactors.T9i
-                                  + -1.5 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // il10r
     ln_set_rate =  -7.20763 + -0.753395 * tfactors.T9i
                          + -1.5 * tfactors.lnT9;
 
@@ -35023,6 +32525,23 @@ void rate_p_O17_to_He4_N14(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
+    // il10r
+    ln_set_rate =  5.5336 + -2.11477 * tfactors.T9i
+                         + -1.5 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  2.11477 * tfactors.T9i * tfactors.T9i
+                                  + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
 }
 
 template <int do_T_derivatives>
@@ -35037,23 +32556,6 @@ void rate_He4_O17_to_n_Ne20(const tf_t& tfactors, amrex::Real& rate, amrex::Real
     amrex::Real ln_set_rate{0.0};
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
-
-    // nacrn
-    ln_set_rate =  40.621 + -39.918 * tfactors.T913i
-                         + 0.227017 * tfactors.T9 + -0.900234 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  + -(1.0/3.0) * -39.918 * tfactors.T943i
-                                  + 0.227017 + (5.0/3.0) * -0.900234 * tfactors.T923 + -0.666667 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
 
     // nacrr
     ln_set_rate =  1.80342 + -13.8 * tfactors.T9i + 12.6501 * tfactors.T913
@@ -35079,6 +32581,23 @@ void rate_He4_O17_to_n_Ne20(const tf_t& tfactors, amrex::Real& rate, amrex::Real
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  8.55 * tfactors.T9i * tfactors.T9i
                                   + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // nacrn
+    ln_set_rate =  40.621 + -39.918 * tfactors.T913i
+                         + 0.227017 * tfactors.T9 + -0.900234 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  + -(1.0/3.0) * -39.918 * tfactors.T943i
+                                  + 0.227017 + (5.0/3.0) * -0.900234 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -35135,23 +32654,6 @@ void rate_p_O18_to_He4_N15(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     amrex::Real set_rate{0.0};
 
     // il10r
-    ln_set_rate =  10.2725 + -1.663 * tfactors.T9i
-                         + -1.5 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  1.663 * tfactors.T9i * tfactors.T9i
-                                  + -1.5 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // il10r
     ln_set_rate =  -27.9044 + -0.245884 * tfactors.T9i
                          + -1.5 * tfactors.lnT9;
 
@@ -35192,6 +32694,23 @@ void rate_p_O18_to_He4_N15(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  5.32335 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 11.6568 * tfactors.T923i
                                   + -2.16303 + (5.0/3.0) * 0.209965 * tfactors.T923 + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // il10r
+    ln_set_rate =  10.2725 + -1.663 * tfactors.T9i
+                         + -1.5 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  1.663 * tfactors.T9i * tfactors.T9i
+                                  + -1.5 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -35345,23 +32864,6 @@ void rate_p_F17_to_He4_O14(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     amrex::Real set_rate{0.0};
 
     // Ha96r
-    ln_set_rate =  15.612 + -36.3426 * tfactors.T9i
-                         + -1.5 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  36.3426 * tfactors.T9i * tfactors.T9i
-                                  + -1.5 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // Ha96r
     ln_set_rate =  10.4217 + -27.4326 * tfactors.T9i
                          + -1.5 * tfactors.lnT9;
 
@@ -35436,6 +32938,23 @@ void rate_p_F17_to_He4_O14(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  13.8326 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -39.388 * tfactors.T943i + (1.0/3.0) * -17.4673 * tfactors.T923i
                                   + 35.3029 + (5.0/3.0) * -24.8162 * tfactors.T923 + -0.666667 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // Ha96r
+    ln_set_rate =  15.612 + -36.3426 * tfactors.T9i
+                         + -1.5 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  36.3426 * tfactors.T9i * tfactors.T9i
+                                  + -1.5 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -35588,23 +33107,6 @@ void rate_p_F18_to_He4_O15(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // il10n
-    ln_set_rate =  62.0058 + -21.4023 * tfactors.T913i + -80.8891 * tfactors.T913
-                         + 134.6 * tfactors.T9 + -126.504 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  + -(1.0/3.0) * -21.4023 * tfactors.T943i + (1.0/3.0) * -80.8891 * tfactors.T923i
-                                  + 134.6 + (5.0/3.0) * -126.504 * tfactors.T923 + -0.666667 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
     // il10r
     ln_set_rate =  1.75704 + -3.01675 * tfactors.T9i + 13.3223 * tfactors.T913
                          + -1.36696 * tfactors.T9 + 0.0757363 * tfactors.T953 + -1.5 * tfactors.lnT9;
@@ -35629,6 +33131,23 @@ void rate_p_F18_to_He4_O15(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  0.376432 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 61.738 * tfactors.T923i
                                   + -108.29 + (5.0/3.0) * -34.2365 * tfactors.T923 + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // il10n
+    ln_set_rate =  62.0058 + -21.4023 * tfactors.T913i + -80.8891 * tfactors.T913
+                         + 134.6 * tfactors.T9 + -126.504 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  + -(1.0/3.0) * -21.4023 * tfactors.T943i + (1.0/3.0) * -80.8891 * tfactors.T923i
+                                  + 134.6 + (5.0/3.0) * -126.504 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -35719,12 +33238,12 @@ void rate_p_F19_to_n_Ne19(const tf_t& tfactors, amrex::Real& rate, amrex::Real& 
     amrex::Real set_rate{0.0};
 
     // nacr 
-    ln_set_rate =  20.353 + -46.6617 * tfactors.T9i + -1.58171 * tfactors.T913
-                         + 0.0324472 * tfactors.T9 + 1.0 * tfactors.lnT9;
+    ln_set_rate =  15.6732 + -46.6617 * tfactors.T9i + 4.34441 * tfactors.T913
+                         + -1.71268 * tfactors.T9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  46.6617 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -1.58171 * tfactors.T923i
-                                  + 0.0324472 + 1.0 * tfactors.T9i;
+        dln_set_rate_dT9 =  46.6617 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 4.34441 * tfactors.T923i
+                                  + -1.71268;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -35736,12 +33255,12 @@ void rate_p_F19_to_n_Ne19(const tf_t& tfactors, amrex::Real& rate, amrex::Real& 
     }
 
     // nacr 
-    ln_set_rate =  15.6732 + -46.6617 * tfactors.T9i + 4.34441 * tfactors.T913
-                         + -1.71268 * tfactors.T9;
+    ln_set_rate =  20.353 + -46.6617 * tfactors.T9i + -1.58171 * tfactors.T913
+                         + 0.0324472 * tfactors.T9 + 1.0 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  46.6617 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 4.34441 * tfactors.T923i
-                                  + -1.71268;
+        dln_set_rate_dT9 =  46.6617 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -1.58171 * tfactors.T923i
+                                  + 0.0324472 + 1.0 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -35766,23 +33285,6 @@ void rate_p_F19_to_He4_O16(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     amrex::Real ln_set_rate{0.0};
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
-
-    // nacr 
-    ln_set_rate =  8.239 + -2.46828 * tfactors.T9i
-                         + -1.5 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  2.46828 * tfactors.T9i * tfactors.T9i
-                                  + -1.5 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
 
     // nacr 
     ln_set_rate =  -52.7043 + -0.12765 * tfactors.T9i
@@ -35841,6 +33343,23 @@ void rate_p_F19_to_He4_O16(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  3.75185 * tfactors.T9i * tfactors.T9i
+                                  + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // nacr 
+    ln_set_rate =  8.239 + -2.46828 * tfactors.T9i
+                         + -1.5 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  2.46828 * tfactors.T9i * tfactors.T9i
                                   + -1.5 * tfactors.T9i;
     }
 
@@ -35917,23 +33436,6 @@ void rate_He4_F19_to_p_Ne22(const tf_t& tfactors, amrex::Real& rate, amrex::Real
     amrex::Real set_rate{0.0};
 
     // da18r
-    ln_set_rate =  29430.6 + -133.026 * tfactors.T9i + 12625.1 * tfactors.T913i + -49107.1 * tfactors.T913
-                         + 9227.53 * tfactors.T9 + -2086.65 * tfactors.T953 + 14520.2 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  133.026 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 12625.1 * tfactors.T943i + (1.0/3.0) * -49107.1 * tfactors.T923i
-                                  + 9227.53 + (5.0/3.0) * -2086.65 * tfactors.T923 + 14520.2 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // da18r
     ln_set_rate =  52.9317 + -2.8444 * tfactors.T9i + -38.7722 * tfactors.T913i + -13.3654 * tfactors.T913
                          + 0.863648 * tfactors.T9 + -0.0451491 * tfactors.T953 + 1.33333 * tfactors.lnT9;
 
@@ -35957,6 +33459,23 @@ void rate_He4_F19_to_p_Ne22(const tf_t& tfactors, amrex::Real& rate, amrex::Real
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  45.7808 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -34.5008 * tfactors.T943i + (1.0/3.0) * 56.9316 * tfactors.T923i
                                   + 2.09613 + (5.0/3.0) * -32.496 * tfactors.T923 + 0.333333 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // da18r
+    ln_set_rate =  29430.6 + -133.026 * tfactors.T9i + 12625.1 * tfactors.T913i + -49107.1 * tfactors.T913
+                         + 9227.53 * tfactors.T9 + -2086.65 * tfactors.T953 + 14520.2 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  133.026 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 12625.1 * tfactors.T943i + (1.0/3.0) * -49107.1 * tfactors.T923i
+                                  + 9227.53 + (5.0/3.0) * -2086.65 * tfactors.T923 + 14520.2 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -36047,23 +33566,6 @@ void rate_He4_Ne18_to_p_Na21(const tf_t& tfactors, amrex::Real& rate, amrex::Rea
     amrex::Real set_rate{0.0};
 
     // mo14r
-    ln_set_rate =  -37.3979 + -3.8681 * tfactors.T9i + 7.09521e-06 * tfactors.T913i + 34.1789 * tfactors.T913
-                         + -1.72974 * tfactors.T9 + -0.0395081 * tfactors.T953 + -7.82759e-07 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  3.8681 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 7.09521e-06 * tfactors.T943i + (1.0/3.0) * 34.1789 * tfactors.T923i
-                                  + -1.72974 + (5.0/3.0) * -0.0395081 * tfactors.T923 + -7.82759e-07 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // mo14r
     ln_set_rate =  -23.5811 + -5.76874 * tfactors.T9i + 8.5632e-08 * tfactors.T913i + 24.8579 * tfactors.T913
                          + 0.0823845 * tfactors.T9 + -0.365374 * tfactors.T953 + -2.21415e-06 * tfactors.lnT9;
 
@@ -36097,6 +33599,23 @@ void rate_He4_Ne18_to_p_Na21(const tf_t& tfactors, amrex::Real& rate, amrex::Rea
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
+    // mo14r
+    ln_set_rate =  -37.3979 + -3.8681 * tfactors.T9i + 7.09521e-06 * tfactors.T913i + 34.1789 * tfactors.T913
+                         + -1.72974 * tfactors.T9 + -0.0395081 * tfactors.T953 + -7.82759e-07 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  3.8681 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 7.09521e-06 * tfactors.T943i + (1.0/3.0) * 34.1789 * tfactors.T923i
+                                  + -1.72974 + (5.0/3.0) * -0.0395081 * tfactors.T923 + -7.82759e-07 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
 }
 
 template <int do_T_derivatives>
@@ -36113,12 +33632,12 @@ void rate_n_Ne19_to_p_F19(const tf_t& tfactors, amrex::Real& rate, amrex::Real& 
     amrex::Real set_rate{0.0};
 
     // nacr 
-    ln_set_rate =  20.353 + -1.58171 * tfactors.T913
-                         + 0.0324472 * tfactors.T9 + 1.0 * tfactors.lnT9;
+    ln_set_rate =  15.6732 + 4.34441 * tfactors.T913
+                         + -1.71268 * tfactors.T9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  + (1.0/3.0) * -1.58171 * tfactors.T923i
-                                  + 0.0324472 + 1.0 * tfactors.T9i;
+        dln_set_rate_dT9 =  + (1.0/3.0) * 4.34441 * tfactors.T923i
+                                  + -1.71268;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -36130,12 +33649,12 @@ void rate_n_Ne19_to_p_F19(const tf_t& tfactors, amrex::Real& rate, amrex::Real& 
     }
 
     // nacr 
-    ln_set_rate =  15.6732 + 4.34441 * tfactors.T913
-                         + -1.71268 * tfactors.T9;
+    ln_set_rate =  20.353 + -1.58171 * tfactors.T913
+                         + 0.0324472 * tfactors.T9 + 1.0 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  + (1.0/3.0) * 4.34441 * tfactors.T923i
-                                  + -1.71268;
+        dln_set_rate_dT9 =  + (1.0/3.0) * -1.58171 * tfactors.T923i
+                                  + 0.0324472 + 1.0 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -36356,6 +33875,23 @@ void rate_He4_Ne20_to_p_Na23(const tf_t& tfactors, amrex::Real& rate, amrex::Rea
     amrex::Real set_rate{0.0};
 
     // il10r
+    ln_set_rate =  -6.37772 + -29.8896 * tfactors.T9i + 19.7297 * tfactors.T913
+                         + -2.20987 * tfactors.T9 + 0.153374 * tfactors.T953 + -1.5 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  29.8896 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 19.7297 * tfactors.T923i
+                                  + -2.20987 + (5.0/3.0) * 0.153374 * tfactors.T923 + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // il10r
     ln_set_rate =  0.227472 + -29.4348 * tfactors.T9i
                          + -1.5 * tfactors.lnT9;
 
@@ -36379,23 +33915,6 @@ void rate_He4_Ne20_to_p_Na23(const tf_t& tfactors, amrex::Real& rate, amrex::Rea
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  27.5738 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -20.0024 * tfactors.T943i + (1.0/3.0) * 11.5988 * tfactors.T923i
                                   + -1.37398 + (5.0/3.0) * -1.0 * tfactors.T923 + -0.666667 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // il10r
-    ln_set_rate =  -6.37772 + -29.8896 * tfactors.T9i + 19.7297 * tfactors.T913
-                         + -2.20987 * tfactors.T9 + 0.153374 * tfactors.T953 + -1.5 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  29.8896 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 19.7297 * tfactors.T923i
-                                  + -2.20987 + (5.0/3.0) * 0.153374 * tfactors.T923 + -1.5 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -36517,6 +34036,23 @@ void rate_n_Ne21_to_He4_O18(const tf_t& tfactors, amrex::Real& rate, amrex::Real
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
+    // nacr 
+    ln_set_rate =  1.11027 + -7.35566 * tfactors.T9i + 11.656 * tfactors.T913
+                         + -1.24869 * tfactors.T9 + 1.0 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  7.35566 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 11.656 * tfactors.T923i
+                                  + -1.24869 + 1.0 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
     // nacrn
     ln_set_rate =  2.59673 + 0.0033365 * tfactors.T9i;
 
@@ -36539,23 +34075,6 @@ void rate_n_Ne21_to_He4_O18(const tf_t& tfactors, amrex::Real& rate, amrex::Real
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  0.331353 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 6.51299 * tfactors.T923i
                                   + -0.334277 + 2.0 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // nacr 
-    ln_set_rate =  1.11027 + -7.35566 * tfactors.T9i + 11.656 * tfactors.T913
-                         + -1.24869 * tfactors.T9 + 1.0 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  7.35566 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 11.656 * tfactors.T923i
-                                  + -1.24869 + 1.0 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -36645,13 +34164,13 @@ void rate_He4_Ne21_to_n_Mg24(const tf_t& tfactors, amrex::Real& rate, amrex::Rea
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // nacrn
-    ln_set_rate =  43.9762 + -46.88 * tfactors.T913i + -0.536629 * tfactors.T913
-                         + 0.144715 * tfactors.T9 + -0.197624 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+    // nacrr
+    ln_set_rate =  -7.26831 + -13.2638 * tfactors.T9i + 18.0748 * tfactors.T913
+                         + -0.981883 * tfactors.T9 + -1.5 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  + -(1.0/3.0) * -46.88 * tfactors.T943i + (1.0/3.0) * -0.536629 * tfactors.T923i
-                                  + 0.144715 + (5.0/3.0) * -0.197624 * tfactors.T923 + -0.666667 * tfactors.T9i;
+        dln_set_rate_dT9 =  13.2638 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 18.0748 * tfactors.T923i
+                                  + -0.981883 + -1.5 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -36662,13 +34181,13 @@ void rate_He4_Ne21_to_n_Mg24(const tf_t& tfactors, amrex::Real& rate, amrex::Rea
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
-    // nacrr
-    ln_set_rate =  -7.26831 + -13.2638 * tfactors.T9i + 18.0748 * tfactors.T913
-                         + -0.981883 * tfactors.T9 + -1.5 * tfactors.lnT9;
+    // nacrn
+    ln_set_rate =  43.9762 + -46.88 * tfactors.T913i + -0.536629 * tfactors.T913
+                         + 0.144715 * tfactors.T9 + -0.197624 * tfactors.T953 + -0.666667 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  13.2638 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 18.0748 * tfactors.T923i
-                                  + -0.981883 + -1.5 * tfactors.T9i;
+        dln_set_rate_dT9 =  + -(1.0/3.0) * -46.88 * tfactors.T943i + (1.0/3.0) * -0.536629 * tfactors.T923i
+                                  + 0.144715 + (5.0/3.0) * -0.197624 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -36923,23 +34442,6 @@ void rate_p_Na21_to_He4_Ne18(const tf_t& tfactors, amrex::Real& rate, amrex::Rea
     amrex::Real set_rate{0.0};
 
     // mo14r
-    ln_set_rate =  -37.6291 + -34.4844 * tfactors.T9i + 7.09521e-06 * tfactors.T913i + 34.1789 * tfactors.T913
-                         + -1.72974 * tfactors.T9 + -0.0395081 * tfactors.T953 + -7.82759e-07 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  34.4844 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 7.09521e-06 * tfactors.T943i + (1.0/3.0) * 34.1789 * tfactors.T923i
-                                  + -1.72974 + (5.0/3.0) * -0.0395081 * tfactors.T923 + -7.82759e-07 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // mo14r
     ln_set_rate =  -23.8123 + -36.3851 * tfactors.T9i + 8.5632e-08 * tfactors.T913i + 24.8579 * tfactors.T913
                          + 0.0823845 * tfactors.T9 + -0.365374 * tfactors.T953 + -2.21415e-06 * tfactors.lnT9;
 
@@ -36963,6 +34465,23 @@ void rate_p_Na21_to_He4_Ne18(const tf_t& tfactors, amrex::Real& rate, amrex::Rea
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  40.8761 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 4.73034e-07 * tfactors.T943i + (1.0/3.0) * 36.29 * tfactors.T923i
                                   + -6.56565 + (5.0/3.0) * -2.96287e-06 * tfactors.T923 + -9.00373e-07 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // mo14r
+    ln_set_rate =  -37.6291 + -34.4844 * tfactors.T9i + 7.09521e-06 * tfactors.T913i + 34.1789 * tfactors.T913
+                         + -1.72974 * tfactors.T9 + -0.0395081 * tfactors.T953 + -7.82759e-07 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  34.4844 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 7.09521e-06 * tfactors.T943i + (1.0/3.0) * 34.1789 * tfactors.T923i
+                                  + -1.72974 + (5.0/3.0) * -0.0395081 * tfactors.T923 + -7.82759e-07 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -37634,23 +35153,6 @@ void rate_He4_Mg24_to_p_Al27(const tf_t& tfactors, amrex::Real& rate, amrex::Rea
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // il10n
-    ln_set_rate =  30.0397 + -18.5791 * tfactors.T9i + -26.4162 * tfactors.T913i
-                         + -2.0 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  18.5791 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -26.4162 * tfactors.T943i
-                                  + (5.0/3.0) * -2.0 * tfactors.T923 + -0.666667 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
     // il10r
     ln_set_rate =  -26.2862 + -19.5422 * tfactors.T9i + 5.18642 * tfactors.T913i + -34.7936 * tfactors.T913
                          + 168.225 * tfactors.T9 + -115.825 * tfactors.T953 + -1.5 * tfactors.lnT9;
@@ -37675,6 +35177,23 @@ void rate_He4_Mg24_to_p_Al27(const tf_t& tfactors, amrex::Real& rate, amrex::Rea
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  22.8216 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 18.0416 * tfactors.T923i
                                   + -1.54137 + (5.0/3.0) * 0.0847506 * tfactors.T923 + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // il10n
+    ln_set_rate =  30.0397 + -18.5791 * tfactors.T9i + -26.4162 * tfactors.T913i
+                         + -2.0 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  18.5791 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -26.4162 * tfactors.T943i
+                                  + (5.0/3.0) * -2.0 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -37733,6 +35252,23 @@ void rate_n_Mg25_to_He4_Ne22(const tf_t& tfactors, amrex::Real& rate, amrex::Rea
     amrex::Real set_rate{0.0};
 
     // li12n
+    ln_set_rate =  -11.0701 + 15.4898 * tfactors.T913
+                         + -30.8154 * tfactors.T9 + -3.0 * tfactors.T953 + 2.0 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  + (1.0/3.0) * 15.4898 * tfactors.T923i
+                                  + -30.8154 + (5.0/3.0) * -3.0 * tfactors.T923 + 2.0 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // li12n
     ln_set_rate =  -52.9232 + 88.2725 * tfactors.T913
                          + -40.1578 * tfactors.T9 + -3.0 * tfactors.T953;
 
@@ -37756,23 +35292,6 @@ void rate_n_Mg25_to_He4_Ne22(const tf_t& tfactors, amrex::Real& rate, amrex::Rea
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  1.83575 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 35.987 * tfactors.T923i
                                   + -4.12183 + (5.0/3.0) * 0.263326 * tfactors.T923 + -1.5 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // li12n
-    ln_set_rate =  -11.0701 + 15.4898 * tfactors.T913
-                         + -30.8154 * tfactors.T9 + -3.0 * tfactors.T953 + 2.0 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  + (1.0/3.0) * 15.4898 * tfactors.T923i
-                                  + -30.8154 + (5.0/3.0) * -3.0 * tfactors.T923 + 2.0 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -37862,13 +35381,13 @@ void rate_He4_Mg25_to_n_Si28(const tf_t& tfactors, amrex::Real& rate, amrex::Rea
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // nacr 
-    ln_set_rate =  38.337 + -53.416 * tfactors.T913i + 8.01209 * tfactors.T913
-                         + -2.64791 * tfactors.T9 + 0.218637 * tfactors.T953 + 0.333333 * tfactors.lnT9;
+    // nacrn
+    ln_set_rate =  45.7613 + -53.415 * tfactors.T913i + -1.46489 * tfactors.T913
+                         + 1.7777 * tfactors.T9 + -0.903499 * tfactors.T953 + -0.666667 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  + -(1.0/3.0) * -53.416 * tfactors.T943i + (1.0/3.0) * 8.01209 * tfactors.T923i
-                                  + -2.64791 + (5.0/3.0) * 0.218637 * tfactors.T923 + 0.333333 * tfactors.T9i;
+        dln_set_rate_dT9 =  + -(1.0/3.0) * -53.415 * tfactors.T943i + (1.0/3.0) * -1.46489 * tfactors.T923i
+                                  + 1.7777 + (5.0/3.0) * -0.903499 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -37879,13 +35398,13 @@ void rate_He4_Mg25_to_n_Si28(const tf_t& tfactors, amrex::Real& rate, amrex::Rea
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
-    // nacrn
-    ln_set_rate =  45.7613 + -53.415 * tfactors.T913i + -1.46489 * tfactors.T913
-                         + 1.7777 * tfactors.T9 + -0.903499 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+    // nacr 
+    ln_set_rate =  38.337 + -53.416 * tfactors.T913i + 8.01209 * tfactors.T913
+                         + -2.64791 * tfactors.T9 + 0.218637 * tfactors.T953 + 0.333333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  + -(1.0/3.0) * -53.415 * tfactors.T943i + (1.0/3.0) * -1.46489 * tfactors.T923i
-                                  + 1.7777 + (5.0/3.0) * -0.903499 * tfactors.T923 + -0.666667 * tfactors.T9i;
+        dln_set_rate_dT9 =  + -(1.0/3.0) * -53.416 * tfactors.T943i + (1.0/3.0) * 8.01209 * tfactors.T923i
+                                  + -2.64791 + (5.0/3.0) * 0.218637 * tfactors.T923 + 0.333333 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -37911,23 +35430,6 @@ void rate_p_Mg26_to_n_Al26(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // ol11r
-    ln_set_rate =  14.8989 + -55.6072 * tfactors.T9i
-                         + -1.5 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  55.6072 * tfactors.T9i * tfactors.T9i
-                                  + -1.5 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
     // ol11n
     ln_set_rate =  13.5366 + -55.5463 * tfactors.T9i + 7.36773 * tfactors.T913
                          + -2.42424 * tfactors.T9 + 0.313743 * tfactors.T953;
@@ -37952,6 +35454,23 @@ void rate_p_Mg26_to_n_Al26(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  55.7499 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 3.87515 * tfactors.T923i
                                   + 0.228327 + (5.0/3.0) * -0.045872 * tfactors.T923 + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // ol11r
+    ln_set_rate =  14.8989 + -55.6072 * tfactors.T9i
+                         + -1.5 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  55.6072 * tfactors.T9i * tfactors.T9i
+                                  + -1.5 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -38009,13 +35528,13 @@ void rate_He4_Mg26_to_n_Si29(const tf_t& tfactors, amrex::Real& rate, amrex::Rea
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // nacrr
-    ln_set_rate =  15.7057 + -18.73 * tfactors.T9i + -9.54056 * tfactors.T913
-                         + 4.71712 * tfactors.T9 + -0.461053 * tfactors.T953 + -1.5 * tfactors.lnT9;
+    // nacrn
+    ln_set_rate =  45.8397 + -53.505 * tfactors.T913i + 0.045598 * tfactors.T913
+                         + -0.194481 * tfactors.T9 + -0.0748153 * tfactors.T953 + -0.666667 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  18.73 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -9.54056 * tfactors.T923i
-                                  + 4.71712 + (5.0/3.0) * -0.461053 * tfactors.T923 + -1.5 * tfactors.T9i;
+        dln_set_rate_dT9 =  + -(1.0/3.0) * -53.505 * tfactors.T943i + (1.0/3.0) * 0.045598 * tfactors.T923i
+                                  + -0.194481 + (5.0/3.0) * -0.0748153 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -38026,13 +35545,13 @@ void rate_He4_Mg26_to_n_Si29(const tf_t& tfactors, amrex::Real& rate, amrex::Rea
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
-    // nacrn
-    ln_set_rate =  45.8397 + -53.505 * tfactors.T913i + 0.045598 * tfactors.T913
-                         + -0.194481 * tfactors.T9 + -0.0748153 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+    // nacrr
+    ln_set_rate =  15.7057 + -18.73 * tfactors.T9i + -9.54056 * tfactors.T913
+                         + 4.71712 * tfactors.T9 + -0.461053 * tfactors.T953 + -1.5 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  + -(1.0/3.0) * -53.505 * tfactors.T943i + (1.0/3.0) * 0.045598 * tfactors.T923i
-                                  + -0.194481 + (5.0/3.0) * -0.0748153 * tfactors.T923 + -0.666667 * tfactors.T9i;
+        dln_set_rate_dT9 =  18.73 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -9.54056 * tfactors.T923i
+                                  + 4.71712 + (5.0/3.0) * -0.461053 * tfactors.T923 + -1.5 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -38481,12 +36000,12 @@ void rate_He4_Al27_to_n_P30(const tf_t& tfactors, amrex::Real& rate, amrex::Real
     amrex::Real set_rate{0.0};
 
     // nacr 
-    ln_set_rate =  11.3074 + -30.667 * tfactors.T9i + 0.311974 * tfactors.T913
-                         + -2.02044 * tfactors.T9;
+    ln_set_rate =  6.09163 + -30.667 * tfactors.T9i + 5.40982 * tfactors.T913
+                         + -0.265676 * tfactors.T9 + 1.0 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  30.667 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 0.311974 * tfactors.T923i
-                                  + -2.02044;
+        dln_set_rate_dT9 =  30.667 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 5.40982 * tfactors.T923i
+                                  + -0.265676 + 1.0 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -38498,12 +36017,12 @@ void rate_He4_Al27_to_n_P30(const tf_t& tfactors, amrex::Real& rate, amrex::Real
     }
 
     // nacr 
-    ln_set_rate =  6.09163 + -30.667 * tfactors.T9i + 5.40982 * tfactors.T913
-                         + -0.265676 * tfactors.T9 + 1.0 * tfactors.lnT9;
+    ln_set_rate =  11.3074 + -30.667 * tfactors.T9i + 0.311974 * tfactors.T913
+                         + -2.02044 * tfactors.T9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  30.667 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 5.40982 * tfactors.T923i
-                                  + -0.265676 + 1.0 * tfactors.T9i;
+        dln_set_rate_dT9 =  30.667 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 0.311974 * tfactors.T923i
+                                  + -2.02044;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -38643,6 +36162,23 @@ void rate_He4_Si28_to_p_P31(const tf_t& tfactors, amrex::Real& rate, amrex::Real
     amrex::Real set_rate{0.0};
 
     // il10r
+    ln_set_rate =  -13.4595 + -24.112 * tfactors.T9i
+                         + -1.5 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  24.112 * tfactors.T9i * tfactors.T9i
+                                  + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // il10r
     ln_set_rate =  -11.4335 + -25.6606 * tfactors.T9i + 21.521 * tfactors.T913
                          + -1.90355 * tfactors.T9 + 0.092724 * tfactors.T953 + -1.5 * tfactors.lnT9;
 
@@ -38666,23 +36202,6 @@ void rate_He4_Si28_to_p_P31(const tf_t& tfactors, amrex::Real& rate, amrex::Real
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  22.2348 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -31.932 * tfactors.T943i + (1.0/3.0) * -77.0334 * tfactors.T923i
                                   + -43.6847 + (5.0/3.0) * -4.28955 * tfactors.T923 + -0.666667 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // il10r
-    ln_set_rate =  -13.4595 + -24.112 * tfactors.T9i
-                         + -1.5 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  24.112 * tfactors.T9i * tfactors.T9i
-                                  + -1.5 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -38772,13 +36291,13 @@ void rate_n_Si29_to_He4_Mg26(const tf_t& tfactors, amrex::Real& rate, amrex::Rea
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // nacrr
-    ln_set_rate =  16.235 + -19.1246 * tfactors.T9i + -9.54056 * tfactors.T913
-                         + 4.71712 * tfactors.T9 + -0.461053 * tfactors.T953 + -1.5 * tfactors.lnT9;
+    // nacrn
+    ln_set_rate =  46.369 + -0.394553 * tfactors.T9i + -53.505 * tfactors.T913i + 0.045598 * tfactors.T913
+                         + -0.194481 * tfactors.T9 + -0.0748153 * tfactors.T953 + -0.666667 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  19.1246 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -9.54056 * tfactors.T923i
-                                  + 4.71712 + (5.0/3.0) * -0.461053 * tfactors.T923 + -1.5 * tfactors.T9i;
+        dln_set_rate_dT9 =  0.394553 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -53.505 * tfactors.T943i + (1.0/3.0) * 0.045598 * tfactors.T923i
+                                  + -0.194481 + (5.0/3.0) * -0.0748153 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -38789,13 +36308,13 @@ void rate_n_Si29_to_He4_Mg26(const tf_t& tfactors, amrex::Real& rate, amrex::Rea
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
-    // nacrn
-    ln_set_rate =  46.369 + -0.394553 * tfactors.T9i + -53.505 * tfactors.T913i + 0.045598 * tfactors.T913
-                         + -0.194481 * tfactors.T9 + -0.0748153 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+    // nacrr
+    ln_set_rate =  16.235 + -19.1246 * tfactors.T9i + -9.54056 * tfactors.T913
+                         + 4.71712 * tfactors.T9 + -0.461053 * tfactors.T953 + -1.5 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  0.394553 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -53.505 * tfactors.T943i + (1.0/3.0) * 0.045598 * tfactors.T923i
-                                  + -0.194481 + (5.0/3.0) * -0.0748153 * tfactors.T923 + -0.666667 * tfactors.T9i;
+        dln_set_rate_dT9 =  19.1246 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -9.54056 * tfactors.T923i
+                                  + 4.71712 + (5.0/3.0) * -0.461053 * tfactors.T923 + -1.5 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -40057,40 +37576,6 @@ void rate_He4_S32_to_p_Cl35(const tf_t& tfactors, amrex::Real& rate, amrex::Real
     amrex::Real set_rate{0.0};
 
     // il10r
-    ln_set_rate =  2.42563 + -27.6662 * tfactors.T9i + 5.33756 * tfactors.T913
-                         + 1.64418 * tfactors.T9 + -0.246167 * tfactors.T953 + -1.5 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  27.6662 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 5.33756 * tfactors.T923i
-                                  + 1.64418 + (5.0/3.0) * -0.246167 * tfactors.T923 + -1.5 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // il10r
-    ln_set_rate =  -0.877602 + -25.5914 * tfactors.T9i
-                         + -1.5 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  25.5914 * tfactors.T9i * tfactors.T9i
-                                  + -1.5 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // il10r
     ln_set_rate =  -57.395 + -22.1894 * tfactors.T9i + 25.5338 * tfactors.T913
                          + 6.45824 * tfactors.T9 + -0.950294 * tfactors.T953 + -1.5 * tfactors.lnT9;
 
@@ -40114,6 +37599,40 @@ void rate_He4_S32_to_p_Cl35(const tf_t& tfactors, amrex::Real& rate, amrex::Real
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  21.6564 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -30.9147 * tfactors.T943i + (1.0/3.0) * -1.2345 * tfactors.T923i
                                   + 22.5118 + (5.0/3.0) * -33.0589 * tfactors.T923 + -0.666667 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // il10r
+    ln_set_rate =  2.42563 + -27.6662 * tfactors.T9i + 5.33756 * tfactors.T913
+                         + 1.64418 * tfactors.T9 + -0.246167 * tfactors.T953 + -1.5 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  27.6662 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 5.33756 * tfactors.T923i
+                                  + 1.64418 + (5.0/3.0) * -0.246167 * tfactors.T923 + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // il10r
+    ln_set_rate =  -0.877602 + -25.5914 * tfactors.T9i
+                         + -1.5 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  25.5914 * tfactors.T9i * tfactors.T9i
+                                  + -1.5 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -40428,12 +37947,12 @@ void rate_He4_S34_to_n_Ar37(const tf_t& tfactors, amrex::Real& rate, amrex::Real
     amrex::Real set_rate{0.0};
 
     // SM93 
-    ln_set_rate =  18.5358 + -53.7288 * tfactors.T9i + 0.522368 * tfactors.T913
-                         + -1.03944 * tfactors.T9 + 0.142735 * tfactors.T953;
+    ln_set_rate =  18.5358 + -53.7288 * tfactors.T9i + -1.69894 * tfactors.T913
+                         + 0.371187 * tfactors.T9 + -0.0457242 * tfactors.T953 + 1.0 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  53.7288 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 0.522368 * tfactors.T923i
-                                  + -1.03944 + (5.0/3.0) * 0.142735 * tfactors.T923;
+        dln_set_rate_dT9 =  53.7288 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -1.69894 * tfactors.T923i
+                                  + 0.371187 + (5.0/3.0) * -0.0457242 * tfactors.T923 + 1.0 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -40445,12 +37964,12 @@ void rate_He4_S34_to_n_Ar37(const tf_t& tfactors, amrex::Real& rate, amrex::Real
     }
 
     // SM93 
-    ln_set_rate =  18.5358 + -53.7288 * tfactors.T9i + -1.69894 * tfactors.T913
-                         + 0.371187 * tfactors.T9 + -0.0457242 * tfactors.T953 + 1.0 * tfactors.lnT9;
+    ln_set_rate =  18.5358 + -53.7288 * tfactors.T9i + 0.522368 * tfactors.T913
+                         + -1.03944 * tfactors.T9 + 0.142735 * tfactors.T953;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  53.7288 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -1.69894 * tfactors.T923i
-                                  + 0.371187 + (5.0/3.0) * -0.0457242 * tfactors.T923 + 1.0 * tfactors.T9i;
+        dln_set_rate_dT9 =  53.7288 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 0.522368 * tfactors.T923i
+                                  + -1.03944 + (5.0/3.0) * 0.142735 * tfactors.T923;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -41021,23 +38540,6 @@ void rate_p_Cl35_to_He4_S32(const tf_t& tfactors, amrex::Real& rate, amrex::Real
     amrex::Real set_rate{0.0};
 
     // il10r
-    ln_set_rate =  2.29121 + -6.00976 * tfactors.T9i + 5.33756 * tfactors.T913
-                         + 1.64418 * tfactors.T9 + -0.246167 * tfactors.T953 + -1.5 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  6.00976 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 5.33756 * tfactors.T923i
-                                  + 1.64418 + (5.0/3.0) * -0.246167 * tfactors.T923 + -1.5 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
-    // il10r
     ln_set_rate =  -1.01202 + -3.93495 * tfactors.T9i
                          + -1.5 * tfactors.lnT9;
 
@@ -41078,6 +38580,23 @@ void rate_p_Cl35_to_He4_S32(const tf_t& tfactors, amrex::Real& rate, amrex::Real
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  + -(1.0/3.0) * -30.9147 * tfactors.T943i + (1.0/3.0) * -1.2345 * tfactors.T923i
                                   + 22.5118 + (5.0/3.0) * -33.0589 * tfactors.T923 + -0.666667 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // il10r
+    ln_set_rate =  2.29121 + -6.00976 * tfactors.T9i + 5.33756 * tfactors.T913
+                         + 1.64418 * tfactors.T9 + -0.246167 * tfactors.T953 + -1.5 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  6.00976 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 5.33756 * tfactors.T923i
+                                  + 1.64418 + (5.0/3.0) * -0.246167 * tfactors.T923 + -1.5 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -42802,12 +40321,12 @@ void rate_He4_K41_to_n_Sc44(const tf_t& tfactors, amrex::Real& rate, amrex::Real
     amrex::Real set_rate{0.0};
 
     // SM91 
-    ln_set_rate =  12.4167 + -39.3393 * tfactors.T9i + -2.89121 * tfactors.T913
-                         + 2.26347 * tfactors.T9 + -0.251579 * tfactors.T953;
+    ln_set_rate =  12.8237 + -39.3393 * tfactors.T9i + -7.79828 * tfactors.T913
+                         + 4.55188 * tfactors.T9 + -0.667478 * tfactors.T953 + 1.0 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  39.3393 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -2.89121 * tfactors.T923i
-                                  + 2.26347 + (5.0/3.0) * -0.251579 * tfactors.T923;
+        dln_set_rate_dT9 =  39.3393 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -7.79828 * tfactors.T923i
+                                  + 4.55188 + (5.0/3.0) * -0.667478 * tfactors.T923 + 1.0 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -42819,12 +40338,12 @@ void rate_He4_K41_to_n_Sc44(const tf_t& tfactors, amrex::Real& rate, amrex::Real
     }
 
     // SM91 
-    ln_set_rate =  12.8237 + -39.3393 * tfactors.T9i + -7.79828 * tfactors.T913
-                         + 4.55188 * tfactors.T9 + -0.667478 * tfactors.T953 + 1.0 * tfactors.lnT9;
+    ln_set_rate =  12.4167 + -39.3393 * tfactors.T9i + -2.89121 * tfactors.T913
+                         + 2.26347 * tfactors.T9 + -0.251579 * tfactors.T953;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  39.3393 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -7.79828 * tfactors.T923i
-                                  + 4.55188 + (5.0/3.0) * -0.667478 * tfactors.T923 + 1.0 * tfactors.T9i;
+        dln_set_rate_dT9 =  39.3393 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -2.89121 * tfactors.T923i
+                                  + 2.26347 + (5.0/3.0) * -0.251579 * tfactors.T923;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -42851,12 +40370,12 @@ void rate_He4_K41_to_p_Ca44(const tf_t& tfactors, amrex::Real& rate, amrex::Real
     amrex::Real set_rate{0.0};
 
     // SM91n
-    ln_set_rate =  48.7841 + -73.9 * tfactors.T913i + 5.43181 * tfactors.T913
-                         + -2.12763 * tfactors.T9 + 0.134461 * tfactors.T953 + 0.333333 * tfactors.lnT9;
+    ln_set_rate =  55.5 + -73.9 * tfactors.T913i + -0.410794 * tfactors.T913
+                         + 0.365336 * tfactors.T9 + -0.607187 * tfactors.T953 + -0.666667 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  + -(1.0/3.0) * -73.9 * tfactors.T943i + (1.0/3.0) * 5.43181 * tfactors.T923i
-                                  + -2.12763 + (5.0/3.0) * 0.134461 * tfactors.T923 + 0.333333 * tfactors.T9i;
+        dln_set_rate_dT9 =  + -(1.0/3.0) * -73.9 * tfactors.T943i + (1.0/3.0) * -0.410794 * tfactors.T923i
+                                  + 0.365336 + (5.0/3.0) * -0.607187 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -42868,12 +40387,12 @@ void rate_He4_K41_to_p_Ca44(const tf_t& tfactors, amrex::Real& rate, amrex::Real
     }
 
     // SM91n
-    ln_set_rate =  55.5 + -73.9 * tfactors.T913i + -0.410794 * tfactors.T913
-                         + 0.365336 * tfactors.T9 + -0.607187 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+    ln_set_rate =  48.7841 + -73.9 * tfactors.T913i + 5.43181 * tfactors.T913
+                         + -2.12763 * tfactors.T9 + 0.134461 * tfactors.T953 + 0.333333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  + -(1.0/3.0) * -73.9 * tfactors.T943i + (1.0/3.0) * -0.410794 * tfactors.T923i
-                                  + 0.365336 + (5.0/3.0) * -0.607187 * tfactors.T923 + -0.666667 * tfactors.T9i;
+        dln_set_rate_dT9 =  + -(1.0/3.0) * -73.9 * tfactors.T943i + (1.0/3.0) * 5.43181 * tfactors.T923i
+                                  + -2.12763 + (5.0/3.0) * 0.134461 * tfactors.T923 + 0.333333 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -43028,12 +40547,12 @@ void rate_n_Ca41_to_p_K41(const tf_t& tfactors, amrex::Real& rate, amrex::Real& 
     amrex::Real set_rate{0.0};
 
     // SM86 
-    ln_set_rate =  15.2853 + -2.82146 * tfactors.T913
-                         + 1.71734 * tfactors.T9 + -0.187775 * tfactors.T953;
+    ln_set_rate =  8.00491 + 6.52588 * tfactors.T913
+                         + -1.55272 * tfactors.T9 + 0.150334 * tfactors.T953 + 1.0 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  + (1.0/3.0) * -2.82146 * tfactors.T923i
-                                  + 1.71734 + (5.0/3.0) * -0.187775 * tfactors.T923;
+        dln_set_rate_dT9 =  + (1.0/3.0) * 6.52588 * tfactors.T923i
+                                  + -1.55272 + (5.0/3.0) * 0.150334 * tfactors.T923 + 1.0 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -43045,12 +40564,12 @@ void rate_n_Ca41_to_p_K41(const tf_t& tfactors, amrex::Real& rate, amrex::Real& 
     }
 
     // SM86 
-    ln_set_rate =  8.00491 + 6.52588 * tfactors.T913
-                         + -1.55272 * tfactors.T9 + 0.150334 * tfactors.T953 + 1.0 * tfactors.lnT9;
+    ln_set_rate =  15.2853 + -2.82146 * tfactors.T913
+                         + 1.71734 * tfactors.T9 + -0.187775 * tfactors.T953;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  + (1.0/3.0) * 6.52588 * tfactors.T923i
-                                  + -1.55272 + (5.0/3.0) * 0.150334 * tfactors.T923 + 1.0 * tfactors.T9i;
+        dln_set_rate_dT9 =  + (1.0/3.0) * -2.82146 * tfactors.T923i
+                                  + 1.71734 + (5.0/3.0) * -0.187775 * tfactors.T923;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -55871,7 +53390,7 @@ template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void rate_p_B11_to_He4_He4_He4(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
 
-    // B11 + p --> He4 + He4 + He4
+    // B11 + p --> 3 He4
 
     rate = 0.0;
     drate_dT = 0.0;
@@ -56114,7 +53633,7 @@ template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void rate_He4_He4_He4_to_C12(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
 
-    // He4 + He4 + He4 --> C12
+    // 3 He4 --> C12
 
     rate = 0.0;
     drate_dT = 0.0;
@@ -56122,23 +53641,6 @@ void rate_He4_He4_He4_to_C12(const tf_t& tfactors, amrex::Real& rate, amrex::Rea
     amrex::Real ln_set_rate{0.0};
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
-
-    // fy05r
-    ln_set_rate =  -24.3505 + -4.12656 * tfactors.T9i + -13.49 * tfactors.T913i + 21.4259 * tfactors.T913
-                         + -1.34769 * tfactors.T9 + 0.0879816 * tfactors.T953 + -13.1653 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  4.12656 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -13.49 * tfactors.T943i + (1.0/3.0) * 21.4259 * tfactors.T923i
-                                  + -1.34769 + (5.0/3.0) * 0.0879816 * tfactors.T923 + -13.1653 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
 
     // fy05r
     ln_set_rate =  -11.7884 + -1.02446 * tfactors.T9i + -23.57 * tfactors.T913i + 20.4886 * tfactors.T913
@@ -56164,6 +53666,23 @@ void rate_He4_He4_He4_to_C12(const tf_t& tfactors, amrex::Real& rate, amrex::Rea
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  + -(1.0/3.0) * -37.06 * tfactors.T943i + (1.0/3.0) * 29.3493 * tfactors.T923i
                                   + -115.507 + (5.0/3.0) * -10.0 * tfactors.T923 + -1.33333 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+    // fy05r
+    ln_set_rate =  -24.3505 + -4.12656 * tfactors.T9i + -13.49 * tfactors.T913i + 21.4259 * tfactors.T913
+                         + -1.34769 * tfactors.T9 + 0.0879816 * tfactors.T953 + -13.1653 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  4.12656 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -13.49 * tfactors.T943i + (1.0/3.0) * 21.4259 * tfactors.T923i
+                                  + -1.34769 + (5.0/3.0) * 0.0879816 * tfactors.T923 + -13.1653 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -56349,6 +53868,23 @@ void rate_d_He4_He4_to_p_Be9(const tf_t& tfactors, amrex::Real& rate, amrex::Rea
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
+    // cf88n
+    ln_set_rate =  2.83369 + -7.55453 * tfactors.T9i + -10.359 * tfactors.T913i + 0.103955 * tfactors.T913
+                         + 4.4262 * tfactors.T9 + -5.95664 * tfactors.T953 + -2.16667 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  7.55453 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -10.359 * tfactors.T943i + (1.0/3.0) * 0.103955 * tfactors.T923i
+                                  + 4.4262 + (5.0/3.0) * -5.95664 * tfactors.T923 + -2.16667 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
     // cf88r
     ln_set_rate =  -2.68071 + -13.3545 * tfactors.T9i
                          + -2.25 * tfactors.lnT9;
@@ -56383,30 +53919,13 @@ void rate_d_He4_He4_to_p_Be9(const tf_t& tfactors, amrex::Real& rate, amrex::Rea
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
-    // cf88n
-    ln_set_rate =  2.83369 + -7.55453 * tfactors.T9i + -10.359 * tfactors.T913i + 0.103955 * tfactors.T913
-                         + 4.4262 * tfactors.T9 + -5.95664 * tfactors.T953 + -2.16667 * tfactors.lnT9;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  7.55453 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -10.359 * tfactors.T943i + (1.0/3.0) * 0.103955 * tfactors.T923i
-                                  + 4.4262 + (5.0/3.0) * -5.95664 * tfactors.T923 + -2.16667 * tfactors.T9i;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-    }
-
 }
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void rate_He4_He4_He4_to_p_B11(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
 
-    // He4 + He4 + He4 --> p + B11
+    // 3 He4 --> p + B11
 
     rate = 0.0;
     drate_dT = 0.0;
@@ -56415,13 +53934,13 @@ void rate_He4_He4_He4_to_p_B11(const tf_t& tfactors, amrex::Real& rate, amrex::R
     amrex::Real dln_set_rate_dT9{0.0};
     amrex::Real set_rate{0.0};
 
-    // nacrr
-    ln_set_rate =  -36.7224 + -102.474 * tfactors.T9i + 8.49175 * tfactors.T913i + 27.3254 * tfactors.T913
-                         + -3.72071 * tfactors.T9 + 0.275516 * tfactors.T953 + -3.0 * tfactors.lnT9;
+    // nacrn
+    ln_set_rate =  6.8613 + -100.75 * tfactors.T9i + -12.097 * tfactors.T913i + -0.0496312 * tfactors.T913
+                         + 0.687736 * tfactors.T9 + -0.564229 * tfactors.T953 + -2.16667 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  102.474 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 8.49175 * tfactors.T943i + (1.0/3.0) * 27.3254 * tfactors.T923i
-                                  + -3.72071 + (5.0/3.0) * 0.275516 * tfactors.T923 + -3.0 * tfactors.T9i;
+        dln_set_rate_dT9 =  100.75 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -12.097 * tfactors.T943i + (1.0/3.0) * -0.0496312 * tfactors.T923i
+                                  + 0.687736 + (5.0/3.0) * -0.564229 * tfactors.T923 + -2.16667 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -56432,13 +53951,13 @@ void rate_He4_He4_He4_to_p_B11(const tf_t& tfactors, amrex::Real& rate, amrex::R
         drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
     }
 
-    // nacrn
-    ln_set_rate =  6.8613 + -100.75 * tfactors.T9i + -12.097 * tfactors.T913i + -0.0496312 * tfactors.T913
-                         + 0.687736 * tfactors.T9 + -0.564229 * tfactors.T953 + -2.16667 * tfactors.lnT9;
+    // nacrr
+    ln_set_rate =  -36.7224 + -102.474 * tfactors.T9i + 8.49175 * tfactors.T913i + 27.3254 * tfactors.T913
+                         + -3.72071 * tfactors.T9 + 0.275516 * tfactors.T953 + -3.0 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  100.75 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -12.097 * tfactors.T943i + (1.0/3.0) * -0.0496312 * tfactors.T923i
-                                  + 0.687736 + (5.0/3.0) * -0.564229 * tfactors.T923 + -2.16667 * tfactors.T9i;
+        dln_set_rate_dT9 =  102.474 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 8.49175 * tfactors.T943i + (1.0/3.0) * 27.3254 * tfactors.T923i
+                                  + -3.72071 + (5.0/3.0) * 0.275516 * tfactors.T923 + -3.0 * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -56575,12 +54094,6 @@ fill_reaclib_rates(const tf_t& tfactors, T& rate_eval)
     amrex::Real rate;
     amrex::Real drate_dT;
 
-    rate_n_to_p_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_n_to_p_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_n_to_p_weak_wc12) = drate_dT;
-
-    }
     rate_Be7_to_Li7_weak_electron_capture<do_T_derivatives>(tfactors, rate, drate_dT);
     rate_eval.screened_rates(k_Be7_to_Li7_weak_electron_capture) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
@@ -56635,490 +54148,16 @@ fill_reaclib_rates(const tf_t& tfactors, T& rate_eval)
         rate_eval.dscreened_rates_dT(k_Ne19_to_F19_weak_wc12) = drate_dT;
 
     }
-    rate_Na21_to_Ne21_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Na21_to_Ne21_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Na21_to_Ne21_weak_wc12) = drate_dT;
-
-    }
-    rate_Na22_to_Ne22_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Na22_to_Ne22_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Na22_to_Ne22_weak_wc12) = drate_dT;
-
-    }
-    rate_Mg23_to_Na23_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Mg23_to_Na23_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Mg23_to_Na23_weak_wc12) = drate_dT;
-
-    }
-    rate_Al25_to_Mg25_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Al25_to_Mg25_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Al25_to_Mg25_weak_wc12) = drate_dT;
-
-    }
-    rate_Al26_to_Mg26_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Al26_to_Mg26_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Al26_to_Mg26_weak_wc12) = drate_dT;
-
-    }
-    rate_Si31_to_P31_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Si31_to_P31_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Si31_to_P31_weak_wc12) = drate_dT;
-
-    }
-    rate_Si32_to_P32_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Si32_to_P32_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Si32_to_P32_weak_wc12) = drate_dT;
-
-    }
-    rate_P29_to_Si29_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_P29_to_Si29_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_P29_to_Si29_weak_wc12) = drate_dT;
-
-    }
-    rate_P30_to_Si30_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_P30_to_Si30_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_P30_to_Si30_weak_wc12) = drate_dT;
-
-    }
-    rate_P32_to_S32_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_P32_to_S32_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_P32_to_S32_weak_wc12) = drate_dT;
-
-    }
-    rate_P33_to_S33_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_P33_to_S33_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_P33_to_S33_weak_wc12) = drate_dT;
-
-    }
-    rate_S35_to_Cl35_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_S35_to_Cl35_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_S35_to_Cl35_weak_wc12) = drate_dT;
-
-    }
-    rate_Cl33_to_S33_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Cl33_to_S33_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Cl33_to_S33_weak_wc12) = drate_dT;
-
-    }
-    rate_Cl34_to_S34_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Cl34_to_S34_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Cl34_to_S34_weak_wc12) = drate_dT;
-
-    }
-    rate_Cl36_to_Ar36_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Cl36_to_Ar36_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Cl36_to_Ar36_weak_wc12) = drate_dT;
-
-    }
-    rate_Cl36_to_S36_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Cl36_to_S36_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Cl36_to_S36_weak_wc12) = drate_dT;
-
-    }
-    rate_Ar37_to_Cl37_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Ar37_to_Cl37_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Ar37_to_Cl37_weak_wc12) = drate_dT;
-
-    }
-    rate_Ar39_to_K39_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Ar39_to_K39_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Ar39_to_K39_weak_wc12) = drate_dT;
-
-    }
-    rate_K37_to_Ar37_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_K37_to_Ar37_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_K37_to_Ar37_weak_wc12) = drate_dT;
-
-    }
-    rate_K38_to_Ar38_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_K38_to_Ar38_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_K38_to_Ar38_weak_wc12) = drate_dT;
-
-    }
-    rate_K40_to_Ca40_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_K40_to_Ca40_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_K40_to_Ca40_weak_wc12) = drate_dT;
-
-    }
-    rate_K40_to_Ar40_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_K40_to_Ar40_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_K40_to_Ar40_weak_wc12) = drate_dT;
-
-    }
-    rate_Ca41_to_K41_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Ca41_to_K41_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Ca41_to_K41_weak_wc12) = drate_dT;
-
-    }
-    rate_Ca45_to_Sc45_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Ca45_to_Sc45_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Ca45_to_Sc45_weak_wc12) = drate_dT;
-
-    }
-    rate_Ca47_to_Sc47_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Ca47_to_Sc47_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Ca47_to_Sc47_weak_wc12) = drate_dT;
-
-    }
-    rate_Ca48_to_Sc48_weak_mo03<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Ca48_to_Sc48_weak_mo03) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Ca48_to_Sc48_weak_mo03) = drate_dT;
-
-    }
-    rate_Sc43_to_Ca43_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Sc43_to_Ca43_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Sc43_to_Ca43_weak_wc12) = drate_dT;
-
-    }
-    rate_Sc44_to_Ca44_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Sc44_to_Ca44_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Sc44_to_Ca44_weak_wc12) = drate_dT;
-
-    }
-    rate_Sc46_to_Ti46_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Sc46_to_Ti46_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Sc46_to_Ti46_weak_wc12) = drate_dT;
-
-    }
-    rate_Sc47_to_Ti47_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Sc47_to_Ti47_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Sc47_to_Ti47_weak_wc12) = drate_dT;
-
-    }
-    rate_Sc48_to_Ti48_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Sc48_to_Ti48_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Sc48_to_Ti48_weak_wc12) = drate_dT;
-
-    }
-    rate_Sc49_to_Ti49_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Sc49_to_Ti49_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Sc49_to_Ti49_weak_wc12) = drate_dT;
-
-    }
-    rate_Ti44_to_Sc44_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Ti44_to_Sc44_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Ti44_to_Sc44_weak_wc12) = drate_dT;
-
-    }
-    rate_Ti45_to_Sc45_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Ti45_to_Sc45_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Ti45_to_Sc45_weak_wc12) = drate_dT;
-
-    }
-    rate_Ti51_to_V51_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Ti51_to_V51_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Ti51_to_V51_weak_wc12) = drate_dT;
-
-    }
-    rate_V46_to_Ti46_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_V46_to_Ti46_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_V46_to_Ti46_weak_wc12) = drate_dT;
-
-    }
-    rate_V47_to_Ti47_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_V47_to_Ti47_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_V47_to_Ti47_weak_wc12) = drate_dT;
-
-    }
-    rate_V48_to_Ti48_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_V48_to_Ti48_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_V48_to_Ti48_weak_wc12) = drate_dT;
-
-    }
-    rate_V49_to_Ti49_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_V49_to_Ti49_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_V49_to_Ti49_weak_wc12) = drate_dT;
-
-    }
-    rate_V50_to_Ti50_weak_mo03<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_V50_to_Ti50_weak_mo03) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_V50_to_Ti50_weak_mo03) = drate_dT;
-
-    }
-    rate_V52_to_Cr52_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_V52_to_Cr52_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_V52_to_Cr52_weak_wc12) = drate_dT;
-
-    }
-    rate_Cr48_to_V48_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Cr48_to_V48_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Cr48_to_V48_weak_wc12) = drate_dT;
-
-    }
-    rate_Cr49_to_V49_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Cr49_to_V49_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Cr49_to_V49_weak_wc12) = drate_dT;
-
-    }
-    rate_Cr51_to_V51_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Cr51_to_V51_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Cr51_to_V51_weak_wc12) = drate_dT;
-
-    }
-    rate_Mn50_to_Cr50_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Mn50_to_Cr50_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Mn50_to_Cr50_weak_wc12) = drate_dT;
-
-    }
-    rate_Mn51_to_Cr51_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Mn51_to_Cr51_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Mn51_to_Cr51_weak_wc12) = drate_dT;
-
-    }
-    rate_Mn52_to_Cr52_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Mn52_to_Cr52_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Mn52_to_Cr52_weak_wc12) = drate_dT;
-
-    }
-    rate_Mn53_to_Cr53_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Mn53_to_Cr53_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Mn53_to_Cr53_weak_wc12) = drate_dT;
-
-    }
-    rate_Mn54_to_Cr54_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Mn54_to_Cr54_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Mn54_to_Cr54_weak_wc12) = drate_dT;
-
-    }
-    rate_Fe52_to_Mn52_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Fe52_to_Mn52_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Fe52_to_Mn52_weak_wc12) = drate_dT;
-
-    }
-    rate_Fe53_to_Mn53_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Fe53_to_Mn53_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Fe53_to_Mn53_weak_wc12) = drate_dT;
-
-    }
-    rate_Fe55_to_Mn55_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Fe55_to_Mn55_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Fe55_to_Mn55_weak_wc12) = drate_dT;
-
-    }
-    rate_Co53_to_Fe53_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Co53_to_Fe53_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Co53_to_Fe53_weak_wc12) = drate_dT;
-
-    }
-    rate_Co54_to_Fe54_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Co54_to_Fe54_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Co54_to_Fe54_weak_wc12) = drate_dT;
-
-    }
-    rate_Co55_to_Fe55_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Co55_to_Fe55_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Co55_to_Fe55_weak_wc12) = drate_dT;
-
-    }
-    rate_Co56_to_Fe56_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Co56_to_Fe56_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Co56_to_Fe56_weak_wc12) = drate_dT;
-
-    }
-    rate_Co57_to_Fe57_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Co57_to_Fe57_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Co57_to_Fe57_weak_wc12) = drate_dT;
-
-    }
-    rate_Co58_to_Fe58_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Co58_to_Fe58_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Co58_to_Fe58_weak_wc12) = drate_dT;
-
-    }
-    rate_Ni56_to_Co56_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Ni56_to_Co56_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Ni56_to_Co56_weak_wc12) = drate_dT;
-
-    }
-    rate_Ni57_to_Co57_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Ni57_to_Co57_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Ni57_to_Co57_weak_wc12) = drate_dT;
-
-    }
-    rate_Ni59_to_Co59_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Ni59_to_Co59_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Ni59_to_Co59_weak_wc12) = drate_dT;
-
-    }
-    rate_Ni63_to_Cu63_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Ni63_to_Cu63_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Ni63_to_Cu63_weak_wc12) = drate_dT;
-
-    }
-    rate_Cu57_to_Ni57_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Cu57_to_Ni57_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Cu57_to_Ni57_weak_wc12) = drate_dT;
-
-    }
-    rate_Cu58_to_Ni58_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Cu58_to_Ni58_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Cu58_to_Ni58_weak_wc12) = drate_dT;
-
-    }
-    rate_Cu59_to_Ni59_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Cu59_to_Ni59_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Cu59_to_Ni59_weak_wc12) = drate_dT;
-
-    }
-    rate_Cu60_to_Ni60_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Cu60_to_Ni60_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Cu60_to_Ni60_weak_wc12) = drate_dT;
-
-    }
-    rate_Cu61_to_Ni61_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Cu61_to_Ni61_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Cu61_to_Ni61_weak_wc12) = drate_dT;
-
-    }
-    rate_Cu62_to_Ni62_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Cu62_to_Ni62_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Cu62_to_Ni62_weak_wc12) = drate_dT;
-
-    }
-    rate_Cu64_to_Ni64_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Cu64_to_Ni64_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Cu64_to_Ni64_weak_wc12) = drate_dT;
-
-    }
-    rate_Cu64_to_Zn64_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Cu64_to_Zn64_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Cu64_to_Zn64_weak_wc12) = drate_dT;
-
-    }
     rate_Zn59_to_Cu59_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
     rate_eval.screened_rates(k_Zn59_to_Cu59_weak_wc12) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Zn59_to_Cu59_weak_wc12) = drate_dT;
 
     }
-    rate_Zn60_to_Cu60_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Zn60_to_Cu60_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Zn60_to_Cu60_weak_wc12) = drate_dT;
-
-    }
-    rate_Zn61_to_Cu61_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Zn61_to_Cu61_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Zn61_to_Cu61_weak_wc12) = drate_dT;
-
-    }
-    rate_Zn62_to_Cu62_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Zn62_to_Cu62_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Zn62_to_Cu62_weak_wc12) = drate_dT;
-
-    }
-    rate_Zn63_to_Cu63_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Zn63_to_Cu63_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Zn63_to_Cu63_weak_wc12) = drate_dT;
-
-    }
-    rate_Zn65_to_Cu65_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Zn65_to_Cu65_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Zn65_to_Cu65_weak_wc12) = drate_dT;
-
-    }
-    rate_Ga62_to_Zn62_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Ga62_to_Zn62_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Ga62_to_Zn62_weak_wc12) = drate_dT;
-
-    }
-    rate_Ga63_to_Zn63_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Ga63_to_Zn63_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Ga63_to_Zn63_weak_wc12) = drate_dT;
-
-    }
-    rate_Ga64_to_Zn64_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Ga64_to_Zn64_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Ga64_to_Zn64_weak_wc12) = drate_dT;
-
-    }
     rate_Ge63_to_Ga63_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
     rate_eval.screened_rates(k_Ge63_to_Ga63_weak_wc12) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Ge63_to_Ga63_weak_wc12) = drate_dT;
-
-    }
-    rate_Ge64_to_Ga64_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_Ge64_to_Ga64_weak_wc12) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_Ge64_to_Ga64_weak_wc12) = drate_dT;
 
     }
     rate_d_to_n_p<do_T_derivatives>(tfactors, rate, drate_dT);
@@ -65809,7 +62848,10 @@ fill_reaclib_rates(const tf_t& tfactors, T& rate_eval)
 template <int do_T_derivatives, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void
-fill_approx_rates([[maybe_unused]] const tf_t& tfactors, [[maybe_unused]] T& rate_eval)
+fill_approx_rates([[maybe_unused]] const tf_t& tfactors,
+                  [[maybe_unused]] const amrex::Real rho,
+                  [[maybe_unused]] const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
+                  [[maybe_unused]] T& rate_eval)
 {
 
     [[maybe_unused]] amrex::Real rate{};
