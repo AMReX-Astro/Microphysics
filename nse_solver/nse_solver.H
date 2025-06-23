@@ -315,7 +315,7 @@ void nse_hybrid_solver(nse_solver_data<T>& state_data,
             hj.x(2) = inner_x(2);
 
             hybrj<2, T>(hj, state_data, nse_fcn<2, T>, nse_jcn<2, T>);
-            fcn(hj.x, f, state_data, flag);
+            nse_fcn(hj.x, f, state_data, flag);
 
             if (std::abs(f(1)) < eps && std::abs(f(2)) < eps) {
 
@@ -383,8 +383,8 @@ void nse_nr_solver(nse_solver_data<T>& state_data,
     x(1) = state_data.state.mu_p;
     x(2) = state_data.state.mu_n;
 
-    jcn(x, jac, state_data, flag);
-    fcn(x, f, state_data, flag);
+    nse_jcn(x, jac, state_data, flag);
+    nse_fcn(x, f, state_data, flag);
 
     // store determinant for finding inverse jac
     amrex::Real det;
@@ -460,8 +460,8 @@ void nse_nr_solver(nse_solver_data<T>& state_data,
 
         // update constraint
 
-        jcn(x, jac, state_data, flag);
-        fcn(x, f, state_data, flag);
+        nse_jcn(x, jac, state_data, flag);
+        nse_fcn(x, f, state_data, flag);
     }
 
     if (!converged) {
