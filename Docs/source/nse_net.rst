@@ -15,9 +15,11 @@ under the assumption of NSE, following the procedure outlined in :cite:`Calder_2
    (like ``aprox13``).  You should use a pynucastro-generated network.
 
 There are two methods for solving the chemical potentials:
+
 1. Hybrid Powell's method. This is the default method.
    This algorithm is taken from MINPACK and
    ported to templated C++.
+
 2. Newton-Raphson (NR) method.
    This method is not as robust compared
    to the Hybrid Powell's method through our testings.
