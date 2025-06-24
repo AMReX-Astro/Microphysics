@@ -105,7 +105,7 @@ void write_job_info(const std::string& dir) {
   jobInfoFile << "\n";
 
   for (int n = 1; n <= amrex::buildInfoGetNumModules(); n++) {
-      jobInfoFile << amrex::buildInfoGetModuleName(n) << ": " << amrex::buildInfoGetModuleVal(n) << "\n";
+    jobInfoFile << amrex::buildInfoGetModuleName(n) << ": " << amrex::buildInfoGetModuleVal(n) << "\n";
   }
 
   jobInfoFile << "\n";
