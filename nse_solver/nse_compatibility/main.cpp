@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
 
   std::cout << "starting the single zone burn..." << std::endl;
 
-  ParmParse ppa("amr");
+  amrex::ParmParse ppa("amr");
 
   init_unit_test();
 
