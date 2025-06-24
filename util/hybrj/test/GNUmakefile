@@ -5,13 +5,13 @@ DEBUG      = FALSE
 
 DIM        = 3
 
-COMP	   = gnu
+COMP       = gnu
 
 USE_MPI    = FALSE
 USE_OMP    = FALSE
 
 USE_REACT = TRUE
-
+USE_SIMPLIFIED_SDC = TRUE
 USE_NSE_NET = TRUE
 EBASE = main
 
@@ -23,6 +23,8 @@ EOS_DIR     := helmholtz
 
 # This sets the network directory
 NETWORK_DIR := aprox21
+
+SCREEN_METHOD = chabrier1998
 
 CONDUCTIVITY_DIR := stellar
 
@@ -38,5 +40,3 @@ Bpack   := ../Make.package ./Make.package
 Blocs   := ../ .
 
 include $(MICROPHYSICS_HOME)/unit_test/Make.unit_test
-
-
