@@ -1,5 +1,5 @@
-Initializing AMReX (24.12-14-gb3f67385e62f)...
-AMReX (24.12-14-gb3f67385e62f) initialized
+Initializing AMReX (247628b112a5)...
+AMReX (247628b112a5) initialized
 starting the single zone burn...
          element           numerical            analytic
 J( He4,  He4) =         -386901.0562         -389364.2481
@@ -209,7 +209,7 @@ J(   e, Ca40) =      3.918079028e+21      4.446572283e+20
 J(   e, Ti44) =      3.973002198e+21      1.959966253e+20
 J(   e, Cr48) =       4.23547637e+21       1.21440394e+20
 J(   e, Fe52) =      4.413681758e+21      2.675297734e+19
-J(   e, Ni56) =      4.682037199e+21     -1.725529485e+13
+J(   e, Ni56) =      4.682037199e+21     -1.725529405e+13
 J(   e,    e) =          74499.43446          74499.57032
 
-AMReX (24.12-14-gb3f67385e62f) finalized
+AMReX (247628b112a5) finalized

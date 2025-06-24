@@ -8,7 +8,7 @@
 
 #include <AMReX_Array.H>
 
-using namespace amrex;
+using namespace amrex::literals;
 
 void init_tabular();
 
@@ -20,7 +20,7 @@ void init_tabular();
 // Log(g/cm^3)   Log(K)   erg   erg   erg   Log(1/s)          Log(erg/s)           Log(erg/s)
 //
 
-const int num_tables = 2;
+const int num_tables = 10;
 
 enum TableVars : std::uint8_t
 {
@@ -55,15 +55,55 @@ const int add_vars              = 1;  // 1 Additional Var in entries
 
 namespace rate_tables
 {
+    extern AMREX_GPU_MANAGED table_t j_F17_O17_meta;
+    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 12, 1, 11, 1, 6> j_F17_O17_data;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_F17_O17_rhoy;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 12> j_F17_O17_temp;
+
+    extern AMREX_GPU_MANAGED table_t j_O17_F17_meta;
+    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 12, 1, 11, 1, 6> j_O17_F17_data;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_O17_F17_rhoy;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 12> j_O17_F17_temp;
+
+    extern AMREX_GPU_MANAGED table_t j_F18_Ne18_meta;
+    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 12, 1, 11, 1, 6> j_F18_Ne18_data;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_F18_Ne18_rhoy;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 12> j_F18_Ne18_temp;
+
+    extern AMREX_GPU_MANAGED table_t j_F18_O18_meta;
+    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 12, 1, 11, 1, 6> j_F18_O18_data;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_F18_O18_rhoy;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 12> j_F18_O18_temp;
+
+    extern AMREX_GPU_MANAGED table_t j_Ne18_F18_meta;
+    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 12, 1, 11, 1, 6> j_Ne18_F18_data;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_Ne18_F18_rhoy;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 12> j_Ne18_F18_temp;
+
+    extern AMREX_GPU_MANAGED table_t j_O18_F18_meta;
+    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 12, 1, 11, 1, 6> j_O18_F18_data;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_O18_F18_rhoy;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 12> j_O18_F18_temp;
+
+    extern AMREX_GPU_MANAGED table_t j_F19_Ne19_meta;
+    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 12, 1, 11, 1, 6> j_F19_Ne19_data;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_F19_Ne19_rhoy;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 12> j_F19_Ne19_temp;
+
+    extern AMREX_GPU_MANAGED table_t j_Ne19_F19_meta;
+    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 12, 1, 11, 1, 6> j_Ne19_F19_data;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_Ne19_F19_rhoy;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 12> j_Ne19_F19_temp;
+
     extern AMREX_GPU_MANAGED table_t j_Mg22_Na22_meta;
-    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, 6> j_Mg22_Na22_data;
+    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 12, 1, 11, 1, 6> j_Mg22_Na22_data;
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_Mg22_Na22_rhoy;
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 13> j_Mg22_Na22_temp;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 12> j_Mg22_Na22_temp;
 
     extern AMREX_GPU_MANAGED table_t j_Na22_Mg22_meta;
-    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, 6> j_Na22_Mg22_data;
+    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 12, 1, 11, 1, 6> j_Na22_Mg22_data;
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_Na22_Mg22_rhoy;
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 13> j_Na22_Mg22_temp;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 12> j_Na22_Mg22_temp;
 
 }
 
@@ -154,7 +194,7 @@ evaluate_linear_1d(const amrex::Real fhi, const amrex::Real flo, const amrex::Re
     // This function is a 1-D linear interpolator, that keeps x constant to xlo or xhi, based
     // on the side, if x is outside [xlo, xhi] respectively.
 
-    amrex::Real xx = Clamp(x, xlo, xhi);
+    amrex::Real xx = amrex::Clamp(x, xlo, xhi);
     amrex::Real f = flo + (fhi - flo) * (xx - xlo) / (xhi - xlo);
 
     return f;
@@ -177,8 +217,8 @@ evaluate_linear_2d(const amrex::Real fip1jp1, const amrex::Real fip1j, const amr
     amrex::Real B = (fip1j - fij) / dx;
     amrex::Real A = (fip1jp1 - B * dx - C * dy - E) / (dx * dy);
 
-    amrex::Real xx = Clamp(x, xlo, xhi);
-    amrex::Real yy = Clamp(y, ylo, yhi);
+    amrex::Real xx = amrex::Clamp(x, xlo, xhi);
+    amrex::Real yy = amrex::Clamp(y, ylo, yhi);
 
     f =  A * (xx - xlo) * (yy - ylo) +
          B * (xx - xlo) +

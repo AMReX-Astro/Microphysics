@@ -39,10 +39,9 @@ def doit():
     rho = 1.e6
     T = 1.e9
 
-    fig = net.plot(rho, T, comp,
-                   rotated=True, hide_xalpha=True, curved_edges=True,
-                   size=(1500, 600),
-                   node_size=600, node_font_size=11,
+    fig = net.plot(rotated=True, hide_xalpha=True,
+                   size=(1800, 600),
+                   node_size=600, node_font_size=10,
                    Z_range=(1, 29))
 
     net.write_network()

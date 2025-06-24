@@ -8,7 +8,7 @@
 
 #include <AMReX_Array.H>
 
-using namespace amrex;
+using namespace amrex::literals;
 
 void init_tabular();
 
@@ -70,15 +70,15 @@ namespace rate_tables
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_Fe56_Co56_rhoy;
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 13> j_Fe56_Co56_temp;
 
-    extern AMREX_GPU_MANAGED table_t j_n_p_meta;
-    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, 6> j_n_p_data;
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_n_p_rhoy;
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 13> j_n_p_temp;
-
     extern AMREX_GPU_MANAGED table_t j_Ni56_Co56_meta;
     extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, 6> j_Ni56_Co56_data;
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_Ni56_Co56_rhoy;
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 13> j_Ni56_Co56_temp;
+
+    extern AMREX_GPU_MANAGED table_t j_n_p_meta;
+    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, 6> j_n_p_data;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_n_p_rhoy;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 13> j_n_p_temp;
 
     extern AMREX_GPU_MANAGED table_t j_p_n_meta;
     extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, 6> j_p_n_data;
@@ -174,7 +174,7 @@ evaluate_linear_1d(const amrex::Real fhi, const amrex::Real flo, const amrex::Re
     // This function is a 1-D linear interpolator, that keeps x constant to xlo or xhi, based
     // on the side, if x is outside [xlo, xhi] respectively.
 
-    amrex::Real xx = Clamp(x, xlo, xhi);
+    amrex::Real xx = amrex::Clamp(x, xlo, xhi);
     amrex::Real f = flo + (fhi - flo) * (xx - xlo) / (xhi - xlo);
 
     return f;
@@ -197,8 +197,8 @@ evaluate_linear_2d(const amrex::Real fip1jp1, const amrex::Real fip1j, const amr
     amrex::Real B = (fip1j - fij) / dx;
     amrex::Real A = (fip1jp1 - B * dx - C * dy - E) / (dx * dy);
 
-    amrex::Real xx = Clamp(x, xlo, xhi);
-    amrex::Real yy = Clamp(y, ylo, yhi);
+    amrex::Real xx = amrex::Clamp(x, xlo, xhi);
+    amrex::Real yy = amrex::Clamp(y, ylo, yhi);
 
     f =  A * (xx - xlo) * (yy - ylo) +
          B * (xx - xlo) +

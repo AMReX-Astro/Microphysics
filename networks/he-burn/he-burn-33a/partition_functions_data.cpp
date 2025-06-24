@@ -5,8 +5,6 @@
 
 #include <partition_functions.H>
 
-using namespace amrex;
-
 namespace part_fun {
 
     // this is T9
@@ -652,4 +650,3 @@ namespace part_fun {
 
 
 }
-

@@ -8,7 +8,7 @@
 #include <fundamental_constants.H>
 #include <network_properties.H>
 
-using namespace amrex;
+using namespace amrex::literals;
 
 void actual_network_init();
 
@@ -254,7 +254,7 @@ namespace network
         amrex::Real b = 0.0_rt;
 
         // Set the binding energy of the element
-        constexpr_for<1, NumSpec+1>([&] (auto n) {
+        amrex::constexpr_for<1, NumSpec+1>([&] (auto n) {
             if (n == spec) {
                 b = bion<n>();
             }
@@ -269,7 +269,7 @@ namespace network
 
         amrex::Real m = 0.0_rt;
 
-        constexpr_for<1, NumSpec+1>([&] (auto n) {
+        amrex::constexpr_for<1, NumSpec+1>([&] (auto n) {
             if (n == spec) {
                 m = mion<n>();
             }
@@ -365,16 +365,16 @@ namespace Rates
         k_He4_Ti44_to_p_V47_removed = 78,
         k_p_V47_to_Cr48_removed = 79,
         k_Co55_to_Fe55 = 80,
-        k_Co56_to_Fe56 = 81,
-        k_Co56_to_Ni56 = 82,
-        k_Co57_to_Ni57 = 83,
-        k_Fe55_to_Co55 = 84,
-        k_Fe55_to_Mn55 = 85,
+        k_Fe55_to_Co55 = 81,
+        k_Fe55_to_Mn55 = 82,
+        k_Mn55_to_Fe55 = 83,
+        k_Co56_to_Fe56 = 84,
+        k_Co56_to_Ni56 = 85,
         k_Fe56_to_Co56 = 86,
-        k_Mn55_to_Fe55 = 87,
-        k_n_to_p = 88,
-        k_Ni56_to_Co56 = 89,
-        k_Ni57_to_Co57 = 90,
+        k_Ni56_to_Co56 = 87,
+        k_Co57_to_Ni57 = 88,
+        k_Ni57_to_Co57 = 89,
+        k_n_to_p = 90,
         k_p_to_n = 91,
         k_S32_He4_to_Ar36_approx = 92,
         k_Ar36_to_S32_He4_approx = 93,
@@ -554,16 +554,16 @@ namespace Rates
         "He4_Ti44_to_p_V47_removed",  // 78,
         "p_V47_to_Cr48_removed",  // 79,
         "Co55_to_Fe55",  // 80,
-        "Co56_to_Fe56",  // 81,
-        "Co56_to_Ni56",  // 82,
-        "Co57_to_Ni57",  // 83,
-        "Fe55_to_Co55",  // 84,
-        "Fe55_to_Mn55",  // 85,
+        "Fe55_to_Co55",  // 81,
+        "Fe55_to_Mn55",  // 82,
+        "Mn55_to_Fe55",  // 83,
+        "Co56_to_Fe56",  // 84,
+        "Co56_to_Ni56",  // 85,
         "Fe56_to_Co56",  // 86,
-        "Mn55_to_Fe55",  // 87,
-        "n_to_p",  // 88,
-        "Ni56_to_Co56",  // 89,
-        "Ni57_to_Co57",  // 90,
+        "Ni56_to_Co56",  // 87,
+        "Co57_to_Ni57",  // 88,
+        "Ni57_to_Co57",  // 89,
+        "n_to_p",  // 90,
         "p_to_n",  // 91,
         "S32_He4_to_Ar36_approx",  // 92,
         "Ar36_to_S32_He4_approx",  // 93,
@@ -661,7 +661,7 @@ namespace NSE_INDEX
     // First 3 row indices for reactants, followed by 3 product indices
     // last index is the corresponding reverse rate index.
 
-    extern AMREX_GPU_MANAGED amrex::Array2D<int, 1, Rates::NumRates, 1, 7, Order::C> rate_indices;
+    extern AMREX_GPU_MANAGED amrex::Array2D<int, 1, Rates::NumRates, 1, 7, amrex::Order::C> rate_indices;
 }
 #endif
 
