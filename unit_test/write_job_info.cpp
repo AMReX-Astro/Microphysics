@@ -16,7 +16,6 @@
 #endif
 
 using namespace std;
-using namespace amrex;
 
 void write_job_info(const std::string& dir) {
 
@@ -34,7 +33,7 @@ void write_job_info(const std::string& dir) {
   jobInfoFile << " Microphysics Job Information\n";
   jobInfoFile << PrettyLine;
 
-  jobInfoFile << "number of MPI processes: " << ParallelDescriptor::NProcs() << "\n";
+  jobInfoFile << "number of MPI processes: " << amrex::ParallelDescriptor::NProcs() << "\n";
 #ifdef _OPENMP
   jobInfoFile << "number of threads:       " << omp_get_max_threads() << "\n";
 #endif
@@ -67,8 +66,8 @@ void write_job_info(const std::string& dir) {
   jobInfoFile << "GPU Information:       " << "\n";
   jobInfoFile << PrettyLine;
 
-  jobInfoFile << "GPU model name: " << Gpu::Device::deviceName() << "\n";
-  jobInfoFile << "Number of GPUs used: " << Gpu::Device::numDevicesUsed() << "\n";
+  jobInfoFile << "GPU model name: " << amrex::Gpu::Device::deviceName() << "\n";
+  jobInfoFile << "Number of GPUs used: " << amrex::Gpu::Device::numDevicesUsed() << "\n";
 
   jobInfoFile << "\n\n";
 #endif
@@ -78,41 +77,41 @@ void write_job_info(const std::string& dir) {
   jobInfoFile << " Build Information\n";
   jobInfoFile << PrettyLine;
 
-  jobInfoFile << "build date:    " << buildInfoGetBuildDate() << "\n";
-  jobInfoFile << "build machine: " << buildInfoGetBuildMachine() << "\n";
-  jobInfoFile << "build dir:     " << buildInfoGetBuildDir() << "\n";
-  jobInfoFile << "AMReX dir:     " << buildInfoGetAMReXDir() << "\n";
+  jobInfoFile << "build date:    " << amrex::buildInfoGetBuildDate() << "\n";
+  jobInfoFile << "build machine: " << amrex::buildInfoGetBuildMachine() << "\n";
+  jobInfoFile << "build dir:     " << amrex::buildInfoGetBuildDir() << "\n";
+  jobInfoFile << "AMReX dir:     " << amrex::buildInfoGetAMReXDir() << "\n";
 
   jobInfoFile << "\n";
 
-  jobInfoFile << "COMP:          " << buildInfoGetComp() << "\n";
-  jobInfoFile << "COMP version:  " << buildInfoGetCompVersion() << "\n";
+  jobInfoFile << "COMP:          " << amrex::buildInfoGetComp() << "\n";
+  jobInfoFile << "COMP version:  " << amrex::buildInfoGetCompVersion() << "\n";
 
   jobInfoFile << "\n";
 
-  jobInfoFile << "C++ compiler:  " << buildInfoGetCXXName() << "\n";
-  jobInfoFile << "C++ flags:     " << buildInfoGetCXXFlags() << "\n";
+  jobInfoFile << "C++ compiler:  " << amrex::buildInfoGetCXXName() << "\n";
+  jobInfoFile << "C++ flags:     " << amrex::buildInfoGetCXXFlags() << "\n";
 
   jobInfoFile << "\n";
 
-  jobInfoFile << "Fortran comp:  " << buildInfoGetFName() << "\n";
-  jobInfoFile << "Fortran flags: " << buildInfoGetFFlags() << "\n";
+  jobInfoFile << "Fortran comp:  " << amrex::buildInfoGetFName() << "\n";
+  jobInfoFile << "Fortran flags: " << amrex::buildInfoGetFFlags() << "\n";
 
   jobInfoFile << "\n";
 
-  jobInfoFile << "Link flags:    " << buildInfoGetLinkFlags() << "\n";
-  jobInfoFile << "Libraries:     " << buildInfoGetLibraries() << "\n";
+  jobInfoFile << "Link flags:    " << amrex::buildInfoGetLinkFlags() << "\n";
+  jobInfoFile << "Libraries:     " << amrex::buildInfoGetLibraries() << "\n";
 
   jobInfoFile << "\n";
 
-  for (int n = 1; n <= buildInfoGetNumModules(); n++) {
-    jobInfoFile << buildInfoGetModuleName(n) << ": " << buildInfoGetModuleVal(n) << "\n";
+  for (int n = 1; n <= amrex::buildInfoGetNumModules(); n++) {
+    jobInfoFile << amrex::buildInfoGetModuleName(n) << ": " << amrex::buildInfoGetModuleVal(n) << "\n";
   }
 
   jobInfoFile << "\n";
 
-  const char* githash1 = buildInfoGetGitHash(1);
-  const char* githash2 = buildInfoGetGitHash(2);
+  const char* githash1 = amrex::buildInfoGetGitHash(1);
+  const char* githash2 = amrex::buildInfoGetGitHash(2);
   if (strlen(githash1) > 0) {
     jobInfoFile << "Microphysics git describe: " << githash1 << "\n";
   }
