@@ -2,7 +2,7 @@
 
 This network is specifically tailored for self-consistent NSE evolution.
 This network achieves machine precision accuracy when comparing equilibrium
-composition from direct integration and NSE composition. 
+composition from direct integration and NSE composition.
 This can be demonstrated using the `nse_compatibility` script.
 
 This is similar to `he-burn-19a` except:
