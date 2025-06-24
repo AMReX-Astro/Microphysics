@@ -84,6 +84,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="nse.html">NSE</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="nse_tabular.html">Tabulated NSE and <code class="docutils literal notranslate"><span class="pre">aprox19</span></code></a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Self-consistent NSE</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#nse-reactive-update">NSE Reactive Update</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#dynamic-nse-check">Dynamic NSE Check</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#additional-options">Additional Options</a></li>
 </ul>
@@ -151,10 +152,19 @@ under the assumption of NSE, following the procedure outlined in <span id="id2">
 <p>Self-consistent NSE does not support the templated C++ networks
 (like <code class="docutils literal notranslate"><span class="pre">aprox13</span></code>).  You should use a pynucastro-generated network.</p>
 </div>
-<p>The solve is done using a port of the hybrid Powell method from
-MINPACK (we ported the solver to templated C++).</p>
-<p>The advantage of this approach is that it can be used with any
-reaction network, once the integration has reached NSE.</p>
+<p>There are two methods for solving the chemical potentials:</p>
+<ol class="arabic simple">
+<li><p>Hybrid Powell’s method. This is the default method.
+This algorithm is taken from MINPACK and
+ported to templated C++.</p></li>
+<li><p>Newton-Raphson (NR) method.
+This method is not as robust compared
+to the Hybrid Powell’s method through our testings.
+But this can be enabled via runtime parameter:
+<code class="docutils literal notranslate"><span class="pre">nse.use_hybrid_solver=0</span></code>.</p></li>
+</ol>
+<p>The advantage of this approach is that it can be used with any reaction network,
+once the integration has reached NSE.</p>
 <p>This solver is enabled by compiling with</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><style type="text/css">
 span.prompt1:before {
@@ -162,6 +172,80 @@ span.prompt1:before {
 }
 </style><span class="prompt1"><span class="nv">USE_NSE_NET</span><span class="o">=</span>TRUE</span>
 </pre></div></div><p>The functions to find the NSE state are then found in <code class="docutils literal notranslate"><span class="pre">nse_solver.H</span></code>.</p>
+<section id="nse-reactive-update">
+<h2>NSE Reactive Update<a class="headerlink" href="#nse-reactive-update" title="Link to this heading"></a></h2>
+<p>Here we give outline on how the reactive update is done with NSE.</p>
+<ul>
+<li><p>Check if NSE applies (see below)</p>
+<ul>
+<li><p>If we are in an NSE region:</p>
+<ul>
+<li><p>Compute the advective source term for <span class="math notranslate nohighlight">\(Y_e\)</span> via:</p>
+<div class="math notranslate nohighlight">
+\[\Advs{\rho Y_e} = \sum_k \frac{Z_k}{A_k} \Advs{\rho X_k}\]</div>
+</li>
+<li><p>Compute <span class="math notranslate nohighlight">\([\Rb(\rho Y_e)]^n\)</span> and <span class="math notranslate nohighlight">\([\Rb(\rho e)_{\mathrm{nuc}}]^n\)</span> using
+<span class="math notranslate nohighlight">\([\rho]^n\)</span>, <span class="math notranslate nohighlight">\([T]^n\)</span>, <span class="math notranslate nohighlight">\([Y_e]^n\)</span> and <span class="math notranslate nohighlight">\([e]^n\)</span>:</p>
+<ul>
+<li><p>Find the NSE composition with given <span class="math notranslate nohighlight">\([\rho]^n\)</span>, <span class="math notranslate nohighlight">\([e]^n\)</span>,
+and <span class="math notranslate nohighlight">\([Y_e]^n\)</span>. An EOS inversion algorithm is used so
+that we determine <span class="math notranslate nohighlight">\([T^*]^n\)</span> such that <span class="math notranslate nohighlight">\([e]^n\)</span> remains
+unchanged after switching to the NSE composition.
+Here we use <span class="math notranslate nohighlight">\([T]^n\)</span> as the initial guess and updated
+to the solution, <span class="math notranslate nohighlight">\([T^*]^n\)</span>, in the end.</p></li>
+<li><p>Compute the thermal neutrino losses,
+<span class="math notranslate nohighlight">\(\epsilon_{\nu,\mathrm{thermal}}\)</span>, using the NSE composition.</p></li>
+<li><p>Evaluate <span class="math notranslate nohighlight">\(\dot{Y}_{\mathrm{weak}}\)</span> and neutrino losses,
+<span class="math notranslate nohighlight">\(\epsilon_{\nu,\mathrm{react}}\)</span>,
+from weak reactions only as they are the only contributing
+reactions in NSE.</p></li>
+<li><p>Evaluate <span class="math notranslate nohighlight">\([\Rb(\rho Y_e)]^n\)</span> as:</p>
+<div class="math notranslate nohighlight">
+\[[\Rb(\rho Y_e)]^n = [\rho]^n \sum_k Z_k [\dot{Y}_{\mathrm{k, weak}}]^n\]</div>
+</li>
+<li><p>Evaluate <span class="math notranslate nohighlight">\([\Rb(\rho e)_{\mathrm{nuc}}]^n\)</span> as:</p>
+<div class="math notranslate nohighlight">
+\[[\Rb(\rho e)_{\mathrm{nuc}}]^n = - N_A c^2 \sum_k [\dot{Y}_{\mathrm{k, weak}}]^n m_k\]</div>
+<p>where the nuclei mass, <span class="math notranslate nohighlight">\(m_k\)</span> is defined as:</p>
+<div class="math notranslate nohighlight">
+\[m_k c^2 = (A_k - Z_k) m_n c^2 + Z_k (m_p + m_e) c^2 - B_k\]</div>
+</li>
+<li><p>The full reactive source term, <span class="math notranslate nohighlight">\([\Rb(\rho e)]^n\)</span> is then:</p>
+<div class="math notranslate nohighlight">
+\[[\Rb(\rho e)]^n = [\Rb(\rho e)_{\mathrm{nuc}}]^n - [\rho]^n \left(\epsilon_{\nu,\mathrm{thermal}} + \epsilon_{\nu,\mathrm{react}}\right)\]</div>
+</li>
+</ul>
+</li>
+<li><p>Now evolve <span class="math notranslate nohighlight">\(\rho\)</span>, <span class="math notranslate nohighlight">\(\rho e\)</span>, and <span class="math notranslate nohighlight">\(\rho Y_e\)</span> to midpoint in time:</p>
+<div class="math notranslate nohighlight">
+\[\Uc^{\prime,n+1/2} = \Uc^{\prime,n} + \frac{\Delta t}{2} \left([\Advs{\Uc^\prime}]^{n+1/2} + [\Rb(\Uc^\prime)]^{n}\right)\]</div>
+<p>Note that there is no reactive source term for <span class="math notranslate nohighlight">\(\rho\)</span> and the advective
+source term is already time-centered from the simplified-SDC algorithm.</p>
+</li>
+<li><p>Compute <span class="math notranslate nohighlight">\([\Rb(\rho Y_e)]^{n+1/2}\)</span> and
+<span class="math notranslate nohighlight">\([\Rb(\rho e)_{\mathrm{nuc}}]^{n+1/2}\)</span> following the same
+procedure as above. This time, it uses
+<span class="math notranslate nohighlight">\([\rho]^{n+1/2}\)</span>, <span class="math notranslate nohighlight">\([Y_e]^{n+1/2}\)</span> and <span class="math notranslate nohighlight">\([e]^{n+1/2}\)</span> as input
+and uses the updated <span class="math notranslate nohighlight">\([T]^n\)</span> as initial guess for the EOS inversion
+algorithm.</p></li>
+<li><p>Now evolve all thermodynamic quantities to new time, <span class="math notranslate nohighlight">\(t^{n+1}\)</span>, using the
+midpoint reactive source terms constructed in the previous step.</p>
+<div class="math notranslate nohighlight">
+\[\Uc^{\prime,n+1} = \Uc^{\prime,n} + \Delta t \left([\Advs{\Uc^\prime}]^{n+1/2} + [\Rb(\Uc^\prime)]^{n+1/2}\right)\]</div>
+</li>
+<li><p>Lastly, the composition is updated by finding the corresponding NSE state
+using <span class="math notranslate nohighlight">\([\rho]^{n+1}\)</span>, <span class="math notranslate nohighlight">\([e]^{n+1}\)</span>, and <span class="math notranslate nohighlight">\([Y_e]^{n+1}\)</span></p></li>
+</ul>
+</li>
+<li><p>If we are not in an NSE region:</p>
+<ul class="simple">
+<li><p>Integrate the network as usual.</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</section>
 <section id="dynamic-nse-check">
 <h2>Dynamic NSE Check<a class="headerlink" href="#dynamic-nse-check" title="Link to this heading"></a></h2>
 <p>We have implemented a dynamic NSE check for the self-consistent nse procedure
