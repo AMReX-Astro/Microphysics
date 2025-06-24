@@ -36,7 +36,7 @@ authors:
 - name: Ben Wibking
   affiliation: '3'
 
-- name: Donald Willcox
+- name: Don E. Willcox
 
 - name: Michael Zingale
   affiliation: '1'
