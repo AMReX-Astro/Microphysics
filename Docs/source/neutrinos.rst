@@ -29,13 +29,13 @@ The interface for the neutrino loss function is:
 
    template <int do_derivatives>
    AMREX_GPU_HOST_DEVICE AMREX_INLINE
-   void sneut5(const amrex::Real temp, const amrex::Real den,
-               const amrex::Real abar, const amrex::Real zbar,
-               amrex::Real& snu, amrex::Real& dsnudt, amrex::Real& dsnudd,
-               amrex::Real& dsnuda, amrex::Real& dsnudz)
+   void sneut5(const number_t& temp, const amrex::Real den,
+                   const number_t& abar, const number_t& zbar,
+                   amrex::Real& pair, amrex::Real& phot,
+                   amrex::Real& plas, amrex::Real& brem)
 
 Here, the template parameter, ``do_derivatives``, can be used to disable the code
-the computes the derivatives of the neutrino loss, for example, if a numerical Jacobian
+that computes the derivatives of the neutrino loss, for example, if a numerical Jacobian
 is used.  The output is
 
 * ``snu`` : $\epsilon_\nu$, the neutrino loss in erg/g/s
@@ -48,6 +48,32 @@ is used.  The output is
 
 * ``dsnudz`` : $d\epsilon_\nu/d\bar{Z}$
 
-By default, we do not include the recombination terms when calculating the total losses since its effect is negligible.
-This is controlled by the ``include_recomb`` parameter defined in ``Microphysics/neutrinos/_parameters``.
-To include the recombination terms, set ``neutrino_cooling.include_recomb = 1`` in the inputs file.
+* ``pair`` : contribution from pair neutrino loss in erg/g/s
+
+* ``phot`` : contribution from photo-neutrino loss in erg/g/s
+
+* ``plas`` : contribution from plasma neutrino loss in erg/g/s
+
+* ``brem`` : contribution from Bremsstrahlung neutrino loss in erg/g/s
+
+Additionally, a second method is provided to compute the neutrino losses based on the simplified approximations in :cite:`kippenhahn:1990`.
+
+The interface for the Kippenhahn neutrino loss function is:
+
+.. code:: c++
+
+   template <int do_derivatives>
+   AMREX_GPU_HOST_DEVICE AMREX_INLINE
+   void kipp(const amrex::Real& temp, const amrex::Real& rho, const amrex::Real& abar,
+             const amrex::Real& zbar, amrex::Real& snu, amrex::Real& dsnudt,
+             amrex::Real& dsnudrho, amrex::Real& dsnudz, amrex::Real& dsnuda,
+             amrex::Real& pair, amrex::Real& phot, amrex::Real& plas, amrex::Real& brem)
+
+To use this method, set the make variable ``NEUTRINO_METHOD = kipp`` during compilation.
+Output is the same as for the previous method.
+
+.. note::
+
+   By default, we do not include the recombination terms when calculating the total losses since its effect is negligible.
+   This is controlled by the ``include_recomb`` parameter defined in ``Microphysics/neutrinos/_parameters``.
+   To include the recombination terms, set ``neutrino_cooling.include_recomb = 1`` in the inputs file.
