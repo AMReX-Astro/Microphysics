@@ -33,6 +33,8 @@ amrex::Real nse_abar(const amrex::Real T, const amrex::Real rho,
         abar += nse_state.xn[n] * aion_inv[n];
     }
 
+    abar = 1.0_rt / abar;
+
     // update mu_p and mu_n
 
     mu_p = burn_state.mu_p;
@@ -57,16 +59,16 @@ amrex::Real nse_dabar_dT(const amrex::Real T, const amrex::Real rho,
 
     // Calculate derivative using five-point stencil method
 
-    amrex::Real dabar_dT = (-nse_abar(T + 2.0_rt*dT, rho, Ye, mu_p, mu_n) +
-                             8.0_rt * nse_abar(T+dT, rho, Ye, mu_p, mu_n) -
-                             8.0_rt * nse_abar(T-dT, rho, Ye, mu_p, mu_n) +
-                             nse_abar(T - 2.0_rt*dT, rho, Ye, mu_p, mu_n)
-                            ) / (12.0_rt * dT);
+    // amrex::Real dabar_dT = (-nse_abar(T + 2.0_rt*dT, rho, Ye, mu_p, mu_n) +
+    //                          8.0_rt * nse_abar(T+dT, rho, Ye, mu_p, mu_n) -
+    //                          8.0_rt * nse_abar(T-dT, rho, Ye, mu_p, mu_n) +
+    //                          nse_abar(T - 2.0_rt*dT, rho, Ye, mu_p, mu_n)
+    //                         ) / (12.0_rt * dT);
 
     // Calculate derivative using central differencing
 
-    // amrex::Real dabar_dT = 0.5_rt * (nse_abar(T + dT, rho, Ye, mu_p, mu_n) -
-    //                                  nse_abar(T - dT, rho, Ye, mu_p, mu_n)) / dT;
+    amrex::Real dabar_dT = 0.5_rt * (nse_abar(T + dT, rho, Ye, mu_p, mu_n) -
+                                     nse_abar(T - dT, rho, Ye, mu_p, mu_n)) / dT;
 
     return dabar_dT;
 }
