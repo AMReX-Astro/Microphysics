@@ -39,7 +39,7 @@ void
 nse_T_abar_from_e(const amrex::Real rho, const amrex::Real e_in, const amrex::Real Ye,
                   amrex::Real& T, amrex::Real& abar) {
 
-    using namespace amrex;
+    using namespace amrex::literals;
     using namespace AuxZero;
 
     const amrex::Real ttol{1.e-6_rt};
@@ -130,7 +130,7 @@ void
 nse_rho_abar_from_e(const amrex::Real T, const amrex::Real e_in, const amrex::Real Ye,
                     amrex::Real& rho, amrex::Real& abar) {
 
-    using namespace amrex;
+    using namespace amrex::literals;
     using namespace AuxZero;
 
     const amrex::Real dtol{1.e-6_rt};
@@ -221,7 +221,7 @@ void
 nse_T_abar_from_p(const amrex::Real rho, const amrex::Real p_in, const amrex::Real Ye,
                   amrex::Real& T, amrex::Real& abar) {
 
-    using namespace amrex;
+    using namespace amrex::literals;
     using namespace AuxZero;
 
     const amrex::Real ttol{1.e-6_rt};
@@ -312,7 +312,7 @@ void
 nse_rho_abar_from_p(const amrex::Real T, const amrex::Real p_in, const amrex::Real Ye,
                     amrex::Real& rho, amrex::Real& abar) {
 
-    using namespace amrex;
+    using namespace amrex::literals;
     using namespace AuxZero;
 
     const amrex::Real dtol{1.e-6_rt};

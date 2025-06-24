@@ -5,7 +5,6 @@
 #include <actual_network.H>
 #include <jacobian_utilities.H>
 
-using namespace amrex;
 using namespace network_rp;
 
 void actual_rhs_init ();
