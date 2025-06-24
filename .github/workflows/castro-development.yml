@@ -47,7 +47,7 @@ jobs:
         export MICROPHYSICS_HOME=${PWD}
 
         cd Castro/Exec/science/flame_wave/
-        make -j 4 CCACHE=ccache USE_MPI=FALSE NETWORK_DIR=he-burn/he-burn-19a
+        make -j 4 CCACHE=ccache USE_MPI=FALSE
 
         ccache -s
         du -hs ~/.cache/ccache
@@ -64,7 +64,7 @@ jobs:
         export MICROPHYSICS_HOME=${PWD}
 
         cd Castro/Exec/science/subchandra/
-        make -j 4 CCACHE=ccache USE_MPI=FALSE
+        make -j 4 CCACHE=ccache USE_MPI=FALSE NETWORK_DIR=he-burn/he-burn-19a
 
         ccache -s
         du -hs ~/.cache/ccache
