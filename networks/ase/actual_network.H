@@ -8,7 +8,7 @@
 #include <fundamental_constants.H>
 #include <network_properties.H>
 
-using namespace amrex;
+using namespace amrex::literals;
 
 void actual_network_init();
 
@@ -26,74 +26,59 @@ namespace network
 
         // Set the binding energy of the element
 
-        if constexpr (spec == N) {
-            return 0.0_rt;
-        }
-        else if constexpr (spec == H1) {
+        if constexpr (spec == H1) {
             return 0.0_rt;
         }
         else if constexpr (spec == He4) {
-            return 28.29566_rt;
+            return 28.295662457999697_rt;
         }
         else if constexpr (spec == C12) {
-            return 92.16172800000001_rt;
+            return 92.16173498399803_rt;
         }
         else if constexpr (spec == N13) {
-            return 94.105219_rt;
-        }
-        else if constexpr (spec == N14) {
-            return 104.65859599999999_rt;
+            return 94.10522604799917_rt;
         }
         else if constexpr (spec == O16) {
-            return 127.619296_rt;
-        }
-        else if constexpr (spec == F18) {
-            return 137.369484_rt;
+            return 127.6193154119992_rt;
         }
         else if constexpr (spec == Ne20) {
-            return 160.6448_rt;
-        }
-        else if constexpr (spec == Ne21) {
-            return 167.405973_rt;
-        }
-        else if constexpr (spec == Na22) {
-            return 174.144674_rt;
+            return 160.64482384000075_rt;
         }
         else if constexpr (spec == Na23) {
-            return 186.56433900000002_rt;
+            return 186.56435240400242_rt;
         }
         else if constexpr (spec == Mg24) {
-            return 198.25701600000002_rt;
+            return 198.2570479679962_rt;
         }
         else if constexpr (spec == Al27) {
-            return 224.951931_rt;
+            return 224.95193723199915_rt;
         }
         else if constexpr (spec == Si28) {
-            return 236.536832_rt;
+            return 236.53684539599638_rt;
         }
         else if constexpr (spec == P31) {
-            return 262.91617699999995_rt;
+            return 262.9161999600037_rt;
         }
         else if constexpr (spec == S32) {
-            return 271.78012800000005_rt;
+            return 271.78016372399725_rt;
         }
         else if constexpr (spec == Ar36) {
-            return 306.716724_rt;
+            return 306.7167469519991_rt;
         }
         else if constexpr (spec == Ca40) {
-            return 342.05212000000006_rt;
+            return 342.05218528000114_rt;
         }
         else if constexpr (spec == Ti44) {
-            return 375.47488000000004_rt;
+            return 375.47496160800074_rt;
         }
         else if constexpr (spec == Cr48) {
-            return 411.46891200000005_rt;
+            return 411.4679399359957_rt;
         }
         else if constexpr (spec == Fe52) {
-            return 447.697848_rt;
+            return 447.6996182639923_rt;
         }
         else if constexpr (spec == Ni56) {
-            return 483.995624_rt;
+            return 483.9956965919919_rt;
         }
 
 
@@ -104,12 +89,70 @@ namespace network
     template<int spec>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
     constexpr amrex::Real mion () {
+        using namespace Species;
+
         static_assert(spec >= 1 && spec <= NumSpec);
 
-        constexpr amrex::Real A = NetworkProperties::aion(spec);
-        constexpr amrex::Real Z = NetworkProperties::zion(spec);
+        // Set the mass of the element
 
-        return (A - Z) * C::Legacy::m_n + Z * (C::Legacy::m_p + C::Legacy::m_e) - bion<spec>() * C::Legacy::MeV2gr;
+        if constexpr (spec == H1) {
+            return 1.6735328377636005e-24_rt;
+        }
+        else if constexpr (spec == He4) {
+            return 6.646479071584587e-24_rt;
+        }
+        else if constexpr (spec == C12) {
+            return 1.99264687992e-23_rt;
+        }
+        else if constexpr (spec == N13) {
+            return 2.1596537049448796e-23_rt;
+        }
+        else if constexpr (spec == O16) {
+            return 2.6560180592333686e-23_rt;
+        }
+        else if constexpr (spec == Ne20) {
+            return 3.3198227947612416e-23_rt;
+        }
+        else if constexpr (spec == Na23) {
+            return 3.817541002484691e-23_rt;
+        }
+        else if constexpr (spec == Mg24) {
+            return 3.9828098739467446e-23_rt;
+        }
+        else if constexpr (spec == Al27) {
+            return 4.480389861070653e-23_rt;
+        }
+        else if constexpr (spec == Si28) {
+            return 4.6456779473820677e-23_rt;
+        }
+        else if constexpr (spec == P31) {
+            return 5.14331418367544e-23_rt;
+        }
+        else if constexpr (spec == S32) {
+            return 5.309087322384128e-23_rt;
+        }
+        else if constexpr (spec == Ar36) {
+            return 5.972551377884467e-23_rt;
+        }
+        else if constexpr (spec == Ca40) {
+            return 6.635944331004904e-23_rt;
+        }
+        else if constexpr (spec == Ti44) {
+            return 7.299678247096977e-23_rt;
+        }
+        else if constexpr (spec == Cr48) {
+            return 7.962953983065421e-23_rt;
+        }
+        else if constexpr (spec == Fe52) {
+            return 8.626187166893794e-23_rt;
+        }
+        else if constexpr (spec == Ni56) {
+            return 9.289408870379396e-23_rt;
+        }
+
+
+        // Return zero if we don't recognize the species.
+        return 0.0_rt;
     }
 
     // Legacy (non-templated) interfaces
@@ -121,7 +164,7 @@ namespace network
         amrex::Real b = 0.0_rt;
 
         // Set the binding energy of the element
-        constexpr_for<1, NumSpec+1>([&] (auto n) {
+        amrex::constexpr_for<1, NumSpec+1>([&] (auto n) {
             if (n == spec) {
                 b = bion<n>();
             }
@@ -136,7 +179,7 @@ namespace network
 
         amrex::Real m = 0.0_rt;
 
-        constexpr_for<1, NumSpec+1>([&] (auto n) {
+        amrex::constexpr_for<1, NumSpec+1>([&] (auto n) {
             if (n == spec) {
                 m = mion<n>();
             }
@@ -149,113 +192,112 @@ namespace network
 namespace Rates
 {
 
-    enum NetworkRates
+    enum NetworkRates :
+    std::uint8_t
     {
         k_p_C12_to_N13 = 1,
         k_He4_C12_to_O16 = 2,
-        k_He4_N14_to_F18 = 3,
-        k_He4_O16_to_Ne20 = 4,
-        k_He4_F18_to_Na22 = 5,
-        k_n_Ne20_to_Ne21 = 6,
-        k_He4_Ne20_to_Mg24 = 7,
-        k_p_Ne21_to_Na22 = 8,
-        k_n_Na22_to_Na23 = 9,
-        k_p_Na23_to_Mg24 = 10,
-        k_He4_Mg24_to_Si28 = 11,
-        k_p_Al27_to_Si28 = 12,
-        k_He4_Si28_to_S32 = 13,
-        k_p_P31_to_S32 = 14,
-        k_C12_C12_to_p_Na23 = 15,
-        k_C12_C12_to_He4_Ne20 = 16,
-        k_He4_N13_to_p_O16 = 17,
-        k_C12_O16_to_p_Al27 = 18,
-        k_C12_O16_to_He4_Mg24 = 19,
-        k_O16_O16_to_p_P31 = 20,
-        k_O16_O16_to_He4_Si28 = 21,
-        k_He4_F18_to_p_Ne21 = 22,
-        k_He4_Ne21_to_n_Mg24 = 23,
-        k_p_Na23_to_He4_Ne20 = 24,
-        k_p_Al27_to_He4_Mg24 = 25,
-        k_p_P31_to_He4_Si28 = 26,
-        k_He4_He4_He4_to_C12 = 27,
-        k_C12_C12_to_Mg24_modified = 28,
-        k_O16_O16_to_S32_modified = 29,
-        k_C12_O16_to_Si28_modified = 30,
-        k_He4_S32_to_Ar36_removed = 31,
-        k_p_Cl35_to_Ar36_removed = 32,
-        k_p_Cl35_to_He4_S32_removed = 33,
-        k_He4_Ar36_to_Ca40_removed = 34,
-        k_p_K39_to_Ca40_removed = 35,
-        k_p_K39_to_He4_Ar36_removed = 36,
-        k_He4_Ca40_to_Ti44_removed = 37,
-        k_p_Sc43_to_Ti44_removed = 38,
-        k_p_Sc43_to_He4_Ca40_removed = 39,
-        k_He4_Ti44_to_Cr48_removed = 40,
-        k_He4_Ti44_to_p_V47_removed = 41,
-        k_p_V47_to_Cr48_removed = 42,
-        k_He4_Cr48_to_Fe52_removed = 43,
-        k_He4_Cr48_to_p_Mn51_removed = 44,
-        k_p_Mn51_to_Fe52_removed = 45,
-        k_He4_Fe52_to_Ni56_removed = 46,
-        k_He4_Fe52_to_p_Co55_removed = 47,
-        k_p_Co55_to_Ni56_removed = 48,
-        k_S32_He4_to_Ar36_approx = 49,
-        k_Ar36_to_S32_He4_approx = 50,
-        k_Ar36_He4_to_Ca40_approx = 51,
-        k_Ca40_to_Ar36_He4_approx = 52,
-        k_Ca40_He4_to_Ti44_approx = 53,
-        k_Ti44_to_Ca40_He4_approx = 54,
-        k_Ti44_He4_to_Cr48_approx = 55,
-        k_Cr48_to_Ti44_He4_approx = 56,
-        k_Cr48_He4_to_Fe52_approx = 57,
-        k_Fe52_to_Cr48_He4_approx = 58,
-        k_Fe52_He4_to_Ni56_approx = 59,
-        k_Ni56_to_Fe52_He4_approx = 60,
-        k_N13_to_p_C12_derived = 61,
-        k_O16_to_He4_C12_derived = 62,
-        k_F18_to_He4_N14_derived = 63,
-        k_Ne20_to_He4_O16_derived = 64,
-        k_Ne21_to_n_Ne20_derived = 65,
-        k_Na22_to_p_Ne21_derived = 66,
-        k_Na22_to_He4_F18_derived = 67,
-        k_Na23_to_n_Na22_derived = 68,
-        k_Mg24_to_p_Na23_derived = 69,
-        k_Mg24_to_He4_Ne20_derived = 70,
-        k_Si28_to_p_Al27_derived = 71,
-        k_Si28_to_He4_Mg24_derived = 72,
-        k_S32_to_p_P31_derived = 73,
-        k_S32_to_He4_Si28_derived = 74,
-        k_C12_to_He4_He4_He4_derived = 75,
-        k_p_O16_to_He4_N13_derived = 76,
-        k_He4_Ne20_to_p_Na23_derived = 77,
-        k_p_Ne21_to_He4_F18_derived = 78,
-        k_n_Mg24_to_He4_Ne21_derived = 79,
-        k_He4_Mg24_to_p_Al27_derived = 80,
-        k_He4_Si28_to_p_P31_derived = 81,
-        k_He4_S32_to_p_Cl35_derived_removed = 82,
-        k_Ar36_to_He4_S32_derived_removed = 83,
-        k_Ar36_to_p_Cl35_derived_removed = 84,
-        k_He4_Ar36_to_p_K39_derived_removed = 85,
-        k_Ca40_to_He4_Ar36_derived_removed = 86,
-        k_Ca40_to_p_K39_derived_removed = 87,
-        k_He4_Ca40_to_p_Sc43_derived_removed = 88,
-        k_Ti44_to_He4_Ca40_derived_removed = 89,
-        k_Ti44_to_p_Sc43_derived_removed = 90,
-        k_Cr48_to_He4_Ti44_derived_removed = 91,
-        k_Cr48_to_p_V47_derived_removed = 92,
-        k_p_V47_to_He4_Ti44_derived_removed = 93,
-        k_Fe52_to_He4_Cr48_derived_removed = 94,
-        k_Fe52_to_p_Mn51_derived_removed = 95,
-        k_p_Mn51_to_He4_Cr48_derived_removed = 96,
-        k_Ni56_to_He4_Fe52_derived_removed = 97,
-        k_Ni56_to_p_Co55_derived_removed = 98,
-        k_p_Co55_to_He4_Fe52_derived_removed = 99,
+        k_He4_O16_to_Ne20 = 3,
+        k_He4_Ne20_to_Mg24 = 4,
+        k_p_Na23_to_Mg24 = 5,
+        k_He4_Mg24_to_Si28 = 6,
+        k_p_Al27_to_Si28 = 7,
+        k_He4_Si28_to_S32 = 8,
+        k_p_P31_to_S32 = 9,
+        k_C12_C12_to_p_Na23 = 10,
+        k_C12_C12_to_He4_Ne20 = 11,
+        k_He4_N13_to_p_O16 = 12,
+        k_C12_O16_to_p_Al27 = 13,
+        k_C12_O16_to_He4_Mg24 = 14,
+        k_O16_O16_to_p_P31 = 15,
+        k_O16_O16_to_He4_Si28 = 16,
+        k_p_Na23_to_He4_Ne20 = 17,
+        k_p_Al27_to_He4_Mg24 = 18,
+        k_p_P31_to_He4_Si28 = 19,
+        k_He4_He4_He4_to_C12 = 20,
+        k_C12_C12_to_n_Mg23_removed = 21,
+        k_O16_O16_to_n_S31_removed = 22,
+        k_C12_O16_to_n_Si27_removed = 23,
+        k_He4_S32_to_Ar36_removed = 24,
+        k_p_Cl35_to_Ar36_removed = 25,
+        k_p_Cl35_to_He4_S32_removed = 26,
+        k_He4_Ar36_to_Ca40_removed = 27,
+        k_p_K39_to_Ca40_removed = 28,
+        k_p_K39_to_He4_Ar36_removed = 29,
+        k_He4_Ca40_to_Ti44_removed = 30,
+        k_p_Sc43_to_Ti44_removed = 31,
+        k_p_Sc43_to_He4_Ca40_removed = 32,
+        k_He4_Ti44_to_Cr48_removed = 33,
+        k_He4_Ti44_to_p_V47_removed = 34,
+        k_p_V47_to_Cr48_removed = 35,
+        k_He4_Cr48_to_Fe52_removed = 36,
+        k_He4_Cr48_to_p_Mn51_removed = 37,
+        k_p_Mn51_to_Fe52_removed = 38,
+        k_He4_Fe52_to_Ni56_removed = 39,
+        k_He4_Fe52_to_p_Co55_removed = 40,
+        k_p_Co55_to_Ni56_removed = 41,
+        k_S32_He4_to_Ar36_approx = 42,
+        k_Ar36_to_S32_He4_approx = 43,
+        k_Ar36_He4_to_Ca40_approx = 44,
+        k_Ca40_to_Ar36_He4_approx = 45,
+        k_Ca40_He4_to_Ti44_approx = 46,
+        k_Ti44_to_Ca40_He4_approx = 47,
+        k_Ti44_He4_to_Cr48_approx = 48,
+        k_Cr48_to_Ti44_He4_approx = 49,
+        k_Cr48_He4_to_Fe52_approx = 50,
+        k_Fe52_to_Cr48_He4_approx = 51,
+        k_Fe52_He4_to_Ni56_approx = 52,
+        k_Ni56_to_Fe52_He4_approx = 53,
+        k_C12_C12_to_Mg24_modified = 54,
+        k_O16_O16_to_S32_modified = 55,
+        k_C12_O16_to_Si28_modified = 56,
+        k_N13_to_p_C12_derived = 57,
+        k_O16_to_He4_C12_derived = 58,
+        k_Ne20_to_He4_O16_derived = 59,
+        k_Mg24_to_p_Na23_derived = 60,
+        k_Mg24_to_He4_Ne20_derived = 61,
+        k_Si28_to_p_Al27_derived = 62,
+        k_Si28_to_He4_Mg24_derived = 63,
+        k_S32_to_p_P31_derived = 64,
+        k_S32_to_He4_Si28_derived = 65,
+        k_C12_to_He4_He4_He4_derived = 66,
+        k_p_O16_to_He4_N13_derived = 67,
+        k_He4_Ne20_to_p_Na23_derived = 68,
+        k_He4_Ne20_to_C12_C12_derived = 69,
+        k_p_Na23_to_C12_C12_derived = 70,
+        k_He4_Mg24_to_p_Al27_derived = 71,
+        k_He4_Mg24_to_C12_O16_derived = 72,
+        k_p_Al27_to_C12_O16_derived = 73,
+        k_He4_Si28_to_p_P31_derived = 74,
+        k_He4_Si28_to_O16_O16_derived = 75,
+        k_p_P31_to_O16_O16_derived = 76,
+        k_Mg24_to_C12_C12_derived = 77,
+        k_S32_to_O16_O16_derived = 78,
+        k_Si28_to_C12_O16_derived = 79,
+        k_He4_S32_to_p_Cl35_derived_removed = 80,
+        k_Ar36_to_He4_S32_derived_removed = 81,
+        k_Ar36_to_p_Cl35_derived_removed = 82,
+        k_He4_Ar36_to_p_K39_derived_removed = 83,
+        k_Ca40_to_He4_Ar36_derived_removed = 84,
+        k_Ca40_to_p_K39_derived_removed = 85,
+        k_He4_Ca40_to_p_Sc43_derived_removed = 86,
+        k_Ti44_to_He4_Ca40_derived_removed = 87,
+        k_Ti44_to_p_Sc43_derived_removed = 88,
+        k_Cr48_to_He4_Ti44_derived_removed = 89,
+        k_Cr48_to_p_V47_derived_removed = 90,
+        k_p_V47_to_He4_Ti44_derived_removed = 91,
+        k_Fe52_to_He4_Cr48_derived_removed = 92,
+        k_Fe52_to_p_Mn51_derived_removed = 93,
+        k_p_Mn51_to_He4_Cr48_derived_removed = 94,
+        k_Ni56_to_He4_Fe52_derived_removed = 95,
+        k_Ni56_to_p_Co55_derived_removed = 96,
+        k_p_Co55_to_He4_Fe52_derived_removed = 97,
         NumRates = k_p_Co55_to_He4_Fe52_derived_removed
     };
 
     // number of reaclib rates
 
-    const int NrateReaclib = 87;
+    const int NrateReaclib = 82;
 
     // number of tabular rates
 
@@ -269,103 +311,101 @@ namespace Rates
         "",   // 0
         "p_C12_to_N13",  // 1,
         "He4_C12_to_O16",  // 2,
-        "He4_N14_to_F18",  // 3,
-        "He4_O16_to_Ne20",  // 4,
-        "He4_F18_to_Na22",  // 5,
-        "n_Ne20_to_Ne21",  // 6,
-        "He4_Ne20_to_Mg24",  // 7,
-        "p_Ne21_to_Na22",  // 8,
-        "n_Na22_to_Na23",  // 9,
-        "p_Na23_to_Mg24",  // 10,
-        "He4_Mg24_to_Si28",  // 11,
-        "p_Al27_to_Si28",  // 12,
-        "He4_Si28_to_S32",  // 13,
-        "p_P31_to_S32",  // 14,
-        "C12_C12_to_p_Na23",  // 15,
-        "C12_C12_to_He4_Ne20",  // 16,
-        "He4_N13_to_p_O16",  // 17,
-        "C12_O16_to_p_Al27",  // 18,
-        "C12_O16_to_He4_Mg24",  // 19,
-        "O16_O16_to_p_P31",  // 20,
-        "O16_O16_to_He4_Si28",  // 21,
-        "He4_F18_to_p_Ne21",  // 22,
-        "He4_Ne21_to_n_Mg24",  // 23,
-        "p_Na23_to_He4_Ne20",  // 24,
-        "p_Al27_to_He4_Mg24",  // 25,
-        "p_P31_to_He4_Si28",  // 26,
-        "He4_He4_He4_to_C12",  // 27,
-        "C12_C12_to_Mg24_modified",  // 28,
-        "O16_O16_to_S32_modified",  // 29,
-        "C12_O16_to_Si28_modified",  // 30,
-        "He4_S32_to_Ar36_removed",  // 31,
-        "p_Cl35_to_Ar36_removed",  // 32,
-        "p_Cl35_to_He4_S32_removed",  // 33,
-        "He4_Ar36_to_Ca40_removed",  // 34,
-        "p_K39_to_Ca40_removed",  // 35,
-        "p_K39_to_He4_Ar36_removed",  // 36,
-        "He4_Ca40_to_Ti44_removed",  // 37,
-        "p_Sc43_to_Ti44_removed",  // 38,
-        "p_Sc43_to_He4_Ca40_removed",  // 39,
-        "He4_Ti44_to_Cr48_removed",  // 40,
-        "He4_Ti44_to_p_V47_removed",  // 41,
-        "p_V47_to_Cr48_removed",  // 42,
-        "He4_Cr48_to_Fe52_removed",  // 43,
-        "He4_Cr48_to_p_Mn51_removed",  // 44,
-        "p_Mn51_to_Fe52_removed",  // 45,
-        "He4_Fe52_to_Ni56_removed",  // 46,
-        "He4_Fe52_to_p_Co55_removed",  // 47,
-        "p_Co55_to_Ni56_removed",  // 48,
-        "S32_He4_to_Ar36_approx",  // 49,
-        "Ar36_to_S32_He4_approx",  // 50,
-        "Ar36_He4_to_Ca40_approx",  // 51,
-        "Ca40_to_Ar36_He4_approx",  // 52,
-        "Ca40_He4_to_Ti44_approx",  // 53,
-        "Ti44_to_Ca40_He4_approx",  // 54,
-        "Ti44_He4_to_Cr48_approx",  // 55,
-        "Cr48_to_Ti44_He4_approx",  // 56,
-        "Cr48_He4_to_Fe52_approx",  // 57,
-        "Fe52_to_Cr48_He4_approx",  // 58,
-        "Fe52_He4_to_Ni56_approx",  // 59,
-        "Ni56_to_Fe52_He4_approx",  // 60,
-        "N13_to_p_C12_derived",  // 61,
-        "O16_to_He4_C12_derived",  // 62,
-        "F18_to_He4_N14_derived",  // 63,
-        "Ne20_to_He4_O16_derived",  // 64,
-        "Ne21_to_n_Ne20_derived",  // 65,
-        "Na22_to_p_Ne21_derived",  // 66,
-        "Na22_to_He4_F18_derived",  // 67,
-        "Na23_to_n_Na22_derived",  // 68,
-        "Mg24_to_p_Na23_derived",  // 69,
-        "Mg24_to_He4_Ne20_derived",  // 70,
-        "Si28_to_p_Al27_derived",  // 71,
-        "Si28_to_He4_Mg24_derived",  // 72,
-        "S32_to_p_P31_derived",  // 73,
-        "S32_to_He4_Si28_derived",  // 74,
-        "C12_to_He4_He4_He4_derived",  // 75,
-        "p_O16_to_He4_N13_derived",  // 76,
-        "He4_Ne20_to_p_Na23_derived",  // 77,
-        "p_Ne21_to_He4_F18_derived",  // 78,
-        "n_Mg24_to_He4_Ne21_derived",  // 79,
-        "He4_Mg24_to_p_Al27_derived",  // 80,
-        "He4_Si28_to_p_P31_derived",  // 81,
-        "He4_S32_to_p_Cl35_derived_removed",  // 82,
-        "Ar36_to_He4_S32_derived_removed",  // 83,
-        "Ar36_to_p_Cl35_derived_removed",  // 84,
-        "He4_Ar36_to_p_K39_derived_removed",  // 85,
-        "Ca40_to_He4_Ar36_derived_removed",  // 86,
-        "Ca40_to_p_K39_derived_removed",  // 87,
-        "He4_Ca40_to_p_Sc43_derived_removed",  // 88,
-        "Ti44_to_He4_Ca40_derived_removed",  // 89,
-        "Ti44_to_p_Sc43_derived_removed",  // 90,
-        "Cr48_to_He4_Ti44_derived_removed",  // 91,
-        "Cr48_to_p_V47_derived_removed",  // 92,
-        "p_V47_to_He4_Ti44_derived_removed",  // 93,
-        "Fe52_to_He4_Cr48_derived_removed",  // 94,
-        "Fe52_to_p_Mn51_derived_removed",  // 95,
-        "p_Mn51_to_He4_Cr48_derived_removed",  // 96,
-        "Ni56_to_He4_Fe52_derived_removed",  // 97,
-        "Ni56_to_p_Co55_derived_removed",  // 98,
-        "p_Co55_to_He4_Fe52_derived_removed"  // 99,
+        "He4_O16_to_Ne20",  // 3,
+        "He4_Ne20_to_Mg24",  // 4,
+        "p_Na23_to_Mg24",  // 5,
+        "He4_Mg24_to_Si28",  // 6,
+        "p_Al27_to_Si28",  // 7,
+        "He4_Si28_to_S32",  // 8,
+        "p_P31_to_S32",  // 9,
+        "C12_C12_to_p_Na23",  // 10,
+        "C12_C12_to_He4_Ne20",  // 11,
+        "He4_N13_to_p_O16",  // 12,
+        "C12_O16_to_p_Al27",  // 13,
+        "C12_O16_to_He4_Mg24",  // 14,
+        "O16_O16_to_p_P31",  // 15,
+        "O16_O16_to_He4_Si28",  // 16,
+        "p_Na23_to_He4_Ne20",  // 17,
+        "p_Al27_to_He4_Mg24",  // 18,
+        "p_P31_to_He4_Si28",  // 19,
+        "He4_He4_He4_to_C12",  // 20,
+        "C12_C12_to_n_Mg23_removed",  // 21,
+        "O16_O16_to_n_S31_removed",  // 22,
+        "C12_O16_to_n_Si27_removed",  // 23,
+        "He4_S32_to_Ar36_removed",  // 24,
+        "p_Cl35_to_Ar36_removed",  // 25,
+        "p_Cl35_to_He4_S32_removed",  // 26,
+        "He4_Ar36_to_Ca40_removed",  // 27,
+        "p_K39_to_Ca40_removed",  // 28,
+        "p_K39_to_He4_Ar36_removed",  // 29,
+        "He4_Ca40_to_Ti44_removed",  // 30,
+        "p_Sc43_to_Ti44_removed",  // 31,
+        "p_Sc43_to_He4_Ca40_removed",  // 32,
+        "He4_Ti44_to_Cr48_removed",  // 33,
+        "He4_Ti44_to_p_V47_removed",  // 34,
+        "p_V47_to_Cr48_removed",  // 35,
+        "He4_Cr48_to_Fe52_removed",  // 36,
+        "He4_Cr48_to_p_Mn51_removed",  // 37,
+        "p_Mn51_to_Fe52_removed",  // 38,
+        "He4_Fe52_to_Ni56_removed",  // 39,
+        "He4_Fe52_to_p_Co55_removed",  // 40,
+        "p_Co55_to_Ni56_removed",  // 41,
+        "S32_He4_to_Ar36_approx",  // 42,
+        "Ar36_to_S32_He4_approx",  // 43,
+        "Ar36_He4_to_Ca40_approx",  // 44,
+        "Ca40_to_Ar36_He4_approx",  // 45,
+        "Ca40_He4_to_Ti44_approx",  // 46,
+        "Ti44_to_Ca40_He4_approx",  // 47,
+        "Ti44_He4_to_Cr48_approx",  // 48,
+        "Cr48_to_Ti44_He4_approx",  // 49,
+        "Cr48_He4_to_Fe52_approx",  // 50,
+        "Fe52_to_Cr48_He4_approx",  // 51,
+        "Fe52_He4_to_Ni56_approx",  // 52,
+        "Ni56_to_Fe52_He4_approx",  // 53,
+        "C12_C12_to_Mg24_modified",  // 54,
+        "O16_O16_to_S32_modified",  // 55,
+        "C12_O16_to_Si28_modified",  // 56,
+        "N13_to_p_C12_derived",  // 57,
+        "O16_to_He4_C12_derived",  // 58,
+        "Ne20_to_He4_O16_derived",  // 59,
+        "Mg24_to_p_Na23_derived",  // 60,
+        "Mg24_to_He4_Ne20_derived",  // 61,
+        "Si28_to_p_Al27_derived",  // 62,
+        "Si28_to_He4_Mg24_derived",  // 63,
+        "S32_to_p_P31_derived",  // 64,
+        "S32_to_He4_Si28_derived",  // 65,
+        "C12_to_He4_He4_He4_derived",  // 66,
+        "p_O16_to_He4_N13_derived",  // 67,
+        "He4_Ne20_to_p_Na23_derived",  // 68,
+        "He4_Ne20_to_C12_C12_derived",  // 69,
+        "p_Na23_to_C12_C12_derived",  // 70,
+        "He4_Mg24_to_p_Al27_derived",  // 71,
+        "He4_Mg24_to_C12_O16_derived",  // 72,
+        "p_Al27_to_C12_O16_derived",  // 73,
+        "He4_Si28_to_p_P31_derived",  // 74,
+        "He4_Si28_to_O16_O16_derived",  // 75,
+        "p_P31_to_O16_O16_derived",  // 76,
+        "Mg24_to_C12_C12_derived",  // 77,
+        "S32_to_O16_O16_derived",  // 78,
+        "Si28_to_C12_O16_derived",  // 79,
+        "He4_S32_to_p_Cl35_derived_removed",  // 80,
+        "Ar36_to_He4_S32_derived_removed",  // 81,
+        "Ar36_to_p_Cl35_derived_removed",  // 82,
+        "He4_Ar36_to_p_K39_derived_removed",  // 83,
+        "Ca40_to_He4_Ar36_derived_removed",  // 84,
+        "Ca40_to_p_K39_derived_removed",  // 85,
+        "He4_Ca40_to_p_Sc43_derived_removed",  // 86,
+        "Ti44_to_He4_Ca40_derived_removed",  // 87,
+        "Ti44_to_p_Sc43_derived_removed",  // 88,
+        "Cr48_to_He4_Ti44_derived_removed",  // 89,
+        "Cr48_to_p_V47_derived_removed",  // 90,
+        "p_V47_to_He4_Ti44_derived_removed",  // 91,
+        "Fe52_to_He4_Cr48_derived_removed",  // 92,
+        "Fe52_to_p_Mn51_derived_removed",  // 93,
+        "p_Mn51_to_He4_Cr48_derived_removed",  // 94,
+        "Ni56_to_He4_Fe52_derived_removed",  // 95,
+        "Ni56_to_p_Co55_derived_removed",  // 96,
+        "p_Co55_to_He4_Fe52_derived_removed"  // 97,
     };
 
 }
@@ -373,15 +413,15 @@ namespace Rates
 #ifdef NSE_NET
 namespace NSE_INDEX
 {
-    constexpr int H1_index = 1;
-    constexpr int N_index = 0;
-    constexpr int He4_index = 2;
+    constexpr int H1_index = 0;
+    constexpr int N_index = -1;
+    constexpr int He4_index = 1;
 
     // Each row corresponds to the rate in NetworkRates enum
     // First 3 row indices for reactants, followed by 3 product indices
     // last index is the corresponding reverse rate index.
 
-    extern AMREX_GPU_MANAGED amrex::Array2D<int, 1, Rates::NumRates, 1, 7, Order::C> rate_indices;
+    extern AMREX_GPU_MANAGED amrex::Array2D<int, 1, Rates::NumRates, 1, 7, amrex::Order::C> rate_indices;
 }
 #endif
 
