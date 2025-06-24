@@ -6,6 +6,7 @@
 #include <AMReX_Math.H>
 
 #include <microphysics_autodiff.H>
+#include <extern_parameters.H>
 
 using namespace amrex::literals;
 
@@ -154,31 +155,45 @@ number_t ifermi12(const number_t& f)
     return ifermi12r;
 }
 
+/// type for values that only depend on temperature
+template <typename number_t>
+using dt_t = std::conditional_t<
+    std::is_same_v<number_t, autodiff::dual_array<1, 3>>,
+    autodiff::dual_array<1, 1>,
+    number_t>;
+
+/// type for values that only depend on composition
+template <typename number_t>
+using dcomp_t = std::conditional_t<
+    std::is_same_v<number_t, autodiff::dual_array<1, 3>>,
+    autodiff::dual_array<2, 3>,
+    number_t>;
+
 template <typename number_t>
 struct sneutf_t {
 
     amrex::Real den;
-    number_t temp;
-    number_t zbar;
+    dt_t<number_t> temp;
+    dcomp_t<number_t> zbar;
 
     amrex::Real deni;
-    number_t abari;
+    dcomp_t<number_t> abari;
 
-    number_t ye;
+    dcomp_t<number_t> ye;
 
-    number_t t9;
-    number_t xl;
-    number_t xl2;
-    number_t xl3;
-    number_t xl4;
-    number_t xl5;
-    number_t xl6;
-    number_t xl8;
-    number_t xl9;
-    number_t xlm1;
-    number_t xlm2;
-    number_t xlm3;
-    number_t rm;
+    dt_t<number_t> t9;
+    dt_t<number_t> xl;
+    dt_t<number_t> xl2;
+    dt_t<number_t> xl3;
+    dt_t<number_t> xl4;
+    dt_t<number_t> xl5;
+    dt_t<number_t> xl6;
+    dt_t<number_t> xl8;
+    dt_t<number_t> xl9;
+    dt_t<number_t> xlm1;
+    dt_t<number_t> xlm2;
+    dt_t<number_t> xlm3;
+    dcomp_t<number_t> rm;
 
     number_t zeta;
     number_t zeta2;
@@ -191,30 +206,32 @@ AMREX_GPU_HOST_DEVICE inline
 sneutf_t<number_t> get_sneut_factors(const amrex::Real den, const number_t& temp,
                                      const number_t& abar, const number_t& zbar) {
 
+    using autodiff::eval;
+
     constexpr amrex::Real con1   = 1.0e0_rt/5.9302e0_rt;
 
     sneutf_t<number_t> sf{};
 
     sf.den = den;
-    sf.temp = temp;
-    sf.zbar = zbar;
+    sf.temp = microphysics_autodiff::narrow_array<dt_t<number_t>>(temp);
+    sf.zbar = microphysics_autodiff::narrow_array<dcomp_t<number_t>>(zbar);
 
     // to avoid lots of divisions
     sf.deni  = 1.0e0_rt / den;
-    sf.abari = 1.0e0_rt / abar;
+    sf.abari = 1.0e0_rt / microphysics_autodiff::narrow_array<dcomp_t<number_t>>(abar);
 
     // some composition variables
-    sf.ye    = zbar * sf.abari;
+    sf.ye    = sf.zbar * sf.abari;
 
     // some frequent factors
-    sf.t9     = temp * 1.0e-9_rt;
+    sf.t9     = sf.temp * 1.0e-9_rt;
     sf.xl     = sf.t9 * con1;
     sf.xl2    = sf.xl * sf.xl;
     sf.xl3    = sf.xl2 * sf.xl;
     sf.xl4    = sf.xl3 * sf.xl;
     sf.xl5    = sf.xl4 * sf.xl;
     sf.xl6    = sf.xl5 * sf.xl;
-    number_t xl7 = sf.xl6 * sf.xl;
+    const auto xl7 = eval(sf.xl6 * sf.xl);
     sf.xl8    = xl7 * sf.xl;
     sf.xl9    = sf.xl8 * sf.xl;
     sf.xlm1   = 1.0e0_rt / sf.xl;
@@ -223,8 +240,8 @@ sneutf_t<number_t> get_sneut_factors(const amrex::Real den, const number_t& temp
 
     sf.rm     = den * sf.ye;
 
-    number_t a0 = sf.rm * 1.0e-9_rt;
-    number_t a1 = admath::pow(a0, amrex::Real(nu_constants::oneth));
+    const auto a0 = eval(sf.rm * 1.0e-9_rt);
+    const auto a1 = eval(admath::pow(a0, amrex::Real(nu_constants::oneth)));
     sf.zeta = a1 * sf.xlm1;
 
     sf.zeta2 = sf.zeta * sf.zeta;
@@ -243,53 +260,48 @@ number_t nu_pair(const sneutf_t<number_t>& sf) {
     // pair neutrino section
     // for reactions like e+ + e- => nu_e + nubar_e
 
+    using autodiff::eval;
+
     // equation 2.8
-    number_t gl = 1.0e0_rt - 13.04e0_rt * sf.xl2 +133.5e0_rt * sf.xl4 +1534.0e0_rt * sf.xl6 + 918.6e0_rt * sf.xl8;
+    const auto gl = eval(1.0e0_rt - 13.04e0_rt * sf.xl2 +133.5e0_rt * sf.xl4 +1534.0e0_rt * sf.xl6 + 918.6e0_rt * sf.xl8);
 
     // equation 2.7
 
-    number_t a1 = 6.002e19_rt + 2.084e20_rt * sf.zeta + 1.872e21_rt * sf.zeta2;
-    number_t b1;
+    const auto tmp_1 = eval(6.002e19_rt + 2.084e20_rt * sf.zeta + 1.872e21_rt * sf.zeta2);
+    number_t tmp_2;
     if (sf.t9 < 10.0_rt) {
-        b1 = admath::exp(-5.5924e0_rt * sf.zeta);
+        tmp_2 = admath::exp(-5.5924e0_rt * sf.zeta);
     } else {
-        b1 = admath::exp(-4.9924e0_rt * sf.zeta);
+        tmp_2 = admath::exp(-4.9924e0_rt * sf.zeta);
     }
 
-    number_t xnum = a1 * b1;
+    const auto xnum = eval(tmp_1 * tmp_2);
 
+    dt_t<number_t> tmp_3;
     if (sf.t9 < 10.0_rt) {
-        a1 = 9.383e-1_rt * sf.xlm1 - 4.141e-1_rt * sf.xlm2 + 5.829e-2_rt * sf.xlm3;
+        tmp_3 = 9.383e-1_rt * sf.xlm1 - 4.141e-1_rt * sf.xlm2 + 5.829e-2_rt * sf.xlm3;
     } else {
-        a1 = 1.2383e0_rt * sf.xlm1 - 8.141e-1_rt * sf.xlm2;
+        tmp_3 = 1.2383e0_rt * sf.xlm1 - 8.141e-1_rt * sf.xlm2;
     }
 
-    number_t xden = sf.zeta3 + a1;
+    const auto xden = eval(sf.zeta3 + tmp_3);
 
-    a1 = 1.0e0_rt / xden;
-    number_t fpair = xnum * a1;
+    const auto tmp_4 = eval(1.0e0_rt / xden);
+    const auto fpair = eval(xnum * tmp_4);
 
     // equation 2.6
-    number_t xlp5 = admath::sqrt(sf.xl);
-    a1 = 10.7480e0_rt * sf.xl2 + 0.3967e0_rt * xlp5 + 1.005e0_rt;
-    xnum = 1.0e0_rt / a1;
+    const auto xlp5 = eval(admath::sqrt(sf.xl));
+    const auto tmp_5 = eval(10.7480e0_rt * sf.xl2 + 0.3967e0_rt * xlp5 + 1.005e0_rt);
 
-    a1 = 7.692e7_rt * sf.xl3 + 9.715e6_rt * xlp5;
-    number_t c = 1.0e0_rt / a1;
-    b1 = 1.0e0_rt + sf.rm * c;
+    const auto c = eval(1.0e0_rt / (7.692e7_rt * sf.xl3 + 9.715e6_rt * xlp5));
+    const auto tmp_7 = eval(1.0e0_rt + sf.rm * c);
 
-    xden = admath::pow(b1, -0.3e0_rt);
-
-    number_t qpair = xnum * xden;
+    const auto qpair = eval(1.0e0_rt / tmp_5 * admath::pow(tmp_7, -0.3e0_rt));
 
     // equation 2.5
-    a1 = admath::exp(-2.0e0_rt * sf.xlm1);
+    number_t spair = admath::exp(-2.0e0_rt * sf.xlm1) * fpair * gl;
 
-    number_t spair = a1 * fpair;
-    spair *= gl;
-
-    a1 = amrex::Real(nu_constants::tfac4) * (1.0e0_rt + amrex::Real(nu_constants::tfac3) * qpair);
-    spair *= a1;
+    spair *= amrex::Real(nu_constants::tfac4) * (1.0e0_rt + amrex::Real(nu_constants::tfac3) * qpair);
 
     return spair;
 
@@ -303,37 +315,35 @@ number_t nu_plasma(const sneutf_t<number_t>& sf) {
     // for collective reactions like gamma_plasmon => nu_e + nubar_e
     // equation 4.6
 
-    number_t a1 = 1.019e-6_rt * sf.rm;
-    number_t a2 = admath::pow(a1, amrex::Real(nu_constants::twoth));
+    using autodiff::eval;
 
-    number_t b1 = admath::sqrt(1.0e0_rt + a2);
+    const auto tmp_1 = eval(admath::pow(1.019e-6_rt * sf.rm, amrex::Real(nu_constants::twoth)));
 
-    number_t c00 = 1.0e0_rt / (sf.temp * sf.temp * b1);
+    const auto tmp_2 = eval(1.0e0_rt / (sf.temp * sf.temp * admath::sqrt(1.0e0_rt + tmp_1)));
 
-    number_t gl2   = 1.1095e11_rt * sf.rm * c00;
+    const auto gl2   = eval(1.1095e11_rt * sf.rm * tmp_2);
 
-    number_t gl = admath::sqrt(gl2);
-    number_t gl12 = admath::sqrt(gl);
-    number_t gl32 = gl * gl12;
-    number_t gl72 = gl2 * gl32;
-    number_t gl6 = gl2 * gl2 * gl2;
+    const auto gl = eval(admath::sqrt(gl2));
+    const auto gl12 = eval(admath::sqrt(gl));
+    const auto gl32 = eval(gl * gl12);
+    const auto gl72 = eval(gl2 * gl32);
+    const auto gl6 = eval(gl2 * gl2 * gl2);
 
     // equation 4.7
-    number_t ft = 2.4e0_rt + 0.6e0_rt * gl12 + 0.51e0_rt * gl + 1.25e0_rt * gl32;
+    const auto ft = eval(2.4e0_rt + 0.6e0_rt * gl12 + 0.51e0_rt * gl + 1.25e0_rt * gl32);
 
     // equation 4.8
-    a1 = 8.6e0_rt * gl2 + 1.35e0_rt * gl72;
-    b1 = 225.0e0_rt - 17.0e0_rt * gl + gl2;
+    const auto tmp_3 = eval(8.6e0_rt * gl2 + 1.35e0_rt * gl72);
+    const auto tmp_4 = eval(225.0e0_rt - 17.0e0_rt * gl + gl2);
 
-    number_t c = 1.0e0_rt / b1;
-    number_t fl = a1 * c;
+    const auto fl = eval(tmp_3 * (1.0e0_rt / tmp_4));
 
     // equation 4.9 and 4.10
-    number_t cc = admath::log10(2.0e0_rt * sf.rm);
-    number_t xlnt = admath::log10(sf.temp);
+    const auto cc = eval(admath::log10(2.0e0_rt * sf.rm));
+    const auto xlnt = eval(admath::log10(sf.temp));
 
-    number_t xnum = amrex::Real(nu_constants::sixth) * (17.5e0_rt + cc - 3.0e0_rt * xlnt);
-    number_t xden = amrex::Real(nu_constants::sixth) * (-24.5e0_rt + cc + 3.0e0_rt * xlnt);
+    const auto xnum = eval(amrex::Real(nu_constants::sixth) * (17.5e0_rt + cc - 3.0e0_rt * xlnt));
+    const auto xden = eval(amrex::Real(nu_constants::sixth) * (-24.5e0_rt + cc + 3.0e0_rt * xlnt));
 
     // equation 4.11
     number_t fxy;
@@ -341,28 +351,17 @@ number_t nu_plasma(const sneutf_t<number_t>& sf) {
         fxy   = 1.0e0_rt;
     } else {
 
-        a1 = 0.39e0_rt - 1.25e0_rt * xnum - 0.35e0_rt * admath::sin(4.5e0_rt * xnum);
+        const auto c = eval(admath::min(0.0e0_rt, xden - 1.6e0_rt + 1.25e0_rt * xnum));
+        const auto a3 = eval(c / (0.57e0_rt - 0.25e0_rt * xnum));
 
-        b1 = 0.3e0_rt * admath::exp(-admath::powi<2>(4.5e0_rt*xnum + 0.9e0_rt));
-
-        c = admath::min(0.0e0_rt, xden - 1.6e0_rt + 1.25e0_rt * xnum);
-
-        number_t d = 0.57e0_rt - 0.25e0_rt * xnum;
-        number_t a3 = c / d;
-        c00 = admath::exp(-a3 * a3);
-
-        fxy = 1.05e0_rt + (a1 - b1) * c00;
+        const auto a1 = eval(0.39e0_rt - 1.25e0_rt * xnum - 0.35e0_rt * admath::sin(4.5e0_rt * xnum));
+        const auto b1 = eval(0.3e0_rt * admath::exp(-admath::powi<2>(4.5e0_rt*xnum + 0.9e0_rt)));
+        fxy = 1.05e0_rt + (a1 - b1) * admath::exp(-a3 * a3);
     }
 
     // equation 4.1 and 4.5
-    number_t splas = (ft + fl) * fxy;
-
-    a2 = admath::exp(-gl);
-    splas *= a2;
-    splas *= gl6;
-
-    a2 = 0.93153e0_rt * 3.0e21_rt * sf.xl9;
-    splas *= a2;
+    number_t splas = eval((ft + fl) * fxy * admath::exp(-gl) * gl6);
+    splas *= eval(0.93153e0_rt * 3.0e21_rt * sf.xl9);
 
     return splas;
 
@@ -378,8 +377,10 @@ number_t nu_photo(const sneutf_t<number_t>& sf) {
     // equation 3.8 for tau, equation 3.6 for cc,
     // and table 2 written out for speed
 
-    number_t tau;
-    number_t cc;
+    using autodiff::eval;
+
+    dt_t<number_t> tau;
+    dt_t<number_t> cc;
     amrex::Real c00, c01, c02, c03, c04, c05, c06;
     amrex::Real c10, c11, c12, c13, c14, c15, c16;
     amrex::Real c20, c21, c22, c23, c24, c25, c26;
@@ -520,68 +521,62 @@ number_t nu_photo(const sneutf_t<number_t>& sf) {
 
     const auto [sin1, cos1] = admath::sincos(amrex::Real(nu_constants::fac1) * tau);
 
+    const auto cos1_sq = eval(cos1 * cos1);
+    const auto sin1_sq = eval(sin1 * sin1);
+
     // double, triple, etc. angle formulas
     // sin/cos (2 fac1 tau)
-    const number_t sin2 = 2.0_rt * sin1 * cos1;
-    const number_t cos2 = 2.0_rt * cos1 * cos1 - 1.0_rt;
+    const auto sin2 = eval(2.0_rt * sin1 * cos1);
+    const auto cos2 = eval(2.0_rt * cos1_sq - 1.0_rt);
 
     // sin/cos (3 fac1 tau)
-    const number_t sin3 = sin1 * (3.0_rt - 4.0_rt * sin1 * sin1);
-    const number_t cos3 = cos1 * (4.0_rt * cos1 * cos1 - 3.0_rt);
+    const auto sin3 = eval(sin1 * (3.0_rt - 4.0_rt * sin1 * sin1));
+    const auto cos3 = eval(cos1 * (4.0_rt * cos1_sq - 3.0_rt));
 
     // sin/cos (4 fac1 tau) -- use double angle on sin2/cos2
-    const number_t sin4 = 2.0_rt * sin2 * cos2;
-    const number_t cos4 = 2.0_rt * cos2 * cos2 - 1.0_rt;
+    const auto sin4 = eval(2.0_rt * sin2 * cos2);
+    const auto cos4 = eval(2.0_rt * cos2 * cos2 - 1.0_rt);
 
     // sin/cos (5 fac1 tau)
-    const number_t sin5 = sin1 * (5.0_rt - sin1 * sin1 * (20.0_rt - 16.0_rt * sin1 * sin1));
-    const number_t cos5 = cos1 * (cos1 * cos1 * (16.0_rt * cos1 * cos1 - 20.0_rt) + 5.0_rt);
+    const auto sin5 = eval(sin1 * (5.0_rt - sin1_sq * (20.0_rt - 16.0_rt * sin1_sq)));
+    const auto cos5 = eval(cos1 * (cos1_sq * (16.0_rt * cos1_sq - 20.0_rt) + 5.0_rt));
 
     // cos (10 pi tau)
-    const number_t last = admath::cos(amrex::Real(nu_constants::fac2) * tau);
+    const auto last = eval(admath::cos(amrex::Real(nu_constants::fac2) * tau));
 
-    number_t a0 = 0.5e0_rt * c00
+    const auto a0 = eval(0.5e0_rt * c00
         + c01 * cos1 + dd01 * sin1 + c02 * cos2 + dd02 * sin2
         + c03 * cos3 + dd03 * sin3 + c04 * cos4 + dd04 * sin4
-        + c05 * cos5 + dd05 * sin5 + 0.5e0_rt * c06 * last;
-    number_t a1 = 0.5e0_rt * c10
+        + c05 * cos5 + dd05 * sin5 + 0.5e0_rt * c06 * last);
+    const auto a1 = eval(0.5e0_rt * c10
         + c11 * cos1 + dd11 * sin1 + c12 * cos2 + dd12 * sin2
         + c13 * cos3 + dd13 * sin3 + c14 * cos4 + dd14 * sin4
-        + c15 * cos5 + dd15 * sin5 + 0.5e0_rt * c16 * last;
-    number_t a2 = 0.5e0_rt * c20
+        + c15 * cos5 + dd15 * sin5 + 0.5e0_rt * c16 * last);
+    const auto a2 = eval(0.5e0_rt * c20
         + c21 * cos1 + dd21 * sin1 + c22 * cos2 + dd22 * sin2
         + c23 * cos3 + dd23 * sin3 + c24 * cos4 + dd24 * sin4
-        + c25 * cos5 + dd25 * sin5 + 0.5e0_rt * c26 * last;
+        + c25 * cos5 + dd25 * sin5 + 0.5e0_rt * c26 * last);
 
     // equation 3.4
-    number_t dum = a0 + a1 * sf.zeta + a2 * sf.zeta2;
+    const auto z = eval(admath::exp(-cc * sf.zeta));
 
-    number_t z = admath::exp(-cc * sf.zeta);
+    const auto fnum = eval((a0 + a1 * sf.zeta + a2 * sf.zeta2) * z);
 
-    number_t xnum = dum * z;
+    const auto fden = eval(sf.zeta3 + 6.290e-3_rt * sf.xlm1 + 7.483e-3_rt * sf.xlm2 + 3.061e-4_rt * sf.xlm3);
 
-    number_t xden = sf.zeta3 + 6.290e-3_rt * sf.xlm1 + 7.483e-3_rt * sf.xlm2 + 3.061e-4_rt * sf.xlm3;
-
-    dum = 1.0e0_rt / xden;
-    number_t fphot = xnum * dum;
+    const auto fphot = eval(fnum * (1.0e0_rt / fden));
 
     // equation 3.3
-    a0 = 1.0e0_rt + 2.045e0_rt * sf.xl;
-    xnum = 0.666e0_rt * admath::pow(a0, -2.066e0_rt);
+    const auto qnum = eval(0.666e0_rt * admath::pow(1.0e0_rt + 2.045e0_rt * sf.xl, -2.066e0_rt));
 
-    dum = 1.875e8_rt * sf.xl + 1.653e8_rt * sf.xl2 + 8.499e8_rt * sf.xl3 - 1.604e8_rt * sf.xl4;
+    const auto dum = eval(1.875e8_rt * sf.xl + 1.653e8_rt * sf.xl2 + 8.499e8_rt * sf.xl3 - 1.604e8_rt * sf.xl4);
 
-    z  = 1.0e0_rt / dum;
-    xden = 1.0e0_rt + sf.rm * z;
+    const auto qden = eval(1.0e0_rt + sf.rm * (1.0e0_rt / dum));
 
-    z  = 1.0e0_rt / xden;
-    number_t qphot = xnum * z;
+    const auto qphot = eval(qnum * (1.0e0_rt / qden));
 
     // equation 3.2
-    number_t sphot = sf.xl5 * fphot;
-
-    sphot *= sf.rm;
-
+    number_t sphot = sf.xl5 * fphot * sf.rm;
     sphot *= amrex::Real(nu_constants::tfac4) * (1.0e0_rt - amrex::Real(nu_constants::tfac3) * qphot);
 
     if (sphot <= 0.0_rt) {
@@ -601,20 +596,22 @@ number_t nu_brem(const sneutf_t<number_t>& sf) {
     //                    n  + p     => n + p + nu + nubar
     // equation 4.3
 
-    amrex::Real den6 = sf.den * 1.0e-6_rt;
-    number_t t8      = sf.temp * 1.0e-8_rt;
-    number_t t812    = admath::sqrt(t8);
-    number_t t832    = t8 * t812;
-    number_t t82     = t8*t8;
-    number_t t83     = t82*t8;
-    number_t t85     = t82*t83;
-    number_t t86     = t85*t8;
-    number_t t8m1    = 1.0e0_rt/t8;
-    number_t t8m2    = t8m1*t8m1;
-    number_t t8m3    = t8m2*t8m1;
-    number_t t8m5    = t8m3*t8m2;
+    using autodiff::eval;
 
-    number_t tfermi = 5.9302e9_rt * (admath::sqrt(1.0e0_rt + 1.018e0_rt * admath::pow(den6 * sf.ye, amrex::Real(nu_constants::twoth))) - 1.0e0_rt);
+    const amrex::Real den6 = sf.den * 1.0e-6_rt;
+    const auto t8      = eval(sf.temp * 1.0e-8_rt);
+    const auto t812    = eval(admath::sqrt(t8));
+    const auto t832    = eval(t8 * t812);
+    const auto t82     = eval(t8*t8);
+    const auto t83     = eval(t82*t8);
+    const auto t85     = eval(t82*t83);
+    const auto t86     = eval(t85*t8);
+    const auto t8m1    = eval(1.0e0_rt/t8);
+    const auto t8m2    = eval(t8m1*t8m1);
+    const auto t8m3    = eval(t8m2*t8m1);
+    const auto t8m5    = eval(t8m3*t8m2);
+
+    const amrex::Real tfermi = 5.9302e9_rt * (std::sqrt(1.0e0_rt + 1.018e0_rt * std::pow(den6 * autodiff::val(sf.ye), nu_constants::twoth)) - 1.0e0_rt);
 
     number_t sbrem{};
 
@@ -622,58 +619,58 @@ number_t nu_brem(const sneutf_t<number_t>& sf) {
     if (sf.temp > 0.3e0_rt * tfermi) {
 
         // equation 5.3
-        number_t dum = 7.05e6_rt * t832 + 5.12e4_rt * t83;
+        const auto tmp_1 = eval(7.05e6_rt * t832 + 5.12e4_rt * t83);
 
-        number_t z = 1.0e0_rt / dum;
-        number_t eta = sf.rm * z;
+        const auto tmp_1a = eval(1.0e0_rt / tmp_1);
+        const auto eta = eval(sf.rm * tmp_1a);
 
-        number_t etam1 = 1.0e0_rt/eta;
-        number_t etam2 = etam1 * etam1;
+        const auto etam1 = eval(1.0e0_rt/eta);
+        const auto etam2 = eval(etam1 * etam1);
 
         // equation 5.2
-        number_t a0 = 23.5e0_rt + 6.83e4_rt * t8m2 + 7.81e8_rt * t8m5;
-        number_t xnum = 1.0e0_rt / a0;
+        const auto tmp_2 = eval(23.5e0_rt + 6.83e4_rt * t8m2 + 7.81e8_rt * t8m5);
+        const auto tmp_3 = eval(1.0e0_rt / tmp_2);
 
-        dum = 1.0e0_rt + 1.47e0_rt * etam1 + 3.29e-2_rt * etam2;
+        const auto tmp_4a = eval(1.0e0_rt + 1.47e0_rt * etam1 + 3.29e-2_rt * etam2);
 
-        number_t c00 = 1.26e0_rt * (1.0e0_rt + etam1);
+        const auto tmp_5a = eval(1.26e0_rt * (1.0e0_rt + etam1));
 
-        z = 1.0e0_rt/dum;
-        number_t xden = c00 * z;
+        const auto tmp_4 = eval(1.0e0_rt/tmp_4a);
+        const auto tmp_5 = eval(tmp_5a * tmp_4);
 
-        number_t fbrem = xnum + xden;
+        const auto fbrem = eval(tmp_3 + tmp_5);
 
         // equation 5.9
-        a0 = 230.0e0_rt + 6.7e5_rt * t8m2 + 7.66e9_rt * t8m5;
+        const auto tmp_6 = eval(230.0e0_rt + 6.7e5_rt * t8m2 + 7.66e9_rt * t8m5);
 
-        z = 1.0e0_rt + sf.rm * 1.0e-9_rt;
-        dum = a0 * z;
+        const auto tmp_7 = eval(1.0e0_rt + sf.rm * 1.0e-9_rt);
+        const auto tmp_8a = eval(tmp_6 * tmp_7);
 
-        xnum = 1.0e0_rt / dum;
+        const auto tmp_8 = eval(1.0e0_rt / tmp_8a);
 
-        c00 = 7.75e5_rt * t832 + 247.0e0_rt * admath::pow(t8, 3.85e0_rt);
-        number_t c01 = 4.07e0_rt + 0.0240e0_rt * admath::pow(t8, 1.4e0_rt);
-        number_t c02 = 4.59e-5_rt * admath::pow(t8, -0.110e0_rt);
+        const auto c00 = eval(7.75e5_rt * t832 + 247.0e0_rt * admath::pow(t8, 3.85e0_rt));
+        const auto c01 = eval(4.07e0_rt + 0.0240e0_rt * admath::pow(t8, 1.4e0_rt));
+        const auto c02 = eval(4.59e-5_rt * admath::pow(t8, -0.110e0_rt));
 
-        number_t rmi = 1.0e0_rt / sf.rm;
-        dum = c00 * rmi + c01 + c02 * std::pow(sf.den, 0.656e0_rt);
+        const auto rmi = eval(1.0e0_rt / sf.rm);
+        const auto tmp_9 = eval(c00 * rmi + c01 + c02 * std::pow(sf.den, 0.656e0_rt));
 
-        xden  = 1.0e0_rt / dum;
+        const auto tmp_9a = eval(1.0e0_rt / tmp_9);
 
-        number_t gbrem = xnum + xden;
+        const auto gbrem = eval(tmp_8 + tmp_9a);
 
         // equation 5.1
-        dum = 0.5738e0_rt * sf.zbar * sf.ye * t86 * sf.den;
+        const auto tmp_10 = eval(0.5738e0_rt * sf.zbar * sf.ye * t86 * sf.den);
 
-        z = amrex::Real(nu_constants::tfac4) * fbrem - amrex::Real(nu_constants::tfac5) * gbrem;
-        sbrem = dum * z;
+        const auto tmp_11 = eval(amrex::Real(nu_constants::tfac4) * fbrem - amrex::Real(nu_constants::tfac5) * gbrem);
+        sbrem = tmp_10 * tmp_11;
 
     } else {
 
         // liquid metal with c12 parameters (not too different for other elements)
         // equation 5.18 and 5.16
 
-        amrex::Real u = amrex::Real(nu_constants::fac3) * (std::log10(sf.den) - 3.0e0_rt);
+        const amrex::Real u = amrex::Real(nu_constants::fac3) * (std::log10(sf.den) - 3.0e0_rt);
 
         // compute the expensive trig functions of equation 5.21 only once
 
@@ -696,7 +693,7 @@ number_t nu_brem(const sneutf_t<number_t>& sf) {
         const amrex::Real cos5 = cos1 * (cos1 * cos1 * (16.0_rt * cos1 * cos1 - 20.0_rt) + 5.0_rt);
 
         // equation 5.21
-        amrex::Real fb = 0.5e0_rt * 0.17946e0_rt + 0.00945e0_rt * u + 0.34529e0_rt
+        const amrex::Real fb = 0.5e0_rt * 0.17946e0_rt + 0.00945e0_rt * u + 0.34529e0_rt
             - 0.05821e0_rt * cos1 - 0.04969e0_rt * sin1
             - 0.01089e0_rt * cos2 - 0.01584e0_rt * sin2
             - 0.01147e0_rt * cos3 - 0.00504e0_rt * sin3
@@ -704,7 +701,7 @@ number_t nu_brem(const sneutf_t<number_t>& sf) {
             - 0.00519e0_rt * cos5;
 
         // equation 5.22
-        amrex::Real ft = 0.5e0_rt * 0.06781e0_rt - 0.02342e0_rt * u + 0.24819e0_rt
+        const amrex::Real ft = 0.5e0_rt * 0.06781e0_rt - 0.02342e0_rt * u + 0.24819e0_rt
             - 0.00944e0_rt * cos1 - 0.02213e0_rt * sin1
             - 0.01289e0_rt * cos2 - 0.01136e0_rt * sin2
             - 0.00589e0_rt * cos3 - 0.00467e0_rt * sin3
@@ -712,7 +709,7 @@ number_t nu_brem(const sneutf_t<number_t>& sf) {
             - 0.00330e0_rt * cos5;
 
         // equation 5.23
-        amrex::Real gb = 0.5e0_rt * 0.00766e0_rt - 0.01259e0_rt * u + 0.07917e0_rt
+        const amrex::Real gb = 0.5e0_rt * 0.00766e0_rt - 0.01259e0_rt * u + 0.07917e0_rt
             - 0.00710e0_rt * cos1 + 0.02300e0_rt * sin1
             - 0.00028e0_rt * cos2 - 0.01078e0_rt * sin2
             + 0.00232e0_rt * cos3 + 0.00118e0_rt * sin3
@@ -720,34 +717,34 @@ number_t nu_brem(const sneutf_t<number_t>& sf) {
             + 0.00158e0_rt * cos5;
 
         // equation 5.24
-        amrex::Real gt = -0.5e0_rt * 0.00769e0_rt  - 0.00829e0_rt * u + 0.05211e0_rt
+        const amrex::Real gt = -0.5e0_rt * 0.00769e0_rt  - 0.00829e0_rt * u + 0.05211e0_rt
             + 0.00356e0_rt * cos1 + 0.01052e0_rt * sin1
             - 0.00184e0_rt * cos2 - 0.00354e0_rt * sin2
             + 0.00146e0_rt * cos3 - 0.00014e0_rt * sin3
             + 0.00031e0_rt * cos4 - 0.00018e0_rt * sin4
             + 0.00069e0_rt * cos5;
 
-        number_t dum = 2.275e-1_rt * sf.zbar * sf.zbar * t8m1 * admath::pow(den6*sf.abari, amrex::Real(nu_constants::oneth));
+        const auto dum = eval(2.275e-1_rt * sf.zbar * sf.zbar * t8m1 * admath::pow(den6*sf.abari, amrex::Real(nu_constants::oneth)));
 
-        number_t gm1 = 1.0e0_rt / dum;
-        number_t gm13 = admath::pow(gm1, amrex::Real(nu_constants::oneth));
-        number_t gm23 = gm13 * gm13;
+        const auto gm1 = eval(1.0e0_rt / dum);
+        const auto gm13 = eval(admath::pow(gm1, amrex::Real(nu_constants::oneth)));
+        const auto gm23 = eval(gm13 * gm13);
 
         // equation 5.25 and 5.26
-        number_t v = -0.05483e0_rt - 0.01946e0_rt * gm13 + 1.86310e0_rt * gm23 - 0.78873e0_rt * gm1;
+        const auto v = eval(-0.05483e0_rt - 0.01946e0_rt * gm13 + 1.86310e0_rt * gm23 - 0.78873e0_rt * gm1);
 
-        number_t w = -0.06711e0_rt + 0.06859e0_rt * gm13 + 1.74360e0_rt * gm23 - 0.74498e0_rt * gm1;
+        const auto w = eval(-0.06711e0_rt + 0.06859e0_rt * gm13 + 1.74360e0_rt * gm23 - 0.74498e0_rt * gm1);
 
         // equation 5.19 and 5.20
-        number_t fliq = v * fb + (1.0e0_rt - v) * ft;
+        const auto fliq = eval(v * fb + (1.0e0_rt - v) * ft);
 
-        number_t gliq = w * gb + (1.0e0_rt - w) * gt;
+        const auto gliq = eval(w * gb + (1.0e0_rt - w) * gt);
 
         // equation 5.17
-        dum = 0.5738e0_rt * sf.zbar * sf.ye * t86 * sf.den;
+        const auto dum_2 = eval(0.5738e0_rt * sf.zbar * sf.ye * t86 * sf.den);
 
-        number_t z  = amrex::Real(nu_constants::tfac4)*fliq - amrex::Real(nu_constants::tfac5)*gliq;
-        sbrem = dum * z;
+        const auto z  = eval(amrex::Real(nu_constants::tfac4)*fliq - amrex::Real(nu_constants::tfac5)*gliq);
+        sbrem = dum_2 * z;
     }
     return sbrem;
 
@@ -761,12 +758,14 @@ number_t nu_recomb(const sneutf_t<number_t>& sf) {
     // for reactions like e- (continuum) => e- (bound) + nu_e + nubar_e
     // equation 6.11 solved for nu
 
-    number_t xnum   = 1.10520e8_rt * sf.den * sf.ye / (sf.temp * admath::sqrt(sf.temp));
+    using autodiff::eval;
+
+    const auto xnum   = eval(1.10520e8_rt * sf.den * sf.ye / (sf.temp * admath::sqrt(sf.temp)));
 
     // the chemical potential
-    number_t nu   = ifermi12(xnum);
-    number_t nu2  = nu * nu;
-    number_t nu3  = nu2 * nu;
+    const auto nu   = ifermi12(xnum);
+    const auto nu2  = eval(nu * nu);
+    const auto nu3  = eval(nu2 * nu);
 
     amrex::Real a1{}, a2{}, a3{}, b{}, c{}, d{}, f1{}, f2{}, f3{};
 
@@ -794,35 +793,37 @@ number_t nu_recomb(const sneutf_t<number_t>& sf) {
     }
 
     number_t sreco{};
-    // equation 6.7, 6.13 and 6.14
+    // equation 6.7, 6.13 and 6.12
     if (nu >= -20.0_rt &&  nu <= 10.0_rt) {
 
-        number_t tempi  = 1.0e0_rt / sf.temp;
-        number_t zeta   = 1.579e5_rt * sf.zbar * sf.zbar * tempi;
+        // equation 6.7
+        const auto tempi  = eval(1.0e0_rt / sf.temp);
+        const auto zeta   = eval(1.579e5_rt * sf.zbar * sf.zbar * tempi);
 
-        number_t c00 = 1.0e0_rt / (1.0e0_rt + f1 * nu + f2 * nu2 + f3 * nu3);
-        number_t dum = zeta * c00;
+        // equation 6.13
+        const auto tmp_1 = eval(1.0e0_rt / (1.0e0_rt + f1 * nu + f2 * nu2 + f3 * nu3));
+        const auto z = eval(zeta * tmp_1);
 
-        number_t z = 1.0e0_rt / dum;
-        number_t dd00 = admath::pow(dum, -2.25_rt);
-        number_t dd01 = admath::pow(dum, -4.55_rt);
-        c00  = a1 * z + a2 * dd00 + a3 * dd01;
+        // equation 6.12
+        const auto tmp_2 = eval(1.0e0_rt / z);
+        const auto tmp_3 = eval(admath::pow(z, -2.25_rt));
+        const auto tmp_4 = eval(admath::pow(z, -4.55_rt));
+        const auto tmp_5 = eval(a1 * tmp_2 + a2 * tmp_3 + a3 * tmp_4);
 
-        z = admath::exp(c * nu);
-        dd00 = b * z * (1.0e0_rt + d * dum);
-        number_t gum = 1.0e0_rt + dd00;
+        const auto tmp_6 = eval(admath::exp(c * nu));
+        const auto tmp_7 = eval(b * tmp_6 * (1.0e0_rt + d * z));
+        const auto gum = eval(1.0e0_rt + tmp_7);
 
-        z   = admath::exp(nu);
-        number_t tmp  = 1.0e0_rt / gum;
-
-        number_t bigj = c00 * z * tmp;
+        const auto tmp_8 = eval(admath::exp(nu));
+        const auto tmp_9 = eval(1.0e0_rt / gum);
+        const auto bigj = eval(tmp_5 * tmp_8 * tmp_9);
 
         // equation 6.5
-        z     = admath::exp(zeta + nu);
-        dum   = 1.0e0_rt + z;
-        tmp   = 1.0e0_rt/dum;
+        const auto tmp_10 = eval(admath::exp(zeta + nu));
+        const auto tmp_11 = eval(1.0e0_rt + tmp_10);
+        const auto tmp_12 = eval(1.0e0_rt/tmp_11);
 
-        sreco   = amrex::Real(nu_constants::tfac6) * 2.649e-18_rt * sf.ye * admath::powi<13>(sf.zbar) * sf.den * bigj * tmp;
+        sreco = amrex::Real(nu_constants::tfac6) * 2.649e-18_rt * sf.ye * admath::powi<13>(sf.zbar) * sf.den * bigj * tmp_12;
     }
     return sreco;
 

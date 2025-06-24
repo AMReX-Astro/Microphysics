@@ -7,7 +7,7 @@ chemical potential of neutron is -12
 State Density (g/cm^3): 10000000
 State Temperature (K): 6000000000
 electron fraction is 0.5
-NSE state: 
+NSE state:
 H1 : 0.001652199832
 He4 : 0.5184754334
 C12 : 1.321048372e-05
@@ -26,7 +26,7 @@ Ti44 : 0.001637201348
 Cr48 : 0.009789728783
 Fe52 : 0.05885134758
 Ni56 : 0.2307866801
-We're in NSE. 
+We're in NSE.
 change in T: 6000000000 6069144727
 change in abar: 7.026880148 6.26238884
 recovered energy: 2.784234255e+18 2.784234255e+18
