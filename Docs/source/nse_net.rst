@@ -14,11 +14,20 @@ under the assumption of NSE, following the procedure outlined in :cite:`Calder_2
    Self-consistent NSE does not support the templated C++ networks
    (like ``aprox13``).  You should use a pynucastro-generated network.
 
-The solve is done using a port of the hybrid Powell method from
-MINPACK (we ported the solver to templated C++).
+There are two methods for solving the chemical potentials:
 
-The advantage of this approach is that it can be used with any
-reaction network, once the integration has reached NSE.
+1. Hybrid Powell's method. This is the default method.
+   This algorithm is taken from MINPACK and
+   ported to templated C++.
+
+2. Newton-Raphson (NR) method.
+   This method is not as robust compared
+   to the Hybrid Powell's method through our testings.
+   But this can be enabled via runtime parameter:
+   ``nse.use_hybrid_solver=0``.
+
+The advantage of this approach is that it can be used with any reaction network,
+once the integration has reached NSE.
 
 This solver is enabled by compiling with
 
@@ -27,6 +36,88 @@ This solver is enabled by compiling with
    USE_NSE_NET=TRUE
 
 The functions to find the NSE state are then found in ``nse_solver.H``.
+
+NSE Reactive Update
+===================
+
+Here we give outline on how the reactive update is done with NSE.
+
+* Check if NSE applies (see below)
+
+  * If we are in an NSE region:
+
+    * Compute the advective source term for $Y_e$ via:
+
+      .. math::
+
+         \Advs{\rho Y_e} = \sum_k \frac{Z_k}{A_k} \Advs{\rho X_k}
+
+    * Compute $[\Rb(\rho Y_e)]^n$ and $[\Rb(\rho e)_{\mathrm{nuc}}]^n$ using
+      $[\rho]^n$, $[T]^n$, $[Y_e]^n$ and $[e]^n$:
+
+      * Find the NSE composition with given $[\rho]^n$, $[e]^n$,
+        and $[Y_e]^n$. An EOS inversion algorithm is used so
+        that we determine $[T^*]^n$ such that $[e]^n$ remains
+        unchanged after switching to the NSE composition.
+        Here we use $[T]^n$ as the initial guess and updated
+        to the solution, $[T^*]^n$, in the end.
+
+      * Compute the thermal neutrino losses,
+        $\epsilon_{\nu,\mathrm{thermal}}$, using the NSE composition.
+
+      * Evaluate $\dot{Y}_{\mathrm{weak}}$ and neutrino losses,
+        $\epsilon_{\nu,\mathrm{react}}$,
+        from weak reactions only as they are the only contributing
+        reactions in NSE.
+
+      * Evaluate $[\Rb(\rho Y_e)]^n$ as:
+
+        .. math::
+           [\Rb(\rho Y_e)]^n = [\rho]^n \sum_k Z_k [\dot{Y}_{\mathrm{k, weak}}]^n
+
+      * Evaluate $[\Rb(\rho e)_{\mathrm{nuc}}]^n$ as:
+
+        .. math::
+           [\Rb(\rho e)_{\mathrm{nuc}}]^n = - N_A c^2 \sum_k [\dot{Y}_{\mathrm{k, weak}}]^n m_k
+
+        where the nuclei mass, $m_k$ is defined as:
+
+        .. math::
+           m_k c^2 = (A_k - Z_k) m_n c^2 + Z_k (m_p + m_e) c^2 - B_k
+
+      * The full reactive source term, $[\Rb(\rho e)]^n$ is then:
+
+        .. math::
+           [\Rb(\rho e)]^n = [\Rb(\rho e)_{\mathrm{nuc}}]^n - [\rho]^n \left(\epsilon_{\nu,\mathrm{thermal}} + \epsilon_{\nu,\mathrm{react}}\right)
+
+    * Now evolve $\rho$, $\rho e$, and $\rho Y_e$ to midpoint in time:
+
+      .. math::
+         \Uc^{\prime,n+1/2} = \Uc^{\prime,n} + \frac{\Delta t}{2} \left([\Advs{\Uc^\prime}]^{n+1/2} + [\Rb(\Uc^\prime)]^{n}\right)
+
+      Note that there is no reactive source term for $\rho$ and the advective
+      source term is already time-centered from the simplified-SDC algorithm.
+
+    * Compute $[\Rb(\rho Y_e)]^{n+1/2}$ and
+      $[\Rb(\rho e)_{\mathrm{nuc}}]^{n+1/2}$ following the same
+      procedure as above. This time, it uses
+      $[\rho]^{n+1/2}$, $[Y_e]^{n+1/2}$ and $[e]^{n+1/2}$ as input
+      and uses the updated $[T]^n$ as initial guess for the EOS inversion
+      algorithm.
+
+    * Now evolve all thermodynamic quantities to new time, $t^{n+1}$, using the
+      midpoint reactive source terms constructed in the previous step.
+
+      .. math::
+
+         \Uc^{\prime,n+1} = \Uc^{\prime,n} + \Delta t \left([\Advs{\Uc^\prime}]^{n+1/2} + [\Rb(\Uc^\prime)]^{n+1/2}\right)
+
+    * Lastly, the composition is updated by finding the corresponding NSE state
+      using $[\rho]^{n+1}$, $[e]^{n+1}$, and $[Y_e]^{n+1}$
+
+  * If we are not in an NSE region:
+
+    * Integrate the network as usual.
 
 Dynamic NSE Check
 =================
