@@ -6,8 +6,6 @@
 
 #include <network_properties.H>
 
-using namespace amrex;
-
 AMREX_INLINE
 void actual_network_init() {
 }
