@@ -206,13 +206,11 @@ That paper discusses the sequences:
   \gamma)\isotm{N}{13}(\alpha, p)\isotm{O}{16}`.
 
   The problem with this is that it leaves :math:`\isotm{Ne}{21}` as an
-  endpoint, which we connect to the other nuclei by including
-  :math:`\isotm{Na}{22}`.
-
+  endpoint.
   We generally do not include it, but instead include approximations
   to $\isotm{N}{14}$ from ``aprox19``, including $\isotm{N}{14}(1.5\alpha,\gamma)\isotm{Ne}{20}$
   proceeding at the rate for $\isotm{N}{14}(\alpha,\gamma)\isotm{F}{18}$, and
-  $\isotm{O}{16}(pp,\alpha)\isotm{N}{14}$ proceeding at the rate for $\isotm{O16}(p,\gamma)\isotm{F}{17}$.
+  $\isotm{O}{16}(pp,\alpha)\isotm{N}{14}$ proceeding at the rate for $\isotm{O}{16}(p,\gamma)\isotm{F}{17}$.
 
 For the :math:`\isotm{C}{12} + \isotm{C}{12}`, :math:`\isotm{C}{12} +
 \isotm{O}{16}`, and :math:`\isotm{O}{16} + \isotm{O}{16}` rates, we
@@ -233,6 +231,9 @@ These networks also combine some of the
 allowing us to drop the intermediate nucleus :math:`X`.  Some will
 approximate $A(n,\gamma)X(n,\gamma)B$ into an effective
 $A(nn,\gamma)B$ rate (double-neutron capture).
+
+Furthermore, all of these networks rederive the inverse rates from ReacLib
+using detailed balance and tabulated partition functions.
 
 The networks are named with a descriptive name and the number of nuclei,
 along with letters:
@@ -323,33 +324,37 @@ as:
    :align: center
 
 
-``he-burn-36a``
+``he-burn-33a``
 ---------------
 
 This has the most complete iron-group, with nuclei up to $\isotm{Zn}{60}$ and no approximations
 to the neutron captures.  This network can be quite slow.
 
-Overall, there are 36 nuclei and 173 rates, including 12 tabular weak rates.
+Overall, there are 33 nuclei and 172 rates, including 12 tabular weak rates.
 
 The full network appears as:
 
-.. figure:: ../../networks/he-burn/he-burn-36a/he-burn-36a.png
+.. figure:: ../../networks/he-burn/he-burn-33a/he-burn-33a.png
    :align: center
 
 and a zoom in on the iron group with the weak rates highlighted appears
 as:
 
-.. figure:: ../../networks/he-burn/he-burn-36a/he-burn-36a-zoom.png
+.. figure:: ../../networks/he-burn/he-burn-33a/he-burn-33a-zoom.png
    :align: center
 
 
-``CNO_He_burn``
----------------
+``cno_he_burn_33a``
+-------------------
 
 This network is meant to study explosive H and He burning.  It combines
 the ``CNO_extras`` network (with the exception of the inert ${}^{56}\mathrm{Fe}$
-with the ``he-burn-22a`` network.  This allows it to capture hot-CNO and
+with the ``he-burn-19a`` network.  This allows it to capture hot-CNO and
 He burning.
+
+Overall there are 33 nuclei and 157 rates, including 10 tabular weak rates.
+
+The network appears as:
 
 .. figure:: ../../networks/he-burn/cno-he-burn-33a/cno-he-burn-33a.png
    :align: center
