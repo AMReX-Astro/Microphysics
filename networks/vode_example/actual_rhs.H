@@ -5,7 +5,7 @@
 #include <actual_network.H>
 #include <burn_type.H>
 
-using namespace amrex;
+using namespace amrex::literals;
 using namespace network_rp;
 
 AMREX_INLINE
@@ -14,7 +14,7 @@ void actual_rhs_init () {
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
+void actual_rhs (burn_t& state, amrex::Array1D<amrex::Real, 1, neqs>& ydot)
 {
     using namespace Species;
 
