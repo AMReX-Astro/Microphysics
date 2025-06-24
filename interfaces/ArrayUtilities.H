@@ -6,7 +6,7 @@
 
 namespace ArrayUtil
 {
-    using namespace amrex;
+    using namespace amrex::literals;
 
     template <int XLO, int XHI>
     struct MathArray1D
@@ -20,18 +20,18 @@ namespace ArrayUtil
         }
 
         AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-        const Real& operator() (int i) const noexcept {
+        const amrex::Real& operator() (int i) const noexcept {
             AMREX_ASSERT(i >= XLO && i <= XHI);
             return arr[i-XLO];
         }
 
         AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-        Real& operator() (int i) noexcept {
+        amrex::Real& operator() (int i) noexcept {
             AMREX_ASSERT(i >= XLO && i <= XHI);
             return arr[i-XLO];
         }
 
-        Real arr[(XHI-XLO+1)];
+        amrex::Real arr[(XHI-XLO+1)];
     };
 
     template <int XLO, int XHI, int YLO, int YHI>
@@ -46,32 +46,32 @@ namespace ArrayUtil
         }
 
         AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-        void mul (const Real x) noexcept {
+        void mul (const amrex::Real x) noexcept {
             for (int i = 0; i < (YHI-YLO+1)*(XHI-XLO+1); ++i) {
                 arr[i] *= x;
             }
         }
 
         AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-        void set (const int i, const int j, const Real x) noexcept {
+        void set (const int i, const int j, const amrex::Real x) noexcept {
             AMREX_ASSERT(i >= XLO && i <= XHI && j >= YLO && j <= YHI);
             arr[i+j*(XHI-XLO+1)-(YLO*(XHI-XLO+1)+XLO)] = x;
         }
 
         AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-        void add (const int i, const int j, const Real x) noexcept {
+        void add (const int i, const int j, const amrex::Real x) noexcept {
             AMREX_ASSERT(i >= XLO && i <= XHI && j >= YLO && j <= YHI);
             arr[i+j*(XHI-XLO+1)-(YLO*(XHI-XLO+1)+XLO)] += x;
         }
 
         AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-        void mul (const int i, const int j, const Real x) noexcept {
+        void mul (const int i, const int j, const amrex::Real x) noexcept {
             AMREX_ASSERT(i >= XLO && i <= XHI && j >= YLO && j <= YHI);
             arr[i+j*(XHI-XLO+1)-(YLO*(XHI-XLO+1)+XLO)] *= x;
         }
 
         [[nodiscard]] AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-        Real get (const int i, const int j) const noexcept {
+        amrex::Real get (const int i, const int j) const noexcept {
             AMREX_ASSERT(i >= XLO && i <= XHI && j >= YLO && j <= YHI);
             return arr[i+j*(XHI-XLO+1)-(YLO*(XHI-XLO+1)+XLO)];
         }
@@ -84,18 +84,18 @@ namespace ArrayUtil
         }
 
         AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-        const Real& operator() (int i, int j) const noexcept {
+        const amrex::Real& operator() (int i, int j) const noexcept {
             AMREX_ASSERT(i >= XLO && i <= XHI && j >= YLO && j <= YHI);
             return arr[i+j*(XHI-XLO+1)-(YLO*(XHI-XLO+1)+XLO)];
         }
 
         AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-        Real& operator() (int i, int j) noexcept {
+        amrex::Real& operator() (int i, int j) noexcept {
             AMREX_ASSERT(i >= XLO && i <= XHI && j >= YLO && j <= YHI);
             return arr[i+j*(XHI-XLO+1)-(YLO*(XHI-XLO+1)+XLO)];
         }
 
-        Real arr[(XHI-XLO+1)*(YHI-YLO+1)];
+        amrex::Real arr[(XHI-XLO+1)*(YHI-YLO+1)];
     };
 
     namespace Math
