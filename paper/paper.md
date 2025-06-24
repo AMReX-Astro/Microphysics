@@ -237,7 +237,7 @@ implemented in terms of density and temperature, so a Newton-Raphson
 method is used to invert the EOS given energy and density (or some
 other thermodynamic quantities).  A wide range of thermodynamic
 quantities are needed by simulation codes, including pressure,
-internal energy, enthalphy, entropy, and their derivatives with
+internal energy, enthalpy, entropy, and their derivatives with
 respect to density, temperature, and composition.  The various EOS
 `struct` types carry this thermodynamic state.
 
