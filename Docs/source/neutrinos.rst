@@ -69,7 +69,7 @@ The interface for the Kippenhahn neutrino loss function is:
              amrex::Real& dsnudrho, amrex::Real& dsnudz, amrex::Real& dsnuda,
              amrex::Real& pair, amrex::Real& phot, amrex::Real& plas, amrex::Real& brem)
 
-To use this method, set the make variable ``NEUTRINO_METHOD = kipp`` during compilation.
+To use this method, set the make variable ``NEUTRINO_METHOD=kipp`` during compilation.
 Output is the same as for the previous method.
 
 .. note::
