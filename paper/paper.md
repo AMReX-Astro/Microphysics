@@ -85,8 +85,8 @@ used for simulations of convective Urca [@Boyd_2025] and X-ray bursts
 [@Guichandut_2024] with MAESTROeX; and for simulations of nova
 [@Smith2025], X-ray bursts [@Harpole_2021], thermonuclear supernovae
 [@Zingale_2024_dd], and convection in massive stars [@Zingale_2024]
-with Castro. This Microphysics library has also been recently used
-for astrophysical machine learning to train deep neural networks
+with Castro. This Microphysics library has also enabled recent work
+in astrophysical machine learning to train deep neural networks
 modeling nuclear reactions in [@nn_astro_2022] and [@dnn_astro_2025].
 
 # Project history
