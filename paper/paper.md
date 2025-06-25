@@ -36,7 +36,7 @@ authors:
 - name: Ben Wibking
   affiliation: '3'
 
-- name: Donald Willcox
+- name: Don E. Willcox
 
 - name: Michael Zingale
   affiliation: '1'
@@ -59,7 +59,7 @@ bibliography: paper.bib
 
 # Summary
 
-The AMReX-Astrophysics Microphysics library provides a common set of
+The AMReX-Astrophysics Microphysics library[^authors] provides a common set of
 microphysics routines (reaction networks and associated physics,
 equations of state, and various transport coefficients) as well as
 solvers (stiff ODE integrators, nonlinear system solvers) for
@@ -85,7 +85,9 @@ used for simulations of convective Urca [@Boyd_2025] and X-ray bursts
 [@Guichandut_2024] with MAESTROeX; and for simulations of nova
 [@Smith2025], X-ray bursts [@Harpole_2021], thermonuclear supernovae
 [@Zingale_2024_dd], and convection in massive stars [@Zingale_2024]
-with Castro.
+with Castro. This Microphysics library has also enabled recent work
+in astrophysical machine learning to train deep neural networks
+modeling nuclear reactions in [@nn_astro_2022] and [@dnn_astro_2025].
 
 # Project history
 
@@ -237,7 +239,7 @@ implemented in terms of density and temperature, so a Newton-Raphson
 method is used to invert the EOS given energy and density (or some
 other thermodynamic quantities).  A wide range of thermodynamic
 quantities are needed by simulation codes, including pressure,
-internal energy, enthalphy, entropy, and their derivatives with
+internal energy, enthalpy, entropy, and their derivatives with
 respect to density, temperature, and composition.  The various EOS
 `struct` types carry this thermodynamic state.
 
@@ -292,3 +294,4 @@ Office of Nuclear Physics grant DE-FG02-87ER40317.
 
 # References
 
+[^authors]: The AMReX-Astro Microphysics library developers are an open scientific team with members contributing to various aspects of the library. We have thus chosen to display the members of our development team in the author list in alphabetical order.
