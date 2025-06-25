@@ -59,7 +59,7 @@ bibliography: paper.bib
 
 # Summary
 
-The AMReX-Astrophysics Microphysics library provides a common set of
+The AMReX-Astrophysics Microphysics library[^authors] provides a common set of
 microphysics routines (reaction networks and associated physics,
 equations of state, and various transport coefficients) as well as
 solvers (stiff ODE integrators, nonlinear system solvers) for
@@ -294,3 +294,4 @@ Office of Nuclear Physics grant DE-FG02-87ER40317.
 
 # References
 
+[^authors]: The AMReX-Astro Microphysics library developers are an open scientific team with members contributing to various aspects of the library. We have thus chosen to display the members of our development team in the author list in alphabetical order.
