@@ -1,10 +1,21 @@
 @namespace: network
 
+# density above which to assume we are in NSE
 rho_nse      real    3.e8
+
+# temperature above which to assume we are in NSE
 T_nse        real    3.e9
+
+# upper-limit for C + N mass fraction required for NSE
 C_nse        real    0.01
+
+# upper-limit for O mass fraction required for NSE
 O_nse        real    0.01
+
+# upper-limit for Si mass fraction required for NSE
 Si_nse       real    0.01
+
+# lower-limit for the He + iron-group mass fraction required for NSE
 He_Fe_nse    real    0.88
 
 # temperature above which we always assume NSE, regardless of composition
