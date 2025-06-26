@@ -2,12 +2,13 @@
 #define ACTUAL_EOS_H
 
 #include <string>
+#include <string_view>
 #include <extern_parameters.H>
 #include <fundamental_constants.H>
 #include <eos_data.H>
 #include <cmath>
 
-const std::string eos_name = "tillotson";
+constexpr std::string_view eos_name = "tillotson";
 
 inline
 void actual_eos_init() {

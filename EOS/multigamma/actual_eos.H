@@ -7,6 +7,7 @@
 // Note: at the moment, it is not clear what the proper expression for
 // a multi-gamma entropy should be, so do not rely on the entropy.
 
+#include <string_view>
 #include <AMReX.H>
 #include <network.H>
 #include <fundamental_constants.H>
@@ -14,7 +15,7 @@
 #include <cmath>
 #include <actual_eos_data.H>
 
-const std::string eos_name = "multigamma";
+constexpr std::string_view eos_name = "multigamma";
 
 inline
 void actual_eos_init ()

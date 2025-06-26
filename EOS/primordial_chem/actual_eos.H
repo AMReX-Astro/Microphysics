@@ -11,8 +11,9 @@
 #include <extern_parameters.H>
 #include <cmath>
 #include <actual_eos_data.H>
+#include <string_view>
 
-const std::string eos_name = "multigamma";
+constexpr std::string_view eos_name = "multigamma";
 
 inline
 void actual_eos_init ()
