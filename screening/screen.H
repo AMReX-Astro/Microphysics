@@ -12,6 +12,7 @@
 #include <cmath>
 #include <iostream>
 #include <string>
+#include <string_view>
 #include <type_traits>
 
 #include <AMReX.H>
@@ -31,15 +32,15 @@
 using namespace amrex::literals;
 
 #if SCREEN_METHOD == SCREEN_METHOD_null
-const std::string screen_name = "null";
+constexpr std::string_view screen_name = "null";
 #elif SCREEN_METHOD == SCREEN_METHOD_screen5
-const std::string screen_name = "screen5";
+constexpr std::string_view screen_name = "screen5";
 #elif SCREEN_METHOD == SCREEN_METHOD_chugunov2007
-const std::string screen_name = "chugunov2007";
+constexpr std::string_view screen_name = "chugunov2007";
 #elif SCREEN_METHOD == SCREEN_METHOD_chugunov2009
-const std::string screen_name = "chugunov2009";
+constexpr std::string_view screen_name = "chugunov2009";
 #elif SCREEN_METHOD == SCREEN_METHOD_chabrier1998
-const std::string screen_name = "chabrier1998";
+constexpr std::string_view screen_name = "chabrier1998";
 #endif
 
 template <typename number_t = amrex::Real>
