@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Runtime parameters &mdash; Microphysics  documentation</title>
+  <title>Runtime Parameters &mdash; Microphysics  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -58,8 +58,12 @@
 <li class="toctree-l1"><a class="reference internal" href="design.html">Design</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
 <li class="toctree-l1"><a class="reference internal" href="build_system.html">Build System</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Runtime parameters</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html">Parameters by Namespace</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Runtime Parameters</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#defining-a-parameter">Defining a Parameter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#known-parameters">Known Parameters</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="runtime_parameters.html">Parameters by Namespace</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="fundamental_constants.html">Fundamental Constants</a></li>
@@ -122,7 +126,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Runtime parameters</li>
+      <li class="breadcrumb-item active">Runtime Parameters</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/rp_intro.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -133,7 +137,9 @@
            <div itemprop="articleBody">
              
   <section id="runtime-parameters">
-<h1>Runtime parameters<a class="headerlink" href="#runtime-parameters" title="Link to this heading"></a></h1>
+<h1>Runtime Parameters<a class="headerlink" href="#runtime-parameters" title="Link to this heading"></a></h1>
+<section id="defining-a-parameter">
+<h2>Defining a Parameter<a class="headerlink" href="#defining-a-parameter" title="Link to this heading"></a></h2>
 <p>The behavior of the network and EOS are controlled by many runtime
 parameters. These parameters are defined in plain-text files
 <code class="docutils literal notranslate"><span class="pre">_parameters</span></code> located in the different directories that hold the
@@ -160,6 +166,9 @@ what happens when two different <code class="docutils literal notranslate"><span
 parameter but with different defaults.  In this case, the version of
 the parameter with the highest priority takes precedence. This allows
 specific implementations to override the general parameter defaults.</p>
+</section>
+<section id="known-parameters">
+<h2>Known Parameters<a class="headerlink" href="#known-parameters" title="Link to this heading"></a></h2>
 <p>The documentation below is automatically generated, using the comments
 in the <code class="docutils literal notranslate"><span class="pre">_parameters</span></code> files.  The parameters are grouped by the
 namespace under which they live, and parameters that only apply to
@@ -182,6 +191,7 @@ noted in separate tables.</p>
 </li>
 </ul>
 </div>
+</section>
 </section>
 
 

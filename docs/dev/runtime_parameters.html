@@ -25,7 +25,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Fundamental Constants" href="fundamental_constants.html" />
-    <link rel="prev" title="Runtime parameters" href="rp_intro.html" /> 
+    <link rel="prev" title="Runtime Parameters" href="rp_intro.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -58,18 +58,22 @@
 <li class="toctree-l1"><a class="reference internal" href="design.html">Design</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
 <li class="toctree-l1"><a class="reference internal" href="build_system.html">Build System</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="rp_intro.html">Runtime parameters</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Parameters by Namespace</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#namespace-cj">namespace: <code class="docutils literal notranslate"><span class="pre">cj</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#namespace-conductivity">namespace: <code class="docutils literal notranslate"><span class="pre">conductivity</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#namespace-eos">namespace: <code class="docutils literal notranslate"><span class="pre">eos</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#namespace-integrator">namespace: <code class="docutils literal notranslate"><span class="pre">integrator</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#namespace-network">namespace: <code class="docutils literal notranslate"><span class="pre">network</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#namespace-neutrino-cooling">namespace: <code class="docutils literal notranslate"><span class="pre">neutrino_cooling</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#namespace-nse">namespace: <code class="docutils literal notranslate"><span class="pre">nse</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#namespace-opacity">namespace: <code class="docutils literal notranslate"><span class="pre">opacity</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#namespace-screening">namespace: <code class="docutils literal notranslate"><span class="pre">screening</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#namespace-unit-test">namespace: <code class="docutils literal notranslate"><span class="pre">unit_test</span></code></a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="rp_intro.html">Runtime Parameters</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="rp_intro.html#defining-a-parameter">Defining a Parameter</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="rp_intro.html#known-parameters">Known Parameters</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Parameters by Namespace</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#namespace-cj">namespace: <code class="docutils literal notranslate"><span class="pre">cj</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#namespace-conductivity">namespace: <code class="docutils literal notranslate"><span class="pre">conductivity</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#namespace-eos">namespace: <code class="docutils literal notranslate"><span class="pre">eos</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#namespace-integrator">namespace: <code class="docutils literal notranslate"><span class="pre">integrator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#namespace-network">namespace: <code class="docutils literal notranslate"><span class="pre">network</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#namespace-neutrino-cooling">namespace: <code class="docutils literal notranslate"><span class="pre">neutrino_cooling</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#namespace-nse">namespace: <code class="docutils literal notranslate"><span class="pre">nse</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#namespace-opacity">namespace: <code class="docutils literal notranslate"><span class="pre">opacity</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#namespace-screening">namespace: <code class="docutils literal notranslate"><span class="pre">screening</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#namespace-unit-test">namespace: <code class="docutils literal notranslate"><span class="pre">unit_test</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -134,7 +138,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="rp_intro.html">Runtime parameters</a></li>
+          <li class="breadcrumb-item"><a href="rp_intro.html">Runtime Parameters</a></li>
       <li class="breadcrumb-item active">Parameters by Namespace</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/runtime_parameters.rst.txt" rel="nofollow"> View page source</a>
@@ -1441,27 +1445,28 @@ network?</p></td>
 <td><p>0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rho_nse</span></code></p></td>
-<td></td>
+<td><p>density above which to assume we are in NSE</p></td>
 <td><p>3.e8</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">T_nse</span></code></p></td>
-<td></td>
+<td><p>temperature above which to assume we are in NSE</p></td>
 <td><p>3.e9</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">C_nse</span></code></p></td>
-<td></td>
+<td><p>upper-limit for C + N mass fraction required for NSE</p></td>
 <td><p>0.01</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">O_nse</span></code></p></td>
-<td></td>
+<td><p>upper-limit for O mass fraction required for NSE</p></td>
 <td><p>0.01</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Si_nse</span></code></p></td>
-<td></td>
+<td><p>upper-limit for Si mass fraction required for NSE</p></td>
 <td><p>0.01</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">He_Fe_nse</span></code></p></td>
-<td></td>
+<td><p>lower-limit for the He + iron-group mass fraction
+required for NSE</p></td>
 <td><p>0.88</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">T_always_nse</span></code></p></td>
@@ -3320,7 +3325,7 @@ as given in the inputs?</p></td>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="rp_intro.html" class="btn btn-neutral float-left" title="Runtime parameters" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="rp_intro.html" class="btn btn-neutral float-left" title="Runtime Parameters" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="fundamental_constants.html" class="btn btn-neutral float-right" title="Fundamental Constants" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
