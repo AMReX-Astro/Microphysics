@@ -231,7 +231,7 @@ polytropic relations. The options are:
 ``primordial_chem``
 ===================
 
-This is a version of the multi-gamma equation of state that models primordial ISM chemistry, and can be used to model star formation in pristine environments (e.g., Population III stars). The network consists of a set of 50 reactions involving 14 chemical species (variants of H, D and He; Li is not included). The network is taken from :cite:t:`grassi:14` and :cite:t:`sharda:20`.
+This is a version of the multi-gamma equation of state that models primordial ISM chemistry, and can be used to model star formation in pristine environments (e.g., Population III stars). The network consists of a set of 50 reactions involving 14 chemical species (variants of H, D and He; Li is not included). The network is taken from :cite:t:`grassi14` and :cite:t:`sharda20`.
 
 ``rad_power_law``
 =================
