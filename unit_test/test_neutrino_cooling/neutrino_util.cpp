@@ -11,7 +11,9 @@
 #include <eos.H>
 #include <extern_parameters.H>
 
+#include<neutrino.H>
 #include <sneut5.H>
+#include <kipp.H>
 
 #include <cmath>
 
@@ -76,16 +78,31 @@ void neut_test_C(const Box& bx,
     Real dsnudd;
     Real dsnuda;
     Real dsnudz;
+    Real pair{};
+    Real phot{};
+    Real plas{};
+    Real brem{};
 
     constexpr int do_derivatives{1};
 
+    #if NEUTRINO_METHOD == NEUTRINO_METHOD_kipp
+    kipp<do_derivatives>(temp_zone, dens_zone, abar, zbar,
+                         snu, dsnudt, dsnudd, dsnuda, dsnudz,
+                         pair, phot, plas, brem);
+    #elif NEUTRINO_METHOD == NEUTRINO_METHOD_sneut5
     sneut5<do_derivatives>(temp_zone, dens_zone, abar, zbar,
-                           snu, dsnudt, dsnudd, dsnuda, dsnudz);
+                           snu, dsnudt, dsnudd, dsnuda, dsnudz,
+                           pair, phot, plas, brem);
+    #endif
 
     sp(i, j, k, vars.isneut) = snu;
     sp(i, j, k, vars.isneutdt) = dsnudt;
     sp(i, j, k, vars.isneutda) = dsnuda;
     sp(i, j, k, vars.isneutdz) = dsnudz;
+    sp(i, j, k, vars.ispair) = pair;
+    sp(i, j, k, vars.isphot) = phot;
+    sp(i, j, k, vars.isplas) = plas;
+    sp(i, j, k, vars.isbrem) = brem;
 
   });
 

@@ -26,6 +26,9 @@ EOS_DIR     := helmholtz
 # This sets the network directory
 NETWORK_DIR := aprox21
 
+# This sets the neurtino cooling method
+NEUTRINO_METHOD := sneut5
+
 # This isn't actually used but we need VODE to compile with CUDA
 INTEGRATOR_DIR := VODE
 
