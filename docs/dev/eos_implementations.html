@@ -325,7 +325,7 @@ electron gas.</p>
 </section>
 <section id="primordial-chem">
 <h2><code class="docutils literal notranslate"><span class="pre">primordial_chem</span></code><a class="headerlink" href="#primordial-chem" title="Link to this heading"></a></h2>
-<p>This is a version of the multi-gamma equation of state that models primordial chemistry.</p>
+<p>This is a version of the multi-gamma equation of state that models primordial ISM chemistry, and can be used to model star formation in pristine environments (e.g., Population III stars). The network consists of a set of 50 reactions involving 14 chemical species (variants of H, D and He; Li is not included). The network is taken from <span id="id2">Grassi <em>et al.</em> [<a class="reference internal" href="zreferences.html#id60" title="T. Grassi, S. Bovino, D. R. G. Schleicher, J. Prieto, D. Seifried, E. Simoncini, and F. A. Gianturco. KROME - a package to embed chemistry in astrophysical simulations. mnras, 439(3):2386-2419, April 2014.">8</a>]</span> and <span id="id3">Sharda <em>et al.</em> [<a class="reference internal" href="zreferences.html#id61" title="Piyush Sharda, Christoph Federrath, and Mark R. Krumholz. The importance of magnetic fields for the initial mass function of the first stars. mnras, 497(1):336-351, September 2020.">9</a>]</span>.</p>
 </section>
 <section id="rad-power-law">
 <h2><code class="docutils literal notranslate"><span class="pre">rad_power_law</span></code><a class="headerlink" href="#rad-power-law" title="Link to this heading"></a></h2>
@@ -345,13 +345,13 @@ a parameterization of the specific heat at constant volume:</p>
 </section>
 <section id="tillotson">
 <h2><code class="docutils literal notranslate"><span class="pre">tillotson</span></code><a class="headerlink" href="#tillotson" title="Link to this heading"></a></h2>
-<p>This is an equation of state for hypervelocity impacts based on <span id="id2">[<a class="reference internal" href="zreferences.html#id54" title="J. H. Tillotson. Metallic Equations of State for Hypervelocity Impact. Internal Report, General Atomics, 1962. URL: https://apps.dtic.mil/sti/citations/AD0486711.">8</a>]</span>.
+<p>This is an equation of state for hypervelocity impacts based on <span id="id4">[<a class="reference internal" href="zreferences.html#id54" title="J. H. Tillotson. Metallic Equations of State for Hypervelocity Impact. Internal Report, General Atomics, 1962. URL: https://apps.dtic.mil/sti/citations/AD0486711.">10</a>]</span>.
 It can be used to model planetary impacts.</p>
 </section>
 <section id="ztwd">
 <h2><code class="docutils literal notranslate"><span class="pre">ztwd</span></code><a class="headerlink" href="#ztwd" title="Link to this heading"></a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">ztwd</span></code> is the zero-temperature degenerate electron equation
-of state of <span id="id3">Chandrasekhar [<a class="reference internal" href="zreferences.html#id58" title="Subrahmanyan Chandrasekhar. An introduction to the study of stellar structure. University of Chicago Press, 1939.">9</a>]</span>, which is designed to describe
+of state of <span id="id5">Chandrasekhar [<a class="reference internal" href="zreferences.html#id58" title="Subrahmanyan Chandrasekhar. An introduction to the study of stellar structure. University of Chicago Press, 1939.">11</a>]</span>, which is designed to describe
 white dwarf material. The pressure satisfies the equation:</p>
 <div class="math notranslate nohighlight">
 \[p(x) = A \left( x(2x^2-3)(x^2 + 1)^{1/2} + 3\, \text{sinh}^{-1}(x) \right),\]</div>
@@ -359,7 +359,7 @@ white dwarf material. The pressure satisfies the equation:</p>
 measure of the Fermi momentum, with <span class="math notranslate nohighlight">\(\rho = B x^3\)</span> and <span class="math notranslate nohighlight">\(B = 8\pi \mu_e
 m_p m_e^3 c^3 / (3h^3)\)</span>, where <span class="math notranslate nohighlight">\(\mu_e\)</span> is the mean molecular weight
 per electron and <span class="math notranslate nohighlight">\(h\)</span> is the Planck constant.</p>
-<p>The enthalpy was worked out by <span id="id4">Hachisu [<a class="reference internal" href="zreferences.html#id59" title="I. Hachisu. A Versatile Method for Obtaining Structures of Rapidly Rotating Stars. ApJS, 61:479, July 1986. doi:10.1086/191121.">10</a>]</span>:</p>
+<p>The enthalpy was worked out by <span id="id6">Hachisu [<a class="reference internal" href="zreferences.html#id59" title="I. Hachisu. A Versatile Method for Obtaining Structures of Rapidly Rotating Stars. ApJS, 61:479, July 1986. doi:10.1086/191121.">12</a>]</span>:</p>
 <div class="math notranslate nohighlight">
 \[h(x) = \frac{8A}{B}\left(x^2 + 1\right)^{1/2}.\]</div>
 <p>(note the unfortunate notation here, but this <span class="math notranslate nohighlight">\(h\)</span> is specific
