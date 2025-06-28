@@ -306,19 +306,41 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
 ///
 /// This computes drhoedt and drhoyedt_weak for a given (rho, rho e, and rho Ye)
 ///
-template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void nse_derivs(const BurnT& nse_state,
-                amrex::Real &drhoyedt_weak, amrex::Real& drhoedt) {
+void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
+                const amrex::Real rhoYe0, amrex::Real &T0,
+                amrex::Real &mu_p, amrex::Real &mu_n,
+                amrex::Real &drhoyedt_weak, amrex::Real& drhoedt,
+                const amrex::Real T_fixed) {
 
-    amrex::Real rho0 = nse_state.rho;
+    // initialize burn_state for NSE state
+
+    amrex::Real Ye0 = rhoYe0 / rho0;
+
+    burn_t burn_state;
+
+    burn_state.T = T0;
+    burn_state.rho = rho0;
+    burn_state.y_e = Ye0;
+    burn_state.mu_p = mu_p;
+    burn_state.mu_n = mu_n;
+
+    // Since internal energy is updated during integration,
+    // we use (rho, e, Ye) as input to find the NSE state
+
+    auto nse_state = get_actual_nse_state(nse_input_rey, burn_state,
+                                          1.0e-10_rt, true);
+
+    // Update the input temperature, mu_p and mu_n with the new NSE state.
+
+    T0 = nse_state.T;
+    mu_p = nse_state.mu_p;
+    mu_n = nse_state.mu_n;
 
 #ifdef NEUTRINOS
     // compute the plasma neutrino losses
 
-    amrex::Real T0 = nse_state.T_fixed > 0.0_rt ? nse_state.T_fixed : nse_state.T;
-
-    // Get abar
+    // Get abar for neutrino
 
     amrex::Real abar{0.0_rt};
     for (int n = 0; n < NumSpec; ++n) {
@@ -331,7 +353,7 @@ void nse_derivs(const BurnT& nse_state,
     amrex::Real dsnudd{0.0_rt};
     amrex::Real dsnuda{0.0_rt};
     amrex::Real dsnudz{0.0_rt};
-    amrex::Real zbar = abar * nse_state.y_e;
+    amrex::Real zbar = abar * Ye0;
 
     {
         constexpr int do_derivatives = 0;
@@ -398,15 +420,12 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
 
     // store the initial state
 
-    // Note that during in_nse, state is already updated
-    // with rhoX's and T compatible with NSE.
-    // So we come in with NSE state.
-
     amrex::Real rho_old = state.y[SRHO];
     amrex::Real rhoe_old = state.y[SEINT];
     amrex::Real rhoye_old = rho_old * state.y_e;
-    auto input = (state.T_fixed > 0.0_rt) ? nse_input_rty : nse_input_rey;
-    auto old_state = get_actual_nse_state(input, state, 1.0e-10_rt, true);
+    amrex::Real T_old = state.T;
+    amrex::Real mu_p = state.mu_p;
+    amrex::Real mu_n = state.mu_n;
 
     // do an RK2 integration
 
@@ -425,8 +444,11 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
 
     // get the derivatives: drhoyedt_weak and drhoedt at t = t^n
 
-    nse_derivs(old_state,
-               drhoyedt_weak, drhoedt);
+    nse_derivs(rho_old, rhoe_old,
+               rhoye_old, T_old,
+               mu_p, mu_n,
+               drhoyedt_weak, drhoedt,
+               state.T_fixed);
 
     // evolve to the midpoint in time and the midpoint NSE state.
 
@@ -434,20 +456,13 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
     amrex::Real rhoe_tmp = rhoe_old + 0.5_rt * dt * (state.ydot_a[SEINT] + drhoedt);
     amrex::Real rhoye_tmp = rhoye_old + 0.5_rt * dt * (drhoyedt_weak + drhoyedt_a);
 
-    // Update the old_state with new rho, e and Ye, then get tmp NSE state
-    // Here we use T from the old state as initial guess
-
-    old_state.rho = rho_tmp;
-    old_state.y_e = rhoye_tmp / rho_tmp;
-    old_state.e = rhoe_tmp / rho_tmp;
-
-    // auto input = (old_state.T_fixed > 0.0_rt) ? nse_input_rty : nse_input_rey;
-    auto tmp_state = get_actual_nse_state(input, old_state, 1.0e-10_rt, true);
-
     // compute the derivatives at the midpoint in time
 
-    nse_derivs(tmp_state,
-               drhoyedt_weak, drhoedt);
+    nse_derivs(rho_tmp, rhoe_tmp,
+               rhoye_tmp, T_old,
+               mu_p, mu_n,
+               drhoyedt_weak, drhoedt,
+               state.T_fixed);
 
     // evolve to the new time
 
@@ -455,20 +470,24 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
     amrex::Real rhoe_new = rhoe_old + dt * (state.ydot_a[SEINT] + drhoedt);
     amrex::Real rhoye_new = rhoye_old + dt * (drhoyedt_weak + drhoyedt_a);
 
-    // Update the tmp_state with new rho, e, and Ye, then get new NSE state
-    // Here we use T from tmp state as initial guess
+    // With updated temp, rho, and Ye get final NSE state
 
-    tmp_state.rho = rho_new;
-    tmp_state.y_e = rhoye_new / rho_new;
-    tmp_state.e = rhoe_new / rho_new;
+    burn_t burn_state;
+    burn_state.T = (state.T_fixed > 0.0_rt) ? state.T_fixed : T_old;
+    burn_state.rho = rho_new;
+    burn_state.y_e = rhoye_new / rho_new;
+    burn_state.mu_p = mu_p;
+    burn_state.mu_n = mu_n;
 
-    auto new_state = get_actual_nse_state(input, tmp_state, 1.0e-10_rt, true);
+    auto input = (state.T_fixed > 0.0_rt) ? nse_input_rty : nse_input_rey;
+    auto nse_state = get_actual_nse_state(input, burn_state,
+                                          1.0e-10_rt, true);
 
     // Update rho X using new NSE state
     // These should be already normalized due to NSE constraint
 
     for (int n = 0; n < NumSpec; ++n) {
-        state.y[SFS+n] = new_state.y[SFS+n];
+        state.y[SFS+n] = nse_state.y[SFS+n];
     }
 
     // Update density and momentum, which have no reactive sources
@@ -483,10 +502,11 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
     state.y[SEINT] = rhoe_new;
     state.y[SEDEN] += dt * (state.ydot_a[SEDEN] + drhoedt);
 
-    // store the chemical potentials
+    // Update chemical potentials and temperature
 
-    state.mu_p = new_state.mu_p;
-    state.mu_n = new_state.mu_n;
+    state.T = nse_state.T;
+    state.mu_p = nse_state.mu_p;
+    state.mu_n = nse_state.mu_n;
 }
 #endif
 

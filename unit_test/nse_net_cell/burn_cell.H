@@ -55,6 +55,13 @@ void burn_cell_c()
       state.y[SFS+n] = NSE_STATE.y[SFS+n];
     }
 
+    if (in_nse(state)){
+      std::cout << "We're in NSE. " << std::endl;
+    }
+    else{
+      std::cout << "We're not in NSE. " << std::endl;
+    }
+
     // now test the EOS+NSE function.  The basic idea is the following:
     //
     // 1. find the e corresponding to the current NSE state (eos_input_rt)
@@ -75,27 +82,17 @@ void burn_cell_c()
 
     eos(eos_input_rt, eos_state);
 
-    // Update state with this initial e and see if we're in NSE
-    // For in_nse, we check (rho, e, Ye). state.y[SEINT] needs to be defined
-
-    state.y[SEINT] = eos_state.rho * eos_state.e;
-
-    if (in_nse(state)){
-      std::cout << "We're in NSE. " << std::endl;
-    }
-    else{
-      std::cout << "We're not in NSE. " << std::endl;
-    }
-
     // now perturb e and find NSE using (rho, e, Ye)
 
     amrex::Real e_start = eos_state.e * 1.05;
     amrex::Real T_start{eos_state.T};
     amrex::Real abar_start{eos_state.abar};
+
+    // Initialize the internal energy
+
     state.e = e_start;
 
-    // Now internal energy is updated,
-    // find the new NSE state using input (rho, e, Ye)
+    // Find the new NSE state using input (rho, e, Ye)
 
     auto nse_state = get_actual_nse_state(nse_input_rey, state, 1.e-10, true);
 

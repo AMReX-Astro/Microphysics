@@ -795,7 +795,15 @@ T get_nse_state_rey(T& state,
 
     auto new_state = state;
     new_state.T = T0;
-    return get_nse_state_rty(new_state, eps, input_ye_is_valid);
+
+    auto nse_state = get_nse_state_rty(new_state, eps, input_ye_is_valid);
+
+    // update mu_n and mu_p to input state
+
+    state.mu_p = nse_state.mu_p;
+    state.mu_n = nse_state.mu_n;
+
+    return nse_state;
 }
 
 

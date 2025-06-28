@@ -540,15 +540,9 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
         return current_state.nse;
     }
 
-    // Make sure e is updated
-
-    // current_state.e = current_state.y[SEINT] / current_state.rho;
-
-    // Get the NSE state using (rho, e, Ye) as input
+    // Get the NSE state using (rho, T, Ye) as input
     // Then compare input molar fractions to the NSE molar fractions.
 
-    // auto input = (current_state.T_fixed > 0.0_rt) ? nse_input_rty : nse_input_rey;
-    // const auto nse_state = get_actual_nse_state(input, current_state);
     const auto nse_state = get_actual_nse_state(nse_input_rty, current_state);
 
     // Convert to molar fractions
@@ -575,18 +569,7 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
     // So this is only enabled if the user provides value in the input file
 
     if (T_nse_net > 0.0_rt && T_in > T_nse_net) {
-        // If in NSE, note mu_p and mu_n for current_state
-        // are already updated to be consistent with e during get_actual_nse_state_rey()
-        // Now since we're in NSE, update the current_state rhoX and T to the
-        // NSE rhoX and T. This prepares us for the NSE BURN.
-
         current_state.nse = true;
-        for (int n = 0; n < NumSpec; ++n) {
-            current_state.y[SFS+n] = nse_state.y[SFS+n];
-            current_state.xn[n] = nse_state.xn[n];
-        }
-        current_state.T = nse_state.T;
-
         return current_state.nse;
     }
 
@@ -597,8 +580,8 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
     // our current mass fractions are in the ballpark of NSE mass fractions.
 
     if (nse_molar_independent || skip_molar_check) {
-        for (int n = 0; n < NumSpec; ++n) {
-            Y(n+1) = Y_nse(n+1);
+        for (int n = 1; n <= NumSpec; ++n) {
+            Y(n) = Y_nse(n);
         }
     }
 
@@ -607,7 +590,7 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
     // Find the mass fraction of the current state
 
     for (int n = 0; n < NumSpec; ++n) {
-        state.xn[n] = Y(n+1) * aion_inv[n];
+        state.xn[n] = Y(n+1) * aion[n];
     }
 
     rate_t rate_eval;
@@ -649,22 +632,7 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
 
     // Check if we result in a single group after grouping
 
-    current_state.nse = false;
-
-    if (in_single_group(group_ind)) {
-        // If in NSE, note mu_p and mu_n for current_state
-        // are already updated to be consistent with e during get_actual_nse_state_rey()
-        // Now since we're in NSE, update the current_state X's, rhoX's and T to the
-        // NSE X's, rhoX's and T. This prepares us for the NSE BURN.
-
-        current_state.nse = true;
-        for (int n = 0; n < NumSpec; ++n) {
-            current_state.y[SFS+n] = nse_state.y[SFS+n];
-            current_state.xn[n] = nse_state.xn[n];
-        }
-        current_state.T = nse_state.T;
-    }
-
+    current_state.nse = in_single_group(group_ind);
     return current_state.nse;
 
 #else
