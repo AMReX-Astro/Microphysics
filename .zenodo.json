@@ -1,11 +1,16 @@
 {
     "creators": [
         {
-            "name": "AMReX-Astro Microphysics Development Team"
+            "name": "AMReX-Astro Microphysics Team"
         },
         {   "affiliation": "Stony Brook University",
             "name": "Bishop, Abigail",
             "orcid": "0000-0002-0375-644X"
+        },
+
+        {   "affiliation": "Department of Physics and Astronomy, Stony Brook University",
+            "name": "Bhargava, Khanak",
+            "orcid": "0000-0003-0385-7918"
         },
         {   "affiliation": "Michigan State University",
             "name": "Fields, Carl E.",
