@@ -26,7 +26,8 @@ amrex::Real nse_abar(const amrex::Real T, const amrex::Real rho,
     burn_state.mu_p = mu_p;
     burn_state.mu_n = mu_n;
 
-    auto nse_state = get_actual_nse_state(burn_state, 1.0e-10_rt, true);
+    auto nse_state = get_actual_nse_state(
+                                          burn_state, 1.0e-10_rt, true);
 
     amrex::Real abar{0.0_rt};
     for (int n = 0; n < NumSpec; ++n) {
