@@ -319,7 +319,7 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
 
     burn_t burn_state;
 
-    burn_state.T = T0;
+    burn_state.T = (T_fixed > 0.0_rt) ? T_fixed : T0;
     burn_state.rho = rho0;
     burn_state.e = rhoe0 / rho0;
     burn_state.y_e = Ye0;
@@ -327,16 +327,20 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
     burn_state.mu_n = mu_n;
 
     // Since internal energy is updated during integration,
-    // we use (rho, e, Ye) as input to find the NSE state
+    // we use (rho, e, Ye) as input to find the NSE state.
+    // If T is fixed, i.e. T_fixed > 0, then use (rho, T, Ye)
 
-    auto nse_state = get_actual_nse_state(nse_input_rey, burn_state,
+    auto nse_input = (T_fixed > 0.0_rt) ? nse_input_rty : nse_input_rey;
+    auto nse_state = get_actual_nse_state(nse_input, burn_state,
                                           1.0e-10_rt, true);
 
     // Update the input temperature, mu_p and mu_n with the new NSE state.
 
-    T0 = nse_state.T;
-    // mu_p = nse_state.mu_p;
-    // mu_n = nse_state.mu_n;
+    if (!T_fixed > 0.0_rt) {
+        T0 = nse_state.T;
+    }
+    mu_p = nse_state.mu_p;
+    mu_n = nse_state.mu_n;
 
 #ifdef NEUTRINOS
     // compute the plasma neutrino losses
@@ -476,12 +480,13 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
     burn_t burn_state;
     burn_state.T = (state.T_fixed > 0.0_rt) ? state.T_fixed : T_old;
     burn_state.rho = rho_new;
+    burn_state.e = rhoe_new / rho_new;
     burn_state.y_e = rhoye_new / rho_new;
     burn_state.mu_p = mu_p;
     burn_state.mu_n = mu_n;
 
-    auto input = (state.T_fixed > 0.0_rt) ? nse_input_rty : nse_input_rey;
-    auto nse_state = get_actual_nse_state(input, burn_state,
+    auto nse_input = (state.T_fixed > 0.0_rt) ? nse_input_rty : nse_input_rey;
+    auto nse_state = get_actual_nse_state(nse_input, burn_state,
                                           1.0e-10_rt, true);
 
     // Update rho X using new NSE state
@@ -505,7 +510,9 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
 
     // Update chemical potentials and temperature
 
-    state.T = nse_state.T;
+    if (!state.T_fixed > 0.0_rt) {
+        state.T = nse_state.T;
+    }
     state.mu_p = nse_state.mu_p;
     state.mu_n = nse_state.mu_n;
 }
