@@ -321,6 +321,7 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
 
     burn_state.T = T0;
     burn_state.rho = rho0;
+    burn_state.e = rhoe0 / rho0;
     burn_state.y_e = Ye0;
     burn_state.mu_p = mu_p;
     burn_state.mu_n = mu_n;
@@ -334,8 +335,8 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
     // Update the input temperature, mu_p and mu_n with the new NSE state.
 
     T0 = nse_state.T;
-    mu_p = nse_state.mu_p;
-    mu_n = nse_state.mu_n;
+    // mu_p = nse_state.mu_p;
+    // mu_n = nse_state.mu_n;
 
 #ifdef NEUTRINOS
     // compute the plasma neutrino losses
