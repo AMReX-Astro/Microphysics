@@ -26,15 +26,21 @@ authors:
 - name: Max P. Katz
   affiliation: '1'
 
-- name: Piyush Sharda
+- name: Chris Malone
   affiliation: '2'
+  
+- name: Piyush Sharda
+  affiliation: '3'
 
 - given-names: Alexander
   surname: Smith Clark
   affiliation: '1'
 
+- name: Frank Timmes
+  affiliation: '4'
+  
 - name: Ben Wibking
-  affiliation: '3'
+  affiliation: '5'
 
 - name: Don E. Willcox
 
@@ -47,8 +53,12 @@ affiliations:
 - index: 1
   name: Department of Physics and Astronomy, Stony Brook University, Stony Brook, NY, USA
 - index: 2
-  name: Leiden Observatory, Leiden, The Netherlands
+  name: Los Alamos National Laboratory, Los Alamos, NM, USA
 - index: 3
+  name: Leiden Observatory, Leiden, The Netherlands
+- index: 4
+  name: Arizon State University, Tempe, AZ, USA
+- index: 5
   name: Department of Physics and Astronomy, Michigan State University, E. Lansing, MI, USA
 
 date: 28 May 2025
