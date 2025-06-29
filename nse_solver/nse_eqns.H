@@ -44,7 +44,6 @@ void nse_fcn(amrex::Array1D<amrex::Real, 1, 2>& x,
         }
 #endif
         // constraint equation 1, mass fraction sum to 1
-        // since we're using rhoX, make it sum to rho
 
         fvec(1) += nse_state.xn[n];
     }

@@ -670,24 +670,53 @@ T get_nse_state_rey(T& state,
     // where now we have an additional constraint equation on e.
     // So there are three constraint equations and a 3x3 Jacobian.
 
-    // Get T0 such that it is consistent with e.
-    // This also updates mu_p and mu_n of the input state.
+    if (solve_nse_e_numerically) {
+        // Option 1
 
-    amrex::Real T0 = state.T;
-    nse_T_from_e(state.rho, state.e, state.y_e,
-                 T0, state.mu_p, state.mu_n);
+        // Get T0 such that it is consistent with e.
+        // This also updates mu_p and mu_n of the input state.
 
-    // Create a new state with the updated Temperature
-    // Then find NSE state via (rho, T, Ye)
+        amrex::Real T0 = state.T;
+        nse_T_from_e(state.rho, state.e, state.y_e,
+                     T0, state.mu_p, state.mu_n);
 
-    burn_t burn_state;
-    burn_state.T = T0;
-    burn_state.rho = state.rho;
-    burn_state.y_e = state.y_e;
-    burn_state.mu_p = state.mu_p;
-    burn_state.mu_n = state.mu_n;
+        // Create a new state with the updated Temperature
+        // Then find NSE state via (rho, T, Ye)
 
-    auto nse_state = get_nse_state_rty(burn_state, eps);
+        burn_t burn_state;
+        burn_state.T = T0;
+        burn_state.rho = state.rho;
+        burn_state.y_e = state.y_e;
+        burn_state.mu_p = state.mu_p;
+        burn_state.mu_n = state.mu_n;
+
+        auto nse_state = get_nse_state_rty(burn_state, eps);
+
+    } else {
+        // Option 2
+
+        // invoke newton-raphson or hybrj to solve mu_p, mu_n and T.
+        // For (rho, e, Ye) input, there are three constraint eqns.
+
+        constexpr int nConstraintEqns = 3;
+
+        nse_solve<nConstraintEqns, T>(state_data, eps);
+
+        // Apply exponent for calculating nse mass fractions
+
+        apply_nse_exponent(state_data.state, state_data.u_c);
+
+        // update mu_n and mu_p to input state
+
+        state.mu_p = state_data.state.mu_p;
+        state.mu_n = state_data.state.mu_n;
+
+        // update rhoX in the output nse_state
+
+        for (int n = 0; n < NumSpec; ++n) {
+            state_data.state.y[SFS+n] = state.rho * state_data.state.xn[n];
+        }
+    }
 
     // update mu_n and mu_p to input state
 
