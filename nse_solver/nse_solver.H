@@ -470,7 +470,7 @@ T get_nse_state_rty(T& state,
 
     nse_solver_data<T> state_data = {state, {0.0_rt}};
 
-    // Since Temperature is fixed in thie mode,
+    // Since Temperature is fixed in this mode,
     // Get nse_state without the exponent term
 
     state_data.state = get_nonexponent_nse_state(state);
