@@ -410,61 +410,45 @@ void nse_nr_solver(nse_solver_data<T>& state_data,
 }
 
 
-template <typename T>
+template <int neqs, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void nse_Ye_check(T& state,
-                  bool input_ye_is_valid=false) {
-    // A preliminary check on Ye for nse solver.
-    // This makes sure that input Ye is valid for this network.
-    // If not valid, Ye is updated.
+void nse_solve(nse_solver_data<T>& state_data,
+               const amrex::Real eps=1.0e-10_rt) {
+    // Interface for calling the Hybrid-Powell or Netwon-Raphson Solver
 
-    amrex::Real ye_lo = 1.0_rt;
-    amrex::Real ye_hi = 0.0_rt;
-
-    for (int n = 0; n < NumSpec; ++n) {
-        ye_lo = amrex::min(zion[n] * aion_inv[n], ye_lo);
-        ye_hi = amrex::max(zion[n] * aion_inv[n], ye_hi);
+    if (use_hybrid_solver) {
+        nse_hybrid_solver<neqs, T>(state_data, eps);
     }
-
-    if (state.y_e < ye_lo || state.y_e > ye_hi) {
-#ifndef AMREX_USE_GPU
-        if (state.y_e != -1.0_rt) {
-            std::cout << "Warning: input Ye is " << state.y_e
-                      << ", which is out of range. Ye is recalulated based on Composition"
-                      << std::endl;
-        }
-#endif
-        input_ye_is_valid = false;
-    }
-
-    if (!input_ye_is_valid) {
-        // ensure Ye is valid
-        // We assume the input state has rhoX
-
-        state.y_e = 0.0_rt;
+    else {
+        bool singular_network = true;
         for (int n = 0; n < NumSpec; ++n) {
-            state.y_e += state.y[SFS+n] * zion[n] * aion_inv[n];
+#ifdef NEW_NETWORK_IMPLEMENTATION
+            if (n == NSE_INDEX::H1_index) {
+                continue;
+            }
+#endif
+            if (zion[n] != aion[n] - zion[n]) {
+                singular_network = false;
+            }
         }
-        state.y_e /= state.rho;
-    }
 
+        if (singular_network) {
+            amrex::Error("This network always results in singular jacobian matrix, thus can't find nse mass fraction using nr!");
+        }
+
+        nse_nr_solver<neqs, T>(state_data, eps);
+    }
 }
 
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 T get_nse_state_rty(T& state,
-                    const amrex::Real eps=1.0e-10_rt,
-                    bool input_ye_is_valid=false) {
+                    const amrex::Real eps=1.0e-10_rt) {
     // Find the NSE state using (rho, T, Ye) as input.
     // This returns state_data.state with the NSE mass fraction and
     // solved chemical potentials.
     // It also updates chemical potentials to the input state.
-
-    // Check whether input ye is actually valid
-    // Ye is updated if not valid.
-
-    nse_Ye_check(state, input_ye_is_valid);
 
     // Initializes the initial state
 
@@ -484,28 +468,11 @@ T get_nse_state_rty(T& state,
     // invoke newton-raphson or hybrj to solve chemical potential of proton and neutron
     // which are the exponent part of the nse mass fraction calculation
 
-    if (use_hybrid_solver) {
-        nse_hybrid_solver<2, T>(state_data, eps);
-    }
-    else {
-        bool singular_network = true;
-        for (int n = 0; n < NumSpec; ++n) {
-#ifdef NEW_NETWORK_IMPLEMENTATION
-            if (n == NSE_INDEX::H1_index) {
-                continue;
-            }
-#endif
-            if (zion[n] != aion[n] - zion[n]) {
-                singular_network = false;
-            }
-        }
+    // For (rho, T, Ye) input, there are two constraint eqns.
 
-        if (singular_network) {
-            amrex::Error("This network always results in singular jacobian matrix, thus can't find nse mass fraction using nr!");
-        }
+    constexpr int nConstraintEqns = 2;
 
-        nse_nr_solver<2, T>(state_data, eps);
-    }
+    nse_solve<nConstraintEqns, T>(state_data, eps);
 
     // Apply exponent for calculating nse mass fractions
 
@@ -542,7 +509,7 @@ amrex::Real nse_abar(const amrex::Real T, const amrex::Real rho,
     burn_state.mu_p = mu_p;
     burn_state.mu_n = mu_n;
 
-    auto nse_state = get_nse_state_rty(burn_state, 1.0e-10_rt, true);
+    auto nse_state = get_nse_state_rty(burn_state, 1.0e-10_rt);
 
     amrex::Real abar{0.0_rt};
     for (int n = 0; n < NumSpec; ++n) {
@@ -639,7 +606,7 @@ nse_T_from_e(const amrex::Real rho, const amrex::Real e_in,
 
         burn_state.T = T;
 
-        auto nse_state = get_nse_state_rty(burn_state, 1.0e-10_rt, true);
+        auto nse_state = get_nse_state_rty(burn_state, 1.0e-10_rt);
 
         // call the EOS with the initial guess for T
         // as well as density and NSE mass fractions
@@ -692,8 +659,7 @@ nse_T_from_e(const amrex::Real rho, const amrex::Real e_in,
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 T get_nse_state_rey(T& state,
-                    const amrex::Real eps=1.0e-10_rt,
-                    bool input_ye_is_valid=false) {
+                    const amrex::Real eps=1.0e-10_rt) {
     // Find the NSE state using (rho, e, Ye) as input.
 
     // When using (rho, e, Ye) as input
@@ -703,11 +669,6 @@ T get_nse_state_rey(T& state,
     // 2. Find the NSE state directly using (rho, e, Ye),
     // where now we have an additional constraint equation on e.
     // So there are three constraint equations and a 3x3 Jacobian.
-
-    // Check whether input ye is actually valid
-    // Ye is updated if not valid.
-
-    nse_Ye_check(state, input_ye_is_valid);
 
     // Get T0 such that it is consistent with e.
     // This also updates mu_p and mu_n of the input state.
@@ -719,10 +680,14 @@ T get_nse_state_rey(T& state,
     // Create a new state with the updated Temperature
     // Then find NSE state via (rho, T, Ye)
 
-    auto new_state = state;
-    new_state.T = T0;
+    burn_t burn_state;
+    burn_state.T = T0;
+    burn_state.rho = state.rho;
+    burn_state.y_e = state.y_e;
+    burn_state.mu_p = state.mu_p;
+    burn_state.mu_n = state.mu_n;
 
-    auto nse_state = get_nse_state_rty(new_state, eps, input_ye_is_valid);
+    auto nse_state = get_nse_state_rty(burn_state, eps);
 
     // update mu_n and mu_p to input state
 
@@ -737,7 +702,7 @@ template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 T get_actual_nse_state(nse_input_t input,
                        T& state, const amrex::Real eps=1.0e-10_rt,
-                       const bool input_ye_is_valid=false) {
+                       bool input_ye_is_valid=false) {
     ///
     /// Main interface for getting the NSE state.
     /// There are two input modes:
@@ -757,15 +722,49 @@ T get_actual_nse_state(nse_input_t input,
     /// Temperature, if using (rho, e, Ye) mode.
     ///
 
+    // A preliminary check on Ye for nse solver.
+    // This makes sure that input Ye is valid for this network.
+    // If not valid, Ye is updated.
+
+    amrex::Real ye_lo = 1.0_rt;
+    amrex::Real ye_hi = 0.0_rt;
+
+    for (int n = 0; n < NumSpec; ++n) {
+        ye_lo = amrex::min(zion[n] * aion_inv[n], ye_lo);
+        ye_hi = amrex::max(zion[n] * aion_inv[n], ye_hi);
+    }
+
+    if (state.y_e < ye_lo || state.y_e > ye_hi) {
+#ifndef AMREX_USE_GPU
+        if (state.y_e != -1.0_rt) {
+            std::cout << "Warning: input Ye is " << state.y_e
+                      << ", which is out of range. Ye is recalulated based on Composition"
+                      << std::endl;
+        }
+#endif
+        input_ye_is_valid = false;
+    }
+
+    if (!input_ye_is_valid) {
+        // ensure Ye is valid
+        // We assume the input state has rhoX
+
+        state.y_e = 0.0_rt;
+        for (int n = 0; n < NumSpec; ++n) {
+            state.y_e += state.y[SFS+n] * zion[n] * aion_inv[n];
+        }
+        state.y_e /= state.rho;
+    }
+
     if (input == nse_input_rty) {
         // Using (rho, T, Ye) as input
 
-        return get_nse_state_rty(state, eps, input_ye_is_valid);
+        return get_nse_state_rty(state, eps);
 
     } else if (input == nse_input_rey) {
         // Using (rho, e, Ye) as input
 
-        return get_nse_state_rey(state, eps, input_ye_is_valid);
+        return get_nse_state_rey(state, eps);
 
     } else {
         // When getting an unknown input
