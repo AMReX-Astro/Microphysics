@@ -20,6 +20,7 @@
 #include <screen.H>
 #include <cctype>
 #include <algorithm>
+#include <nse_eqns.H>
 
 using namespace nse_rp;
 
@@ -40,6 +41,13 @@ struct nse_solver_data
     amrex::Array1D<amrex::Real, 1, NumSpec> u_c;
 };
 
+///
+/// This file contains routines needed to solve:
+/// NSE Composition Equations
+///
+/// X_k = m_k / ρ (2J_k + 1) G_k (m_k kB T / (2 π ħ^2))^{3/2}
+///       × exp { Z_k μ_p + N_k μ_n + B_k - μ^c_k / (kB T)}
+///
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -195,88 +203,6 @@ void apply_nse_exponent(T& nse_state,
     }
 }
 
-// constraint equation
-
-template <typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void nse_fcn(amrex::Array1D<amrex::Real, 1, 2>& x,
-             amrex::Array1D<amrex::Real, 1, 2>& fvec,
-             const T& state_data, int& iflag) {
-    // here state is the nse_state from get_nonexponent_nse_state
-
-    amrex::ignore_unused(iflag);
-
-    auto nse_state = state_data.state;
-    nse_state.mu_p = x(1);
-    nse_state.mu_n = x(2);
-
-    // Apply exponent component for calculating nse mass fractions
-
-    apply_nse_exponent(nse_state, state_data.u_c);
-
-    fvec(1) = -1.0_rt;
-
-    for (int n = 0; n < NumSpec; ++n) {
-#ifdef NEW_NETWORK_IMPLEMENTATION
-        if (n == NSE_INDEX::H1_index) {
-            continue;
-        }
-#endif
-        // constraint equation 1, mass fraction sum to 1
-        // since we're using rhoX, make it sum to rho
-
-        fvec(1) += nse_state.xn[n];
-    }
-
-    // constraint equation 2, electron fraction should be the same
-
-    fvec(2) = nse_state.y_e - state_data.state.y_e;
-
-}
-
-// constraint jacobian
-
-template <typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void nse_jcn(amrex::Array1D<amrex::Real, 1, 2>& x,
-             amrex::Array2D<amrex::Real, 1, 2, 1, 2>& fjac,
-             const T& state_data, int& iflag) {
-    // here state is the nse_state from get_nonexponent_nse_state
-
-    amrex::ignore_unused(iflag);
-
-    auto nse_state = state_data.state;
-    nse_state.mu_p = x(1);
-    nse_state.mu_n = x(2);
-
-    apply_nse_exponent(nse_state, state_data.u_c);
-
-    // evaluate jacobian of the constraint
-
-    fjac(1, 1) = 0.0_rt;
-    fjac(1, 2) = 0.0_rt;
-    fjac(2, 1) = 0.0_rt;
-    fjac(2, 2) = 0.0_rt;
-
-    // if we are doing drive_initial_convection, we want to use
-    // the temperature that comes in through T_fixed
-
-    amrex::Real T_in = nse_state.T_fixed > 0.0_rt ? nse_state.T_fixed : nse_state.T;
-    amrex::Real ikTMeV = C::MeV2erg / (C::k_B * T_in);
-
-    for (int n = 0; n < NumSpec; ++n) {
-#ifdef NEW_NETWORK_IMPLEMENTATION
-        if (n == NSE_INDEX::H1_index) {
-            continue;
-        }
-#endif
-        fjac(1, 1) += nse_state.xn[n] * zion[n] * ikTMeV;
-        fjac(1, 2) += nse_state.xn[n] * (aion[n] - zion[n]) * ikTMeV;
-        fjac(2, 1) += nse_state.xn[n] * zion[n] * zion[n] * aion_inv[n] * ikTMeV;
-        fjac(2, 2) += nse_state.xn[n] * zion[n] * (aion[n] - zion[n]) * aion_inv[n] * ikTMeV;
-    }
-
-}
 
 template <int neqs, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -812,12 +738,24 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 T get_actual_nse_state(nse_input_t input,
                        T& state, const amrex::Real eps=1.0e-10_rt,
                        const bool input_ye_is_valid=false) {
-    // Main interface for getting the NSE state.
-    // The input state will be updated with new chemical potentials
-    // The input state will not be updated with NSE consistent Temperature.
-    // The output state will have updated X's, rhoX's and Temperature.
-
-    // Solve for NSE state for two different input modes.
+    ///
+    /// Main interface for getting the NSE state.
+    /// There are two input modes:
+    ///
+    /// 1. (rho, T, Ye): nse_input_rty
+    /// In this mode, state.rho, state.T and state.y_e should be to be defined.
+    ///
+    /// 2. (rho, e, Ye): nse_input_rey
+    /// In this mode, state.rho, state.e and state.y_e should be defined.
+    /// It uses state.T as the initial guess, so that should be defined too.
+    ///
+    /// In both mode, if input_ye_is_valid=false or state.y_e is out of range,
+    /// then y_e is re-calculated based on state.y[SFS], i.e. rho X's.
+    ///
+    /// The input state will be updated with new chemical potentials
+    /// The output state will have updated X's, rhoX's and
+    /// Temperature, if using (rho, e, Ye) mode.
+    ///
 
     if (input == nse_input_rty) {
         // Using (rho, T, Ye) as input

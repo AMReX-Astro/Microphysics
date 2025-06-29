@@ -1,4 +1,5 @@
 ifeq ($(USE_NSE_NET), TRUE)
      CEXE_headers += nse_solver.H
      CEXE_headers += nse_check.H
+     CEXE_headers += nse_eqns.H
 endif
