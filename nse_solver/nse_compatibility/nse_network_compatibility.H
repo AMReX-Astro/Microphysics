@@ -121,7 +121,7 @@ void burn_cell_c(const eos_t& eos_state)
     }
 
     // Now find the mass fraction via NSE calculation
-    auto nse_state = get_actual_nse_state(burn_state, 1.e-12);
+    auto nse_state = get_actual_nse_state(nse_input_rty, burn_state, 1.e-12);
 
     // Now print out the result.
     std::cout << std::scientific << std::setprecision(8);
