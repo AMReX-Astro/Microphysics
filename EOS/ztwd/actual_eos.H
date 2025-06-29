@@ -22,10 +22,11 @@
 #include <AMReX.H>
 #include <fundamental_constants.H>
 #include <eos_type.H>
+#include <string_view>
 
 using namespace amrex::literals;
 
-const std::string eos_name = "ztwd";
+constexpr std::string_view eos_name = "ztwd";
 
 const amrex::Real A = M_PI * amrex::Math::powi<4>(C::m_e) * amrex::Math::powi<5>(C::c_light) / (3.0_rt * amrex::Math::powi<3>(C::hplanck));
 const amrex::Real B2 = 8.0_rt * M_PI * amrex::Math::powi<3>(C::m_e) * amrex::Math::powi<3>(C::c_light) * C::m_p  / (3.0_rt * amrex::Math::powi<3>(C::hplanck));

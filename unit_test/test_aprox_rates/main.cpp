@@ -157,9 +157,9 @@ void main_main ()
     std::string name = "test_aprox_rates.";
 
     // Write a plotfile
-    WriteSingleLevelPlotfile(name + eos_name, state, names, geom, time, 0);
+    WriteSingleLevelPlotfile(name + std::string(eos_name), state, names, geom, time, 0);
 
-    write_job_info(name + eos_name);
+    write_job_info(name + std::string(eos_name));
 
     // Tell the I/O Processor to write out the "run time"
     amrex::Print() << "Run time = " << stop_time << std::endl;

@@ -268,7 +268,7 @@ variations. The overview of the steps we take are the following:
   for isotopes to form a single group due to the missing neutron rates.
   Therefore, there is an alternative criteria of defining a "single group"
   when neutron is not present in the network: for isotopes,
-  :math:`Z >= 14`, isotopes with odd and even :math:`N` form two
+  :math:`Z \ge 14`, isotopes with odd and even :math:`N` form two
   distinct groups.
 
 
