@@ -336,7 +336,7 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
 
     // Update the input temperature, mu_p and mu_n with the new NSE state.
 
-    if (!T_fixed > 0.0_rt) {
+    if (T_fixed <= 0.0_rt) {
         T0 = nse_state.T;
     }
     mu_p = nse_state.mu_p;
@@ -510,7 +510,7 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
 
     // Update chemical potentials and temperature
 
-    if (!state.T_fixed > 0.0_rt) {
+    if (state.T_fixed <= 0.0_rt) {
         state.T = nse_state.T;
     }
     state.mu_p = nse_state.mu_p;
