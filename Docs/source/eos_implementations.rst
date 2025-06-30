@@ -126,7 +126,7 @@ publicly release it in this repository.
 ``metal_chem``
 ==============
 
-This is a multi-gamma equation of state for metal ISM chemistry.
+This is a multi-gamma equation of state for ISM chemistry that builds on the primordial chemistry network by including metals (C and O, and their variants). The network has its roots in the reduced ISM chemical network introduced by :cite:t:`omukai05`, modified to include other important reactions (from :cite:t:`glover10`, :cite:t:`gow17`, and :cite:t:`hunter23`) such that an accurate treatment of ISM chemistry is possible at all metallicities, from super-Solar to primordial. The corresponding temperature evolution includes all major heating/cooling processes relevant in the ISM (including molecular cooling in dense gas), following the implementation in :cite:t:`kim23`. 
 
 ``multigamma``
 ==============
@@ -231,7 +231,7 @@ polytropic relations. The options are:
 ``primordial_chem``
 ===================
 
-This is a version of the multi-gamma equation of state that models primordial ISM chemistry, and can be used to model star formation in pristine environments (e.g., Population III stars). The network consists of a set of 50 reactions involving 14 chemical species (variants of H, D and He; Li is not included). The network is taken from :cite:t:`grassi14` and :cite:t:`sharda20`.
+This is a version of the multi-gamma equation of state that models primordial ISM chemistry, and can be used to model star formation in pristine environments (e.g., Population III stars). The network consists of a set of 50 reactions involving 14 chemical species (variants of H, D and He; Li is not included), appended by the evolution of gas temperature. The network is taken from :cite:t:`grassi14` and :cite:t:`sharda20`.
 
 ``rad_power_law``
 =================
