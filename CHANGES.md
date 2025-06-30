@@ -4,7 +4,7 @@
 
   * module string names are now `constexpr std::string_view` (#1825)
 
-  * doc updates (#1796, #1809, #1810, #1818, #1824)
+  * doc updates (#1796, #1809, #1810, #1818, #1824, #1827, #1830)
 
   * JOSS paper (#1658)
 
