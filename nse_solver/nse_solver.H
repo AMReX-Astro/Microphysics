@@ -522,6 +522,7 @@ T get_nse_state_rey(T& state,
     burn_state.T = T0;
     burn_state.rho = state.rho;
     burn_state.y_e = state.y_e;
+    burn_state.e = state.e;
     burn_state.mu_p = state.mu_p;
     burn_state.mu_n = state.mu_n;
 
