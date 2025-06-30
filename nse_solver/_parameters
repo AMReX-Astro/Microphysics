@@ -8,6 +8,12 @@ max_nse_iters           int        500
 # 0 == Newton-Raphson
 use_hybrid_solver       bool       1
 
+# For (rho, e, Ye) input, do we solve for T from e
+# numerically or analytically
+# 1 == Numerically
+# 2 == Analytically
+solve_nse_e_numerically bool       1
+
 # Tolerance used in the NSE-Grouping process
 ase_tol                 real       0.1
 

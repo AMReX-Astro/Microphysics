@@ -189,6 +189,8 @@ void apply_nse_exponent(T& nse_state,
         nse_state.xn[n] *= std::exp(exponent);
     }
 
+    // Update y_e
+
     nse_state.y_e = 0.0_rt;
 
     for (int n = 0; n < NumSpec; ++n) {
@@ -197,7 +199,6 @@ void apply_nse_exponent(T& nse_state,
             continue;
         }
 #endif
-        // constraint equation 1, mass fraction sum to 1
 
         nse_state.y_e += nse_state.xn[n] * zion[n] * aion_inv[n];
     }
@@ -233,23 +234,28 @@ void nse_hybrid_solver(nse_solver_data<T>& state_data,
 
     outer_x(1) = state_data.state.mu_p;
     outer_x(2) = state_data.state.mu_n;
-
+    if constexpr (neqs == 3) {
+        outer_x(3) = state_data.state.T;
+    }
     // for (int j = 1; j <= 2; ++j) {
     //     hj.diag(j) = 1.0_rt;
     // }
 
     // fine tuning initial guesses
+    // Here we only fine tune chemical potentials
 
     for (int i = 0; i < 20; ++i) {
 
         dx = 0.5_rt;
-        inner_x(1) = outer_x(1);
-        inner_x(2) = outer_x(2);
+        for (int n = 1; n <= neqs; ++n) {
+            inner_x(n) = outer_x(n);
+        }
 
         for (int j = 0; j < 20; ++j) {
 
-            hj.x(1) = inner_x(1);
-            hj.x(2) = inner_x(2);
+            for (int n = 1; n <= neqs; ++n) {
+                hj.x(n) = inner_x(n);
+            }
 
             hybrj<neqs, nse_solver_data<T>>(hj, state_data,
                                             nse_fcn<nse_solver_data<T>>,
@@ -257,10 +263,22 @@ void nse_hybrid_solver(nse_solver_data<T>& state_data,
 
             nse_fcn(hj.x, f, state_data, flag);
 
-            if (std::abs(f(1)) < eps && std::abs(f(2)) < eps) {
+            // Check for convergence
 
+            bool converged = true;
+            for (int n = 1; n <= neqs; ++n) {
+                if (std::abs(f(n)) >= eps) {
+                    converged = false;
+                    break;
+                }
+            }
+
+            if (converged) {
                 state_data.state.mu_p = hj.x(1);
                 state_data.state.mu_n = hj.x(2);
+                if constexpr (neqs == 3) {
+                    state_data.state.T = hj.x(3);
+                }
                 return;
             }
 
@@ -695,26 +713,37 @@ T get_nse_state_rey(T& state,
     } else {
         // Option 2
 
+        // Initializes the initial state
+
+        nse_solver_data<T> state_data = {state, {0.0_rt}};
+
         // invoke newton-raphson or hybrj to solve mu_p, mu_n and T.
         // For (rho, e, Ye) input, there are three constraint eqns.
+        // Since T is varying, we cannnot pre-calculate terms.
 
         constexpr int nConstraintEqns = 3;
 
         nse_solve<nConstraintEqns, T>(state_data, eps);
 
-        // Apply exponent for calculating nse mass fractions
+        // Now that mu_p, mu_n and T are solved and stored in state_data.state.
+        // Get the NSE composition. First get the nonexponent piece
 
-        apply_nse_exponent(state_data.state, state_data.u_c);
+        auto nse_state = get_nonexponent_nse_state(state_data.state);
 
-        // update mu_n and mu_p to input state
+        // if use chabrier1998 screening, calculate the coulomb correction term
 
-        state.mu_p = state_data.state.mu_p;
-        state.mu_n = state_data.state.mu_n;
+#if SCREEN_METHOD == SCREEN_METHOD_chabrier1998
+        compute_coulomb_contribution(state_data.u_c, state_data.state);
+#endif
+
+        // Apply exponent for calculating NSE mass fractions
+
+        apply_nse_exponent(nse_state, state_data.u_c);
 
         // update rhoX in the output nse_state
 
         for (int n = 0; n < NumSpec; ++n) {
-            state_data.state.y[SFS+n] = state.rho * state_data.state.xn[n];
+            nse_state.y[SFS+n] = nse_state.rho * nse_state.xn[n];
         }
     }
 
