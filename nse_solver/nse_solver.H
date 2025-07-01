@@ -294,7 +294,7 @@ void nse_solve(nse_solver_data<T>& state_data,
     }
     else {
         if constexpr (neqs != 2) {
-            amrex::Error("NR solver currently doesn't solve for (rho, e, Ye) input. Please use hybrid solver with nse.use_hybrid_solver=1.")
+            amrex::Error("NR solver currently doesn't solve for (rho, e, Ye) input. Please use hybrid solver with nse.use_hybrid_solver=1.");
         }
 
         bool singular_network = true;

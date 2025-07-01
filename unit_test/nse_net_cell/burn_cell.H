@@ -97,9 +97,12 @@ void burn_cell_c()
 
     // We will test results from two modes of solving for T using e.
 
-    // First using mode == 1
+    // Do the test for two different modes and see if they match.
+
+    for (int m = 1; m <= 2; ++m)
     {
-    solve_nse_e_mode = 1;
+    solve_nse_e_mode = m;
+
     auto nse_state = get_actual_nse_state(nse_input_rey, state, 1.e-10, true);
 
     // now try calling the EOS with updated T and the NSE composition and see if
@@ -116,7 +119,7 @@ void burn_cell_c()
     // Print to see the change in T and abar due to perturbed e
     // and see if we recover the same energy using eos.
 
-    std::cout << "Using nse.solve_nse_e_mode == 1:" << std::endl;
+    std::cout << "Using nse.solve_nse_e_mode == " << m << " :" << std::endl;
     std::cout << "change in T: " << T_start << " " << eos_state.T <<  std::endl;
     std::cout << "change in abar: " << abar_start << " " << eos_state.abar <<  std::endl;
     std::cout << "recovered energy: " << e_start << " " << eos_state.e << std::endl;
@@ -147,57 +150,6 @@ void burn_cell_c()
     }
     std::cout << std::endl;
     std::cout << "-----------------------------------------------" << std::endl;
-    }
-
-    // Now do the same but with mode == 2
-    {
-    solve_nse_e_mode = 2;
-    auto nse_state = get_actual_nse_state(nse_input_rey, state, 1.e-10, true);
-
-    // now try calling the EOS with updated T and the NSE composition and see if
-    // we get back the same energy and see how abar changed.
-
-    for (int n = 0; n < NumSpec; ++n) {
-        eos_state.xn[n] = nse_state.xn[n];
-    }
-
-    eos_state.T = nse_state.T;
-
-    eos(eos_input_rt, eos_state);
-
-    // Print to see the change in T and abar due to perturbed e
-    // and see if we recover the same energy using eos.
-
-    std::cout << "Using nse.solve_nse_e_mode == 2:" << std::endl;
-    std::cout << "change in T: " << T_start << " " << eos_state.T <<  std::endl;
-    std::cout << "change in abar: " << abar_start << " " << eos_state.abar <<  std::endl;
-    std::cout << "recovered energy: " << e_start << " " << eos_state.e << std::endl;
-
-    // See the result of constraint eq and jacobian using the solved input
-
-    amrex::Array1D<amrex::Real, 1, 3> x {nse_state.mu_p, nse_state.mu_n, nse_state.T};
-    amrex::Array1D<amrex::Real, 1, 3> f;
-    amrex::Array2D<amrex::Real, 1, 3, 1, 3> jac;
-    int flag = 0;
-
-    nse_solver_data<burn_t> state_data = {nse_state, {0.0_rt}};
-
-    nse_fcn(x, f, state_data, flag);
-    nse_jcn(x, jac, state_data, flag);
-
-    std::cout << "Constraint Eqns using solved input are: ";
-    for (int q = 1; q <= 3; ++q) {
-        std::cout << f(q) << " ";
-    }
-    std::cout << std::endl;
-
-    std::cout << "Constraint Jacobian using solved input are: ";
-    for (int q = 1; q <= 3; ++q) {
-        for (int p = 1; p <= 3; ++p) {
-            std::cout << jac(q, p) << " ";
-        }
-    }
-    std::cout << std::endl;
     }
 }
 #endif
