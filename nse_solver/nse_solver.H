@@ -547,7 +547,7 @@ T get_actual_nse_state(nse_input_t input,
     /// There are two input modes:
     ///
     /// 1. (rho, T, Ye): nse_input_rty
-    /// In this mode, state.rho, state.T and state.y_e should be to be defined.
+    /// In this mode, state.rho, state.T and state.y_e should be defined.
     ///
     /// 2. (rho, e, Ye): nse_input_rey
     /// In this mode, state.rho, state.e and state.y_e should be defined.
