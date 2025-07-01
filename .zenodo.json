@@ -7,18 +7,21 @@
             "name": "Bishop, Abigail",
             "orcid": "0000-0002-0375-644X"
         },
-
         {   "affiliation": "Department of Physics and Astronomy, Stony Brook University",
             "name": "Bhargava, Khanak",
             "orcid": "0000-0003-0385-7918"
         },
-        {   "affiliation": "Michigan State University",
-            "name": "Fields, Carl E.",
-            "orcid": "0000-0002-8925-057X"
-        },
         {   "affiliation": "Department of Physics and Astronomy, Stony Brook University",
             "name": "Chen, Zhi",
             "orcid": "0000-0002-2839-107X"
+        },
+        {
+            "name": "Fan, Doreen",
+            "orcid": "0000-0002-3246-4315"
+        },
+        {   "affiliation": "University of Arizona",
+            "name": "Fields, Carl E.",
+            "orcid": "0000-0002-8925-057X"
         },
         {
             "affiliation": "Department of Physics and Astronomy, Stony Brook University",
@@ -35,7 +38,7 @@
             "orcid": "0000-0003-3603-6868"
         },
         {
-            "affiliation": "NVIDIA Corporation",
+            "affiliation": "Stony Brook University",
             "name": "Katz, Maximilian",
             "orcid": "0000-0003-0439-4556"
         },
@@ -52,6 +55,11 @@
             "affiliation": "Leiden Observatory",
             "name": "Sharda, Piyush",
             "orcid": "0000-0003-3347-7094"
+        },
+        {
+            "affiliation": "Stony Brook University",
+            "name": "Smith Clark, Alexander",
+            "orcid": "0000-0001-5961-1680"
         },
         {
             "affiliation": "Arizona State University",
