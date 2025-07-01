@@ -184,6 +184,12 @@ void nse_nr_solver(nse_solver_data<T>& state_data,
     // state_data is the state_data after from
     // get_nonexponent_nse_state and compute_coulomb_contribution
 
+    // Currently NR solver only works for (rho, T, Ye) input
+
+    if constexpr (neqs != 2) {
+        amrex::Error("NR solver currently doesn't solve for (rho, e, Ye) input. Please use hybrid solver with nse.use_hybrid_solver=1.");
+    }
+
     // whether nse solver converged or not
 
     bool converged = false;
@@ -293,10 +299,6 @@ void nse_solve(nse_solver_data<T>& state_data,
         nse_hybrid_solver<neqs, T>(state_data, eps);
     }
     else {
-        if constexpr (neqs != 2) {
-            amrex::Error("NR solver currently doesn't solve for (rho, e, Ye) input. Please use hybrid solver with nse.use_hybrid_solver=1.");
-        }
-
         bool singular_network = true;
         for (int n = 0; n < NumSpec; ++n) {
 #ifdef NEW_NETWORK_IMPLEMENTATION
