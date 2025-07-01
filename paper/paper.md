@@ -17,8 +17,17 @@ authors:
 - name: Khanak Bhargava
   affiliation: '1'
 
+- name: Abigail Bishop
+  affiliation: '2'
+
 - name: Zhi Chen
   affiliation: '1'
+
+- name: Doreen Fan
+  affiliation: '3'
+
+- name: Carl Fields
+  affiliation: '4'
 
 - name: Eric T. Johnson
   affiliation: '1'
@@ -26,18 +35,25 @@ authors:
 - name: Max P. Katz
   affiliation: '1'
 
+- name: Chris Malone
+  affiliation: '5'
+
 - name: Piyush Sharda
-  affiliation: '2'
+  affiliation: '6'
 
 - given-names: Alexander
   surname: Smith Clark
   affiliation: '1'
 
+- name: Frank Timmes
+  affiliation: '7'
+
 - name: Ben Wibking
-  affiliation: '3'
+  affiliation: '8'
 
 - name: Don E. Willcox
-
+  affiliation: '3'
+  
 - name: Michael Zingale
   affiliation: '1'
 
@@ -47,11 +63,21 @@ affiliations:
 - index: 1
   name: Department of Physics and Astronomy, Stony Brook University, Stony Brook, NY, USA
 - index: 2
-  name: Leiden Observatory, Leiden, The Netherlands
+  name: Department of Physics, University of Wisconsin, Madison, Madison, WI, USA
 - index: 3
+  name: affiliation not disclosed
+- index: 4
+  name: Department of Astronomy, University of Arizona, Tucson, AZ, USA
+- index: 5
+  name: Los Alamos National Laboratory, Los Alamos, NM, USA
+- index: 6
+  name: Leiden Observatory, Leiden, The Netherlands
+- index: 7
+  name: Arizon State University, Tempe, AZ, USA
+- index: 8
   name: Department of Physics and Astronomy, Michigan State University, E. Lansing, MI, USA
 
-date: 28 May 2025
+date: 01 July 2025
 
 bibliography: paper.bib
 ---
