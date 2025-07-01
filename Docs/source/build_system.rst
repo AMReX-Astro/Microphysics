@@ -187,7 +187,9 @@ For the unit tests, simply doing
 
    make
 
-in the test directory will build the test.  There are a few other targets defined.  The most important
+in the test directory will build the test.
+
+There are a few other targets defined.  The most important
 is ``clean``.  Doing:
 
 .. code:: bash

@@ -1,6 +1,7 @@
 #ifndef ACTUAL_CONDUCTIVITY_H
 #define ACTUAL_CONDUCTIVITY_H
 
+#include <string_view>
 #include <cmath>
 #include <eos_type.H>
 #include <network.H>
@@ -8,7 +9,7 @@
 
 using namespace conductivity_rp;
 
-const std::string cond_name = "powerlaw";
+constexpr std::string_view cond_name = "powerlaw";
 
 AMREX_FORCE_INLINE
 void

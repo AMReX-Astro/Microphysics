@@ -1,6 +1,9 @@
 ******************
-Runtime parameters
+Runtime Parameters
 ******************
+
+Defining a Parameter
+====================
 
 The behavior of the network and EOS are controlled by many runtime
 parameters. These parameters are defined in plain-text files
@@ -33,6 +36,9 @@ what happens when two different ``_paramerter`` files define the same
 parameter but with different defaults.  In this case, the version of
 the parameter with the highest priority takes precedence. This allows
 specific implementations to override the general parameter defaults.
+
+Known Parameters
+================
 
 The documentation below is automatically generated, using the comments
 in the ``_parameters`` files.  The parameters are grouped by the

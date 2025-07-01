@@ -186,10 +186,11 @@ void apply_nse_exponent(T& nse_state,
 
 // constraint equation
 
-template <typename T>
+template <int neqs, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void fcn(amrex::Array1D<amrex::Real, 1, 2>& x, amrex::Array1D<amrex::Real, 1, 2>& fvec,
-         const nse_solver_data<T>& state_data, int& iflag) {
+void nse_fcn(amrex::Array1D<amrex::Real, 1, neqs>& x,
+             amrex::Array1D<amrex::Real, 1, neqs>& fvec,
+             const T& state_data, int& iflag) {
     // here state is the nse_state from get_nonexponent_nse_state
 
     amrex::ignore_unused(iflag);
@@ -224,10 +225,11 @@ void fcn(amrex::Array1D<amrex::Real, 1, 2>& x, amrex::Array1D<amrex::Real, 1, 2>
 
 // constraint jacobian
 
-template <typename T>
+template <int neqs, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void jcn(amrex::Array1D<amrex::Real, 1, 2>& x, amrex::Array2D<amrex::Real, 1, 2, 1, 2>& fjac,
-         const nse_solver_data<T>& state_data, int& iflag) {
+void nse_jcn(amrex::Array1D<amrex::Real, 1, neqs>& x,
+             amrex::Array2D<amrex::Real, 1, neqs, 1, neqs>& fjac,
+             const T& state_data, int& iflag) {
     // here state is the nse_state from get_nonexponent_nse_state
 
     amrex::ignore_unused(iflag);
@@ -312,10 +314,11 @@ void nse_hybrid_solver(nse_solver_data<T>& state_data,
             hj.x(1) = inner_x(1);
             hj.x(2) = inner_x(2);
 
-            // hybrj<2, T>(hj, state, fcn_hybrid<T>, jcn_hybrid<T>);
-            hybrj(hj, state_data);
+            hybrj<2, nse_solver_data<T>>(hj, state_data,
+                                         nse_fcn<2, nse_solver_data<T>>,
+                                         nse_jcn<2, nse_solver_data<T>>);
 
-            fcn(hj.x, f, state_data, flag);
+            nse_fcn(hj.x, f, state_data, flag);
 
             if (std::abs(f(1)) < eps && std::abs(f(2)) < eps) {
 
@@ -383,8 +386,8 @@ void nse_nr_solver(nse_solver_data<T>& state_data,
     x(1) = state_data.state.mu_p;
     x(2) = state_data.state.mu_n;
 
-    jcn(x, jac, state_data, flag);
-    fcn(x, f, state_data, flag);
+    nse_jcn(x, jac, state_data, flag);
+    nse_fcn(x, f, state_data, flag);
 
     // store determinant for finding inverse jac
     amrex::Real det;
@@ -460,8 +463,8 @@ void nse_nr_solver(nse_solver_data<T>& state_data,
 
         // update constraint
 
-        jcn(x, jac, state_data, flag);
-        fcn(x, f, state_data, flag);
+        nse_jcn(x, jac, state_data, flag);
+        nse_fcn(x, f, state_data, flag);
     }
 
     if (!converged) {
