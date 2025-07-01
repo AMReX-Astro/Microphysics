@@ -50,10 +50,21 @@ void nse_hybrid_solver(nse_solver_data<T>& state_data,
 
     hybrj_t<neqs> hj;
 
-    // we'll take x[1] = mu_p, x[2] = mu_n
-
+    // Set relative error between two iterations
     hj.xtol = eps;
+
+    // Different modes for the hybrid solver
+    // mode = 1: scales internally
+    // mode = 2: scales based on user-supplied diag, see below
     hj.mode = 1;
+
+    // Scale variable, this is to work with hj.mode = 2
+
+    // hj.diag(1) = 1.0_rt;
+    // hj.diag(2) = 1.0_rt;
+    // if constexpr (neqs == 3) {
+    //     hj.diag(3) = 1e9_rt;
+    // }
 
     // random flag number for evaluation in for loop;
 
@@ -74,9 +85,6 @@ void nse_hybrid_solver(nse_solver_data<T>& state_data,
     if constexpr (neqs == 3) {
         outer_x(3) = state_data.state.T;
     }
-    // for (int j = 1; j <= 2; ++j) {
-    //     hj.diag(j) = 1.0_rt;
-    // }
 
     // fine tuning initial guesses
     // Here we only fine tune chemical potentials
@@ -103,6 +111,15 @@ void nse_hybrid_solver(nse_solver_data<T>& state_data,
             // Check for convergence
 
             bool converged = true;
+
+            if constexpr (neqs == 3) {
+                if (hj.x(3) < 1.0e9_rt) {
+                    // If temperature is too low or even negative.
+                    // Then the solved Temperature is not correct.
+                    converged = false;
+                }
+            }
+
             for (int n = 1; n <= neqs; ++n) {
                 if (std::abs(f(n)) >= eps) {
                     converged = false;
@@ -149,6 +166,7 @@ void nse_hybrid_solver(nse_solver_data<T>& state_data,
     std::cout << "Temperature: " << state_data.state.T << std::endl;
     std::cout << "Density: " << state_data.state.rho << std::endl;
     std::cout << "Ye: " << state_data.state.y_e << std::endl;
+    std::cout << "Internal Energy: " << state_data.state.e << std::endl;
     std::cout << "Initial mu_p and mu_n: " << state_data.state.mu_p
               << ", " << state_data.state.mu_n << std::endl;
 #endif
@@ -485,6 +503,35 @@ nse_T_from_e(const amrex::Real rho, const amrex::Real e_in,
         amrex::Real dabar_dT = nse_dabar_dT(T, rho, Ye,
                                             nse_state.mu_p, nse_state.mu_n);
 
+//         amrex::Real dabar_dT = 0.0_rt;
+//         amrex::Real T_in = T;
+//         amrex::Real ikTMeV = C::MeV2erg / (C::k_B * T_in);
+//         auto tfactors = evaluate_tfactors(T_in);
+//         for (int n = 0; n < NumSpec; ++n) {
+// #ifdef NEW_NETWORK_IMPLEMENTATION
+//             if (n == NSE_INDEX::H1_index) {
+//                 continue;
+//             }
+// #endif
+//             // fill partition function
+
+//             amrex::Real pf = 1.0_rt;
+//             amrex::Real dpf_dT = 0.0_rt;
+
+// #ifndef NEW_NETWORK_IMPLEMENTATION
+//             get_partition_function(n+1, tfactors, pf, dpf_dT);
+// #endif
+
+//             // There is another screening term I need to add if we have screening.
+//             amrex::Real dXdT = nse_state.xn[n] *
+//                 (dpf_dT / pf + (1.5_rt - (zion[n] * nse_state.mu_p + (aion[n] - zion[n]) * nse_state.mu_n +
+//                                           network::bion(n+1)) * ikTMeV) / nse_state.T);
+
+//             dabar_dT += aion_inv[n] * dXdT;
+//         }
+
+//         dabar_dT = -eos_state.abar*eos_state.abar*dabar_dT;
+
         // compute the correction to our guess
 
         amrex::Real dT = -f / (eos_state.dedT + eos_state.dedA * dabar_dT
@@ -525,7 +572,7 @@ T get_nse_state_rey(T& state,
     // where now we have an additional constraint equation on e.
     // So there are three constraint equations and a 3x3 Jacobian.
 
-    if (solve_nse_e_numerically) {
+    if (solve_nse_e_mode == 1) {
         // Option 1
 
         // Get T0 such that it is consistent with e.
@@ -542,46 +589,53 @@ T get_nse_state_rey(T& state,
         burn_state.T = T0;
         burn_state.rho = state.rho;
         burn_state.y_e = state.y_e;
+        burn_state.e = state.e;
         burn_state.mu_p = state.mu_p;
         burn_state.mu_n = state.mu_n;
 
         auto nse_state = get_nse_state_rty(burn_state, eps);
 
-    } else {
-        // Option 2
+        // update mu_n and mu_p to input state
 
-        // Initializes the initial state
+        state.mu_p = nse_state.mu_p;
+        state.mu_n = nse_state.mu_n;
 
-        nse_solver_data<T> state_data = {state, {0.0_rt}};
+        return nse_state;
+    }
 
-        // invoke newton-raphson or hybrj to solve mu_p, mu_n and T.
-        // For (rho, e, Ye) input, there are three constraint eqns.
-        // Since T is varying, we cannnot pre-calculate terms.
+    // Option 2
 
-        constexpr int nConstraintEqns = 3;
+    // Initializes the initial state
 
-        nse_solve<nConstraintEqns, T>(state_data, eps);
+    nse_solver_data<T> state_data = {state, {0.0_rt}};
 
-        // Now that mu_p, mu_n and T are solved and stored in state_data.state.
-        // Get the NSE composition. First get the nonexponent piece
+    // invoke newton-raphson or hybrj to solve mu_p, mu_n and T.
+    // For (rho, e, Ye) input, there are three constraint eqns.
+    // Since T is varying, we cannnot pre-calculate terms.
 
-        auto nse_state = get_nonexponent_nse_state(state_data.state);
+    constexpr int nConstraintEqns = 3;
 
-        // if use chabrier1998 screening, calculate the coulomb correction term
+    nse_solve<nConstraintEqns, T>(state_data, eps);
+
+    // Now that mu_p, mu_n and T are solved and stored in state_data.state.
+    // Get the NSE composition. First get the nonexponent piece
+
+    auto nse_state = get_nonexponent_nse_state(state_data.state);
+
+    // if use chabrier1998 screening, calculate the coulomb correction term
 
 #if SCREEN_METHOD == SCREEN_METHOD_chabrier1998
-        compute_coulomb_contribution(state_data.u_c, state_data.state);
+    compute_coulomb_contribution(state_data.u_c, state_data.state);
 #endif
 
-        // Apply exponent for calculating NSE mass fractions
+    // Apply exponent for calculating NSE mass fractions
 
-        apply_nse_exponent(nse_state, state_data.u_c);
+    apply_nse_exponent(nse_state, state_data.u_c);
 
-        // update rhoX in the output nse_state
+    // update rhoX in the output nse_state
 
-        for (int n = 0; n < NumSpec; ++n) {
-            nse_state.y[SFS+n] = nse_state.rho * nse_state.xn[n];
-        }
+    for (int n = 0; n < NumSpec; ++n) {
+        nse_state.y[SFS+n] = nse_state.rho * nse_state.xn[n];
     }
 
     // update mu_n and mu_p to input state

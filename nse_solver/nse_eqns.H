@@ -233,7 +233,8 @@ void nse_fcn(amrex::Array1D<amrex::Real, 1, 3>& x,
     // Initialize burn state
 
     burn_t burn_state;
-    burn_state.rho = state_data.state.rho;
+    burn_state.rho  = state_data.state.rho;
+    burn_state.y_e  = state_data.state.y_e;
     burn_state.mu_p = x(1);
     burn_state.mu_n = x(2);
     burn_state.T    = x(3);
@@ -245,17 +246,19 @@ void nse_fcn(amrex::Array1D<amrex::Real, 1, 3>& x,
     // Find nonexponent piece, note that nse_state is eos_t
     // so that we can do eos on it.
 
-    auto nse_state = get_nonexponent_nse_state<burn_t>(burn_state);
+    auto nse_state = get_nonexponent_nse_state(burn_state);
 
     // Find screening term
 
+    amrex::Array1D<amrex::Real, 1, NumSpec> u_c{0.0_rt};
+
 #if SCREEN_METHOD == SCREEN_METHOD_chabrier1998
-    compute_coulomb_contribution(state_data.u_c, nse_state);
+    compute_coulomb_contribution(u_c, nse_state);
 #endif
 
     // Apply exponent for calculating NSE mass fractions
 
-    apply_nse_exponent(nse_state, state_data.u_c);
+    apply_nse_exponent(nse_state, u_c);
 
     fvec(1) = -1.0_rt;
 
@@ -279,7 +282,7 @@ void nse_fcn(amrex::Array1D<amrex::Real, 1, 3>& x,
 
     // Create eos state to find the corresponding internal energy
 
-    eos_extra_t eos_state;
+    eos_t eos_state;
     for  (int n = 0; n < NumSpec; ++n) {
         eos_state.xn[n] = nse_state.xn[n];
     }
@@ -287,7 +290,10 @@ void nse_fcn(amrex::Array1D<amrex::Real, 1, 3>& x,
     eos_state.T = nse_state.T;
     eos(eos_input_rt, eos_state);
 
-    fvec(3) = eos_state.e - e_in;
+    // scale the energy constraint by e_in so that its on order 1
+    // similar to other constraint eqs.
+
+    fvec(3) = eos_state.e / e_in - 1.0_rt;
 }
 
 ///
@@ -351,10 +357,11 @@ void nse_jcn(amrex::Array1D<amrex::Real, 1, 3>& x,
 
     amrex::ignore_unused(iflag);
 
-    // Initialize burn state
+    // Initialize burn state to find NSE state
 
     burn_t burn_state;
-    burn_state.rho = state_data.state.rho;
+    burn_state.rho  = state_data.state.rho;
+    burn_state.y_e  = state_data.state.y_e;
     burn_state.mu_p = x(1);
     burn_state.mu_n = x(2);
     burn_state.T    = x(3);
@@ -367,15 +374,17 @@ void nse_jcn(amrex::Array1D<amrex::Real, 1, 3>& x,
 
     // Find screening term
 
+    amrex::Array1D<amrex::Real, 1, NumSpec> u_c{0.0_rt};
+
 #if SCREEN_METHOD == SCREEN_METHOD_chabrier1998
-    compute_coulomb_contribution(state_data.u_c, nse_state);
+    compute_coulomb_contribution(u_c, nse_state);
 #endif
 
     // Apply exponent for calculating NSE mass fractions
 
-    apply_nse_exponent(nse_state, state_data.u_c);
+    apply_nse_exponent(nse_state, u_c);
 
-    // evaluate jacobian of the constraint
+    // evaluate jacobian of the constraint eqns
 
     for (int i = 1; i <= 3; ++i) {
         for (int j = 1; j <= 3; ++j) {
@@ -383,11 +392,76 @@ void nse_jcn(amrex::Array1D<amrex::Real, 1, 3>& x,
         }
     }
 
-    // if we are doing drive_initial_convection, we want to use
-    // the temperature that comes in through T_fixed
-
-    amrex::Real T_in = nse_state.T_fixed > 0.0_rt ? nse_state.T_fixed : nse_state.T;
+    amrex::Real T_in = burn_state.T;
     amrex::Real ikTMeV = C::MeV2erg / (C::k_B * T_in);
+    amrex::Real e_in = state_data.state.e;
+    amrex::Real Ye = state_data.state.y_e;
+
+#ifndef NEW_NETWORK_IMPLEMENTATION
+    auto tfactors = evaluate_tfactors(T_in);
+#endif
+
+    for (int n = 0; n < NumSpec; ++n) {
+#ifdef NEW_NETWORK_IMPLEMENTATION
+        if (n == NSE_INDEX::H1_index) {
+            continue;
+        }
+#endif
+        // Pre-compute some relevant derivatives
+
+        amrex::Real dX_dmu_p = nse_state.xn[n] * zion[n] * ikTMeV;
+        amrex::Real dX_dmu_n = nse_state.xn[n] * (aion[n] - zion[n]) * ikTMeV;
+
+        // fill partition function
+
+        amrex::Real pf = 1.0_rt;
+        amrex::Real dpf_dT = 0.0_rt;
+
+#ifndef NEW_NETWORK_IMPLEMENTATION
+        get_partition_function(n+1, tfactors, pf, dpf_dT);
+#endif
+
+        // Find temperature derivative of the coulomb potential term: d (μ^c/kbT) / dT
+        amrex::Real dmu_dT = 0.0_rt;
+
+#if SCREEN_METHOD == SCREEN_METHOD_chabrier1998
+
+        // Find dΓ / dT = - Γ / T
+
+        const amrex::Real n_e = state_data.state.rho * Ye * C::n_A;
+        const amrex::Real Gamma_e = C::q_e * C::q_e *
+            std::cbrt(1.333333333333_rt * M_PI * n_e) / (C::k_B * T_in);
+        amrex::Real Gamma = std::cbrt(amrex::Math::powi<5>(zion[n])) * Gamma_e;
+        amrex::Real dGamma_dT = - Gamma / T_in;
+
+        // Perhaps switch to using autodiff, but the expression seems simple enough.
+
+        constexpr amrex::Real A_1 = -0.9052_rt;
+        constexpr amrex::Real A_2 = 0.6322_rt;
+        constexpr amrex::Real sqrt_A2 = gcem::sqrt(A_2);
+        constexpr amrex::Real A_3 = -0.5_rt * gcem::sqrt(3.0_rt) - A_1 / sqrt_A2;
+
+        dmu_dT = dGamma_dT * std::sqrt(Gamma) * (A_3 / (1.0_rt + Gamma) +
+                                                 A_1 / std::sqrt(A_2 + Gamma));
+#endif
+
+        amrex::Real dX_dT = nse_state.xn[n] *
+            (dpf_dT / pf - dmu_dT + (1.5_rt - (zion[n] * nse_state.mu_p + (aion[n] - zion[n]) * nse_state.mu_n +
+                                               network::bion(n+1)) * ikTMeV) / nse_state.T);
+
+        fjac(1, 1) += dX_dmu_p;
+        fjac(1, 2) += dX_dmu_n;
+        fjac(1, 3) += dX_dT;
+        fjac(2, 1) += zion[n] * aion_inv[n] * dX_dmu_p;
+        fjac(2, 2) += zion[n] * aion_inv[n] * dX_dmu_n;
+        fjac(2, 3) += zion[n] * aion_inv[n] * dX_dT;
+        fjac(3, 1) += aion_inv[n] * dX_dmu_p;
+        fjac(3, 2) += aion_inv[n] * dX_dmu_n;
+        fjac(3, 3) += aion_inv[n] * dX_dT;
+    }
+
+    // To save time, in the future, calculate X_k individually along with the jacobian,
+    // then call eos after getting relevant X_k to find abar, dedA and dedZ
 
     // Create eos state to find relevant dedZ, dedA and abar via eos
 
@@ -399,53 +473,14 @@ void nse_jcn(amrex::Array1D<amrex::Real, 1, 3>& x,
     eos_state.T = nse_state.T;
     eos(eos_input_rt, eos_state);
 
-    for (int n = 0; n < NumSpec; ++n) {
-#ifdef NEW_NETWORK_IMPLEMENTATION
-        if (n == NSE_INDEX::H1_index) {
-            continue;
-        }
-#endif
-        // Pre-compute some relevant derivatives
+    fjac(3, 1) = - eos_state.abar * eos_state.abar *
+        (eos_state.dedA + Ye * eos_state.dedZ) * fjac(3, 1) / e_in;
 
-        amrex::Real dXdmu_p = nse_state.xn[n] * zion[n] * ikTMeV;
-        amrex::Real dXdmu_n = nse_state.xn[n] * (aion[n] - zion[n]) * ikTMeV;
+    fjac(3, 2) = - eos_state.abar * eos_state.abar *
+        (eos_state.dedA + Ye * eos_state.dedZ) * fjac(3, 2) / e_in;
 
-        // fill partition function
-
-        amrex::Real pf = 1.0_rt;
-        amrex::Real dpf_dT = 0.0_rt;
-
-#ifndef NEW_NETWORK_IMPLEMENTATION
-        get_partition_function(n+1, tfactors, pf, dpf_dT);
-#endif
-
-        // There is another screening term I need to add if we have screening.
-        amrex::Real dXdT = nse_state.xn[n] *
-            (dpf_dT / pf + (1.5_rt - zion[n] * nse_state.mu_p - (aion[n] - zion[n]) * nse_state.mu_n -
-                            network::bion(n+1)) / nse_state.T);
-
-        fjac(1, 1) += dXdmu_p;
-        fjac(1, 2) += dXdmu_n;
-        fjac(1, 3) += dXdT;
-        fjac(2, 1) += zion[n] * aion_inv[n] * dXdmu_p;
-        fjac(2, 2) += zion[n] * aion_inv[n] * dXdmu_n;
-        fjac(2, 3) += zion[n] * aion_inv[n] * dXdT;
-        fjac(3, 1) += aion_inv[n] * dXdmu_p;
-        fjac(3, 2) += aion_inv[n] * dXdmu_n;
-        fjac(3, 3) += aion_inv[n] * dXdT;
-    }
-
-    // To save time, in the future, calculate X_k individually along with the jacobian,
-    // then call eos after getting relevant X_k to find abar, dedA and dedZ
-
-    fjac(3, 1) = - nse_state.abar * nse_state.abar *
-        (nse_state.dedA + state_data.state.y_e * nse_state.dedZ) * fjac(3, 1);
-
-    fjac(3, 2) = - nse_state.abar * nse_state.abar *
-        (nse_state.dedA + state_data.state.y_e * nse_state.dedZ) * fjac(3, 2);
-
-    fjac(3, 3) = nse_state.dedT - nse_state.abar * nse_state.abar *
-        (nse_state.dedA + state_data.state.y_e * nse_state.dedZ) * fjac(3, 3);
+    fjac(3, 3) = (eos_state.dedT - eos_state.abar * eos_state.abar *
+                  (eos_state.dedA + Ye * eos_state.dedZ) * fjac(3, 3)) / e_in;
 }
 
 #endif
