@@ -19,7 +19,7 @@
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="_static/clipboard.min.js?v=a7894cd8"></script>
-      <script src="_static/copybutton.js?v=f281be69"></script>
+      <script src="_static/copybutton.js?v=eaa7b67c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -58,7 +58,8 @@
 <li class="toctree-l1"><a class="reference internal" href="design.html">Design</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
 <li class="toctree-l1"><a class="reference internal" href="build_system.html">Build System</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fundamental_constants.html">Fundamental Constants</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
 <ul>
@@ -156,7 +157,7 @@ each method of computing the Jacobian.</p>
 <p>Some integrators, like VODE, have their own numerical Jacobian
 routines.  This test uses the implementation in
 <code class="docutils literal notranslate"><span class="pre">integration/util/numerical_jacobian.H</span></code>, which closely follows the ideas
-of the VODE numerical approximation, as described in <span id="id1">[<a class="reference internal" href="zreferences.html#id55" title="Krishnan Radhakrishnan and Alan C. Hindmarsh. Description and Use of LSODE, the Livermore Solver for Ordinary Differential Equations. Lawrence Livermore National Laboratory Report UCRL-ID-113855, pages 124, 1993.">44</a>]</span>.</p>
+of the VODE numerical approximation, as described in <span id="id1">[<a class="reference internal" href="zreferences.html#id55" title="Krishnan Radhakrishnan and Alan C. Hindmarsh. Description and Use of LSODE, the Livermore Solver for Ordinary Differential Equations. Lawrence Livermore National Laboratory Report UCRL-ID-113855, pages 124, 1993.">51</a>]</span>.</p>
 </div>
 <section id="getting-started">
 <h2>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h2>
@@ -219,8 +220,8 @@ thermodynamic state in that file prior to running.</p>
 <p>All output is directed to <code class="docutils literal notranslate"><span class="pre">stdout</span></code>.  Example output is shown below
 (this output includes screening, highlighting the difference that the
 screening composition derivatives make):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Initializing</span> <span class="n">AMReX</span> <span class="p">(</span><span class="mf">24.12</span><span class="o">-</span><span class="mi">14</span><span class="o">-</span><span class="n">gb3f67385e62f</span><span class="p">)</span><span class="o">...</span>
-<span class="n">AMReX</span> <span class="p">(</span><span class="mf">24.12</span><span class="o">-</span><span class="mi">14</span><span class="o">-</span><span class="n">gb3f67385e62f</span><span class="p">)</span> <span class="n">initialized</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Initializing</span> <span class="n">AMReX</span> <span class="p">(</span><span class="mi">247628</span><span class="n">b112a5</span><span class="p">)</span><span class="o">...</span>
+<span class="n">AMReX</span> <span class="p">(</span><span class="mi">247628</span><span class="n">b112a5</span><span class="p">)</span> <span class="n">initialized</span>
 <span class="n">starting</span> <span class="n">the</span> <span class="n">single</span> <span class="n">zone</span> <span class="n">burn</span><span class="o">...</span>
          <span class="n">element</span>           <span class="n">numerical</span>            <span class="n">analytic</span>
 <span class="n">J</span><span class="p">(</span> <span class="n">He4</span><span class="p">,</span>  <span class="n">He4</span><span class="p">)</span> <span class="o">=</span>         <span class="o">-</span><span class="mf">386901.0562</span>         <span class="o">-</span><span class="mf">389364.2481</span>
@@ -430,10 +431,10 @@ screening composition derivatives make):</p>
 <span class="n">J</span><span class="p">(</span>   <span class="n">e</span><span class="p">,</span> <span class="n">Ti44</span><span class="p">)</span> <span class="o">=</span>      <span class="mf">3.973002198e+21</span>      <span class="mf">1.959966253e+20</span>
 <span class="n">J</span><span class="p">(</span>   <span class="n">e</span><span class="p">,</span> <span class="n">Cr48</span><span class="p">)</span> <span class="o">=</span>       <span class="mf">4.23547637e+21</span>       <span class="mf">1.21440394e+20</span>
 <span class="n">J</span><span class="p">(</span>   <span class="n">e</span><span class="p">,</span> <span class="n">Fe52</span><span class="p">)</span> <span class="o">=</span>      <span class="mf">4.413681758e+21</span>      <span class="mf">2.675297734e+19</span>
-<span class="n">J</span><span class="p">(</span>   <span class="n">e</span><span class="p">,</span> <span class="n">Ni56</span><span class="p">)</span> <span class="o">=</span>      <span class="mf">4.682037199e+21</span>     <span class="o">-</span><span class="mf">1.725529485e+13</span>
+<span class="n">J</span><span class="p">(</span>   <span class="n">e</span><span class="p">,</span> <span class="n">Ni56</span><span class="p">)</span> <span class="o">=</span>      <span class="mf">4.682037199e+21</span>     <span class="o">-</span><span class="mf">1.725529405e+13</span>
 <span class="n">J</span><span class="p">(</span>   <span class="n">e</span><span class="p">,</span>    <span class="n">e</span><span class="p">)</span> <span class="o">=</span>          <span class="mf">74499.43446</span>          <span class="mf">74499.57032</span>
 
-<span class="n">AMReX</span> <span class="p">(</span><span class="mf">24.12</span><span class="o">-</span><span class="mi">14</span><span class="o">-</span><span class="n">gb3f67385e62f</span><span class="p">)</span> <span class="n">finalized</span>
+<span class="n">AMReX</span> <span class="p">(</span><span class="mi">247628</span><span class="n">b112a5</span><span class="p">)</span> <span class="n">finalized</span>
 </pre></div>
 </div>
 </section>
@@ -450,7 +451,7 @@ screening composition derivatives make):</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Microphysics Development Team.</p>
+    <p>&#169; Copyright 2025, Microphysics Development Team.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

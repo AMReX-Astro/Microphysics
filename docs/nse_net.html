@@ -19,7 +19,7 @@
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="_static/clipboard.min.js?v=a7894cd8"></script>
-      <script src="_static/copybutton.js?v=f281be69"></script>
+      <script src="_static/copybutton.js?v=eaa7b67c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script>window.MathJax = {"tex": {"inlineMath": [["\\(", "\\)"]], "processEscapes": true, "displayMath": [["\\[", "\\]"]], "macros": {"rhozero": "{\\rho_0}", "pizero": "{\\pi_0}", "pizeroone": "{\\pi_0^{(1)}}", "pizerotwo": "{\\pi_0^{(2)}}", "gammabar": "{\\overline{\\Gamma}_1}", "ptl": "{{\\partial}}", "eb": "{{\\bf e}}", "fb": "{{\\bf f}}", "ib": "{{\\bf i}}", "Ub": "{{\\bf U}}", "Vb": "{{\\bf V}}", "xb": "{{\\bf x}}", "ut": "{\\tilde{u}}", "vt": "{\\tilde{v}}", "wt": "{\\tilde{w}}", "Ubt": "{\\widetilde{\\Ub}}", "edge": "{\\rm EDGE}", "mac": "{\\rm MAC}", "trans": "{\\rm TRANS}", "nablab": "{\\mathbf{\\nabla}}", "cdotb": "{\\mathbf{\\cdot}}", "half": "{\\frac{1}{2}}", "myhalf": "{\\frac{1}{2}}", "nph": "{{n + \\myhalf}}", "nmh": "{{n - \\myhalf}}", "Hext": "{{H_{\\rm ext}}}", "Hnuc": "{{H_{\\rm nuc}}}", "kth": "{k_{\\rm th}}", "pred": "{{\\rm pred}}", "Sbar": "{\\overline{S}}", "inp": "{\\mathrm{in}}", "initp": "{\\mathrm{init}}", "outp": "{\\mathrm{out}}", "uadv": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvone": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV},\\star}}", "uadvonedag": "{\\Ubt^{\\mathrm{ADV},\\dagger,\\star}}", "uadvtwo": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvtwodag": "{\\Ubt^{\\mathrm{ADV},\\dagger}}", "uadvsdcstar": "{\\mathbf{U}^{\\mathrm{ADV},\\star}}", "uadvsdcpred": "{\\mathbf{U}^{\\mathrm{ADV},\\mathrm{pred}}}", "uadvsdc": "{\\mathbf{U}^{\\mathrm{ADV}}}", "dt": "{\\Delta t}", "dr": "{\\Delta r}", "etarho": "{\\eta_{\\rho}}", "etarhoec": "{\\etarho^{\\rm ec}}", "etarhocc": "{\\etarho^{\\rm cc}}", "etarhoflux": "{\\etarho^{\\rm flux}}", "divetarho": "{\\nabla\\cdot(\\etarho\\eb_r)}", "ow": "{\\overline{w}_0}", "dw": "{\\delta w_0}", "thalf": "{\\sfrac{3}{2}}", "rhop": "{{\\rho^{\\prime}}}", "omegadot": "{\\dot{\\omega}}", "er": "{\\mathbf{e}_r}", "ex": "{\\mathbf{e}_x}", "ey": "{\\mathbf{e}_y}", "ez": "{\\mathbf{e}_z}", "Omegab": "{{\\bf \\Omega}}", "rb": "{{\\bf r}}", "isotm": ["{{}^{#2}\\mathrm{#1}}", 2], "edot": "{{{\\dot{e}_\\mathrm{nuc}}}}", "enuc": "{{{{e}_\\mathrm{nuc}}}}", "edotnu": "{{{\\dot{e}_\\nu}}}", "rt": "{\\tilde{r}_0}", "rhob": "{\\ensuremath{\\rho_\\mathrm{base}}}", "Tb": "{\\ensuremath{T_\\mathrm{base}}}", "gcc": "{\\mathrm{g~cm^{-3} }}", "pb": "{p_\\mathrm{base}}", "qburn": "{q_\\mathrm{burn}}", "Uc": "{{\\boldsymbol{\\mathcal{U}}}}", "Fb": "{\\mathbf{F}}", "Sc": "{\\mathbf{S}}", "Shydro": "{{{\\bf S}^{\\mathrm{hydro}}}}", "Rb": "{{\\bf R}}", "Rbs": ["{{\\bf R} \\left ( #1 \\right )}", 1], "Rq": "{{\\bf R}}", "Adv": ["{{\\left [\\boldsymbol{\\mathcal{A}} \\left(#1\\right)\\right]}}", 1], "Advs": ["{{\\boldsymbol{\\mathcal{A}} \\left(#1\\right)}}", 1], "Sdot": "{\\dot{S}}"}}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
       <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -60,7 +60,8 @@
 <li class="toctree-l1"><a class="reference internal" href="design.html">Design</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
 <li class="toctree-l1"><a class="reference internal" href="build_system.html">Build System</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fundamental_constants.html">Fundamental Constants</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
 <ul>
@@ -83,6 +84,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="nse.html">NSE</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="nse_tabular.html">Tabulated NSE and <code class="docutils literal notranslate"><span class="pre">aprox19</span></code></a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Self-consistent NSE</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#nse-reactive-update">NSE Reactive Update</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#dynamic-nse-check">Dynamic NSE Check</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#additional-options">Additional Options</a></li>
 </ul>
@@ -144,16 +146,25 @@
 <p>The self-consistent NSE approach uses only the nuclei in the main
 reaction network.  It solves for the chemical potentials of the proton
 and neutron and from there gets the abundances of each of the nuclei
-under the assumption of NSE, following the procedure outlined in <span id="id2">[<a class="reference internal" href="zreferences.html#id36" title="A. C. Calder, D. M. Townsley, I. R. Seitenzahl, F. Peng, O. E. B. Messer, N. Vladimirova, E. F. Brown, J. W. Truran, and D. Q. Lamb. Capturing the fire: flame energetics and neutronization for type ia supernova simulations. The Astrophysical Journal, 656(1):313–332, feb 2007. URL: https://doi.org/10.1086/510709, doi:10.1086/510709.">32</a>]</span>.</p>
+under the assumption of NSE, following the procedure outlined in <span id="id2">[<a class="reference internal" href="zreferences.html#id36" title="A. C. Calder, D. M. Townsley, I. R. Seitenzahl, F. Peng, O. E. B. Messer, N. Vladimirova, E. F. Brown, J. W. Truran, and D. Q. Lamb. Capturing the fire: flame energetics and neutronization for type ia supernova simulations. The Astrophysical Journal, 656(1):313–332, feb 2007. URL: https://doi.org/10.1086/510709, doi:10.1086/510709.">39</a>]</span>.</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
 <p>Self-consistent NSE does not support the templated C++ networks
 (like <code class="docutils literal notranslate"><span class="pre">aprox13</span></code>).  You should use a pynucastro-generated network.</p>
 </div>
-<p>The solve is done using a port of the hybrid Powell method from
-MINPACK (we ported the solver to templated C++).</p>
-<p>The advantage of this approach is that it can be used with any
-reaction network, once the integration has reached NSE.</p>
+<p>There are two methods for solving the chemical potentials:</p>
+<ol class="arabic simple">
+<li><p>Hybrid Powell’s method. This is the default method.
+This algorithm is taken from MINPACK and
+ported to templated C++.</p></li>
+<li><p>Newton-Raphson (NR) method.
+This method is not as robust compared
+to the Hybrid Powell’s method through our testings.
+But this can be enabled via runtime parameter:
+<code class="docutils literal notranslate"><span class="pre">nse.use_hybrid_solver=0</span></code>.</p></li>
+</ol>
+<p>The advantage of this approach is that it can be used with any reaction network,
+once the integration has reached NSE.</p>
 <p>This solver is enabled by compiling with</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><style type="text/css">
 span.prompt1:before {
@@ -161,17 +172,91 @@ span.prompt1:before {
 }
 </style><span class="prompt1"><span class="nv">USE_NSE_NET</span><span class="o">=</span>TRUE</span>
 </pre></div></div><p>The functions to find the NSE state are then found in <code class="docutils literal notranslate"><span class="pre">nse_solver.H</span></code>.</p>
+<section id="nse-reactive-update">
+<h2>NSE Reactive Update<a class="headerlink" href="#nse-reactive-update" title="Link to this heading"></a></h2>
+<p>Here we give outline on how the reactive update is done with NSE.</p>
+<ul>
+<li><p>Check if NSE applies (see below)</p>
+<ul>
+<li><p>If we are in an NSE region:</p>
+<ul>
+<li><p>Compute the advective source term for <span class="math notranslate nohighlight">\(Y_e\)</span> via:</p>
+<div class="math notranslate nohighlight">
+\[\Advs{\rho Y_e} = \sum_k \frac{Z_k}{A_k} \Advs{\rho X_k}\]</div>
+</li>
+<li><p>Compute <span class="math notranslate nohighlight">\([\Rb(\rho Y_e)]^n\)</span> and <span class="math notranslate nohighlight">\([\Rb(\rho e)_{\mathrm{nuc}}]^n\)</span> using
+<span class="math notranslate nohighlight">\([\rho]^n\)</span>, <span class="math notranslate nohighlight">\([T]^n\)</span>, <span class="math notranslate nohighlight">\([Y_e]^n\)</span> and <span class="math notranslate nohighlight">\([e]^n\)</span>:</p>
+<ul>
+<li><p>Find the NSE composition with given <span class="math notranslate nohighlight">\([\rho]^n\)</span>, <span class="math notranslate nohighlight">\([e]^n\)</span>,
+and <span class="math notranslate nohighlight">\([Y_e]^n\)</span>. An EOS inversion algorithm is used so
+that we determine <span class="math notranslate nohighlight">\([T^*]^n\)</span> such that <span class="math notranslate nohighlight">\([e]^n\)</span> remains
+unchanged after switching to the NSE composition.
+Here we use <span class="math notranslate nohighlight">\([T]^n\)</span> as the initial guess and updated
+to the solution, <span class="math notranslate nohighlight">\([T^*]^n\)</span>, in the end.</p></li>
+<li><p>Compute the thermal neutrino losses,
+<span class="math notranslate nohighlight">\(\epsilon_{\nu,\mathrm{thermal}}\)</span>, using the NSE composition.</p></li>
+<li><p>Evaluate <span class="math notranslate nohighlight">\(\dot{Y}_{\mathrm{weak}}\)</span> and neutrino losses,
+<span class="math notranslate nohighlight">\(\epsilon_{\nu,\mathrm{react}}\)</span>,
+from weak reactions only as they are the only contributing
+reactions in NSE.</p></li>
+<li><p>Evaluate <span class="math notranslate nohighlight">\([\Rb(\rho Y_e)]^n\)</span> as:</p>
+<div class="math notranslate nohighlight">
+\[[\Rb(\rho Y_e)]^n = [\rho]^n \sum_k Z_k [\dot{Y}_{\mathrm{k, weak}}]^n\]</div>
+</li>
+<li><p>Evaluate <span class="math notranslate nohighlight">\([\Rb(\rho e)_{\mathrm{nuc}}]^n\)</span> as:</p>
+<div class="math notranslate nohighlight">
+\[[\Rb(\rho e)_{\mathrm{nuc}}]^n = - N_A c^2 \sum_k [\dot{Y}_{\mathrm{k, weak}}]^n m_k\]</div>
+<p>where the nuclei mass, <span class="math notranslate nohighlight">\(m_k\)</span> is defined as:</p>
+<div class="math notranslate nohighlight">
+\[m_k c^2 = (A_k - Z_k) m_n c^2 + Z_k (m_p + m_e) c^2 - B_k\]</div>
+</li>
+<li><p>The full reactive source term, <span class="math notranslate nohighlight">\([\Rb(\rho e)]^n\)</span> is then:</p>
+<div class="math notranslate nohighlight">
+\[[\Rb(\rho e)]^n = [\Rb(\rho e)_{\mathrm{nuc}}]^n - [\rho]^n \left(\epsilon_{\nu,\mathrm{thermal}} + \epsilon_{\nu,\mathrm{react}}\right)\]</div>
+</li>
+</ul>
+</li>
+<li><p>Now evolve <span class="math notranslate nohighlight">\(\rho\)</span>, <span class="math notranslate nohighlight">\(\rho e\)</span>, and <span class="math notranslate nohighlight">\(\rho Y_e\)</span> to midpoint in time:</p>
+<div class="math notranslate nohighlight">
+\[\Uc^{\prime,n+1/2} = \Uc^{\prime,n} + \frac{\Delta t}{2} \left([\Advs{\Uc^\prime}]^{n+1/2} + [\Rb(\Uc^\prime)]^{n}\right)\]</div>
+<p>Note that there is no reactive source term for <span class="math notranslate nohighlight">\(\rho\)</span> and the advective
+source term is already time-centered from the simplified-SDC algorithm.</p>
+</li>
+<li><p>Compute <span class="math notranslate nohighlight">\([\Rb(\rho Y_e)]^{n+1/2}\)</span> and
+<span class="math notranslate nohighlight">\([\Rb(\rho e)_{\mathrm{nuc}}]^{n+1/2}\)</span> following the same
+procedure as above. This time, it uses
+<span class="math notranslate nohighlight">\([\rho]^{n+1/2}\)</span>, <span class="math notranslate nohighlight">\([Y_e]^{n+1/2}\)</span> and <span class="math notranslate nohighlight">\([e]^{n+1/2}\)</span> as input
+and uses the updated <span class="math notranslate nohighlight">\([T]^n\)</span> as initial guess for the EOS inversion
+algorithm.</p></li>
+<li><p>Now evolve all thermodynamic quantities to new time, <span class="math notranslate nohighlight">\(t^{n+1}\)</span>, using the
+midpoint reactive source terms constructed in the previous step.</p>
+<div class="math notranslate nohighlight">
+\[\Uc^{\prime,n+1} = \Uc^{\prime,n} + \Delta t \left([\Advs{\Uc^\prime}]^{n+1/2} + [\Rb(\Uc^\prime)]^{n+1/2}\right)\]</div>
+</li>
+<li><p>Lastly, the composition is updated by finding the corresponding NSE state
+using <span class="math notranslate nohighlight">\([\rho]^{n+1}\)</span>, <span class="math notranslate nohighlight">\([e]^{n+1}\)</span>, and <span class="math notranslate nohighlight">\([Y_e]^{n+1}\)</span></p></li>
+</ul>
+</li>
+<li><p>If we are not in an NSE region:</p>
+<ul class="simple">
+<li><p>Integrate the network as usual.</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</section>
 <section id="dynamic-nse-check">
 <h2>Dynamic NSE Check<a class="headerlink" href="#dynamic-nse-check" title="Link to this heading"></a></h2>
 <p>We have implemented a dynamic NSE check for the self-consistent nse procedure
 that tells us whether the network has reached the NSE state.
-The overall procedure is outlined in <span id="id3">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413-5433, April 2020. arXiv:1912.06151.">40</a>]</span>.
+The overall procedure is outlined in <span id="id3">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413-5433, April 2020. arXiv:1912.06151.">47</a>]</span>.
 The overall usage comes down to a single function <code class="docutils literal notranslate"><span class="pre">in_nse(state)</span></code>.
 By supplying the current state, this function returns a boolean that tells us
 whether we’re in NSE or not. The current status of this functionality only works
 for pynucastro-generated network since aprox networks have slightly
 different syntax.</p>
-<p>The overall framework is constructed following <span id="id4">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413-5433, April 2020. arXiv:1912.06151.">40</a>]</span> with slight
+<p>The overall framework is constructed following <span id="id4">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413-5433, April 2020. arXiv:1912.06151.">47</a>]</span> with slight
 variations. The overview of the steps we take are the following:</p>
 <ul>
 <li><p>Minimum Temperature Check: require <code class="docutils literal notranslate"><span class="pre">T</span> <span class="pre">&gt;</span> <span class="pre">nse.T_min_nse</span></code>, where <code class="docutils literal notranslate"><span class="pre">nse.T_min_nse</span></code> is
@@ -198,7 +283,7 @@ fraction check:</p>
 \[\epsilon_{rel} = \frac{\epsilon_{abs}}{Y^i} &lt; \mbox{nse.nse_rel_tol}\]</div>
 <p>where <code class="docutils literal notranslate"><span class="pre">nse.nse_rel_tol</span> <span class="pre">=</span> <span class="pre">0.2</span></code> and <code class="docutils literal notranslate"><span class="pre">nse.nse_abs_tol</span> <span class="pre">=</span> <span class="pre">0.005</span></code> by default.</p>
 </li>
-<li><p><strong>Removed</strong> <span id="id5">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413-5433, April 2020. arXiv:1912.06151.">40</a>]</span> also requires a fast reaction cycle that
+<li><p><strong>Removed</strong> <span id="id5">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413-5433, April 2020. arXiv:1912.06151.">47</a>]</span> also requires a fast reaction cycle that
 exchanges 1 <span class="math notranslate nohighlight">\(\alpha\)</span> particle with 2 <span class="math notranslate nohighlight">\(p\)</span> and 2 <span class="math notranslate nohighlight">\(n\)</span>
 particles. We used to have this check, but currently removed as
 we think it is not necessary. However, the description is as following:
@@ -225,7 +310,7 @@ are the forward and reverse rate of the reaction,
 called the light-isotope-group, or LIG. Other isotopes belong to their
 own group, which only contains themselves. We need to start the grouping
 process with the reaction rate that has the fastest (smallest) timescale.
-In the original <span id="id6">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413-5433, April 2020. arXiv:1912.06151.">40</a>]</span> paper, they use the group molar fraction
+In the original <span id="id6">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413-5433, April 2020. arXiv:1912.06151.">47</a>]</span> paper, they use the group molar fraction
 for evaluating the reaction timescale. This complicates things because
 now reaction timescale changes after each successful grouping. We’ve
 determined that the result is roughly the same even if we just use the
@@ -248,7 +333,8 @@ can be used to group the nuclei involved, which are:</p>
 <div class="math notranslate nohighlight">
 \[t_{i,k} &lt; \epsilon t_s\]</div>
 </li>
-<li><div class="math notranslate nohighlight">
+<li><p>the forward and reverse rates satisfy:</p>
+<div class="math notranslate nohighlight">
 \[2|b_f(k) - b_r(k)|/(b_f(k) + b_r(k) &lt; \epsilon\]</div>
 </li>
 </ul>
@@ -280,7 +366,7 @@ left where one of them is the light-isotope-group.</p>
 for isotopes to form a single group due to the missing neutron rates.
 Therefore, there is an alternative criteria of defining a “single group”
 when neutron is not present in the network: for isotopes,
-<span class="math notranslate nohighlight">\(Z &gt;= 14\)</span>, isotopes with odd and even <span class="math notranslate nohighlight">\(N\)</span> form two
+<span class="math notranslate nohighlight">\(Z \ge 14\)</span>, isotopes with odd and even <span class="math notranslate nohighlight">\(N\)</span> form two
 distinct groups.</p>
 </li>
 </ul>
@@ -347,7 +433,7 @@ This is set to 4.0e9 by default.</p></li>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Microphysics Development Team.</p>
+    <p>&#169; Copyright 2025, Microphysics Development Team.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

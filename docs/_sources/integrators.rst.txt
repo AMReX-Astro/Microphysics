@@ -4,8 +4,10 @@ Reaction ODE System
 
 .. important::
 
-   This describes the integration done when doing Strang operator-splitting, which is the
-   default mode of coupling burning to application codes.
+   This describes the integration done when doing Strang
+   operator-splitting, which is the default mode of coupling burning
+   to application codes.  For SDC coupling see the :ref:`sdc-evolution`
+   section.
 
 The equations we integrate to do a nuclear burn are:
 
@@ -30,9 +32,9 @@ energy. This allows us to easily call the EOS during the burn to obtain the temp
 
 .. note::
 
-   The energy generation rate includes a term for neutrino losses in addition
-   to the energy release from the changing binding energy of the
-   fusion products.
+   The energy generation rate includes a term for neutrino losses (see
+   :ref:`neutrino_loss`) in addition to the energy release from the
+   changing binding energy of the fusion products.
 
 .. index:: integrator.use_number_densities
 
@@ -55,7 +57,7 @@ energy. This allows us to easily call the EOS during the burn to obtain the temp
    requiring $\sum_k X_k = 1$.
 
 
-While this is the most common way to construct the set of
+While the system above is the most common way to construct the set of
 burn equations, and is used in most of our production networks,
 all of them are ultimately implemented by the network itself, which
 can choose to disable the evolution of any of these equations by
@@ -95,7 +97,7 @@ The input is a ``burn_t``.
 .. note::
 
    For the thermodynamic state, only the density, temperature, and
-   mass fractions are used directly--we compute the internal energy
+   mass fractions are used directly---we compute the internal energy
    corresponding to this input state through the equation of state
    before integrating.
 

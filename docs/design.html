@@ -19,7 +19,7 @@
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="_static/clipboard.min.js?v=a7894cd8"></script>
-      <script src="_static/copybutton.js?v=f281be69"></script>
+      <script src="_static/copybutton.js?v=eaa7b67c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -56,14 +56,15 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Design</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#structure">Structure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#design-philosophy">Design philosophy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#structure">Structure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#gpu-considerations">GPU considerations</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
 <li class="toctree-l1"><a class="reference internal" href="build_system.html">Build System</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fundamental_constants.html">Fundamental Constants</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
 <ul>
@@ -135,6 +136,33 @@
              
   <section id="design">
 <h1>Design<a class="headerlink" href="#design" title="Link to this heading"></a></h1>
+<section id="design-philosophy">
+<h2>Design philosophy<a class="headerlink" href="#design-philosophy" title="Link to this heading"></a></h2>
+<p>Any application that uses Microphysics will at minimum need to
+choose an EOS and a network. These two components work together. The
+design philosophy is that the EOS depends on the network, but not the
+other way around. The decision was made for the network to act as the
+core module, and lots of code depends on it. This avoids circular
+dependencies by having the main EOS datatype, <code class="docutils literal notranslate"><span class="pre">eos_t</span></code>, and the
+main reaction network datatype, <code class="docutils literal notranslate"><span class="pre">burn_t</span></code>, be built on top of the
+network.</p>
+<p>The network is meant to store the properties of the species (typically
+nuclear isotopes) including their atomic weights and numbers, and also
+describes any links between the species when burning.</p>
+<p>The equation of state relates the thermodynamic properties of the
+material. It depends on the composition of the material, typically
+specified via mass fractions of the species, and uses the properties
+of the species defined by the network to interpret the state.</p>
+<p>We try to maximize code reuse in the Microphysics source, so the
+solvers (ODE integration for the network and Newton-Raphson root
+finding for the EOS) are separated from the specific implementations of
+the microphysics.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>All quantities are assumed to be in CGS units, unless otherwise
+specified.</p>
+</div>
+</section>
 <section id="structure">
 <h2>Structure<a class="headerlink" href="#structure" title="Link to this heading"></a></h2>
 <p>The high-level directory structure delineates the types of microphysics
@@ -161,42 +189,16 @@ reaction networks.</p></li>
 need any application code to build, but will require AMReX.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">util/</span></code>: linear algebra solvers and other routines.</p></li>
 </ul>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>All quantities are assumed to be in CGS units, unless otherwise
-specified.</p>
-</div>
-</section>
-<section id="design-philosophy">
-<h2>Design philosophy<a class="headerlink" href="#design-philosophy" title="Link to this heading"></a></h2>
-<p>Any application that uses Microphysics will at minimum need to
-choose an EOS and a network. These two components work together. The
-design philosophy is that the EOS depends on the network, but not the
-other way around. The decision was made for the network to act as the
-core module, and lots of code depends on it. This avoids circular
-dependencies by having the main EOS datatype, <code class="docutils literal notranslate"><span class="pre">eos_t</span></code>, and the
-main reaction network datatype, <code class="docutils literal notranslate"><span class="pre">burn_t</span></code>, be built on top of the
-network.</p>
-<p>The network is meant to store the properties of the species (typically
-nuclear isotopes) including their atomic weights and numbers, and also
-describes any links between the species when burning.</p>
-<p>The equation of state relates the thermodynamic properties of the
-material. It depends on the composition of the material, typically
-specified via mass fractions of the species, and uses the properties
-of the species defined by the network to interpret the state.</p>
-<p>We try to maximize code reuse in the Microphysics source, so the
-solvers (ODE integration for the network and Newton-Raphson root
-finding for the EOS) are separated from the specific implementations of
-the microphysics.</p>
 </section>
 <section id="gpu-considerations">
 <h2>GPU considerations<a class="headerlink" href="#gpu-considerations" title="Link to this heading"></a></h2>
 <p id="index-0">All of the Microphysics routines are written to run on GPUs.  This is
 enabled in application codes by using the AMReX lambda-capturing
 mechanism (see the <a class="reference external" href="https://amrex-codes.github.io/amrex/docs_html/GPU.html">AMReX GPU documentation</a>
-for more information).</p>
-<p>This means leveraging the AMReX data-structures, macros, and
-functions.  The unit tests (see <a class="reference internal" href="unit_tests.html#sec-unit-tests"><span class="std std-ref">Overview of Unit Tests</span></a>) provide a good
+for more information).
+This means leveraging the AMReX data-structures, macros, and
+functions.</p>
+<p>The unit tests (see <a class="reference internal" href="unit_tests.html#sec-unit-tests"><span class="std std-ref">Overview of Unit Tests</span></a>) provide a good
 reference for how to interface the Microphysics solvers and physics
 terms with an AMReX-based code.</p>
 <p>There are a few places where Microphysics behaves slightly differently
@@ -222,7 +224,7 @@ pressure.  Some output can be enabled by compiling with
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Microphysics Development Team.</p>
+    <p>&#169; Copyright 2025, Microphysics Development Team.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

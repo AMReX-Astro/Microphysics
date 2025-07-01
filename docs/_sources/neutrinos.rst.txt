@@ -4,6 +4,8 @@
 Neutrino Losses
 ***************
 
+.. index:: neutrino_cooling.include_recomb
+
 We model thermal neutrino losses (plasma, photo-, pair-,
 recombination, and Bremsstrahlung) using the method described in
 :cite:`itoh:1996`.  This neutrino loss term is included in all of the
@@ -45,3 +47,7 @@ is used.  The output is
 * ``dsnuda`` : $d\epsilon_\nu/d\bar{A}$
 
 * ``dsnudz`` : $d\epsilon_\nu/d\bar{Z}$
+
+By default, we do not include the recombination terms when calculating the total losses since its effect is negligible.
+This is controlled by the ``include_recomb`` parameter defined in ``Microphysics/neutrinos/_parameters``.
+To include the recombination terms, set ``neutrino_cooling.include_recomb = 1`` in the inputs file.

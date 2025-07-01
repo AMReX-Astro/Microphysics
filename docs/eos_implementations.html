@@ -19,7 +19,7 @@
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="_static/clipboard.min.js?v=a7894cd8"></script>
-      <script src="_static/copybutton.js?v=f281be69"></script>
+      <script src="_static/copybutton.js?v=eaa7b67c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script>window.MathJax = {"tex": {"inlineMath": [["\\(", "\\)"]], "processEscapes": true, "displayMath": [["\\[", "\\]"]], "macros": {"rhozero": "{\\rho_0}", "pizero": "{\\pi_0}", "pizeroone": "{\\pi_0^{(1)}}", "pizerotwo": "{\\pi_0^{(2)}}", "gammabar": "{\\overline{\\Gamma}_1}", "ptl": "{{\\partial}}", "eb": "{{\\bf e}}", "fb": "{{\\bf f}}", "ib": "{{\\bf i}}", "Ub": "{{\\bf U}}", "Vb": "{{\\bf V}}", "xb": "{{\\bf x}}", "ut": "{\\tilde{u}}", "vt": "{\\tilde{v}}", "wt": "{\\tilde{w}}", "Ubt": "{\\widetilde{\\Ub}}", "edge": "{\\rm EDGE}", "mac": "{\\rm MAC}", "trans": "{\\rm TRANS}", "nablab": "{\\mathbf{\\nabla}}", "cdotb": "{\\mathbf{\\cdot}}", "half": "{\\frac{1}{2}}", "myhalf": "{\\frac{1}{2}}", "nph": "{{n + \\myhalf}}", "nmh": "{{n - \\myhalf}}", "Hext": "{{H_{\\rm ext}}}", "Hnuc": "{{H_{\\rm nuc}}}", "kth": "{k_{\\rm th}}", "pred": "{{\\rm pred}}", "Sbar": "{\\overline{S}}", "inp": "{\\mathrm{in}}", "initp": "{\\mathrm{init}}", "outp": "{\\mathrm{out}}", "uadv": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvone": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV},\\star}}", "uadvonedag": "{\\Ubt^{\\mathrm{ADV},\\dagger,\\star}}", "uadvtwo": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvtwodag": "{\\Ubt^{\\mathrm{ADV},\\dagger}}", "uadvsdcstar": "{\\mathbf{U}^{\\mathrm{ADV},\\star}}", "uadvsdcpred": "{\\mathbf{U}^{\\mathrm{ADV},\\mathrm{pred}}}", "uadvsdc": "{\\mathbf{U}^{\\mathrm{ADV}}}", "dt": "{\\Delta t}", "dr": "{\\Delta r}", "etarho": "{\\eta_{\\rho}}", "etarhoec": "{\\etarho^{\\rm ec}}", "etarhocc": "{\\etarho^{\\rm cc}}", "etarhoflux": "{\\etarho^{\\rm flux}}", "divetarho": "{\\nabla\\cdot(\\etarho\\eb_r)}", "ow": "{\\overline{w}_0}", "dw": "{\\delta w_0}", "thalf": "{\\sfrac{3}{2}}", "rhop": "{{\\rho^{\\prime}}}", "omegadot": "{\\dot{\\omega}}", "er": "{\\mathbf{e}_r}", "ex": "{\\mathbf{e}_x}", "ey": "{\\mathbf{e}_y}", "ez": "{\\mathbf{e}_z}", "Omegab": "{{\\bf \\Omega}}", "rb": "{{\\bf r}}", "isotm": ["{{}^{#2}\\mathrm{#1}}", 2], "edot": "{{{\\dot{e}_\\mathrm{nuc}}}}", "enuc": "{{{{e}_\\mathrm{nuc}}}}", "edotnu": "{{{\\dot{e}_\\nu}}}", "rt": "{\\tilde{r}_0}", "rhob": "{\\ensuremath{\\rho_\\mathrm{base}}}", "Tb": "{\\ensuremath{T_\\mathrm{base}}}", "gcc": "{\\mathrm{g~cm^{-3} }}", "pb": "{p_\\mathrm{base}}", "qburn": "{q_\\mathrm{burn}}", "Uc": "{{\\boldsymbol{\\mathcal{U}}}}", "Fb": "{\\mathbf{F}}", "Sc": "{\\mathbf{S}}", "Shydro": "{{{\\bf S}^{\\mathrm{hydro}}}}", "Rb": "{{\\bf R}}", "Rbs": ["{{\\bf R} \\left ( #1 \\right )}", 1], "Rq": "{{\\bf R}}", "Adv": ["{{\\left [\\boldsymbol{\\mathcal{A}} \\left(#1\\right)\\right]}}", 1], "Advs": ["{{\\boldsymbol{\\mathcal{A}} \\left(#1\\right)}}", 1], "Sdot": "{\\dot{S}}"}}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
       <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -60,7 +60,8 @@
 <li class="toctree-l1"><a class="reference internal" href="design.html">Design</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
 <li class="toctree-l1"><a class="reference internal" href="build_system.html">Build System</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fundamental_constants.html">Fundamental Constants</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
 <ul class="current">
@@ -243,7 +244,7 @@ publicly release it in this repository.</p>
 </section>
 <section id="metal-chem">
 <h2><code class="docutils literal notranslate"><span class="pre">metal_chem</span></code><a class="headerlink" href="#metal-chem" title="Link to this heading"></a></h2>
-<p>This is a multi-gamma equation of state for metal ISM chemistry.</p>
+<p>This is a multi-gamma equation of state for ISM chemistry that builds on the primordial chemistry network by including metals (C and O, and their variants). The network has its roots in the reduced ISM chemical network introduced by <span id="id2">Omukai <em>et al.</em> [<a class="reference internal" href="zreferences.html#id63" title="K. Omukai, T. Tsuribe, R. Schneider, and A. Ferrara. Thermal and Fragmentation Properties of Star-forming Clouds in Low-Metallicity Environments. \apj , 626(2):627-643, June 2005. arXiv:astro-ph/0503010, doi:10.1086/429955.">8</a>]</span>, modified to include other important reactions (from <span id="id3">Glover <em>et al.</em> [<a class="reference internal" href="zreferences.html#id64" title="S. C. O. Glover, C. Federrath, M. -M. Mac Low, and R. S. Klessen. Modelling CO formation in the turbulent interstellar medium. \mnras , 404(1):2-29, May 2010.">9</a>]</span>, <span id="id4">Gong <em>et al.</em> [<a class="reference internal" href="zreferences.html#id65" title="Munan Gong, Eve C. Ostriker, and Mark G. Wolfire. A Simple and Accurate Network for Hydrogen and Carbon Chemistry in the Interstellar Medium. \apj , 843(1):38, July 2017. arXiv:1610.09023, doi:10.3847/1538-4357/aa7561.">10</a>]</span>, and <span id="id5">Hunter <em>et al.</em> [<a class="reference internal" href="zreferences.html#id66" title="Glen H. Hunter, Paul C. Clark, Simon C. O. Glover, and Ralf S. Klessen. Towards the impact of GMC collisions on the star formation rate. \mnras , 519(3):4152-4170, March 2023.">11</a>]</span>) such that an accurate treatment of ISM chemistry is possible at all metallicities, from super-Solar to primordial. The corresponding temperature evolution includes all major heating/cooling processes relevant in the ISM (including molecular cooling in dense gas), following the implementation in <span id="id6">Kim <em>et al.</em> [<a class="reference internal" href="zreferences.html#id62" title="Jeong-Gyu Kim, Munan Gong, Chang-Goo Kim, and Eve C. Ostriker. Photochemistry and Heating/Cooling of the Multiphase Interstellar Medium with UV Radiative Transfer for Magnetohydrodynamic Simulations. \apjs , 264(1):10, January 2023. arXiv:2210.08024, doi:10.3847/1538-4365/ac9b1d.">12</a>]</span>.</p>
 </section>
 <section id="multigamma">
 <h2><code class="docutils literal notranslate"><span class="pre">multigamma</span></code><a class="headerlink" href="#multigamma" title="Link to this heading"></a></h2>
@@ -324,7 +325,7 @@ electron gas.</p>
 </section>
 <section id="primordial-chem">
 <h2><code class="docutils literal notranslate"><span class="pre">primordial_chem</span></code><a class="headerlink" href="#primordial-chem" title="Link to this heading"></a></h2>
-<p>This is a version of the multi-gamma equation of state that models primordial chemistry.</p>
+<p>This is a version of the multi-gamma equation of state that models primordial ISM chemistry, and can be used to model star formation in pristine environments (e.g., Population III stars). The network consists of a set of 50 reactions involving 14 chemical species (variants of H, D and He; Li is not included), appended by the evolution of gas temperature. The network is taken from <span id="id7">Grassi <em>et al.</em> [<a class="reference internal" href="zreferences.html#id60" title="T. Grassi, S. Bovino, D. R. G. Schleicher, J. Prieto, D. Seifried, E. Simoncini, and F. A. Gianturco. KROME - a package to embed chemistry in astrophysical simulations. mnras, 439(3):2386-2419, April 2014.">13</a>]</span> and <span id="id8">Sharda <em>et al.</em> [<a class="reference internal" href="zreferences.html#id61" title="Piyush Sharda, Christoph Federrath, and Mark R. Krumholz. The importance of magnetic fields for the initial mass function of the first stars. mnras, 497(1):336-351, September 2020.">14</a>]</span>.</p>
 </section>
 <section id="rad-power-law">
 <h2><code class="docutils literal notranslate"><span class="pre">rad_power_law</span></code><a class="headerlink" href="#rad-power-law" title="Link to this heading"></a></h2>
@@ -344,13 +345,13 @@ a parameterization of the specific heat at constant volume:</p>
 </section>
 <section id="tillotson">
 <h2><code class="docutils literal notranslate"><span class="pre">tillotson</span></code><a class="headerlink" href="#tillotson" title="Link to this heading"></a></h2>
-<p>This is an equation of state for hypervelocity impacts based on <span id="id2">[<a class="reference internal" href="zreferences.html#id54" title="J. H. Tillotson. Metallic Equations of State for Hypervelocity Impact. Internal Report, General Atomics, 1962. URL: https://apps.dtic.mil/sti/citations/AD0486711.">8</a>]</span>.
+<p>This is an equation of state for hypervelocity impacts based on <span id="id9">[<a class="reference internal" href="zreferences.html#id54" title="J. H. Tillotson. Metallic Equations of State for Hypervelocity Impact. Internal Report, General Atomics, 1962. URL: https://apps.dtic.mil/sti/citations/AD0486711.">15</a>]</span>.
 It can be used to model planetary impacts.</p>
 </section>
 <section id="ztwd">
 <h2><code class="docutils literal notranslate"><span class="pre">ztwd</span></code><a class="headerlink" href="#ztwd" title="Link to this heading"></a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">ztwd</span></code> is the zero-temperature degenerate electron equation
-of state of <span id="id3">Chandrasekhar [<a class="reference internal" href="zreferences.html#id58" title="Subrahmanyan Chandrasekhar. An introduction to the study of stellar structure. University of Chicago Press, 1939.">9</a>]</span>, which is designed to describe
+of state of <span id="id10">Chandrasekhar [<a class="reference internal" href="zreferences.html#id58" title="Subrahmanyan Chandrasekhar. An introduction to the study of stellar structure. University of Chicago Press, 1939.">16</a>]</span>, which is designed to describe
 white dwarf material. The pressure satisfies the equation:</p>
 <div class="math notranslate nohighlight">
 \[p(x) = A \left( x(2x^2-3)(x^2 + 1)^{1/2} + 3\, \text{sinh}^{-1}(x) \right),\]</div>
@@ -358,7 +359,7 @@ white dwarf material. The pressure satisfies the equation:</p>
 measure of the Fermi momentum, with <span class="math notranslate nohighlight">\(\rho = B x^3\)</span> and <span class="math notranslate nohighlight">\(B = 8\pi \mu_e
 m_p m_e^3 c^3 / (3h^3)\)</span>, where <span class="math notranslate nohighlight">\(\mu_e\)</span> is the mean molecular weight
 per electron and <span class="math notranslate nohighlight">\(h\)</span> is the Planck constant.</p>
-<p>The enthalpy was worked out by <span id="id4">Hachisu [<a class="reference internal" href="zreferences.html#id59" title="I. Hachisu. A Versatile Method for Obtaining Structures of Rapidly Rotating Stars. ApJS, 61:479, July 1986. doi:10.1086/191121.">10</a>]</span>:</p>
+<p>The enthalpy was worked out by <span id="id11">Hachisu [<a class="reference internal" href="zreferences.html#id59" title="I. Hachisu. A Versatile Method for Obtaining Structures of Rapidly Rotating Stars. ApJS, 61:479, July 1986. doi:10.1086/191121.">17</a>]</span>:</p>
 <div class="math notranslate nohighlight">
 \[h(x) = \frac{8A}{B}\left(x^2 + 1\right)^{1/2}.\]</div>
 <p>(note the unfortunate notation here, but this <span class="math notranslate nohighlight">\(h\)</span> is specific
@@ -384,7 +385,7 @@ to find the density that matches this pressure.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Microphysics Development Team.</p>
+    <p>&#169; Copyright 2025, Microphysics Development Team.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

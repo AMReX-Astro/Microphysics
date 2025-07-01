@@ -19,7 +19,7 @@
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="_static/clipboard.min.js?v=a7894cd8"></script>
-      <script src="_static/copybutton.js?v=f281be69"></script>
+      <script src="_static/copybutton.js?v=eaa7b67c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -56,6 +56,7 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#usage-modes">Usage Modes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#standalone">Standalone</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#running-with-amrex-application-code">Running with AMReX Application Code</a></li>
 </ul>
@@ -63,7 +64,8 @@
 <li class="toctree-l1"><a class="reference internal" href="design.html">Design</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
 <li class="toctree-l1"><a class="reference internal" href="build_system.html">Build System</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fundamental_constants.html">Fundamental Constants</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
 <ul>
@@ -139,22 +141,30 @@
 <h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
 <p>Microphysics requires</p>
 <ul class="simple">
-<li><p>A C++17 or later compilers</p></li>
+<li><p>A C++17 or later compiler</p></li>
 <li><p>AMReX (<a class="reference external" href="https://github.com/amrex-codes/amrex">https://github.com/amrex-codes/amrex</a>)</p></li>
-<li><p>python (&gt;= 3.10)</p></li>
+<li><p>python (≥ 3.10)</p></li>
 <li><p>GNU make</p></li>
 </ul>
 <p>optional dependencies are:</p>
 <ul class="simple">
-<li><p>CUDA (&gt;= 11)</p></li>
-<li><p>ROCm (&gt;= 6.3.1 — earlier versions have register allocation bugs)</p></li>
+<li><p>CUDA (≥ 11)</p></li>
+<li><p>ROCm (≥ 6.3.1 — earlier versions have register allocation bugs)</p></li>
 </ul>
-<p>Microphysics is meant to be compiled into an application code as part
-of its build process, with the network, EOS, integrator, and more
-picked at compile time.  As such, there is not a single library that
+</section>
+<section id="usage-modes">
+<h2>Usage Modes<a class="headerlink" href="#usage-modes" title="Link to this heading"></a></h2>
+<p>There are two ways to use Microphysics:</p>
+<ul class="simple">
+<li><p>As part of an application code, where Microphysics provides
+the network, EOS, etoc.</p></li>
+<li><p>In a standalone fashion, where simple unit tests can be run to
+explore integration or thermodynamics.</p></li>
+</ul>
+<p>In each case, the physics choices (network, EOS, etc) need to be
+made at compile time.  As such, there is not a single library that
 can be built and linked against.</p>
-<p>Below we describe how to use Microphysics in a “standalone” fashion,
-using the provided unit tests, and as part of an application code.</p>
+<p>Below we describe how to use Microphysics in both of these modes.</p>
 </section>
 <section id="standalone">
 <h2>Standalone<a class="headerlink" href="#standalone" title="Link to this heading"></a></h2>
@@ -171,8 +181,9 @@ to set the <code class="docutils literal notranslate"><span class="pre">AMREX_HO
 <code class="docutils literal notranslate"><span class="pre">amrex/</span></code> directory:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span class="prompt1"><span class="nb">export</span><span class="w"> </span><span class="nv">AMREX_HOME</span><span class="o">=</span>/path/to/amrex</span>
 </pre></div></div><p>(where you change <code class="docutils literal notranslate"><span class="pre">/path/to/amrex</span></code> to your actual path).</p>
-<p id="index-1">A good unit test to start with is <code class="docutils literal notranslate"><span class="pre">burn_cell</span></code> — this is simply a
-one-zone burn.  In <code class="docutils literal notranslate"><span class="pre">Microphysics/</span></code> do:</p>
+<p id="index-1">A good unit test to start with is <code class="docutils literal notranslate"><span class="pre">burn_cell</span></code>—this is simply a
+one-zone burn.</p>
+<p>In the <code class="docutils literal notranslate"><span class="pre">Microphysics/</span></code> directory, do:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span class="prompt1"><span class="nb">cd</span><span class="w"> </span>unit_test/burn_cell</span>
 <span class="prompt1">make</span>
 </pre></div></div><p>This will create an executable called <code class="docutils literal notranslate"><span class="pre">main3d.gnu.ex</span></code>.
@@ -184,6 +195,13 @@ By default, the test is built with the 13-isotope <code class="docutils literal 
 <p>This will output information about the starting and final state to the
 terminal and produce a file <code class="docutils literal notranslate"><span class="pre">state_over_time.txt</span></code> that contains the
 thermodynamic history at different points in time.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Because the choice of physics is set at compile time, if you
+want to change a network or EOS, you must rebuild.  In the
+Microphysics / AMReX build system, this is done via:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span class="prompt1">make<span class="w"> </span>clean</span>
+</pre></div></div></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>See the <a class="reference internal" href="burn_cell.html#sec-burn-cell"><span class="std std-ref">burn_cell</span></a> documentation for more details on this
@@ -198,7 +216,7 @@ the AMReX codes understand, you only need to provide to the code
 calling these routines their location on your system. The code will do
 the rest.</p>
 <p>First we need to define the <code class="docutils literal notranslate"><span class="pre">MICROPHYSICS_HOME</span></code> environment
-variable, either at a command line or (if you use the bash shell)
+variable, either on the command line or (if you use the bash shell)
 through your <code class="docutils literal notranslate"><span class="pre">~/.bashrc</span></code>, e.g.:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">MICROPHYSICS_HOME</span><span class="o">=</span>/path/to/Microphysics
 </pre></div>
@@ -224,7 +242,7 @@ are found in <code class="docutils literal notranslate"><span class="pre">Microp
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Microphysics Development Team.</p>
+    <p>&#169; Copyright 2025, Microphysics Development Team.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
