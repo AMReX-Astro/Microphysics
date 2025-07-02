@@ -109,7 +109,7 @@ template <int do_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void kipp(const amrex::Real& temp, const amrex::Real& rho, const amrex::Real& abar,
           const amrex::Real& zbar, amrex::Real& snu, amrex::Real& dsnudt,
-          amrex::Real& dsnudrho, amrex::Real& dsnudz, amrex::Real& dsnuda,
+          amrex::Real& dsnudrho, amrex::Real& dsnuda, amrex::Real& dsnudz,
           amrex::Real& pair, amrex::Real& phot, amrex::Real& plas, amrex::Real& brem) {
 
     /*
