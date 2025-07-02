@@ -17,8 +17,9 @@
 #include <extern_parameters.H>
 #include <eos_type.H>
 #include <cmath>
+#include <string_view>
 
-const std::string eos_name = "rad_power_law";
+constexpr std::string_view eos_name = "rad_power_law";
 
 inline
 void actual_eos_init ()

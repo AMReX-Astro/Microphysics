@@ -7,23 +7,32 @@ Requirements
 
 Microphysics requires
 
-* A C++17 or later compilers
+* A C++17 or later compiler
 * AMReX (https://github.com/amrex-codes/amrex)
-* python (>= 3.10)
+* python (≥ 3.10)
 * GNU make
 
 optional dependencies are:
 
-* CUDA (>= 11)
-* ROCm (>= 6.3.1 --- earlier versions have register allocation bugs)
+* CUDA (≥ 11)
+* ROCm (≥ 6.3.1 --- earlier versions have register allocation bugs)
 
-Microphysics is meant to be compiled into an application code as part
-of its build process, with the network, EOS, integrator, and more
-picked at compile time.  As such, there is not a single library that
+Usage Modes
+===========
+
+There are two ways to use Microphysics:
+
+* As part of an application code, where Microphysics provides
+  the network, EOS, etoc.
+
+* In a standalone fashion, where simple unit tests can be run to
+  explore integration or thermodynamics.
+
+In each case, the physics choices (network, EOS, etc) need to be
+made at compile time.  As such, there is not a single library that
 can be built and linked against.
 
-Below we describe how to use Microphysics in a "standalone" fashion,
-using the provided unit tests, and as part of an application code.
+Below we describe how to use Microphysics in both of these modes.
 
 Standalone
 ==========
@@ -50,8 +59,10 @@ to set the ``AMREX_HOME`` environment variable to point to the
 
 .. index:: burn_cell
 
-A good unit test to start with is ``burn_cell`` --- this is simply a
-one-zone burn.  In ``Microphysics/`` do:
+A good unit test to start with is ``burn_cell``---this is simply a
+one-zone burn.
+
+In the ``Microphysics/`` directory, do:
 
 .. prompt:: bash
 
@@ -75,6 +86,16 @@ This will output information about the starting and final state to the
 terminal and produce a file ``state_over_time.txt`` that contains the
 thermodynamic history at different points in time.
 
+.. important::
+
+   Because the choice of physics is set at compile time, if you
+   want to change a network or EOS, you must rebuild.  In the
+   Microphysics / AMReX build system, this is done via:
+
+   .. prompt:: bash
+
+      make clean
+
 .. note::
 
    See the :ref:`sec:burn_cell` documentation for more details on this
@@ -94,7 +115,7 @@ calling these routines their location on your system. The code will do
 the rest.
 
 First we need to define the ``MICROPHYSICS_HOME`` environment
-variable, either at a command line or (if you use the bash shell)
+variable, either on the command line or (if you use the bash shell)
 through your ``~/.bashrc``, e.g.:
 
 .. code:: bash
