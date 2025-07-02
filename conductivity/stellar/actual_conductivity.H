@@ -1,12 +1,13 @@
 #ifndef ACTUAL_CONDUCTIVITY_H
 #define ACTUAL_CONDUCTIVITY_H
 
+#include <string_view>
 #include <cmath>
 #include <eos_type.H>
 #include <network.H>
 #include <fundamental_constants.H>
 
-const std::string cond_name = "stellar";
+constexpr std::string_view cond_name = "stellar";
 
 using namespace amrex::literals;
 

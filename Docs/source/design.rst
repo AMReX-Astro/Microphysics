@@ -2,6 +2,38 @@
 Design
 ******
 
+Design philosophy
+=================
+
+Any application that uses Microphysics will at minimum need to
+choose an EOS and a network. These two components work together. The
+design philosophy is that the EOS depends on the network, but not the
+other way around. The decision was made for the network to act as the
+core module, and lots of code depends on it. This avoids circular
+dependencies by having the main EOS datatype, ``eos_t``, and the
+main reaction network datatype, ``burn_t``, be built on top of the
+network.
+
+The network is meant to store the properties of the species (typically
+nuclear isotopes) including their atomic weights and numbers, and also
+describes any links between the species when burning.
+
+The equation of state relates the thermodynamic properties of the
+material. It depends on the composition of the material, typically
+specified via mass fractions of the species, and uses the properties
+of the species defined by the network to interpret the state.
+
+We try to maximize code reuse in the Microphysics source, so the
+solvers (ODE integration for the network and Newton-Raphson root
+finding for the EOS) are separated from the specific implementations of
+the microphysics.
+
+.. note::
+
+   All quantities are assumed to be in CGS units, unless otherwise
+   specified.
+
+
 Structure
 =========
 
@@ -42,37 +74,6 @@ and the generic solvers:
 * ``util/``: linear algebra solvers and other routines.
 
 
-.. note::
-
-   All quantities are assumed to be in CGS units, unless otherwise
-   specified.
-
-Design philosophy
-=================
-
-Any application that uses Microphysics will at minimum need to
-choose an EOS and a network. These two components work together. The
-design philosophy is that the EOS depends on the network, but not the
-other way around. The decision was made for the network to act as the
-core module, and lots of code depends on it. This avoids circular
-dependencies by having the main EOS datatype, ``eos_t``, and the
-main reaction network datatype, ``burn_t``, be built on top of the
-network.
-
-The network is meant to store the properties of the species (typically
-nuclear isotopes) including their atomic weights and numbers, and also
-describes any links between the species when burning.
-
-The equation of state relates the thermodynamic properties of the
-material. It depends on the composition of the material, typically
-specified via mass fractions of the species, and uses the properties
-of the species defined by the network to interpret the state.
-
-We try to maximize code reuse in the Microphysics source, so the
-solvers (ODE integration for the network and Newton-Raphson root
-finding for the EOS) are separated from the specific implementations of
-the microphysics.
-
 
 
 GPU considerations
@@ -84,9 +85,10 @@ All of the Microphysics routines are written to run on GPUs.  This is
 enabled in application codes by using the AMReX lambda-capturing
 mechanism (see the `AMReX GPU documentation <https://amrex-codes.github.io/amrex/docs_html/GPU.html>`_
 for more information).
-
 This means leveraging the AMReX data-structures, macros, and
-functions.  The unit tests (see :ref:`sec:unit_tests`) provide a good
+functions.
+
+The unit tests (see :ref:`sec:unit_tests`) provide a good
 reference for how to interface the Microphysics solvers and physics
 terms with an AMReX-based code.
 

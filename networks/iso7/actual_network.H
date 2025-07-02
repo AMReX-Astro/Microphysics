@@ -6,6 +6,7 @@
 #include <AMReX_REAL.H>
 #include <AMReX_Vector.H>
 #include <AMReX_Array.H>
+#include <string_view>
 
 using namespace amrex::literals;
 
@@ -19,7 +20,7 @@ using namespace amrex::literals;
 AMREX_INLINE
 void actual_network_init() {}
 
-const std::string network_name = "iso7";
+constexpr std::string_view network_name = "iso7";
 
 namespace network
 {

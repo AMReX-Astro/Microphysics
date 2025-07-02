@@ -1,6 +1,7 @@
 #ifndef actual_network_H
 #define actual_network_H
 
+#include <string_view>
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>
 
@@ -8,7 +9,7 @@
 
 void actual_network_init();
 
-const std::string network_name = "general_null";
+constexpr std::string_view network_name = "general_null";
 
 namespace network
 {}
