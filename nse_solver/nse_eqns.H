@@ -43,8 +43,6 @@ T get_T_independent_nonexponent_nse_state(const T& state) {
 
         // find temperature independent parts
 
-        // amrex::Real power = network::mion(n+1) * C::k_B * i2PiHbar2;
-
         nse_state.xn[n] = network::mion(n+1) * spin / state.rho;
     }
 
@@ -116,7 +114,7 @@ void compute_coulomb_contribution(amrex::Array1D<amrex::Real, 1, NumSpec>& u_c,
     const amrex::Real n_e = state.rho * state.y_e * C::n_A;
     const amrex::Real Gamma_e = C::q_e * C::q_e *
         std::cbrt(1.333333333333_rt * M_PI * n_e) / (C::k_B * T_in);
-    amrex::Real gamma;
+    amrex::Real Gamma;
 
     for (int n = 0; n < NumSpec; ++n) {
 #ifdef NEW_NETWORK_IMPLEMENTATION
@@ -126,21 +124,19 @@ void compute_coulomb_contribution(amrex::Array1D<amrex::Real, 1, NumSpec>& u_c,
 #endif
         // term for calculating u_c
 
-        gamma = std::cbrt(amrex::Math::powi<5>(zion[n])) * Gamma_e;
+        Gamma = std::cbrt(amrex::Math::powi<5>(zion[n])) * Gamma_e;
 
         // chemical potential for coulomb correction
         // see appendix of Calder 2007, doi:10.1086/510709 for more detail
 
         // reuse existing implementation from screening routine
-        auto f = chabrier1998_helmholtz_F<amrex::Real>(gamma);
-
         //
         // Here u_c is a dimensionless quantity.
         // Otherwise:
         // u_c = C::k_B * T_in / C::MeV2erg * f;
         //
 
-        u_c(n+1) = f;
+        u_c(n+1) = chabrier1998_helmholtz_F<amrex::Real>(Gamma);
     }
 }
 #endif
@@ -158,7 +154,6 @@ void apply_nse_exponent(T& nse_state,
 
     amrex::Real T_in = nse_state.T_fixed > 0.0_rt ? nse_state.T_fixed : nse_state.T;
     amrex::Real ikTMeV = C::MeV2erg / (C::k_B * T_in);
-    amrex::Real exponent;
 
     for (int n = 0; n < NumSpec; ++n) {
 #ifdef NEW_NETWORK_IMPLEMENTATION
@@ -173,10 +168,10 @@ void apply_nse_exponent(T& nse_state,
         // prevent an overflow on exp by capping the exponent -- we hope that a subsequent
         // iteration will make it happy again
 
-        exponent = amrex::min(500.0_rt,
-                              (zion[n] * nse_state.mu_p + (aion[n] - zion[n]) *
-                               nse_state.mu_n + network::bion(n+1)) *
-                              ikTMeV - u_c(n+1));
+        amrex::Real exponent = amrex::min(500.0_rt,
+                                          (zion[n] * nse_state.mu_p + (aion[n] - zion[n]) *
+                                           nse_state.mu_n + network::bion(n+1)) *
+                                          ikTMeV - u_c(n+1));
 
         nse_state.xn[n] *= std::exp(exponent);
     }
@@ -379,35 +374,6 @@ void nse_jcn(amrex::Array1D<amrex::Real, 1, 3>& x,
 
     amrex::ignore_unused(iflag);
 
-    // Initialize burn state to find NSE state
-
-    burn_t burn_state;
-    burn_state.rho  = state_data.state.rho;
-    burn_state.y_e  = state_data.state.y_e;
-    burn_state.mu_p = x(1);
-    burn_state.mu_n = x(2);
-    burn_state.T    = x(3);
-
-    // Find NSE X_k
-
-    // Find nonexponent piece.
-
-    auto nse_state =  get_T_independent_nonexponent_nse_state(burn_state);
-
-    apply_T_dependent_nonexponent_nse_state(nse_state);
-
-    // Find screening term
-
-    amrex::Array1D<amrex::Real, 1, NumSpec> u_c{0.0_rt};
-
-#if SCREEN_METHOD == SCREEN_METHOD_chabrier1998
-    compute_coulomb_contribution(u_c, nse_state);
-#endif
-
-    // Apply exponent for calculating NSE mass fractions
-
-    apply_nse_exponent(nse_state, u_c);
-
     // evaluate jacobian of the constraint eqns
 
     for (int i = 1; i <= 3; ++i) {
@@ -416,14 +382,54 @@ void nse_jcn(amrex::Array1D<amrex::Real, 1, 3>& x,
         }
     }
 
-    amrex::Real T_in = burn_state.T;
-    amrex::Real ikTMeV = C::MeV2erg / (C::k_B * T_in);
-    amrex::Real e_in = state_data.state.e;
-    amrex::Real Ye = state_data.state.y_e;
+    // Initialize some variables
+
+    auto nse_state = state_data.state;
+    nse_state.mu_p = x(1);
+    nse_state.mu_n = x(2);
+    nse_state.T    = x(3);
+
+//     // Find NSE X_k
+
+//     // Apply the temperature dependent bit
+
+//     apply_T_dependent_nonexponent_nse_state(nse_state);
+
+//     // Find screening term
+
+//     amrex::Array1D<amrex::Real, 1, NumSpec> u_c{0.0_rt};
+
+// #if SCREEN_METHOD == SCREEN_METHOD_chabrier1998
+//     compute_coulomb_contribution(u_c, nse_state);
+// #endif
+
+//     // Apply exponent for calculating NSE mass fractions
+//     // This also updates y_e.
+
+//     apply_nse_exponent(nse_state, u_c);
+
+    const amrex::Real T_in = nse_state.T;
+    const amrex::Real e_in = state_data.state.e;
+    const amrex::Real Ye = state_data.state.y_e;
+    const amrex::Real ikTMeV = C::MeV2erg / (C::k_B * T_in);
+    constexpr amrex::Real kBi2PiHbar2 = C::k_B / (2.0_rt * M_PI * C::hbar * C::hbar);
+
+#if SCREEN_METHOD == SCREEN_METHOD_chabrier1998
+    const amrex::Real n_e = state_data.state.rho * Ye * C::n_A;
+    const amrex::Real Gamma_e = C::q_e * C::q_e *
+        std::cbrt(1.333333333333_rt * M_PI * n_e) / (C::k_B * T_in);
+
+    constexpr amrex::Real A_1 = -0.9052_rt;
+    constexpr amrex::Real A_2 = 0.6322_rt;
+    constexpr amrex::Real sqrt_A2 = gcem::sqrt(A_2);
+    constexpr amrex::Real A_3 = -0.5_rt * gcem::sqrt(3.0_rt) - A_1 / sqrt_A2;
+#endif
 
 #ifndef NEW_NETWORK_IMPLEMENTATION
     auto tfactors = evaluate_tfactors(T_in);
 #endif
+
+    // Find the X_k and Jacobian at the same time to save some time
 
     for (int n = 0; n < NumSpec; ++n) {
 #ifdef NEW_NETWORK_IMPLEMENTATION
@@ -431,10 +437,7 @@ void nse_jcn(amrex::Array1D<amrex::Real, 1, 3>& x,
             continue;
         }
 #endif
-        // Pre-compute some relevant derivatives
-
-        amrex::Real dX_dmu_p = nse_state.xn[n] * zion[n] * ikTMeV;
-        amrex::Real dX_dmu_n = nse_state.xn[n] * (aion[n] - zion[n]) * ikTMeV;
+        // Find X_k for each individual nuclei
 
         // fill partition function
 
@@ -445,33 +448,54 @@ void nse_jcn(amrex::Array1D<amrex::Real, 1, 3>& x,
         get_partition_function(n+1, tfactors, pf, dpf_dT);
 #endif
 
-        // Find temperature derivative of the coulomb potential term: d (μ^c/kbT) / dT
-        amrex::Real dmu_dT = 0.0_rt;
+        // Apply temperature dependent part
+
+        amrex::Real power = network::mion(n+1) * T_in * kBi2PiHbar2;
+        nse_state.xn[n] *= pf * std::sqrt(amrex::Math::powi<3>(power));
+
+        // Find coulomb potential and derivative
+
+        amrex::Real u_c = 0.0_rt;
+        amrex::Real du_c_dT = 0.0_rt;
 
 #if SCREEN_METHOD == SCREEN_METHOD_chabrier1998
 
         // Find dΓ / dT = - Γ / T
 
-        const amrex::Real n_e = state_data.state.rho * Ye * C::n_A;
-        const amrex::Real Gamma_e = C::q_e * C::q_e *
-            std::cbrt(1.333333333333_rt * M_PI * n_e) / (C::k_B * T_in);
         amrex::Real Gamma = std::cbrt(amrex::Math::powi<5>(zion[n])) * Gamma_e;
         amrex::Real dGamma_dT = - Gamma / T_in;
 
+        // Compute coulomb potential
+
+        u_c = chabrier1998_helmholtz_F<amrex::Real>(Gamma);
+
+        // Find temperature derivative of the coulomb potential term: d (μ^c/kbT) / dT
         // Perhaps switch to using autodiff, but the expression seems simple enough.
 
-        constexpr amrex::Real A_1 = -0.9052_rt;
-        constexpr amrex::Real A_2 = 0.6322_rt;
-        constexpr amrex::Real sqrt_A2 = gcem::sqrt(A_2);
-        constexpr amrex::Real A_3 = -0.5_rt * gcem::sqrt(3.0_rt) - A_1 / sqrt_A2;
-
-        dmu_dT = dGamma_dT * std::sqrt(Gamma) * (A_3 / (1.0_rt + Gamma) +
-                                                 A_1 / std::sqrt(A_2 + Gamma));
+        du_c_dT = dGamma_dT * std::sqrt(Gamma) * (A_3 / (1.0_rt + Gamma) +
+                                                  A_1 / std::sqrt(A_2 + Gamma));
 #endif
 
+        // Apply exponent part to xn
+
+        amrex::Real exponent = amrex::min(500.0_rt,
+                                          (zion[n] * nse_state.mu_p + (aion[n] - zion[n]) *
+                                           nse_state.mu_n + network::bion(n+1)) *
+                                          ikTMeV - u_c);
+
+        nse_state.xn[n] *= std::exp(exponent);
+
+        // Now that NSE X's are computed, find Jacobian:
+
+        // Pre-compute some relevant derivatives
+
+        amrex::Real dX_dmu_p = nse_state.xn[n] * zion[n] * ikTMeV;
+        amrex::Real dX_dmu_n = nse_state.xn[n] * (aion[n] - zion[n]) * ikTMeV;
+
         amrex::Real dX_dT = nse_state.xn[n] *
-            (dpf_dT / pf - dmu_dT + (1.5_rt - (zion[n] * nse_state.mu_p + (aion[n] - zion[n]) * nse_state.mu_n +
-                                               network::bion(n+1)) * ikTMeV) / nse_state.T);
+            (dpf_dT / pf - du_c_dT + (1.5_rt - (zion[n] * nse_state.mu_p +
+                                                (aion[n] - zion[n]) * nse_state.mu_n +
+                                                network::bion(n+1)) * ikTMeV) / T_in);
 
         fjac(1, 1) += dX_dmu_p;
         fjac(1, 2) += dX_dmu_n;
@@ -484,9 +508,7 @@ void nse_jcn(amrex::Array1D<amrex::Real, 1, 3>& x,
         fjac(3, 3) += aion_inv[n] * dX_dT;
     }
 
-    // To save time, in the future, calculate X_k individually along with the jacobian,
-    // then call eos after getting relevant X_k to find abar, dedA and dedZ
-
+    // Now that NSE X's are all computed,
     // Create eos state to find relevant dedZ, dedA and abar via eos
 
     eos_extra_t eos_state;
@@ -494,7 +516,7 @@ void nse_jcn(amrex::Array1D<amrex::Real, 1, 3>& x,
         eos_state.xn[n] = nse_state.xn[n];
     }
     eos_state.rho = nse_state.rho;
-    eos_state.T = nse_state.T;
+    eos_state.T = T_in;
     eos(eos_input_rt, eos_state);
 
     fjac(3, 1) = - eos_state.abar * eos_state.abar *

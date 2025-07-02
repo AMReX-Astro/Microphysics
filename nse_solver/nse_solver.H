@@ -54,16 +54,19 @@ void nse_hybrid_solver(nse_solver_data<T>& state_data,
 
     // Different modes for the hybrid solver
     // mode = 1: scales internally
-    // mode = 2: scales based on user-supplied diag, see below
-    hj.mode = 1;
+    // mode = 2: scales based on user-supplied diag
 
-    // Scale variable, this is to work with hj.mode = 2
+    if constexpr(neqs == 2){
+        hj.mode = 1;
+    } else {
+        hj.mode = 2;
 
-    // hj.diag(1) = 1.0_rt;
-    // hj.diag(2) = 1.0_rt;
-    // if constexpr (neqs == 3) {
-    //     hj.diag(3) = 1e9_rt;
-    // }
+        // Scale variable, this is to work with hj.mode = 2
+
+        hj.diag(1) = 1.0_rt;
+        hj.diag(2) = 1.0_rt;
+        hj.diag(3) = 1e9_rt;
+    }
 
     // random flag number for evaluation in for loop;
 
@@ -112,7 +115,7 @@ void nse_hybrid_solver(nse_solver_data<T>& state_data,
             bool converged = true;
 
             if constexpr (neqs == 3) {
-                if (hj.x(3) < 1.0e9_rt) {
+                if (hj.x(3) < 1.0e9_rt || hj.x(3) >= 2e10_rt) {
                     // If temperature is too low or even negative.
                     // Then the solved Temperature is not correct.
                     converged = false;
