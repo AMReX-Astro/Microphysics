@@ -17,6 +17,10 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 number_t kip_pair(const number_t& temp, const amrex::Real& rho,
                   const number_t& abar, const number_t& zbar){
     number_t T9 = temp * 1.0e-9_rt;
+
+    amrex::ignore_unused(abar);
+    amrex::ignore_unused(zbar);
+
     // eq. 18.81 - fixed using woosley lecture notes
     if (T9 < 2.0e0_rt){
         return (4.9e18_rt/rho) * amrex::Math::powi<3>(T9) * admath::exp(-11.86/T9);
@@ -71,6 +75,9 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 // bremsstrahlung neutrinos
 number_t kip_brem(const number_t& temp, const amrex::Real& rho,
                   const number_t& abar, const number_t& zbar){
+
+    amrex::ignore_unused(rho);
+
     // eq. 18.86
     number_t T8 = temp * 1.0e-8_rt;
     return 0.76e0_rt * (amrex::Math::powi<2>(zbar)/abar) * amrex::Math::powi<6>(T8);
