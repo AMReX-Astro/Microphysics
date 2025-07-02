@@ -46,7 +46,6 @@ template <int neqs, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void nse_hybrid_solver(nse_solver_data<T>& state_data,
                        amrex::Real eps=1.0e-10_rt) {
-    // state is the nse_state from get_nonexponent_nse_state
 
     hybrj_t<neqs> hj;
 
@@ -181,8 +180,6 @@ template <int neqs, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void nse_nr_solver(nse_solver_data<T>& state_data,
                    amrex::Real eps=1.0e-10_rt) {
-    // state_data is the state_data after from
-    // get_nonexponent_nse_state and compute_coulomb_contribution
 
     // Currently NR solver only works for (rho, T, Ye) input
 
@@ -333,10 +330,14 @@ T get_nse_state_rty(T& state,
 
     nse_solver_data<T> state_data = {state, {0.0_rt}};
 
-    // Since Temperature is fixed in this mode,
-    // Get nse_state without the exponent term
+    // First get the temperature-independent part.
 
-    state_data.state = get_nonexponent_nse_state(state);
+    state_data.state =  get_T_independent_nonexponent_nse_state(state);
+
+    // Since Temperature is fixed in this mode,
+    // Get Temperature dependent pieces now
+
+    apply_T_dependent_nonexponent_nse_state(state_data.state);
 
     // if use chabrier1998 screening, calculate the coulomb correction term
 
@@ -354,6 +355,7 @@ T get_nse_state_rty(T& state,
     nse_solve<nConstraintEqns, T>(state_data, eps);
 
     // Apply exponent for calculating nse mass fractions
+    // This updates y_e as well.
 
     apply_nse_exponent(state_data.state, state_data.u_c);
 
@@ -509,35 +511,6 @@ nse_T_from_e(const amrex::Real rho, const amrex::Real e_in,
         amrex::Real dabar_dT = nse_dabar_dT(T, rho, Ye,
                                             nse_state.mu_p, nse_state.mu_n);
 
-//         amrex::Real dabar_dT = 0.0_rt;
-//         amrex::Real T_in = T;
-//         amrex::Real ikTMeV = C::MeV2erg / (C::k_B * T_in);
-//         auto tfactors = evaluate_tfactors(T_in);
-//         for (int n = 0; n < NumSpec; ++n) {
-// #ifdef NEW_NETWORK_IMPLEMENTATION
-//             if (n == NSE_INDEX::H1_index) {
-//                 continue;
-//             }
-// #endif
-//             // fill partition function
-
-//             amrex::Real pf = 1.0_rt;
-//             amrex::Real dpf_dT = 0.0_rt;
-
-// #ifndef NEW_NETWORK_IMPLEMENTATION
-//             get_partition_function(n+1, tfactors, pf, dpf_dT);
-// #endif
-
-//             // There is another screening term I need to add if we have screening.
-//             amrex::Real dXdT = nse_state.xn[n] *
-//                 (dpf_dT / pf + (1.5_rt - (zion[n] * nse_state.mu_p + (aion[n] - zion[n]) * nse_state.mu_n +
-//                                           network::bion(n+1)) * ikTMeV) / nse_state.T);
-
-//             dabar_dT += aion_inv[n] * dXdT;
-//         }
-
-//         dabar_dT = -eos_state.abar*eos_state.abar*dabar_dT;
-
         // compute the correction to our guess
 
         amrex::Real dT = -f / (eos_state.dedT + eos_state.dedA * dabar_dT
@@ -588,7 +561,7 @@ T get_nse_state_rey(T& state,
         nse_T_from_e(state.rho, state.e, state.y_e,
                      T0, state.mu_p, state.mu_n);
 
-        // Create a new state with the updated Temperature
+        // Create burn state with the updated Temperature
         // Then find NSE state via (rho, T, Ye)
 
         burn_t burn_state;
@@ -615,18 +588,24 @@ T get_nse_state_rey(T& state,
 
     nse_solver_data<T> state_data = {state, {0.0_rt}};
 
+    // First get the temperature-independent part.
+
+    state_data.state = get_T_independent_nonexponent_nse_state(state);
+
     // invoke newton-raphson or hybrj to solve mu_p, mu_n and T.
     // For (rho, e, Ye) input, there are three constraint eqns.
-    // Since T is varying, we cannnot pre-calculate terms.
+    // Note that state_data.state already pre-computed T-independent terms.
 
     constexpr int nConstraintEqns = 3;
 
     nse_solve<nConstraintEqns, T>(state_data, eps);
 
     // Now that mu_p, mu_n and T are solved and stored in state_data.state.
-    // Get the NSE composition. First get the nonexponent piece
+    // Finish evaluating the NSE composition.
 
-    auto nse_state = get_nonexponent_nse_state(state_data.state);
+    // Apply the temperature dependent piece
+
+    apply_T_dependent_nonexponent_nse_state(state_data.state);
 
     // if use chabrier1998 screening, calculate the coulomb correction term
 
@@ -636,20 +615,20 @@ T get_nse_state_rey(T& state,
 
     // Apply exponent for calculating NSE mass fractions
 
-    apply_nse_exponent(nse_state, state_data.u_c);
+    apply_nse_exponent(state_data.state, state_data.u_c);
 
     // update rhoX in the output nse_state
 
     for (int n = 0; n < NumSpec; ++n) {
-        nse_state.y[SFS+n] = nse_state.rho * nse_state.xn[n];
+        state_data.state.y[SFS+n] = state.rho * state_data.state.xn[n];
     }
 
     // update mu_n and mu_p to input state
 
-    state.mu_p = nse_state.mu_p;
-    state.mu_n = nse_state.mu_n;
+    state.mu_p = state_data.state.mu_p;
+    state.mu_n = state_data.state.mu_n;
 
-    return nse_state;
+    return state_data.state;
 }
 
 

@@ -16,26 +16,58 @@
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-T get_nonexponent_nse_state(const T& state) {
+T get_T_independent_nonexponent_nse_state(const T& state) {
     // This function calculates a portion of the nse_state that is not dependent
-    // on the chemical potential. This way we don't have to calculate the same
+    // on Temperature. This way we don't have to calculate the same
     // component repeatedly.
-
-    // This function returns an incomplete nse_state where the xn lacks the exponent term.
 
     T nse_state = state;
 
-    // set partition function and spin
+    // set spin
+
+    amrex::Real spin = 1.0_rt;
+
+    for (int n = 0; n < NumSpec; ++n) {
+#ifdef NEW_NETWORK_IMPLEMENTATION
+        if (n == NSE_INDEX::H1_index) {
+            nse_state.xn[n] = 0.0_rt;
+            continue;
+        }
+#endif
+
+        // fill spin
+
+#ifndef NEW_NETWORK_IMPLEMENTATION
+        spin = get_spin_state(n+1);
+#endif
+
+        // find temperature independent parts
+
+        // amrex::Real power = network::mion(n+1) * C::k_B * i2PiHbar2;
+
+        nse_state.xn[n] = network::mion(n+1) * spin / state.rho;
+    }
+
+    return nse_state;
+}
+
+
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void apply_T_dependent_nonexponent_nse_state(T& nse_state) {
+    // This function applies the temperature dependent piece
+    // that does not dependent on the chemical potential.
+
+    // The input nse_state should be the state obtained from
+    // get_T_independent_nse_state()
+
+    amrex::Real T_in = nse_state.T_fixed > 0.0_rt ? nse_state.T_fixed : nse_state.T;
+    constexpr amrex::Real kBi2PiHbar2 = C::k_B / (2.0_rt * M_PI * C::hbar * C::hbar);
+
+    // Initialize temperature-dependent nuclear partition function
 
     amrex::Real pf = 1.0_rt;
     [[maybe_unused]] amrex::Real dpf_dT;
-    amrex::Real spin = 1.0_rt;
-
-    // if we are doing drive_initial_convection, we want to use
-    // the temperature that comes in through T_fixed
-
-    amrex::Real T_in = state.T_fixed > 0.0_rt ? state.T_fixed : state.T;
-    constexpr amrex::Real i2PiHbar2 = 1.0_rt / (2.0_rt * M_PI * C::hbar * C::hbar);
 
 #ifndef NEW_NETWORK_IMPLEMENTATION
     auto tfactors = evaluate_tfactors(T_in);
@@ -49,22 +81,15 @@ T get_nonexponent_nse_state(const T& state) {
         }
 #endif
 
-        // fill partition function and get spin
-
 #ifndef NEW_NETWORK_IMPLEMENTATION
-        spin = get_spin_state(n+1);
         get_partition_function(n+1, tfactors, pf, dpf_dT);
 #endif
 
-        // find nse mass frac without the exponent term.
+        // Apply temperature-dependent part
 
-        amrex::Real power = network::mion(n+1) * C::k_B * T_in * i2PiHbar2;
-
-        nse_state.xn[n] = network::mion(n+1) * pf * spin / state.rho *
-            std::sqrt(amrex::Math::powi<3>(power));
+        amrex::Real power = network::mion(n+1) * T_in * kBi2PiHbar2;
+        nse_state.xn[n] *= pf * std::sqrt(amrex::Math::powi<3>(power));
     }
-
-    return nse_state;
 }
 
 
@@ -72,7 +97,7 @@ T get_nonexponent_nse_state(const T& state) {
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void compute_coulomb_contribution(amrex::Array1D<amrex::Real, 1, NumSpec>& u_c,
-                                const T& state) {
+                                  const T& state) {
     // This function computes the coulomb contribution 1D array
 
     // if we use chabrier1998 screening
@@ -143,7 +168,7 @@ void apply_nse_exponent(T& nse_state,
         }
 #endif
 
-        // find nse mass frac
+        // Apply the exponent part
 
         // prevent an overflow on exp by capping the exponent -- we hope that a subsequent
         // iteration will make it happy again
@@ -189,8 +214,6 @@ void nse_fcn(amrex::Array1D<amrex::Real, 1, 2>& x,
              const T& state_data, int& iflag) {
     // Constraint Equations for (rho, T, Ye) input.
 
-    // here state is the nse_state from get_nonexponent_nse_state
-
     amrex::ignore_unused(iflag);
 
     auto nse_state = state_data.state;
@@ -230,23 +253,18 @@ void nse_fcn(amrex::Array1D<amrex::Real, 1, 3>& x,
 
     amrex::ignore_unused(iflag);
 
-    // Initialize burn state
+    // here state is the nse_state from get_T_independent_nonexponent_nse_state
 
-    burn_t burn_state;
-    burn_state.rho  = state_data.state.rho;
-    burn_state.y_e  = state_data.state.y_e;
-    burn_state.mu_p = x(1);
-    burn_state.mu_n = x(2);
-    burn_state.T    = x(3);
+    auto nse_state = state_data.state;
+    nse_state.mu_p = x(1);
+    nse_state.mu_n = x(2);
+    nse_state.T    = x(3);
 
-    amrex::Real e_in = state_data.state.e;
+    // Finish evaluating NSE X_k
 
-    // Find NSE X_k
+    // Apply the temperature dependent bit
 
-    // Find nonexponent piece, note that nse_state is eos_t
-    // so that we can do eos on it.
-
-    auto nse_state = get_nonexponent_nse_state(burn_state);
+    apply_T_dependent_nonexponent_nse_state(nse_state);
 
     // Find screening term
 
@@ -257,6 +275,7 @@ void nse_fcn(amrex::Array1D<amrex::Real, 1, 3>& x,
 #endif
 
     // Apply exponent for calculating NSE mass fractions
+    // This also updates y_e.
 
     apply_nse_exponent(nse_state, u_c);
 
@@ -293,7 +312,7 @@ void nse_fcn(amrex::Array1D<amrex::Real, 1, 3>& x,
     // scale the energy constraint by e_in so that its on order 1
     // similar to other constraint eqs.
 
-    fvec(3) = eos_state.e / e_in - 1.0_rt;
+    fvec(3) = eos_state.e / state_data.state.e - 1.0_rt;
 }
 
 ///
@@ -309,8 +328,6 @@ void nse_jcn(amrex::Array1D<amrex::Real, 1, 2>& x,
              amrex::Array2D<amrex::Real, 1, 2, 1, 2>& fjac,
              const T& state_data, int& iflag) {
     // 2x2 Constraint Jacobians for (rho, T, Ye) input.
-
-    // here state is the nse_state from get_nonexponent_nse_state
 
     amrex::ignore_unused(iflag);
 
@@ -339,10 +356,15 @@ void nse_jcn(amrex::Array1D<amrex::Real, 1, 2>& x,
             continue;
         }
 #endif
-        fjac(1, 1) += nse_state.xn[n] * zion[n] * ikTMeV;
-        fjac(1, 2) += nse_state.xn[n] * (aion[n] - zion[n]) * ikTMeV;
-        fjac(2, 1) += nse_state.xn[n] * zion[n] * zion[n] * aion_inv[n] * ikTMeV;
-        fjac(2, 2) += nse_state.xn[n] * zion[n] * (aion[n] - zion[n]) * aion_inv[n] * ikTMeV;
+        // Pre-compute some relevant derivatives
+
+        amrex::Real dX_dmu_p = nse_state.xn[n] * zion[n] * ikTMeV;
+        amrex::Real dX_dmu_n = nse_state.xn[n] * (aion[n] - zion[n]) * ikTMeV;
+
+        fjac(1, 1) += dX_dmu_p;
+        fjac(1, 2) += dX_dmu_n;
+        fjac(2, 1) += zion[n] * aion_inv[n] * dX_dmu_p;
+        fjac(2, 2) += zion[n] * aion_inv[n] * dX_dmu_n;
     }
 
 }
@@ -370,7 +392,9 @@ void nse_jcn(amrex::Array1D<amrex::Real, 1, 3>& x,
 
     // Find nonexponent piece.
 
-    auto nse_state = get_nonexponent_nse_state(burn_state);
+    auto nse_state =  get_T_independent_nonexponent_nse_state(burn_state);
+
+    apply_T_dependent_nonexponent_nse_state(nse_state);
 
     // Find screening term
 
