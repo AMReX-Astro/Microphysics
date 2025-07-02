@@ -85,15 +85,15 @@ void neut_test_C(const Box& bx,
 
     constexpr int do_derivatives{1};
 
-    #if NEUTRINO_METHOD == NEUTRINO_METHOD_kipp
+  #if NEUTRINO_METHOD == NEUTRINO_METHOD_kipp
     kipp<do_derivatives>(temp_zone, dens_zone, abar, zbar,
                          snu, dsnudt, dsnudd, dsnuda, dsnudz,
                          pair, phot, plas, brem);
-    #elif NEUTRINO_METHOD == NEUTRINO_METHOD_sneut5
+  #elif NEUTRINO_METHOD == NEUTRINO_METHOD_sneut5
     sneut5<do_derivatives>(temp_zone, dens_zone, abar, zbar,
                            snu, dsnudt, dsnudd, dsnuda, dsnudz,
                            pair, phot, plas, brem);
-    #endif
+  #endif
 
     sp(i, j, k, vars.isneut) = snu;
     sp(i, j, k, vars.isneutdt) = dsnudt;
