@@ -7,8 +7,9 @@
 #include <fundamental_constants.H>
 #include <network.H>
 #include <actual_eos_data.H>
+#include <string_view>
 
-const std::string eos_name = "breakout";
+constexpr std::string_view eos_name = "breakout";
 
 inline
 void actual_eos_init ()

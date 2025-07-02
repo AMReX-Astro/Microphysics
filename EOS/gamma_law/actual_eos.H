@@ -2,6 +2,7 @@
 #define ACTUAL_EOS_H
 
 #include <string>
+#include <string_view>
 #include <extern_parameters.H>
 #include <fundamental_constants.H>
 #include <cmath>
@@ -14,7 +15,7 @@
 // expression for entropy is only valid for an ideal MONATOMIC gas
 // (gamma = 5/3).
 
-const std::string eos_name = "gamma_law";
+constexpr std::string_view eos_name = "gamma_law";
 
 inline
 void actual_eos_init() {
