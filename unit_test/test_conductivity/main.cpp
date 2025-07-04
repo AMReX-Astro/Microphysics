@@ -154,9 +154,10 @@ void main_main ()
     std::string name = "test_conductivity.";
 
     // Write a plotfile
-    WriteSingleLevelPlotfile(name + cond_name, state, names, geom, time, 0);
+    WriteSingleLevelPlotfile(name + std::string(cond_name),
+                             state, names, geom, time, 0);
 
-    write_job_info(name + cond_name);
+    write_job_info(name + std::string(cond_name));
 
     // Tell the I/O Processor to write out the "run time"
     amrex::Print() << "Run time = " << stop_time << std::endl;
