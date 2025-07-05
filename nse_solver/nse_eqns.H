@@ -66,7 +66,6 @@ void apply_T_dependent_nonexponent_nse_state(T& nse_state) {
 
     amrex::Real pf = 1.0_rt;
     [[maybe_unused]] amrex::Real dpf_dT;
-
 #ifndef NEW_NETWORK_IMPLEMENTATION
     auto tfactors = evaluate_tfactors(T_in);
 #endif
@@ -130,6 +129,7 @@ void compute_coulomb_contribution(amrex::Array1D<amrex::Real, 1, NumSpec>& u_c,
         // see appendix of Calder 2007, doi:10.1086/510709 for more detail
 
         // reuse existing implementation from screening routine
+
         //
         // Here u_c is a dimensionless quantity.
         // Otherwise:
