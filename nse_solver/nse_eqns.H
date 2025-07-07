@@ -132,8 +132,7 @@ void compute_coulomb_contribution(amrex::Array1D<amrex::Real, 1, NumSpec>& u_c,
 
         //
         // Here u_c is a dimensionless quantity.
-        // Otherwise:
-        // u_c = C::k_B * T_in / C::MeV2erg * f;
+        // i.e. normalized by kb T
         //
 
         u_c(n+1) = chabrier1998_helmholtz_F<amrex::Real>(Gamma);
@@ -389,25 +388,6 @@ void nse_jcn(amrex::Array1D<amrex::Real, 1, 3>& x,
     nse_state.mu_n = x(2);
     nse_state.T    = x(3);
 
-//     // Find NSE X_k
-
-//     // Apply the temperature dependent bit
-
-//     apply_T_dependent_nonexponent_nse_state(nse_state);
-
-//     // Find screening term
-
-//     amrex::Array1D<amrex::Real, 1, NumSpec> u_c{0.0_rt};
-
-// #if SCREEN_METHOD == SCREEN_METHOD_chabrier1998
-//     compute_coulomb_contribution(u_c, nse_state);
-// #endif
-
-//     // Apply exponent for calculating NSE mass fractions
-//     // This also updates y_e.
-
-//     apply_nse_exponent(nse_state, u_c);
-
     const amrex::Real T_in = nse_state.T;
     const amrex::Real e_in = state_data.state.e;
     const amrex::Real Ye = state_data.state.y_e;
@@ -429,7 +409,9 @@ void nse_jcn(amrex::Array1D<amrex::Real, 1, 3>& x,
     auto tfactors = evaluate_tfactors(T_in);
 #endif
 
-    // Find the X_k and Jacobian at the same time to save some time
+    //
+    // Evaluate the X_k and Jacobian at the same time to save runtime
+    //
 
     for (int n = 0; n < NumSpec; ++n) {
 #ifdef NEW_NETWORK_IMPLEMENTATION
@@ -439,7 +421,7 @@ void nse_jcn(amrex::Array1D<amrex::Real, 1, 3>& x,
 #endif
         // Find X_k for each individual nuclei
 
-        // fill partition function
+        // fill partition function and its temperature derivative
 
         amrex::Real pf = 1.0_rt;
         amrex::Real dpf_dT = 0.0_rt;
@@ -491,7 +473,6 @@ void nse_jcn(amrex::Array1D<amrex::Real, 1, 3>& x,
 
         amrex::Real dX_dmu_p = nse_state.xn[n] * zion[n] * ikTMeV;
         amrex::Real dX_dmu_n = nse_state.xn[n] * (aion[n] - zion[n]) * ikTMeV;
-
         amrex::Real dX_dT = nse_state.xn[n] *
             (dpf_dT / pf - du_c_dT + (1.5_rt - (zion[n] * nse_state.mu_p +
                                                 (aion[n] - zion[n]) * nse_state.mu_n +
@@ -508,8 +489,11 @@ void nse_jcn(amrex::Array1D<amrex::Real, 1, 3>& x,
         fjac(3, 3) += aion_inv[n] * dX_dT;
     }
 
+    //
     // Now that NSE X's are all computed,
     // Create eos state to find relevant dedZ, dedA and abar via eos
+    // This completes the Jacobian.
+    //
 
     eos_extra_t eos_state;
     for  (int n = 0; n < NumSpec; ++n) {

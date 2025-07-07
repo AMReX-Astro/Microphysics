@@ -117,6 +117,7 @@ void nse_hybrid_solver(nse_solver_data<T>& state_data,
             if constexpr (neqs == 3) {
                 if (hj.x(3) < 1.0e9_rt || hj.x(3) >= 2e10_rt) {
                     // If temperature is too low or even negative.
+                    // Or if the temperature is too high
                     // Then the solved Temperature is not correct.
                     converged = false;
                 }

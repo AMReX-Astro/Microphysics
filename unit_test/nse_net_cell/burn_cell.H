@@ -104,8 +104,6 @@ void burn_cell_c()
 
         solve_nse_e_mode = m;
 
-        auto start = std::chrono::high_resolution_clock::now();
-        for (int k = 1; k <= 1000; ++k) {
         auto nse_state = get_actual_nse_state(nse_input_rey, state, 1.e-10, true);
 
         // now try calling the EOS with updated T and the NSE composition and see if
@@ -122,10 +120,10 @@ void burn_cell_c()
         // Print to see the change in T and abar due to perturbed e
         // and see if we recover the same energy using eos.
 
-        // std::cout << "Using nse.solve_nse_e_mode == " << m << " :" << std::endl;
-        // std::cout << "change in T: " << T_start << " " << eos_state.T <<  std::endl;
-        // std::cout << "change in abar: " << abar_start << " " << eos_state.abar <<  std::endl;
-        // std::cout << "recovered energy: " << e_start << " " << eos_state.e << std::endl;
+        std::cout << "Using nse.solve_nse_e_mode == " << m << " :" << std::endl;
+        std::cout << "change in T: " << T_start << " " << eos_state.T <<  std::endl;
+        std::cout << "change in abar: " << abar_start << " " << eos_state.abar <<  std::endl;
+        std::cout << "recovered energy: " << e_start << " " << eos_state.e << std::endl;
 
         // See the result of constraint eq and jacobian using the solved input
 
@@ -140,24 +138,19 @@ void burn_cell_c()
         nse_fcn(x, f, state_data, flag);
         nse_jcn(x, jac, state_data, flag);
 
-        // std::cout << "Constraint Eqns using solved input are: ";
-        // for (int q = 1; q <= 3; ++q) {
-        //     std::cout << f(q) << " ";
-        // }
-        // std::cout << std::endl;
-
-        // std::cout << "Constraint Jacobian using solved input are: ";
-        // for (int q = 1; q <= 3; ++q) {
-        //     for (int p = 1; p <= 3; ++p) {
-        //         std::cout << jac(q, p) << " ";
-        //     }
-        // }
-        // std::cout << std::endl;
+        std::cout << "Constraint Eqns using solved input are: ";
+        for (int q = 1; q <= 3; ++q) {
+            std::cout << f(q) << " ";
         }
-        auto end = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> elapsed = end - start;  // duration in seconds
+        std::cout << std::endl;
 
-        std::cout << "Runtime for mode = " << m << " : " << elapsed.count() << std::endl;
+        std::cout << "Constraint Jacobian using solved input are: ";
+        for (int q = 1; q <= 3; ++q) {
+            for (int p = 1; p <= 3; ++p) {
+                std::cout << jac(q, p) << " ";
+            }
+        }
+        std::cout << std::endl;
         std::cout << "-----------------------------------------------" << std::endl;
     }
 }
