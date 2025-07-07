@@ -8,7 +8,6 @@
 #include <fstream>
 #include <iostream>
 #include <nse_solver.H>
-#include <chrono>
 
 AMREX_INLINE
 void burn_cell_c()
