@@ -878,6 +878,10 @@ namespace: ``nse``
 | ``use_hybrid_solver``                 | Choose NSE solver. 1 == hybrid powell 0 == Newton-      | 1                            |
 |                                       | Raphson                                                 |                              |
 +---------------------------------------+---------------------------------------------------------+------------------------------+
+| ``solve_nse_e_mode``                  | Different modes for solving (rho, e, Ye) input 1 ==     | 1                            |
+|                                       | Solve for (rho, T, Ye), then do iteration to find e. 2  |                              |
+|                                       | == Solve for e altogether with mu_p and mu_n.           |                              |
++---------------------------------------+---------------------------------------------------------+------------------------------+
 | ``ase_tol``                           | Tolerance used in the NSE-Grouping process              | 0.1                          |
 +---------------------------------------+---------------------------------------------------------+------------------------------+
 | ``nse_abs_tol``                       | Tolerances for molar fraction comparison                | 0.005                        |
