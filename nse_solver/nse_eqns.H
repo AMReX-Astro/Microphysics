@@ -3,7 +3,6 @@
 
 #include <AMReX_REAL.H>
 #include <AMReX_Algorithm.H>
-#include <nse_solver.H>
 #include <extern_parameters.H>
 
 ///
