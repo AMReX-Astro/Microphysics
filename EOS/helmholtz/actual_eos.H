@@ -2,6 +2,7 @@
 #define ACTUAL_EOS_H
 
 #include <string>
+#include <string_view>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -39,7 +40,7 @@
 //
 // references: cox & giuli chapter 24 ; timmes & swesty apj 1999
 
-const std::string eos_name = "helmholtz";
+constexpr std::string_view eos_name = "helmholtz";
 
 // quintic hermite polynomial functions
 // psi0 and its derivatives
