@@ -46,14 +46,27 @@ template <int neqs, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void nse_hybrid_solver(nse_solver_data<T>& state_data,
                        amrex::Real eps=1.0e-10_rt) {
-    // state is the nse_state from get_nonexponent_nse_state
 
     hybrj_t<neqs> hj;
 
-    // we'll take x[1] = mu_p, x[2] = mu_n
-
+    // Set relative error between two iterations
     hj.xtol = eps;
-    hj.mode = 1;
+
+    // Different modes for the hybrid solver
+    // mode = 1: scales internally
+    // mode = 2: scales based on user-supplied diag
+
+    if constexpr(neqs == 2){
+        hj.mode = 1;
+    } else {
+        hj.mode = 2;
+
+        // Scale variable, this is to work with hj.mode = 2
+
+        hj.diag(1) = 1.0_rt;
+        hj.diag(2) = 1.0_rt;
+        hj.diag(3) = 1e9_rt;
+    }
 
     // random flag number for evaluation in for loop;
 
@@ -71,23 +84,25 @@ void nse_hybrid_solver(nse_solver_data<T>& state_data,
 
     outer_x(1) = state_data.state.mu_p;
     outer_x(2) = state_data.state.mu_n;
-
-    // for (int j = 1; j <= 2; ++j) {
-    //     hj.diag(j) = 1.0_rt;
-    // }
+    if constexpr (neqs == 3) {
+        outer_x(3) = state_data.state.T;
+    }
 
     // fine tuning initial guesses
+    // Here we only fine tune chemical potentials
 
     for (int i = 0; i < 20; ++i) {
 
         dx = 0.5_rt;
-        inner_x(1) = outer_x(1);
-        inner_x(2) = outer_x(2);
+        for (int n = 1; n <= neqs; ++n) {
+            inner_x(n) = outer_x(n);
+        }
 
         for (int j = 0; j < 20; ++j) {
 
-            hj.x(1) = inner_x(1);
-            hj.x(2) = inner_x(2);
+            for (int n = 1; n <= neqs; ++n) {
+                hj.x(n) = inner_x(n);
+            }
 
             hybrj<neqs, nse_solver_data<T>>(hj, state_data,
                                             nse_fcn<nse_solver_data<T>>,
@@ -95,10 +110,32 @@ void nse_hybrid_solver(nse_solver_data<T>& state_data,
 
             nse_fcn(hj.x, f, state_data, flag);
 
-            if (std::abs(f(1)) < eps && std::abs(f(2)) < eps) {
+            // Check for convergence
 
+            bool converged = true;
+
+            if constexpr (neqs == 3) {
+                if (hj.x(3) < 1.0e9_rt || hj.x(3) >= 2e10_rt) {
+                    // If temperature is too low or even negative.
+                    // Or if the temperature is too high
+                    // Then the solved Temperature is not correct.
+                    converged = false;
+                }
+            }
+
+            for (int n = 1; n <= neqs; ++n) {
+                if (std::abs(f(n)) >= eps) {
+                    converged = false;
+                    break;
+                }
+            }
+
+            if (converged) {
                 state_data.state.mu_p = hj.x(1);
                 state_data.state.mu_n = hj.x(2);
+                if constexpr (neqs == 3) {
+                    state_data.state.T = hj.x(3);
+                }
                 return;
             }
 
@@ -132,6 +169,7 @@ void nse_hybrid_solver(nse_solver_data<T>& state_data,
     std::cout << "Temperature: " << state_data.state.T << std::endl;
     std::cout << "Density: " << state_data.state.rho << std::endl;
     std::cout << "Ye: " << state_data.state.y_e << std::endl;
+    std::cout << "Internal Energy: " << state_data.state.e << std::endl;
     std::cout << "Initial mu_p and mu_n: " << state_data.state.mu_p
               << ", " << state_data.state.mu_n << std::endl;
 #endif
@@ -146,8 +184,12 @@ template <int neqs, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void nse_nr_solver(nse_solver_data<T>& state_data,
                    amrex::Real eps=1.0e-10_rt) {
-    // state_data is the state_data after from
-    // get_nonexponent_nse_state and compute_coulomb_contribution
+
+    // Currently NR solver only works for (rho, T, Ye) input
+
+    if constexpr (neqs != 2) {
+        amrex::Error("NR solver currently doesn't solve for (rho, e, Ye) input. Please use hybrid solver with nse.use_hybrid_solver=1.");
+    }
 
     // whether nse solver converged or not
 
@@ -292,10 +334,14 @@ T get_nse_state_rty(T& state,
 
     nse_solver_data<T> state_data = {state, {0.0_rt}};
 
-    // Since Temperature is fixed in this mode,
-    // Get nse_state without the exponent term
+    // First get the temperature-independent part.
 
-    state_data.state = get_nonexponent_nse_state(state);
+    state_data.state =  get_T_independent_nonexponent_nse_state(state);
+
+    // Since Temperature is fixed in this mode,
+    // Get Temperature dependent pieces now
+
+    apply_T_dependent_nonexponent_nse_state(state_data.state);
 
     // if use chabrier1998 screening, calculate the coulomb correction term
 
@@ -313,6 +359,7 @@ T get_nse_state_rty(T& state,
     nse_solve<nConstraintEqns, T>(state_data, eps);
 
     // Apply exponent for calculating nse mass fractions
+    // This updates y_e as well.
 
     apply_nse_exponent(state_data.state, state_data.u_c);
 
@@ -508,32 +555,84 @@ T get_nse_state_rey(T& state,
     // where now we have an additional constraint equation on e.
     // So there are three constraint equations and a 3x3 Jacobian.
 
-    // Get T0 such that it is consistent with e.
-    // This also updates mu_p and mu_n of the input state.
+    if (solve_nse_e_mode == 1) {
+        // Option 1
 
-    amrex::Real T0 = state.T;
-    nse_T_from_e(state.rho, state.e, state.y_e,
-                 T0, state.mu_p, state.mu_n);
+        // Get T0 such that it is consistent with e.
+        // This also updates mu_p and mu_n of the input state.
 
-    // Create a new state with the updated Temperature
-    // Then find NSE state via (rho, T, Ye)
+        amrex::Real T0 = state.T;
+        nse_T_from_e(state.rho, state.e, state.y_e,
+                     T0, state.mu_p, state.mu_n);
 
-    burn_t burn_state;
-    burn_state.T = T0;
-    burn_state.rho = state.rho;
-    burn_state.y_e = state.y_e;
-    burn_state.e = state.e;
-    burn_state.mu_p = state.mu_p;
-    burn_state.mu_n = state.mu_n;
+        // Create burn state with the updated Temperature
+        // Then find NSE state via (rho, T, Ye)
 
-    auto nse_state = get_nse_state_rty(burn_state, eps);
+        burn_t burn_state;
+        burn_state.T = T0;
+        burn_state.rho = state.rho;
+        burn_state.y_e = state.y_e;
+        burn_state.e = state.e;
+        burn_state.mu_p = state.mu_p;
+        burn_state.mu_n = state.mu_n;
+
+        auto nse_state = get_nse_state_rty(burn_state, eps);
+
+        // update mu_n and mu_p to input state
+
+        state.mu_p = nse_state.mu_p;
+        state.mu_n = nse_state.mu_n;
+
+        return nse_state;
+    }
+
+    // Option 2
+
+    // Initializes the initial state
+
+    nse_solver_data<T> state_data = {state, {0.0_rt}};
+
+    // First get the temperature-independent part.
+
+    state_data.state = get_T_independent_nonexponent_nse_state(state);
+
+    // invoke newton-raphson or hybrj to solve mu_p, mu_n and T.
+    // For (rho, e, Ye) input, there are three constraint eqns.
+    // Note that state_data.state already pre-computed T-independent terms.
+
+    constexpr int nConstraintEqns = 3;
+
+    nse_solve<nConstraintEqns, T>(state_data, eps);
+
+    // Now that mu_p, mu_n and T are solved and stored in state_data.state.
+    // Finish evaluating the NSE composition.
+
+    // Apply the temperature dependent piece
+
+    apply_T_dependent_nonexponent_nse_state(state_data.state);
+
+    // if use chabrier1998 screening, calculate the coulomb correction term
+
+#if SCREEN_METHOD == SCREEN_METHOD_chabrier1998
+    compute_coulomb_contribution(state_data.u_c, state_data.state);
+#endif
+
+    // Apply exponent for calculating NSE mass fractions
+
+    apply_nse_exponent(state_data.state, state_data.u_c);
+
+    // update rhoX in the output nse_state
+
+    for (int n = 0; n < NumSpec; ++n) {
+        state_data.state.y[SFS+n] = state.rho * state_data.state.xn[n];
+    }
 
     // update mu_n and mu_p to input state
 
-    state.mu_p = nse_state.mu_p;
-    state.mu_n = nse_state.mu_n;
+    state.mu_p = state_data.state.mu_p;
+    state.mu_n = state_data.state.mu_n;
 
-    return nse_state;
+    return state_data.state;
 }
 
 
