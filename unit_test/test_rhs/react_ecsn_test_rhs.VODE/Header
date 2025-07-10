@@ -1,0 +1,209 @@
+HyperCLaw-V1.1
+169
+density
+temperature
+Ydot_hydrogen-1
+Ydot_helium-4
+Ydot_oxygen-16
+Ydot_oxygen-20
+Ydot_fluorine-20
+Ydot_neon-20
+Ydot_magnesium-24
+Ydot_aluminum-27
+Ydot_silicon-28
+Ydot_phosphorus-31
+Ydot_sulfur-32
+Xold_hydrogen-1
+Xold_helium-4
+Xold_oxygen-16
+Xold_oxygen-20
+Xold_fluorine-20
+Xold_neon-20
+Xold_magnesium-24
+Xold_aluminum-27
+Xold_silicon-28
+Xold_phosphorus-31
+Xold_sulfur-32
+Edot
+J_hydrogen-1_hydrogen-1
+J_helium-4_hydrogen-1
+J_oxygen-16_hydrogen-1
+J_oxygen-20_hydrogen-1
+J_fluorine-20_hydrogen-1
+J_neon-20_hydrogen-1
+J_magnesium-24_hydrogen-1
+J_aluminum-27_hydrogen-1
+J_silicon-28_hydrogen-1
+J_phosphorus-31_hydrogen-1
+J_sulfur-32_hydrogen-1
+J_E_hydrogen-1
+J_hydrogen-1_helium-4
+J_helium-4_helium-4
+J_oxygen-16_helium-4
+J_oxygen-20_helium-4
+J_fluorine-20_helium-4
+J_neon-20_helium-4
+J_magnesium-24_helium-4
+J_aluminum-27_helium-4
+J_silicon-28_helium-4
+J_phosphorus-31_helium-4
+J_sulfur-32_helium-4
+J_E_helium-4
+J_hydrogen-1_oxygen-16
+J_helium-4_oxygen-16
+J_oxygen-16_oxygen-16
+J_oxygen-20_oxygen-16
+J_fluorine-20_oxygen-16
+J_neon-20_oxygen-16
+J_magnesium-24_oxygen-16
+J_aluminum-27_oxygen-16
+J_silicon-28_oxygen-16
+J_phosphorus-31_oxygen-16
+J_sulfur-32_oxygen-16
+J_E_oxygen-16
+J_hydrogen-1_oxygen-20
+J_helium-4_oxygen-20
+J_oxygen-16_oxygen-20
+J_oxygen-20_oxygen-20
+J_fluorine-20_oxygen-20
+J_neon-20_oxygen-20
+J_magnesium-24_oxygen-20
+J_aluminum-27_oxygen-20
+J_silicon-28_oxygen-20
+J_phosphorus-31_oxygen-20
+J_sulfur-32_oxygen-20
+J_E_oxygen-20
+J_hydrogen-1_fluorine-20
+J_helium-4_fluorine-20
+J_oxygen-16_fluorine-20
+J_oxygen-20_fluorine-20
+J_fluorine-20_fluorine-20
+J_neon-20_fluorine-20
+J_magnesium-24_fluorine-20
+J_aluminum-27_fluorine-20
+J_silicon-28_fluorine-20
+J_phosphorus-31_fluorine-20
+J_sulfur-32_fluorine-20
+J_E_fluorine-20
+J_hydrogen-1_neon-20
+J_helium-4_neon-20
+J_oxygen-16_neon-20
+J_oxygen-20_neon-20
+J_fluorine-20_neon-20
+J_neon-20_neon-20
+J_magnesium-24_neon-20
+J_aluminum-27_neon-20
+J_silicon-28_neon-20
+J_phosphorus-31_neon-20
+J_sulfur-32_neon-20
+J_E_neon-20
+J_hydrogen-1_magnesium-24
+J_helium-4_magnesium-24
+J_oxygen-16_magnesium-24
+J_oxygen-20_magnesium-24
+J_fluorine-20_magnesium-24
+J_neon-20_magnesium-24
+J_magnesium-24_magnesium-24
+J_aluminum-27_magnesium-24
+J_silicon-28_magnesium-24
+J_phosphorus-31_magnesium-24
+J_sulfur-32_magnesium-24
+J_E_magnesium-24
+J_hydrogen-1_aluminum-27
+J_helium-4_aluminum-27
+J_oxygen-16_aluminum-27
+J_oxygen-20_aluminum-27
+J_fluorine-20_aluminum-27
+J_neon-20_aluminum-27
+J_magnesium-24_aluminum-27
+J_aluminum-27_aluminum-27
+J_silicon-28_aluminum-27
+J_phosphorus-31_aluminum-27
+J_sulfur-32_aluminum-27
+J_E_aluminum-27
+J_hydrogen-1_silicon-28
+J_helium-4_silicon-28
+J_oxygen-16_silicon-28
+J_oxygen-20_silicon-28
+J_fluorine-20_silicon-28
+J_neon-20_silicon-28
+J_magnesium-24_silicon-28
+J_aluminum-27_silicon-28
+J_silicon-28_silicon-28
+J_phosphorus-31_silicon-28
+J_sulfur-32_silicon-28
+J_E_silicon-28
+J_hydrogen-1_phosphorus-31
+J_helium-4_phosphorus-31
+J_oxygen-16_phosphorus-31
+J_oxygen-20_phosphorus-31
+J_fluorine-20_phosphorus-31
+J_neon-20_phosphorus-31
+J_magnesium-24_phosphorus-31
+J_aluminum-27_phosphorus-31
+J_silicon-28_phosphorus-31
+J_phosphorus-31_phosphorus-31
+J_sulfur-32_phosphorus-31
+J_E_phosphorus-31
+J_hydrogen-1_sulfur-32
+J_helium-4_sulfur-32
+J_oxygen-16_sulfur-32
+J_oxygen-20_sulfur-32
+J_fluorine-20_sulfur-32
+J_neon-20_sulfur-32
+J_magnesium-24_sulfur-32
+J_aluminum-27_sulfur-32
+J_silicon-28_sulfur-32
+J_phosphorus-31_sulfur-32
+J_sulfur-32_sulfur-32
+J_E_sulfur-32
+J_hydrogen-1_E
+J_helium-4_E
+J_oxygen-16_E
+J_oxygen-20_E
+J_fluorine-20_E
+J_neon-20_E
+J_magnesium-24_E
+J_aluminum-27_E
+J_silicon-28_E
+J_phosphorus-31_E
+J_sulfur-32_E
+J_E_E
+3
+0
+0
+0 0 0 
+1 1 1 
+
+((0,0,0) (63,63,63) (0,0,0)) 
+0 
+0.015625 0.015625 0.015625 
+0
+0
+0 8 0
+0
+0 0.5
+0 0.5
+0 0.5
+0.5 1
+0 0.5
+0 0.5
+0 0.5
+0.5 1
+0 0.5
+0.5 1
+0.5 1
+0 0.5
+0 0.5
+0 0.5
+0.5 1
+0.5 1
+0 0.5
+0.5 1
+0 0.5
+0.5 1
+0.5 1
+0.5 1
+0.5 1
+0.5 1
+Level_0/Cell
