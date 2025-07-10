@@ -21,18 +21,23 @@ const std::string neutrino_name = "kipp";
 const std::string neutrino_name = "sneut5";
 #endif
 
-template <typename number_t>
+template <int do_derivatives, typename number_t>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-number_t neutrino_cooling(const number_t& temp, const amrex::Real dens,
-                          const number_t& abar, const number_t& zbar){
-
+void neutrino_cooling_all(const number_t& temp, const amrex::Real dens,
+                          const number_t& abar, const number_t& zbar,
+                          number_t& sneut, number_t& dsneutdt,
+                          number_t& dsneutdd, number_t& dsnuda, number_t& dsnudz,
+                          amrex::Real& pair, amrex::Real& phot,
+                          amrex::Real& plas, amrex::Real& brem)
+{
 #if NEUTRINO_METHOD == NEUTRINO_METHOD_kipp
-    amrex::Real pair, phot, plas, brem;
-    return kipp(temp, dens, abar, zbar, pair, phot, plas, brem);
-
+    kipp<do_derivatives>(temp, dens, abar, zbar,
+                         sneut, dsneutdt, dsneutdd, dsnuda, dsnudz,
+                         pair, phot, plas, brem);
 #elif NEUTRINO_METHOD == NEUTRINO_METHOD_sneut5
-    amrex::Real pair, phot, plas, brem;
-    return sneut5(temp, dens, abar, zbar, pair, phot, plas, brem);
+    sneut5<do_derivatives>(temp, dens, abar, zbar,
+                           sneut, dsneutdt, dsneutdd, dsnuda, dsnudz,
+                           pair, phot, plas, brem);
 #endif
 }
 
