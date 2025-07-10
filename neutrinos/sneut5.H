@@ -832,7 +832,8 @@ number_t nu_recomb(const sneutf_t<number_t>& sf) {
 template <typename number_t>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 number_t sneut5(const number_t& temp, const amrex::Real den,
-                const number_t& abar, const number_t& zbar)
+                const number_t& abar, const number_t& zbar, amrex::Real& pair,
+                amrex::Real& phot, amrex::Real& plas, amrex::Real& brem)
 {
     /*
     this routine computes thermal neutrino losses from the analytic fits of
@@ -872,6 +873,11 @@ number_t sneut5(const number_t& temp, const amrex::Real den,
     sbrem   *= sf.deni;
     sreco   *= sf.deni;
 
+    pair = autodiff::val(spair);
+    phot = autodiff::val(sphot);
+    plas = autodiff::val(splas);
+    brem = autodiff::val(sbrem);
+
     // the total neutrino loss rate
     number_t snu = splas + spair + sphot + sbrem;
     if (neutrino_cooling_rp::include_recomb) {
@@ -885,7 +891,8 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void sneut5(const amrex::Real temp, const amrex::Real den,
             const amrex::Real abar, const amrex::Real zbar,
             amrex::Real& snu, amrex::Real& dsnudt, amrex::Real& dsnudd,
-            amrex::Real& dsnuda, amrex::Real& dsnudz)
+            amrex::Real& dsnuda, amrex::Real& dsnudz, amrex::Real& pair,
+            amrex::Real& phot, amrex::Real& plas, amrex::Real& brem)
 {
     // autodiff wrapper
     if constexpr (do_derivatives) {
@@ -894,7 +901,8 @@ void sneut5(const amrex::Real temp, const amrex::Real den,
         dual_t abar_dual = abar;
         dual_t zbar_dual = zbar;
         autodiff::seed_array(temp_dual, abar_dual, zbar_dual);
-        dual_t snu_dual = sneut5(temp_dual, den, abar_dual, zbar_dual);
+        dual_t snu_dual = sneut5(temp_dual, den, abar_dual, zbar_dual,
+                                 pair, phot, plas, brem);
         snu = autodiff::val(snu_dual);
         const auto& grad = autodiff::derivative(snu_dual);
         dsnudt = grad(1);
@@ -902,13 +910,25 @@ void sneut5(const amrex::Real temp, const amrex::Real den,
         dsnuda = grad(2);
         dsnudz = grad(3);
     } else {
-        snu = sneut5(temp, den, abar, zbar);
+        snu = sneut5(temp, den, abar, zbar, pair, phot, plas, brem);
         dsnudt = 0.0e0_rt;
         dsnudd = 0.0e0_rt;
         dsnuda = 0.0e0_rt;
         dsnudz = 0.0e0_rt;
     }
 
+}
+
+template <int do_derivatives>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void sneut5(const amrex::Real temp, const amrex::Real den,
+            const amrex::Real abar, const amrex::Real zbar,
+            amrex::Real& snu, amrex::Real& dsnudt, amrex::Real& dsnudd,
+            amrex::Real& dsnuda, amrex::Real& dsnudz){
+
+    amrex::Real pair, phot, plas, brem;
+    sneut5<do_derivatives>(temp, den, abar, zbar, snu, dsnudt, dsnudd, dsnuda,
+                           dsnudz, pair, phot, plas, brem);
 }
 
 #endif
