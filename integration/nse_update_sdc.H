@@ -14,6 +14,7 @@
 #include <extern_parameters.H>
 
 #include <burn_type.H>
+#include <neutrino.H>
 
 #ifdef NSE_TABLE
 #include <nse_table.H>
@@ -59,13 +60,18 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0, const amrex::Re
     amrex::Real dsnudd{0.0};
     amrex::Real dsnuda{0.0};
     amrex::Real dsnudz{0.0};
+    amrex::Real pair{0.0};
+    amrex::Real phot{0.0};
+    amrex::Real plas{0.0};
+    amrex::Real brem{0.0};
 
     amrex::Real zbar = abar * Ye0;
 
 #ifdef NEUTRINOS
     constexpr int do_derivatives = 0;
-    sneut5<do_derivatives>(T0, rho0, abar, zbar,
-                           snu, dsnudt, dsnudd, dsnuda, dsnudz);
+    neutrino_cooling<do_derivatives>(T0, rho0, abar, zbar,
+                                     snu, dsnudt, dsnudd, dsnuda, dsnudz,
+                                     pair, phot, plas, brem);
 #endif
 
     // call the NSE table at t0
@@ -358,14 +364,17 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
     amrex::Real dsnudd{0.0_rt};
     amrex::Real dsnuda{0.0_rt};
     amrex::Real dsnudz{0.0_rt};
+    amrex::Real pair{0.0};
+    amrex::Real phot{0.0};
+    amrex::Real plas{0.0};
+    amrex::Real brem{0.0};
+
     amrex::Real zbar = abar * Ye0;
 
-    {
-        constexpr int do_derivatives = 0;
-        sneut5<do_derivatives>(T0, rho0, abar, zbar,
-                               snu, dsnudt, dsnudd,
-                               dsnuda, dsnudz);
-    }
+    constexpr int do_derivatives = 0;
+    neutrino_cooling<do_derivatives>(T0, rho0, abar, zbar,
+                                     snu, dsnudt, dsnudd, dsnuda, dsnudz,
+                                     pair, phot, plas, brem);
 #endif
 
     // Get molar fractions, ydots and neutrino loss due to weak rates
