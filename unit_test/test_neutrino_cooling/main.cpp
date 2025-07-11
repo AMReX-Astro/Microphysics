@@ -14,7 +14,8 @@ using namespace amrex;
 
 #include <network.H>
 #include <eos.H>
-#include <sneut5.H>
+
+#include <neutrino.H>
 
 #include <variables.H>
 
@@ -159,10 +160,12 @@ void main_main ()
         Real zbar = abar * (1 * 0.75_rt / 1 + 2 * 0.25_rt / 4);
 
         Real snu, dsnudt, dsnudd, dsnuda, dsnudz;
+        Real pair, phot, plas, brem;
         constexpr int do_derivatives{1};
 
-        sneut5<do_derivatives>(temp_zone, dens_zone, abar, zbar,
-                               snu, dsnudt, dsnudd, dsnuda, dsnudz);
+        neutrino_cooling(temp_zone, dens_zone, abar, zbar,
+                         snu, dsnudt, dsnudd, dsnuda, dsnudz,
+                         pair, phot, plas, brem);
 
         auto check_value = [=] (int idx, Real actual, const char* name) {
           Real expected = host_sp(cell, idx);
@@ -194,7 +197,7 @@ void main_main ()
     ParallelDescriptor::ReduceRealMax(stop_time, IOProc);
 
 
-    std::string name = "test_sneut5";
+    std::string name = "test_neutrino." + neutrino_name;
 
     // Write a plotfile
     WriteSingleLevelPlotfile(name, state, names, geom, time, 0);
