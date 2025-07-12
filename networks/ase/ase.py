@@ -64,7 +64,8 @@ def get_library():
 
     return subch
 
-def doit():
+
+def create_network():
 
     subch = get_library()
 
@@ -80,8 +81,14 @@ def doit():
     # finally, the aprox nets don't include the reverse rates for
     # C12+C12, C12+O16, and O16+O16, so remove those
 
-    print(f"number of nuclei: {len(net.unique_nuclei)}")
-    print(f"number of rates: {len(net.rates)}")
+    return net
+
+
+def doit():
+
+    net = create_network()
+
+    net.summary()
 
     comp = pyna.Composition(net.get_nuclei())
     comp.set_all(0.1)
