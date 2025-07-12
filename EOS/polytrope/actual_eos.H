@@ -23,12 +23,13 @@
 //
 // This is assumed to be constant for the degenerate gases.
 
+#include <string_view>
 #include <AMReX.H>
 #include <extern_parameters.H>
 #include <eos_type.H>
 #include <actual_eos_data.H>
 
-const std::string eos_name = "polytrope";
+constexpr std::string_view eos_name = "polytrope";
 
 inline
 void actual_eos_init ()

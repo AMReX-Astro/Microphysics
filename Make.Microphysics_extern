@@ -1,9 +1,12 @@
 # This is the main include makefile for applications that want to use Microphysics
 # You should set NETWORK_OUTPUT_PATH before including this file
 
-# For HIP, inlining produces large kernels that seem to cause memory issues
+# For some (older?) versions of HIP, inlining produces large kernels
+# that seem to cause memory issues
 ifeq ($(USE_HIP),TRUE)
+  ifeq ($(DISABLE_HIP_INLINE),TRUE)
     EXTRACXXFLAGS += -mllvm -amdgpu-function-calls=true
+  endif
 endif
 
 # for common code paths between simplified-SDC and true-SDC, we'll
@@ -126,14 +129,18 @@ ifeq ($(USE_CONDUCTIVITY),TRUE)
   EXTERN_CORE += $(CONDUCTIVITY_PATH)
 endif
 
+# backwards compatibility -- remove after 25.01
+ifdef Opacity_dir
+   OPACITY_DIR=$(Opacity_dir)
+endif
 
 ifeq ($(USE_RAD), TRUE)
-   ifeq ($(Opacity_dir), null)
+   ifeq ($(OPACITY_DIR), null)
      $(error The null opacity directory has been removed, please update to rad_power_law)
    endif
    EXTERN_CORE += $(MICROPHYSICS_HOME)/opacity
 
-   OPAC_PATH := $(MICROPHYSICS_HOME)/opacity/$(Opacity_dir)
+   OPAC_PATH := $(MICROPHYSICS_HOME)/opacity/$(OPACITY_DIR)
    EXTERN_CORE += $(OPAC_PATH)
 endif
 

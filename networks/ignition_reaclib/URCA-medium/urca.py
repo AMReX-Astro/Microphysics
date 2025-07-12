@@ -68,6 +68,7 @@ comp.normalize()
 urca_net.plot(outfile="urca_medium.png", rho=1.e9, T=6.e8, comp=comp,
               rotated=True, hide_xalpha=True, curved_edges=True,
               size=(1500, 450),
-              node_size=500, node_font_size=11, node_color="#337dff", node_shape="s")
+              node_size=600, node_font_size=11)
 
 urca_net.write_network()
+urca_net.summary()

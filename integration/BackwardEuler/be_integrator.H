@@ -1,6 +1,8 @@
 #ifndef BE_INTEGRATOR_H
 #define BE_INTEGRATOR_H
 
+#include <AMReX_Algorithm.H>
+
 #include <be_type.H>
 #include <network.H>
 #include <actual_network.H>
@@ -76,8 +78,8 @@ int single_step (BurnT& state, BeT& be, const amrex::Real dt)
         // construct the matrix for the linear system
         // (I - dt J) dy^{n+1} = rhs
 
-        for (int m  = 1; m <= int_neqs; m++) {
-            for (int n = 1; n <= int_neqs; n++) {
+        for (int n = 1; n <= int_neqs; n++) {
+            for (int m  = 1; m <= int_neqs; m++) {
                 be.jac(m, n) *= -dt;
                 if (m == n) {
                     be.jac(m, n) = 1.0_rt + be.jac(m, n);
@@ -179,6 +181,15 @@ int be_integrator (BurnT& state, BeT& be)
 
     int ierr;
 
+    if (integrator_rp::do_single_step == 1) {
+        // Do a single step to the final time
+        const amrex::Real dt_single_step = be.tout - be.t;
+        ierr = single_step(state, be, dt_single_step);
+        be.t = be.tout;
+        ++be.n_step;
+        return ierr;
+    }
+
     // estimate the timestep
 
     amrex::Array1D<amrex::Real, 1, int_neqs> ydot;
@@ -271,8 +282,8 @@ int be_integrator (BurnT& state, BeT& be)
             // can we potentially increase the timestep?
             // backward-Euler has a local truncation error of dt**2
 
-            amrex::Real dt_new = dt_sub * std::pow(1.0_rt / rel_error, 0.5_rt);
-            dt_sub = std::clamp(dt_new, dt_sub / 2.0, 2.0 * dt_sub);
+            amrex::Real dt_new = dt_sub * std::sqrt(1.0_rt / rel_error);
+            dt_sub = amrex::Clamp(dt_new, dt_sub / 2.0, 2.0 * dt_sub);
 
         } else {
 

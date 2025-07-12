@@ -34,7 +34,7 @@ jobs:
       - name: Run jac_cell
         run: |
           cd unit_test/jac_cell
-          ./main3d.gnu.ex inputs_aprox13 > test.out
+          ./main3d.gnu.ex inputs > test.out
 
       - name: Compare to stored output
         run: |

@@ -1,8 +1,11 @@
-[![github pages](https://github.com/AMReX-Astro/Microphysics/actions/workflows/gh-pages.yml/badge.svg)](https://github.com/AMReX-Astro/Microphysics/actions/workflows/gh-pages.yml) [![DOI](https://zenodo.org/badge/33425497.svg)](https://zenodo.org/badge/latestdoi/33425497)
+[![github pages](https://github.com/AMReX-Astro/Microphysics/actions/workflows/gh-pages.yml/badge.svg)](https://github.com/AMReX-Astro/Microphysics/actions/workflows/gh-pages.yml)
+[![DOI](https://zenodo.org/badge/33425497.svg)](https://zenodo.org/badge/latestdoi/33425497)
 
 # Microphysics
 
-*A collection of astrophysical microphysics routines for stellar explosions*
+*A collection of astrophysical microphysics routines for stellar
+evolution and explosions and interstellar medium chemistry (including
+primordial chemistry)*
 
 There are several core types of microphysics routines hosted here:
 
@@ -27,6 +30,10 @@ There are several core types of microphysics routines hosted here:
   define the composition and its properties, as well as describe the
   reactions and energy release when reactions occur.
 
+  For ISM chemistry, network contains the differentials of the number
+  density of various chemical species and the gas specific internal
+  energy.
+
 * `neutrinos/`: this holds the plasma neutrino cooling routines used
   in the reaction networks.
 
@@ -46,51 +53,33 @@ There are several core types of microphysics routines hosted here:
 * `screening/`: the screening routines for nuclear reactions. These
   are called by the various networks
 
-* `unit_test/`: code specific to unit tests within this repo. In
-  particular,
+* `unit_test/`: a collection of unit tests that exercise the different
+  pieces of Microphysics
 
-  - `burn_cell` will do a single zone burn given (rho, T)
-    and a composition
+* `util`: linear algebra routines for the integrators (specifically a
+  linear system solver from LINPACK), the hybrid Powell solver, other
+  math routines, and build scripts
 
-  - `burn_cell_sdc` will do a single zone burn in the simplified-SDC
-    framework.
-
-  - `test_eos` will test an equation of state by first calling it with
-    (rho, T), and then calling it with other inputs to recover rho
-    and/or T. A cube of data, with rho, T, and X is tested.
-
-  - `test_react` will call a reaction network on a cube of
-    data (rho, T, X).
-
-  - `test_rhs` will evaluate the right-hand-side of a network
-    without integrating it.
-
-  - `test_sdc` tests integration using the set of variables for
-    simplified-SDC.
-
-  - `test_jac` evaluates the Jacobian for comparison between the
-    analytical and numerical Jacobians.
-
-  - `test_screening` evaluates the screening routines.
-
-* `util`: linear algebra routines for the integrators
-  (specifically a linear system solver from LINPACK),
-  other math routines, and build scripts
+> [!TIP]
+> New networks for Microphysics can easily be generated using
+> [pynucastro](https://pynucastro.github.io/pynucastro/) via the
+> [`AmrexAstroCxxNetwork`](https://pynucastro.github.io/pynucastro/amrex-astro-cxx-networks.html)
 
 
 # AMReX-Astro Codes
 
 At the moment, these routines are written to be compatible with
-the AMReX-Astro codes, Maestro and Castro.
+the AMReX-Astro codes, MAESTROeX, Castro and Quokka.
 
 * Castro: http://amrex-astro.github.io/Castro/
 
 * MAESTROeX: http://amrex-astro.github.io/MAESTROeX/
 
 * Quokka: https://quokka-astro.github.io/quokka/
- 
-To use this repository with AMReX codes, set `MICROPHYSICS_HOME` to
-point to the `Microphysics/` directory.
+
+> [!IMPORTANT]
+> To use this repository with AMReX codes, set `MICROPHYSICS_HOME` to
+> point to the `Microphysics/` directory.
 
 There are various unit tests that work with the AMReX build system to
 test these routines.
@@ -109,7 +98,7 @@ system to ensure the interfaces are tested.
 A user's guide for Microphysics is available at:
 http://amrex-astro.github.io/Microphysics/docs/
 
-The sphinx source for the documentation is in `Microphysics/sphinx_docs/`
+The Sphinx source for the documentation is in `Microphysics/Docs/`
 
 ## Development Model:
 
@@ -117,17 +106,19 @@ Development generally follows the following ideas:
 
   * New features are committed to the `development` branch.
 
-    Nightly regression testing is used to ensure that no answers
-    change (or if they do, that the changes were expected).
+    GitHub actions will run automatically to test the different
+    physics solvers.  Additionally, nightly regression tests will
+    run to ensure that we work with the latest version of AMReX
+    and that more extensive simulations don't change answers.
 
     If a change is critical, we can cherry-pick the commit from
     `development` to `main`.
 
-  * Contributions are welcomed from anyone. *Any contributions that
-    have the potential to change answers should be done via pull
-    requests.*   A pull request should be generated from your fork of
-    `Microphysics` and target the `development` branch. (If you mistakenly
-    target `main`, we can change it for you.)
+  * Contributions are welcomed from anyone. *All contributions should
+    be done via pull requests.* A pull request should be generated
+    from your fork of `Microphysics` and target the `development`
+    branch. (If you mistakenly target `main`, we can change it for
+    you.)
 
     Please add a line to `CHANGES` summarizing your change if it
     is a bug fix or new feature. Reference the PR or issue as
@@ -139,15 +130,13 @@ Development generally follows the following ideas:
     request numbers or git commit hashes where the problem was
     introduced and fixed, respectively.
 
-    If there are a number of small commits making up the PR, we may
-    wish to squash commits upon merge to have a clean history.
-    *Please ensure that your PR title and first post are descriptive,
-    since these will be used for a squashed commit message.*
+    All pull requests will be squashed into a single commit when
+    merged.
 
   * On the first workday of each month, we perform a merge of
-    `development` into `main`, in coordination with `AMReX`,
-    `Maestro`, and `Microphysics`. For this merge to take place, we
-    need to be passing the regression tests.
+    `development` into `main`, in coordination with `AMReX`, `Castro`,
+    and `MAESTROeX`.  For this merge to take place, we need to be
+    passing the GitHub CI tests and comprehensive regression tests.
 
     To accommodate this need, we close the merge window into
     `development` a few days before the merge day. While the merge
@@ -163,8 +152,7 @@ People who make a number of substantive contributions will be named
 becoming a core developer are flexible, but generally involve one of
 the following:
 
-  * 10 non-merge commits to `Microphysics/` (including `Docs/`) or one
-    of the problems that is not your own science problem *or*
+  * 10 non-merge commits to `Microphysics/` (including `Docs/`)
 
   * addition of a new algorithm / module  *or*
 
@@ -174,20 +162,22 @@ Core developers will be recognized in the following ways:
 
   * invited to the group's slack team
 
-  * listed in the User's Guide and website as a core developer
+  * added to the `.zenodo.json` file that is used to create
+    DOIs corresponding to monthly releases.
 
   * invited to co-author general code papers / proceedings describing
     Microphysics, its performance, etc. (Note: science
     papers will always be left to the science leads to determine
     authorship).
 
-If a core developer is inactive for 3 years, we may reassess their
-status as a core developer.
+> [!NOTE]
+> If a core developer is inactive for 3 years, we may reassess their
+> status as a core developer.
 
 
 ## Getting help
 
-We use github discussions for requesting help and interacting with the
+We use GitHub discussions for requesting help and interacting with the
 community:
 
 https://github.com/amrex-astro/Microphysics/discussions

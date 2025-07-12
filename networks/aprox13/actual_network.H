@@ -6,6 +6,7 @@
 #include <AMReX_REAL.H>
 #include <AMReX_Vector.H>
 #include <AMReX_Array.H>
+#include <string_view>
 
 using namespace amrex::literals;
 
@@ -21,7 +22,7 @@ using namespace network_rp;
 AMREX_INLINE
 void actual_network_init() {}
 
-const std::string network_name = "aprox13";
+constexpr std::string_view network_name = "aprox13";
 
 namespace network
 {
@@ -134,7 +135,7 @@ namespace NSE_INDEX
 #endif
 
 namespace Rates {
-    enum NetworkRates {
+    enum NetworkRates: std::uint8_t {
         He4_He4_He4_to_C12 = 1,
         C12_He4_to_O16,
         C12_C12_to_Ne20_He4,

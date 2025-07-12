@@ -2,15 +2,16 @@
 #define TEST_FUNC_H
 
 template<int neqs, typename T>
-void fcn(Array1D<Real, 1, neqs>& x, Array1D<Real, 1, neqs>& fvec, const T& data, int& iflag) {
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void fcn(amrex::Array1D<amrex::Real, 1, neqs>& x, amrex::Array1D<amrex::Real, 1, neqs>& fvec, const T& data, int& iflag) {
 
     for (int k = 1; k <= neqs; ++k) {
-        Real temp = (3.0_rt - 2.0_rt * x(k)) * x(k);
-        Real temp1 = 0.0_rt;
+        amrex::Real temp = (3.0_rt - 2.0_rt * x(k)) * x(k);
+        amrex::Real temp1 = 0.0_rt;
         if (k != 1) {
             temp1 = x(k-1);
         }
-        Real temp2 = 0.0_rt;
+        amrex::Real temp2 = 0.0_rt;
         if (k != neqs) {
             temp2 = x(k+1);
         }
@@ -19,7 +20,8 @@ void fcn(Array1D<Real, 1, neqs>& x, Array1D<Real, 1, neqs>& fvec, const T& data,
 }
 
 template<int neqs, typename T>
-void jcn(Array1D<Real, 1, neqs>& x, Array2D<Real, 1, neqs, 1, neqs>& fjac, const T& data, int& iflag) {
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void jcn(amrex::Array1D<amrex::Real, 1, neqs>& x, amrex::Array2D<amrex::Real, 1, neqs, 1, neqs>& fjac, const T& data, int& iflag) {
 
     for (int k = 1; k <= neqs; ++k) {
         for (int j = 1; j <= neqs; ++j) {

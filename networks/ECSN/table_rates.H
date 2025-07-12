@@ -22,7 +22,7 @@ void init_tabular();
 
 const int num_tables = 4;
 
-enum TableVars
+enum TableVars : std::uint8_t
 {
     jtab_mu      = 1,
     jtab_dq      = 2,
@@ -55,6 +55,11 @@ const int add_vars              = 1;  // 1 Additional Var in entries
 
 namespace rate_tables
 {
+    extern AMREX_GPU_MANAGED table_t j_F20_Ne20_meta;
+    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 39, 1, 152, 1, 6> j_F20_Ne20_data;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 152> j_F20_Ne20_rhoy;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 39> j_F20_Ne20_temp;
+
     extern AMREX_GPU_MANAGED table_t j_F20_O20_meta;
     extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 39, 1, 152, 1, 6> j_F20_O20_data;
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 152> j_F20_O20_rhoy;
@@ -69,11 +74,6 @@ namespace rate_tables
     extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 39, 1, 152, 1, 6> j_O20_F20_data;
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 152> j_O20_F20_rhoy;
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 39> j_O20_F20_temp;
-
-    extern AMREX_GPU_MANAGED table_t j_F20_Ne20_meta;
-    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 39, 1, 152, 1, 6> j_F20_Ne20_data;
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 152> j_F20_Ne20_rhoy;
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 39> j_F20_Ne20_temp;
 
 }
 

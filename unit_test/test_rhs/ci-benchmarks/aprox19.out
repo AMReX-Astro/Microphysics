@@ -341,7 +341,7 @@
  J_nickel-56_iron-52          4.3001564738e-78           552709472.84
  J_neutron_iron-52           -6.4991725027e+12                      0
  J_proton_iron-52                            0           431335119.97
- J_E_iron-52                 -2.3084042815e+11       7.5442123176e+31
+ J_E_iron-52                 -2.3084042691e+11       7.5442123176e+31
  J_hydrogen-1_iron-54                        0                      0
  J_helium-3_iron-54                          0                      0
  J_helium-4_iron-54                          0           14675163.343
@@ -401,7 +401,7 @@
  J_nickel-56_neutron                         0                      0
  J_neutron_neutron           -5.6038758893e+11     -2.9818540515e-259
  J_proton_neutron            -3.1041941575e+11         0.019849381604
- J_E_neutron                   0.0031960758414       7.1390811757e+30
+ J_E_neutron                   0.0029244249004       7.1390811757e+30
  J_hydrogen-1_proton                         0                      0
  J_helium-3_proton                           0                      0
  J_helium-4_proton                           0       1.5520970787e+11

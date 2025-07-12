@@ -21,8 +21,6 @@ using namespace amrex;
 #include <cmath>
 #include <unit_test.H>
 
-using namespace unit_test_rp;
-
 int main (int argc, char* argv[])
 {
     amrex::Initialize(argc, argv);
@@ -96,7 +94,7 @@ void main_main ()
 
     init_unit_test();
 
-    eos_init(small_temp, small_dens);
+    eos_init(unit_test_rp::small_temp, unit_test_rp::small_dens);
 
     network_init();
 
@@ -129,9 +127,9 @@ void main_main ()
     Real dmetal  = 0.0e0_rt;
 
     if (n_cell > 1) {
-        dlogrho = (std::log10(dens_max) - std::log10(dens_min)) / static_cast<Real>(n_cell - 1);
-        dlogT   = (std::log10(temp_max) - std::log10(temp_min))/ static_cast<Real>(n_cell - 1);
-        dmetal  = (metalicity_max  - 0.0_rt)/ static_cast<Real>(n_cell - 1);
+        dlogrho = (std::log10(unit_test_rp::dens_max) - std::log10(unit_test_rp::dens_min)) / static_cast<Real>(n_cell - 1);
+        dlogT   = (std::log10(unit_test_rp::temp_max) - std::log10(unit_test_rp::temp_min))/ static_cast<Real>(n_cell - 1);
+        dmetal  = (unit_test_rp::metalicity_max  - 0.0_rt)/ static_cast<Real>(n_cell - 1);
     }
 
     // Initialize the state and compute the different thermodynamics
@@ -143,6 +141,49 @@ void main_main ()
       Array4<Real> const sp = state.array(mfi);
 
       neut_test_C(bx, dlogrho, dlogT, dmetal, vars, sp);
+
+#ifdef AMREX_USE_GPU
+      // check that sneut5 works when called from the host as well, just in case
+      Dim3 cell{n_cell-1, n_cell-1, 0};
+      if (bx.contains(cell)) {
+        // copy the data from device to host
+        FArrayBox hostfab(bx, state.nComp(), The_Pinned_Arena());
+        const FArrayBox &fab = state[mfi];
+        Gpu::dtoh_memcpy_async(hostfab.dataPtr(), fab.dataPtr(), fab.size()*sizeof(Real));
+        Gpu::streamSynchronize();
+
+        Array4<Real> const host_sp = hostfab.array();
+        Real temp_zone = host_sp(cell, vars.itemp);
+        Real dens_zone = host_sp(cell, vars.irho);
+        Real abar = 1.0_rt / (0.75_rt / 1 + 0.25_rt / 4);
+        Real zbar = abar * (1 * 0.75_rt / 1 + 2 * 0.25_rt / 4);
+
+        Real snu, dsnudt, dsnudd, dsnuda, dsnudz;
+        constexpr int do_derivatives{1};
+
+        sneut5<do_derivatives>(temp_zone, dens_zone, abar, zbar,
+                               snu, dsnudt, dsnudd, dsnuda, dsnudz);
+
+        auto check_value = [=] (int idx, Real actual, const char* name) {
+          Real expected = host_sp(cell, idx);
+          Real rel_diff = std::abs((expected - actual) / expected);
+          const Real tol = 1.0e-15_rt;
+          if (rel_diff > tol) {
+            std::cerr << "values for " << name << " don't match to within tolerance:\n"
+              << std::setprecision(17)
+              << "  device: " << expected << "\n"
+              << "  host:   " << actual << "\n"
+              << "  rel. diff: " << rel_diff << "\n";
+          }
+          AMREX_ALWAYS_ASSERT(rel_diff <= tol);
+        };
+
+        check_value(vars.isneut, snu, "snu");
+        check_value(vars.isneutdt, dsnudt, "dsnudt");
+        check_value(vars.isneutda, dsnuda, "dsnuda");
+        check_value(vars.isneutdz, dsnudz, "dsnudz");
+      }
+#endif
 
     }
 

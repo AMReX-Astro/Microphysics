@@ -11,8 +11,9 @@
 #include <extern_parameters.H>
 #include <cmath>
 #include <actual_eos_data.H>
+#include <string_view>
 
-const std::string eos_name = "multigamma";
+constexpr std::string_view eos_name = "multigamma";
 
 inline
 void actual_eos_init ()
@@ -27,90 +28,31 @@ void actual_eos_init ()
 
     int idx;
 
-    idx = network_spec_index(eos_rp::species_a_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_a_gamma;
-        spmasses[idx] = eos_rp::species_a_mass;
-    }
+    // Set the gammas & masses for the species
+    #define GET_SPECIES_PARAMS(num) do { \
+        idx = network_spec_index(eos_rp::species_##num##_name); \
+        if (idx >= 0) { \
+            gammas[idx] = eos_rp::species_##num##_gamma; \
+            spmasses[idx] = eos_rp::species_##num##_mass; \
+        } \
+    } while (0)
 
-    idx = network_spec_index(eos_rp::species_b_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_b_gamma;
-        spmasses[idx] = eos_rp::species_b_mass;
-   }
+    GET_SPECIES_PARAMS(1);
+    GET_SPECIES_PARAMS(2);
+    GET_SPECIES_PARAMS(3);
+    GET_SPECIES_PARAMS(4);
+    GET_SPECIES_PARAMS(5);
+    GET_SPECIES_PARAMS(6);
+    GET_SPECIES_PARAMS(7);
+    GET_SPECIES_PARAMS(8);
+    GET_SPECIES_PARAMS(9);
+    GET_SPECIES_PARAMS(10);
+    GET_SPECIES_PARAMS(11);
+    GET_SPECIES_PARAMS(12);
+    GET_SPECIES_PARAMS(13);
+    GET_SPECIES_PARAMS(14);
 
-    idx = network_spec_index(eos_rp::species_c_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_c_gamma;
-        spmasses[idx] = eos_rp::species_c_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_d_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_d_gamma;
-        spmasses[idx] = eos_rp::species_d_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_e_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_e_gamma;
-        spmasses[idx] = eos_rp::species_e_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_f_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_f_gamma;
-        spmasses[idx] = eos_rp::species_f_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_g_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_g_gamma;
-        spmasses[idx] = eos_rp::species_g_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_h_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_h_gamma;
-        spmasses[idx] = eos_rp::species_h_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_i_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_i_gamma;
-        spmasses[idx] = eos_rp::species_i_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_j_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_j_gamma;
-        spmasses[idx] = eos_rp::species_j_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_k_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_k_gamma;
-        spmasses[idx] = eos_rp::species_k_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_l_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_l_gamma;
-        spmasses[idx] = eos_rp::species_l_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_m_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_m_gamma;
-        spmasses[idx] = eos_rp::species_m_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_n_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_n_gamma;
-        spmasses[idx] = eos_rp::species_n_mass;
-    }
-
+    #undef GET_SPECIES_PARAMS
 }
 
 
