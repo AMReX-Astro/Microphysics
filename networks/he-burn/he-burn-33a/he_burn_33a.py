@@ -3,16 +3,13 @@ import pynucastro as pyna
 import he_burn_core
 
 
-DO_DERIVED_RATES = True
-
-
-def doit():
+def create_network():
 
     lib = he_burn_core.get_core_library(include_n14_approx=True,
                                         include_zn=True,
                                         include_iron_peak=True,
                                         include_low_ye=True,
-                                        do_detailed_balance=DO_DERIVED_RATES)
+                                        do_detailed_balance=True)
 
     net = pyna.AmrexAstroCxxNetwork(libraries=[lib],
                                     symmetric_screening=False)
@@ -23,6 +20,12 @@ def doit():
     net.remove_nuclei(["cl35", "k39", "sc43", "v47"])
 
     net.summary()
+    return net
+
+
+def doit():
+
+    net = create_network()
 
     # let's make a figure
 
