@@ -2,7 +2,6 @@
 #define actual_network_H
 
 #include <string_view>
-
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>
 #include <AMReX_Loop.H>
