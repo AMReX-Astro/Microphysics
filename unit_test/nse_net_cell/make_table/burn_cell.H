@@ -63,7 +63,8 @@ void burn_cell_c()
 
                 use_hybrid_solver = 1;
 
-                auto nse_state = get_actual_nse_state(state, eps, assume_ye_is_valid);
+                auto nse_state = get_actual_nse_state(nse_input_rty, state,
+                                                      eps, assume_ye_is_valid);
 
                 for (int i = 0; i < NumSpec; ++i){
                   state.y[SFS+i] = nse_state.y[SFS+i];
