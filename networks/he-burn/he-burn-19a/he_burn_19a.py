@@ -4,14 +4,11 @@ from pynucastro.networks import AmrexAstroCxxNetwork
 import he_burn_core
 
 
-DO_DERIVED_RATES = True
-
-
-def doit():
+def create_network():
 
     subch = he_burn_core.get_core_library(include_n14_approx=True,
                                           include_zn=False,
-                                          do_detailed_balance=DO_DERIVED_RATES)
+                                          do_detailed_balance=True)
 
     # these are the rates that we are going to allow to be optionally
     # zeroed
@@ -24,6 +21,13 @@ def doit():
 
     net.make_ap_pg_approx(intermediate_nuclei=["cl35", "k39", "sc43", "v47", "mn51", "co55"])
     net.remove_nuclei(["cl35", "k39", "sc43", "v47", "mn51", "co55"])
+
+    return net
+
+
+def doit():
+
+    net = create_network()
 
     net.summary()
 

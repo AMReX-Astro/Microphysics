@@ -3,16 +3,13 @@ import pynucastro as pyna
 import he_burn_core
 
 
-DO_DERIVED_RATES = True
-
-
-def doit():
+def create_network():
 
     lib = he_burn_core.get_core_library(include_n14_approx=True,
                                         include_zn=False,
                                         include_iron_peak=True,
                                         include_low_ye=False,
-                                        do_detailed_balance=DO_DERIVED_RATES)
+                                        do_detailed_balance=True)
 
     net = pyna.AmrexAstroCxxNetwork(libraries=[lib],
                                     symmetric_screening=False)
@@ -27,6 +24,12 @@ def doit():
 
     # make all rates with A >= 48 use NSE protons
     net.make_nse_protons(48)
+    return net
+
+
+def doit():
+
+    net = create_network()
 
     net.summary()
 
