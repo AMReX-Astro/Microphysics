@@ -11,7 +11,7 @@ tags:
 - differential equations
 
 authors:
-- name: AMReX-Astro Microphysics Team
+- surname: AMReX-Astro Microphysics Team
   affiliation: '†'
 
 - name: Khanak Bhargava
@@ -320,6 +320,9 @@ in `Microphysics/unit_test/`.  There are 2 types of tests here:
   a single thermodynamic state.  This can be used to explore the
   physics that is implemented, and also serve to demonstrate the interfaces
   used in Microphysics.
+
+These tests also serve as tutorial codes for integrating Microphysics
+into new application codes.
 
 # Acknowledgements
 
