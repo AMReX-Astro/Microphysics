@@ -8,6 +8,11 @@ max_nse_iters           int        500
 # 0 == Newton-Raphson
 use_hybrid_solver       bool       1
 
+# Different modes for solving (rho, e, Ye) input
+# 1 == Solve for (rho, T, Ye), then do iteration to find e.
+# 2 == Solve for e altogether with mu_p and mu_n.
+solve_nse_e_mode        int        1
+
 # Tolerance used in the NSE-Grouping process
 ase_tol                 real       0.1
 
