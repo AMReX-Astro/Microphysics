@@ -3,15 +3,18 @@
         {
             "name": "AMReX-Astro Microphysics Team"
         },
-        {   "affiliation": "Stony Brook University",
-            "name": "Bishop, Abigail",
-            "orcid": "0000-0002-0375-644X"
-        },
-        {   "affiliation": "Department of Physics and Astronomy, Stony Brook University",
+        {
+	    "affiliation": "Department of Physics and Astronomy, Stony Brook University",
             "name": "Bhargava, Khanak",
             "orcid": "0000-0003-0385-7918"
         },
-        {   "affiliation": "Department of Physics and Astronomy, Stony Brook University",
+        {
+	    "affiliation": "Stony Brook University",
+            "name": "Bishop, Abigail",
+            "orcid": "0000-0002-0375-644X"
+        },
+        {
+	    "affiliation": "Department of Physics and Astronomy, Stony Brook University",
             "name": "Chen, Zhi",
             "orcid": "0000-0002-2839-107X"
         },
@@ -19,21 +22,17 @@
             "name": "Fan, Doreen",
             "orcid": "0000-0002-3246-4315"
         },
-        {   "affiliation": "University of Arizona",
+        {
+	    "affiliation": "University of Arizona",
             "name": "Fields, Carl E.",
             "orcid": "0000-0002-8925-057X"
         },
         {
-            "affiliation": "Department of Physics and Astronomy, Stony Brook University",
-            "name": "Harpole, Alice",
-            "orcid": "0000-0002-1530-781X"
-        },
-        {
-            "affiliation": "Michigan State University",
             "name": "Jacobs, Adam M.",
             "orcid": "0000-0002-3580-2420"
         },
-        {   "affiliation": "Department of Physics and Astronomy, Stony Brook University",
+        {
+	    "affiliation": "Department of Physics and Astronomy, Stony Brook University",
             "name": "Johnson, Eric",
             "orcid": "0000-0003-3603-6868"
         },
@@ -42,9 +41,10 @@
             "name": "Katz, Maximilian",
             "orcid": "0000-0003-0439-4556"
         },
-        {   "affiliation": "Department of Physics and Astronomy, Stony Brook University",
-            "name": "Li, Xinlong",
-            "orcid": "0000-0002-3143-6136"
+        {
+            "affiliation": "Research School of Astronomy and Astrophysics, The Australian National University",
+            "name": "Krumholz, Mark",
+            "orcid": "0000-0003-3893-854X"
         },
         {
             "affiliation": "Los Alamos National Laboratory",
@@ -72,7 +72,6 @@
             "orcid": "0000-0003-3175-2291"
         },
         {
-            "affiliation": "Center for Computational Sciences and Engineering, Lawrence Berkeley National Laboratory",
             "name": "Willcox, Donald",
             "orcid": "0000-0003-2300-5165"
         },

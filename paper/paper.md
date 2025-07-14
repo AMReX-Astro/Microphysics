@@ -29,27 +29,33 @@ authors:
 - name: Carl Fields
   affiliation: '4'
 
+- name: Adam M. Jacobs
+  affiliation: '3'
+  
 - name: Eric T. Johnson
   affiliation: '1'
 
 - name: Max P. Katz
   affiliation: '1'
 
-- name: Chris Malone
+- name: Mark Krumholz
   affiliation: '5'
+  
+- name: Chris Malone
+  affiliation: '6'
 
 - name: Piyush Sharda
-  affiliation: '6'
+  affiliation: '7'
 
 - given-names: Alexander
   surname: Smith Clark
   affiliation: '1'
 
 - name: Frank Timmes
-  affiliation: '7'
+  affiliation: '8'
 
 - name: Ben Wibking
-  affiliation: '8'
+  affiliation: '9'
 
 - name: Don E. Willcox
   affiliation: '3'
@@ -69,15 +75,17 @@ affiliations:
 - index: 4
   name: Department of Astronomy, University of Arizona, Tucson, AZ, USA
 - index: 5
-  name: Los Alamos National Laboratory, Los Alamos, NM, USA
+  name: Research School of Astronomy and Astrophysics, The Australian National University, Australia
 - index: 6
-  name: Leiden Observatory, Leiden, The Netherlands
+  name: Los Alamos National Laboratory, Los Alamos, NM, USA
 - index: 7
-  name: Arizon State University, Tempe, AZ, USA
+  name: Leiden Observatory, Leiden, The Netherlands
 - index: 8
+  name: Arizon State University, Tempe, AZ, USA
+- index: 9
   name: Department of Physics and Astronomy, Michigan State University, E. Lansing, MI, USA
 
-date: 01 July 2025
+date: 13 July 2025
 
 bibliography: paper.bib
 ---
@@ -315,7 +323,9 @@ in `Microphysics/unit_test/`.  There are 2 types of tests here:
 
 # Acknowledgements
 
-The work at Stony Brook was supported by the US Department of Energy,
+All developers who have contributed new features, substantial design
+input, and/or at least 3 commits were invited to be coauthors.  The
+work at Stony Brook was supported by the US Department of Energy,
 Office of Nuclear Physics grant DE-FG02-87ER40317.
 
 # References
