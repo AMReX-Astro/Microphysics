@@ -326,11 +326,14 @@ into new application codes.
 
 # Acknowledgements
 
-All developers who have contributed new features, substantial design
-input, and/or at least 3 commits were invited to be coauthors.  The
-work at Stony Brook was supported by the US Department of Energy,
-Office of Nuclear Physics grant DE-FG02-87ER40317.
+The AMReX-Astro Microphysics library developers are an open scientific
+team with members contributing to various aspects of the library. We
+have thus chosen to display the members of our development team in the
+author list in alphabetical order.  All developers who have
+contributed new features, substantial design input, and/or at least 3
+commits were invited to be coauthors.  The work at Stony Brook was
+supported by the US Department of Energy, Office of Nuclear Physics
+grant DE-FG02-87ER40317.
 
 # References
 
-[^authors]: The AMReX-Astro Microphysics library developers are an open scientific team with members contributing to various aspects of the library. We have thus chosen to display the members of our development team in the author list in alphabetical order.
