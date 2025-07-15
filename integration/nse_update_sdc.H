@@ -21,7 +21,6 @@
 #endif
 #ifdef NSE_NET
 #include <nse_solver.H>
-#include <nse_eos.H>
 #endif
 
 using namespace amrex::literals;
@@ -314,41 +313,43 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
                 amrex::Real &drhoyedt_weak, amrex::Real& drhoedt,
                 const amrex::Real T_fixed) {
 
-    // start with the current state and compute T
+    // initialize burn_state for NSE state
 
     amrex::Real Ye0 = rhoYe0 / rho0;
-    amrex::Real abar{0.0_rt};
-
-    // Get initial temperature.
-
-    if (T_fixed > 0) {
-        T0 = T_fixed;
-    } else {
-        // updates T0 to be consistent with e0 and NSE
-        amrex::Real e0 = rhoe0 / rho0;
-        nse_T_abar_from_e(rho0, e0, Ye0, T0, abar, mu_p, mu_n);
-    }
-
-    // initialize burn_state for NSE state
 
     burn_t burn_state;
 
-    burn_state.T = T0;
+    burn_state.T = (T_fixed > 0.0_rt) ? T_fixed : T0;
     burn_state.rho = rho0;
+    burn_state.e = rhoe0 / rho0;
     burn_state.y_e = Ye0;
     burn_state.mu_p = mu_p;
     burn_state.mu_n = mu_n;
 
-    // get NSE state at t0
+    // Since internal energy is updated during integration,
+    // we use (rho, e, Ye) as input to find the NSE state.
+    // If T is fixed, i.e. T_fixed > 0, then use (rho, T, Ye)
 
-    auto nse_state0 = get_actual_nse_state(burn_state, 1.0e-10_rt, true);
+    auto nse_input = (T_fixed > 0.0_rt) ? nse_input_rty : nse_input_rey;
+    auto nse_state = get_actual_nse_state(nse_input, burn_state,
+                                          1.0e-10_rt, true);
+
+    // Update the input temperature, mu_p and mu_n with the new NSE state.
+
+    if (T_fixed <= 0.0_rt) {
+        T0 = nse_state.T;
+    }
+    mu_p = nse_state.mu_p;
+    mu_n = nse_state.mu_n;
 
 #ifdef NEUTRINOS
     // compute the plasma neutrino losses
 
-    // Get abar
+    // Get abar for neutrino
+
+    amrex::Real abar{0.0_rt};
     for (int n = 0; n < NumSpec; ++n) {
-        abar += nse_state0.xn[n] * aion_inv[n];
+        abar += nse_state.xn[n] * aion_inv[n];
     }
     abar = 1.0_rt / abar;
 
@@ -373,13 +374,13 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
     amrex::Real e_nu {0.0_rt};
 
     for (int n = 1; n <= NumSpec; ++n) {
-        Y(n) = nse_state0.xn[n-1] * aion_inv[n-1];
+        Y(n) = nse_state.xn[n-1] * aion_inv[n-1];
     }
 
     // Fill in ydot with only weak rates contributing
 
     amrex::Array1D<amrex::Real, 1, neqs> ydot_weak;
-    get_ydot_weak(nse_state0, ydot_weak, e_nu, Y);
+    get_ydot_weak(nse_state, ydot_weak, e_nu, Y);
 
     // Find drhoyedt_weak from weak reaction
 
@@ -431,26 +432,22 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
     amrex::Real mu_p = state.mu_p;
     amrex::Real mu_n = state.mu_n;
 
-    // density and momentum have no reactive sources
-
-    state.y[SRHO] += dt * state.ydot_a[SRHO];
-    state.y[SMX] += dt * state.ydot_a[SMX];
-    state.y[SMY] += dt * state.ydot_a[SMY];
-    state.y[SMZ] += dt * state.ydot_a[SMZ];
-
     // do an RK2 integration
+
+    // initialize derivatives needed
 
     amrex::Real drhoedt{0.0_rt};
     amrex::Real drhoyedt_weak{0.0_rt};
     amrex::Real drhoyedt_a{0.0_rt};
 
     // find the advection contribution for ye: drhoyedt_a
+    // The advection contribution is already time-centered
 
     for (int n = 0; n < NumSpec; ++n) {
         drhoyedt_a += state.ydot_a[SFS+n] * zion[n] * aion_inv[n];
     }
 
-    // get the derivatives, drhoyedt_weak and drhoedt at t = t^n
+    // get the derivatives: drhoyedt_weak and drhoedt at t = t^n
 
     nse_derivs(rho_old, rhoe_old,
                rhoye_old, T_old,
@@ -458,7 +455,7 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
                drhoyedt_weak, drhoedt,
                state.T_fixed);
 
-    // evolve to the midpoint in time
+    // evolve to the midpoint in time and the midpoint NSE state.
 
     amrex::Real rho_tmp = rho_old + 0.5_rt * dt * state.ydot_a[SRHO];
     amrex::Real rhoe_tmp = rhoe_old + 0.5_rt * dt * (state.ydot_a[SEINT] + drhoedt);
@@ -478,31 +475,19 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
     amrex::Real rhoe_new = rhoe_old + dt * (state.ydot_a[SEINT] + drhoedt);
     amrex::Real rhoye_new = rhoye_old + dt * (drhoyedt_weak + drhoyedt_a);
 
-    // Update the temperature with new internal energy
-
-    amrex::Real T_new;
-    amrex::Real Ye_new = rhoye_new / rho_new;
-
-    if (state.T_fixed > 0) {
-        T_new = state.T_fixed;
-    } else {
-        // initial eos guess
-        T_new = T_old;
-        amrex::Real e_new = rhoe_new / rho_new;
-        amrex::Real abar_new;
-        nse_T_abar_from_e(rho_new, e_new, Ye_new, T_new, abar_new, mu_p, mu_n);
-    }
-
     // With updated temp, rho, and Ye get final NSE state
 
     burn_t burn_state;
-    burn_state.T = T_new;
+    burn_state.T = (state.T_fixed > 0.0_rt) ? state.T_fixed : T_old;
     burn_state.rho = rho_new;
-    burn_state.y_e = Ye_new;
+    burn_state.e = rhoe_new / rho_new;
+    burn_state.y_e = rhoye_new / rho_new;
     burn_state.mu_p = mu_p;
     burn_state.mu_n = mu_n;
 
-    auto nse_state = get_actual_nse_state(burn_state, 1.0e-10_rt, true);
+    auto nse_input = (state.T_fixed > 0.0_rt) ? nse_input_rty : nse_input_rey;
+    auto nse_state = get_actual_nse_state(nse_input, burn_state,
+                                          1.0e-10_rt, true);
 
     // Update rho X using new NSE state
     // These should be already normalized due to NSE constraint
@@ -511,14 +496,23 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
         state.y[SFS+n] = nse_state.y[SFS+n];
     }
 
+    // Update density and momentum, which have no reactive sources
+
+    state.y[SRHO] += dt * state.ydot_a[SRHO];
+    state.y[SMX] += dt * state.ydot_a[SMX];
+    state.y[SMY] += dt * state.ydot_a[SMY];
+    state.y[SMZ] += dt * state.ydot_a[SMZ];
+
     // Update total and internal energy.
-    // Note that density and momenta have already been updated before.
 
     state.y[SEINT] = rhoe_new;
     state.y[SEDEN] += dt * (state.ydot_a[SEDEN] + drhoedt);
 
-    // store the chemical potentials
+    // Update chemical potentials and temperature
 
+    if (state.T_fixed <= 0.0_rt) {
+        state.T = nse_state.T;
+    }
     state.mu_p = nse_state.mu_p;
     state.mu_n = nse_state.mu_n;
 }

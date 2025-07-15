@@ -4,6 +4,7 @@
 #include <fundamental_constants.H>
 #include <AMReX_REAL.H>
 #include <eos_type.H>
+#include <eos.H>
 #include <network.H>
 #include <burn_type.H>
 #include <extern_parameters.H>
@@ -19,8 +20,19 @@
 #include <screen.H>
 #include <cctype>
 #include <algorithm>
+#include <nse_eqns.H>
 
 using namespace nse_rp;
+
+// Two different input mode for NSE solver
+// nse_input_rty: (rho, T, Ye)
+// nse_input_rey: (rho, e, Ye)
+
+enum nse_input_t : std::uint8_t {
+    nse_input_rty = 0,
+    nse_input_rey
+};
+
 
 template <typename T>
 struct nse_solver_data
@@ -30,253 +42,31 @@ struct nse_solver_data
 };
 
 
-template <typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-T get_nonexponent_nse_state(const T& state) {
-    // This function calculates a portion of the nse_state that is not dependent
-    // on the chemical potential. This way we don't have to calculate the same
-    // component repeatedly.
-
-    // This function returns an incomplete nse_state where the xn lacks the exponent term.
-
-    T nse_state = state;
-
-    // set partition function and spin
-
-    amrex::Real pf = 1.0_rt;
-    [[maybe_unused]] amrex::Real dpf_dT;
-    amrex::Real spin = 1.0_rt;
-
-    // if we are doing drive_initial_convection, we want to use
-    // the temperature that comes in through T_fixed
-
-    amrex::Real T_in = state.T_fixed > 0.0_rt ? state.T_fixed : state.T;
-    constexpr amrex::Real i2PiHbar2 = 1.0_rt / (2.0_rt * M_PI * C::hbar * C::hbar);
-
-#ifndef NEW_NETWORK_IMPLEMENTATION
-    auto tfactors = evaluate_tfactors(T_in);
-#endif
-
-    for (int n = 0; n < NumSpec; ++n) {
-#ifdef NEW_NETWORK_IMPLEMENTATION
-        if (n == NSE_INDEX::H1_index) {
-            nse_state.xn[n] = 0.0_rt;
-            continue;
-        }
-#endif
-
-        // fill partition function and get spin
-
-#ifndef NEW_NETWORK_IMPLEMENTATION
-        spin = get_spin_state(n+1);
-        get_partition_function(n+1, tfactors, pf, dpf_dT);
-#endif
-
-        // find nse mass frac without the exponent term.
-
-        amrex::Real power = network::mion(n+1) * C::k_B * T_in * i2PiHbar2;
-
-        nse_state.xn[n] = network::mion(n+1) * pf * spin / state.rho *
-            std::sqrt(amrex::Math::powi<3>(power));
-    }
-
-    return nse_state;
-}
-
-#if SCREEN_METHOD == SCREEN_METHOD_chabrier1998
-template <typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void compute_coulomb_contribution(amrex::Array1D<amrex::Real, 1, NumSpec>& u_c,
-                                const T& state) {
-    // This function computes the coulomb contribution 1D array
-
-    // if we use chabrier1998 screening
-    // Get the required terms to calculate coulomb correction term, u_c
-
-    amrex::Real T_in = state.T_fixed > 0.0_rt ? state.T_fixed : state.T;
-
-    //
-    // Find n_e for original state;
-    // Note that y_e depends on the mass fraction,
-    // but we use the coulomb correction to compute the mass fraction
-    // So here y_e is simply the actual y_e we want to achieve.
-    // so we just treat u_c as a constant.
-    //
-
-    const amrex::Real n_e = state.rho * state.y_e * C::n_A;
-    const amrex::Real Gamma_e = C::q_e * C::q_e *
-        std::cbrt(1.333333333333_rt * M_PI * n_e) / (C::k_B * T_in);
-    amrex::Real gamma;
-
-    for (int n = 0; n < NumSpec; ++n) {
-#ifdef NEW_NETWORK_IMPLEMENTATION
-        if (n == NSE_INDEX::H1_index) {
-            continue;
-        }
-#endif
-        // term for calculating u_c
-
-        gamma = std::cbrt(amrex::Math::powi<5>(zion[n])) * Gamma_e;
-
-        // chemical potential for coulomb correction
-        // see appendix of Calder 2007, doi:10.1086/510709 for more detail
-
-        // reuse existing implementation from screening routine
-        auto f = chabrier1998_helmholtz_F<amrex::Real>(gamma);
-
-        //
-        // Here u_c is a dimensionless quantity.
-        // Otherwise:
-        // u_c = C::k_B * T_in / C::MeV2erg * f;
-        //
-
-        u_c(n+1) = f;
-    }
-}
-#endif
-
-template <typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void apply_nse_exponent(T& nse_state,
-                        const amrex::Array1D<amrex::Real, 1, NumSpec>& u_c) {
-    // This function applies the nse exponent which depends on
-    // the chemical potential.
-
-    // if we are doing drive_initial_convection, we want to use
-    // the temperature that comes in through T_fixed
-
-    amrex::Real T_in = nse_state.T_fixed > 0.0_rt ? nse_state.T_fixed : nse_state.T;
-    amrex::Real ikTMeV = C::MeV2erg / (C::k_B * T_in);
-    amrex::Real exponent;
-
-    for (int n = 0; n < NumSpec; ++n) {
-#ifdef NEW_NETWORK_IMPLEMENTATION
-        if (n == NSE_INDEX::H1_index) {
-            nse_state.xn[n] = 0.0_rt;
-            continue;
-        }
-#endif
-
-        // find nse mass frac
-
-        // prevent an overflow on exp by capping the exponent -- we hope that a subsequent
-        // iteration will make it happy again
-
-        exponent = amrex::min(500.0_rt,
-                              (zion[n] * nse_state.mu_p + (aion[n] - zion[n]) *
-                               nse_state.mu_n + network::bion(n+1)) *
-                              ikTMeV - u_c(n+1));
-
-        nse_state.xn[n] *= std::exp(exponent);
-    }
-
-    nse_state.y_e = 0.0_rt;
-
-    for (int n = 0; n < NumSpec; ++n) {
-#ifdef NEW_NETWORK_IMPLEMENTATION
-        if (n == NSE_INDEX::H1_index) {
-            continue;
-        }
-#endif
-        // constraint equation 1, mass fraction sum to 1
-
-        nse_state.y_e += nse_state.xn[n] * zion[n] * aion_inv[n];
-    }
-}
-
-// constraint equation
-
-template <typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void fcn(amrex::Array1D<amrex::Real, 1, 2>& x, amrex::Array1D<amrex::Real, 1, 2>& fvec,
-         const nse_solver_data<T>& state_data, int& iflag) {
-    // here state is the nse_state from get_nonexponent_nse_state
-
-    amrex::ignore_unused(iflag);
-
-    auto nse_state = state_data.state;
-    nse_state.mu_p = x(1);
-    nse_state.mu_n = x(2);
-
-    // Apply exponent component for calculating nse mass fractions
-
-    apply_nse_exponent(nse_state, state_data.u_c);
-
-    fvec(1) = -1.0_rt;
-
-    for (int n = 0; n < NumSpec; ++n) {
-#ifdef NEW_NETWORK_IMPLEMENTATION
-        if (n == NSE_INDEX::H1_index) {
-            continue;
-        }
-#endif
-        // constraint equation 1, mass fraction sum to 1
-        // since we're using rhoX, make it sum to rho
-
-        fvec(1) += nse_state.xn[n];
-    }
-
-    // constraint equation 2, electron fraction should be the same
-
-    fvec(2) = nse_state.y_e - state_data.state.y_e;
-
-}
-
-// constraint jacobian
-
-template <typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void jcn(amrex::Array1D<amrex::Real, 1, 2>& x, amrex::Array2D<amrex::Real, 1, 2, 1, 2>& fjac,
-         const nse_solver_data<T>& state_data, int& iflag) {
-    // here state is the nse_state from get_nonexponent_nse_state
-
-    amrex::ignore_unused(iflag);
-
-    auto nse_state = state_data.state;
-    nse_state.mu_p = x(1);
-    nse_state.mu_n = x(2);
-
-    apply_nse_exponent(nse_state, state_data.u_c);
-
-    // evaluate jacobian of the constraint
-
-    fjac(1, 1) = 0.0_rt;
-    fjac(1, 2) = 0.0_rt;
-    fjac(2, 1) = 0.0_rt;
-    fjac(2, 2) = 0.0_rt;
-
-    // if we are doing drive_initial_convection, we want to use
-    // the temperature that comes in through T_fixed
-
-    amrex::Real T_in = nse_state.T_fixed > 0.0_rt ? nse_state.T_fixed : nse_state.T;
-    amrex::Real ikTMeV = C::MeV2erg / (C::k_B * T_in);
-
-    for (int n = 0; n < NumSpec; ++n) {
-#ifdef NEW_NETWORK_IMPLEMENTATION
-        if (n == NSE_INDEX::H1_index) {
-            continue;
-        }
-#endif
-        fjac(1, 1) += nse_state.xn[n] * zion[n] * ikTMeV;
-        fjac(1, 2) += nse_state.xn[n] * (aion[n] - zion[n]) * ikTMeV;
-        fjac(2, 1) += nse_state.xn[n] * zion[n] * zion[n] * aion_inv[n] * ikTMeV;
-        fjac(2, 2) += nse_state.xn[n] * zion[n] * (aion[n] - zion[n]) * aion_inv[n] * ikTMeV;
-    }
-
-}
-
-template <typename T>
+template <int neqs, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void nse_hybrid_solver(nse_solver_data<T>& state_data,
                        amrex::Real eps=1.0e-10_rt) {
-    // state is the nse_state from get_nonexponent_nse_state
 
-    hybrj_t<2> hj;
+    hybrj_t<neqs> hj;
 
-    // we'll take x[1] = mu_p, x[2] = mu_n
-
+    // Set relative error between two iterations
     hj.xtol = eps;
-    hj.mode = 1;
+
+    // Different modes for the hybrid solver
+    // mode = 1: scales internally
+    // mode = 2: scales based on user-supplied diag
+
+    if constexpr(neqs == 2){
+        hj.mode = 1;
+    } else {
+        hj.mode = 2;
+
+        // Scale variable, this is to work with hj.mode = 2
+
+        hj.diag(1) = 1.0_rt;
+        hj.diag(2) = 1.0_rt;
+        hj.diag(3) = 1e9_rt;
+    }
 
     // random flag number for evaluation in for loop;
 
@@ -288,39 +78,64 @@ void nse_hybrid_solver(nse_solver_data<T>& state_data,
     bool is_pos_new;
     bool is_pos_old = false;
 
-    amrex::Array1D<amrex::Real, 1, 2> f;
-    amrex::Array1D<amrex::Real, 1, 2> outer_x;
-    amrex::Array1D<amrex::Real, 1, 2> inner_x;
+    amrex::Array1D<amrex::Real, 1, neqs> f;
+    amrex::Array1D<amrex::Real, 1, neqs> outer_x;
+    amrex::Array1D<amrex::Real, 1, neqs> inner_x;
 
     outer_x(1) = state_data.state.mu_p;
     outer_x(2) = state_data.state.mu_n;
-
-    // for (int j = 1; j <= 2; ++j) {
-    //     hj.diag(j) = 1.0_rt;
-    // }
+    if constexpr (neqs == 3) {
+        outer_x(3) = state_data.state.T;
+    }
 
     // fine tuning initial guesses
+    // Here we only fine tune chemical potentials
 
     for (int i = 0; i < 20; ++i) {
 
         dx = 0.5_rt;
-        inner_x(1) = outer_x(1);
-        inner_x(2) = outer_x(2);
+        for (int n = 1; n <= neqs; ++n) {
+            inner_x(n) = outer_x(n);
+        }
 
         for (int j = 0; j < 20; ++j) {
 
-            hj.x(1) = inner_x(1);
-            hj.x(2) = inner_x(2);
+            for (int n = 1; n <= neqs; ++n) {
+                hj.x(n) = inner_x(n);
+            }
 
-            // hybrj<2, T>(hj, state, fcn_hybrid<T>, jcn_hybrid<T>);
-            hybrj(hj, state_data);
+            hybrj<neqs, nse_solver_data<T>>(hj, state_data,
+                                            nse_fcn<nse_solver_data<T>>,
+                                            nse_jcn<nse_solver_data<T>>);
 
-            fcn(hj.x, f, state_data, flag);
+            nse_fcn(hj.x, f, state_data, flag);
 
-            if (std::abs(f(1)) < eps && std::abs(f(2)) < eps) {
+            // Check for convergence
 
+            bool converged = true;
+
+            if constexpr (neqs == 3) {
+                if (hj.x(3) < 1.0e9_rt || hj.x(3) >= 2e10_rt) {
+                    // If temperature is too low or even negative.
+                    // Or if the temperature is too high
+                    // Then the solved Temperature is not correct.
+                    converged = false;
+                }
+            }
+
+            for (int n = 1; n <= neqs; ++n) {
+                if (std::abs(f(n)) >= eps) {
+                    converged = false;
+                    break;
+                }
+            }
+
+            if (converged) {
                 state_data.state.mu_p = hj.x(1);
                 state_data.state.mu_n = hj.x(2);
+                if constexpr (neqs == 3) {
+                    state_data.state.T = hj.x(3);
+                }
                 return;
             }
 
@@ -354,6 +169,7 @@ void nse_hybrid_solver(nse_solver_data<T>& state_data,
     std::cout << "Temperature: " << state_data.state.T << std::endl;
     std::cout << "Density: " << state_data.state.rho << std::endl;
     std::cout << "Ye: " << state_data.state.y_e << std::endl;
+    std::cout << "Internal Energy: " << state_data.state.e << std::endl;
     std::cout << "Initial mu_p and mu_n: " << state_data.state.mu_p
               << ", " << state_data.state.mu_n << std::endl;
 #endif
@@ -364,33 +180,37 @@ void nse_hybrid_solver(nse_solver_data<T>& state_data,
 // A newton-raphson solver for finding nse state used for calibrating
 // chemical potential of proton and neutron
 
-template <typename T>
+template <int neqs, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void nse_nr_solver(nse_solver_data<T>& state_data,
                    amrex::Real eps=1.0e-10_rt) {
-    // state_data is the state_data after from
-    // get_nonexponent_nse_state and compute_coulomb_contribution
+
+    // Currently NR solver only works for (rho, T, Ye) input
+
+    if constexpr (neqs != 2) {
+        amrex::Error("NR solver currently doesn't solve for (rho, e, Ye) input. Please use hybrid solver with nse.use_hybrid_solver=1.");
+    }
 
     // whether nse solver converged or not
 
     bool converged = false;
 
-    amrex::Array1D<amrex::Real, 1, 2> f;
-    amrex::Array2D<amrex::Real, 1, 2, 1, 2> jac;
-    amrex::Array1D<amrex::Real, 1, 2> x;
+    amrex::Array1D<amrex::Real, 1, neqs> f;
+    amrex::Array2D<amrex::Real, 1, neqs, 1, neqs> jac;
+    amrex::Array1D<amrex::Real, 1, neqs> x;
     int flag = 0;
 
     x(1) = state_data.state.mu_p;
     x(2) = state_data.state.mu_n;
 
-    jcn(x, jac, state_data, flag);
-    fcn(x, f, state_data, flag);
+    nse_jcn(x, jac, state_data, flag);
+    nse_fcn(x, f, state_data, flag);
 
     // store determinant for finding inverse jac
     amrex::Real det;
 
     // store inverse jacobian
-    amrex::Array2D<amrex::Real, 1, 2, 1, 2> inverse_jac;
+    amrex::Array2D<amrex::Real, 1, neqs, 1, neqs> inverse_jac;
 
     // difference in chemical potential of proton and neutron
     amrex::Real d_mu_p = std::numeric_limits<amrex::Real>::max();
@@ -431,10 +251,10 @@ void nse_nr_solver(nse_solver_data<T>& state_data,
 
         // find inverse jacobian
 
-        inverse_jac(1, 1) = jac(2, 2) / scale_fac / det;
+        inverse_jac(1, 1) =  jac(2, 2) / scale_fac / det;
         inverse_jac(1, 2) = -jac(1, 2) / scale_fac / det;
         inverse_jac(2, 1) = -jac(2, 1) / scale_fac / det;
-        inverse_jac(2, 2) = jac(1, 1) / scale_fac / det;
+        inverse_jac(2, 2) =  jac(1, 1) / scale_fac / det;
 
         // find the difference
 
@@ -460,8 +280,8 @@ void nse_nr_solver(nse_solver_data<T>& state_data,
 
         // update constraint
 
-        jcn(x, jac, state_data, flag);
-        fcn(x, f, state_data, flag);
+        nse_jcn(x, jac, state_data, flag);
+        nse_fcn(x, f, state_data, flag);
     }
 
     if (!converged) {
@@ -469,13 +289,381 @@ void nse_nr_solver(nse_solver_data<T>& state_data,
     }
 }
 
-// Get the NSE state;
+
+template <int neqs, typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void nse_solve(nse_solver_data<T>& state_data,
+               const amrex::Real eps=1.0e-10_rt) {
+    // Interface for calling the Hybrid-Powell or Netwon-Raphson Solver
+
+    if (use_hybrid_solver) {
+        nse_hybrid_solver<neqs, T>(state_data, eps);
+    }
+    else {
+        bool singular_network = true;
+        for (int n = 0; n < NumSpec; ++n) {
+#ifdef NEW_NETWORK_IMPLEMENTATION
+            if (n == NSE_INDEX::H1_index) {
+                continue;
+            }
+#endif
+            if (zion[n] != aion[n] - zion[n]) {
+                singular_network = false;
+            }
+        }
+
+        if (singular_network) {
+            amrex::Error("This network always results in singular jacobian matrix, thus can't find nse mass fraction using nr!");
+        }
+
+        nse_nr_solver<neqs, T>(state_data, eps);
+    }
+}
+
+
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt,
-                       bool input_ye_is_valid=false) {
+T get_nse_state_rty(T& state,
+                    const amrex::Real eps=1.0e-10_rt) {
+    // Find the NSE state using (rho, T, Ye) as input.
+    // This returns state_data.state with the NSE mass fraction and
+    // solved chemical potentials.
+    // It also updates chemical potentials to the input state.
 
-    // Check whether input ye is actually valid
+    // Initializes the initial state
+
+    nse_solver_data<T> state_data = {state, {0.0_rt}};
+
+    // First get the temperature-independent part.
+
+    state_data.state =  get_T_independent_nonexponent_nse_state(state);
+
+    // Since Temperature is fixed in this mode,
+    // Get Temperature dependent pieces now
+
+    apply_T_dependent_nonexponent_nse_state(state_data.state);
+
+    // if use chabrier1998 screening, calculate the coulomb correction term
+
+#if SCREEN_METHOD == SCREEN_METHOD_chabrier1998
+    compute_coulomb_contribution(state_data.u_c, state);
+#endif
+
+    // invoke newton-raphson or hybrj to solve chemical potential of proton and neutron
+    // which are the exponent part of the nse mass fraction calculation
+
+    // For (rho, T, Ye) input, there are two constraint eqns.
+
+    constexpr int nConstraintEqns = 2;
+
+    nse_solve<nConstraintEqns, T>(state_data, eps);
+
+    // Apply exponent for calculating nse mass fractions
+    // This updates y_e as well.
+
+    apply_nse_exponent(state_data.state, state_data.u_c);
+
+    // update mu_n and mu_p to input state
+
+    state.mu_p = state_data.state.mu_p;
+    state.mu_n = state_data.state.mu_n;
+
+    // update rhoX in the output nse_state
+
+    for (int n = 0; n < NumSpec; ++n) {
+        state_data.state.y[SFS+n] = state.rho * state_data.state.xn[n];
+    }
+
+    return state_data.state;
+}
+
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+amrex::Real nse_abar(const amrex::Real T, const amrex::Real rho,
+                     const amrex::Real Ye, amrex::Real &mu_p,
+                     amrex::Real &mu_n) {
+    ///
+    /// This function calculates abar from NSE using
+    /// Temp, rho, and Ye
+    ///
+
+    burn_t burn_state;
+    burn_state.rho = rho;
+    burn_state.y_e = Ye;
+    burn_state.T = T;
+    burn_state.mu_p = mu_p;
+    burn_state.mu_n = mu_n;
+
+    auto nse_state = get_nse_state_rty(burn_state, 1.0e-10_rt);
+
+    amrex::Real abar{0.0_rt};
+    for (int n = 0; n < NumSpec; ++n) {
+        abar += nse_state.xn[n] * aion_inv[n];
+    }
+
+    abar = 1.0_rt / abar;
+
+    // update mu_p and mu_n
+
+    mu_p = burn_state.mu_p;
+    mu_n = burn_state.mu_n;
+
+    return abar;
+}
+
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+amrex::Real nse_dabar_dT(const amrex::Real T, const amrex::Real rho,
+                         const amrex::Real Ye, amrex::Real &mu_p,
+                         amrex::Real &mu_n) {
+    ///
+    /// This function constructs dabar_dT
+    /// This should be 2nd order accurate
+    ///
+
+    // deviation in temperature
+
+    const amrex::Real dT = 1.0e-6_rt * T;
+
+    // Calculate derivative using five-point stencil method
+
+    // amrex::Real dabar_dT = (-nse_abar(T + 2.0_rt*dT, rho, Ye, mu_p, mu_n) +
+    //                          8.0_rt * nse_abar(T+dT, rho, Ye, mu_p, mu_n) -
+    //                          8.0_rt * nse_abar(T-dT, rho, Ye, mu_p, mu_n) +
+    //                          nse_abar(T - 2.0_rt*dT, rho, Ye, mu_p, mu_n)
+    //                         ) / (12.0_rt * dT);
+
+    // Calculate derivative using central differencing
+
+    amrex::Real dabar_dT = 0.5_rt * (nse_abar(T + dT, rho, Ye, mu_p, mu_n) -
+                                     nse_abar(T - dT, rho, Ye, mu_p, mu_n)) / dT;
+
+    return dabar_dT;
+}
+
+///
+/// This function inverts this form of the EOS to find the T
+/// that satisfies the EOS and NSE given an input e and rho.
+///
+/// if we are in NSE, then the entire thermodynamic state is just
+/// a function of rho, T, Ye.  We can write the energy as:
+///
+///    e = e(rho, T, Y_e, Abar(rho, T, Ye))
+///
+/// where we note that Abar is a function of those same inputs.
+///
+/// The basic idea is that Abar and Zbar are both functions of
+/// rho, T, Ye through NSE calculations, so we express the energy
+/// as:
+///
+///      e = e(rho, T, Abar(rho, T, Ye), Zbar(rho, T, Ye)
+///
+/// and NR on that.  Note that Zbar = Ye Abar, so we can group
+/// those derivative terms together.
+///
+/// T come in as initial guesses and are updated on output
+///
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void
+nse_T_from_e(const amrex::Real rho, const amrex::Real e_in,
+             const amrex::Real Ye,
+             amrex::Real &T,
+             amrex::Real &mu_p, amrex::Real &mu_n) {
+
+    constexpr amrex::Real ttol{1.e-8_rt};
+    constexpr int max_iter{100};
+
+    bool converged{false};
+
+    int iter{0};
+
+    // initialize burn_state
+    burn_t burn_state;
+    burn_state.rho = rho;
+    burn_state.y_e = Ye;
+    burn_state.mu_p = mu_p;
+    burn_state.mu_n = mu_n;
+
+    while (not converged && iter < max_iter) {
+
+        // update Temperature
+
+        burn_state.T = T;
+
+        auto nse_state = get_nse_state_rty(burn_state, 1.0e-10_rt);
+
+        // call the EOS with the initial guess for T
+        // as well as density and NSE mass fractions
+
+        eos_extra_t eos_state;
+        for  (int n = 0; n < NumSpec; ++n) {
+            eos_state.xn[n] = nse_state.xn[n];
+        }
+
+        // Call the EOS to get internal energy
+        // abar, zbar, etc are calculated automatically in EOS
+
+        eos_state.rho = rho;
+        eos_state.T = T;
+        eos(eos_input_rt, eos_state);
+
+        // f is the quantity we want to zero
+
+        amrex::Real f = eos_state.e - e_in;
+
+        amrex::Real dabar_dT = nse_dabar_dT(T, rho, Ye,
+                                            nse_state.mu_p, nse_state.mu_n);
+
+        // compute the correction to our guess
+
+        amrex::Real dT = -f / (eos_state.dedT + eos_state.dedA * dabar_dT
+                               + Ye * eos_state.dedZ * dabar_dT);
+
+        // update the temperature
+
+        T = amrex::Clamp(T + dT, 0.25 * T, 4.0 * T);
+
+        // update mu_p and mu_n
+
+        mu_p = nse_state.mu_p;
+        mu_n = nse_state.mu_n;
+
+        // check convergence
+
+        if (std::abs(dT) < ttol * T) {
+            converged = true;
+        }
+        iter++;
+
+    }
+
+}
+
+
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+T get_nse_state_rey(T& state,
+                    const amrex::Real eps=1.0e-10_rt) {
+    // Find the NSE state using (rho, e, Ye) as input.
+
+    // When using (rho, e, Ye) as input
+    // We can solve in two ways:
+    // 1. Find the NSE state using (rho, T, Ye), then do NR iterations
+    // on that to find the correct T that matches e.
+    // 2. Find the NSE state directly using (rho, e, Ye),
+    // where now we have an additional constraint equation on e.
+    // So there are three constraint equations and a 3x3 Jacobian.
+
+    if (solve_nse_e_mode == 1) {
+        // Option 1
+
+        // Get T0 such that it is consistent with e.
+        // This also updates mu_p and mu_n of the input state.
+
+        amrex::Real T0 = state.T;
+        nse_T_from_e(state.rho, state.e, state.y_e,
+                     T0, state.mu_p, state.mu_n);
+
+        // Create burn state with the updated Temperature
+        // Then find NSE state via (rho, T, Ye)
+
+        burn_t burn_state;
+        burn_state.T = T0;
+        burn_state.rho = state.rho;
+        burn_state.y_e = state.y_e;
+        burn_state.e = state.e;
+        burn_state.mu_p = state.mu_p;
+        burn_state.mu_n = state.mu_n;
+
+        auto nse_state = get_nse_state_rty(burn_state, eps);
+
+        // update mu_n and mu_p to input state
+
+        state.mu_p = nse_state.mu_p;
+        state.mu_n = nse_state.mu_n;
+
+        return nse_state;
+    }
+
+    // Option 2
+
+    // Initializes the initial state
+
+    nse_solver_data<T> state_data = {state, {0.0_rt}};
+
+    // First get the temperature-independent part.
+
+    state_data.state = get_T_independent_nonexponent_nse_state(state);
+
+    // invoke newton-raphson or hybrj to solve mu_p, mu_n and T.
+    // For (rho, e, Ye) input, there are three constraint eqns.
+    // Note that state_data.state already pre-computed T-independent terms.
+
+    constexpr int nConstraintEqns = 3;
+
+    nse_solve<nConstraintEqns, T>(state_data, eps);
+
+    // Now that mu_p, mu_n and T are solved and stored in state_data.state.
+    // Finish evaluating the NSE composition.
+
+    // Apply the temperature dependent piece
+
+    apply_T_dependent_nonexponent_nse_state(state_data.state);
+
+    // if use chabrier1998 screening, calculate the coulomb correction term
+
+#if SCREEN_METHOD == SCREEN_METHOD_chabrier1998
+    compute_coulomb_contribution(state_data.u_c, state_data.state);
+#endif
+
+    // Apply exponent for calculating NSE mass fractions
+
+    apply_nse_exponent(state_data.state, state_data.u_c);
+
+    // update rhoX in the output nse_state
+
+    for (int n = 0; n < NumSpec; ++n) {
+        state_data.state.y[SFS+n] = state.rho * state_data.state.xn[n];
+    }
+
+    // update mu_n and mu_p to input state
+
+    state.mu_p = state_data.state.mu_p;
+    state.mu_n = state_data.state.mu_n;
+
+    return state_data.state;
+}
+
+
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+T get_actual_nse_state(nse_input_t input,
+                       T& state, const amrex::Real eps=1.0e-10_rt,
+                       bool input_ye_is_valid=false) {
+    ///
+    /// Main interface for getting the NSE state.
+    /// There are two input modes:
+    ///
+    /// 1. (rho, T, Ye): nse_input_rty
+    /// In this mode, state.rho, state.T and state.y_e should be defined.
+    ///
+    /// 2. (rho, e, Ye): nse_input_rey
+    /// In this mode, state.rho, state.e and state.y_e should be defined.
+    /// It uses state.T as the initial guess, so that should be defined too.
+    ///
+    /// In both mode, if input_ye_is_valid=false or state.y_e is out of range,
+    /// then y_e is re-calculated based on state.y[SFS], i.e. rho X's.
+    ///
+    /// The input state will be updated with new chemical potentials
+    /// The output state will have updated X's, rhoX's and
+    /// Temperature, if using (rho, e, Ye) mode.
+    ///
+
+    // A preliminary check on Ye for nse solver.
+    // This makes sure that input Ye is valid for this network.
+    // If not valid, Ye is updated.
+
     amrex::Real ye_lo = 1.0_rt;
     amrex::Real ye_hi = 0.0_rt;
 
@@ -506,59 +694,22 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt,
         state.y_e /= state.rho;
     }
 
-    nse_solver_data<T> state_data = {state, {0.0_rt}};
+    if (input == nse_input_rty) {
+        // Using (rho, T, Ye) as input
 
-    // Get nse_state without the exponent term
+        return get_nse_state_rty(state, eps);
 
-    state_data.state = get_nonexponent_nse_state(state);
+    } else if (input == nse_input_rey) {
+        // Using (rho, e, Ye) as input
 
-    // if use chabrier1998 screening, calculate the coulomb correction term
+        return get_nse_state_rey(state, eps);
 
-#if SCREEN_METHOD == SCREEN_METHOD_chabrier1998
-    compute_coulomb_contribution(state_data.u_c, state);
-#endif
+    } else {
+        // When getting an unknown input
 
-    // invoke newton-raphson or hybrj to solve chemical potential of proton and neutron
-    // which are the exponent part of the nse mass fraction calculation
-
-    if (use_hybrid_solver) {
-        nse_hybrid_solver(state_data, eps);
-    }
-    else {
-        bool singular_network = true;
-        for (int n = 0; n < NumSpec; ++n) {
-#ifdef NEW_NETWORK_IMPLEMENTATION
-            if (n == NSE_INDEX::H1_index) {
-                continue;
-            }
-#endif
-            if (zion[n] != aion[n] - zion[n]) {
-                singular_network = false;
-            }
-        }
-
-        if (singular_network) {
-            amrex::Error("This network always results in singular jacobian matrix, thus can't find nse mass fraction using nr!");
-        }
-
-        nse_nr_solver(state_data, eps);
+        amrex::Abort("Unknown NSE input mode");
+        return state;
     }
 
-    // Apply exponent for calculating nse mass fractions
-
-    apply_nse_exponent(state_data.state, state_data.u_c);
-
-    // update mu_n and mu_p to input state
-
-    state.mu_p = state_data.state.mu_p;
-    state.mu_n = state_data.state.mu_n;
-
-    // update rhoX in the output nse_state
-
-    for (int n = 0; n < NumSpec; ++n) {
-        state_data.state.y[SFS+n] = state.rho * state_data.state.xn[n];
-    }
-
-    return state_data.state;
 }
 #endif
