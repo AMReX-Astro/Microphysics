@@ -11,33 +11,55 @@ tags:
 - differential equations
 
 authors:
-- name: AMReX-Astro Microphysics Team
+- surname: AMReX-Astro Microphysics Team
   affiliation: '†'
 
 - name: Khanak Bhargava
   affiliation: '1'
 
+- name: Abigail Bishop
+  affiliation: '2'
+
 - name: Zhi Chen
   affiliation: '1'
 
+- name: Doreen Fan
+  affiliation: '3'
+
+- name: Carl Fields
+  affiliation: '4'
+
+- name: Adam M. Jacobs
+  affiliation: '3'
+  
 - name: Eric T. Johnson
   affiliation: '1'
 
 - name: Max P. Katz
   affiliation: '1'
 
+- name: Mark Krumholz
+  affiliation: '5'
+  
+- name: Chris Malone
+  affiliation: '6'
+
 - name: Piyush Sharda
-  affiliation: '2'
+  affiliation: '7'
 
 - given-names: Alexander
   surname: Smith Clark
   affiliation: '1'
 
+- name: Frank Timmes
+  affiliation: '8'
+
 - name: Ben Wibking
-  affiliation: '3'
+  affiliation: '9'
 
 - name: Don E. Willcox
-
+  affiliation: '3'
+  
 - name: Michael Zingale
   affiliation: '1'
 
@@ -47,11 +69,23 @@ affiliations:
 - index: 1
   name: Department of Physics and Astronomy, Stony Brook University, Stony Brook, NY, USA
 - index: 2
-  name: Leiden Observatory, Leiden, The Netherlands
+  name: Department of Physics, University of Wisconsin, Madison, Madison, WI, USA
 - index: 3
+  name: affiliation not disclosed
+- index: 4
+  name: Department of Astronomy, University of Arizona, Tucson, AZ, USA
+- index: 5
+  name: Research School of Astronomy and Astrophysics, The Australian National University, Australia
+- index: 6
+  name: Los Alamos National Laboratory, Los Alamos, NM, USA
+- index: 7
+  name: Leiden Observatory, Leiden, The Netherlands
+- index: 8
+  name: Arizon State University, Tempe, AZ, USA
+- index: 9
   name: Department of Physics and Astronomy, Michigan State University, E. Lansing, MI, USA
 
-date: 28 May 2025
+date: 13 July 2025
 
 bibliography: paper.bib
 ---
@@ -287,11 +321,19 @@ in `Microphysics/unit_test/`.  There are 2 types of tests here:
   physics that is implemented, and also serve to demonstrate the interfaces
   used in Microphysics.
 
+These tests also serve as tutorial codes for integrating Microphysics
+into new application codes.
+
 # Acknowledgements
 
-The work at Stony Brook was supported by the US Department of Energy,
-Office of Nuclear Physics grant DE-FG02-87ER40317.
+The AMReX-Astro Microphysics library developers are an open scientific
+team with members contributing to various aspects of the library. We
+have thus chosen to display the members of our development team in the
+author list in alphabetical order.  All developers who have
+contributed new features, substantial design input, and/or at least 3
+commits were invited to be coauthors.  The work at Stony Brook was
+supported by the US Department of Energy, Office of Nuclear Physics
+grant DE-FG02-87ER40317.
 
 # References
 
-[^authors]: The AMReX-Astro Microphysics library developers are an open scientific team with members contributing to various aspects of the library. We have thus chosen to display the members of our development team in the author list in alphabetical order.
