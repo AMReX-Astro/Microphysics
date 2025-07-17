@@ -24,7 +24,7 @@ html:
 	curl -L -H 'Accept: application/x-bibtex' https://zenodo.org/api/records/2620544 > source/zenodo.bibtex.txt
 	python parse_changelog.py ../CHANGES.md > source/changelog.md
 	doxygen Doxyfile
-	breathe-apidoc --o source doxy_files/xml
+	breathe-apidoc --o source doxy_files/xml -g class,file
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 	@if [ ! -d ../docs ]; then mkdir ../docs; fi
 
