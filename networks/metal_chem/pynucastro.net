@@ -1,5 +1,5 @@
-co_ice             CO_ice   1.0     1.0
-h2o_ice            H2O_ice  1.0     1.0
+co_total           CO_total   1.0     1.0
+h2o_total          H2O_total  1.0     1.0
 elec               E        1.0     1.0
 hp                 Hp       4.0     2.0
 h                  H        12.0    6.0
