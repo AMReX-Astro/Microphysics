@@ -44,18 +44,21 @@ authors:
 - name: Chris Malone
   affiliation: '6'
 
-- name: Piyush Sharda
+- name: Andy Nonaka
   affiliation: '7'
+  
+- name: Piyush Sharda
+  affiliation: '8'
 
 - given-names: Alexander
   surname: Smith Clark
   affiliation: '1'
 
 - name: Frank Timmes
-  affiliation: '8'
+  affiliation: '9'
 
 - name: Ben Wibking
-  affiliation: '9'
+  affiliation: '10'
 
 - name: Don E. Willcox
   affiliation: '3'
@@ -79,10 +82,12 @@ affiliations:
 - index: 6
   name: Los Alamos National Laboratory, Los Alamos, NM, USA
 - index: 7
+  name: Lawrence Berkeley National Laboratory, Berkeley, CA, USA
+- index: 8
   name: Leiden Observatory, Leiden, The Netherlands
 - index: 8
   name: Arizon State University, Tempe, AZ, USA
-- index: 9
+- index: 10
   name: Department of Physics and Astronomy, Michigan State University, E. Lansing, MI, USA
 
 date: 13 July 2025
