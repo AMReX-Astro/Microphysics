@@ -85,7 +85,7 @@ The interfaces to all of the networks and integrators are written in C++.
 
 The main entry point for C++ is ``burner()`` in
 ``interfaces/burner.H``.  This simply calls the ``integrator()``
-routine (at the moment this can be ``VODE``, ``BackwardEuler``, ``ForwardEuler``, ``QSS``, or ``RKC``).
+routine (at the moment this can be ``VODE``, ``BackwardEuler``, ``ForwardEuler``, ``QSS``, ``RKC``, or ``ROCK``).
 
 .. code-block:: c++
 
