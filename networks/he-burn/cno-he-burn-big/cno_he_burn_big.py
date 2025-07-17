@@ -19,6 +19,7 @@ def create_network():
                        "mn49", "mn50", "co54"]
 
     subch = he_burn_core.get_core_library(include_n14_sequence=True,
+                                          remove_al27_alpha_links=False,
                                           include_zn=False,
                                           include_iron_peak=True,
                                           extra_nuclei=extra_reactants,
@@ -26,8 +27,8 @@ def create_network():
 
     net = AmrexAstroCxxNetwork(libraries=[subch])
 
-    net.make_ap_pg_approx(intermediate_nuclei=["cl35", "k39", "sc43", "v47", "mn51"])
-    net.remove_nuclei(["cl35", "k39", "sc43", "v47", "mn51"])
+    net.make_ap_pg_approx(intermediate_nuclei=["cl35", "k39", "sc43", "v47"])
+    net.remove_nuclei(["cl35", "k39", "sc43", "v47"])
 
     return net
 

@@ -7,6 +7,7 @@ from pynucastro.rates import ReacLibRate
 
 def get_core_library(*,
                      include_n14_sequence=False,
+                     remove_al27_alpha_links=True,
                      include_zn=False,
                      include_iron_peak=False,
                      include_low_ye=False,
@@ -63,11 +64,13 @@ def get_core_library(*,
     rates_to_remove = ["p31(p,c12)ne20",
                        "si28(a,c12)ne20",
                        "ne20(c12,p)p31",
-                       "ne20(c12,a)si28",
-                       "na23(a,g)al27",
-                       "al27(g,a)na23",
-                       "al27(a,g)p31",
-                       "p31(g,a)al27"]
+                       "ne20(c12,a)si28"]
+
+    if remove_al27_alpha_links:
+        rates_to_remove += ["na23(a,g)al27",
+                            "al27(g,a)na23",
+                            "al27(a,g)p31",
+                            "p31(g,a)al27"]
 
     for r in rates_to_remove:
         print("removing: ", r)
@@ -93,11 +96,17 @@ def get_core_library(*,
         if include_low_ye:
             iron_peak += ["mn55"]
 
+        # there might have been extra_nuclei that are in the iron
+        # group too, so add any with A > 48
+        for nuc in extra_nuclei:
+            if pyna.Nucleus(nuc).A > 48:
+                if nuc not in iron_peak:
+                    iron_peak.append(nuc)
 
         all_lib += reaclib_lib.linking_nuclei(iron_peak)
 
     weak_lib = pyna.TabularLibrary(ordering=["ffn", "langanke", "oda"])
-    iron_weak_lib = weak_lib.linking_nuclei(iron_peak + nuclei)
+    iron_weak_lib = weak_lib.linking_nuclei(set(iron_peak + nuclei))
     all_lib += iron_weak_lib
 
     if do_detailed_balance:
