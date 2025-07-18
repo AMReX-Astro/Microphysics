@@ -21,43 +21,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> O14_pf_array;
-
-    // this is log10(partition function)
-
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> O15_pf_array;
-
-    // this is log10(partition function)
-
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> O16_pf_array;
-
-    // this is log10(partition function)
-
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> O17_pf_array;
-
-    // this is log10(partition function)
-
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> O18_pf_array;
-
-    // this is log10(partition function)
-
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> F17_pf_array;
-
-    // this is log10(partition function)
-
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> F18_pf_array;
-
-    // this is log10(partition function)
-
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> F19_pf_array;
-
-    // this is log10(partition function)
-
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Ne18_pf_array;
-
-    // this is log10(partition function)
-
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Ne19_pf_array;
 
     // this is log10(partition function)
 
@@ -65,19 +29,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Ne21_pf_array;
-
-    // this is log10(partition function)
-
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Na22_pf_array;
-
-    // this is log10(partition function)
-
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Na23_pf_array;
-
-    // this is log10(partition function)
-
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Mg22_pf_array;
 
     // this is log10(partition function)
 
@@ -221,64 +173,16 @@ void get_partition_function(const int inuc, [[maybe_unused]] const tf_t& tfactor
 
     switch (inuc) {
 
-    case O14:
-        part_fun::interpolate_pf(tfactors.T9, part_fun::temp_array_1, part_fun::O14_pf_array, pf, dpf_dT);
-        break;
-
-    case O15:
-        part_fun::interpolate_pf(tfactors.T9, part_fun::temp_array_1, part_fun::O15_pf_array, pf, dpf_dT);
-        break;
-
     case O16:
         part_fun::interpolate_pf(tfactors.T9, part_fun::temp_array_1, part_fun::O16_pf_array, pf, dpf_dT);
-        break;
-
-    case O17:
-        part_fun::interpolate_pf(tfactors.T9, part_fun::temp_array_1, part_fun::O17_pf_array, pf, dpf_dT);
-        break;
-
-    case O18:
-        part_fun::interpolate_pf(tfactors.T9, part_fun::temp_array_1, part_fun::O18_pf_array, pf, dpf_dT);
-        break;
-
-    case F17:
-        part_fun::interpolate_pf(tfactors.T9, part_fun::temp_array_1, part_fun::F17_pf_array, pf, dpf_dT);
-        break;
-
-    case F18:
-        part_fun::interpolate_pf(tfactors.T9, part_fun::temp_array_1, part_fun::F18_pf_array, pf, dpf_dT);
-        break;
-
-    case F19:
-        part_fun::interpolate_pf(tfactors.T9, part_fun::temp_array_1, part_fun::F19_pf_array, pf, dpf_dT);
-        break;
-
-    case Ne18:
-        part_fun::interpolate_pf(tfactors.T9, part_fun::temp_array_1, part_fun::Ne18_pf_array, pf, dpf_dT);
-        break;
-
-    case Ne19:
-        part_fun::interpolate_pf(tfactors.T9, part_fun::temp_array_1, part_fun::Ne19_pf_array, pf, dpf_dT);
         break;
 
     case Ne20:
         part_fun::interpolate_pf(tfactors.T9, part_fun::temp_array_1, part_fun::Ne20_pf_array, pf, dpf_dT);
         break;
 
-    case Ne21:
-        part_fun::interpolate_pf(tfactors.T9, part_fun::temp_array_1, part_fun::Ne21_pf_array, pf, dpf_dT);
-        break;
-
-    case Na22:
-        part_fun::interpolate_pf(tfactors.T9, part_fun::temp_array_1, part_fun::Na22_pf_array, pf, dpf_dT);
-        break;
-
     case Na23:
         part_fun::interpolate_pf(tfactors.T9, part_fun::temp_array_1, part_fun::Na23_pf_array, pf, dpf_dT);
-        break;
-
-    case Mg22:
-        part_fun::interpolate_pf(tfactors.T9, part_fun::temp_array_1, part_fun::Mg22_pf_array, pf, dpf_dT);
         break;
 
     case Mg24:
@@ -386,12 +290,8 @@ constexpr amrex::Real get_spin_state(const int inuc) {
 
     case He4:
     case C12:
-    case O14:
     case O16:
-    case O18:
-    case Ne18:
     case Ne20:
-    case Mg22:
     case Mg24:
     case Si28:
     case S32:
@@ -405,22 +305,15 @@ constexpr amrex::Real get_spin_state(const int inuc) {
         break;
 
     case H1:
-    case C13:
     case N13:
-    case N15:
-    case O15:
-    case F19:
-    case Ne19:
     case P31:
         spin = 2;
         break;
 
     case N14:
-    case F18:
         spin = 3;
         break;
 
-    case Ne21:
     case Na23:
     case Cl35:
     case K39:
@@ -428,15 +321,9 @@ constexpr amrex::Real get_spin_state(const int inuc) {
         spin = 4;
         break;
 
-    case O17:
-    case F17:
     case Al27:
     case Mn51:
         spin = 6;
-        break;
-
-    case Na22:
-        spin = 7;
         break;
 
     case Sc43:

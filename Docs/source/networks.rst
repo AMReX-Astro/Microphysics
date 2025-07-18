@@ -205,8 +205,12 @@ That paper discusses the sequences:
   protons that are then available for :math:`\isotm{C}{12}(p,
   \gamma)\isotm{N}{13}(\alpha, p)\isotm{O}{16}`.
 
-This leaves :math:`\isotm{Ne}{21}` as an endpoint, which we connect to
-the other nuclei by including :math:`\isotm{Na}{22}`.
+  The problem with this is that it leaves :math:`\isotm{Ne}{21}` as an
+  endpoint.
+  We generally do not include it, but instead include approximations
+  to $\isotm{N}{14}$ from ``aprox19``, including $\isotm{N}{14}(1.5\alpha,\gamma)\isotm{Ne}{20}$
+  proceeding at the rate for $\isotm{N}{14}(\alpha,\gamma)\isotm{F}{18}$, and
+  $\isotm{O}{16}(pp,\alpha)\isotm{N}{14}$ proceeding at the rate for $\isotm{O}{16}(p,\gamma)\isotm{F}{17}$.
 
 For the :math:`\isotm{C}{12} + \isotm{C}{12}`, :math:`\isotm{C}{12} +
 \isotm{O}{16}`, and :math:`\isotm{O}{16} + \isotm{O}{16}` rates, we
@@ -218,10 +222,9 @@ also need to include:
 
 * :math:`\isotm{O}{16}(\isotm{C}{12}, n)\isotm{Si}{27}(n, \gamma)\isotm{Si}{28}`
 
-Since the neutron captures on those
-intermediate nuclei are so fast, we leave those out and take the
-forward rate to just be the first rate.  We do not include reverse
-rates for these processes.
+Since the neutron captures on those intermediate nuclei are so fast,
+we leave those out and take the forward rate to just be the first
+rate.  We do not include reverse rates for these processes.
 
 These networks also combine some of the
 :math:`A(\alpha,p)X(p,\gamma)B` links with :math:`A(\alpha,\gamma)B`,
@@ -229,19 +232,21 @@ allowing us to drop the intermediate nucleus :math:`X`.  Some will
 approximate $A(n,\gamma)X(n,\gamma)B$ into an effective
 $A(nn,\gamma)B$ rate (double-neutron capture).
 
-The networks are named with a descriptive name, the number of nuclei,
-and the letter ``a`` if they approximate $(\alpha, p)(p,\gamma)$,
-the letter ``n`` if they approximate double-neutron capture, and the
-letter ``p`` if they split the protons into two groups (one for
-photo-disintegration).
+Furthermore, all of these networks rederive the inverse rates from ReacLib
+using detailed balance and tabulated partition functions.
+
+The networks are named with a descriptive name and the number of nuclei,
+along with letters:
+
+* ``a`` if they approximate $(\alpha, p)(p,\gamma)$,
+
+* ``n`` if they approximate double-neutron capture
+
+* ``p`` if they split the protons into two groups (one for photo-disintegration).
 
 
-``he-burn-18a``
+``he-burn-19a``
 ---------------
-
-.. note::
-
-   This network was previously called ``subch_base``.
 
 This is the simplest network and is similar to ``aprox13``, but includes
 a better description of $\isotm{C}{12}$ and $\isotm{O}{16}$ burning, as
@@ -253,10 +258,8 @@ It has the following features / simplifications:
   $\isotm{V}{47}$, $\isotm{Mn}{51}$, and $\isotm{Co}{55}$ are approximated
   out of the $(\alpha, p)(p, \gamma)$ links.
 
-* The nuclei :math:`\isotm{N}{14}`, :math:`\isotm{F}{18}`,
-  :math:`\isotm{Ne}{21}`, and :math:`\isotm{Na}{22}` are not included.
-  This means that we do not capture the :math:`\isotm{N}{14}(\alpha,
-  \gamma)\isotm{F}{18}(\alpha, p)\isotm{Ne}{21}` rate sequence.
+* The nuclei :math:`\isotm{N}{14}` is present with simple links to $\isotm{Ne}{20}$
+  and $\isotm{O}{16}$.
 
 * The reverse rates of :math:`\isotm{C}{12}+\isotm{C}{12}`,
   :math:`\isotm{C}{12}+\isotm{O}{16}`, :math:`\isotm{O}{16}+\isotm{O}{16}` are
@@ -269,11 +272,11 @@ It has the following features / simplifications:
   :math:`\isotm{P}{31}` are removed, since they're not in the
   original aprox13 network.
 
-Overall, there are 18 nuclei and 85 rates.
+Overall, there are 19 nuclei and 92 rates.
 
 The network appears as:
 
-.. figure:: ../../networks/he-burn/he-burn-18a/he-burn-18a.png
+.. figure:: ../../networks/he-burn/he-burn-19a/he-burn-19a.png
    :align: center
 
 The nuclei in gray are those that have been approximated about, but the links
@@ -294,88 +297,64 @@ Together, these parameters allow us to turn off the sequence
 :math:`\isotm{C}{12}(p,\gamma)\isotm{N}{13}(\alpha, p)\isotm{O}{16}` that
 acts as a bypass for :math:`\isotm{C}{12}(\alpha, \gamma)\isotm{O}{16}`.
 
-``he-burn-22a``
----------------
 
-.. note::
-
-   This network was previously called ``subch_simple``.
-
-
-This builds on ``he-burn-18a`` by including the
-:math:`\isotm{N}{14}(\alpha, \gamma)\isotm{F}{18}(\alpha,
-p)\isotm{Ne}{21}` rate sequence, which allows an enhancement to the
-:math:`\isotm{C}{12}(p, \gamma)\isotm{N}{13}(\alpha, p)\isotm{O}{16}`
-rate due to the additional proton release.
-
-Overall, there are 22 nuclei and 93 rates.
-
-
-.. figure:: ../../networks/he-burn/he-burn-22a/he-burn-22a.png
-   :align: center
-
-.. warning:: Due to inclusion of the rate sequence,
-   ${}^{14}\mathrm{N}(\alpha, \gamma){}^{18}\mathrm{F}(\alpha,
-   p){}^{21}\mathrm{Ne}$, there is an artificial end-point at
-   ${}^{22}\mathrm{Na}$.
-
-Like ``he-burn-18a``, there are 2 runtime parameters that can disable
-the rates for the $\isotm{C}{12}(p,\gamma)\isotm{N}{13}(\alpha,
-p)\isotm{O}{16}$ sequence.
-
-``he-burn-31anp``
+``he-burn-28anp``
 -----------------
 
-This builds on ``he-burn-22a`` by adding some iron-peak nuclei.  It no longer
+This builds on ``he-burn-19a`` by adding some iron-peak nuclei.  It no longer
 approximates out $\isotm{Mn}{51}$ or $\isotm{Co}{55}$, and includes approximations
 to double-neutron capture.  Finally, it splits the protons into two groups,
 with those participating in reactions with mass numbers > 48 treated as a separate
 group (for photo-disintegration reactions).
 
-Overall, there are 31 nuclei and 137 rates, including 6 tabular weak rates.
+Overall, there are 28 nuclei and 136 rates, including 6 tabular weak rates.
 
 The iron group here resembles ``aprox21``, but has the addition of stable $\isotm{Ni}{58}$
 and doesn't include the approximation to $\isotm{Cr}{56}$.
 
 The full network appears as:
 
-.. figure:: ../../networks/he-burn/he-burn-31anp/he-burn-31anp.png
+.. figure:: ../../networks/he-burn/he-burn-28anp/he-burn-28anp.png
    :align: center
 
 and a zoom-in on the iron group with the weak rates highlighted appears
 as:
 
-.. figure:: ../../networks/he-burn/he-burn-31anp/he-burn-31anp-zoom.png
+.. figure:: ../../networks/he-burn/he-burn-28anp/he-burn-28anp-zoom.png
    :align: center
 
 
-``he-burn-36a``
+``he-burn-33a``
 ---------------
 
 This has the most complete iron-group, with nuclei up to $\isotm{Zn}{60}$ and no approximations
 to the neutron captures.  This network can be quite slow.
 
-Overall, there are 36 nuclei and 173 rates, including 12 tabular weak rates.
+Overall, there are 33 nuclei and 172 rates, including 12 tabular weak rates.
 
 The full network appears as:
 
-.. figure:: ../../networks/he-burn/he-burn-36a/he-burn-36a.png
+.. figure:: ../../networks/he-burn/he-burn-33a/he-burn-33a.png
    :align: center
 
 and a zoom in on the iron group with the weak rates highlighted appears
 as:
 
-.. figure:: ../../networks/he-burn/he-burn-36a/he-burn-36a-zoom.png
+.. figure:: ../../networks/he-burn/he-burn-33a/he-burn-33a-zoom.png
    :align: center
 
 
-``CNO_He_burn``
----------------
+``cno_he_burn_33a``
+-------------------
 
 This network is meant to study explosive H and He burning.  It combines
 the ``CNO_extras`` network (with the exception of the inert ${}^{56}\mathrm{Fe}$
-with the ``he-burn-22a`` network.  This allows it to capture hot-CNO and
+with the ``he-burn-19a`` network.  This allows it to capture hot-CNO and
 He burning.
+
+Overall there are 33 nuclei and 157 rates, including 10 tabular weak rates.
+
+The network appears as:
 
 .. figure:: ../../networks/he-burn/cno-he-burn-33a/cno-he-burn-33a.png
    :align: center
