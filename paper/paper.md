@@ -86,11 +86,11 @@ affiliations:
 - index: 8
   name: Leiden Observatory, Leiden, The Netherlands
 - index: 8
-  name: Arizon State University, Tempe, AZ, USA
+  name: Arizona State University, Tempe, AZ, USA
 - index: 10
   name: Department of Physics and Astronomy, Michigan State University, E. Lansing, MI, USA
 
-date: 13 July 2025
+date: 20 July 2025
 
 bibliography: paper.bib
 ---
