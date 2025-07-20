@@ -86,11 +86,11 @@ affiliations:
 - index: 8
   name: Leiden Observatory, Leiden, The Netherlands
 - index: 8
-  name: Arizon State University, Tempe, AZ, USA
+  name: Arizona State University, Tempe, AZ, USA
 - index: 10
   name: Department of Physics and Astronomy, Michigan State University, E. Lansing, MI, USA
 
-date: 13 July 2025
+date: 20 July 2025
 
 bibliography: paper.bib
 ---
@@ -98,7 +98,7 @@ bibliography: paper.bib
 
 # Summary
 
-The AMReX-Astrophysics Microphysics library[^authors] provides a common set of
+The AMReX-Astrophysics Microphysics library provides a common set of
 microphysics routines (reaction networks and associated physics,
 equations of state, and various transport coefficients) as well as
 solvers (stiff ODE integrators, nonlinear system solvers) for
@@ -240,9 +240,9 @@ Nuclear reaction rates are screened by the electrons in the plasma
 (which reduce the Coulomb barrier for the positively charged nuclei to
 fuse).  Microphysics provides several different screening
 implementations: the widely-used `screen5` method based on
-[@graboske:1973; @jancovici:1977; @alastuey:1978; @itoh:1979], the
-methods of [@chugunov:2007] and [@chugunov:2009], and the method of
-[@Chabrier_1998].
+@graboske:1973; @jancovici:1977; @alastuey:1978; @itoh:1979, the
+methods of @chugunov:2007 and @chugunov:2009, and the method of
+@Chabrier_1998.
 
 
 ### Nuclear statistical equilibrium
