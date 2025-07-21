@@ -44,6 +44,15 @@ else
   $(error Invalid value for SCREEN_METHOD)
 endif
 
+NEUTRINO_METHOD ?= sneut5
+ifeq ($(NEUTRINO_METHOD), kipp)
+  DEFINES += -DNEUTRINO_METHOD=NEUTRINO_METHOD_kipp
+else ifeq ($(NEUTRINO_METHOD), sneut5)
+  DEFINES += -DNEUTRINO_METHOD=NEUTRINO_METHOD_sneut5
+else
+  $(error Invalid value for NEUTRINO_METHOD: $(NEUTRINO_METHOD))
+endif
+
 ifeq ($(EOS_DIR), gamma_law_general)
   override EOS_DIR := gamma_law
   $(warning gamma_law_general has been renamed gamma_law)
