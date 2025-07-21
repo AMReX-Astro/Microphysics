@@ -44,7 +44,7 @@ else
   $(error Invalid value for SCREEN_METHOD)
 endif
 
-NEUTRINO_METHOD ?= kipp
+NEUTRINO_METHOD ?= sneut5
 ifeq ($(NEUTRINO_METHOD), kipp)
   DEFINES += -DNEUTRINO_METHOD=NEUTRINO_METHOD_kipp
 else ifeq ($(NEUTRINO_METHOD), sneut5)
