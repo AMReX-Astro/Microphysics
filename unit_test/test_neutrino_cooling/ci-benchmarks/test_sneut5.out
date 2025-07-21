@@ -1,4 +1,4 @@
- plotfile = test_sneut5
+ plotfile = test_neutrino.sneut5
  time = 0
               variables          minimum value          maximum value
  density                                    10             5000000000
@@ -28,4 +28,8 @@
  dsneutdt                                    0       2.9114557633e+14
  dsneutda                    -2.0028760264e+16       1.6034657416e+20
  dsneutdz                     -1.832532276e+20       2.2890025857e+16
+ pair                                        0       3.3206297949e+23
+ phot                                        0       2.5493486735e+14
+ plas                                        0        7.284558679e+12
+ brem                        -2.5119883805e+12            83290903991
 
