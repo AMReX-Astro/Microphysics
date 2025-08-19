@@ -3,7 +3,7 @@ name: macos_burn_cell_metal_chem
 on: [pull_request]
 jobs:
   burn_cell:
-    runs-on: macos-13
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
         with:
