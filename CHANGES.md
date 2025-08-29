@@ -1,5 +1,17 @@
 # Changelog
 
+## 25.08
+
+  * work on the JOSS paper (#1838, #1839)
+
+  * remove old inputs files from pynucastro networks (#1836)
+
+  * updates to the NSE solver (#1829, #1833)
+
+  * fix string_view in some physics (#1832)
+
+  * new CI for validating JSON (#1831)
+
 ## 25.07
 
   * module string names are now `constexpr std::string_view` (#1825)
