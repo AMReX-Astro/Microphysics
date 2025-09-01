@@ -94,10 +94,17 @@ EXTERN_CORE += $(EOS_PATH)
 # the table into the problem directory.
 ifeq ($(findstring helmholtz, $(EOS_DIR)), helmholtz)
    all: table
+   ifeq ($(USE_NEW_HELMHOLTZ_TABLE), TRUE)
+      DEFINES += -DUSE_NEW_HELMHOLTZ_TABLE
+   endif
 endif
 
 table:
+   ifeq ($(USE_NEW_HELMHOLTZ_TABLE), TRUE)
+	@if [ ! -f helm_table_p128_q200.dat ]; then echo Linking helm_table.dat; ln -s $(EOS_PATH)/helm_table_p128_q200.dat .;  fi
+   else
 	@if [ ! -f helm_table.dat ]; then echo Linking helm_table.dat; ln -s $(EOS_PATH)/helm_table.dat .;  fi
+   endif
 
 # USE_ALL_NSE will be used if any of the NSE techniques is applied
 ifeq ($(USE_NSE_TABLE),TRUE)

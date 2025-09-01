@@ -1341,7 +1341,12 @@ void actual_eos_init ()
 
         // open the table
         std::ifstream table;
+
+#if defined(USE_NEW_HELMHOLTZ_TABLE)
+        table.open("helm_table_p128_q200.dat");
+#else
         table.open("helm_table.dat");
+#endif
 
         if (!table.is_open()) {
             // the table was not present or we could not open it; abort
