@@ -101,7 +101,7 @@ endif
 
 table:
    ifeq ($(USE_NEW_HELMHOLTZ_TABLE), TRUE)
-	@if [ ! -f helm_table_p128_q200.dat ]; then echo Linking helm_table.dat; ln -s $(EOS_PATH)/helm_table_p128_q200.dat .;  fi
+	@if [ ! -f helm_table_p128_q200.dat ]; then echo Linking helm_table.dat; ln -s $(EOS_PATH)/helm_table_p128_q400.dat .;  fi
    else
 	@if [ ! -f helm_table.dat ]; then echo Linking helm_table.dat; ln -s $(EOS_PATH)/helm_table.dat .;  fi
    endif

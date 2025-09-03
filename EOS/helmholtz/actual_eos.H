@@ -1343,7 +1343,7 @@ void actual_eos_init ()
         std::ifstream table;
 
 #if defined(USE_NEW_HELMHOLTZ_TABLE)
-        table.open("helm_table_p128_q200.dat");
+        table.open("helm_table_p128_q400.dat");
 #else
         table.open("helm_table.dat");
 #endif
