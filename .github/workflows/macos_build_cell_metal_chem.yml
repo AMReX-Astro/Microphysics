@@ -11,7 +11,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          brew install cmake openmpi python3 || true
+          brew install openmpi python3 || true
 
       - name: Compile and run
         run: |
