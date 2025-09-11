@@ -67,16 +67,12 @@ namespace {
 
 #if NAUX_NET > 0
 namespace AuxZero {
-   enum AuxIndices {
-     @@AUXZERO_ENUM@@
-   };
+    @@AUXZERO_ENUM@@
 }
 #endif
 
 namespace Species {
-   enum NetworkSpecies {
-     @@SPECIES_ENUM@@
-   };
+    @@SPECIES_ENUM@@
 }
 
 namespace NetworkProperties {

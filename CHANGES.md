@@ -1,5 +1,28 @@
 # Changelog
 
+## 25.09
+
+  * update MacOS CI (#1844)
+
+  * update github checkout action (#1842)
+
+  * specify the type for the `enum` in `network_properties.H` (#1841)
+
+  * add a new neutrino cooling implementation, based on simple analytic
+    estimates from Kippenhahn (#1822, #1840)
+
+## 25.08
+
+  * work on the JOSS paper (#1838, #1839)
+
+  * remove old inputs files from pynucastro networks (#1836)
+
+  * updates to the NSE solver (#1829, #1833)
+
+  * fix string_view in some physics (#1832)
+
+  * new CI for validating JSON (#1831)
+
 ## 25.07
 
   * module string names are now `constexpr std::string_view` (#1825)
