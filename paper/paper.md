@@ -11,33 +11,58 @@ tags:
 - differential equations
 
 authors:
-- name: AMReX-Astro Microphysics Team
+- surname: AMReX-Astro Microphysics Team
   affiliation: '†'
 
 - name: Khanak Bhargava
   affiliation: '1'
 
+- name: Abigail Bishop
+  affiliation: '2'
+
 - name: Zhi Chen
   affiliation: '1'
 
+- name: Doreen Fan
+  affiliation: '3'
+
+- name: Carl Fields
+  affiliation: '4'
+
+- name: Adam M. Jacobs
+  affiliation: '3'
+  
 - name: Eric T. Johnson
   affiliation: '1'
 
 - name: Max P. Katz
   affiliation: '1'
 
+- name: Mark Krumholz
+  affiliation: '5'
+  
+- name: Chris Malone
+  affiliation: '6'
+
+- name: Andy Nonaka
+  affiliation: '7'
+  
 - name: Piyush Sharda
-  affiliation: '2'
+  affiliation: '8'
 
 - given-names: Alexander
   surname: Smith Clark
   affiliation: '1'
 
+- name: Frank Timmes
+  affiliation: '9'
+
 - name: Ben Wibking
-  affiliation: '3'
+  affiliation: '10'
 
 - name: Don E. Willcox
-
+  affiliation: '3'
+  
 - name: Michael Zingale
   affiliation: '1'
 
@@ -47,11 +72,25 @@ affiliations:
 - index: 1
   name: Department of Physics and Astronomy, Stony Brook University, Stony Brook, NY, USA
 - index: 2
-  name: Leiden Observatory, Leiden, The Netherlands
+  name: Department of Physics, University of Wisconsin, Madison, Madison, WI, USA
 - index: 3
+  name: affiliation not disclosed
+- index: 4
+  name: Department of Astronomy, University of Arizona, Tucson, AZ, USA
+- index: 5
+  name: Research School of Astronomy and Astrophysics, The Australian National University, Australia
+- index: 6
+  name: Los Alamos National Laboratory, Los Alamos, NM, USA
+- index: 7
+  name: Lawrence Berkeley National Laboratory, Berkeley, CA, USA
+- index: 8
+  name: Leiden Observatory, Leiden, The Netherlands
+- index: 8
+  name: Arizona State University, Tempe, AZ, USA
+- index: 10
   name: Department of Physics and Astronomy, Michigan State University, E. Lansing, MI, USA
 
-date: 28 May 2025
+date: 20 July 2025
 
 bibliography: paper.bib
 ---
@@ -59,7 +98,7 @@ bibliography: paper.bib
 
 # Summary
 
-The AMReX-Astrophysics Microphysics library[^authors] provides a common set of
+The AMReX-Astrophysics Microphysics library provides a common set of
 microphysics routines (reaction networks and associated physics,
 equations of state, and various transport coefficients) as well as
 solvers (stiff ODE integrators, nonlinear system solvers) for
@@ -201,9 +240,9 @@ Nuclear reaction rates are screened by the electrons in the plasma
 (which reduce the Coulomb barrier for the positively charged nuclei to
 fuse).  Microphysics provides several different screening
 implementations: the widely-used `screen5` method based on
-[@graboske:1973; @jancovici:1977; @alastuey:1978; @itoh:1979], the
-methods of [@chugunov:2007] and [@chugunov:2009], and the method of
-[@Chabrier_1998].
+@graboske:1973; @jancovici:1977; @alastuey:1978; @itoh:1979, the
+methods of @chugunov:2007 and @chugunov:2009, and the method of
+@Chabrier_1998.
 
 
 ### Nuclear statistical equilibrium
@@ -287,11 +326,19 @@ in `Microphysics/unit_test/`.  There are 2 types of tests here:
   physics that is implemented, and also serve to demonstrate the interfaces
   used in Microphysics.
 
+These tests also serve as tutorial codes for integrating Microphysics
+into new application codes.
+
 # Acknowledgements
 
-The work at Stony Brook was supported by the US Department of Energy,
-Office of Nuclear Physics grant DE-FG02-87ER40317.
+The AMReX-Astro Microphysics library developers are an open scientific
+team with members contributing to various aspects of the library. We
+have thus chosen to display the members of our development team in the
+author list in alphabetical order.  All developers who have
+contributed new features, substantial design input, and/or at least 3
+commits were invited to be coauthors.  The work at Stony Brook was
+supported by the US Department of Energy, Office of Nuclear Physics
+grant DE-FG02-87ER40317.
 
 # References
 
-[^authors]: The AMReX-Astro Microphysics library developers are an open scientific team with members contributing to various aspects of the library. We have thus chosen to display the members of our development team in the author list in alphabetical order.
