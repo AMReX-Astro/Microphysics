@@ -540,11 +540,10 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
         return current_state.nse;
     }
 
-    // Get the nse state which is used to compare nse molar fractions.
+    // Get the NSE state using (rho, T, Ye) as input
+    // Then compare input molar fractions to the NSE molar fractions.
 
-    const auto nse_state = get_actual_nse_state(current_state);
-
-    auto state = current_state;
+    const auto nse_state = get_actual_nse_state(nse_input_rty, current_state);
 
     // Convert to molar fractions
 
@@ -586,11 +585,14 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
         }
     }
 
-    // store xn to find the rates
+    auto state = current_state;
+
+    // Find the mass fraction of the current state
 
     for (int n = 0; n < NumSpec; ++n) {
         state.xn[n] = Y(n+1) * aion[n];
     }
+
     rate_t rate_eval;
     constexpr int do_T_derivatives = 0;
     evaluate_rates<do_T_derivatives, rate_t>(state, rate_eval);
@@ -630,12 +632,7 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
 
     // Check if we result in a single group after grouping
 
-    current_state.nse = false;
-
-    if (in_single_group(group_ind)) {
-        current_state.nse = true;
-    }
-
+    current_state.nse = in_single_group(group_ind);
     return current_state.nse;
 
 #else

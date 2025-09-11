@@ -3,10 +3,10 @@ marked as covered by a different license, as indicated by a
 directory-level license.txt in that sub-directory.
 
 ------------------------------------------------------------------------
-StarKiller Microphysics License
+AMReX-Astrophysics Microphysics License
 ------------------------------------------------------------------------
 
-Copyright 2019 StarKiller Microphysics Development Team
+Copyright 2025 AMReX-Astrophysics Microphysics Development Team
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are

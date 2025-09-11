@@ -1,5 +1,70 @@
 # Changelog
 
+## 25.09
+
+  * update MacOS CI (#1844)
+
+  * update github checkout action (#1842)
+
+  * specify the type for the `enum` in `network_properties.H` (#1841)
+
+  * add a new neutrino cooling implementation, based on simple analytic
+    estimates from Kippenhahn (#1822, #1840)
+
+## 25.08
+
+  * work on the JOSS paper (#1838, #1839)
+
+  * remove old inputs files from pynucastro networks (#1836)
+
+  * updates to the NSE solver (#1829, #1833)
+
+  * fix string_view in some physics (#1832)
+
+  * new CI for validating JSON (#1831)
+
+## 25.07
+
+  * module string names are now `constexpr std::string_view` (#1825)
+
+  * doc updates (#1796, #1809, #1810, #1818, #1824, #1827, #1830)
+
+  * JOSS paper (#1658)
+
+  * the ASE network has been updated to better support NSE (#1813)
+
+  * `hybrj` now can take the Jacobian and constrain equations as input
+    (#1817)
+
+  * remove amrex namespace (#1820)
+
+  * for He-burning nets, don't consider Suzuki rates in pynucastro
+    (#1815)
+
+  * `nse_sdc_burn` has been updated for `NSE_NET` to give better NSE
+    agreement with the networks (#1812)
+
+  * `sneut5` now used autodiff (#1799, #1808)
+
+  * recombination neutrinos are now disabled by default in `sneut5` (#1793, #1794)
+
+  * the `nse_compatibility` script has been updated (#1811)
+
+  * autodiff improvements and optimizations (#1803)
+
+  * enable more `clang-tidy` checks (#1807)
+
+  * clean up the `nova` network script (#1804)
+
+  * regenerate the non-He burning pynucastro nets (#1797)
+
+  * update `sn160` to include tabular rates (#1805)
+
+  * update the constants to use the same CODATA values as pynucastro
+    (#1802)
+
+  * allow constant temperature in the SDC burn (#1801)
+
 ## 25.06
 
   * update `README.md` (#1785)

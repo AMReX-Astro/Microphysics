@@ -34,10 +34,11 @@ void burn_cell_c()
     std::cout << "chemical potential of proton is " << unit_test_rp::mu_p << std::endl;
     std::cout << "chemical potential of neutron is " << unit_test_rp::mu_n << std::endl;
 
-    // find the  nse state
+    // find the nse state using (rho, T, Ye)
+
     bool ye_is_valid = true;
     amrex::Real eps = 1.0e-10_rt;
-    auto NSE_STATE = get_actual_nse_state(state, eps, ye_is_valid);
+    auto NSE_STATE = get_actual_nse_state(nse_input_rty, state, eps, ye_is_valid);
 
     std::cout << "State Density (g/cm^3): " << state.rho << std::endl;
     std::cout << "State Temperature (K): " << state.T << std::endl;
@@ -54,22 +55,20 @@ void burn_cell_c()
       state.y[SFS+n] = NSE_STATE.y[SFS+n];
     }
 
-    // get eos
-    //eos(eos_input_rt, state);
-
     if (in_nse(state)){
       std::cout << "We're in NSE. " << std::endl;
     }
     else{
       std::cout << "We're not in NSE. " << std::endl;
     }
+    std::cout << "-----------------------------------------------" << std::endl;
 
     // now test the EOS+NSE function.  The basic idea is the following:
     //
     // 1. find the e corresponding to the current NSE state (eos_input_rt)
-    // 2. perturb e and then call the NSE EOS to get the updated T and abar
-    // 3. call the NSE function explicitly with the new T to get the X's
-    //    (since the NSE EOS doesn't return these).
+    // 2. perturb e
+    // 3. call the NSE function using input (rho, e, Ye) to get the X's
+    //    and T that is consistent with e.
     // 4. call the EOS with this new T (eos_input_rt) and updated NSE
     //    composition and see if we recover the same perturbed e
 
@@ -84,41 +83,74 @@ void burn_cell_c()
 
     eos(eos_input_rt, eos_state);
 
-    amrex::Real abar_start = eos_state.abar;
+    // now perturb e and find NSE using (rho, e, Ye)
 
-    // now perturb e and find the T/abar that are consistent with it
-    // and NSE
+    amrex::Real e_start = eos_state.e * 1.05;
+    amrex::Real T_start{eos_state.T};
+    amrex::Real abar_start{eos_state.abar};
 
-    amrex::Real e_new = eos_state.e * 1.05;
+    // Initialize the internal energy
 
-    eos_state.e = e_new;
+    state.e = e_start;
 
-    amrex::Real T_new{eos_state.T};
-    amrex::Real abar_new{};
+    // Find the new NSE state using input (rho, e, Ye)
 
-    nse_T_abar_from_e(eos_state.rho, eos_state.e, unit_test_rp::ye,
-                      T_new, abar_new,
-                      state.mu_p, state.mu_n);
+    // We will test results from two modes of solving for T using e.
 
-    std::cout << "change in T: " << eos_state.T << " " << T_new <<  std::endl;
-    std::cout << "change in abar: " << abar_start << " " << abar_new <<  std::endl;
+    // Do the test for two different modes and see if they match.
 
-    // now try calling the EOS with this T and composition and see if
-    // we get back the same energy.  we need to recompute the NSE
-    // state here since we didn't get the mass fractions from the EOS call
+    for (int m = 1; m <= 2; ++m) {
 
-    state.T = T_new;
-    auto nse_state = get_actual_nse_state(state, 1.e-10, true);
+        solve_nse_e_mode = m;
 
-    for (int n = 0; n < NumSpec; ++n) {
-        eos_state.xn[n] = nse_state.xn[n];
+        auto nse_state = get_actual_nse_state(nse_input_rey, state, 1.e-10, true);
+
+        // now try calling the EOS with updated T and the NSE composition and see if
+        // we get back the same energy and see how abar changed.
+
+        for (int n = 0; n < NumSpec; ++n) {
+            eos_state.xn[n] = nse_state.xn[n];
+        }
+
+        eos_state.T = nse_state.T;
+
+        eos(eos_input_rt, eos_state);
+
+        // Print to see the change in T and abar due to perturbed e
+        // and see if we recover the same energy using eos.
+
+        std::cout << "Using nse.solve_nse_e_mode == " << m << " :" << std::endl;
+        std::cout << "change in T: " << T_start << " " << eos_state.T <<  std::endl;
+        std::cout << "change in abar: " << abar_start << " " << eos_state.abar <<  std::endl;
+        std::cout << "recovered energy: " << e_start << " " << eos_state.e << std::endl;
+
+        // See the result of constraint eq and jacobian using the solved input
+
+        amrex::Array1D<amrex::Real, 1, 3> x {nse_state.mu_p, nse_state.mu_n, nse_state.T};
+        amrex::Array1D<amrex::Real, 1, 3> f;
+        amrex::Array2D<amrex::Real, 1, 3, 1, 3> jac;
+        int flag = 0;
+
+        nse_solver_data<burn_t> state_data = {nse_state, {0.0_rt}};
+        state_data.state = get_T_independent_nonexponent_nse_state(nse_state);
+
+        nse_fcn(x, f, state_data, flag);
+        nse_jcn(x, jac, state_data, flag);
+
+        std::cout << "Constraint Eqns using solved input are: ";
+        for (int q = 1; q <= 3; ++q) {
+            std::cout << f(q) << " ";
+        }
+        std::cout << std::endl;
+
+        std::cout << "Constraint Jacobian using solved input are: ";
+        for (int q = 1; q <= 3; ++q) {
+            for (int p = 1; p <= 3; ++p) {
+                std::cout << jac(q, p) << " ";
+            }
+        }
+        std::cout << std::endl;
+        std::cout << "-----------------------------------------------" << std::endl;
     }
-
-    eos_state.T = T_new;
-
-    eos(eos_input_rt, eos_state);
-
-    std::cout << "recovered energy: " << eos_state.e << " " << e_new << std::endl;
-
 }
 #endif

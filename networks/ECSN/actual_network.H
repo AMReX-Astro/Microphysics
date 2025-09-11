@@ -1,6 +1,7 @@
 #ifndef actual_network_H
 #define actual_network_H
 
+#include <string_view>
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>
 #include <AMReX_Loop.H>
@@ -12,7 +13,7 @@ using namespace amrex;
 
 void actual_network_init();
 
-const std::string network_name = "pynucastro-cxx";
+constexpr std::string_view network_name = "pynucastro-cxx";
 
 namespace network
 {

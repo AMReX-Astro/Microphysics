@@ -1,6 +1,6 @@
 # an approximate network for He/C burning with key rates
-# to bypass the C12(a,g)O16 rate.  This version uses some
-# (a,p)(p,g) approximations.
+# to bypass the C12(a,g)O16 rate.
+# This is fully-compatible with NSE.
 
 import pynucastro as pyna
 from pynucastro.networks import AmrexAstroCxxNetwork
@@ -11,11 +11,11 @@ def get_library():
 
     reaclib_lib = pyna.ReacLibLibrary()
 
-    all_reactants = ["p", "n",
+    all_reactants = ["p",
                      "he4", "c12", "o16", "ne20", "mg24", "si28", "s32",
                      "ar36", "ca40", "ti44", "cr48", "fe52", "ni56",
                      "al27", "p31", "cl35", "k39", "sc43", "v47", "mn51", "co55",
-                     "n13", "n14", "f18", "ne21", "na22", "na23"]
+                     "n13", "na23"]
 
     subch = reaclib_lib.linking_nuclei(all_reactants)
 
@@ -27,17 +27,9 @@ def get_library():
 
     for r, mp in other_rates:
         _r = reaclib_lib.get_rate_by_name(r)
-        _r.modify_products(mp)
-        subch += pyna.Library(rates=[_r])
-
-    # finally, the aprox nets don't include the reverse rates for
-    # C12+C12, C12+O16, and O16+O16, so remove those
-
-    for r in subch.get_rates():
-        if sorted(r.products) in [[pyna.Nucleus("c12"), pyna.Nucleus("c12")],
-                                  [pyna.Nucleus("c12"), pyna.Nucleus("o16")],
-                                  [pyna.Nucleus("o16"), pyna.Nucleus("o16")]]:
-            subch.remove_rate(r)
+        forward_rate = pyna.ModifiedRate(_r, new_products=[mp])
+        derived_rate = pyna.DerivedRate(rate=forward_rate, compute_Q=True, use_pf=True)
+        subch += pyna.Library(rates=[forward_rate, derived_rate])
 
     # C12+Ne20 and reverse
     # (a,g) links between Na23 and Al27
@@ -57,17 +49,6 @@ def get_library():
         _r = subch.get_rate_by_name(r)
         subch.remove_rate(_r)
 
-    # additional neutron rates to remove
-    for r in subch.get_rates():
-        if (r == subch.get_rate_by_name("mg24(n,a)ne21") or r == subch.get_rate_by_name("ne21(a,n)mg24")
-            or r == subch.get_rate_by_name("na22(n,g)na23") or r == subch.get_rate_by_name("na23(g,n)na22")
-            or r == subch.get_rate_by_name("ne21(g,n)ne20") or r == subch.get_rate_by_name("ne20(n,g)ne21")):
-            continue
-
-        if pyna.Nucleus("n") in r.reactants or pyna.Nucleus("n") in r.products:
-            print("removing neutron rates: ", r)
-            subch.remove_rate(r)
-
     if DO_DERIVED_RATES:
         rates_to_derive = subch.backward().get_rates()
 
@@ -78,7 +59,7 @@ def get_library():
             if fr:
                 print(f"modifying {r} from {fr}")
                 subch.remove_rate(r)
-                d = pyna.DerivedRate(rate=fr, compute_Q=False, use_pf=True)
+                d = pyna.DerivedRate(rate=fr, compute_Q=True, use_pf=True)
                 subch.add_rate(d)
 
     return subch

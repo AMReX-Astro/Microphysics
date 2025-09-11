@@ -9,10 +9,8 @@ Checks: >
        -cppcoreguidelines-avoid-magic-numbers,
        -cppcoreguidelines-avoid-non-const-global-variables,
        -cppcoreguidelines-init-variables,
-       -cppcoreguidelines-interfaces-global-init,
        -cppcoreguidelines-macro-usage,
        -cppcoreguidelines-non-private-member-variables-in-classes,
-       -cppcoreguidelines-owning-memory,
        -cppcoreguidelines-pro-*,
      misc-*,
        -misc-const-correctness,
@@ -39,7 +37,6 @@ Checks: >
        -readability-magic-numbers,
        -readability-math-missing-parentheses,
        -readability-named-parameter,
-       -readability-simplify-boolean-expr,
      mpi-*,
      openmp-*
 

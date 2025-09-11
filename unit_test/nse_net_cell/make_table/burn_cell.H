@@ -36,12 +36,8 @@ void burn_cell_c()
                 state.mu_n = -12.0_rt;
             }
             else if (state.y_e > 0.48_rt){
-                state.mu_p = -8.0_rt;
-                state.mu_n = -11.0_rt;
-            }
-            else if (state.y_e > 0.4_rt){
-                state.mu_p = -10.0_rt;
-                state.mu_n = -7.0_rt;
+                state.mu_p = -13.0_rt;
+                state.mu_n = -4.0_rt;
             }
             else{
                 state.mu_p = -15.0_rt;
@@ -67,7 +63,8 @@ void burn_cell_c()
 
                 use_hybrid_solver = 1;
 
-                auto nse_state = get_actual_nse_state(state, eps, assume_ye_is_valid);
+                auto nse_state = get_actual_nse_state(nse_input_rty, state,
+                                                      eps, assume_ye_is_valid);
 
                 for (int i = 0; i < NumSpec; ++i){
                   state.y[SFS+i] = nse_state.y[SFS+i];

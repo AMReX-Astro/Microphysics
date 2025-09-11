@@ -73,7 +73,7 @@
  J_silicon-28_oxygen-20                      0                      0
  J_phosphorus-31_oxygen-20                      0                      0
  J_sulfur-32_oxygen-20                       0                      0
- J_E_oxygen-20               -4.2481653689e+13       1.7104530188e+17
+ J_E_oxygen-20               -4.2481653689e+13       1.7104530189e+17
  J_hydrogen-1_fluorine-20                      0                      0
  J_helium-4_fluorine-20                      0                      0
  J_oxygen-16_fluorine-20                      0                      0
@@ -85,7 +85,7 @@
  J_silicon-28_fluorine-20                      0                      0
  J_phosphorus-31_fluorine-20                      0                      0
  J_sulfur-32_fluorine-20                      0                      0
- J_E_fluorine-20             -1.5940561767e+21       4.7993011946e+17
+ J_E_fluorine-20             -1.5940561767e+21       4.7993011947e+17
  J_hydrogen-1_neon-20                        0                      0
  J_helium-4_neon-20          -3.9073008309e+13           87637435.641
  J_oxygen-16_neon-20         3.8849945775e-100            88180925.52
@@ -157,7 +157,7 @@
  J_silicon-28_sulfur-32                      0                      0
  J_phosphorus-31_sulfur-32                      0                      0
  J_sulfur-32_sulfur-32                       0                      0
- J_E_sulfur-32               -1.2066886642e+15       7.8006373177e+14
+ J_E_sulfur-32               -1.2066886242e+15       7.8006383754e+14
  J_hydrogen-1_E                 -0.12580793235       1.2089803642e+12
  J_helium-4_E                 -0.0078065301852       1.4905283338e+12
  J_oxygen-16_E               -5.3990173959e+12       1.2739583515e-06

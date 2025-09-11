@@ -4,7 +4,7 @@
 Data Structures
 ***************
 
-All of the routines in this software package are standardized so that
+All of the routines in Microphysics are standardized so that
 you interact with them using the same type of data structure, a C++ ``struct``.
 Here we describe the most important data structures.
 
