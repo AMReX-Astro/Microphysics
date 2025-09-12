@@ -171,10 +171,34 @@ make variable.</p>
 <p>If reactions can be ignored, then the <code class="docutils literal notranslate"><span class="pre">general_null</span></code> network can
 be used — this simply defines a composition with no reactions.</p>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
 <p>Many of the networks here are generated using <a class="reference external" href="https://pynucastro.github.io/">pynucastro</a> <span id="id1">[<a class="reference internal" href="zreferences.html#id56" title="D. E. Willcox and M. Zingale. pynucastro: an interface to nuclear reaction rates and code generator for reaction network equations. Journal of Open Source Software, 3(23):588, 2018. URL: https://doi.org/10.21105/joss.00588, doi:10.21105/joss.00588.">19</a>, <a class="reference internal" href="zreferences.html#id57" title="Alexander I. Smith, Eric T. Johnson, Zhi Chen, Kiran Eiden, Donald E. Willcox, Brendan Boyd, Lyra Cao, Christopher J. DeGrendele, and Michael Zingale. Pynucastro: a python library for nuclear astrophysics. The Astrophysical Journal, 947(2):65, apr 2023. URL: https://dx.doi.org/10.3847/1538-4357/acbaff, doi:10.3847/1538-4357/acbaff.">20</a>]</span> using the <code class="docutils literal notranslate"><span class="pre">AmrexAstroCxxNetwork</span></code>
 class.</p>
+<p>Each of these networks has a python script that generates the
+network (through a function called <code class="docutils literal notranslate"><span class="pre">create_network()</span></code>.  The script
+is named after the network.  This allows us to recreate the
+network in a python environment easily to explore the network flow
+from a simulation.  For example, to load the <code class="docutils literal notranslate"><span class="pre">CNO_extras</span></code> network,
+we can do:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
+
+<span class="n">mp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;MICROPHYSICS_HOME&quot;</span><span class="p">)</span>
+
+<span class="c1"># change this to reflect the network you want</span>
+<span class="n">loc</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">mp</span><span class="si">}</span><span class="s2">/networks/CNO_extras/CNO_extras.py&quot;</span>
+
+<span class="n">spec</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">spec_from_file_location</span><span class="p">(</span><span class="s2">&quot;pynet&quot;</span><span class="p">,</span> <span class="n">loc</span><span class="p">)</span>
+<span class="n">pynet</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">module_from_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+<span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">exec_module</span><span class="p">(</span><span class="n">pynet</span><span class="p">)</span>
+
+<span class="n">net</span> <span class="o">=</span> <span class="n">pynet</span><span class="o">.</span><span class="n">create_network</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>You can then work with the network through the <code class="docutils literal notranslate"><span class="pre">net</span></code> object, for instance
+using <code class="docutils literal notranslate"><span class="pre">net.plot()</span></code> to plot the rate strengths at a particular set of
+thermodynamic conditions.</p>
 </div>
 <section id="general-null">
 <span id="sec-networks-general-null"></span><h2><code class="docutils literal notranslate"><span class="pre">general_null</span></code><a class="headerlink" href="#general-null" title="Link to this heading"></a></h2>
