@@ -131,7 +131,7 @@ def get_core_library(*,
             if fr:
                 print(f"modifying {r} from {fr}")
                 core_lib.remove_rate(r)
-                d = pyna.DerivedRate(rate=fr, compute_Q=False, use_pf=True)
+                d = pyna.DerivedRate(rate=fr, compute_Q=True, use_pf=True)
                 core_lib.add_rate(d)
 
     # we may have duplicate rates -- we want to remove any ReacLib rates
