@@ -21,11 +21,38 @@ Microphysics knows the properties of the fluid.
    If reactions can be ignored, then the ``general_null`` network can
    be used --- this simply defines a composition with no reactions.
 
-.. note::
+.. tip::
 
    Many of the networks here are generated using `pynucastro
    <https://pynucastro.github.io/>`_ :cite:`pynucastro, pynucastro2` using the ``AmrexAstroCxxNetwork``
    class.
+
+   Each of these networks has a python script that generates the
+   network (through a function called ``create_network()``.  The script
+   is named after the network.  This allows us to recreate the
+   network in a python environment easily to explore the network flow
+   from a simulation.  For example, to load the ``CNO_extras`` network,
+   we can do:
+
+   .. code:: python
+
+      import os
+      import importlib
+
+      mp = os.getenv("MICROPHYSICS_HOME")
+
+      # change this to reflect the network you want
+      loc = f"{mp}/networks/CNO_extras/CNO_extras.py"
+
+      spec = importlib.util.spec_from_file_location("pynet", loc)
+      pynet = importlib.util.module_from_spec(spec)
+      spec.loader.exec_module(pynet)
+
+      net = pynet.create_network()
+
+   You can then work with the network through the ``net`` object, for instance
+   using ``net.plot()`` to plot the rate strengths at a particular set of
+   thermodynamic conditions.
 
 .. _sec:networks:general_null:
 
