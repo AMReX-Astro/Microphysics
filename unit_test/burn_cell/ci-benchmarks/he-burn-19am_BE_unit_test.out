@@ -1,5 +1,5 @@
-Initializing AMReX (25.09-3-g82eeea53e3f0)...
-AMReX (25.09-3-g82eeea53e3f0) initialized
+Initializing AMReX (25.08-24-g5d1b6c2bdec3)...
+AMReX (25.08-24-g5d1b6c2bdec3) initialized
 starting the single zone burn...
 reading in network electron-capture / beta-decay tables...
 Maximum Time (s): 1e-05
@@ -46,53 +46,53 @@ RHS at t = 0
   Ni56 2.574224319e-29
 ------------------------------------
 successful? 1
- - Hnuc = 1.32453958e+23
- - added e = 1.32453958e+18
- - final T = 3539821824
+ - Hnuc = 1.324590871e+23
+ - added e = 1.324590871e+18
+ - final T = 3539838090
 ------------------------------------
 e initial = 1.396711859e+18
-e final =   2.721251439e+18
+e final =   2.72130273e+18
 ------------------------------------
 new mass fractions: 
-H1 0.06140803549
-He4 0.001405610612
-C12 1.188519667e-07
-N13 7.91161535e-11
-N14 0.001127405837
-O16 6.931938566e-06
-Ne20 0.001267484806
-Na23 5.83572198e-09
-Mg24 0.001846851255
-Al27 1.108673612e-07
-Si28 0.3024940394
-P31 2.221452558e-06
-S32 0.3485093992
-Ar36 0.1639541229
-Ca40 0.1170416003
-Ti44 0.0008749270564
-Cr48 6.050361331e-05
-Fe52 6.291143911e-07
-Ni56 1.356583207e-09
+H1 0.06140417042
+He4 0.001391413905
+C12 1.194108918e-07
+N13 7.948046572e-11
+N14 0.00113253446
+O16 6.939409756e-06
+Ne20 0.001268657261
+Na23 5.779159983e-09
+Mg24 0.001851907943
+Al27 1.100422292e-07
+Si28 0.3024492111
+P31 2.198888364e-06
+S32 0.3484518303
+Ar36 0.1639682799
+Ca40 0.1171350644
+Ti44 0.0008762776244
+Cr48 6.064662794e-05
+Fe52 6.310743307e-07
+Ni56 1.361735526e-09
 ------------------------------------
 species creation rates: 
-omegadot(H1): -3859.196451
-omegadot(He4): -49859.43894
-omegadot(C12): -9999.988115
+omegadot(H1): -3859.582958
+omegadot(He4): -49860.85861
+omegadot(C12): -9999.988059
 omegadot(N13): -9999.999992
-omegadot(N14): -9887.259416
-omegadot(O16): -9999.306806
-omegadot(Ne20): 126.7484806
-omegadot(Na23): 0.000583572198
-omegadot(Mg24): 184.6851255
-omegadot(Al27): 0.01108673612
-omegadot(Si28): 30249.40394
-omegadot(P31): 0.2221452558
-omegadot(S32): 34850.93992
-omegadot(Ar36): 16395.41229
-omegadot(Ca40): 11704.16003
-omegadot(Ti44): 87.49270564
-omegadot(Cr48): 6.050361331
-omegadot(Fe52): 0.06291143911
-omegadot(Ni56): 0.0001356583207
-number of steps taken: 665
-AMReX (25.09-3-g82eeea53e3f0) finalized
+omegadot(N14): -9886.746554
+omegadot(O16): -9999.306059
+omegadot(Ne20): 126.8657261
+omegadot(Na23): 0.0005779159983
+omegadot(Mg24): 185.1907943
+omegadot(Al27): 0.01100422292
+omegadot(Si28): 30244.92111
+omegadot(P31): 0.2198888364
+omegadot(S32): 34845.18303
+omegadot(Ar36): 16396.82799
+omegadot(Ca40): 11713.50644
+omegadot(Ti44): 87.62776244
+omegadot(Cr48): 6.064662794
+omegadot(Fe52): 0.06310743307
+omegadot(Ni56): 0.0001361735526
+number of steps taken: 9860
+AMReX (25.08-24-g5d1b6c2bdec3) finalized
