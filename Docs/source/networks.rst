@@ -267,6 +267,8 @@ along with letters:
 
 * ``a`` if they approximate $(\alpha, p)(p,\gamma)$,
 
+* ``m`` if they include a modified rate that connects odd-Z to even-Z nuclei
+
 * ``n`` if they approximate double-neutron capture
 
 * ``p`` if they split the protons into two groups (one for photo-disintegration).
@@ -385,6 +387,28 @@ The network appears as:
 
 .. figure:: ../../networks/he-burn/cno-he-burn-33a/cno-he-burn-33a.png
    :align: center
+
+``cno_he_burn_34am``
+--------------------
+
+This is a better set of nuclei than ``cno_he_burn_33a`` that eliminates some
+endpoints.  It uses an approximate rate to link odd and even nuclei (similar
+to how ``aprox19`` and ``aprox21`` connect $\isotm{N}{14}$.
+
+* $\isotm{Na}{22}(1.5\alpha, \gamma)\isotm{Si}{28}$ is included using the
+  $\isotm{Na}{22}(\alpha, \gamma)\isotm{Al}{26}$ rate.
+
+* $\isotm{Mg}{24}(pp,\alpha)\isotm{Na}{22}$ is included as an approximation
+  to the sequence $\isotm{Mg}{24}(p,\gamma)\isotm{Al}{25}(e^+,)\isotm{Mg}{25}(p,\alpha)\isotm{Na}{22}$
+
+Overall there are 34 nuclei and 179 rates, including 12 tabular weak rates.
+
+The network appears as:
+
+.. figure:: ../../networks/he-burn/cno-he-burn-34am/cno-he-burn-34am.png
+   :align: center
+
+where the tabular rates are highlighted in yellow.
 
 ``ECSN``
 ========
