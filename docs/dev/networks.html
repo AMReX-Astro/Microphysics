@@ -78,10 +78,12 @@
 <li class="toctree-l2"><a class="reference internal" href="#cno-extras"><code class="docutils literal notranslate"><span class="pre">CNO_extras</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#nova"><code class="docutils literal notranslate"><span class="pre">nova</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#he-burning-networks">He-burning networks</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#he-burn-19a"><code class="docutils literal notranslate"><span class="pre">he-burn-19a</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#he-burn-28anp"><code class="docutils literal notranslate"><span class="pre">he-burn-28anp</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#he-burn-33a"><code class="docutils literal notranslate"><span class="pre">he-burn-33a</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#he-burn-19am"><code class="docutils literal notranslate"><span class="pre">he-burn-19am</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#he-burn-28amnp"><code class="docutils literal notranslate"><span class="pre">he-burn-28amnp</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#he-burn-33am"><code class="docutils literal notranslate"><span class="pre">he-burn-33am</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ase"><code class="docutils literal notranslate"><span class="pre">ase</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#cno-he-burn-33a"><code class="docutils literal notranslate"><span class="pre">cno_he_burn_33a</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cno-he-burn-34am"><code class="docutils literal notranslate"><span class="pre">cno_he_burn_34am</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#ecsn"><code class="docutils literal notranslate"><span class="pre">ECSN</span></code></a></li>
@@ -323,9 +325,9 @@ reactions. These rates are also included in this network.</p>
 </section>
 <section id="he-burning-networks">
 <h2>He-burning networks<a class="headerlink" href="#he-burning-networks" title="Link to this heading"></a></h2>
-<p>This is a collection of networks meant to model He burning.  The are inspired by the
-“aprox”-family of networks, but contain more nuclei/rates, and are managed by
-pynucastro.</p>
+<p>This is a collection of networks meant to (primarily) model He
+burning.  The are inspired by the “aprox”-family of networks, but
+contain more nuclei/rates, and are managed by pynucastro.</p>
 <p>One feature of these networks is that they include a bypass rate for
 <span class="math notranslate nohighlight">\(\isotm{C}{12}(\alpha, \gamma)\isotm{O}{16}\)</span> discussed in
 <span id="id3">[<a class="reference internal" href="zreferences.html#id27" title="K. J. Shen and L. Bildsten. Unstable Helium Shell Burning on Accreting White Dwarfs. ApJ, 699:10, March 2009. arXiv:0903.0654v2.">22</a>]</span>.  This is appropriate for explosive He burning.
@@ -367,12 +369,19 @@ using detailed balance and tabulated partition functions.</p>
 <p>The networks are named with a descriptive name and the number of nuclei,
 along with letters:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">a</span></code> if they approximate <span class="math notranslate nohighlight">\((\alpha, p)(p,\gamma)\)</span>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">a</span></code> if they approximate <span class="math notranslate nohighlight">\((\alpha, p)(p,\gamma)\)</span></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">m</span></code> if they include a modified rate that connects odd-Z to even-Z nuclei</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">n</span></code> if they approximate double-neutron capture</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">p</span></code> if they split the protons into two groups (one for photo-disintegration).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">p</span></code> if they split the protons into two groups (one for photo-disintegration)</p></li>
 </ul>
-<section id="he-burn-19a">
-<h3><code class="docutils literal notranslate"><span class="pre">he-burn-19a</span></code><a class="headerlink" href="#he-burn-19a" title="Link to this heading"></a></h3>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>The alias <code class="docutils literal notranslate"><span class="pre">subch_simple</span></code> will always point to the smallest of the
+He-burning networks (<code class="docutils literal notranslate"><span class="pre">he-burn-*</span></code>), allowing one to build with
+<code class="docutils literal notranslate"><span class="pre">NETWORK_DIR=subch_simple</span></code>.</p>
+</div>
+<section id="he-burn-19am">
+<h3><code class="docutils literal notranslate"><span class="pre">he-burn-19am</span></code><a class="headerlink" href="#he-burn-19am" title="Link to this heading"></a></h3>
 <p>This is the simplest network and is similar to <code class="docutils literal notranslate"><span class="pre">aprox13</span></code>, but includes
 a better description of <span class="math notranslate nohighlight">\(\isotm{C}{12}\)</span> and <span class="math notranslate nohighlight">\(\isotm{O}{16}\)</span> burning, as
 well as the bypass rate for <span class="math notranslate nohighlight">\(\isotm{C}{12}(\alpha,\gamma)\isotm{O}{16}\)</span>.</p>
@@ -395,7 +404,7 @@ original aprox13 network.</p></li>
 <p>Overall, there are 19 nuclei and 92 rates.</p>
 <p>The network appears as:</p>
 <figure class="align-center">
-<img alt="_images/he-burn-19a.png" src="_images/he-burn-19a.png" />
+<img alt="_images/he-burn-19am.png" src="_images/he-burn-19am.png" />
 </figure>
 <p>The nuclei in gray are those that have been approximated about, but the links
 are effectively accounted for in the approximate rates.</p>
@@ -413,9 +422,9 @@ disabled.</p></li>
 <span class="math notranslate nohighlight">\(\isotm{C}{12}(p,\gamma)\isotm{N}{13}(\alpha, p)\isotm{O}{16}\)</span> that
 acts as a bypass for <span class="math notranslate nohighlight">\(\isotm{C}{12}(\alpha, \gamma)\isotm{O}{16}\)</span>.</p>
 </section>
-<section id="he-burn-28anp">
-<h3><code class="docutils literal notranslate"><span class="pre">he-burn-28anp</span></code><a class="headerlink" href="#he-burn-28anp" title="Link to this heading"></a></h3>
-<p>This builds on <code class="docutils literal notranslate"><span class="pre">he-burn-19a</span></code> by adding some iron-peak nuclei.  It no longer
+<section id="he-burn-28amnp">
+<h3><code class="docutils literal notranslate"><span class="pre">he-burn-28amnp</span></code><a class="headerlink" href="#he-burn-28amnp" title="Link to this heading"></a></h3>
+<p>This builds on <code class="docutils literal notranslate"><span class="pre">he-burn-19am</span></code> by adding some iron-peak nuclei.  It no longer
 approximates out <span class="math notranslate nohighlight">\(\isotm{Mn}{51}\)</span> or <span class="math notranslate nohighlight">\(\isotm{Co}{55}\)</span>, and includes approximations
 to double-neutron capture.  Finally, it splits the protons into two groups,
 with those participating in reactions with mass numbers &gt; 48 treated as a separate
@@ -425,27 +434,39 @@ group (for photo-disintegration reactions).</p>
 and doesn’t include the approximation to <span class="math notranslate nohighlight">\(\isotm{Cr}{56}\)</span>.</p>
 <p>The full network appears as:</p>
 <figure class="align-center">
-<img alt="_images/he-burn-28anp.png" src="_images/he-burn-28anp.png" />
+<img alt="_images/he-burn-28amnp.png" src="_images/he-burn-28amnp.png" />
 </figure>
 <p>and a zoom-in on the iron group with the weak rates highlighted appears
 as:</p>
 <figure class="align-center">
-<img alt="_images/he-burn-28anp-zoom.png" src="_images/he-burn-28anp-zoom.png" />
+<img alt="_images/he-burn-28amnp-zoom.png" src="_images/he-burn-28amnp-zoom.png" />
 </figure>
 </section>
-<section id="he-burn-33a">
-<h3><code class="docutils literal notranslate"><span class="pre">he-burn-33a</span></code><a class="headerlink" href="#he-burn-33a" title="Link to this heading"></a></h3>
+<section id="he-burn-33am">
+<h3><code class="docutils literal notranslate"><span class="pre">he-burn-33am</span></code><a class="headerlink" href="#he-burn-33am" title="Link to this heading"></a></h3>
 <p>This has the most complete iron-group, with nuclei up to <span class="math notranslate nohighlight">\(\isotm{Zn}{60}\)</span> and no approximations
 to the neutron captures.  This network can be quite slow.</p>
 <p>Overall, there are 33 nuclei and 172 rates, including 12 tabular weak rates.</p>
 <p>The full network appears as:</p>
 <figure class="align-center">
-<img alt="_images/he-burn-33a.png" src="_images/he-burn-33a.png" />
+<img alt="_images/he-burn-33am.png" src="_images/he-burn-33am.png" />
 </figure>
 <p>and a zoom in on the iron group with the weak rates highlighted appears
 as:</p>
 <figure class="align-center">
-<img alt="_images/he-burn-33a-zoom.png" src="_images/he-burn-33a-zoom.png" />
+<img alt="_images/he-burn-33am-zoom.png" src="_images/he-burn-33am-zoom.png" />
+</figure>
+</section>
+<section id="ase">
+<h3><code class="docutils literal notranslate"><span class="pre">ase</span></code><a class="headerlink" href="#ase" title="Link to this heading"></a></h3>
+<p>This is a small network like <code class="docutils literal notranslate"><span class="pre">he_burn_19am</span></code>, but it is carefully
+constructed to have reverse rates for all forward rates, allowing
+it to be used with the <a class="reference internal" href="nse_net.html#self-consistent-nse"><span class="std std-ref">Self-consistent NSE</span></a> solver.  It does not
+include <span class="math notranslate nohighlight">\(\isotm{N}{14}\)</span> due to the inability to easily link it to the
+<span class="math notranslate nohighlight">\(\alpha\)</span>-chain without a modified rate (which does not behave well with NSE).</p>
+<p>The full network appears as:</p>
+<figure class="align-center">
+<img alt="_images/ase.png" src="_images/ase.png" />
 </figure>
 </section>
 <section id="cno-he-burn-33a">
@@ -459,6 +480,24 @@ He burning.</p>
 <figure class="align-center">
 <img alt="_images/cno-he-burn-33a.png" src="_images/cno-he-burn-33a.png" />
 </figure>
+</section>
+<section id="cno-he-burn-34am">
+<h3><code class="docutils literal notranslate"><span class="pre">cno_he_burn_34am</span></code><a class="headerlink" href="#cno-he-burn-34am" title="Link to this heading"></a></h3>
+<p>This is a better set of nuclei than <code class="docutils literal notranslate"><span class="pre">cno_he_burn_33a</span></code> that eliminates some
+endpoints.  It uses an approximate rate to link odd and even nuclei (similar
+to how <code class="docutils literal notranslate"><span class="pre">aprox19</span></code> and <code class="docutils literal notranslate"><span class="pre">aprox21</span></code> connect <span class="math notranslate nohighlight">\(\isotm{N}{14}\)</span>.</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\isotm{Na}{22}(1.5\alpha, \gamma)\isotm{Si}{28}\)</span> is included using the
+<span class="math notranslate nohighlight">\(\isotm{Na}{22}(\alpha, \gamma)\isotm{Al}{26}\)</span> rate.</p></li>
+<li><p><span class="math notranslate nohighlight">\(\isotm{Mg}{24}(pp,\alpha)\isotm{Na}{22}\)</span> is included as an approximation
+to the sequence <span class="math notranslate nohighlight">\(\isotm{Mg}{24}(p,\gamma)\isotm{Al}{25}(e^+,)\isotm{Mg}{25}(p,\alpha)\isotm{Na}{22}\)</span></p></li>
+</ul>
+<p>Overall there are 34 nuclei and 179 rates, including 12 tabular weak rates.</p>
+<p>The network appears as:</p>
+<figure class="align-center">
+<img alt="_images/cno-he-burn-34am.png" src="_images/cno-he-burn-34am.png" />
+</figure>
+<p>where the tabular rates are highlighted in yellow.</p>
 </section>
 </section>
 <section id="ecsn">

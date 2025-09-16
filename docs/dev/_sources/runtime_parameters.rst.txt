@@ -767,7 +767,7 @@ namespace: ``network``
 
 
 
-**NETWORK_DIR=he-burn/he-burn-19a:**
+**NETWORK_DIR=he-burn/he-burn-19am:**
 
 +---------------------------------------+---------------------------------------------------------+------------------------------+
 | parameter                             | description                                             | default value                |
