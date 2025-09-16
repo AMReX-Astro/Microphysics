@@ -34,7 +34,7 @@ def doit():
                    node_size=600,
                    node_font_size=10)
 
-    fig.savefig("he-burn-33a.png", bbox_inches="tight")
+    fig.savefig("he-burn-33am.png", bbox_inches="tight")
 
     fig = net.plot(rotated=True, hide_xalpha=True,
                    size=(720, 840), Z_range=[24, 30], N_range=[-1, 4],
@@ -42,7 +42,7 @@ def doit():
                    node_font_size=10,
                    highlight_filter_function=lambda rate: isinstance(rate, pyna.rates.TabularRate))
 
-    fig.savefig("he-burn-33a-zoom.png", bbox_inches="tight")
+    fig.savefig("he-burn-33am-zoom.png", bbox_inches="tight")
 
     net.write_network()
 
