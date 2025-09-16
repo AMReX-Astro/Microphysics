@@ -71,7 +71,7 @@ formulation here is only correct for a :math:`\gamma = 5/3` gas.
 ``helmholtz`` contains a general, publicly available stellar
 equation of state based on the Helmholtz free energy, with
 contributions from ions, radiation, and electron degeneracy, as
-described in :cite:`timmes:1999`, :cite:`timmes:2000`, :cite:`flash`.
+described in :cite:`timmes:1999, timmes:2000, flash`.
 
 .. note::
 
@@ -126,7 +126,7 @@ publicly release it in this repository.
 ``metal_chem``
 ==============
 
-This is a multi-gamma equation of state for metal ISM chemistry.
+This is a multi-gamma equation of state for ISM chemistry that builds on the primordial chemistry network by including metals (C and O, and their variants). The network has its roots in the reduced ISM chemical network introduced by :cite:t:`omukai05`, modified to include other important reactions (from :cite:t:`glover10`, :cite:t:`gow17`, and :cite:t:`hunter23`) such that an accurate treatment of ISM chemistry is possible at all metallicities, from super-Solar to primordial. The corresponding temperature evolution includes all major heating/cooling processes relevant in the ISM (including molecular cooling in dense gas), following the implementation in :cite:t:`kim23`.
 
 ``multigamma``
 ==============
@@ -231,7 +231,7 @@ polytropic relations. The options are:
 ``primordial_chem``
 ===================
 
-This is a version of the multi-gamma equation of state that models primordial chemistry.
+This is a version of the multi-gamma equation of state that models primordial ISM chemistry, and can be used to model star formation in pristine environments (e.g., Population III stars). The network consists of a set of 50 reactions involving 14 chemical species (variants of H, D and He; Li is not included), appended by the evolution of gas temperature. The network is taken from :cite:t:`grassi14` and :cite:t:`sharda20`.
 
 ``rad_power_law``
 =================
@@ -262,14 +262,15 @@ where the runtime parameters provide the constants:
 =============
 
 This is an equation of state for hypervelocity impacts based on :cite:`tillotson:1962`.
+It can be used to model planetary impacts.
 
 
 ``ztwd``
 ========
 
 ``ztwd`` is the zero-temperature degenerate electron equation
-of state of Chandrasekhar (1935), which is designed to describe
-white dward material. The pressure satisfies the equation:
+of state of :cite:t:`chandra:1939`, which is designed to describe
+white dwarf material. The pressure satisfies the equation:
 
 .. math:: p(x) = A \left( x(2x^2-3)(x^2 + 1)^{1/2} + 3\, \text{sinh}^{-1}(x) \right),
 
@@ -278,7 +279,7 @@ measure of the Fermi momentum, with :math:`\rho = B x^3` and :math:`B = 8\pi \mu
 m_p m_e^3 c^3 / (3h^3)`, where :math:`\mu_e` is the mean molecular weight
 per electron and :math:`h` is the Planck constant.
 
-The enthalpy was worked out by Hachisu (1986):
+The enthalpy was worked out by :cite:t:`hachisu:1986`:
 
 .. math:: h(x) = \frac{8A}{B}\left(x^2 + 1\right)^{1/2}.
 

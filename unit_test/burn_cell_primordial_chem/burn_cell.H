@@ -15,8 +15,6 @@ amrex::Real grav_constant = 6.674e-8;
 AMREX_INLINE
 auto burn_cell_c() -> int {
 
-  using namespace unit_test_rp;
-
   burn_t state;
 
   amrex::Real numdens[NumSpec] = {-1.0};
@@ -25,60 +23,60 @@ auto burn_cell_c() -> int {
     switch (n) {
 
     case 1:
-      numdens[n - 1] = primary_species_1;
+      numdens[n - 1] = unit_test_rp::primary_species_1;
       break;
     case 2:
-      numdens[n - 1] = primary_species_2;
+      numdens[n - 1] = unit_test_rp::primary_species_2;
       break;
     case 3:
-      numdens[n - 1] = primary_species_3;
+      numdens[n - 1] = unit_test_rp::primary_species_3;
       break;
     case 4:
-      numdens[n - 1] = primary_species_4;
+      numdens[n - 1] = unit_test_rp::primary_species_4;
       break;
     case 5:
-      numdens[n - 1] = primary_species_5;
+      numdens[n - 1] = unit_test_rp::primary_species_5;
       break;
     case 6:
-      numdens[n - 1] = primary_species_6;
+      numdens[n - 1] = unit_test_rp::primary_species_6;
       break;
     case 7:
-      numdens[n - 1] = primary_species_7;
+      numdens[n - 1] = unit_test_rp::primary_species_7;
       break;
     case 8:
-      numdens[n - 1] = primary_species_8;
+      numdens[n - 1] = unit_test_rp::primary_species_8;
       break;
     case 9:
-      numdens[n - 1] = primary_species_9;
+      numdens[n - 1] = unit_test_rp::primary_species_9;
       break;
     case 10:
-      numdens[n - 1] = primary_species_10;
+      numdens[n - 1] = unit_test_rp::primary_species_10;
       break;
     case 11:
-      numdens[n - 1] = primary_species_11;
+      numdens[n - 1] = unit_test_rp::primary_species_11;
       break;
     case 12:
-      numdens[n - 1] = primary_species_12;
+      numdens[n - 1] = unit_test_rp::primary_species_12;
       break;
     case 13:
-      numdens[n - 1] = primary_species_13;
+      numdens[n - 1] = unit_test_rp::primary_species_13;
       break;
     case 14:
-      numdens[n - 1] = primary_species_14;
+      numdens[n - 1] = unit_test_rp::primary_species_14;
       break;
     }
   }
 
   // Echo initial conditions at burn and fill burn state input
 
-  std::cout << "Maximum Time (s): " << tmax << std::endl;
-  std::cout << "State Temperature (K): " << temperature << std::endl;
+  std::cout << "Maximum Time (s): " << unit_test_rp::tmax << std::endl;
+  std::cout << "State Temperature (K): " << unit_test_rp::temperature << std::endl;
   for (int n = 0; n < NumSpec; ++n) {
     std::cout << "Number Density input (" << short_spec_names_cxx[n]
               << "): " << numdens[n] << std::endl;
   }
 
-  state.T = temperature;
+  state.T = unit_test_rp::temperature;
 
   // find the density in g/cm^3
   amrex::Real rhotot = 0.0_rt;
@@ -150,7 +148,7 @@ auto burn_cell_c() -> int {
   amrex::Real dd = rhotot;
   amrex::Real dd1 = 0.0_rt;
 
-  for (int n = 0; n < nsteps; n++) {
+  for (int n = 0; n < unit_test_rp::nsteps; n++) {
 
     dd1 = dd;
 
@@ -162,7 +160,7 @@ auto burn_cell_c() -> int {
 
     // find the freefall time
     amrex::Real tff = std::sqrt(M_PI * 3.0 / (32.0 * rhotmp * grav_constant));
-    amrex::Real dt = tff_reduc * tff;
+    amrex::Real dt = unit_test_rp::tff_reduc * tff;
     // scale the density
     dd += dt * (dd / tff);
 

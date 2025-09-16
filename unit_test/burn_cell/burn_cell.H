@@ -10,8 +10,6 @@
 #include <iomanip>
 #include <react_util.H>
 
-using namespace unit_test_rp;
-
 AMREX_INLINE
 void burn_cell_c()
 {
@@ -30,9 +28,9 @@ void burn_cell_c()
 
     // Echo initial conditions at burn and fill burn state input
 
-    std::cout << "Maximum Time (s): " << tmax << std::endl;
-    std::cout << "State Density (g/cm^3): " << density << std::endl;
-    std::cout << "State Temperature (K): " << temperature << std::endl;
+    std::cout << "Maximum Time (s): " << unit_test_rp::tmax << std::endl;
+    std::cout << "State Density (g/cm^3): " << unit_test_rp::density << std::endl;
+    std::cout << "State Temperature (K): " << unit_test_rp::temperature << std::endl;
     for (int n = 0; n < NumSpec; ++n) {
         std::cout << "Mass Fraction (" << short_spec_names_cxx[n] << "): " << massfractions[n] << std::endl;
     }
@@ -40,8 +38,8 @@ void burn_cell_c()
     burn_t burn_state;
 
     eos_t eos_state;
-    eos_state.rho = density;
-    eos_state.T = temperature;
+    eos_state.rho = unit_test_rp::density;
+    eos_state.T = unit_test_rp::temperature;
     for (int n = 0; n < NumSpec; n++) {
         eos_state.xn[n] = massfractions[n];
     }
@@ -70,7 +68,7 @@ void burn_cell_c()
 
     // normalize -- just in case
 
-    if (! skip_initial_normalization) {
+    if (! unit_test_rp::skip_initial_normalization) {
         normalize_abundances_burn(burn_state);
     }
 
@@ -97,18 +95,18 @@ void burn_cell_c()
     // we will divide the total integration time into nsteps that are
     // logarithmically spaced
 
-    if (tfirst == 0.0_rt) {
-        if (nsteps == 1) {
-            tfirst = tmax;
+    if (unit_test_rp::tfirst == 0.0_rt) {
+        if (unit_test_rp::nsteps == 1) {
+            unit_test_rp::tfirst = unit_test_rp::tmax;
         } else {
-            tfirst = tmax / nsteps;
+            unit_test_rp::tfirst = unit_test_rp::tmax / static_cast<amrex::Real>(unit_test_rp::nsteps);
         }
     }
     amrex::Real dlogt = 0.0_rt;
-    if (nsteps == 1) {
-        dlogt = (std::log10(tmax) - std::log10(tfirst));
+    if (unit_test_rp::nsteps == 1) {
+        dlogt = (std::log10(unit_test_rp::tmax) - std::log10(unit_test_rp::tfirst));
     } else {
-        dlogt = (std::log10(tmax) - std::log10(tfirst)) / (nsteps - 1);
+        dlogt = (std::log10(unit_test_rp::tmax) - std::log10(unit_test_rp::tfirst)) / static_cast<amrex::Real>(unit_test_rp::nsteps - 1);
     }
 
     // save the initial state -- we'll use this to determine
@@ -147,11 +145,11 @@ void burn_cell_c()
 
     int nstep_int = 0;
 
-    for (int n = 0; n < nsteps; n++){
+    for (int n = 0; n < unit_test_rp::nsteps; n++){
 
         // compute the time we wish to integrate to
 
-        amrex::Real tend = std::pow(10.0_rt, std::log10(tfirst) + dlogt * n);
+        amrex::Real tend = std::pow(10.0_rt, std::log10(unit_test_rp::tfirst) + dlogt * n);
         amrex::Real dt = tend - t;
 
         burner(burn_state, dt);
@@ -192,7 +190,7 @@ void burn_cell_c()
 
     std::cout << "------------------------------------" << std::endl;
     std::cout << "successful? " << burn_state.success << std::endl;
-    std::cout << " - Hnuc = " << (burn_state.e - burn_state_in.e) / tmax << std::endl;
+    std::cout << " - Hnuc = " << (burn_state.e - burn_state_in.e) / unit_test_rp::tmax << std::endl;
     std::cout << " - added e = " << burn_state.e - burn_state_in.e << std::endl;
     std::cout << " - final T = " << burn_state.T << std::endl;
 
@@ -213,7 +211,7 @@ void burn_cell_c()
     std::cout << "species creation rates: " << std::endl;
     for (int n = 0; n < NumSpec; ++n) {
         std::cout << "omegadot(" << short_spec_names_cxx[n] << "): "
-                  << (burn_state.xn[n] - burn_state_in.xn[n]) / tmax << std::endl;
+                  << (burn_state.xn[n] - burn_state_in.xn[n]) / unit_test_rp::tmax << std::endl;
     }
 
     std::cout << "number of steps taken: " << nstep_int << std::endl;

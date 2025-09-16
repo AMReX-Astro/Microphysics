@@ -46,8 +46,9 @@ system.
    getting_started
    design
    data_structures
-   autodiff
+   build_system
    rp_intro
+   fundamental_constants
 
 .. toctree::
    :maxdepth: 1
@@ -85,6 +86,7 @@ system.
    :hidden:
 
    util
+   autodiff
 
 .. toctree::
    :maxdepth: 1
@@ -92,6 +94,7 @@ system.
    :hidden:
 
    unit_tests
+   unit_test_runtime_parameters
    comprehensive_tests
    one_zone_tests
 

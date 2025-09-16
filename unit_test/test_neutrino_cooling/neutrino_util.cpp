@@ -9,13 +9,13 @@
 #include <variables.H>
 #include <network.H>
 #include <eos.H>
+#include <extern_parameters.H>
 
-#include <sneut5.H>
+#include<neutrino.H>
 
 #include <cmath>
 
 using namespace amrex;
-using namespace unit_test_rp;
 
 void neut_test_C(const Box& bx,
                  const Real dlogrho, const Real dlogT, const Real dmetal,
@@ -40,18 +40,15 @@ void neut_test_C(const Box& bx,
 
     Real xn[NumSpec];
 
-    // for now... the screening using 1-based indexing
-    Array1D<Real, 1, NumSpec> ymass;
-
-    for (int n = 0; n < NumSpec; n++) {
-      xn[n] = metalicity / static_cast<Real>(NumSpec - 2);
+    for (double& X : xn) {
+      X = metalicity / static_cast<Real>(NumSpec - 2);
     }
     xn[ih1] = 0.75_rt - 0.5_rt * metalicity;
     xn[ihe4] = 0.25_rt - 0.5_rt * metalicity;
 
-    Real temp_zone = std::pow(10.0, std::log10(temp_min) + static_cast<Real>(j)*dlogT);
+    Real temp_zone = std::pow(10.0, std::log10(unit_test_rp::temp_min) + static_cast<Real>(j)*dlogT);
 
-    Real dens_zone = std::pow(10.0, std::log10(dens_min) + static_cast<Real>(i)*dlogrho);
+    Real dens_zone = std::pow(10.0, std::log10(unit_test_rp::dens_min) + static_cast<Real>(i)*dlogrho);
 
     // store default state
     sp(i, j, k, vars.irho) = dens_zone;
@@ -79,16 +76,25 @@ void neut_test_C(const Box& bx,
     Real dsnudd;
     Real dsnuda;
     Real dsnudz;
+    Real pair{};
+    Real phot{};
+    Real plas{};
+    Real brem{};
 
     constexpr int do_derivatives{1};
 
-    sneut5<do_derivatives>(temp_zone, dens_zone, abar, zbar,
-                           snu, dsnudt, dsnudd, dsnuda, dsnudz);
+    neutrino_cooling<do_derivatives>(temp_zone, dens_zone, abar, zbar,
+                                     snu, dsnudt, dsnudd, dsnuda, dsnudz,
+                                     pair, phot, plas, brem);
 
     sp(i, j, k, vars.isneut) = snu;
     sp(i, j, k, vars.isneutdt) = dsnudt;
     sp(i, j, k, vars.isneutda) = dsnuda;
     sp(i, j, k, vars.isneutdz) = dsnudz;
+    sp(i, j, k, vars.ispair) = pair;
+    sp(i, j, k, vars.isphot) = phot;
+    sp(i, j, k, vars.isplas) = plas;
+    sp(i, j, k, vars.isbrem) = brem;
 
   });
 

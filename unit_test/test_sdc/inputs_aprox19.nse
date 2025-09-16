@@ -9,6 +9,8 @@ unit_test.dens_max   = 5.e8
 unit_test.temp_min   = 5.e7
 unit_test.temp_max   = 5.e9
 
+unit_test.small_dens = 1.e3
+
 unit_test.C_nse = 0.2
 unit_test.T_nse = 5.e8
 unit_test.rho_nse = 3.e7

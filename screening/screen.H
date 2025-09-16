@@ -12,6 +12,7 @@
 #include <cmath>
 #include <iostream>
 #include <string>
+#include <string_view>
 #include <type_traits>
 
 #include <AMReX.H>
@@ -31,15 +32,15 @@
 using namespace amrex::literals;
 
 #if SCREEN_METHOD == SCREEN_METHOD_null
-const std::string screen_name = "null";
+constexpr std::string_view screen_name = "null";
 #elif SCREEN_METHOD == SCREEN_METHOD_screen5
-const std::string screen_name = "screen5";
+constexpr std::string_view screen_name = "screen5";
 #elif SCREEN_METHOD == SCREEN_METHOD_chugunov2007
-const std::string screen_name = "chugunov2007";
+constexpr std::string_view screen_name = "chugunov2007";
 #elif SCREEN_METHOD == SCREEN_METHOD_chugunov2009
-const std::string screen_name = "chugunov2009";
+constexpr std::string_view screen_name = "chugunov2009";
 #elif SCREEN_METHOD == SCREEN_METHOD_chabrier1998
-const std::string screen_name = "chabrier1998";
+constexpr std::string_view screen_name = "chabrier1998";
 #endif
 
 template <typename number_t = amrex::Real>
@@ -172,7 +173,7 @@ number_t debye_huckel (const plasma_state_t<number_t>& state,
     number_t Gamma_e = state.gamma_e_fac / state.temp;
 
     // eq. A1
-    number_t h_DH = z1z2 * admath::sqrt(3 * amrex::Math::powi<3>(Gamma_e) * z_ratio);
+    number_t h_DH = z1z2 * admath::sqrt(3 * admath::powi<3>(Gamma_e) * z_ratio);
 
     // machine limit the output
     constexpr amrex::Real h_max = 300.e0_rt;
@@ -620,13 +621,13 @@ number_t chabrier1998 (const plasma_state_t<number_t>& state,
 
         // Quantum correction terms (same as screen5)
         //see Calder 2007 Eq.A8 and Alastuey1978, Eq. 24 and 31
-        quantum_corr_1 = -tau12 * (5.0_rt/32.0_rt * amrex::Math::powi<3>(b_fac) -
-                                   0.014_rt * amrex::Math::powi<4>(b_fac) -
-                                   0.128_rt * amrex::Math::powi<5>(b_fac));
+        quantum_corr_1 = -tau12 * (5.0_rt/32.0_rt * admath::powi<3>(b_fac) -
+                                   0.014_rt * admath::powi<4>(b_fac) -
+                                   0.128_rt * admath::powi<5>(b_fac));
 
-        quantum_corr_2 = -Gamma_eff * (0.0055_rt * amrex::Math::powi<4>(b_fac) -
-                                       0.0098_rt * amrex::Math::powi<5>(b_fac) +
-                                       0.0048_rt * amrex::Math::powi<6>(b_fac));
+        quantum_corr_2 = -Gamma_eff * (0.0055_rt * admath::powi<4>(b_fac) -
+                                       0.0098_rt * admath::powi<5>(b_fac) +
+                                       0.0048_rt * admath::powi<6>(b_fac));
     }
     // See Calder2007 Appendix Eq. A8.
     // f1 + f2 - f12 gives the classical terms

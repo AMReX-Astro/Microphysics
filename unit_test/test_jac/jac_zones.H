@@ -9,7 +9,6 @@
 #include <burner.H>
 #include <extern_parameters.H>
 #include <ArrayUtilities.H>
-#include <variables.H>
 #include <numerical_jacobian.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
@@ -39,10 +38,10 @@ bool do_jac (int i, int j, int k, amrex::Array4<amrex::Real> const& state, const
 
     // we need to convert this to be in terms of X instead of Y
 
-    for (int j = 1; j <= NumSpec; ++j) {
-        for (int i = 1; i <= neqs; ++i) {
-            jac_analytic(j, i) *= aion[j-1];
-            jac_analytic(i, j) *= aion_inv[j-1];
+    for (int jj = 1; jj <= NumSpec; ++jj) {
+        for (int ii = 1; ii <= neqs; ++ii) {
+            jac_analytic(jj, ii) *= aion[jj-1];
+            jac_analytic(ii, jj) *= aion_inv[jj-1];
         }
     }
 

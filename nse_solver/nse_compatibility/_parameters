@@ -1,22 +1,24 @@
 @namespace: unit_test
 
-run_prefix    string  ""
+run_prefix    string     ""
 
 # the final time to integrate to
-tmax          real       1.e3
+tmax          real       1.e-1
 
 # first output time -- we will output in nsteps logarithmically spaced steps between [tfirst, tmax]
 tfirst        real       0.0
 
 # number of steps (logarithmically spaced)
-nsteps        int    100
+nsteps        int        100
 
-rho_min   real   1.e7
-rho_max   real   1.e9
+# density
+rho           real       1.e7
 
-nrho      int    4
+# temperature
+T             real       6.e9
 
-T_min     real   6.e9
-T_max     real   8.e9
+# Initial guess for proton chemical potential
+mu_p          real       -3.0
 
-nT        int    4
+# Initial guess for neutron chemical potential
+mu_n          real       -12.0

@@ -28,14 +28,8 @@ The parameters that affect the thermodynamics are:
 
 * ``unit_test.temperature`` : the initial temperature
 
-* ``unit_test.small_temp`` : the low temperature cutoff used in the equation of state
-
-* ``unit_test.small_dens`` : the low density cutoff used in the equation of state
-
-The composition can be set in the same way as in ``burn_cell``, either
-by setting each mass fraction explicitly via the parameters,
-``unit_test.X1``, ``unit_test.X2``, ..., or forcing them to be all
-equal via ``unit_test.uniform_xn=1``.
+The composition can be set either by specifying individual mass fractions
+or setting ``unit_test.uniform_xn`` as described in :ref:`sec:defining_unit_test_composition`.
 
 
 Building and Running the Code

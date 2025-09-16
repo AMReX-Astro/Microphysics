@@ -40,5 +40,12 @@ X33           real       0.0e0
 X34           real       0.0e0
 X35           real       0.0e0
 
+# do we set all of the mass fractions equal (to 1/NumSpec)?
 uniform_xn    bool        0
+
+# lowest temperature allowed in the EOS
+small_temp    real       1.e5
+
+# lowest density allowed in the EOS
+small_dens    real       1.e5
 

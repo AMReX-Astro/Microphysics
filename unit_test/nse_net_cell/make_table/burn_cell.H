@@ -10,8 +10,6 @@
 #include <nse_solver.H>
 #include <cmath>
 
-using namespace unit_test_rp;
-
 AMREX_INLINE
 void burn_cell_c()
 {
@@ -22,41 +20,41 @@ void burn_cell_c()
 
     state.dx = 1.0e6_rt;
 
-    amrex::Real dlogrho = (std::log10(rho_max) - std::log10(rho_min))/static_cast<amrex::Real>(nrho-1);
-    amrex::Real dlogT = (std::log10(T_max) - std::log10(T_min))/static_cast<amrex::Real>(nT-1);
-    amrex::Real dYe = (Ye_max - Ye_min)/(nye-1);
+    amrex::Real dlogrho = (std::log10(unit_test_rp::rho_max) - std::log10(unit_test_rp::rho_min)) / static_cast<amrex::Real>(unit_test_rp::nrho-1);
+    amrex::Real dlogT = (std::log10(unit_test_rp::T_max) - std::log10(unit_test_rp::T_min)) / static_cast<amrex::Real>(unit_test_rp::nT-1);
+    amrex::Real dYe = (unit_test_rp::Ye_max - unit_test_rp::Ye_min) / static_cast<amrex::Real>(unit_test_rp::nye-1);
 
-    for (int iye = 0; iye < nye; ++iye) {
-        for (int irho = 0; irho < nrho; ++irho) {
-            for (int itemp = 0; itemp < nT; ++itemp) {
+    for (int iye = 0; iye < unit_test_rp::nye; ++iye) {
+        amrex::Real Ye = unit_test_rp::Ye_min + iye * dYe;
+        for (int irho = 0; irho < unit_test_rp::nrho; ++irho) {
+            if (state.y_e >= 0.63_rt) {
+                state.mu_p = -3.0_rt;
+                state.mu_n = -14.9_rt;
+            }
+            else if (state.y_e > 0.52_rt){
+                state.mu_p = -4.0_rt;
+                state.mu_n = -12.0_rt;
+            }
+            else if (state.y_e > 0.48_rt){
+                state.mu_p = -13.0_rt;
+                state.mu_n = -4.0_rt;
+            }
+            else{
+                state.mu_p = -15.0_rt;
+                state.mu_n = -5.0_rt;
+            }
+            for (int itemp = 0; itemp < unit_test_rp::nT; ++itemp) {
+                amrex::Real T = std::pow(10.0, std::log10(unit_test_rp::T_min) + itemp * dlogT);
+                amrex::Real rho = std::pow(10.0, std::log10(unit_test_rp::rho_min) + irho * dlogrho);
 
-                amrex::Real T = std::pow(10.0, std::log10(T_min) + itemp * dlogT);
-                amrex::Real rho = std::pow(10.0, std::log10(rho_min) + irho * dlogrho);
-                amrex::Real Ye = Ye_min + iye * dYe;
+                if (rho >= 1e10 && Ye >= 0.55_rt) {
+                    state.mu_p = -2.0_rt;
+                    state.mu_n = -15.0_rt;
+                }
+
                 state.T = T;
                 state.rho = rho;
                 state.y_e = Ye;
-
-                if (state.y_e >= 0.63_rt) {
-                    state.mu_p = -3.0_rt;
-                    state.mu_n = -14.9_rt;
-                }
-                else if (state.y_e > 0.52_rt){
-                    state.mu_p = -6.0_rt;
-                    state.mu_n = -11.0_rt;
-                }
-                else if (state.y_e > 0.48_rt){
-                    state.mu_p = -8.0_rt;
-                    state.mu_n = -11.0_rt;
-                }
-                else if (state.y_e > 0.4_rt){
-                    state.mu_p = -10.0_rt;
-                    state.mu_n = -7.0_rt;
-                }
-                else{
-                    state.mu_p = -15.0_rt;
-                    state.mu_n = -5.0_rt;
-                }
 
                 // find the  nse state
 
@@ -65,7 +63,8 @@ void burn_cell_c()
 
                 use_hybrid_solver = 1;
 
-                auto nse_state = get_actual_nse_state(state, eps, assume_ye_is_valid);
+                auto nse_state = get_actual_nse_state(nse_input_rty, state,
+                                                      eps, assume_ye_is_valid);
 
                 for (int i = 0; i < NumSpec; ++i){
                   state.y[SFS+i] = nse_state.y[SFS+i];

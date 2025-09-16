@@ -14,7 +14,7 @@ int main() {
         hj.x(j) = -1.0;
     }
 
-    hj.xtol = std::sqrt(std::numeric_limits<Real>::epsilon());
+    hj.xtol = std::sqrt(std::numeric_limits<amrex::Real>::epsilon());
     hj.mode = 2;
 
     for (int j = 1; j <= neqs; ++j) {
@@ -23,10 +23,9 @@ int main() {
 
     // we'll pass a single Real as the extra data, but it can be any type
 
-    Real x{-3.14159};
+    amrex::Real x{-3.14159};
 
-    // hybrj(hj, x, fcn<neqs, Real>, jcn<neqs, Real>);
-    hybrj(hj, x);
+    hybrj<neqs, amrex::Real>(hj, x, fcn<neqs, amrex::Real>, jcn<neqs, amrex::Real>);
 
     std::cout << "done! solution = " << std::endl;
     for (int j = 1; j <= neqs; ++j) {

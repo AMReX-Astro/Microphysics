@@ -2,14 +2,16 @@
 # they can then adjust these via various approximations
 
 import pynucastro as pyna
-from pynucastro.rates import ReacLibRate, TabularRate
+from pynucastro.rates import ReacLibRate
+
 
 def get_core_library(*,
-                     include_n14_sequence=False,
+                     include_n14_approx=False,
+                     remove_al27_alpha_links=True,
                      include_zn=False,
                      include_iron_peak=False,
                      include_low_ye=False,
-                     do_detailed_balance=False,
+                     do_detailed_balance=True,
                      extra_nuclei=None):
 
     reaclib_lib = pyna.ReacLibLibrary()
@@ -25,15 +27,37 @@ def get_core_library(*,
               "al27", "p31", "cl35", "k39", "sc43", "v47",
               "mn51", "co55"]
 
-    nuclei += extra_nuclei
-
-    if include_n14_sequence:
-        nuclei += ["n14", "f18", "ne21", "na22"]
+    nuclei += [n.lower() for n in extra_nuclei]
 
     if include_zn:
         nuclei += ["cu59", "zn60"]
 
     core_lib = reaclib_lib.linking_nuclei(nuclei)
+
+    if include_n14_approx:
+        # these are 2 approximations from aprox19
+        # including them allow us to have N14 in our net
+
+        # N14 + 1.5 He4 -> Ne20
+        n14agf18 = reaclib_lib.get_rate_by_name("n14(a,g)f18")
+        n14_new = pyna.ModifiedRate(n14agf18, new_products=["ne20"],
+                                    stoichiometry={pyna.Nucleus("he4"): 1.5})
+
+        core_lib.add_rate(n14_new)
+
+        # an approximation to O16(p,g)F17(e+nu)O17(p,a)N14
+        # note that if the net already include O17, then stop there
+        o16pgf17 = reaclib_lib.get_rate_by_name("o16(p,g)f17")
+        if "o17" in nuclei:
+            o16_new = pyna.ModifiedRate(o16pgf17,
+                                        new_products=["o17"])
+        else:
+            o16_new = pyna.ModifiedRate(o16pgf17,
+                                        new_reactants=["p", "o16"],
+                                        new_products=["n14", "he4"],
+                                        stoichiometry={pyna.Nucleus("p"): 2})
+
+        core_lib.add_rate(o16_new)
 
     # in this list, we have the reactants, the actual reactants,
     # and modified products that we will use instead
@@ -43,8 +67,8 @@ def get_core_library(*,
 
     for r, mp in other_rates:
         _r = reaclib_lib.get_rate_by_name(r)
-        _r.modify_products(mp)
-        core_lib += pyna.Library(rates=[_r])
+        new_rate = pyna.ModifiedRate(_r, new_products=[mp])
+        core_lib += pyna.Library(rates=[new_rate])
 
     # finally, the aprox nets don't include the reverse rates for
     # C12+C12, C12+O16, and O16+O16, so remove those
@@ -62,16 +86,21 @@ def get_core_library(*,
     rates_to_remove = ["p31(p,c12)ne20",
                        "si28(a,c12)ne20",
                        "ne20(c12,p)p31",
-                       "ne20(c12,a)si28",
-                       "na23(a,g)al27",
-                       "al27(g,a)na23",
-                       "al27(a,g)p31",
-                       "p31(g,a)al27"]
+                       "ne20(c12,a)si28"]
+
+    if remove_al27_alpha_links:
+        rates_to_remove += ["na23(a,g)al27",
+                            "al27(g,a)na23",
+                            "al27(a,g)p31",
+                            "p31(g,a)al27"]
 
     for r in rates_to_remove:
         print("removing: ", r)
         _r = core_lib.get_rate_by_name(r)
         core_lib.remove_rate(_r)
+
+    iron_peak = []
+    all_lib = core_lib
 
     if include_iron_peak:
         # now create a list of iron group nuclei and find both the
@@ -89,25 +118,21 @@ def get_core_library(*,
         if include_low_ye:
             iron_peak += ["mn55"]
 
+        # there might have been extra_nuclei that are in the iron
+        # group too, so add any with A > 48
+        for nuc in extra_nuclei:
+            if pyna.Nucleus(nuc).A > 48:
+                if nuc not in iron_peak:
+                    iron_peak.append(nuc)
 
-        iron_reaclib = reaclib_lib.linking_nuclei(iron_peak)
+        all_lib += reaclib_lib.linking_nuclei(iron_peak)
 
-        weak_lib = pyna.TabularLibrary()
-        iron_weak_lib = weak_lib.linking_nuclei(iron_peak)
-
-        all_lib = core_lib + iron_reaclib + iron_weak_lib
-
-    else:
-        all_lib = core_lib
+    weak_lib = pyna.TabularLibrary(ordering=["ffn", "langanke", "oda"])
+    iron_weak_lib = weak_lib.linking_nuclei(set(iron_peak + nuclei))
+    all_lib += iron_weak_lib
 
     if do_detailed_balance:
-        rates_to_derive = []
-        for r in core_lib.get_rates():
-            if r.reverse:
-                # this rate was computed using detailed balance,
-                # regardless of whether Q < 0 or not.  We want to
-                # remove it and then recompute it
-                rates_to_derive.append(r)
+        rates_to_derive = core_lib.backward().get_rates()
 
         # now for each of those derived rates, look to see if the pair exists
 
@@ -116,7 +141,7 @@ def get_core_library(*,
             if fr:
                 print(f"modifying {r} from {fr}")
                 core_lib.remove_rate(r)
-                d = pyna.DerivedRate(rate=fr, compute_Q=False, use_pf=True)
+                d = pyna.DerivedRate(rate=fr, compute_Q=True, use_pf=True)
                 core_lib.add_rate(d)
 
     # we may have duplicate rates -- we want to remove any ReacLib rates

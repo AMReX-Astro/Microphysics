@@ -10,10 +10,10 @@
 #include <burner.H>
 #include <fstream>
 #include <iostream>
+#include <integrator_data.H>
 #include <integrator_rhs_sdc.H>
+#include <vode_type.H>
 #include <react_util.H>
-
-using namespace unit_test_rp;
 
 AMREX_INLINE
 void do_vode_rhs()
@@ -23,7 +23,7 @@ void do_vode_rhs()
 
     for (int n = 1; n <= NumSpec; ++n) {
 
-        massfractions[n-1] = get_xn(n);
+        massfractions[n-1] = get_xn(n, unit_test_rp::uniform_xn);
 
         if (massfractions[n-1] < 0 || massfractions[n-1] > 1) {
             amrex::Error("mass fraction for " + short_spec_names_cxx[n-1] + " not initialized in the interval [0,1]!");
@@ -60,94 +60,94 @@ void do_vode_rhs()
         switch (n) {
 
         case 1:
-            adv_species[n-1] = Adv_X1;
+            adv_species[n-1] = unit_test_rp::Adv_X1;
             break;
         case 2:
-            adv_species[n-1] = Adv_X2;
+            adv_species[n-1] = unit_test_rp::Adv_X2;
             break;
         case 3:
-            adv_species[n-1] = Adv_X3;
+            adv_species[n-1] = unit_test_rp::Adv_X3;
             break;
         case 4:
-            adv_species[n-1] = Adv_X4;
+            adv_species[n-1] = unit_test_rp::Adv_X4;
             break;
         case 5:
-            adv_species[n-1] = Adv_X5;
+            adv_species[n-1] = unit_test_rp::Adv_X5;
             break;
         case 6:
-            adv_species[n-1] = Adv_X6;
+            adv_species[n-1] = unit_test_rp::Adv_X6;
             break;
         case 7:
-            adv_species[n-1] = Adv_X7;
+            adv_species[n-1] = unit_test_rp::Adv_X7;
             break;
         case 8:
-            adv_species[n-1] = Adv_X8;
+            adv_species[n-1] = unit_test_rp::Adv_X8;
             break;
         case 9:
-            adv_species[n-1] = Adv_X9;
+            adv_species[n-1] = unit_test_rp::Adv_X9;
             break;
         case 10:
-            adv_species[n-1] = Adv_X10;
+            adv_species[n-1] = unit_test_rp::Adv_X10;
             break;
         case 11:
-            adv_species[n-1] = Adv_X11;
+            adv_species[n-1] = unit_test_rp::Adv_X11;
             break;
         case 12:
-            adv_species[n-1] = Adv_X12;
+            adv_species[n-1] = unit_test_rp::Adv_X12;
             break;
         case 13:
-            adv_species[n-1] = Adv_X13;
+            adv_species[n-1] = unit_test_rp::Adv_X13;
             break;
         case 14:
-            adv_species[n-1] = Adv_X14;
+            adv_species[n-1] = unit_test_rp::Adv_X14;
             break;
         case 15:
-            adv_species[n-1] = Adv_X15;
+            adv_species[n-1] = unit_test_rp::Adv_X15;
             break;
         case 16:
-            adv_species[n-1] = Adv_X16;
+            adv_species[n-1] = unit_test_rp::Adv_X16;
             break;
         case 17:
-            adv_species[n-1] = Adv_X17;
+            adv_species[n-1] = unit_test_rp::Adv_X17;
             break;
         case 18:
-            adv_species[n-1] = Adv_X18;
+            adv_species[n-1] = unit_test_rp::Adv_X18;
             break;
         case 19:
-            adv_species[n-1] = Adv_X19;
+            adv_species[n-1] = unit_test_rp::Adv_X19;
             break;
         case 20:
-            adv_species[n-1] = Adv_X20;
+            adv_species[n-1] = unit_test_rp::Adv_X20;
             break;
         case 21:
-            adv_species[n-1] = Adv_X21;
+            adv_species[n-1] = unit_test_rp::Adv_X21;
             break;
         case 22:
-            adv_species[n-1] = Adv_X22;
+            adv_species[n-1] = unit_test_rp::Adv_X22;
             break;
         case 23:
-            adv_species[n-1] = Adv_X23;
+            adv_species[n-1] = unit_test_rp::Adv_X23;
             break;
         case 24:
-            adv_species[n-1] = Adv_X24;
+            adv_species[n-1] = unit_test_rp::Adv_X24;
             break;
         case 25:
-            adv_species[n-1] = Adv_X25;
+            adv_species[n-1] = unit_test_rp::Adv_X25;
             break;
         case 26:
-            adv_species[n-1] = Adv_X26;
+            adv_species[n-1] = unit_test_rp::Adv_X26;
             break;
         case 27:
-            adv_species[n-1] = Adv_X27;
+            adv_species[n-1] = unit_test_rp::Adv_X27;
             break;
         case 28:
-            adv_species[n-1] = Adv_X28;
+            adv_species[n-1] = unit_test_rp::Adv_X28;
             break;
         case 29:
-            adv_species[n-1] = Adv_X29;
+            adv_species[n-1] = unit_test_rp::Adv_X29;
             break;
         case 30:
-            adv_species[n-1] = Adv_X30;
+            adv_species[n-1] = unit_test_rp::Adv_X30;
             break;
 
         }
@@ -162,13 +162,13 @@ void do_vode_rhs()
         switch (n) {
 
         case 1:
-            adv_aux[n-1] = Adv_Aux1;
+            adv_aux[n-1] = unit_test_rp::Adv_Aux1;
             break;
         case 2:
-            adv_aux[n-1] = Adv_Aux2;
+            adv_aux[n-1] = unit_test_rp::Adv_Aux2;
             break;
         case 3:
-            adv_aux[n-1] = Adv_Aux3;
+            adv_aux[n-1] = unit_test_rp::Adv_Aux3;
             break;
 
         }
@@ -179,8 +179,8 @@ void do_vode_rhs()
 
     // Echo initial conditions at burn and fill burn state input
 
-    std::cout << "State Density (g/cm^3): " << density << std::endl;
-    std::cout << "State Temperature (K): " << temperature << std::endl;
+    std::cout << "State Density (g/cm^3): " << unit_test_rp::density << std::endl;
+    std::cout << "State Temperature (K): " << unit_test_rp::temperature << std::endl;
     for (int n = 0; n < NumSpec; ++n) {
         std::cout << "Mass Fraction (" << short_spec_names_cxx[n] << "): " << massfractions[n] << std::endl;
     }
@@ -192,8 +192,8 @@ void do_vode_rhs()
     burn_t burn_state;
 
     eos_extra_t eos_state;
-    eos_state.rho = density;
-    eos_state.T = temperature;
+    eos_state.rho = unit_test_rp::density;
+    eos_state.T = unit_test_rp::temperature;
     for (int n = 0; n < NumSpec; n++) {
       eos_state.xn[n] = massfractions[n];
     }
@@ -218,7 +218,7 @@ void do_vode_rhs()
     }
 #endif
 
-    burn_state.y[SRHO] = density;
+    burn_state.y[SRHO] = unit_test_rp::density;
 
     burn_state.y[SMX] = 0.0;
     burn_state.y[SMY] = 0.0;
@@ -233,8 +233,8 @@ void do_vode_rhs()
     // actually used during the integration are for rho, (rho X), and
     // (rho e)
 
-    burn_state.ydot_a[SRHO] = Adv_rho;
-    burn_state.ydot_a[SEINT] = Adv_rhoe;
+    burn_state.ydot_a[SRHO] = unit_test_rp::Adv_rho;
+    burn_state.ydot_a[SEINT] = unit_test_rp::Adv_rhoe;
 
     for (int n = 0; n < NumSpec; n++) {
         burn_state.ydot_a[SFS+n] = adv_species[n];
@@ -264,7 +264,9 @@ void do_vode_rhs()
 
     // now make the dvode_t
 
-    dvode_t vode_state;
+    constexpr int int_neqs = integrator_neqs<burn_t>();
+
+    dvode_t<int_neqs> vode_state;
 
     vode_state.t = 0.0_rt;
 
@@ -277,10 +279,10 @@ void do_vode_rhs()
 
     vode_state.t = 0.0_rt;
     vode_state.tn = 0.0_rt;   // this is needed for directly accessing the jac() function
-    vode_state.H = tmax/1000.0_rt;  // needed for jacobian = 3 scaling
-    vode_state.tout = tmax;
-    vode_state.NFE = 0;
-    vode_state.NJE = 0;
+    vode_state.H = unit_test_rp::tmax/1000.0_rt;  // needed for jacobian = 3 scaling
+    vode_state.tout = unit_test_rp::tmax;
+    vode_state.n_rhs = 0;
+    vode_state.n_jac = 0;
 
     burn_to_int(burn_state, vode_state);
 
@@ -292,7 +294,7 @@ void do_vode_rhs()
     rhs(0.0_rt, burn_state, vode_state, ydot);
 
     std::cout << "ydot = " << std::endl;
-    for (int n = 1; n <= VODE_NEQS; n++) {
+    for (int n = 1; n <= int_neqs; n++) {
         std::cout << n << " " << ydot(n) << std::endl;
     }
 
@@ -302,8 +304,8 @@ void do_vode_rhs()
     const amrex::Real time = 0.0_rt;
     jac(time, burn_state, vode_state, pd);
 
-    for (int row = 1; row <= VODE_NEQS; ++row) {
-        for (int col = 1; col <= VODE_NEQS; ++col) {
+    for (int row = 1; row <= int_neqs; ++row) {
+        for (int col = 1; col <= int_neqs; ++col) {
             std::cout << "(" << std::setw(2) << row << "," << std::setw(2) << col << ") = " << pd(row,col) << std::endl;
         }
     }
@@ -312,7 +314,7 @@ void do_vode_rhs()
 
     std::cout << "now do a burn" << std::endl;
 
-    integrator(burn_state, tmax);
+    integrator(burn_state, unit_test_rp::tmax);
 
     for (int n = 0; n < SVAR; n++) {
         if (n == SFS) {

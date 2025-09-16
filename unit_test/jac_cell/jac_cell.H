@@ -11,8 +11,6 @@
 #include <react_util.H>
 #include <numerical_jacobian.H>
 
-using namespace unit_test_rp;
-
 AMREX_INLINE
 void jac_cell_c()
 {
@@ -32,8 +30,8 @@ void jac_cell_c()
 
     burn_t burn_state;
 
-    burn_state.rho = density;
-    burn_state.T = temperature;
+    burn_state.rho = unit_test_rp::density;
+    burn_state.T = unit_test_rp::temperature;
     for (int n = 0; n < NumSpec; ++n) {
         burn_state.xn[n] = massfractions[n];
     }

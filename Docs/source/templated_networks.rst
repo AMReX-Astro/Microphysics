@@ -312,7 +312,7 @@ The main logic for constructing RHS is contained in ``Microphysics/networks/rhs.
 .. code:: c++
 
    AMREX_GPU_HOST_DEVICE AMREX_INLINE
-   void rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
+   void rhs (burn_t& state, amrex::Array1D<amrex::Real, 1, neqs>& ydot)
 
 The basic flow is:
 

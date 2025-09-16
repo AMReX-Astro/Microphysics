@@ -11,8 +11,6 @@
 #include <reaclib_rates.H>
 #include <partition_functions.H>
 
-using namespace unit_test_rp;
-
 AMREX_INLINE
 void pf_cell_c()
 {
@@ -20,9 +18,9 @@ void pf_cell_c()
     amrex::Real pf;
     amrex::Real dpf_dT;
 
-    std::cout << "temperature = " << temperature << std::endl;
+    std::cout << "temperature = " << unit_test_rp::temperature << std::endl;
 
-    tf_t tfactors = evaluate_tfactors(temperature);
+    tf_t tfactors = evaluate_tfactors(unit_test_rp::temperature);
 
     get_partition_function(Ni56, tfactors, pf, dpf_dT);
 

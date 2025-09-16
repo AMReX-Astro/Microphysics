@@ -9,8 +9,6 @@
 #include <burner.H>
 #include <extern_parameters.H>
 
-using namespace unit_test_rp;
-
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 bool do_react (int i, int j, int k, amrex::Array4<amrex::Real> const& state,
                burn_t& burn_state, amrex::Array4<int> const& n_rhs, const plot_t& p)
@@ -34,7 +32,7 @@ bool do_react (int i, int j, int k, amrex::Array4<amrex::Real> const& state,
     // energy.
     burn_state.e = 0.0_rt;
 
-    amrex::Real dt = tmax;
+    amrex::Real dt = unit_test_rp::tmax;
 
     burn_state.i = i;
     burn_state.j = j;

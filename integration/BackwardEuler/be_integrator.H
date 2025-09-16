@@ -181,6 +181,15 @@ int be_integrator (BurnT& state, BeT& be)
 
     int ierr;
 
+    if (integrator_rp::do_single_step == 1) {
+        // Do a single step to the final time
+        const amrex::Real dt_single_step = be.tout - be.t;
+        ierr = single_step(state, be, dt_single_step);
+        be.t = be.tout;
+        ++be.n_step;
+        return ierr;
+    }
+
     // estimate the timestep
 
     amrex::Array1D<amrex::Real, 1, int_neqs> ydot;

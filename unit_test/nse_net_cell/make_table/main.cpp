@@ -4,7 +4,6 @@
 
 #include <AMReX_ParmParse.H>
 #include <AMReX_MultiFab.H>
-using namespace amrex;
 
 #include <extern_parameters.H>
 #include <eos.H>
@@ -18,12 +17,12 @@ int main(int argc, char *argv[]) {
 
   std::cout << "starting the single zone burn..." << std::endl;
 
-  ParmParse ppa("amr");
+  amrex::ParmParse ppa("amr");
 
   init_unit_test();
 
   // C++ EOS initialization (must be done after init_extern_parameters)
-  eos_init(small_temp, small_dens);
+  eos_init(unit_test_rp::small_temp, unit_test_rp::small_dens);
 
   // C++ Network, RHS, screening, rates initialization
   network_init();

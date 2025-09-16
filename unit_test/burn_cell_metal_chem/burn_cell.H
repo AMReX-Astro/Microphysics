@@ -15,8 +15,6 @@ amrex::Real grav_constant = C::Gconst;
 AMREX_INLINE
 auto burn_cell_c() -> int {
 
-  using namespace unit_test_rp;
-
   burn_t state;
 
   amrex::Real numdens[NumSpec] = {-1.0};
@@ -30,113 +28,113 @@ auto burn_cell_c() -> int {
     switch (n) {
 
     case 1:
-      numdens[n - 1] = primary_species_1;
+      numdens[n - 1] = unit_test_rp::primary_species_1;
       break;
     case 2:
-      numdens[n - 1] = primary_species_2;
+      numdens[n - 1] = unit_test_rp::primary_species_2;
       break;
     case 3:
-      numdens[n - 1] = primary_species_3;
+      numdens[n - 1] = unit_test_rp::primary_species_3;
       break;
     case 4:
-      numdens[n - 1] = primary_species_4;
+      numdens[n - 1] = unit_test_rp::primary_species_4;
       break;
     case 5:
-      numdens[n - 1] = primary_species_5;
+      numdens[n - 1] = unit_test_rp::primary_species_5;
       break;
     case 6:
-      numdens[n - 1] = primary_species_6;
+      numdens[n - 1] = unit_test_rp::primary_species_6;
       break;
     case 7:
-      numdens[n - 1] = primary_species_7;
+      numdens[n - 1] = unit_test_rp::primary_species_7;
       break;
     case 8:
-      numdens[n - 1] = primary_species_8;
+      numdens[n - 1] = unit_test_rp::primary_species_8;
       break;
     case 9:
-      numdens[n - 1] = primary_species_9;
+      numdens[n - 1] = unit_test_rp::primary_species_9;
       break;
     case 10:
-      numdens[n - 1] = primary_species_10;
+      numdens[n - 1] = unit_test_rp::primary_species_10;
       break;
     case 11:
-      numdens[n - 1] = primary_species_11;
+      numdens[n - 1] = unit_test_rp::primary_species_11;
       break;
     case 12:
-      numdens[n - 1] = primary_species_12;
+      numdens[n - 1] = unit_test_rp::primary_species_12;
       break;
     case 13:
-      numdens[n - 1] = primary_species_13;
+      numdens[n - 1] = unit_test_rp::primary_species_13;
       break;
     case 14:
-      numdens[n - 1] = primary_species_14;
+      numdens[n - 1] = unit_test_rp::primary_species_14;
       break;
     case 15:
-      numdens[n - 1] = primary_species_15;
+      numdens[n - 1] = unit_test_rp::primary_species_15;
       break;
     case 16:
-      numdens[n - 1] = primary_species_16;
+      numdens[n - 1] = unit_test_rp::primary_species_16;
       break;
     case 17:
-      numdens[n - 1] = primary_species_17*metal;
+      numdens[n - 1] = unit_test_rp::primary_species_17*metal;
       break;
     case 18:
-      numdens[n - 1] = primary_species_18;
+      numdens[n - 1] = unit_test_rp::primary_species_18;
       break;
     case 19:
-      numdens[n - 1] = primary_species_19;
+      numdens[n - 1] = unit_test_rp::primary_species_19;
       break;
     case 20:
-      numdens[n - 1] = primary_species_20;
+      numdens[n - 1] = unit_test_rp::primary_species_20;
       break;
     case 21:
-      numdens[n - 1] = primary_species_21;
+      numdens[n - 1] = unit_test_rp::primary_species_21;
       break;
     case 22:
-      numdens[n - 1] = primary_species_22;
+      numdens[n - 1] = unit_test_rp::primary_species_22;
       break;
     case 23:
-      numdens[n - 1] = primary_species_23*metal;
+      numdens[n - 1] = unit_test_rp::primary_species_23*metal;
       break;
     case 24:
-      numdens[n - 1] = primary_species_24;
+      numdens[n - 1] = unit_test_rp::primary_species_24;
       break;
     case 25:
-      numdens[n - 1] = primary_species_25;
+      numdens[n - 1] = unit_test_rp::primary_species_25;
       break;
     case 26:
-      numdens[n - 1] = primary_species_26;
+      numdens[n - 1] = unit_test_rp::primary_species_26;
       break;
     case 27:
-      numdens[n - 1] = primary_species_27;
+      numdens[n - 1] = unit_test_rp::primary_species_27;
       break;
     case 28:
-      numdens[n - 1] = primary_species_28;
+      numdens[n - 1] = unit_test_rp::primary_species_28;
       break;
     case 29:
-      numdens[n - 1] = primary_species_29;
+      numdens[n - 1] = unit_test_rp::primary_species_29;
       break;
     case 30:
-      numdens[n - 1] = primary_species_30;
+      numdens[n - 1] = unit_test_rp::primary_species_30;
       break;
     case 31:
-      numdens[n - 1] = primary_species_31;
+      numdens[n - 1] = unit_test_rp::primary_species_31;
       break;
     case 32:
-      numdens[n - 1] = primary_species_32;
+      numdens[n - 1] = unit_test_rp::primary_species_32;
       break;
     case 33:
-      numdens[n - 1] = primary_species_33;
+      numdens[n - 1] = unit_test_rp::primary_species_33;
       break;
     case 34:
-      numdens[n - 1] = primary_species_34;
+      numdens[n - 1] = unit_test_rp::primary_species_34;
       break;
     }
   }
 
   //scale number densities by initial ninit
   for (n = 0; n < NumSpec; ++n) {
-    numdens[n] *= ninit;
+    numdens[n] *= unit_test_rp::ninit;
   }
 
   //if metallicity is 0, reset metal number densities to 0
@@ -156,15 +154,15 @@ auto burn_cell_c() -> int {
   std::cout << "Dust2gas Ratio: " << network_rp::dust2gas_ratio << std::endl;
   std::cout << " " << std::endl;
 
-  std::cout << "Maximum Time (s): " << tmax << std::endl;
-  std::cout << "State Temperature (K): " << temperature << std::endl;
+  std::cout << "Maximum Time (s): " << unit_test_rp::tmax << std::endl;
+  std::cout << "State Temperature (K): " << unit_test_rp::temperature << std::endl;
   for (n = 0; n < NumSpec; ++n) {
     std::cout << "Number Density input (" << short_spec_names_cxx[n]
               << "): " << numdens[n] << std::endl;
   }
 
   amrex::Real TCMB = 2.73*(1.0 + network_rp::redshift);
-  state.T = amrex::max(temperature, TCMB);
+  state.T = amrex::max(unit_test_rp::temperature, TCMB);
   // set initial Tdust to CMB
   state.aux[0] = TCMB;
 
@@ -222,7 +220,7 @@ auto burn_cell_c() -> int {
   amrex::Real dd = rhotot;
   amrex::Real dd1 = 0.0_rt;
 
-  for (n = 0; n < nsteps; n++) {
+  for (n = 0; n < unit_test_rp::nsteps; n++) {
 
     dd1 = dd;
 
@@ -234,7 +232,7 @@ auto burn_cell_c() -> int {
 
     // find the freefall time
     amrex::Real tff = std::sqrt(M_PI * 3.0 / (32.0 * rhotmp * grav_constant));
-    amrex::Real dt = tff_reduc * tff;
+    amrex::Real dt = unit_test_rp::tff_reduc * tff;
     // scale the density
     dd += dt * (dd / tff);
 

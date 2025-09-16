@@ -1,5 +1,127 @@
 # Changelog
 
+## 25.09
+
+  * update MacOS CI (#1844)
+
+  * update github checkout action (#1842)
+
+  * specify the type for the `enum` in `network_properties.H` (#1841)
+
+  * add a new neutrino cooling implementation, based on simple analytic
+    estimates from Kippenhahn (#1822, #1840)
+
+## 25.08
+
+  * work on the JOSS paper (#1838, #1839)
+
+  * remove old inputs files from pynucastro networks (#1836)
+
+  * updates to the NSE solver (#1829, #1833)
+
+  * fix string_view in some physics (#1832)
+
+  * new CI for validating JSON (#1831)
+
+## 25.07
+
+  * module string names are now `constexpr std::string_view` (#1825)
+
+  * doc updates (#1796, #1809, #1810, #1818, #1824, #1827, #1830)
+
+  * JOSS paper (#1658)
+
+  * the ASE network has been updated to better support NSE (#1813)
+
+  * `hybrj` now can take the Jacobian and constrain equations as input
+    (#1817)
+
+  * remove amrex namespace (#1820)
+
+  * for He-burning nets, don't consider Suzuki rates in pynucastro
+    (#1815)
+
+  * `nse_sdc_burn` has been updated for `NSE_NET` to give better NSE
+    agreement with the networks (#1812)
+
+  * `sneut5` now used autodiff (#1799, #1808)
+
+  * recombination neutrinos are now disabled by default in `sneut5` (#1793, #1794)
+
+  * the `nse_compatibility` script has been updated (#1811)
+
+  * autodiff improvements and optimizations (#1803)
+
+  * enable more `clang-tidy` checks (#1807)
+
+  * clean up the `nova` network script (#1804)
+
+  * regenerate the non-He burning pynucastro nets (#1797)
+
+  * update `sn160` to include tabular rates (#1805)
+
+  * update the constants to use the same CODATA values as pynucastro
+    (#1802)
+
+  * allow constant temperature in the SDC burn (#1801)
+
+## 25.06
+
+  * update `README.md` (#1785)
+
+  * doc updates (#1787, #1795)
+
+  * `test_eos` now uses the composition runtime parameters (#1792)
+
+  * code cleaning (#1790, #1791)
+
+  * neutrino cooling can now has an option to remove the recombination
+    contribution (#1789)
+
+## 25.05
+
+  * some clang-tidy cleaning (#1784)
+
+  * with HIP we were disabling inlining due to ROCm issues.  This is
+    now an option, with the default enabling inlining, since it works
+    as expected for ROCm >= 6.3.1 (#1780)
+
+  * clean up the pynucastro scripts that derived reverse rates (#1781)
+
+## 25.04
+
+  * the "he-burn" networks now will look for weak rates for
+    all nuclei, not just the Fe-group (#1763)
+
+  * clean up the ECSN network generation script (#1776)
+
+  * Allow for single-step backward Euler (#1773)
+
+## 25.03
+
+  * the `nova2` net was renamed `nova`, and the old `nova`
+    net was removed (#1746, #1768)
+
+  * small improvements to the he-burn scripts (#1765)
+
+  * documentation updates (#1741, #1744, #1747, #1751, #1756, #1759,
+    #1760, #1766, #1767)
+
+  * restrict Sphinx < 8.2.0 due to nbsphinx issues (#1762)
+
+  * centralize some common unit test runtime parameters (#1749) and
+    explicitly set `small_dens` and `small_temp` for some tests
+    (#1757)
+
+  * remove old, unneeded macros from the build system (#1717, #1753,
+    #1754, #1755)
+
+  * modernize parallel loops in some unit tests (#1752)
+
+  * update the HIP CI action to a later runner
+
+  * namespace and clang-tidy fixes (#1745)
+
 ## 25.02
 
   * documentation updates (#1678, #1690, #1692, #1695, #1700, #1702,
