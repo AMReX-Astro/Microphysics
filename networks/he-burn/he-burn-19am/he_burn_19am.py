@@ -31,7 +31,7 @@ def doit():
 
     net.summary()
 
-    net.plot(outfile="he-burn-19a.png",
+    net.plot(outfile="he-burn-19am.png",
              rotated=True, hide_xalpha=True,
              size=(1500, 450),
              node_size=600, node_font_size=11,
