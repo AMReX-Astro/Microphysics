@@ -1,6 +1,8 @@
 #ifndef actual_network_H
 #define actual_network_H
 
+#include <string_view>
+
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>
 #include <AMReX_Loop.H>
@@ -8,11 +10,11 @@
 #include <fundamental_constants.H>
 #include <network_properties.H>
 
-using namespace amrex;
+using namespace amrex::literals;
 
 void actual_network_init();
 
-const std::string network_name = "pynucastro-cxx";
+constexpr std::string_view network_name = "pynucastro-cxx";
 
 namespace network
 {
@@ -206,7 +208,7 @@ namespace network
         amrex::Real b = 0.0_rt;
 
         // Set the binding energy of the element
-        constexpr_for<1, NumSpec+1>([&] (auto n) {
+        amrex::constexpr_for<1, NumSpec+1>([&] (auto n) {
             if (n == spec) {
                 b = bion<n>();
             }
@@ -221,7 +223,7 @@ namespace network
 
         amrex::Real m = 0.0_rt;
 
-        constexpr_for<1, NumSpec+1>([&] (auto n) {
+        amrex::constexpr_for<1, NumSpec+1>([&] (auto n) {
             if (n == spec) {
                 m = mion<n>();
             }
@@ -241,66 +243,66 @@ namespace Rates
         k_N13_to_C13_weak_wc12 = 2,
         k_O14_to_N14_weak_wc12 = 3,
         k_O15_to_N15_weak_wc12 = 4,
-        k_F17_to_O17_weak_wc12 = 5,
-        k_F18_to_O18_weak_wc12 = 6,
-        k_Ne18_to_F18_weak_wc12 = 7,
-        k_Ne19_to_F19_weak_wc12 = 8,
-        k_B8_to_p_Be7 = 9,
-        k_B8_to_He4_He4_weak_wc12 = 10,
-        k_F17_to_p_O16 = 11,
-        k_p_p_to_d_weak_bet_pos_ = 12,
-        k_p_p_to_d_weak_electron_capture = 13,
-        k_p_d_to_He3 = 14,
-        k_d_d_to_He4 = 15,
-        k_p_He3_to_He4_weak_bet_pos_ = 16,
-        k_He4_He3_to_Be7 = 17,
-        k_He4_Li7_to_B11 = 18,
-        k_p_Be7_to_B8 = 19,
-        k_p_B11_to_C12 = 20,
-        k_p_C12_to_N13 = 21,
-        k_He4_C12_to_O16 = 22,
-        k_p_C13_to_N14 = 23,
-        k_p_N13_to_O14 = 24,
-        k_p_N14_to_O15 = 25,
-        k_He4_N14_to_F18 = 26,
-        k_p_N15_to_O16 = 27,
-        k_He4_N15_to_F19 = 28,
-        k_He4_O14_to_Ne18 = 29,
-        k_He4_O15_to_Ne19 = 30,
-        k_p_O16_to_F17 = 31,
-        k_He4_O16_to_Ne20 = 32,
-        k_p_O17_to_F18 = 33,
-        k_He4_O17_to_Ne21 = 34,
-        k_p_O18_to_F19 = 35,
-        k_p_F17_to_Ne18 = 36,
-        k_p_F18_to_Ne19 = 37,
-        k_p_F19_to_Ne20 = 38,
-        k_d_He3_to_p_He4 = 39,
-        k_p_Li7_to_He4_He4 = 40,
-        k_He4_N13_to_p_O16 = 41,
-        k_p_N15_to_He4_C12 = 42,
-        k_He4_O14_to_p_F17 = 43,
-        k_p_O17_to_He4_N14 = 44,
-        k_p_O18_to_He4_N15 = 45,
-        k_He4_F17_to_p_Ne20 = 46,
-        k_p_F18_to_He4_O15 = 47,
-        k_He4_F18_to_p_Ne21 = 48,
-        k_p_F19_to_He4_O16 = 49,
-        k_He3_He3_to_p_p_He4 = 50,
-        k_d_Be7_to_p_He4_He4 = 51,
-        k_p_B11_to_He4_He4_He4 = 52,
-        k_He3_Be7_to_p_p_He4_He4 = 53,
-        k_He4_He4_He4_to_C12 = 54,
-        NumRates = k_He4_He4_He4_to_C12
+        k_B8_to_p_Be7 = 5,
+        k_B8_to_He4_He4_weak_wc12 = 6,
+        k_F17_to_p_O16 = 7,
+        k_p_p_to_d_weak_bet_pos_ = 8,
+        k_p_p_to_d_weak_electron_capture = 9,
+        k_p_d_to_He3 = 10,
+        k_d_d_to_He4 = 11,
+        k_p_He3_to_He4_weak_bet_pos_ = 12,
+        k_He4_He3_to_Be7 = 13,
+        k_He4_Li7_to_B11 = 14,
+        k_p_Be7_to_B8 = 15,
+        k_p_B11_to_C12 = 16,
+        k_p_C12_to_N13 = 17,
+        k_He4_C12_to_O16 = 18,
+        k_p_C13_to_N14 = 19,
+        k_p_N13_to_O14 = 20,
+        k_p_N14_to_O15 = 21,
+        k_He4_N14_to_F18 = 22,
+        k_p_N15_to_O16 = 23,
+        k_He4_N15_to_F19 = 24,
+        k_He4_O14_to_Ne18 = 25,
+        k_He4_O15_to_Ne19 = 26,
+        k_p_O16_to_F17 = 27,
+        k_He4_O16_to_Ne20 = 28,
+        k_p_O17_to_F18 = 29,
+        k_He4_O17_to_Ne21 = 30,
+        k_p_O18_to_F19 = 31,
+        k_p_F17_to_Ne18 = 32,
+        k_p_F18_to_Ne19 = 33,
+        k_p_F19_to_Ne20 = 34,
+        k_d_He3_to_p_He4 = 35,
+        k_p_Li7_to_He4_He4 = 36,
+        k_He4_N13_to_p_O16 = 37,
+        k_p_N15_to_He4_C12 = 38,
+        k_He4_O14_to_p_F17 = 39,
+        k_p_O17_to_He4_N14 = 40,
+        k_p_O18_to_He4_N15 = 41,
+        k_He4_F17_to_p_Ne20 = 42,
+        k_p_F18_to_He4_O15 = 43,
+        k_He4_F18_to_p_Ne21 = 44,
+        k_p_F19_to_He4_O16 = 45,
+        k_He3_He3_to_p_p_He4 = 46,
+        k_d_Be7_to_p_He4_He4 = 47,
+        k_p_B11_to_He4_He4_He4 = 48,
+        k_He3_Be7_to_p_p_He4_He4 = 49,
+        k_He4_He4_He4_to_C12 = 50,
+        k_F17_to_O17 = 51,
+        k_F18_to_O18 = 52,
+        k_Ne18_to_F18 = 53,
+        k_Ne19_to_F19 = 54,
+        NumRates = k_Ne19_to_F19
     };
 
     // number of reaclib rates
 
-    const int NrateReaclib = 54;
+    const int NrateReaclib = 50;
 
     // number of tabular rates
 
-    const int NrateTabular = 0;
+    const int NrateTabular = 4;
 
     // rate names -- note: the rates are 1-based, not zero-based, so we pad
     // this vector with rate_names[0] = "" so the indices line up with the
@@ -312,56 +314,56 @@ namespace Rates
         "N13_to_C13_weak_wc12",  // 2,
         "O14_to_N14_weak_wc12",  // 3,
         "O15_to_N15_weak_wc12",  // 4,
-        "F17_to_O17_weak_wc12",  // 5,
-        "F18_to_O18_weak_wc12",  // 6,
-        "Ne18_to_F18_weak_wc12",  // 7,
-        "Ne19_to_F19_weak_wc12",  // 8,
-        "B8_to_p_Be7",  // 9,
-        "B8_to_He4_He4_weak_wc12",  // 10,
-        "F17_to_p_O16",  // 11,
-        "p_p_to_d_weak_bet_pos_",  // 12,
-        "p_p_to_d_weak_electron_capture",  // 13,
-        "p_d_to_He3",  // 14,
-        "d_d_to_He4",  // 15,
-        "p_He3_to_He4_weak_bet_pos_",  // 16,
-        "He4_He3_to_Be7",  // 17,
-        "He4_Li7_to_B11",  // 18,
-        "p_Be7_to_B8",  // 19,
-        "p_B11_to_C12",  // 20,
-        "p_C12_to_N13",  // 21,
-        "He4_C12_to_O16",  // 22,
-        "p_C13_to_N14",  // 23,
-        "p_N13_to_O14",  // 24,
-        "p_N14_to_O15",  // 25,
-        "He4_N14_to_F18",  // 26,
-        "p_N15_to_O16",  // 27,
-        "He4_N15_to_F19",  // 28,
-        "He4_O14_to_Ne18",  // 29,
-        "He4_O15_to_Ne19",  // 30,
-        "p_O16_to_F17",  // 31,
-        "He4_O16_to_Ne20",  // 32,
-        "p_O17_to_F18",  // 33,
-        "He4_O17_to_Ne21",  // 34,
-        "p_O18_to_F19",  // 35,
-        "p_F17_to_Ne18",  // 36,
-        "p_F18_to_Ne19",  // 37,
-        "p_F19_to_Ne20",  // 38,
-        "d_He3_to_p_He4",  // 39,
-        "p_Li7_to_He4_He4",  // 40,
-        "He4_N13_to_p_O16",  // 41,
-        "p_N15_to_He4_C12",  // 42,
-        "He4_O14_to_p_F17",  // 43,
-        "p_O17_to_He4_N14",  // 44,
-        "p_O18_to_He4_N15",  // 45,
-        "He4_F17_to_p_Ne20",  // 46,
-        "p_F18_to_He4_O15",  // 47,
-        "He4_F18_to_p_Ne21",  // 48,
-        "p_F19_to_He4_O16",  // 49,
-        "He3_He3_to_p_p_He4",  // 50,
-        "d_Be7_to_p_He4_He4",  // 51,
-        "p_B11_to_He4_He4_He4",  // 52,
-        "He3_Be7_to_p_p_He4_He4",  // 53,
-        "He4_He4_He4_to_C12"  // 54,
+        "B8_to_p_Be7",  // 5,
+        "B8_to_He4_He4_weak_wc12",  // 6,
+        "F17_to_p_O16",  // 7,
+        "p_p_to_d_weak_bet_pos_",  // 8,
+        "p_p_to_d_weak_electron_capture",  // 9,
+        "p_d_to_He3",  // 10,
+        "d_d_to_He4",  // 11,
+        "p_He3_to_He4_weak_bet_pos_",  // 12,
+        "He4_He3_to_Be7",  // 13,
+        "He4_Li7_to_B11",  // 14,
+        "p_Be7_to_B8",  // 15,
+        "p_B11_to_C12",  // 16,
+        "p_C12_to_N13",  // 17,
+        "He4_C12_to_O16",  // 18,
+        "p_C13_to_N14",  // 19,
+        "p_N13_to_O14",  // 20,
+        "p_N14_to_O15",  // 21,
+        "He4_N14_to_F18",  // 22,
+        "p_N15_to_O16",  // 23,
+        "He4_N15_to_F19",  // 24,
+        "He4_O14_to_Ne18",  // 25,
+        "He4_O15_to_Ne19",  // 26,
+        "p_O16_to_F17",  // 27,
+        "He4_O16_to_Ne20",  // 28,
+        "p_O17_to_F18",  // 29,
+        "He4_O17_to_Ne21",  // 30,
+        "p_O18_to_F19",  // 31,
+        "p_F17_to_Ne18",  // 32,
+        "p_F18_to_Ne19",  // 33,
+        "p_F19_to_Ne20",  // 34,
+        "d_He3_to_p_He4",  // 35,
+        "p_Li7_to_He4_He4",  // 36,
+        "He4_N13_to_p_O16",  // 37,
+        "p_N15_to_He4_C12",  // 38,
+        "He4_O14_to_p_F17",  // 39,
+        "p_O17_to_He4_N14",  // 40,
+        "p_O18_to_He4_N15",  // 41,
+        "He4_F17_to_p_Ne20",  // 42,
+        "p_F18_to_He4_O15",  // 43,
+        "He4_F18_to_p_Ne21",  // 44,
+        "p_F19_to_He4_O16",  // 45,
+        "He3_He3_to_p_p_He4",  // 46,
+        "d_Be7_to_p_He4_He4",  // 47,
+        "p_B11_to_He4_He4_He4",  // 48,
+        "He3_Be7_to_p_p_He4_He4",  // 49,
+        "He4_He4_He4_to_C12",  // 50,
+        "F17_to_O17",  // 51,
+        "F18_to_O18",  // 52,
+        "Ne18_to_F18",  // 53,
+        "Ne19_to_F19"  // 54,
     };
 
 }
@@ -377,7 +379,7 @@ namespace NSE_INDEX
     // First 3 row indices for reactants, followed by 3 product indices
     // last index is the corresponding reverse rate index.
 
-    extern AMREX_GPU_MANAGED amrex::Array2D<int, 1, Rates::NumRates, 1, 7, Order::C> rate_indices;
+    extern AMREX_GPU_MANAGED amrex::Array2D<int, 1, Rates::NumRates, 1, 7, amrex::Order::C> rate_indices;
 }
 #endif
 
