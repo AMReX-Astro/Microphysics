@@ -1,5 +1,16 @@
 # Changelog
 
+## 25.09
+
+  * update MacOS CI (#1844)
+
+  * update github checkout action (#1842)
+
+  * specify the type for the `enum` in `network_properties.H` (#1841)
+
+  * add a new neutrino cooling implementation, based on simple analytic
+    estimates from Kippenhahn (#1822, #1840)
+
 ## 25.08
 
   * work on the JOSS paper (#1838, #1839)
