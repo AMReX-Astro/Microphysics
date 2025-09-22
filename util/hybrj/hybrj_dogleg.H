@@ -1,8 +1,10 @@
 #ifndef HYBRJ_DOGLEG_H
 #define HYBRJ_DOGLEG_H
 
+#ifndef AMREX_USE_GPU
 #if defined(__linux__) && defined(__GLIBC__)
 #include <cfenv>
+#endif
 #endif
 
 #include <hybrj_type.H>
@@ -107,15 +109,19 @@ void dogleg(const amrex::Array1D<amrex::Real, 1, neqs * (neqs + 1) / 2>& r,
         amrex::Real temp = qtb(j);
         for (int i = j; i <= neqs; ++i) {
 
+#ifndef AMREX_USE_GPU
 #if defined(__linux__) && defined(__GLIBC__)
             // we risk an overflow here, but we will deal with it,
             // so disable checks
             int old_excepts = fegetexcept();
             fedisableexcept(FE_OVERFLOW);
 #endif
+#endif
             wa1(i) += r(l) * temp;
+#ifndef AMREX_USE_GPU
 #if defined(__linux__) && defined(__GLIBC__)
             feenableexcept(old_excepts);
+#endif
 #endif
             l++;
             if ( amrex::isnan(wa1(i)) || amrex::isinf(wa1(i)) ) {
