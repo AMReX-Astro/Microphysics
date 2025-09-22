@@ -29,3 +29,5 @@ TRUE_SDC
 _OPENMP
 _WIN32
 __cplusplus
+__GLIBC__
+__linux__
