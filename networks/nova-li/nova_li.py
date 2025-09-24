@@ -71,9 +71,9 @@ if __name__ == "__main__":
 
     net.write_network()
 
-    net.plot(rotated=False, outfile="nova.png",
+    net.plot(rotated=False, outfile="nova-li.png",
              hide_xalpha=True, hide_xp=True,
              curved_edges=False,
              node_size=400, node_font_size=10)
 
-    print(net.summary())
+    net.summary()
