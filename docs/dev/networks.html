@@ -76,7 +76,11 @@
 <li class="toctree-l2"><a class="reference internal" href="#general-null"><code class="docutils literal notranslate"><span class="pre">general_null</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#iso7-aprox13-aprox19-and-aprox21"><code class="docutils literal notranslate"><span class="pre">iso7</span></code>, <code class="docutils literal notranslate"><span class="pre">aprox13</span></code>, <code class="docutils literal notranslate"><span class="pre">aprox19</span></code>, and <code class="docutils literal notranslate"><span class="pre">aprox21</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#cno-extras"><code class="docutils literal notranslate"><span class="pre">CNO_extras</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#nova"><code class="docutils literal notranslate"><span class="pre">nova</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#nova-networks">nova networks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#nova"><code class="docutils literal notranslate"><span class="pre">nova</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#nova-li"><code class="docutils literal notranslate"><span class="pre">nova-li</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#he-burning-networks">He-burning networks</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#he-burn-19am"><code class="docutils literal notranslate"><span class="pre">he-burn-19am</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#he-burn-28amnp"><code class="docutils literal notranslate"><span class="pre">he-burn-28amnp</span></code></a></li>
@@ -292,8 +296,11 @@ used for X-ray burst simulations (not shown in the network diagram
 above).</p>
 </div>
 </section>
+<section id="nova-networks">
+<h2>nova networks<a class="headerlink" href="#nova-networks" title="Link to this heading"></a></h2>
+<p>Two networks have been created for exploring novae.</p>
 <section id="nova">
-<h2><code class="docutils literal notranslate"><span class="pre">nova</span></code><a class="headerlink" href="#nova" title="Link to this heading"></a></h2>
+<h3><code class="docutils literal notranslate"><span class="pre">nova</span></code><a class="headerlink" href="#nova" title="Link to this heading"></a></h3>
 <p>This network is composed of 17 nuclei: <span class="math notranslate nohighlight">\(\isotm{H}{1,2}\)</span>,
 <span class="math notranslate nohighlight">\(\isotm{He}{3,4}\)</span>, <span class="math notranslate nohighlight">\(\isotm{Be}{7}\)</span>, <span class="math notranslate nohighlight">\(\isotm{B}{8}\)</span>,
 <span class="math notranslate nohighlight">\(\isotm{C}{12,13}\)</span>, <span class="math notranslate nohighlight">\(\isotm{N}{13-15}\)</span>, <span class="math notranslate nohighlight">\(\isotm{O}{14-17}\)</span>,
@@ -322,6 +329,17 @@ the nuclei of first and the last set.</p>
 <p>Once the temperature reaches a threshold of <span class="math notranslate nohighlight">\(\gtrsim 10^8\,\mathrm{K}\)</span>, the fast <span class="math notranslate nohighlight">\(p\)</span>-captures, for example,
 <span class="math notranslate nohighlight">\(\isotm{N}{13}(p,\gamma)\isotm{O}{14}\)</span>, are more likely than the <span class="math notranslate nohighlight">\(\beta^{+}\)</span>-decays <span class="math notranslate nohighlight">\(\isotm{N}{13}(\beta^{+}\nu_e)\isotm{C}{13}\)</span>
 reactions. These rates are also included in this network.</p>
+</section>
+<section id="nova-li">
+<h3><code class="docutils literal notranslate"><span class="pre">nova-li</span></code><a class="headerlink" href="#nova-li" title="Link to this heading"></a></h3>
+<p>This network builds on <code class="docutils literal notranslate"><span class="pre">nova</span></code> and adds <span class="math notranslate nohighlight">\(\isotm{Li}{7}\)</span> as well as
+nuclei beyond fluorine.  It should give a more accurate energy in late
+stages of the burst, and can also be used to explore lithium
+production.</p>
+<figure class="align-center">
+<img alt="_images/nova-li.png" src="_images/nova-li.png" />
+</figure>
+</section>
 </section>
 <section id="he-burning-networks">
 <h2>He-burning networks<a class="headerlink" href="#he-burning-networks" title="Link to this heading"></a></h2>
