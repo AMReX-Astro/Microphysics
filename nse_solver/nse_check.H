@@ -323,9 +323,13 @@ void fill_reaction_timescale(amrex::Array1D<T, 1, Rates::NumRates>& reaction_tim
     // isotopes into groups, so we need to do calculations iteratively.
     //
 
-    amrex::Real t_i = Y(NSE_INDEX::rate_indices(current_rate_index, non_NHA_ind(1))+1) / amrex::min(b_f, b_r);
-    if (non_NHA_ind(2) != -1) {
-        t_i = amrex::min(t_i, Y(NSE_INDEX::rate_indices(current_rate_index, non_NHA_ind(2))+1) / amrex::min(b_f, b_r));
+    amrex::Real t_i = std::numeric_limits<amrex::Real>::max();
+    amrex::Real b_min = amrex::min(b_f, b_r);
+    if (b_min != 0.0_rt) {
+        t_i = Y(NSE_INDEX::rate_indices(current_rate_index, non_NHA_ind(1))+1) / b_min;
+        if (non_NHA_ind(2) != -1) {
+            t_i = amrex::min(t_i, Y(NSE_INDEX::rate_indices(current_rate_index, non_NHA_ind(2))+1) / b_min);
+        }
     }
 
     //
@@ -334,7 +338,7 @@ void fill_reaction_timescale(amrex::Array1D<T, 1, Rates::NumRates>& reaction_tim
     // See Equation 17 in Kushnir Paper
     //
 
-    if ((2.0_rt * std::abs(b_f - b_r) / (b_f + b_r) < ase_tol) &&
+    if ((2.0_rt * std::abs(b_f - b_r) < ase_tol * (b_f + b_r)) &&
         (t_i < ase_tol * t_s)) {
         reaction_timescales(current_rate_index) = t_i;
     }
