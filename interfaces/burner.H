@@ -69,18 +69,6 @@ void burner (BurnT& state, amrex::Real dt)
 #endif
         }
     }
-
-#ifndef AMREX_USE_GPU
-    if (! state.success) {
-        std::cout << state << std::endl;
-        if (in_nse(state)) {
-            std::cout << "State in NSE" << std::endl;
-        } else{
-            std::cout << "State NOT in NSE" << std::endl;
-        }
-        amrex::Error("unsuccessful burn");
-    }
-#endif
 #else
     // we did not compile with NSE
     integrator(state, dt);
