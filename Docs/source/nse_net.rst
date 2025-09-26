@@ -14,6 +14,27 @@ under the assumption of NSE, following the procedure outlined in :cite:`Calder_2
    Self-consistent NSE does not support the templated C++ networks
    (like ``aprox13``).  You should use a pynucastro-generated network.
 
+   Additionally, the pynucastro network must meet the following requirements:
+
+   * Every rate should have an inverse rate, recomputed with detailed balancing
+
+   * The "Q" value should be recomputed using the masses when doing detailed
+     balance.
+
+   * Approximate rates like $(\alpha, p)(p, \gamma)$ are okay, but modified
+     rates that change the stoichiometry are not supported.
+
+.. tip::
+
+   The test in ``Microphysics/nse_solver/nse_compatibility/`` can be used to
+   check if a network is supported.  It will integrate at fixed $(rho, T)$
+   and compare the resulting mass fractions to the NSE solution.
+
+.. tip::
+
+   Presently it is recommended to use the ``ase`` network.
+
+
 There are two methods for solving the chemical potentials:
 
 1. Hybrid Powell's method. This is the default method.
