@@ -236,12 +236,7 @@ int dvode (BurnT& state, DvodeT& vstate)
        if (vstate.n_step > MIN_NSE_BAILOUT_STEPS && vstate.tn <= vstate.tout) {
            // first we need to make the burn_t in sync
 
-#ifdef STRANG
-           update_thermodynamics(state, vstate);
-#endif
-#ifdef SDC
            int_to_burn(vstate.tn, vstate, state);
-#endif
 
            if (in_nse(state)) {
                vstate.t = vstate.tn;
