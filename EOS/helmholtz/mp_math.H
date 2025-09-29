@@ -10,7 +10,8 @@ namespace mp {
     // by Miller et al.
 
     // approximation to log_2(x)
-    inline auto fastlg2(const amrex::Real x) -> amrex::Real {
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    auto fastlg2(const amrex::Real x) -> amrex::Real {
         // split into mant + exp
         int n{};
         const amrex::Real m = std::frexp(x, &n);
@@ -18,7 +19,8 @@ namespace mp {
     }
 
     // approximation to 2**x
-    inline auto fastpow2(const amrex::Real x) -> amrex::Real {
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    auto fastpow2(const amrex::Real x) -> amrex::Real {
         // create a mantissa and exp compatible with our log
         const int flr = std::floor(x);
         const amrex::Real rem = x - flr;
