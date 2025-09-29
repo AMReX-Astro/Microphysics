@@ -22,12 +22,13 @@ namespace helmholtz
     constexpr int imax = 421;
     constexpr int jmax = 161;
 
-    constexpr amrex::Real tlo   = 3.0e0_rt;
-    constexpr amrex::Real thi   = 11.0e0_rt;
+    // these are log_2 using the fastlog approximation
+    constexpr amrex::Real tlo   = 9.953125_rt;
+    constexpr amrex::Real thi   = 36.4551915228366851806640625_rt;
     constexpr amrex::Real tstp  = (thi - tlo) / (static_cast<amrex::Real>(jmax-1));
     constexpr amrex::Real tstpi = 1.0e0_rt / tstp;
-    constexpr amrex::Real dlo   = -10.0e0_rt;
-    constexpr amrex::Real dhi   = 11.0e0_rt;
+    constexpr amrex::Real dlo   = -33.2820130816_rt;
+    constexpr amrex::Real dhi   = 36.4551915228366851806640625_rt;
     constexpr amrex::Real dstp  = (dhi - dlo) / (static_cast<amrex::Real>(imax-1));
     constexpr amrex::Real dstpi = 1.0e0_rt / dstp;
 
