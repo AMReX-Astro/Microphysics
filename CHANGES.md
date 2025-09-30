@@ -1,5 +1,33 @@
 # Changelog
 
+## 25.10
+
+  * the NSE solver is now more robust to negative (rho X) and avoiding
+    division by zero (#1851)
+
+  * `nova-li` network was added, which builds on `nova` but includes Li and
+    some heavier breakout nuclei (#1798)
+
+  * the script used for the He burning networks was relying on a shared reference
+    between libraries.  This script has been cleaned-up. (#1850)
+
+  * all pynucastro nets have been updated to fix a bounds issue in the
+    partition functions (#1849)
+
+  * `cno-he-burn-34am` is a new CNO + He network that has a better choice of
+    rates than the previous `cno-he-burn-33a` network. (#1819)
+
+  * The He burning networks have been updated to better connect odd-Z
+    and even-Z nuclei using a modified rate.  The names have been updated to
+    reflect the changes. (#1788)
+
+  * pynucastro-generated networks are now importable from python, to aid in
+    analysis (#1837)
+
+  * MacOS CI has been updated (#1848)
+
+  * CI action dependency version updates (#1847)
+
 ## 25.09
 
   * update MacOS CI (#1844)
