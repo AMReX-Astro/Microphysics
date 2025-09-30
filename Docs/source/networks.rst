@@ -176,8 +176,13 @@ burning.  This network is managed by pynucastro.
    above).
 
 
+nova networks
+=============
+
+Two networks have been created for exploring novae.
+
 ``nova``
-========
+--------
 
 This network is composed of 17 nuclei: $\isotm{H}{1,2}$,
 $\isotm{He}{3,4}$, $\isotm{Be}{7}$, $\isotm{B}{8}$,
@@ -209,6 +214,19 @@ $\isotm{N}{15}(p,\alpha)\isotm{C}{12}$ and $\isotm{O}{17}(p,\alpha)\isotm{N}{14}
 Once the temperature reaches a threshold of $\gtrsim 10^8\,\mathrm{K}$, the fast $p$-captures, for example,
 $\isotm{N}{13}(p,\gamma)\isotm{O}{14}$, are more likely than the $\beta^{+}$-decays $\isotm{N}{13}(\beta^{+}\nu_e)\isotm{C}{13}$
 reactions. These rates are also included in this network.
+
+``nova-li``
+-----------
+
+This network builds on ``nova`` and adds $\isotm{Li}{7}$ as well as
+nuclei beyond fluorine.  It should give a more accurate energy in late
+stages of the burst, and can also be used to explore lithium
+production.
+
+.. figure:: ../../networks/nova-li/nova-li.png
+   :align: center
+
+
 
 
 He-burning networks

@@ -126,19 +126,6 @@ void integrator_cleanup (IntegratorT& int_state, BurnT& state,
 
     integrator_to_burn(int_state, state);
 
-#ifdef NSE
-    // compute the temperature based on the energy release -- we need
-    // this in case we failed in our burn here because we entered NSE
-
-#ifdef AUX_THERMO
-    // need to sync the auxiliary data up with the new mass fractions
-    set_aux_comp_from_X(state);
-#endif
-    if (integrator_rp::call_eos_in_rhs) {
-        eos(eos_input_re, state);
-    }
-#endif
-
     // Subtract off the initial energy (the application codes expect
     // to get back only the generated energy during the burn).
 
@@ -195,39 +182,33 @@ void integrator_cleanup (IntegratorT& int_state, BurnT& state,
     // If we failed, print out the current state of the integration.
 
     if (! state.success) {
-        if (istate != IERR_ENTERED_NSE) {
 #ifndef AMREX_USE_GPU
-            std::cout << amrex::Font::Bold << amrex::FGColor::Red << "[ERROR] integration failed in net" << amrex::ResetDisplay << std::endl;
-            std::cout << "istate = " << istate << std::endl;
-            if (istate == IERR_SUCCESS) {
-                std::cout << "  Integration exited successfully, but a check on the data values failed" << std::endl;
-            }
-            std::cout << "zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
-            std::cout << "time = " << int_state.t << std::endl;
-            std::cout << "dt = " << std::setprecision(16) << dt << std::endl;
-            std::cout << "temp start = " << std::setprecision(16) << state_save.T_in << std::endl;
-            std::cout << "xn start = ";
-            for (const double X : state_save.xn_in) {
-                std::cout << std::scientific << std::setprecision(16) << X << " ";
-            }
-            std::cout << std::endl;
-            std::cout << "dens current = " << std::setprecision(16) << state.rho << std::endl;
-            std::cout << "temp current = " << std::setprecision(16) << state.T << std::endl;
-            std::cout << "xn current = ";
-            for (const double X : state.xn) {
-                std::cout << std::scientific << std::setprecision(16) << X << " ";
-            }
-            std::cout << std::endl;
-            std::cout << "energy generated = " << state.e << std::endl;
-#elif defined(ALLOW_GPU_PRINTF)
-            AMREX_DEVICE_PRINTF("[ERROR] integration failed in net, istate = %d, time = %g, dt = %g, dens = %g, temp_start = %g\n",
-                                istate, int_state.t, dt, state.rho, state_save.T_in);
-#endif
-        } else {
-#ifndef AMREX_USE_GPU
-            std::cout << "burn entered NSE during integration (after " << state.n_step << " steps), zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
-#endif
+        std::cout << amrex::Font::Bold << amrex::FGColor::Red << "[ERROR] integration failed in net" << amrex::ResetDisplay << std::endl;
+        std::cout << "istate = " << istate << std::endl;
+        if (istate == IERR_SUCCESS) {
+            std::cout << "  Integration exited successfully, but a check on the data values failed" << std::endl;
         }
+        std::cout << "zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
+        std::cout << "time = " << int_state.t << std::endl;
+        std::cout << "dt = " << std::setprecision(16) << dt << std::endl;
+        std::cout << "temp start = " << std::setprecision(16) << state_save.T_in << std::endl;
+        std::cout << "xn start = ";
+        for (const double X : state_save.xn_in) {
+            std::cout << std::scientific << std::setprecision(16) << X << " ";
+        }
+        std::cout << std::endl;
+        std::cout << "dens current = " << std::setprecision(16) << state.rho << std::endl;
+        std::cout << "temp current = " << std::setprecision(16) << state.T << std::endl;
+        std::cout << "xn current = ";
+        for (const double X : state.xn) {
+            std::cout << std::scientific << std::setprecision(16) << X << " ";
+        }
+        std::cout << std::endl;
+        std::cout << "energy generated = " << state.e << std::endl;
+#elif defined(ALLOW_GPU_PRINTF)
+        AMREX_DEVICE_PRINTF("[ERROR] integration failed in net, istate = %d, time = %g, dt = %g, dens = %g, temp_start = %g\n",
+                            istate, int_state.t, dt, state.rho, state_save.T_in);
+#endif
     }
 
 }
