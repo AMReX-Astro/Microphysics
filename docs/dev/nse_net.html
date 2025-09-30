@@ -151,6 +151,27 @@ under the assumption of NSE, following the procedure outlined in <span id="id2">
 <p class="admonition-title">Important</p>
 <p>Self-consistent NSE does not support the templated C++ networks
 (like <code class="docutils literal notranslate"><span class="pre">aprox13</span></code>).  You should use a pynucastro-generated network.</p>
+<p>Additionally, the pynucastro network must meet the following requirements:</p>
+<ul class="simple">
+<li><p>Every rate should have an inverse rate, recomputed with detailed balancing</p></li>
+<li><p>The “Q” value should be recomputed using the masses when doing detailed
+balance.</p></li>
+<li><p>Approximate rates like <span class="math notranslate nohighlight">\((\alpha, p)(p, \gamma)\)</span> are okay, but modified
+rates that change the stoichiometry are not supported.</p></li>
+</ul>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>The test in <code class="docutils literal notranslate"><span class="pre">Microphysics/nse_solver/nse_compatibility/</span></code> can be used to
+check if a network is supported.  It will integrate at fixed <span class="math notranslate nohighlight">\((rho, T)\)</span>
+and compare the resulting mass fractions to the NSE solution.</p>
+<p>If a network has weak rates, then there will be a <span class="math notranslate nohighlight">\(Y_e\)</span> evolution which
+will prevent this test from giving perfect agreement, but if the <span class="math notranslate nohighlight">\(Y_e\)</span>
+evolution is slow, this test can still give useful results.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Presently it is recommended to use the <code class="docutils literal notranslate"><span class="pre">ase</span></code> network.</p>
 </div>
 <p>There are two methods for solving the chemical potentials:</p>
 <ol class="arabic simple">
