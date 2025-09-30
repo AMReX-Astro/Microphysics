@@ -30,6 +30,10 @@ under the assumption of NSE, following the procedure outlined in :cite:`Calder_2
    check if a network is supported.  It will integrate at fixed $(rho, T)$
    and compare the resulting mass fractions to the NSE solution.
 
+   If a network has weak rates, then there will be a $Y_e$ evolution which
+   will prevent this test from giving perfect agreement, but if the $Y_e$
+   evolution is slow, this test can still give useful results.
+
 .. tip::
 
    Presently it is recommended to use the ``ase`` network.
