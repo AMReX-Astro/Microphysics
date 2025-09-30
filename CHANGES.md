@@ -2,6 +2,8 @@
 
 ## 25.10
 
+  * update the NSE solver docs to explain network compatibility (#1852)
+
   * the NSE solver is now more robust to negative (rho X) and avoiding
     division by zero (#1851)
 
