@@ -187,17 +187,14 @@ network in a python environment easily to explore the network flow
 from a simulation.  For example, to load the <code class="docutils literal notranslate"><span class="pre">CNO_extras</span></code> network,
 we can do:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 
 <span class="n">mp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;MICROPHYSICS_HOME&quot;</span><span class="p">)</span>
+<span class="n">moddir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">mp</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;networks&quot;</span> <span class="o">/</span> <span class="s2">&quot;CNO_extras&quot;</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">moddir</span><span class="p">))</span>
 
-<span class="c1"># change this to reflect the network you want</span>
-<span class="n">loc</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">mp</span><span class="si">}</span><span class="s2">/networks/CNO_extras/CNO_extras.py&quot;</span>
-
-<span class="n">spec</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">spec_from_file_location</span><span class="p">(</span><span class="s2">&quot;pynet&quot;</span><span class="p">,</span> <span class="n">loc</span><span class="p">)</span>
-<span class="n">pynet</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">module_from_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
-<span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">exec_module</span><span class="p">(</span><span class="n">pynet</span><span class="p">)</span>
-
+<span class="kn">import</span><span class="w"> </span><span class="nn">CNO_extras</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pynet</span>
 <span class="n">net</span> <span class="o">=</span> <span class="n">pynet</span><span class="o">.</span><span class="n">create_network</span><span class="p">()</span>
 </pre></div>
 </div>
