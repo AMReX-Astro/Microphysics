@@ -6,10 +6,7 @@ from pynucastro.networks import AmrexAstroCxxNetwork
 import he_burn_core
 
 
-DO_DERIVED_RATES = True
-
-
-def doit():
+def create_network():
 
     extra_reactants = ["c13", "n14", "n15",
                        "o14", "o15", "o17", "o18",
@@ -21,7 +18,7 @@ def doit():
     subch = he_burn_core.get_core_library(include_n14_approx=False,
                                           include_zn=False,
                                           extra_nuclei=extra_reactants,
-                                          do_detailed_balance=DO_DERIVED_RATES)
+                                          do_detailed_balance=True)
 
     net = AmrexAstroCxxNetwork(libraries=[subch], symmetric_screening=False)
 
@@ -29,6 +26,12 @@ def doit():
                                                "v47", "mn51", "co55"])
     net.remove_nuclei(["cl35", "k39", "sc43", "v47", "mn51", "co55"])
 
+    return net
+
+
+def doit():
+
+    net = create_network()
     net.summary()
 
     comp = pyna.Composition(net.get_nuclei())
