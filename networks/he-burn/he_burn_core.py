@@ -147,15 +147,6 @@ def get_core_library(*,
     # we may have duplicate rates -- we want to remove any ReacLib rates
     # that we have tabular rates for
 
-    dupes = all_lib.find_duplicate_links()
-
-    rates_to_remove = []
-    for d in dupes:
-        for r in d:
-            if isinstance(r, ReacLibRate):
-                rates_to_remove.append(r)
-
-    for r in rates_to_remove:
-        all_lib.remove_rate(r)
+    all_lib.eliminate_duplicates(rate_type_preference="tabular")
 
     return all_lib
