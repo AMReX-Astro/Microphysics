@@ -233,7 +233,14 @@ int dvode (BurnT& state, DvodeT& vstate)
        // wild exploration.  Also ensure we are not working > tmax,
        // so we don't need to worry about extrapolating back in time.
 
-       if (vstate.n_step > MIN_NSE_BAILOUT_STEPS && vstate.tn <= vstate.tout) {
+       // For NSE_NET, we only check for some interval to prevent
+       // expensive check overhead
+
+       if (vstate.n_step > MIN_NSE_BAILOUT_STEPS && vstate.tn <= vstate.tout
+#ifdef NSE_NET
+           && vstate.n_step % nse_check_interval == 0
+#endif
+           ) {
            // first we need to make the burn_t in sync
 
            int_to_burn(vstate.tn, vstate, state);

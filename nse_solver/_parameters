@@ -43,3 +43,6 @@ T_nse_net               real       -1.0
 
 # Minimum Temperature required for NSE
 T_min_nse               real       4.0e9
+
+# NSE check interval in integrator
+nse_check_interval      int        5
