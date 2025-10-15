@@ -6,6 +6,7 @@
 #include <AMReX_REAL.H>
 #include <AMReX_Vector.H>
 #include <AMReX_Array.H>
+#include <string_view>
 
 using namespace amrex::literals;
 
@@ -21,7 +22,7 @@ using namespace network_rp;
 AMREX_INLINE
 void actual_network_init() {}
 
-const std::string network_name = "aprox21";
+constexpr std::string_view network_name = "aprox21";
 
 namespace network
 {
@@ -152,7 +153,7 @@ namespace NSE_INDEX
 #endif
 
 namespace Rates {
-    enum NetworkRates {
+    enum NetworkRates : std::uint8_t {
         H1_H1_to_He3 = 1,
         H1_H1_H1_to_He3,
         P_to_N,
@@ -235,7 +236,7 @@ namespace RHS {
 
         rhs_t data;
 
-        switch (rate) {
+        switch (rate) {  // NOLINT(bugprone-switch-missing-default-case)
 
         case P_to_N:
             // irpen and irnep in the original aprox21

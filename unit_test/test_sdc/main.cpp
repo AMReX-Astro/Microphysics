@@ -103,7 +103,7 @@ void main_main ()
     init_unit_test();
 
     // C++ EOS initialization (must be done after init_extern_parameters)
-    eos_init(small_temp, small_dens);
+    eos_init(unit_test_rp::small_temp, unit_test_rp::small_dens);
 
     // C++ Network, RHS, screening, rates initialization
     network_init();
@@ -129,8 +129,8 @@ void main_main ()
     Real dlogT;
 
     if (n_cell > 1) {
-        dlogrho = (std::log10(dens_max) - std::log10(dens_min))/(n_cell - 1);
-        dlogT   = (std::log10(temp_max) - std::log10(temp_min))/(n_cell - 1);
+        dlogrho = (std::log10(unit_test_rp::dens_max) - std::log10(unit_test_rp::dens_min)) / static_cast<amrex::Real>(n_cell - 1);
+        dlogT   = (std::log10(unit_test_rp::temp_max) - std::log10(unit_test_rp::temp_min)) / static_cast<amrex::Real>(n_cell - 1);
     } else {
         dlogrho = 0.0_rt;
         dlogT   = 0.0_rt;
@@ -149,12 +149,12 @@ void main_main ()
         {
 
             state_arr(i, j, k, vars.itemp) =
-                std::pow(10.0_rt, (std::log10(temp_min) + static_cast<Real>(j)*dlogT));
+                std::pow(10.0_rt, (std::log10(unit_test_rp::temp_min) + static_cast<Real>(j)*dlogT));
             state_arr(i, j, k, vars.irho) =
-                std::pow(10.0_rt, (std::log10(dens_min) + static_cast<Real>(i)*dlogrho));
+                std::pow(10.0_rt, (std::log10(unit_test_rp::dens_min) + static_cast<Real>(i)*dlogrho));
 
             Real xn[NumSpec];
-            get_xn(k, comp_data, xn, uniform_xn);
+            get_xn(k, comp_data, xn, unit_test_rp::uniform_xn);
 
             for (int n = 0; n < NumSpec; n++) {
                 state_arr(i, j, k, vars.ispec_old+n) =
@@ -197,7 +197,8 @@ void main_main ()
         auto s = state.array(mfi);
         auto n_rhs = integrator_n_rhs.array(mfi);
 
-        AMREX_PARALLEL_FOR_3D(bx, i, j, k,
+        amrex::ParallelFor(bx,
+        [=] AMREX_GPU_HOST_DEVICE (int i, int j, int k)
         {
             bool success = do_react(vars, i, j, k, s, n_rhs);
 
@@ -251,7 +252,8 @@ void main_main ()
 
     // print statistics
     std::cout << "min number of rhs calls: " << n_rhs_min << std::endl;
-    std::cout << "avg number of rhs calls: " << n_rhs_sum / (n_cell*n_cell*n_cell) << std::endl;
+    std::cout << "avg number of rhs calls: "
+              << static_cast<Real>(n_rhs_sum) / static_cast<Real>(n_cell*n_cell*n_cell) << std::endl;
     std::cout << "max number of rhs calls: " << n_rhs_max << std::endl;
 
 }

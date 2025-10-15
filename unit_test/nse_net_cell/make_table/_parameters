@@ -1,0 +1,16 @@
+@namespace: unit_test
+
+rho_min   real   1.e6
+rho_max   real   1.e10
+
+nrho      int    5
+
+T_min     real   4.0e9
+T_max     real   1.e10
+
+nT        int    10
+
+Ye_min    real   0.49
+Ye_max    real   0.7
+
+nye       int    7

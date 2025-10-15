@@ -11,19 +11,19 @@ jobs:
     name: Castro
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: Get Latest Release Tag
       run: |
         AMREX_TAG=$(wget https://github.com/AMReX-Codes/amrex/releases/latest 2>&1 | grep Location: | awk '{print $2}' | awk -F/ '{print $NF}')
         echo "AMREX_TAG=$AMREX_TAG" >> $GITHUB_ENV
     - name: Download Castro
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         repository: 'AMReX-Astro/Castro'
         ref: development
         path: 'Castro'
     - name: Download AMReX
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         repository: 'AMReX-Codes/amrex'
         ref: ${{env.AMREX_TAG}}
@@ -51,7 +51,7 @@ jobs:
         export MICROPHYSICS_HOME=${PWD}
 
         cd Castro/Exec/science/flame_wave/
-        make -j2 CCACHE=ccache USE_MPI=FALSE
+        make -j 4 CCACHE=ccache USE_MPI=FALSE
 
         ccache -s
         du -hs ~/.cache/ccache
@@ -68,7 +68,7 @@ jobs:
         export MICROPHYSICS_HOME=${PWD}
 
         cd Castro/Exec/science/subchandra/
-        make -j2 CCACHE=ccache USE_MPI=FALSE
+        make -j 4 CCACHE=ccache USE_MPI=FALSE NETWORK_DIR=he-burn/he-burn-19am
 
         ccache -s
         du -hs ~/.cache/ccache

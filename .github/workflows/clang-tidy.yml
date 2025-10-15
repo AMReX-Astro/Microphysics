@@ -10,7 +10,7 @@ jobs:
   clang_tidy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Get AMReX
         run: |
@@ -26,10 +26,10 @@ jobs:
 
       - name: Install dependencies
         run: |
-          .github/workflows/dependencies_clang-tidy-apt-llvm.sh 17
+          .github/workflows/dependencies_clang-tidy-apt-llvm.sh 19
 
       - name: Compile burn_cell_sdc
         run: |
           cd unit_test/burn_cell_sdc
-          make USE_MPI=FALSE USE_CLANG_TIDY=TRUE CLANG_TIDY=clang-tidy-17 CLANG_TIDY_WARN_ERROR=TRUE -j 4
+          make USE_MPI=FALSE USE_CLANG_TIDY=TRUE CLANG_TIDY=clang-tidy-19 CLANG_TIDY_WARN_ERROR=TRUE -j 4
 

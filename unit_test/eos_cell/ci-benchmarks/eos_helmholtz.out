@@ -31,7 +31,4 @@ gam1 = 1.511401882
 cs = 332889390.6
 abar = 4
 zbar = 2
-Unused ParmParse Variables:
-  [TOP]::unit_test.x4(nvals = 1)  :: [0.0]
-
 AMReX (22.10-75-g0a3ee1486cc3) finalized

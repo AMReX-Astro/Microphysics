@@ -24,7 +24,8 @@ void aprox_rates_test(const Box& bx,
 
   const int ini56 = network_spec_index("nickel-56");
 
-  AMREX_PARALLEL_FOR_3D(bx, i, j, k,
+  amrex::ParallelFor(bx,
+  [=] AMREX_GPU_HOST_DEVICE (int i, int j, int k)
   {
 
     eos_extra_t eos_state;
@@ -444,7 +445,8 @@ void aprox_rates_extra_c12ag(const Box& bx,
 
     const int ini56 = network_spec_index("nickel-56");
 
-    AMREX_PARALLEL_FOR_3D(bx, i, j, k,
+    amrex::ParallelFor(bx,
+    [=] AMREX_GPU_HOST_DEVICE (int i, int j, int k)
     {
 
         eos_extra_t eos_state;

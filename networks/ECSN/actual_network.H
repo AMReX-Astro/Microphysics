@@ -1,6 +1,8 @@
 #ifndef actual_network_H
 #define actual_network_H
 
+#include <string_view>
+
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>
 #include <AMReX_Loop.H>
@@ -8,11 +10,11 @@
 #include <fundamental_constants.H>
 #include <network_properties.H>
 
-using namespace amrex;
+using namespace amrex::literals;
 
 void actual_network_init();
 
-const std::string network_name = "pynucastro-cxx";
+constexpr std::string_view network_name = "pynucastro-cxx";
 
 namespace network
 {
@@ -30,34 +32,34 @@ namespace network
             return 0.0_rt;
         }
         else if constexpr (spec == He4) {
-            return 28.29566_rt;
+            return 28.295662457999697_rt;
         }
         else if constexpr (spec == O16) {
-            return 127.619296_rt;
+            return 127.6193154119992_rt;
         }
         else if constexpr (spec == O20) {
-            return 151.3714_rt;
+            return 151.37138571200194_rt;
         }
         else if constexpr (spec == F20) {
-            return 154.40268_rt;
+            return 154.40270167600102_rt;
         }
         else if constexpr (spec == Ne20) {
-            return 160.6448_rt;
+            return 160.64482384000075_rt;
         }
         else if constexpr (spec == Mg24) {
-            return 198.25701600000002_rt;
+            return 198.2570479679962_rt;
         }
         else if constexpr (spec == Al27) {
-            return 224.951931_rt;
+            return 224.95193723199915_rt;
         }
         else if constexpr (spec == Si28) {
-            return 236.536832_rt;
+            return 236.53684539599638_rt;
         }
         else if constexpr (spec == P31) {
-            return 262.91617699999995_rt;
+            return 262.9161999600037_rt;
         }
         else if constexpr (spec == S32) {
-            return 271.78012800000005_rt;
+            return 271.78016372399725_rt;
         }
 
 
@@ -68,12 +70,49 @@ namespace network
     template<int spec>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
     constexpr amrex::Real mion () {
+        using namespace Species;
+
         static_assert(spec >= 1 && spec <= NumSpec);
 
-        constexpr amrex::Real A = NetworkProperties::aion(spec);
-        constexpr amrex::Real Z = NetworkProperties::zion(spec);
+        // Set the mass of the element
 
-        return (A - Z) * C::Legacy::m_n + Z * (C::Legacy::m_p + C::Legacy::m_e) - bion<spec>() * C::Legacy::MeV2gr;
+        if constexpr (spec == H1) {
+            return 1.6735328377636005e-24_rt;
+        }
+        else if constexpr (spec == He4) {
+            return 6.646479071584587e-24_rt;
+        }
+        else if constexpr (spec == O16) {
+            return 2.6560180592333686e-23_rt;
+        }
+        else if constexpr (spec == O20) {
+            return 3.3217548673186867e-23_rt;
+        }
+        else if constexpr (spec == F20) {
+            return 3.321075020137486e-23_rt;
+        }
+        else if constexpr (spec == Ne20) {
+            return 3.3198227947612416e-23_rt;
+        }
+        else if constexpr (spec == Mg24) {
+            return 3.9828098739467446e-23_rt;
+        }
+        else if constexpr (spec == Al27) {
+            return 4.480389861070653e-23_rt;
+        }
+        else if constexpr (spec == Si28) {
+            return 4.6456779473820677e-23_rt;
+        }
+        else if constexpr (spec == P31) {
+            return 5.14331418367544e-23_rt;
+        }
+        else if constexpr (spec == S32) {
+            return 5.309087322384128e-23_rt;
+        }
+
+
+        // Return zero if we don't recognize the species.
+        return 0.0_rt;
     }
 
     // Legacy (non-templated) interfaces
@@ -85,7 +124,7 @@ namespace network
         amrex::Real b = 0.0_rt;
 
         // Set the binding energy of the element
-        constexpr_for<1, NumSpec+1>([&] (auto n) {
+        amrex::constexpr_for<1, NumSpec+1>([&] (auto n) {
             if (n == spec) {
                 b = bion<n>();
             }
@@ -100,7 +139,7 @@ namespace network
 
         amrex::Real m = 0.0_rt;
 
-        constexpr_for<1, NumSpec+1>([&] (auto n) {
+        amrex::constexpr_for<1, NumSpec+1>([&] (auto n) {
             if (n == spec) {
                 m = mion<n>();
             }
@@ -113,7 +152,8 @@ namespace network
 namespace Rates
 {
 
-    enum NetworkRates
+    enum NetworkRates :
+    std::uint8_t
     {
         k_Ne20_to_He4_O16 = 1,
         k_He4_O16_to_Ne20 = 2,
@@ -129,11 +169,11 @@ namespace Rates
         k_p_Al27_to_He4_Mg24 = 12,
         k_He4_Si28_to_p_P31 = 13,
         k_p_P31_to_He4_Si28 = 14,
-        k_F20_to_O20 = 15,
-        k_Ne20_to_F20 = 16,
-        k_O20_to_F20 = 17,
-        k_F20_to_Ne20 = 18,
-        NumRates = k_F20_to_Ne20
+        k_F20_to_Ne20 = 15,
+        k_F20_to_O20 = 16,
+        k_Ne20_to_F20 = 17,
+        k_O20_to_F20 = 18,
+        NumRates = k_O20_to_F20
     };
 
     // number of reaclib rates
@@ -164,10 +204,10 @@ namespace Rates
         "p_Al27_to_He4_Mg24",  // 12,
         "He4_Si28_to_p_P31",  // 13,
         "p_P31_to_He4_Si28",  // 14,
-        "F20_to_O20",  // 15,
-        "Ne20_to_F20",  // 16,
-        "O20_to_F20",  // 17,
-        "F20_to_Ne20"  // 18,
+        "F20_to_Ne20",  // 15,
+        "F20_to_O20",  // 16,
+        "Ne20_to_F20",  // 17,
+        "O20_to_F20"  // 18,
     };
 
 }
@@ -183,7 +223,7 @@ namespace NSE_INDEX
     // First 3 row indices for reactants, followed by 3 product indices
     // last index is the corresponding reverse rate index.
 
-    extern AMREX_GPU_MANAGED amrex::Array2D<int, 1, Rates::NumRates, 1, 7, Order::C> rate_indices;
+    extern AMREX_GPU_MANAGED amrex::Array2D<int, 1, Rates::NumRates, 1, 7, amrex::Order::C> rate_indices;
 }
 #endif
 

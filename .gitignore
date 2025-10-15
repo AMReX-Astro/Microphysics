@@ -12,6 +12,7 @@
 *.ind
 Docs/*/*.pdf
 Docs/*/*.ps
+Docs/source/runtime_parameters.rst
 MaestroUsersGuide.out
 MaestroUsersGuide.old
 
@@ -78,8 +79,8 @@ extern.f90
 # sphinx
 build/
 doxy_files
-sphinx_docs/source/runtime_parameters.rst
-
+Docs/source/runtime_parameters.rst
+Docs/source/changelog.md
 
 # C++ parameters
 extern_parameters.H

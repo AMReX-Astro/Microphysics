@@ -230,7 +230,7 @@ def write_probin(param_files, out_file, cxx_prefix):
         fout.write(f"  {cxx_base}_t init_{cxx_base}_parameters() {{\n")
 
         # we need access to _rt
-        fout.write("    using namespace amrex;\n\n")
+        fout.write("    using namespace amrex::literals;\n\n")
 
         # create the struct that will hold all the parameters -- this is what
         # we will return

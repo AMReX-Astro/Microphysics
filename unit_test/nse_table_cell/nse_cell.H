@@ -11,19 +11,20 @@
 #include <nse_table_type.H>
 #include <nse_table.H>
 
-using namespace unit_test_rp;
-
 AMREX_INLINE
 void nse_cell_c()
 {
 
 
-    std::cout << "rho, T, Ye = " << density << " " << temperature << " " << ye << std::endl;
+    std::cout << "rho, T, Ye = "
+              << unit_test_rp::density << " "
+              << unit_test_rp::temperature << " "
+              << unit_test_rp::ye << std::endl;
 
     nse_table_t nse_state;
-    nse_state.T = temperature;
-    nse_state.rho = density;
-    nse_state.Ye = ye;
+    nse_state.T = unit_test_rp::temperature;
+    nse_state.rho = unit_test_rp::density;
+    nse_state.Ye = unit_test_rp::ye;
 
     nse_interp(nse_state);
 

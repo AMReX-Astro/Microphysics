@@ -33,7 +33,4 @@ omegadot(C12): 0.01497617246
 omegadot(O16): 0.5494210118
 omegadot(Fe56): 0
 number of steps taken: 85669
-Unused ParmParse Variables:
-  [TOP]::unit_test.x4(nvals = 1)  :: [0.0]
-
 AMReX (23.07-7-g88f03408f18a) finalized

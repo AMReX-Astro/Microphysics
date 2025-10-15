@@ -104,7 +104,7 @@ void numerical_jac(BurnT& state, const jac_info_t& jac_info, JacNetArray2D& jac)
 
         w = integrator_rp::rtol_spec * std::abs(yj) + integrator_rp::atol_spec;
 
-        // the incremement we use in the derivative is defined in the LSODE paper, Eq. 3.35
+        // the increment we use in the derivative is defined in the LSODE paper, Eq. 3.35
 
         amrex::Real dy = amrex::max(std::sqrt(U) * std::abs(yj), r0 * w);
 
