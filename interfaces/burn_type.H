@@ -56,8 +56,6 @@ const int SVAR  = SEDEN+1;
 const int SVAR_EVOLVE = SFX;
 
 // this is the data type of the dense Jacobian that the network wants.
-// it is not the same size as the Jacobian that VODE cares about when
-// we are doing simplified-SDC
 using  JacNetArray2D = ArrayUtil::MathArray2D<1, neqs, 1, neqs>;
 
 struct burn_t
