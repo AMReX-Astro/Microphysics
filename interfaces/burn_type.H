@@ -60,7 +60,11 @@ const int SVAR_EVOLVE = SFX;
 // we are doing simplified-SDC
 
 // the Jacobian can have a different size that our system
+#ifdef SINGLE_PRECISION_JACOBIAN
+using jac_t = float;
+#else
 using jac_t = amrex::Real;
+#endif
 
 using  JacNetArray2D = ArrayUtil::MathArray2D<jac_t, 1, neqs, 1, neqs>;
 
