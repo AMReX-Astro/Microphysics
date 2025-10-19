@@ -71,7 +71,7 @@ namespace ArrayUtil
         }
 
         [[nodiscard]] AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-        amrex::Real get (const int i, const int j) const noexcept {
+        T get (const int i, const int j) const noexcept {
             AMREX_ASSERT(i >= XLO && i <= XHI && j >= YLO && j <= YHI);
             return arr[i+j*(XHI-XLO+1)-(YLO*(XHI-XLO+1)+XLO)];
         }
@@ -84,13 +84,13 @@ namespace ArrayUtil
         }
 
         AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-        const amrex::Real& operator() (int i, int j) const noexcept {
+        const T& operator() (int i, int j) const noexcept {
             AMREX_ASSERT(i >= XLO && i <= XHI && j >= YLO && j <= YHI);
             return arr[i+j*(XHI-XLO+1)-(YLO*(XHI-XLO+1)+XLO)];
         }
 
         AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-        amrex::Real& operator() (int i, int j) noexcept {
+        T& operator() (int i, int j) noexcept {
             AMREX_ASSERT(i >= XLO && i <= XHI && j >= YLO && j <= YHI);
             return arr[i+j*(XHI-XLO+1)-(YLO*(XHI-XLO+1)+XLO)];
         }
