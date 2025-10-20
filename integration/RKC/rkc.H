@@ -251,7 +251,7 @@ int rkclow (BurnT& state, RkcT& rstate)
 
        if (rstate.nsteps > MIN_NSE_BAILOUT_STEPS && rstate.t <= rstate.tout
 #ifdef NSE_NET
-           && vstate.n_step % nse_check_interval == 0
+           && (vstate.n_step % nse_check_interval == 0 || state.T > 6.e9_rt)
 #endif
            ) {
            // first we need to make the burn_t in sync
