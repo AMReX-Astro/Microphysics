@@ -56,10 +56,8 @@ const int SVAR  = SEDEN+1;
 const int SVAR_EVOLVE = SFX;
 
 // this is the data type of the dense Jacobian that the network wants.
-// it is not the same size as the Jacobian that VODE cares about when
-// we are doing simplified-SDC
 
-// the Jacobian can have a different size that our system
+// the Jacobian can have a different type that our system
 #ifdef SINGLE_PRECISION_JACOBIAN
 using jac_t = float;
 #else
