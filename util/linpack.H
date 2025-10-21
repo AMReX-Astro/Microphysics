@@ -8,14 +8,14 @@
 
 template <int num_eqs, bool allow_pivot>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void dgesl (RArray2D& a, IArray1D& pivot, RArray1D& b)
+void dgesl (const RArray2D& a, const IArray1D& pivot, RArray1D& b)
 {
 
-    int nm1 = num_eqs - 1;
+    constexpr int nm1 = num_eqs - 1;
 
     // solve a * x = b
     // first solve l * y = b
-    if (nm1 >= 1) {
+    if constexpr (nm1 >= 1) {
         for (int k = 1; k <= nm1; ++k) {
 
             amrex::Real t{};
@@ -64,11 +64,11 @@ void dgefa (RArray2D& a, IArray1D& pivot, int& info)
     // gaussian elimination with partial pivoting
 
     info = 0;
-    int nm1 = num_eqs - 1;
+    constexpr int nm1 = num_eqs - 1;
 
     amrex::Real t;
 
-    if (nm1 >= 1) {
+    if constexpr (nm1 >= 1) {
 
         for (int k = 1; k <= nm1; ++k) {
 
