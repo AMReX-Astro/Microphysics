@@ -248,7 +248,7 @@ def write_probin(param_files, out_file, cxx_prefix):
 
             # open namespace
             fout.write("    {\n")
-            fout.write(f"      amrex::ParmParse pp(\"{nm}\");\n")
+            fout.write(f"      const amrex::ParmParse pp(\"{nm}\");\n")
             for p in params_nm:
                 fout.write(f"      {p.get_default_string()}")
                 fout.write(f"      {p.get_query_string()}")
