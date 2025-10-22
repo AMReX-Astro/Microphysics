@@ -86,7 +86,7 @@ struct dvode_t
     //                   (recoverable error)
     //            2 means convergence failure with current Jacobian or
     //                   singular matrix (unrecoverable error)
-    std::int8_t ICF;
+    std::uint8_t ICF;
 
     // IPUP   = Saved flag to signal updating of Newton matrix
     bool IPUP;
@@ -97,20 +97,20 @@ struct dvode_t
     bool JCUR;
 
     // L      = Integer variable, NQ + 1, current order plus one
-    std::int8_t L;
+    std::uint8_t L;
 
     // NEWH   = Saved integer to flag change of H
-    std::int8_t NEWH;
+    bool NEWH;
 
     // NEWQ   = The method order to be used on the next step
-    std::int8_t NEWQ;
+    std::uint8_t NEWQ;
 
     // NQ     = Integer variable, the current integration method order
-    std::int8_t NQ;
+    std::uint8_t NQ;
 
     // NQWAIT = A counter controlling the frequency of order changes.
     //          An order change is about to be considered if NQWAIT = 1.
-    std::int8_t NQWAIT;
+    std::uint8_t NQWAIT;
 
     // NSLJ   = The number of steps taken as of the last Jacobian update
     int NSLJ;
@@ -119,7 +119,7 @@ struct dvode_t
     int NSLP;
 
     // jacobian_type = the type of Jacobian to use (1 = analytic, 2 = numerical)
-    std::int8_t jacobian_type;
+    std::uint8_t jacobian_type;
 
     // EL     = Real array of integration coefficients.  See DVSET
     amrex::Array1D<amrex::Real, 1, VODE_LMAX> el;
