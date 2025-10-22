@@ -30,6 +30,7 @@ void dgesl (const RArray2D& a, const IArray1D& pivot, RArray1D& b)
                 t = b(k);
             }
 
+            AMREX_UNROLL_LOOP(16)
             for (int j = k+1; j <= num_eqs; ++j) {
                 b(j) += t * a(j,k);
             }
@@ -39,9 +40,10 @@ void dgesl (const RArray2D& a, const IArray1D& pivot, RArray1D& b)
     // now solve u * x = y
     for (int kb = 1; kb <= num_eqs; ++kb) {
 
-        int k = num_eqs + 1 - kb;
+        const int k = num_eqs + 1 - kb;
         b(k) = b(k) / a(k,k);
         amrex::Real t = -b(k);
+        AMREX_UNROLL_LOOP(16)
         for (int j = 1; j <= k-1; ++j) {
             b(j) += t * a(j,k);
         }
@@ -77,10 +79,12 @@ void dgefa (RArray2D& a, IArray1D& pivot, int& info)
 
             if constexpr (allow_pivot) {
                 amrex::Real dmax = std::abs(a(k,k));
+                amrex::Real ai = std::abs(a(i, k))
+                AMREX_UNROLL_LOOP(16)
                 for (int i = k+1; i <= num_eqs; ++i) {
-                    if (std::abs(a(i,k)) > dmax) {
+                    if (ai > dmax) {
                         l = i;
-                        dmax = std::abs(a(i,k));
+                        dmax = ai;
                     }
                 }
 
@@ -101,6 +105,7 @@ void dgefa (RArray2D& a, IArray1D& pivot, int& info)
 
                 // compute multipliers
                 t = -1.0e0_rt / a(k,k);
+                AMREX_UNROLL_LOOP(16)
                 for (int j = k+1; j <= num_eqs; ++j) {
                     a(j,k) *= t;
                 }
@@ -116,6 +121,7 @@ void dgefa (RArray2D& a, IArray1D& pivot, int& info)
                         }
                     }
 
+                    AMREX_UNROLL_LOOP(16)
                     for (int i = k+1; i <= num_eqs; ++i) {
                         a(i,j) += t * a(i,k);
                     }
