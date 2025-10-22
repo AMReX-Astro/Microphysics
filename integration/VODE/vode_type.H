@@ -24,11 +24,11 @@ constexpr amrex::Real vode_decrease_change_factor = 0.25_rt;
 
 // For the backward differentiation formula (BDF) integration
 // the maximum order should be no greater than 5.
-constexpr int VODE_MAXORD = 5;
-constexpr int VODE_LMAX = VODE_MAXORD + 1;
+constexpr std::uint8_t VODE_MAXORD = 5;
+constexpr std::uint8_t VODE_LMAX = VODE_MAXORD + 1;
 
 // How many timesteps should pass before refreshing the Jacobian
-constexpr int max_steps_between_jacobian_evals = 50;
+constexpr std::uint8_t max_steps_between_jacobian_evals = 50;
 
 // Type dvode_t contains the integration solution and control variables
 template<int int_neqs>
@@ -86,31 +86,31 @@ struct dvode_t
     //                   (recoverable error)
     //            2 means convergence failure with current Jacobian or
     //                   singular matrix (unrecoverable error)
-    short ICF;
+    std::int8_t ICF;
 
     // IPUP   = Saved flag to signal updating of Newton matrix
-    short IPUP;
+    bool IPUP;
 
     // JCUR   = Output flag from DVJAC showing Jacobian status:
     //            JCUR = 0 means J is not current
     //            JCUR = 1 means J is current
-    short JCUR;
+    bool JCUR;
 
     // L      = Integer variable, NQ + 1, current order plus one
-    short L;
+    std::int8_t L;
 
     // NEWH   = Saved integer to flag change of H
-    short NEWH;
+    std::int8_t NEWH;
 
     // NEWQ   = The method order to be used on the next step
-    short NEWQ;
+    std::int8_t NEWQ;
 
     // NQ     = Integer variable, the current integration method order
-    short NQ;
+    std::int8_t NQ;
 
     // NQWAIT = A counter controlling the frequency of order changes.
     //          An order change is about to be considered if NQWAIT = 1.
-    short NQWAIT;
+    std::int8_t NQWAIT;
 
     // NSLJ   = The number of steps taken as of the last Jacobian update
     int NSLJ;
@@ -119,7 +119,7 @@ struct dvode_t
     int NSLP;
 
     // jacobian_type = the type of Jacobian to use (1 = analytic, 2 = numerical)
-    short jacobian_type;
+    std::int8_t jacobian_type;
 
     // EL     = Real array of integration coefficients.  See DVSET
     amrex::Array1D<amrex::Real, 1, VODE_LMAX> el;
@@ -155,7 +155,7 @@ struct dvode_t
 
     amrex::Array1D<amrex::Real, 1, int_neqs> ewt, savf;
 
-    amrex::Array1D<short, 1, int_neqs> pivot;
+    IArray1D pivot;
 
     // Array of size NEQ used for the accumulated corrections on each
     // step, scaled in the output to represent the estimated local

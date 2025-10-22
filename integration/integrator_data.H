@@ -1,11 +1,17 @@
 #ifndef INTEGRATOR_DATA_H
 #define INTEGRATOR_DATA_H
 
+#include <cstdint>
+
 #include <burn_type.H>
 
 // Define the size of the ODE system that VODE will integrate
 
 constexpr int INT_NEQS = NumSpec + 1;
+
+// the datatype we will use for integer quantities that hold
+// indexing into our INT_NEQS
+using smallint_t = std::conditional_t<(INT_NEQS < 255), std::uint8_t, short>;
 
 // We will use this parameter to determine if a given species
 // abundance is unreasonably small or large (each X must satisfy
@@ -50,7 +56,7 @@ constexpr int integrator_neqs ()
     return int_neqs;
 }
 
-using IArray1D = amrex::Array1D<short, 1, INT_NEQS>;
+using IArray1D = amrex::Array1D<smallint_t, 1, INT_NEQS>;
 using RArray1D = amrex::Array1D<amrex::Real, 1, INT_NEQS>;
 using RArray2D = ArrayUtil::MathArray2D<1, INT_NEQS, 1, INT_NEQS>;
 
