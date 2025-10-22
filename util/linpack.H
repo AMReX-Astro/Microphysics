@@ -79,9 +79,9 @@ void dgefa (RArray2D& a, IArray1D& pivot, int& info)
 
             if constexpr (allow_pivot) {
                 amrex::Real dmax = std::abs(a(k,k));
-                amrex::Real ai = std::abs(a(i, k))
                 AMREX_UNROLL_LOOP(16)
                 for (int i = k+1; i <= num_eqs; ++i) {
+                    amrex::Real ai = std::abs(a(i, k));
                     if (ai > dmax) {
                         l = i;
                         dmax = ai;
