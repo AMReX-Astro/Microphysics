@@ -3,6 +3,8 @@
 
 #include <AMReX_REAL.H>
 
+#include <microphysics_math.H>
+
 using namespace amrex::literals;
 
 template <typename BurnT, typename IntT>
@@ -127,14 +129,14 @@ int rkcrho (BurnT& state, IntT& rstate, const amrex::Real max_timestep, amrex::R
 
     amrex::Real dynrm{};
     if (ynrm != 0.0_rt && vnrm != 0.0_rt) {
-        dynrm = ynrm * std::sqrt(UROUND);
+        dynrm = ynrm * gcem::sqrt(UROUND);
         for (int i = 1; i <= INT_NEQS; ++i) {
             rstate.yjm1(i) = rstate.yn(i) + rstate.yjm1(i) * (dynrm / vnrm);
         }
     } else if (ynrm != 0.0_rt) {
-        dynrm = ynrm * std::sqrt(UROUND);
+        dynrm = ynrm * gcem::sqrt(UROUND);
         for (int i = 1; i <= INT_NEQS; ++i) {
-            rstate.yjm1(i) = rstate.yn(i) + rstate.yn(i) * std::sqrt(UROUND);
+            rstate.yjm1(i) = rstate.yn(i) + rstate.yn(i) * gcem::sqrt(UROUND);
         }
     } else if (vnrm != 0.0_rt) {
         dynrm = UROUND;

@@ -117,7 +117,7 @@ void dvjac (int& IERPJ, BurnT& state, DvodeT& vstate)
             for (int j = 1; j <= int_neqs; ++j) {
                 const amrex::Real yj = vstate.y(j);
 
-                const amrex::Real R = amrex::max(std::sqrt(UROUND) * std::abs(yj), R0 / vstate.ewt(j));
+                const amrex::Real R = amrex::max(gcem::sqrt(UROUND) * std::abs(yj), R0 / vstate.ewt(j));
                 vstate.y(j) += R;
                 fac = 1.0_rt / R;
 
