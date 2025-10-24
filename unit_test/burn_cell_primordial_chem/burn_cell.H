@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cmath>
 #include <fstream>
+#include <functional>
 #include <iomanip>
 #include <iostream>
 #include <limits>
@@ -308,6 +309,7 @@ auto burn_cell_multi_c() -> int {
   amrex::Gpu::HostVector<amrex::Real> dd_h(n_zones);
   amrex::Gpu::HostVector<amrex::Real> dt_h(n_zones);
   amrex::Gpu::HostVector<amrex::Real> time_h(n_zones);
+  std::vector<burn_t> states_before(n_zones);
   std::vector<int> active_h(n_zones, 1);
 
   for (int iz = 0; iz < n_zones; ++iz) {
@@ -323,8 +325,6 @@ auto burn_cell_multi_c() -> int {
 
   amrex::Gpu::DeviceVector<burn_t> states_d(n_zones);
   amrex::Gpu::DeviceVector<amrex::Real> dt_d(n_zones);
-
-  constexpr amrex::Real multi_zone_dt_scale = 0.25_rt;
 
   for (int step = 0; step < unit_test_rp::nsteps; ++step) {
     bool any_active = false;
@@ -342,7 +342,7 @@ auto burn_cell_multi_c() -> int {
       }
       amrex::Real tff =
           std::sqrt(M_PI * 3.0_rt / (32.0_rt * rhotmp * grav_constant));
-      amrex::Real dt = multi_zone_dt_scale * unit_test_rp::tff_reduc * tff;
+      amrex::Real dt = unit_test_rp::tff_reduc * tff;
       amrex::Real dd_new = dd1 + dt * (dd1 / tff);
 
       if (dt < 10.0_rt || dd_new > 2.0e-6_rt) {
@@ -356,6 +356,8 @@ auto burn_cell_multi_c() -> int {
         states_h[iz].xn[nn] *= ratio;
       }
       states_h[iz].rho *= ratio;
+
+      states_before[iz] = states_h[iz];
 
       dd_h[iz] = dd_new;
       dt_h[iz] = dt;
@@ -389,11 +391,50 @@ auto burn_cell_multi_c() -> int {
                           states_d.end(), states_h.begin());
     amrex::Gpu::streamSynchronize();
 
+    const int max_split_depth = 6;
+    constexpr amrex::Real min_split_dt = 1.0_rt;
+    std::function<bool(burn_t&, amrex::Real, int)> integrate_with_retries;
+    integrate_with_retries = [&](burn_t& state, amrex::Real dt,
+                                 int depth) -> bool {
+      burn_t backup = state;
+      state.time = 0.0_rt;
+      burner(state, dt);
+      if (state.success && state.e > 0.0_rt) {
+        return true;
+      }
+      if (depth >= max_split_depth || 0.5_rt * dt <= min_split_dt) {
+        state = backup;
+        return false;
+      }
+      amrex::Real half_dt = 0.5_rt * dt;
+      state = backup;
+      if (!integrate_with_retries(state, half_dt, depth + 1)) {
+        return false;
+      }
+      return integrate_with_retries(state, half_dt, depth + 1);
+    };
+
     for (int iz = 0; iz < n_zones; ++iz) {
       if (dt_h[iz] <= 0.0_rt) {
         continue;
       }
-      enforce_post_burn_constraints(states_h[iz]);
+
+      auto& state = states_h[iz];
+
+      if (!state.success || state.e <= 0.0_rt) {
+        burn_t retry_state = states_before[iz];
+        if (integrate_with_retries(retry_state, dt_h[iz], 0)) {
+          state = retry_state;
+        } else {
+          state = states_before[iz];
+          state.success = false;
+          active_h[iz] = 0;
+          dt_h[iz] = 0.0_rt;
+          continue;
+        }
+      }
+
+      enforce_post_burn_constraints(state);
       time_h[iz] += dt_h[iz];
     }
   }
@@ -404,7 +445,7 @@ auto burn_cell_multi_c() -> int {
   bool any_success = false;
 
   for (int iz = 0; iz < n_zones; ++iz) {
-    if (!states_h[iz].success) {
+    if (!states_h[iz].success || states_h[iz].e <= 0.0_rt) {
       ++failures;
       continue;
     }
