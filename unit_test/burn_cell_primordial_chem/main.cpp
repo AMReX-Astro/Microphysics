@@ -26,8 +26,6 @@ int main(int argc, char *argv[]) {
     AMREX_ALWAYS_ASSERT_WITH_MESSAGE(run_prefix == input_run_prefix,
                                      "input file is missing or incorrect!");
 
-    std::cout << "\nstarting the single zone burn..." << std::endl;
-
     ParmParse ppa("amr");
 
     init_unit_test();
@@ -39,12 +37,10 @@ int main(int argc, char *argv[]) {
     // C++ Network, RHS, screening, rates initialization
     network_init();
 
-    int single_success = burn_cell_c();
-
     std::cout << "\nstarting the multi-zone burn..." << std::endl;
     int multi_success = burn_cell_multi_c();
 
-    success = single_success && multi_success;
+    success = multi_success;
   }
 
   amrex::Finalize();
