@@ -5,6 +5,8 @@
 #include <iostream>
 
 #include <burner.H>
+#include <AMReX_GpuContainers.H>
+#include <AMReX_GpuDevice.H>
 #include <eos.H>
 #include <extern_parameters.H>
 #include <network.H>
@@ -190,7 +192,18 @@ auto burn_cell_c() -> int {
     state.rho *= dd / dd1;
 
     // do the actual integration
-    burner(state, dt);
+    {
+      amrex::AsyncArray<burn_t> state_device(&state, 1);
+      burn_t* state_ptr = state_device.data();
+
+      amrex::ParallelFor(1,
+                         [state_ptr, dt] AMREX_GPU_DEVICE(int idx) noexcept {
+                           burner(state_ptr[idx], dt);
+                         });
+
+      state_device.copyToHost(&state, 1);
+      amrex::Gpu::streamSynchronize();
+    }
 
     // ensure positivity and normalize
     amrex::Real inmfracs[NumSpec] = {-1.0};
