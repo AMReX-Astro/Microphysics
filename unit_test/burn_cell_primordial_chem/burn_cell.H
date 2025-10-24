@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <chrono>
 #include <fstream>
 #include <functional>
 #include <iomanip>
@@ -400,12 +401,18 @@ auto burn_cell_multi_c() -> int {
   std::vector<burn_t> cpu_states;
   std::vector<amrex::Real> cpu_times;
   MultiZoneSummary cpu_summary;
+  auto cpu_start = std::chrono::steady_clock::now();
   bool cpu_success = run_multi_zone(false, cpu_states, cpu_times, cpu_summary);
+  auto cpu_end = std::chrono::steady_clock::now();
+  std::chrono::duration<double> cpu_wall = cpu_end - cpu_start;
 
   std::vector<burn_t> gpu_states;
   std::vector<amrex::Real> gpu_times;
   MultiZoneSummary gpu_summary;
+  auto gpu_start = std::chrono::steady_clock::now();
   bool gpu_success = run_multi_zone(true, gpu_states, gpu_times, gpu_summary);
+  auto gpu_end = std::chrono::steady_clock::now();
+  std::chrono::duration<double> gpu_wall = gpu_end - gpu_start;
 
   auto print_summary = [&](const std::string &label,
                            const MultiZoneSummary &summary) {
@@ -424,7 +431,11 @@ auto burn_cell_multi_c() -> int {
   };
 
   print_summary("CPU", cpu_summary);
+  std::cout << "CPU multi-zone burn walltime (s): " << cpu_wall.count()
+            << std::endl;
   print_summary("GPU", gpu_summary);
+  std::cout << "GPU multi-zone burn walltime (s): " << gpu_wall.count()
+            << std::endl;
 
   auto within_tol = [&](amrex::Real a, amrex::Real b) -> bool {
     amrex::Real diff = std::abs(a - b);
