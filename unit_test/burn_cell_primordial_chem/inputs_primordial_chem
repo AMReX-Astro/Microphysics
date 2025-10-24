@@ -26,6 +26,8 @@ unit_test.primary_species_12 = 1e-40
 unit_test.primary_species_13 = 1e-40
 unit_test.primary_species_14 = 0.0775e0
 
+unit_test.n_zones = 32**3
+
 # integrator runtime parameters
 # are we using primordial chemistry? then we use number densities
 integrator.use_number_densities = 1

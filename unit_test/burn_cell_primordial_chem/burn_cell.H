@@ -177,11 +177,13 @@ void enforce_post_burn_constraints(burn_t &state) {
 
 
 AMREX_INLINE
-auto burn_cell_multi_c() -> int {
+auto burn_cell_multi_c(int n_zones) -> int {
 
-  constexpr int n_zones = 128;
   constexpr amrex::Real rel_tol = 1.0e-10_rt;
   constexpr amrex::Real abs_tol = 1.0e-12_rt;
+
+  AMREX_ALWAYS_ASSERT_WITH_MESSAGE(n_zones > 0,
+                                   "n_zones must be positive");
 
   struct MultiZoneSummary {
     int failures = 0;

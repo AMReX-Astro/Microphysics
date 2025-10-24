@@ -23,6 +23,9 @@ int main(int argc, char *argv[]) {
     std::string const run_prefix = "burn_cell_primordial_chem_";
     std::string input_run_prefix;
     pp.query("run_prefix", input_run_prefix);
+    int n_zones = 128;
+    pp.query("n_zones", n_zones);
+    amrex::Print() << "n_zones = " << n_zones << "\n";
     AMREX_ALWAYS_ASSERT_WITH_MESSAGE(run_prefix == input_run_prefix,
                                      "input file is missing or incorrect!");
 
@@ -38,7 +41,7 @@ int main(int argc, char *argv[]) {
     network_init();
 
     std::cout << "\nstarting the multi-zone burn..." << std::endl;
-    int multi_success = burn_cell_multi_c();
+    int multi_success = burn_cell_multi_c(n_zones);
 
     success = multi_success;
   }
