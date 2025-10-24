@@ -8,6 +8,7 @@
 #include <iomanip>
 #include <iostream>
 #include <limits>
+#include <map>
 #include <sstream>
 #include <vector>
 
@@ -575,69 +576,87 @@ auto burn_cell_multi_c() -> int {
     return diff <= (abs_tol + rel_tol * scale);
   };
 
-  auto report_mismatch = [&](int zone, const std::string &field,
-                             amrex::Real cpu_value, amrex::Real gpu_value) {
-    std::cout << "zone " << zone << " " << field
-              << " mismatch: CPU = " << cpu_value
-              << ", GPU = " << gpu_value << std::endl;
+  struct MismatchStats {
+    int count = 0;
+    amrex::Real max_abs_diff = 0.0_rt;
+    int max_zone = -1;
+    amrex::Real cpu_value_at_max = 0.0_rt;
+    amrex::Real gpu_value_at_max = 0.0_rt;
   };
 
-  bool states_match = true;
-  for (int iz = 0; iz < n_zones && states_match; ++iz) {
+  std::map<std::string, MismatchStats> mismatch_summary;
+
+  auto record_mismatch = [&](int zone, const std::string &field,
+                             amrex::Real cpu_value, amrex::Real gpu_value) {
+    auto &stats = mismatch_summary[field];
+    stats.count++;
+    amrex::Real diff = std::abs(cpu_value - gpu_value);
+    if (stats.max_zone < 0 || diff > stats.max_abs_diff) {
+      stats.max_abs_diff = diff;
+      stats.max_zone = zone;
+      stats.cpu_value_at_max = cpu_value;
+      stats.gpu_value_at_max = gpu_value;
+    }
+  };
+
+  for (int iz = 0; iz < n_zones; ++iz) {
     bool cpu_zone_success =
         cpu_states[iz].success && cpu_states[iz].e > 0.0_rt;
     bool gpu_zone_success =
         gpu_states[iz].success && gpu_states[iz].e > 0.0_rt;
 
     if (cpu_zone_success != gpu_zone_success) {
-      std::cout << "zone " << iz
-                << " mismatch in success flag between CPU and GPU runs"
-                << std::endl;
-      states_match = false;
-      break;
+      record_mismatch(iz, "success_flag",
+                      cpu_zone_success ? 1.0_rt : 0.0_rt,
+                      gpu_zone_success ? 1.0_rt : 0.0_rt);
+      continue;
     }
     if (!cpu_zone_success) {
       continue;
     }
 
     if (!within_tol(cpu_times[iz], gpu_times[iz])) {
-      report_mismatch(iz, "time", cpu_times[iz], gpu_times[iz]);
-      states_match = false;
-      break;
+      record_mismatch(iz, "time", cpu_times[iz], gpu_times[iz]);
     }
 
     if (!within_tol(cpu_states[iz].rho, gpu_states[iz].rho)) {
-      report_mismatch(iz, "rho", cpu_states[iz].rho, gpu_states[iz].rho);
-      states_match = false;
-      break;
+      record_mismatch(iz, "rho", cpu_states[iz].rho, gpu_states[iz].rho);
     }
     if (!within_tol(cpu_states[iz].T, gpu_states[iz].T)) {
-      report_mismatch(iz, "T", cpu_states[iz].T, gpu_states[iz].T);
-      states_match = false;
-      break;
+      record_mismatch(iz, "T", cpu_states[iz].T, gpu_states[iz].T);
     }
     if (!within_tol(cpu_states[iz].e, gpu_states[iz].e)) {
-      report_mismatch(iz, "e", cpu_states[iz].e, gpu_states[iz].e);
-      states_match = false;
-      break;
+      record_mismatch(iz, "e", cpu_states[iz].e, gpu_states[iz].e);
     }
     for (int n = 0; n < NumSpec; ++n) {
       if (!within_tol(cpu_states[iz].xn[n], gpu_states[iz].xn[n])) {
         std::string label =
             "xn(" + std::string(short_spec_names_cxx[n]) + ")";
-        report_mismatch(iz, label, cpu_states[iz].xn[n],
+        record_mismatch(iz, label, cpu_states[iz].xn[n],
                         gpu_states[iz].xn[n]);
-        states_match = false;
-        break;
       }
     }
   }
 
-  if (states_match) {
+  if (mismatch_summary.empty()) {
     std::cout << "CPU/GPU multi-zone states agree within tolerances"
               << std::endl;
+  } else {
+    std::cout << "CPU/GPU mismatches detected:" << std::endl;
+    for (const auto &entry : mismatch_summary) {
+      const auto &field = entry.first;
+      const auto &stats = entry.second;
+      std::cout << "  field " << field << " mismatched in " << stats.count
+                << " zone(s)";
+      if (stats.max_zone >= 0) {
+        std::cout << "; largest difference at zone " << stats.max_zone
+                  << " (CPU = " << stats.cpu_value_at_max
+                  << ", GPU = " << stats.gpu_value_at_max << ")";
+      }
+      std::cout << std::endl;
+    }
   }
 
-  return (cpu_success && gpu_success && states_match);
+  return (cpu_success && gpu_success && mismatch_summary.empty());
 }
 #endif
