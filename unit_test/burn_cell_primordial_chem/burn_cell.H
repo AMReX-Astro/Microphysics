@@ -322,188 +322,322 @@ AMREX_INLINE
 auto burn_cell_multi_c() -> int {
 
   constexpr int n_zones = 128;
+  constexpr amrex::Real rel_tol = 1.0e-10_rt;
+  constexpr amrex::Real abs_tol = 1.0e-12_rt;
 
-  amrex::Gpu::HostVector<burn_t> states_h(n_zones);
-  amrex::Gpu::HostVector<amrex::Real> dd_h(n_zones);
-  amrex::Gpu::HostVector<amrex::Real> dt_h(n_zones);
-  amrex::Gpu::HostVector<amrex::Real> time_h(n_zones);
-  std::vector<burn_t> states_before(n_zones);
-  std::vector<int> active_h(n_zones, 1);
-  int retry_total = 0;
+  struct MultiZoneSummary {
+    int failures = 0;
+    int retries = 0;
+    amrex::Real t_min = std::numeric_limits<amrex::Real>::max();
+    amrex::Real t_max = -std::numeric_limits<amrex::Real>::max();
+    bool any_success = false;
+  };
 
-  for (int iz = 0; iz < n_zones; ++iz) {
-    amrex::Real temp_offset =
-        0.5_rt * unit_test_rp::temperature *
-        (static_cast<amrex::Real>(iz) / static_cast<amrex::Real>(n_zones - 1) -
-         0.5_rt);
-    init_burn_state(states_h[iz], 1.0_rt, temp_offset, false);
-    dd_h[iz] = states_h[iz].rho;
-    dt_h[iz] = 0.0_rt;
-    time_h[iz] = 0.0_rt;
-  }
+  auto run_multi_zone = [&](bool use_gpu, std::vector<burn_t> &final_states,
+                            std::vector<amrex::Real> &final_times,
+                            MultiZoneSummary &summary) -> bool {
+    amrex::Gpu::HostVector<burn_t> states_h(n_zones);
+    amrex::Gpu::HostVector<amrex::Real> dd_h(n_zones);
+    amrex::Gpu::HostVector<amrex::Real> dt_h(n_zones);
+    amrex::Gpu::HostVector<amrex::Real> time_h(n_zones);
+    std::vector<burn_t> states_before(n_zones);
+    std::vector<int> active_h(n_zones, 1);
 
-  amrex::Gpu::DeviceVector<burn_t> states_d(n_zones);
-  amrex::Gpu::DeviceVector<amrex::Real> dt_d(n_zones);
-
-  for (int step = 0; step < unit_test_rp::nsteps; ++step) {
-    bool any_active = false;
+    summary = MultiZoneSummary{};
+    int retry_total = 0;
 
     for (int iz = 0; iz < n_zones; ++iz) {
-      if (active_h[iz] == 0) {
-        dt_h[iz] = 0.0_rt;
-        continue;
-      }
-
-      amrex::Real dd1 = dd_h[iz];
-      amrex::Real rhotmp = 0.0_rt;
-      for (int nn = 0; nn < NumSpec; ++nn) {
-        rhotmp += states_h[iz].xn[nn] * spmasses[nn];
-      }
-      amrex::Real tff =
-          std::sqrt(M_PI * 3.0_rt / (32.0_rt * rhotmp * grav_constant));
-      amrex::Real dt = unit_test_rp::tff_reduc * tff;
-      amrex::Real dd_new = dd1 + dt * (dd1 / tff);
-
-      if (dt < 10.0_rt || dd_new > 2.0e-6_rt) {
-        active_h[iz] = 0;
-        dt_h[iz] = 0.0_rt;
-        continue;
-      }
-
-      amrex::Real ratio = dd_new / dd1;
-      for (int nn = 0; nn < NumSpec; ++nn) {
-        states_h[iz].xn[nn] *= ratio;
-      }
-      states_h[iz].rho *= ratio;
-
-      states_h[iz].suppress_failure_output = true;
-
-      states_before[iz] = states_h[iz];
-
-      dd_h[iz] = dd_new;
-      dt_h[iz] = dt;
-      any_active = true;
+      amrex::Real temp_offset =
+          0.5_rt * unit_test_rp::temperature *
+          (static_cast<amrex::Real>(iz) /
+               static_cast<amrex::Real>(n_zones - 1) -
+           0.5_rt);
+      init_burn_state(states_h[iz], 1.0_rt, temp_offset, false);
+      dd_h[iz] = states_h[iz].rho;
+      dt_h[iz] = 0.0_rt;
+      time_h[iz] = 0.0_rt;
+      active_h[iz] = 1;
     }
 
-    if (!any_active) {
-      break;
+    amrex::Gpu::DeviceVector<burn_t> states_d;
+    amrex::Gpu::DeviceVector<amrex::Real> dt_d;
+    if (use_gpu) {
+      states_d.resize(n_zones);
+      dt_d.resize(n_zones);
     }
-
-    amrex::Gpu::copyAsync(amrex::Gpu::hostToDevice, states_h.begin(),
-                          states_h.end(), states_d.begin());
-    amrex::Gpu::copyAsync(amrex::Gpu::hostToDevice, dt_h.begin(),
-                          dt_h.end(), dt_d.begin());
-    amrex::Gpu::streamSynchronize();
-
-    burn_t *states_ptr = states_d.data();
-    const amrex::Real *dt_ptr = dt_d.data();
-
-    amrex::ParallelFor(
-        n_zones, [states_ptr, dt_ptr] AMREX_GPU_DEVICE(int idx) noexcept {
-          amrex::Real dt = dt_ptr[idx];
-          if (dt <= 0.0_rt) {
-            return;
-          }
-          burner(states_ptr[idx], dt);
-        });
-    amrex::Gpu::streamSynchronize();
-
-    amrex::Gpu::copyAsync(amrex::Gpu::deviceToHost, states_d.begin(),
-                          states_d.end(), states_h.begin());
-    amrex::Gpu::streamSynchronize();
 
     const int max_split_depth = 6;
     constexpr amrex::Real min_split_dt = 1.0_rt;
-    auto burn_on_gpu = [](burn_t &state, amrex::Real dt) {
+
+    auto burn_backend = [&](burn_t &state, amrex::Real dt) {
       state.time = 0.0_rt;
       state.suppress_failure_output = true;
 
-      amrex::AsyncArray<burn_t> state_device(&state, 1);
-      burn_t *state_ptr = state_device.data();
+      if (use_gpu) {
+        amrex::AsyncArray<burn_t> state_device(&state, 1);
+        burn_t *state_ptr = state_device.data();
 
-      amrex::ParallelFor(
-          1, [state_ptr, dt] AMREX_GPU_DEVICE(int idx) noexcept {
-            burner(state_ptr[idx], dt);
-          });
+        amrex::ParallelFor(
+            1, [state_ptr, dt] AMREX_GPU_DEVICE(int idx) noexcept {
+              burner(state_ptr[idx], dt);
+            });
 
-      state_device.copyToHost(&state, 1);
-      amrex::Gpu::streamSynchronize();
+        state_device.copyToHost(&state, 1);
+        amrex::Gpu::streamSynchronize();
+      } else {
+        burner(state, dt);
+      }
     };
 
-    std::function<bool(burn_t&, amrex::Real, int)> integrate_with_retries;
-    integrate_with_retries = [&](burn_t& state, amrex::Real dt,
+    std::function<bool(burn_t &, amrex::Real, int)> integrate_with_retries;
+    integrate_with_retries = [&](burn_t &state, amrex::Real dt,
                                  int depth) -> bool {
       burn_t backup = state;
-      burn_on_gpu(state, dt);
+      burn_backend(state, dt);
       if (state.success && state.e > 0.0_rt) {
         state.suppress_failure_output = false;
         return true;
       }
       if (depth >= max_split_depth || 0.5_rt * dt <= min_split_dt) {
         state = backup;
+        state.suppress_failure_output = false;
         return false;
       }
       amrex::Real half_dt = 0.5_rt * dt;
       state = backup;
       if (!integrate_with_retries(state, half_dt, depth + 1)) {
+        state.suppress_failure_output = false;
         return false;
       }
-      return integrate_with_retries(state, half_dt, depth + 1);
+      bool status = integrate_with_retries(state, half_dt, depth + 1);
+      state.suppress_failure_output = false;
+      return status;
     };
 
-    for (int iz = 0; iz < n_zones; ++iz) {
-      if (dt_h[iz] <= 0.0_rt) {
-        continue;
-      }
+    for (int step = 0; step < unit_test_rp::nsteps; ++step) {
+      bool any_active = false;
 
-      auto& state = states_h[iz];
+      for (int iz = 0; iz < n_zones; ++iz) {
+        if (active_h[iz] == 0) {
+          dt_h[iz] = 0.0_rt;
+          continue;
+        }
 
-      if (!state.success || state.e <= 0.0_rt) {
-        burn_t retry_state = states_before[iz];
-        retry_state.suppress_failure_output = false;
-        ++retry_total;
-        if (integrate_with_retries(retry_state, dt_h[iz], 0)) {
-          state = retry_state;
-        } else {
-          state = states_before[iz];
-          state.success = false;
+        amrex::Real dd1 = dd_h[iz];
+        amrex::Real rhotmp = 0.0_rt;
+        for (int nn = 0; nn < NumSpec; ++nn) {
+          rhotmp += states_h[iz].xn[nn] * spmasses[nn];
+        }
+        amrex::Real tff =
+            std::sqrt(M_PI * 3.0_rt / (32.0_rt * rhotmp * grav_constant));
+        amrex::Real dt = unit_test_rp::tff_reduc * tff;
+        amrex::Real dd_new = dd1 + dt * (dd1 / tff);
+
+        if (dt < 10.0_rt || dd_new > 2.0e-6_rt) {
           active_h[iz] = 0;
           dt_h[iz] = 0.0_rt;
           continue;
         }
+
+        amrex::Real ratio = dd_new / dd1;
+        for (int nn = 0; nn < NumSpec; ++nn) {
+          states_h[iz].xn[nn] *= ratio;
+        }
+        states_h[iz].rho *= ratio;
+
+        states_h[iz].suppress_failure_output = true;
+        states_before[iz] = states_h[iz];
+
+        dd_h[iz] = dd_new;
+        dt_h[iz] = dt;
+        any_active = true;
       }
 
-      state.suppress_failure_output = false;
-      enforce_post_burn_constraints(state);
-      time_h[iz] += dt_h[iz];
+      if (!any_active) {
+        break;
+      }
+
+      if (use_gpu) {
+        amrex::Gpu::copyAsync(amrex::Gpu::hostToDevice, states_h.begin(),
+                              states_h.end(), states_d.begin());
+        amrex::Gpu::copyAsync(amrex::Gpu::hostToDevice, dt_h.begin(),
+                              dt_h.end(), dt_d.begin());
+        amrex::Gpu::streamSynchronize();
+
+        burn_t *states_ptr = states_d.data();
+        const amrex::Real *dt_ptr = dt_d.data();
+
+        amrex::ParallelFor(
+            n_zones, [states_ptr, dt_ptr] AMREX_GPU_DEVICE(int idx) noexcept {
+              amrex::Real dt = dt_ptr[idx];
+              if (dt <= 0.0_rt) {
+                return;
+              }
+              burner(states_ptr[idx], dt);
+            });
+        amrex::Gpu::streamSynchronize();
+
+        amrex::Gpu::copyAsync(amrex::Gpu::deviceToHost, states_d.begin(),
+                              states_d.end(), states_h.begin());
+        amrex::Gpu::streamSynchronize();
+      } else {
+        for (int iz = 0; iz < n_zones; ++iz) {
+          amrex::Real dt = dt_h[iz];
+          if (dt <= 0.0_rt) {
+            continue;
+          }
+          burn_backend(states_h[iz], dt);
+        }
+      }
+
+      for (int iz = 0; iz < n_zones; ++iz) {
+        if (dt_h[iz] <= 0.0_rt) {
+          continue;
+        }
+
+        auto &state = states_h[iz];
+
+        if (!state.success || state.e <= 0.0_rt) {
+          burn_t retry_state = states_before[iz];
+          retry_state.suppress_failure_output = false;
+          ++retry_total;
+          if (integrate_with_retries(retry_state, dt_h[iz], 0)) {
+            state = retry_state;
+          } else {
+            state = states_before[iz];
+            state.success = false;
+            active_h[iz] = 0;
+            dt_h[iz] = 0.0_rt;
+            continue;
+          }
+        }
+
+        state.suppress_failure_output = false;
+        enforce_post_burn_constraints(state);
+        time_h[iz] += dt_h[iz];
+      }
     }
-  }
 
-  int failures = 0;
-  amrex::Real t_min = std::numeric_limits<amrex::Real>::max();
-  amrex::Real t_max = -std::numeric_limits<amrex::Real>::max();
-  bool any_success = false;
+    summary.failures = 0;
+    summary.t_min = std::numeric_limits<amrex::Real>::max();
+    summary.t_max = -std::numeric_limits<amrex::Real>::max();
+    summary.any_success = false;
+    summary.retries = retry_total;
 
-  for (int iz = 0; iz < n_zones; ++iz) {
-    if (!states_h[iz].success || states_h[iz].e <= 0.0_rt) {
-      ++failures;
+    for (int iz = 0; iz < n_zones; ++iz) {
+      if (!states_h[iz].success || states_h[iz].e <= 0.0_rt) {
+        ++summary.failures;
+        continue;
+      }
+      summary.any_success = true;
+      summary.t_min = std::min(summary.t_min, states_h[iz].T);
+      summary.t_max = std::max(summary.t_max, states_h[iz].T);
+    }
+
+    final_states.assign(states_h.begin(), states_h.end());
+    final_times.assign(time_h.begin(), time_h.end());
+
+    return (summary.failures == 0);
+  };
+
+  std::vector<burn_t> cpu_states;
+  std::vector<amrex::Real> cpu_times;
+  MultiZoneSummary cpu_summary;
+  bool cpu_success = run_multi_zone(false, cpu_states, cpu_times, cpu_summary);
+
+  std::vector<burn_t> gpu_states;
+  std::vector<amrex::Real> gpu_times;
+  MultiZoneSummary gpu_summary;
+  bool gpu_success = run_multi_zone(true, gpu_states, gpu_times, gpu_summary);
+
+  auto print_summary = [&](const std::string &label,
+                           const MultiZoneSummary &summary) {
+    std::cout << label << " multi-zone burn complete; zones failed = "
+              << summary.failures << std::endl;
+    if (summary.any_success) {
+      std::cout << label << " multi-zone temperature range: ["
+                << summary.t_min << ", " << summary.t_max << "]"
+                << std::endl;
+      std::cout << label << " multi-zone retries applied: "
+                << summary.retries << std::endl;
+    } else {
+      std::cout << label << " multi-zone burn had no successful zones"
+                << std::endl;
+    }
+  };
+
+  print_summary("CPU", cpu_summary);
+  print_summary("GPU", gpu_summary);
+
+  auto within_tol = [&](amrex::Real a, amrex::Real b) -> bool {
+    amrex::Real diff = std::abs(a - b);
+    amrex::Real scale = std::max(std::abs(a), std::abs(b));
+    return diff <= (abs_tol + rel_tol * scale);
+  };
+
+  auto report_mismatch = [&](int zone, const std::string &field,
+                             amrex::Real cpu_value, amrex::Real gpu_value) {
+    std::cout << "zone " << zone << " " << field
+              << " mismatch: CPU = " << cpu_value
+              << ", GPU = " << gpu_value << std::endl;
+  };
+
+  bool states_match = true;
+  for (int iz = 0; iz < n_zones && states_match; ++iz) {
+    bool cpu_zone_success =
+        cpu_states[iz].success && cpu_states[iz].e > 0.0_rt;
+    bool gpu_zone_success =
+        gpu_states[iz].success && gpu_states[iz].e > 0.0_rt;
+
+    if (cpu_zone_success != gpu_zone_success) {
+      std::cout << "zone " << iz
+                << " mismatch in success flag between CPU and GPU runs"
+                << std::endl;
+      states_match = false;
+      break;
+    }
+    if (!cpu_zone_success) {
       continue;
     }
-    any_success = true;
-    t_min = std::min(t_min, states_h[iz].T);
-    t_max = std::max(t_max, states_h[iz].T);
+
+    if (!within_tol(cpu_times[iz], gpu_times[iz])) {
+      report_mismatch(iz, "time", cpu_times[iz], gpu_times[iz]);
+      states_match = false;
+      break;
+    }
+
+    if (!within_tol(cpu_states[iz].rho, gpu_states[iz].rho)) {
+      report_mismatch(iz, "rho", cpu_states[iz].rho, gpu_states[iz].rho);
+      states_match = false;
+      break;
+    }
+    if (!within_tol(cpu_states[iz].T, gpu_states[iz].T)) {
+      report_mismatch(iz, "T", cpu_states[iz].T, gpu_states[iz].T);
+      states_match = false;
+      break;
+    }
+    if (!within_tol(cpu_states[iz].e, gpu_states[iz].e)) {
+      report_mismatch(iz, "e", cpu_states[iz].e, gpu_states[iz].e);
+      states_match = false;
+      break;
+    }
+    for (int n = 0; n < NumSpec; ++n) {
+      if (!within_tol(cpu_states[iz].xn[n], gpu_states[iz].xn[n])) {
+        std::string label =
+            "xn(" + std::string(short_spec_names_cxx[n]) + ")";
+        report_mismatch(iz, label, cpu_states[iz].xn[n],
+                        gpu_states[iz].xn[n]);
+        states_match = false;
+        break;
+      }
+    }
   }
 
-  std::cout << "multi-zone burn complete; zones failed = " << failures
-            << std::endl;
-  if (any_success) {
-    std::cout << "multi-zone temperature range: [" << t_min << ", " << t_max
-              << "]" << std::endl;
-    std::cout << "multi-zone retries applied: " << retry_total << std::endl;
-  } else {
-    std::cout << "multi-zone burn had no successful zones" << std::endl;
+  if (states_match) {
+    std::cout << "CPU/GPU multi-zone states agree within tolerances"
+              << std::endl;
   }
 
-  return (failures == 0);
+  return (cpu_success && gpu_success && states_match);
 }
 #endif
