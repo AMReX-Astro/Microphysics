@@ -39,7 +39,12 @@ int main(int argc, char *argv[]) {
     // C++ Network, RHS, screening, rates initialization
     network_init();
 
-    success = burn_cell_c();
+    int single_success = burn_cell_c();
+
+    std::cout << "starting the multi-zone burn..." << std::endl;
+    int multi_success = burn_cell_multi_c();
+
+    success = single_success && multi_success;
   }
 
   amrex::Finalize();

@@ -1,12 +1,17 @@
 #ifndef BURN_CELL_H
 #define BURN_CELL_H
 
+#include <algorithm>
+#include <cmath>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
+#include <limits>
+#include <vector>
 
-#include <burner.H>
 #include <AMReX_GpuContainers.H>
 #include <AMReX_GpuDevice.H>
+#include <burner.H>
 #include <eos.H>
 #include <extern_parameters.H>
 #include <network.H>
@@ -14,10 +19,11 @@
 
 amrex::Real grav_constant = 6.674e-8;
 
-AMREX_INLINE
-auto burn_cell_c() -> int {
+namespace {
 
-  burn_t state;
+AMREX_INLINE
+void init_burn_state(burn_t &state, amrex::Real density_scale,
+                     amrex::Real temp_offset, bool print_initial) {
 
   amrex::Real numdens[NumSpec] = {-1.0};
 
@@ -69,23 +75,28 @@ auto burn_cell_c() -> int {
     }
   }
 
-  // Echo initial conditions at burn and fill burn state input
-
-  std::cout << "Maximum Time (s): " << unit_test_rp::tmax << std::endl;
-  std::cout << "State Temperature (K): " << unit_test_rp::temperature << std::endl;
   for (int n = 0; n < NumSpec; ++n) {
-    std::cout << "Number Density input (" << short_spec_names_cxx[n]
-              << "): " << numdens[n] << std::endl;
+    numdens[n] *= density_scale;
   }
 
-  state.T = unit_test_rp::temperature;
+  if (print_initial) {
+    std::cout << "Maximum Time (s): " << unit_test_rp::tmax << std::endl;
+    std::cout << "State Temperature (K): "
+              << unit_test_rp::temperature + temp_offset << std::endl;
+    for (int n = 0; n < NumSpec; ++n) {
+      std::cout << "Number Density input (" << short_spec_names_cxx[n]
+                << "): " << numdens[n] << std::endl;
+    }
+  }
+
+  state = burn_t{};
+  state.T = unit_test_rp::temperature + temp_offset;
 
   // find the density in g/cm^3
   amrex::Real rhotot = 0.0_rt;
   for (int n = 0; n < NumSpec; ++n) {
     state.xn[n] = numdens[n];
-    rhotot += state.xn[n] * spmasses[n]; // spmasses contains the masses of all
-                                         // species, defined in EOS
+    rhotot += state.xn[n] * spmasses[n];
   }
 
   state.rho = rhotot;
@@ -107,16 +118,64 @@ auto burn_cell_c() -> int {
   }
 
 #ifdef DEBUG
-  for (int n = 0; n < NumSpec; ++n) {
-    std::cout << "Mass fractions (" << short_spec_names_cxx[n]
-              << "): " << mfracs[n] << std::endl;
-    std::cout << "Number Density conserved (" << short_spec_names_cxx[n]
-              << "): " << state.xn[n] << std::endl;
+  if (print_initial) {
+    for (int n = 0; n < NumSpec; ++n) {
+      std::cout << "Mass fractions (" << short_spec_names_cxx[n]
+                << "): " << mfracs[n] << std::endl;
+      std::cout << "Number Density conserved (" << short_spec_names_cxx[n]
+                << "): " << state.xn[n] << std::endl;
+    }
   }
 #endif
 
-  // call the EOS to set initial internal energy e
   eos(eos_input_rt, state);
+}
+
+AMREX_INLINE
+void enforce_post_burn_constraints(burn_t &state) {
+
+  amrex::Real inmfracs[NumSpec] = {-1.0};
+  amrex::Real insum = 0.0_rt;
+  for (int nn = 0; nn < NumSpec; ++nn) {
+    state.xn[nn] = amrex::max(state.xn[nn], small_x);
+    inmfracs[nn] = spmasses[nn] * state.xn[nn] / state.rho;
+    insum += inmfracs[nn];
+  }
+
+  for (int nn = 0; nn < NumSpec; ++nn) {
+    inmfracs[nn] /= insum;
+    // update the number densities with conserved mass fractions
+    state.xn[nn] = inmfracs[nn] * state.rho / spmasses[nn];
+  }
+
+  // update the number density of electrons due to charge conservation
+  balance_charge(state);
+
+  // reconserve mass fractions post charge conservation
+  insum = 0.0_rt;
+  for (int nn = 0; nn < NumSpec; ++nn) {
+    state.xn[nn] = amrex::max(state.xn[nn], small_x);
+    inmfracs[nn] = spmasses[nn] * state.xn[nn] / state.rho;
+    insum += inmfracs[nn];
+  }
+
+  for (int nn = 0; nn < NumSpec; ++nn) {
+    inmfracs[nn] /= insum;
+    // update the number densities with conserved mass fractions
+    state.xn[nn] = inmfracs[nn] * state.rho / spmasses[nn];
+  }
+
+  // get the updated T
+  eos(eos_input_re, state);
+}
+
+} // namespace
+
+AMREX_INLINE
+auto burn_cell_c() -> int {
+
+  burn_t state{};
+  init_burn_state(state, 1.0_rt, 0.0_rt, true);
 
   // name of output file
   std::ofstream state_over_time("state_over_time.txt");
@@ -147,7 +206,7 @@ auto burn_cell_c() -> int {
 
   // loop over steps, burn, and output the current state
   // the loop below is similar to that used in krome and pynucastro
-  amrex::Real dd = rhotot;
+  amrex::Real dd = state.rho;
   amrex::Real dd1 = 0.0_rt;
 
   for (int n = 0; n < unit_test_rp::nsteps; n++) {
@@ -205,40 +264,7 @@ auto burn_cell_c() -> int {
       amrex::Gpu::streamSynchronize();
     }
 
-    // ensure positivity and normalize
-    amrex::Real inmfracs[NumSpec] = {-1.0};
-    amrex::Real insum = 0.0_rt;
-    for (int nn = 0; nn < NumSpec; ++nn) {
-      state.xn[nn] = amrex::max(state.xn[nn], small_x);
-      inmfracs[nn] = spmasses[nn] * state.xn[nn] / state.rho;
-      insum += inmfracs[nn];
-    }
-
-    for (int nn = 0; nn < NumSpec; ++nn) {
-      inmfracs[nn] /= insum;
-      // update the number densities with conserved mass fractions
-      state.xn[nn] = inmfracs[nn] * state.rho / spmasses[nn];
-    }
-
-    // update the number density of electrons due to charge conservation
-    balance_charge(state);
-
-    // reconserve mass fractions post charge conservation
-    insum = 0;
-    for (int nn = 0; nn < NumSpec; ++nn) {
-      state.xn[nn] = amrex::max(state.xn[nn], small_x);
-      inmfracs[nn] = spmasses[nn] * state.xn[nn] / state.rho;
-      insum += inmfracs[nn];
-    }
-
-    for (int nn = 0; nn < NumSpec; ++nn) {
-      inmfracs[nn] /= insum;
-      // update the number densities with conserved mass fractions
-      state.xn[nn] = inmfracs[nn] * state.rho / spmasses[nn];
-    }
-
-    // get the updated T
-    eos(eos_input_re, state);
+    enforce_post_burn_constraints(state);
 
     t += dt;
 
@@ -271,5 +297,131 @@ auto burn_cell_c() -> int {
   }
 
   return state.success;
+}
+
+AMREX_INLINE
+auto burn_cell_multi_c() -> int {
+
+  constexpr int n_zones = 128;
+
+  amrex::Gpu::HostVector<burn_t> states_h(n_zones);
+  amrex::Gpu::HostVector<amrex::Real> dd_h(n_zones);
+  amrex::Gpu::HostVector<amrex::Real> dt_h(n_zones);
+  amrex::Gpu::HostVector<amrex::Real> time_h(n_zones);
+  std::vector<int> active_h(n_zones, 1);
+
+  for (int iz = 0; iz < n_zones; ++iz) {
+    amrex::Real temp_offset =
+        0.0001_rt * unit_test_rp::temperature *
+        (static_cast<amrex::Real>(iz) / static_cast<amrex::Real>(n_zones - 1) -
+         0.5_rt);
+    init_burn_state(states_h[iz], 1.0_rt, temp_offset, false);
+    dd_h[iz] = states_h[iz].rho;
+    dt_h[iz] = 0.0_rt;
+    time_h[iz] = 0.0_rt;
+  }
+
+  amrex::Gpu::DeviceVector<burn_t> states_d(n_zones);
+  amrex::Gpu::DeviceVector<amrex::Real> dt_d(n_zones);
+
+  constexpr amrex::Real multi_zone_dt_scale = 0.25_rt;
+
+  for (int step = 0; step < unit_test_rp::nsteps; ++step) {
+    bool any_active = false;
+
+    for (int iz = 0; iz < n_zones; ++iz) {
+      if (active_h[iz] == 0) {
+        dt_h[iz] = 0.0_rt;
+        continue;
+      }
+
+      amrex::Real dd1 = dd_h[iz];
+      amrex::Real rhotmp = 0.0_rt;
+      for (int nn = 0; nn < NumSpec; ++nn) {
+        rhotmp += states_h[iz].xn[nn] * spmasses[nn];
+      }
+      amrex::Real tff =
+          std::sqrt(M_PI * 3.0_rt / (32.0_rt * rhotmp * grav_constant));
+      amrex::Real dt = multi_zone_dt_scale * unit_test_rp::tff_reduc * tff;
+      amrex::Real dd_new = dd1 + dt * (dd1 / tff);
+
+      if (dt < 10.0_rt || dd_new > 2.0e-6_rt) {
+        active_h[iz] = 0;
+        dt_h[iz] = 0.0_rt;
+        continue;
+      }
+
+      amrex::Real ratio = dd_new / dd1;
+      for (int nn = 0; nn < NumSpec; ++nn) {
+        states_h[iz].xn[nn] *= ratio;
+      }
+      states_h[iz].rho *= ratio;
+
+      dd_h[iz] = dd_new;
+      dt_h[iz] = dt;
+      any_active = true;
+    }
+
+    if (!any_active) {
+      break;
+    }
+
+    amrex::Gpu::copyAsync(amrex::Gpu::hostToDevice, states_h.begin(),
+                          states_h.end(), states_d.begin());
+    amrex::Gpu::copyAsync(amrex::Gpu::hostToDevice, dt_h.begin(),
+                          dt_h.end(), dt_d.begin());
+    amrex::Gpu::streamSynchronize();
+
+    burn_t *states_ptr = states_d.data();
+    const amrex::Real *dt_ptr = dt_d.data();
+
+    amrex::ParallelFor(
+        n_zones, [states_ptr, dt_ptr] AMREX_GPU_DEVICE(int idx) noexcept {
+          amrex::Real dt = dt_ptr[idx];
+          if (dt <= 0.0_rt) {
+            return;
+          }
+          burner(states_ptr[idx], dt);
+        });
+    amrex::Gpu::streamSynchronize();
+
+    amrex::Gpu::copyAsync(amrex::Gpu::deviceToHost, states_d.begin(),
+                          states_d.end(), states_h.begin());
+    amrex::Gpu::streamSynchronize();
+
+    for (int iz = 0; iz < n_zones; ++iz) {
+      if (dt_h[iz] <= 0.0_rt) {
+        continue;
+      }
+      enforce_post_burn_constraints(states_h[iz]);
+      time_h[iz] += dt_h[iz];
+    }
+  }
+
+  int failures = 0;
+  amrex::Real t_min = std::numeric_limits<amrex::Real>::max();
+  amrex::Real t_max = -std::numeric_limits<amrex::Real>::max();
+  bool any_success = false;
+
+  for (int iz = 0; iz < n_zones; ++iz) {
+    if (!states_h[iz].success) {
+      ++failures;
+      continue;
+    }
+    any_success = true;
+    t_min = std::min(t_min, states_h[iz].T);
+    t_max = std::max(t_max, states_h[iz].T);
+  }
+
+  std::cout << "multi-zone burn complete; zones failed = " << failures
+            << std::endl;
+  if (any_success) {
+    std::cout << "multi-zone temperature range: [" << t_min << ", " << t_max
+              << "]" << std::endl;
+  } else {
+    std::cout << "multi-zone burn had no successful zones" << std::endl;
+  }
+
+  return (failures == 0);
 }
 #endif
