@@ -156,6 +156,9 @@ struct burn_t
   // integrator error code
   short error_code{};
 
+  // suppress verbose failure diagnostics (useful for GPU retries)
+  bool suppress_failure_output{};
+
 };
 
 

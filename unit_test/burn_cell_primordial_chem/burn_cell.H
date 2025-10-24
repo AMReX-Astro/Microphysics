@@ -253,6 +253,7 @@ auto burn_cell_c() -> int {
 
     // do the actual integration
     {
+      state.suppress_failure_output = true;
       amrex::AsyncArray<burn_t> state_device(&state, 1);
       burn_t* state_ptr = state_device.data();
 
@@ -263,6 +264,7 @@ auto burn_cell_c() -> int {
 
       state_device.copyToHost(&state, 1);
       amrex::Gpu::streamSynchronize();
+      state.suppress_failure_output = false;
     }
 
     enforce_post_burn_constraints(state);
@@ -311,6 +313,7 @@ auto burn_cell_multi_c() -> int {
   amrex::Gpu::HostVector<amrex::Real> time_h(n_zones);
   std::vector<burn_t> states_before(n_zones);
   std::vector<int> active_h(n_zones, 1);
+  int retry_total = 0;
 
   for (int iz = 0; iz < n_zones; ++iz) {
     amrex::Real temp_offset =
@@ -357,6 +360,8 @@ auto burn_cell_multi_c() -> int {
       }
       states_h[iz].rho *= ratio;
 
+      states_h[iz].suppress_failure_output = true;
+
       states_before[iz] = states_h[iz];
 
       dd_h[iz] = dd_new;
@@ -398,8 +403,10 @@ auto burn_cell_multi_c() -> int {
                                  int depth) -> bool {
       burn_t backup = state;
       state.time = 0.0_rt;
+      state.suppress_failure_output = true;
       burner(state, dt);
       if (state.success && state.e > 0.0_rt) {
+        state.suppress_failure_output = false;
         return true;
       }
       if (depth >= max_split_depth || 0.5_rt * dt <= min_split_dt) {
@@ -423,6 +430,8 @@ auto burn_cell_multi_c() -> int {
 
       if (!state.success || state.e <= 0.0_rt) {
         burn_t retry_state = states_before[iz];
+        retry_state.suppress_failure_output = false;
+        ++retry_total;
         if (integrate_with_retries(retry_state, dt_h[iz], 0)) {
           state = retry_state;
         } else {
@@ -434,6 +443,7 @@ auto burn_cell_multi_c() -> int {
         }
       }
 
+      state.suppress_failure_output = false;
       enforce_post_burn_constraints(state);
       time_h[iz] += dt_h[iz];
     }
@@ -459,6 +469,7 @@ auto burn_cell_multi_c() -> int {
   if (any_success) {
     std::cout << "multi-zone temperature range: [" << t_min << ", " << t_max
               << "]" << std::endl;
+    std::cout << "multi-zone retries applied: " << retry_total << std::endl;
   } else {
     std::cout << "multi-zone burn had no successful zones" << std::endl;
   }
