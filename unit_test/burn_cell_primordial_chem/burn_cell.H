@@ -8,6 +8,7 @@
 #include <iomanip>
 #include <iostream>
 #include <limits>
+#include <sstream>
 #include <vector>
 
 #include <AMReX_GpuContainers.H>
@@ -176,7 +177,7 @@ AMREX_INLINE
 auto burn_cell_c() -> int {
 
   burn_t state{};
-  init_burn_state(state, 1.0_rt, 0.0_rt, true);
+  init_burn_state(state, 1.0_rt, 0.0_rt, false);
 
   // name of output file
   std::ofstream state_over_time("state_over_time.txt");
@@ -285,19 +286,34 @@ auto burn_cell_c() -> int {
   std::cout << "------------------------------------" << std::endl;
   std::cout << "successful? " << state.success << std::endl;
 
-  std::cout << "------------------------------------" << std::endl;
-  std::cout << "T initial = " << state_in.T << std::endl;
-  std::cout << "T final =   " << state.T << std::endl;
-  std::cout << "Eint initial = " << state_in.e << std::endl;
-  std::cout << "Eint final =   " << state.e << std::endl;
-  std::cout << "rho initial = " << state_in.rho << std::endl;
-  std::cout << "rho final =   " << state.rho << std::endl;
+  constexpr int column_width = 44;
+  auto print_state_row = [&](const std::string &label, amrex::Real initial_value,
+                             amrex::Real final_value) {
+    std::ostringstream left_stream;
+    left_stream << label << " " << std::scientific << std::setprecision(6)
+                << initial_value;
+    std::ostringstream right_stream;
+    right_stream << label << " " << std::scientific << std::setprecision(6)
+                 << final_value;
+    std::cout << std::left << std::setw(column_width) << left_stream.str()
+              << std::left << std::setw(column_width) << right_stream.str()
+              << std::endl;
+  };
 
   std::cout << "------------------------------------" << std::endl;
-  std::cout << "New number densities: " << std::endl;
+  std::cout << std::left << std::setw(column_width) << "Initial State"
+            << std::left << std::setw(column_width) << "Final State"
+            << std::endl;
+  std::cout << std::string(2 * column_width, '-') << std::endl;
+  print_state_row("Temperature (K):", state_in.T, state.T);
+  print_state_row("Density (g/cm^3):", state_in.rho, state.rho);
+  print_state_row("Eint (erg/g):", state_in.e, state.e);
   for (int n = 0; n < NumSpec; ++n) {
-    std::cout << state.xn[n] << std::endl;
+    const std::string label = "n(" + short_spec_names_cxx[n] + "):";
+    print_state_row(label, state_in.xn[n], state.xn[n]);
   }
+  std::cout << std::string(2 * column_width, '-') << std::endl;
+  std::cout << std::right;
 
   return state.success;
 }
