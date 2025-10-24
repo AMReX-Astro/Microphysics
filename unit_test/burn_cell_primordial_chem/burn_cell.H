@@ -333,7 +333,7 @@ auto burn_cell_multi_c() -> int {
 
   for (int iz = 0; iz < n_zones; ++iz) {
     amrex::Real temp_offset =
-        0.0001_rt * unit_test_rp::temperature *
+        0.5_rt * unit_test_rp::temperature *
         (static_cast<amrex::Real>(iz) / static_cast<amrex::Real>(n_zones - 1) -
          0.5_rt);
     init_burn_state(states_h[iz], 1.0_rt, temp_offset, false);
