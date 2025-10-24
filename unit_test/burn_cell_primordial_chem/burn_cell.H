@@ -586,6 +586,20 @@ auto burn_cell_multi_c() -> int {
 
   std::map<std::string, MismatchStats> mismatch_summary;
 
+  struct NormAccumulator {
+    amrex::Real l1 = 0.0_rt;
+    amrex::Real l2_sq = 0.0_rt;
+    amrex::Real linf = 0.0_rt;
+    void record(amrex::Real diff) {
+      amrex::Real abs_diff = std::abs(diff);
+      l1 += abs_diff;
+      l2_sq += diff * diff;
+      linf = std::max(linf, abs_diff);
+    }
+  };
+
+  std::map<std::string, NormAccumulator> field_norms;
+
   auto record_mismatch = [&](int zone, const std::string &field,
                              amrex::Real cpu_value, amrex::Real gpu_value) {
     auto &stats = mismatch_summary[field];
@@ -599,6 +613,14 @@ auto burn_cell_multi_c() -> int {
     }
   };
 
+  auto record_difference = [&](const std::string &field, amrex::Real cpu_value,
+                               amrex::Real gpu_value, bool track_norm) {
+    if (!track_norm) {
+      return;
+    }
+    field_norms[field].record(cpu_value - gpu_value);
+  };
+
   for (int iz = 0; iz < n_zones; ++iz) {
     bool cpu_zone_success =
         cpu_states[iz].success && cpu_states[iz].e > 0.0_rt;
@@ -609,6 +631,9 @@ auto burn_cell_multi_c() -> int {
       record_mismatch(iz, "success_flag",
                       cpu_zone_success ? 1.0_rt : 0.0_rt,
                       gpu_zone_success ? 1.0_rt : 0.0_rt);
+      record_difference("success_flag",
+                        cpu_zone_success ? 1.0_rt : 0.0_rt,
+                        gpu_zone_success ? 1.0_rt : 0.0_rt, false);
       continue;
     }
     if (!cpu_zone_success) {
@@ -618,16 +643,20 @@ auto burn_cell_multi_c() -> int {
     if (!within_tol(cpu_times[iz], gpu_times[iz])) {
       record_mismatch(iz, "time", cpu_times[iz], gpu_times[iz]);
     }
+    record_difference("time", cpu_times[iz], gpu_times[iz], false);
 
     if (!within_tol(cpu_states[iz].rho, gpu_states[iz].rho)) {
       record_mismatch(iz, "rho", cpu_states[iz].rho, gpu_states[iz].rho);
     }
+    record_difference("rho", cpu_states[iz].rho, gpu_states[iz].rho, false);
     if (!within_tol(cpu_states[iz].T, gpu_states[iz].T)) {
       record_mismatch(iz, "T", cpu_states[iz].T, gpu_states[iz].T);
     }
+    record_difference("temperature", cpu_states[iz].T, gpu_states[iz].T, true);
     if (!within_tol(cpu_states[iz].e, gpu_states[iz].e)) {
       record_mismatch(iz, "e", cpu_states[iz].e, gpu_states[iz].e);
     }
+    record_difference("e", cpu_states[iz].e, gpu_states[iz].e, false);
     for (int n = 0; n < NumSpec; ++n) {
       if (!within_tol(cpu_states[iz].xn[n], gpu_states[iz].xn[n])) {
         std::string label =
@@ -635,7 +664,36 @@ auto burn_cell_multi_c() -> int {
         record_mismatch(iz, label, cpu_states[iz].xn[n],
                         gpu_states[iz].xn[n]);
       }
+      std::string norm_label =
+          "number_density(" + std::string(short_spec_names_cxx[n]) + ")";
+      record_difference(norm_label, cpu_states[iz].xn[n],
+                        gpu_states[iz].xn[n], true);
     }
+  }
+
+  if (!field_norms.empty()) {
+    std::cout << "CPU/GPU multi-zone difference norms:" << std::endl;
+    auto print_norm = [&](const std::string &label,
+                          const NormAccumulator &acc) {
+      std::cout << "  " << label << ": L1 = " << acc.l1
+                << ", L2 = " << std::sqrt(acc.l2_sq)
+                << ", L_inf = " << acc.linf << std::endl;
+    };
+    auto temp_it = field_norms.find("temperature");
+    if (temp_it != field_norms.end()) {
+      print_norm("temperature", temp_it->second);
+    }
+    for (int n = 0; n < NumSpec; ++n) {
+      std::string label =
+          "number_density(" + std::string(short_spec_names_cxx[n]) + ")";
+      auto it = field_norms.find(label);
+      if (it != field_norms.end()) {
+        print_norm(label, it->second);
+      }
+    }
+  } else {
+    std::cout << "No comparable CPU/GPU multi-zone states to compute norms"
+              << std::endl;
   }
 
   if (mismatch_summary.empty()) {
