@@ -241,7 +241,7 @@ auto burn_cell_c() -> int {
       break;
     }
 
-    std::cout << "step " << n << " done" << std::endl;
+    //    std::cout << "step " << n << " done" << std::endl;
 
     // scale the number densities
     for (int nn = 0; nn < NumSpec; ++nn) {
