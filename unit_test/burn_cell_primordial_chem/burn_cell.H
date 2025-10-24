@@ -414,13 +414,27 @@ auto burn_cell_multi_c() -> int {
 
     const int max_split_depth = 6;
     constexpr amrex::Real min_split_dt = 1.0_rt;
+    auto burn_on_gpu = [](burn_t &state, amrex::Real dt) {
+      state.time = 0.0_rt;
+      state.suppress_failure_output = true;
+
+      amrex::AsyncArray<burn_t> state_device(&state, 1);
+      burn_t *state_ptr = state_device.data();
+
+      amrex::ParallelFor(
+          1, [state_ptr, dt] AMREX_GPU_DEVICE(int idx) noexcept {
+            burner(state_ptr[idx], dt);
+          });
+
+      state_device.copyToHost(&state, 1);
+      amrex::Gpu::streamSynchronize();
+    };
+
     std::function<bool(burn_t&, amrex::Real, int)> integrate_with_retries;
     integrate_with_retries = [&](burn_t& state, amrex::Real dt,
                                  int depth) -> bool {
       burn_t backup = state;
-      state.time = 0.0_rt;
-      state.suppress_failure_output = true;
-      burner(state, dt);
+      burn_on_gpu(state, dt);
       if (state.success && state.e > 0.0_rt) {
         state.suppress_failure_output = false;
         return true;
