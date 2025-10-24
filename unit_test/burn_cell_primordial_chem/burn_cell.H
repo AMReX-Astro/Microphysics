@@ -15,6 +15,7 @@
 
 #include <AMReX_GpuContainers.H>
 #include <AMReX_GpuDevice.H>
+#include <AMReX_GpuLaunch.H>
 #include <burner.H>
 #include <eos.H>
 #include <extern_parameters.H>
@@ -341,13 +342,16 @@ auto burn_cell_multi_c(int n_zones) -> int {
                               states_d.end(), states_h.begin());
         amrex::Gpu::streamSynchronize();
       } else {
-        for (int iz = 0; iz < n_zones; ++iz) {
-          amrex::Real dt = dt_h[iz];
-          if (dt <= 0.0_rt) {
-            continue;
-          }
-          burn_backend(states_h[iz], dt);
-        }
+        burn_t *states_ptr = states_h.data();
+        amrex::Real *dt_ptr = dt_h.data();
+        amrex::ParallelForOMP(
+            n_zones, [states_ptr, dt_ptr, &burn_backend](int iz) noexcept {
+              amrex::Real dt = dt_ptr[iz];
+              if (dt <= 0.0_rt) {
+                return;
+              }
+              burn_backend(states_ptr[iz], dt);
+            });
       }
 
       for (int iz = 0; iz < n_zones; ++iz) {
