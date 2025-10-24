@@ -443,14 +443,21 @@ auto burn_cell_multi_c() -> int {
   std::map<std::string, MismatchStats> mismatch_summary;
 
   struct NormAccumulator {
-    amrex::Real l1 = 0.0_rt;
-    amrex::Real l2_sq = 0.0_rt;
-    amrex::Real linf = 0.0_rt;
-    void record(amrex::Real diff) {
+    amrex::Real diff_l1 = 0.0_rt;
+    amrex::Real diff_l2_sq = 0.0_rt;
+    amrex::Real diff_linf = 0.0_rt;
+    amrex::Real ref_l1 = 0.0_rt;
+    amrex::Real ref_l2_sq = 0.0_rt;
+    amrex::Real ref_linf = 0.0_rt;
+    void record(amrex::Real diff, amrex::Real ref) {
       amrex::Real abs_diff = std::abs(diff);
-      l1 += abs_diff;
-      l2_sq += diff * diff;
-      linf = std::max(linf, abs_diff);
+      amrex::Real abs_ref = std::abs(ref);
+      diff_l1 += abs_diff;
+      diff_l2_sq += diff * diff;
+      diff_linf = std::max(diff_linf, abs_diff);
+      ref_l1 += abs_ref;
+      ref_l2_sq += ref * ref;
+      ref_linf = std::max(ref_linf, abs_ref);
     }
   };
 
@@ -474,7 +481,7 @@ auto burn_cell_multi_c() -> int {
     if (!track_norm) {
       return;
     }
-    field_norms[field].record(cpu_value - gpu_value);
+    field_norms[field].record(cpu_value - gpu_value, cpu_value);
   };
 
   for (int iz = 0; iz < n_zones; ++iz) {
@@ -529,11 +536,22 @@ auto burn_cell_multi_c() -> int {
 
   if (!field_norms.empty()) {
     std::cout << "CPU/GPU multi-zone difference norms:" << std::endl;
+    auto safe_norm_ratio = [](amrex::Real num, amrex::Real denom) {
+      if (denom > 0.0_rt) {
+        return num / denom;
+      }
+      return (num == 0.0_rt) ? 0.0_rt
+                             : std::numeric_limits<amrex::Real>::infinity();
+    };
     auto print_norm = [&](const std::string &label,
                           const NormAccumulator &acc) {
-      std::cout << "  " << label << ": L1 = " << acc.l1
-                << ", L2 = " << std::sqrt(acc.l2_sq)
-                << ", L_inf = " << acc.linf << std::endl;
+      amrex::Real diff_l2 = std::sqrt(acc.diff_l2_sq);
+      amrex::Real ref_l2 = std::sqrt(acc.ref_l2_sq);
+      std::cout << "  " << label
+                << ": L1 = " << safe_norm_ratio(acc.diff_l1, acc.ref_l1)
+                << ", L2 = " << safe_norm_ratio(diff_l2, ref_l2)
+                << ", L_inf = "
+                << safe_norm_ratio(acc.diff_linf, acc.ref_linf) << std::endl;
     };
     auto temp_it = field_norms.find("temperature");
     if (temp_it != field_norms.end()) {
