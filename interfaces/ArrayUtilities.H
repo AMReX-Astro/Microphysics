@@ -80,7 +80,6 @@ namespace ArrayUtil
 
         AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
         void add_identity () noexcept {
-            AMREX_UNROLL_LOOP(4)
             for (int i = XLO; i <= XHI; ++i) {
                 arr[i+i*(XHI-XLO+1)-(YLO*(XHI-XLO+1)+XLO)] += 1.0_rt;
             }
