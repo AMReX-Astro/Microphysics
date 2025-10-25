@@ -40,6 +40,7 @@ namespace ArrayUtil
         AMREX_GPU_HOST_DEVICE AMREX_INLINE
         void zero()
         {
+            AMREX_UNROLL_LOOP(4)
             for (int i = 0; i < (YHI-YLO+1)*(XHI-XLO+1); ++i) {
                 arr[i] = 0.0_rt;
             }
@@ -47,6 +48,7 @@ namespace ArrayUtil
 
         AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
         void mul (const amrex::Real x) noexcept {
+            AMREX_UNROLL_LOOP(4)
             for (int i = 0; i < (YHI-YLO+1)*(XHI-XLO+1); ++i) {
                 arr[i] *= x;
             }
@@ -78,6 +80,7 @@ namespace ArrayUtil
 
         AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
         void add_identity () noexcept {
+            AMREX_UNROLL_LOOP(4)
             for (int i = XLO; i <= XHI; ++i) {
                 arr[i+i*(XHI-XLO+1)-(YLO*(XHI-XLO+1)+XLO)] += 1.0_rt;
             }
