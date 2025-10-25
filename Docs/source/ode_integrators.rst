@@ -113,6 +113,23 @@ For the other networks (usually pynucastro networks), the implementation is
 provided in ``Microphysics/util/linpack.H`` and is templated on the number
 of equations.  Pivoting can be disabled by setting ``integrator.linalg_do_pivoting=0``.
 
+.. index:: USE_SINGLE_PRECISION_JACOBIAN
+
+.. tip::
+
+   The storage for the Jacobian can take up the most memory when
+   integrating the reaction system.  It is possible to store the
+   Jacobian as single-precision, by building with:
+
+   ::
+
+      USE_SINGLE_PRECISION_JACOBIAN=TRUE
+
+   This can speed up the integration prevent the code from running out
+   of memory when run on GPUs.
+
+
+
 Integration errors
 ==================
 
