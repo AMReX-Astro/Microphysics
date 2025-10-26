@@ -30,7 +30,7 @@ void dgesl (const RArray2D& a, const IArray1D& pivot, RArray1D& b)
                 t = b(k);
             }
 
-            AMREX_UNROLL_LOOP(4)
+            AMREX_UNROLL_LOOP(NET_LOOP_UNROLL_LEN)
             for (int j = k+1; j <= num_eqs; ++j) {
                 b(j) += t * a(j,k);
             }
@@ -43,7 +43,7 @@ void dgesl (const RArray2D& a, const IArray1D& pivot, RArray1D& b)
         const int k = num_eqs + 1 - kb;
         b(k) = b(k) / a(k,k);
         amrex::Real t = -b(k);
-        AMREX_UNROLL_LOOP(4)
+        AMREX_UNROLL_LOOP(NET_LOOP_UNROLL_LEN)
         for (int j = 1; j <= k-1; ++j) {
             b(j) += t * a(j,k);
         }
@@ -79,7 +79,7 @@ void dgefa (RArray2D& a, IArray1D& pivot, int& info)
 
             if constexpr (allow_pivot) {
                 amrex::Real dmax = std::abs(a(k,k));
-                AMREX_UNROLL_LOOP(4)
+                AMREX_UNROLL_LOOP(NET_LOOP_UNROLL_LEN)
                 for (int i = k+1; i <= num_eqs; ++i) {
                     amrex::Real ai = std::abs(a(i, k));
                     if (ai > dmax) {
@@ -105,7 +105,7 @@ void dgefa (RArray2D& a, IArray1D& pivot, int& info)
 
                 // compute multipliers
                 t = -1.0e0_rt / a(k,k);
-                AMREX_UNROLL_LOOP(4)
+                AMREX_UNROLL_LOOP(NET_LOOP_UNROLL_LEN)
                 for (int j = k+1; j <= num_eqs; ++j) {
                     a(j,k) *= t;
                 }
@@ -121,7 +121,7 @@ void dgefa (RArray2D& a, IArray1D& pivot, int& info)
                         }
                     }
 
-                    AMREX_UNROLL_LOOP(4)
+                    AMREX_UNROLL_LOOP(NET_LOOP_UNROLL_LEN)
                     for (int i = k+1; i <= num_eqs; ++i) {
                         a(i,j) += t * a(i,k);
                     }
