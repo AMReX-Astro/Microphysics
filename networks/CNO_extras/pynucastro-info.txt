@@ -1,1 +1,1 @@
-pynucastro version: 2.7.1-60-gda26b3386
+pynucastro version: 2.7.1-61-ga0c9be179
