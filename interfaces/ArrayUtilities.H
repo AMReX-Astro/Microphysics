@@ -46,8 +46,9 @@ namespace ArrayUtil
             }
         }
 
-        AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+        AMREX_GPU_HOST_DEVICE AMREX_INLINE
         void mul (const amrex::Real x) noexcept {
+            AMREX_UNROLL_LOOP(4)
             for (int i = 0; i < (YHI-YLO+1)*(XHI-XLO+1); ++i) {
                 arr[i] *= x;
             }
