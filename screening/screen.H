@@ -371,10 +371,10 @@ number_t chugunov2007 (const plasma_state_t<number_t>& state,
     //   Z^2 -> zbar^2
     //   n_i -> ntot
     //   m_i -> m_u * abar
-    amrex::Real mu12 = scn_fac.a1 * scn_fac.a2 / (scn_fac.a1 + scn_fac.a2);
-    amrex::Real z_factor = scn_fac.z1 * scn_fac.z2;
-    amrex::Real n_i = state.n_e / scn_fac.ztilde3;
-    amrex::Real m_i = 2.0_rt * mu12 / C::n_A;
+    const amrex::Real mu12 = scn_fac.a1 * scn_fac.a2 / (scn_fac.a1 + scn_fac.a2);
+    const amrex::Real z_factor = scn_fac.z1 * scn_fac.z2;
+    const amrex::Real n_i = state.n_e / scn_fac.ztilde3;
+    const amrex::Real m_i = 2.0_rt * mu12 / C::n_A;
 
     constexpr amrex::Real T_p_factor = C::hbar/C::k_B*C::q_e*gcem::sqrt(4.0_rt*GCEM_PI);
     amrex::Real T_p = T_p_factor * std::sqrt(z_factor * n_i / m_i);
@@ -436,10 +436,10 @@ number_t chugunov2007 (const plasma_state_t<number_t>& state,
     constexpr amrex::Real A1 = 2.7822_rt;
     constexpr amrex::Real A2 = 98.34_rt;
     constexpr amrex::Real A3 = gcem::sqrt(3.0_rt) - A1 / gcem::sqrt(A2);
-    const amrex::Real B1 = -1.7476_rt;
-    const amrex::Real B2 = 66.07_rt;
-    const amrex::Real B3 = 1.12_rt;
-    const amrex::Real B4 = 65_rt;
+    constexpr amrex::Real B1 = -1.7476_rt;
+    constexpr amrex::Real B2 = 66.07_rt;
+    constexpr amrex::Real B3 = 1.12_rt;
+    constexpr amrex::Real B4 = 65_rt;
     number_t gamtilde2 = gamtilde * gamtilde;
 
     // Chugunov 2007 eq. 19
@@ -495,8 +495,8 @@ number_t chugunov2009 (const plasma_state_t<number_t>& state,
     // state   = plasma state (T, rho, abar, zbar, etc.)
     // scn_fac = screening factors for A and Z
 
-    amrex::Real z1z2 = scn_fac.z1 * scn_fac.z2;
-    amrex::Real zcomp = scn_fac.z1 + scn_fac.z2;
+    const amrex::Real z1z2 = scn_fac.z1 * scn_fac.z2;
+    const amrex::Real zcomp = scn_fac.z1 + scn_fac.z2;
 
     // Gamma_e from eq. 6
     number_t Gamma_e = state.gamma_e_fac / state.temp;
