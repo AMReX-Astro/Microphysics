@@ -1213,7 +1213,7 @@ void rhs_init ()
 // for each term in ydot).
 template<int nrhs>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rhs (burn_t& burn_state, amrex::Array1D<amrex::Real, 1, nrhs>& ydot)
+void rhs (const burn_t& burn_state, amrex::Array1D<amrex::Real, 1, nrhs>& ydot)
 {
     static_assert(nrhs == neqs || nrhs == 2 * neqs);
 
@@ -1357,7 +1357,7 @@ void rhs (burn_t& burn_state, amrex::Array1D<amrex::Real, 1, nrhs>& ydot)
 
 // Analytical Jacobian
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void jac (burn_t& burn_state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
+void jac (const burn_t& burn_state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
 {
     rhs_state_t<autodiff::dual> rhs_state;
 
@@ -1515,13 +1515,13 @@ void jac (burn_t& burn_state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
 // namespace. This should be retired later when nothing still depends on those names.
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void actual_rhs (burn_t& state, amrex::Array1D<amrex::Real, 1, neqs>& ydot)
+void actual_rhs (const burn_t& state, amrex::Array1D<amrex::Real, 1, neqs>& ydot)
 {
     RHS::rhs(state, ydot);
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void actual_jac (burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
+void actual_jac (const burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
 {
     RHS::jac(state, jac);
 }
