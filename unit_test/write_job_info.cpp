@@ -24,9 +24,9 @@ void write_job_info(const std::string& dir) {
   FullPathJobInfoFile += "/job_info";
   jobInfoFile.open(FullPathJobInfoFile.c_str(), std::ios::out);
 
-  std::string PrettyLine = std::string(78, '=') + "\n";
-  std::string OtherLine = std::string(78, '-') + "\n";
-  std::string SkipSpace = std::string(8, ' ');
+  const std::string PrettyLine = std::string(78, '=') + "\n";
+  const std::string OtherLine = std::string(78, '-') + "\n";
+  const std::string SkipSpace = std::string(8, ' ');
 
   // job information
   jobInfoFile << PrettyLine;
@@ -123,7 +123,7 @@ void write_job_info(const std::string& dir) {
 
 
   // species info
-  int mlen = 20;
+  const int mlen = 20;
 
   jobInfoFile << PrettyLine;
   jobInfoFile << " Species Information\n";
