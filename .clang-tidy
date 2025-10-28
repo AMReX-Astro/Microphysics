@@ -13,7 +13,6 @@ Checks: >
        -cppcoreguidelines-non-private-member-variables-in-classes,
        -cppcoreguidelines-pro-*,
      misc-*,
-       -misc-const-correctness,
        -misc-include-cleaner,
        -misc-non-private-member-variables-in-classes,
        -misc-use-anonymous-namespace,
