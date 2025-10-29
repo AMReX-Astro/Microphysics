@@ -107,7 +107,7 @@ void actual_eos (I input, T& state)
 
         // Solve for the temperature:
         // h = e + p/rho = (p/rho)*[1 + 1/(gamma-1)] = (p/rho)*gamma/(gamma-1)
-        if constexpr (has_enthalpy<T>::value) {
+        if constexpr (has_enthalpy<T>) {
             dens = state.rho;
             temp = state.h * (m_nucleon / C::k_B) / sumYg_gm1;
         }
@@ -167,7 +167,7 @@ void actual_eos (I input, T& state)
         // pressure, enthalpy and xmass are inputs
 
         // Solve for temperature and density
-        if constexpr (has_pressure<T>::value && has_enthalpy<T>::value) {
+        if constexpr (has_pressure<T>::value && has_enthalpy<T>) {
             dens = state.p * state.abar / state.h * sumYg_gm1;
             temp = state.p * state.abar * (m_nucleon / C::k_B) / dens;
         }
@@ -214,7 +214,7 @@ void actual_eos (I input, T& state)
     }
 
     // Enthalpy is h = e + p/rho
-    if constexpr (has_enthalpy<T>::value) {
+    if constexpr (has_enthalpy<T>) {
         state.h = enth;
     }
 
@@ -251,7 +251,7 @@ void actual_eos (I input, T& state)
 
     amrex::Real dhdT = dedT + dpdT / dens;
     amrex::Real dhdr = 0.0_rt;
-    if constexpr (has_enthalpy<T>::value) {
+    if constexpr (has_enthalpy<T>) {
         state.dhdT = dhdT;
         state.dhdr = dhdr;
     }

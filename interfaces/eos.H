@@ -109,7 +109,7 @@ template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void reset_h (T& state, bool& has_been_reset)
 {
-    if constexpr (has_enthalpy<T>::value) {
+    if constexpr (has_enthalpy<T>) {
         if (state.h < EOSData::minh || state.h > EOSData::maxh) {
             eos_reset(state, has_been_reset);
         }
@@ -268,7 +268,7 @@ template <typename T>
 AMREX_INLINE
 void check_h (T& state)
 {
-    if constexpr (has_enthalpy<T>::value) {
+    if constexpr (has_enthalpy<T>) {
         if (state.h < EOSData::minh) {
             print_state(state);
             amrex::Error("EOS: h smaller than minh.");

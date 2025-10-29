@@ -169,7 +169,7 @@ void actual_eos (I input, T& state)
 
     // Usual formula for enthalpy
 
-    if constexpr (has_enthalpy<T>::value) {
+    if constexpr (has_enthalpy<T>) {
         state.h = state.e + state.p / state.rho;
     }
 

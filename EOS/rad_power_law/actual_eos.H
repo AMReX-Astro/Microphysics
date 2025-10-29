@@ -114,7 +114,7 @@ void actual_eos (I input, T& state)
     if constexpr (has_entropy<T>::value) {
         state.s    = -1.e0_rt;
     }
-    if constexpr (has_enthalpy<T>::value) {
+    if constexpr (has_enthalpy<T>) {
         state.h    = -1.e0_rt;
     }
 

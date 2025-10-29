@@ -167,13 +167,8 @@ struct chem_eos_t:eos_base_t {
 template <typename T>
 concept has_energy = requires { std::declval<T&>().e; };
 
-template <typename T, typename Enable = void>
-struct has_enthalpy
-    : std::false_type {};
-
 template <typename T>
-struct has_enthalpy<T, decltype((void)T::h, void())>
-    : std::true_type {};
+concept has_enthalpy = requires { std::declval<T&>().h; };
 
 template <typename T, typename Enable = void>
 struct has_entropy
@@ -305,7 +300,7 @@ std::ostream& print_state (std::ostream& o, T const& eos_state)
     if constexpr (has_energy<T>) {
         o << "e = " << eos_state.e << std::endl;
     }
-    if constexpr (has_enthalpy<T>::value) {
+    if constexpr (has_enthalpy<T>) {
         o << "h = " << eos_state.h << std::endl;
     }
     if constexpr (has_entropy<T>::value) {
@@ -320,7 +315,7 @@ std::ostream& print_state (std::ostream& o, T const& eos_state)
         o << "dedT = " << eos_state.dedT << std::endl;
         o << "dedr = " << eos_state.dedr << std::endl;
     }
-    if constexpr (has_enthalpy<T>::value) {
+    if constexpr (has_enthalpy<T>) {
         o << "dhdT = " << eos_state.dhdT << std::endl;
         o << "dhdr = " << eos_state.dhdr << std::endl;
     }

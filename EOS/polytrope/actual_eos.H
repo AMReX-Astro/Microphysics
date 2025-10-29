@@ -132,7 +132,7 @@ void actual_eos (I input, T& state)
     }
 
     amrex::Real enth = 1.0_rt;
-    if constexpr (has_enthalpy<T>::value) {
+    if constexpr (has_enthalpy<T>) {
         enth = state.h;
     }
 
@@ -266,7 +266,7 @@ void actual_eos (I input, T& state)
 
     state.T   = temp;
     state.rho = dens;
-    if constexpr (has_enthalpy<T>::value) {
+    if constexpr (has_enthalpy<T>) {
         state.h   = enth;
     }
     if constexpr (has_entropy<T>::value) {
@@ -292,7 +292,7 @@ void actual_eos (I input, T& state)
         state.dsdT = 0.0_rt;
         state.dsdr = 0.0_rt;
     }
-    if constexpr (has_enthalpy<T>::value) {
+    if constexpr (has_enthalpy<T>) {
         state.dhdT = 0.0_rt;
         state.dhdr = state.dedr + gm1 * pres / (dens * dens);
     }

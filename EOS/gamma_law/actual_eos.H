@@ -86,7 +86,7 @@ void actual_eos (I input, T& state)
         // Solve for the temperature:
         // h = e + p/rho = (p/rho)*[1 + 1/(gamma-1)] = (p/rho)*gamma/(gamma-1)
 
-          if constexpr (has_enthalpy<T>::value) {
+          if constexpr (has_enthalpy<T>) {
               state.T = (state.h * state.mu * m_nucleon / C::k_B)*(eos_rp::eos_gamma - 1.0)/eos_rp::eos_gamma;
           }
 
@@ -160,7 +160,7 @@ void actual_eos (I input, T& state)
 
           // Solve for temperature and density
 
-          if constexpr (has_pressure<T>::value && has_enthalpy<T>::value) {
+          if constexpr (has_pressure<T>::value && has_enthalpy<T>) {
               state.rho = state.p / state.h * eos_rp::eos_gamma / (eos_rp::eos_gamma - 1.0);
               state.T = state.p * state.mu * m_nucleon / (C::k_B * state.rho);
           }
@@ -207,7 +207,7 @@ void actual_eos (I input, T& state)
     }
 
     // enthalpy is h = e + p/rho
-    if constexpr (has_enthalpy<T>::value) {
+    if constexpr (has_enthalpy<T>) {
         state.h = energy + pressure * rhoinv;
     }
 
@@ -234,7 +234,7 @@ void actual_eos (I input, T& state)
         state.dsdT = 1.5 * (C::k_B / (state.mu * m_nucleon)) * Tinv;
         state.dsdr = - (C::k_B / (state.mu * m_nucleon)) * rhoinv;
     }
-    if constexpr (has_enthalpy<T>::value) {
+    if constexpr (has_enthalpy<T>) {
         state.dhdT = state.dedT + state.dpdT * rhoinv;
         state.dhdr = 0.0;
     }

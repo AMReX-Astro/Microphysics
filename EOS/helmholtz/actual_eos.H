@@ -849,7 +849,7 @@ void prepare_for_iterations (I input, const T& state,
     }
     else if (input == eos_input_rh) {
 
-        if constexpr (has_enthalpy<T>::value) {
+        if constexpr (has_enthalpy<T>) {
             v_want = state.h;
             var  = ienth;
             dvar = itemp;
@@ -896,7 +896,7 @@ void prepare_for_iterations (I input, const T& state,
     }
     else if (input == eos_input_ph) {
 
-        if constexpr (has_pressure<T>::value && has_enthalpy<T>::value) {
+        if constexpr (has_pressure<T>::value && has_enthalpy<T>) {
             single_iter = false;
             v1_want = state.p;
             v2_want = state.h;
@@ -907,7 +907,7 @@ void prepare_for_iterations (I input, const T& state,
     }
     else if (input == eos_input_th) {
 
-        if constexpr (has_enthalpy<T>::value) {
+        if constexpr (has_enthalpy<T>) {
             v_want = state.h;
             var  = ienth;
             dvar = idens;
@@ -961,7 +961,7 @@ void single_iter_update (T& state, int var, int dvar,
             }
         }
         else if (var == ienth) {
-            if constexpr (has_enthalpy<T>::value) {
+            if constexpr (has_enthalpy<T>) {
                 v    = state.h;
                 dvdx = state.dhdT;
             }
@@ -994,7 +994,7 @@ void single_iter_update (T& state, int var, int dvar,
             }
         }
         else if (var == ienth) {
-            if constexpr (has_enthalpy<T>::value) {
+            if constexpr (has_enthalpy<T>) {
                 v    = state.h;
                 dvdx = state.dhdr;
             }
@@ -1067,7 +1067,7 @@ void double_iter_update (T& state, int var1, int var2,
         }
     }
     else if (var1 == ienth) {
-        if constexpr (has_enthalpy<T>::value) {
+        if constexpr (has_enthalpy<T>) {
             v1    = state.h;
             dv1dt = state.dhdT;
             dv1dr = state.dhdr;
@@ -1096,7 +1096,7 @@ void double_iter_update (T& state, int var1, int var2,
         }
     }
     else if (var2 == ienth) {
-        if constexpr (has_enthalpy<T>::value) {
+        if constexpr (has_enthalpy<T>) {
             v2    = state.h;
             dv2dt = state.dhdT;
             dv2dr = state.dhdr;
@@ -1177,7 +1177,7 @@ void finalize_state (I input, T& state,
 
        if (input == eos_input_rh) {
 
-           if constexpr (has_enthalpy<T>::value) {
+           if constexpr (has_enthalpy<T>) {
                state.h = v_want;
            }
 
@@ -1218,14 +1218,14 @@ void finalize_state (I input, T& state,
            if constexpr (has_pressure<T>::value) {
                state.p = v1_want;
            }
-           if constexpr (has_enthalpy<T>::value) {
+           if constexpr (has_enthalpy<T>) {
                state.h = v2_want;
            }
 
        }
        else if (input == eos_input_th) {
 
-           if constexpr (has_enthalpy<T>::value) {
+           if constexpr (has_enthalpy<T>) {
                state.h = v_want;
            }
 
@@ -1278,7 +1278,7 @@ void actual_eos (I input, T& state)
 
         // Calculate enthalpy the usual way, h = e + p / rho.
 
-        if constexpr (has_enthalpy<T>::value) {
+        if constexpr (has_enthalpy<T>) {
             state.h = state.e + state.p / state.rho;
             state.dhdr = state.dedr + state.dpdr / state.rho - state.p / (state.rho * state.rho);
             state.dhdT = state.dedT + state.dpdT / state.rho;
