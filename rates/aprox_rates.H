@@ -1384,13 +1384,13 @@ void ecapnuc(const amrex::Real etakep, const amrex::Real temp,
 {
     constexpr amrex::Real qn1    = -2.0716446e-06_rt;
     constexpr amrex::Real ftinv  = 1.0e0_rt/1083.9269e0_rt;
-    constexpr amrex::Real twoln  = std::numbers::ln2_v<long double>;
+    constexpr amrex::Real twoln  = std::numbers::ln2_v<amrex::Real>;
     constexpr amrex::Real cmk5   = 1.3635675e-49_rt;
     constexpr amrex::Real cmk6   = 2.2993864e-59_rt;
     constexpr amrex::Real bk     = 1.38062e-16_rt;
     constexpr amrex::Real qn2    = 2.0716446e-06_rt;
     constexpr amrex::Real c2me   = 8.1872665e-07_rt;
-    constexpr amrex::Real pi     = std::numbers::pi_v<long double>;
+    constexpr amrex::Real pi     = std::numbers::pi_v<amrex::Real>;
     constexpr amrex::Real pi2    = pi * pi;
 
     // c2me is the constant used to convert the neutrino energy

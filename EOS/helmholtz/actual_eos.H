@@ -479,7 +479,7 @@ void apply_ions (T& state)
 {
     using namespace helmholtz;
 
-    constexpr amrex::Real pi = std::numbers::pi_v<long double>;
+    constexpr amrex::Real pi = std::numbers::pi_v<amrex::Real>;
     constexpr amrex::Real sioncon = (2.0e0_rt * pi * amu * kerg)/(h*h);
     constexpr amrex::Real kergavo = kerg * avo_eos;
 
@@ -652,7 +652,7 @@ void apply_coulomb_corrections (T& state)
     constexpr amrex::Real esqu = qe * qe;
     constexpr amrex::Real onethird = 1.0e0_rt/3.0e0_rt;
     constexpr amrex::Real forth = 4.0e0_rt/3.0e0_rt;
-    constexpr amrex::Real pi = std::numbers::pi_v<long double>;
+    constexpr amrex::Real pi = std::numbers::pi_v<amrex::Real>;
 
     [[maybe_unused]] amrex::Real pcoul    = 0.e0_rt;
     [[maybe_unused]] amrex::Real dpcouldd = 0.e0_rt;
