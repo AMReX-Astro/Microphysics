@@ -269,17 +269,17 @@ void actual_eos (I input, T& state)
     }
 
     // These need to be worked out.
-    if constexpr (has_dpdA<T>::value) {
+    if constexpr (has_dpdA<T>) {
         state.dpdA = 0.0_rt;
     }
-    if constexpr (has_dpdZ<T>::value) {
+    if constexpr (has_dpdZ<T>) {
         state.dpdZ = 0.0_rt;
     }
 
-    if constexpr (has_dedA<T>::value) {
+    if constexpr (has_dedA<T>) {
         state.dedA = 0.0_rt;
     }
-    if constexpr (has_dedZ<T>::value) {
+    if constexpr (has_dedZ<T>) {
         state.dedZ = 0.0_rt;
     }
 

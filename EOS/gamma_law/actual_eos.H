@@ -270,25 +270,25 @@ void actual_eos (I input, T& state)
         }
     }
 
-    if constexpr (has_dpdA<T>::value) {
+    if constexpr (has_dpdA<T>) {
         state.dpdA = - state.p * (1.0 / state.abar);
     }
-    if constexpr (has_dedA<T>::value) {
+    if constexpr (has_dedA<T>) {
         state.dedA = - state.e * (1.0 / state.abar);
     }
 
     if (eos_rp::eos_assume_neutral) {
-        if constexpr (has_dpdZ<T>::value) {
+        if constexpr (has_dpdZ<T>) {
             state.dpdZ = 0.0;
         }
-        if constexpr (has_dedZ<T>::value) {
+        if constexpr (has_dedZ<T>) {
             state.dedZ = 0.0;
         }
     } else {
-        if constexpr (has_dpdZ<T>::value) {
+        if constexpr (has_dpdZ<T>) {
             state.dpdZ = state.p * (1.0 / (1.0 + state.zbar));
         }
-        if constexpr (has_dedZ<T>::value) {
+        if constexpr (has_dedZ<T>) {
             state.dedZ = state.e * (1.0/(1.0 + state.zbar));
         }
     }

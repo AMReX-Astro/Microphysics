@@ -313,17 +313,17 @@ void actual_eos (I input, T& state)
 
     // Compute dpdX, dedX, dhdX.
 
-    if constexpr (has_dpdA<T>::value) {
+    if constexpr (has_dpdA<T>) {
         state.dpdA = - state.p / state.abar;
     }
-    if constexpr (has_dpdZ<T>::value) {
+    if constexpr (has_dpdZ<T>) {
         state.dpdZ =   state.p / (1.0_rt + state.zbar);
     }
 
-    if constexpr (has_dedA<T>::value) {
+    if constexpr (has_dedA<T>) {
         state.dedA = - state.e / state.abar;
     }
-    if constexpr (has_dedZ<T>::value) {
+    if constexpr (has_dedZ<T>) {
         state.dedZ =   state.e / (1.0_rt + state.zbar);
     }
 

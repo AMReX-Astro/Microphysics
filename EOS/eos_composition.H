@@ -91,7 +91,7 @@ eos_xderivs_t composition_derivatives (const T& state)
   eos_xderivs_t state_xderivs;
 
   for (int n = 0; n < NumSpec; n++) {
-      if constexpr (has_dpdA<T>::value && has_dpdZ<T>::value) {
+      if constexpr (has_dpdA<T> && has_dpdZ<T>) {
           state_xderivs.dpdX[n] =
               state.dpdA * (state.abar * aion_inv[n]) * (aion[n] - state.abar) +
               state.dpdZ * (state.abar * aion_inv[n]) * (zion[n] - state.zbar);
@@ -100,7 +100,7 @@ eos_xderivs_t composition_derivatives (const T& state)
           state_xderivs.dpdX[n] = 0.0_rt;
       }
 
-      if constexpr (has_dedA<T>::value && has_dedZ<T>::value) {
+      if constexpr (has_dedA<T> && has_dedZ<T>) {
           state_xderivs.dedX[n] =
               state.dedA * (state.abar * aion_inv[n]) * (aion[n] - state.abar) +
               state.dedZ * (state.abar * aion_inv[n]) * (zion[n] - state.zbar);

@@ -176,13 +176,17 @@ concept has_entropy = requires { std::declval<T&>().s; };
 template <typename T>
 concept has_pressure = requires { std::declval<T&>().p; };
 
-template <typename T, typename Enable = void>
-struct has_dpdA
-    : std::false_type {};
+template <typename T>
+concept has_dpdA = requires { std::declval<T&>().dpdA; };
 
 template <typename T>
-struct has_dpdA<T, decltype((void)T::dpdA, void())>
-    : std::true_type {};
+concept has_dpdZ = requires { std::declval<T&>().dpdZ; };
+
+template <typename T>
+concept has_dedA = requires { std::declval<T&>().dedA; };
+
+template <typename T>
+concept has_dedZ = requires { std::declval<T&>().dedZ; };
 
 template <typename T, typename Enable = void>
 struct has_G
@@ -190,30 +194,6 @@ struct has_G
 
 template <typename T>
 struct has_G<T, decltype((void)T::G, void())>
-    : std::true_type {};
-
-template <typename T, typename Enable = void>
-struct has_dpdZ
-    : std::false_type {};
-
-template <typename T>
-struct has_dpdZ<T, decltype((void)T::dpdZ, void())>
-    : std::true_type {};
-
-template <typename T, typename Enable = void>
-struct has_dedA
-    : std::false_type {};
-
-template <typename T>
-struct has_dedA<T, decltype((void)T::dedA, void())>
-    : std::true_type {};
-
-template <typename T, typename Enable = void>
-struct has_dedZ
-    : std::false_type {};
-
-template <typename T>
-struct has_dedZ<T, decltype((void)T::dedZ, void())>
     : std::true_type {};
 
 template <typename T, typename Enable = void>
@@ -350,16 +330,16 @@ std::ostream& print_state (std::ostream& o, T const& eos_state)
         o << "zbar = " << eos_state.zbar << std::endl;
     }
 
-    if constexpr (has_dpdA<T>::value) {
+    if constexpr (has_dpdA<T>) {
         o << "dpdA = " << eos_state.dpdA << std::endl;
     }
-    if constexpr (has_dpdZ<T>::value) {
+    if constexpr (has_dpdZ<T>) {
         o << "dpdZ = " << eos_state.dpdZ << std::endl;
     }
-    if constexpr (has_dedA<T>::value) {
+    if constexpr (has_dedA<T>) {
         o << "dedA = " << eos_state.dedA << std::endl;
     }
-    if constexpr (has_dedZ<T>::value) {
+    if constexpr (has_dedZ<T>) {
         o << "dedZ = " << eos_state.dedZ << std::endl;
     }
 #ifdef CONDUCTIVITY

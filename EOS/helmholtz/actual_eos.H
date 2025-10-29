@@ -430,10 +430,10 @@ void apply_electrons (T& state)
         state.p    = state.p + pele;
         state.dpdT = state.dpdT + dpepdt;
         state.dpdr = state.dpdr + dpepdd;
-        if constexpr (has_dpdA<T>::value) {
+        if constexpr (has_dpdA<T>) {
             state.dpdA = state.dpdA + dpepda;
         }
-        if constexpr (has_dpdZ<T>::value) {
+        if constexpr (has_dpdZ<T>) {
             state.dpdZ = state.dpdZ + dpepdz;
         }
     }
@@ -448,10 +448,10 @@ void apply_electrons (T& state)
         state.e    = state.e + eele;
         state.dedT = state.dedT + deepdt;
         state.dedr = state.dedr + deepdd;
-        if constexpr (has_dedA<T>::value) {
+        if constexpr (has_dedA<T>) {
             state.dedA = state.dedA + deepda;
         }
-        if constexpr (has_dedZ<T>::value) {
+        if constexpr (has_dedZ<T>) {
             state.dedZ = state.dedZ + deepdz;
         }
     }
@@ -520,10 +520,10 @@ void apply_ions (T& state)
         state.p    = state.p + pion;
         state.dpdT = state.dpdT + dpiondt;
         state.dpdr = state.dpdr + dpiondd;
-        if constexpr (has_dpdA<T>::value) {
+        if constexpr (has_dpdA<T>) {
             state.dpdA = state.dpdA + dpionda;
         }
-        if constexpr (has_dpdZ<T>::value) {
+        if constexpr (has_dpdZ<T>) {
             state.dpdZ = state.dpdZ + dpiondz;
         }
     }
@@ -532,10 +532,10 @@ void apply_ions (T& state)
         state.e    = state.e + eion;
         state.dedT = state.dedT + deiondt;
         state.dedr = state.dedr + deiondd;
-        if constexpr (has_dedA<T>::value) {
+        if constexpr (has_dedA<T>) {
             state.dedA = state.dedA + deionda;
         }
-        if constexpr (has_dedZ<T>::value) {
+        if constexpr (has_dedZ<T>) {
             state.dedZ = state.dedZ + deiondz;
         }
     }
@@ -604,10 +604,10 @@ void apply_radiation (T& state)
         state.p    = prad;
         state.dpdr = dpraddd;
         state.dpdT = dpraddt;
-        if constexpr (has_dpdA<T>::value) {
+        if constexpr (has_dpdA<T>) {
             state.dpdA = dpradda;
         }
-        if constexpr (has_dpdZ<T>::value) {
+        if constexpr (has_dpdZ<T>) {
             state.dpdZ = dpraddz;
         }
     }
@@ -616,10 +616,10 @@ void apply_radiation (T& state)
         state.e    = erad;
         state.dedr = deraddd;
         state.dedT = deraddt;
-        if constexpr (has_dedA<T>::value) {
+        if constexpr (has_dedA<T>) {
             state.dedA = deradda;
         }
-        if constexpr (has_dedZ<T>::value) {
+        if constexpr (has_dedZ<T>) {
             state.dedZ = deraddz;
         }
     }
@@ -802,10 +802,10 @@ void apply_coulomb_corrections (T& state)
         state.p    = state.p + pcoul;
         state.dpdr = state.dpdr + dpcouldd;
         state.dpdT = state.dpdT + dpcouldt;
-        if constexpr (has_dpdA<T>::value) {
+        if constexpr (has_dpdA<T>) {
             state.dpdA = state.dpdA + dpcoulda;
         }
-        if constexpr (has_dpdZ<T>::value) {
+        if constexpr (has_dpdZ<T>) {
             state.dpdZ = state.dpdZ + dpcouldz;
         }
     }
@@ -814,10 +814,10 @@ void apply_coulomb_corrections (T& state)
         state.e    = state.e + ecoul;
         state.dedr = state.dedr + decouldd;
         state.dedT = state.dedT + decouldt;
-        if constexpr (has_dedA<T>::value) {
+        if constexpr (has_dedA<T>) {
             state.dedA = state.dedA + decoulda;
         }
-        if constexpr (has_dedZ<T>::value) {
+        if constexpr (has_dedZ<T>) {
             state.dedZ = state.dedZ + decouldz;
         }
     }
@@ -1177,12 +1177,12 @@ void finalize_state (I input, T& state,
 
        if (input == eos_input_rh) {
 
-           if constexpr (has_enthalpy<T>) {
+           if constexpr (has_enthalpy<T>) {  // NOLINT(bugprone-branch-clone)
                state.h = v_want;
            }
 
        }
-       else if (input == eos_input_tp) {
+       else if (input == eos_input_tp) {  // NOLINT(bugprone-branch-clone)
 
            if constexpr (has_pressure<T>) {
                state.p = v_want;
