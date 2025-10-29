@@ -438,7 +438,7 @@ void apply_electrons (T& state)
         }
     }
 
-    if constexpr (has_entropy<T>::value) {
+    if constexpr (has_entropy<T>) {
         state.s    = state.s + sele;
         state.dsdT = state.dsdT + dsepdt;
         state.dsdr = state.dsdr + dsepdd;
@@ -540,7 +540,7 @@ void apply_ions (T& state)
         }
     }
 
-    if constexpr (has_entropy<T>::value) {
+    if constexpr (has_entropy<T>) {
         state.s    = state.s + sion;
         state.dsdT = state.dsdT + dsiondt;
         state.dsdr = state.dsdr + dsiondd;
@@ -624,7 +624,7 @@ void apply_radiation (T& state)
         }
     }
 
-    if constexpr (has_entropy<T>::value) {
+    if constexpr (has_entropy<T>) {
         state.s    = srad;
         state.dsdr = dsraddd;
         state.dsdT = dsraddt;
@@ -822,7 +822,7 @@ void apply_coulomb_corrections (T& state)
         }
     }
 
-    if constexpr (has_entropy<T>::value) {
+    if constexpr (has_entropy<T>) {
         state.s    = state.s + scoul;
         state.dsdr = state.dsdr + dscouldd;
         state.dsdT = state.dsdT + dscouldt;
@@ -885,7 +885,7 @@ void prepare_for_iterations (I input, const T& state,
     }
     else if (input == eos_input_ps) {
 
-        if constexpr (has_pressure<T>::value && has_entropy<T>::value) {
+        if constexpr (has_pressure<T>::value && has_entropy<T>) {
             single_iter = false;
             v1_want = state.p;
             v2_want = state.s;
@@ -955,7 +955,7 @@ void single_iter_update (T& state, int var, int dvar,
             }
         }
         else if (var == ientr) {
-            if constexpr (has_entropy<T>::value) {
+            if constexpr (has_entropy<T>) {
                 v    = state.s;
                 dvdx = state.dsdT;
             }
@@ -988,7 +988,7 @@ void single_iter_update (T& state, int var, int dvar,
             }
         }
         else if (var == ientr) {
-            if constexpr (has_entropy<T>::value) {
+            if constexpr (has_entropy<T>) {
                 v    = state.s;
                 dvdx = state.dsdr;
             }
@@ -1060,7 +1060,7 @@ void double_iter_update (T& state, int var1, int var2,
         }
     }
     else if (var1 == ientr) {
-        if constexpr (has_entropy<T>::value) {
+        if constexpr (has_entropy<T>) {
             v1    = state.s;
             dv1dt = state.dsdT;
             dv1dr = state.dsdr;
@@ -1089,7 +1089,7 @@ void double_iter_update (T& state, int var1, int var2,
         }
     }
     else if (var2 == ientr) {
-        if constexpr (has_entropy<T>::value) {
+        if constexpr (has_entropy<T>) {
             v2    = state.s;
             dv2dt = state.dsdT;
             dv2dr = state.dsdr;
@@ -1208,7 +1208,7 @@ void finalize_state (I input, T& state,
            if constexpr (has_pressure<T>::value) {
                state.p = v1_want;
            }
-           if constexpr (has_entropy<T>::value) {
+           if constexpr (has_entropy<T>) {
                state.s = v2_want;
            }
 

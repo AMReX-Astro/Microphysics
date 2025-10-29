@@ -220,7 +220,7 @@ void actual_eos (I input, T& state)
 
     // entropy (per gram) -- this is wrong. Not sure what the expression
     // is for a multigamma gas
-    if constexpr (has_entropy<T>::value) {
+    if constexpr (has_entropy<T>) {
         state.s = ((C::k_B / m_nucleon) / state.abar) *
                   (2.5_rt + std::log((std::pow(state.abar * m_nucleon, 2.5_rt) / dens) *
                                      std::pow(C::k_B * temp, 1.5_rt) /
@@ -244,7 +244,7 @@ void actual_eos (I input, T& state)
 
     amrex::Real dsdT = 0.0_rt;
     amrex::Real dsdr = 0.0_rt;
-    if constexpr (has_entropy<T>::value) {
+    if constexpr (has_entropy<T>) {
         state.dsdT = dsdT;
         state.dsdr = dsdr;
     }

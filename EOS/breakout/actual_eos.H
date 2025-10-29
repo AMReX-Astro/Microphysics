@@ -135,7 +135,7 @@ void actual_eos (I input, T& state)
 
         // Try to avoid the expensive log function.  Since we don't need entropy
         // in hydro solver, set it to an invalid but "nice" value for the plotfile.
-        if constexpr (has_entropy<T>::value) {
+        if constexpr (has_entropy<T>) {
             state.s = 1.0_rt;
         }
 

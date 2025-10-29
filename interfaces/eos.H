@@ -120,7 +120,7 @@ template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void reset_s (T& state, bool& has_been_reset)
 {
-    if constexpr (has_entropy<T>::value) {
+    if constexpr (has_entropy<T>) {
         if (state.s < EOSData::mins || state.s > EOSData::maxs) {
             eos_reset(state, has_been_reset);
         }
@@ -285,7 +285,7 @@ template <typename T>
 AMREX_INLINE
 void check_s (T& state)
 {
-    if constexpr (has_entropy<T>::value) {
+    if constexpr (has_entropy<T>) {
         if (state.s < EOSData::mins) {
             print_state(state);
             amrex::Error("EOS: s smaller than mins.");

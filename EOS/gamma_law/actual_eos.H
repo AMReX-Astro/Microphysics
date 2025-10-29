@@ -139,7 +139,7 @@ void actual_eos (I input, T& state)
           // Invert Sackur-Tetrode eqn (below) using
           // rho = p mu m_nucleon / (k T)
 
-          if constexpr (has_pressure<T>::value && has_entropy<T>::value) {
+          if constexpr (has_pressure<T>::value && has_entropy<T>) {
               state.T = std::pow(state.p, 2.0/5.0) *
                         std::pow(2.0 * M_PI * C::hbar * C::hbar / (state.mu * m_nucleon), 3.0/5.0) *
                         std::exp(2.0 * state.mu * m_nucleon * state.s / (5.0 * C::k_B) - 1.0) / C::k_B;
@@ -213,7 +213,7 @@ void actual_eos (I input, T& state)
 
     // entropy (per gram) of an ideal monoatomic gas (the Sackur-Tetrode equation)
     // NOTE: this expression is only valid for gamma = 5/3.
-    if constexpr (has_entropy<T>::value) {
+    if constexpr (has_entropy<T>) {
         const amrex::Real fac = 1.0 / std::pow(2.0 * M_PI * C::hbar * C::hbar, 1.5);
 
         state.s = (C::k_B / (state.mu * m_nucleon)) *
@@ -230,7 +230,7 @@ void actual_eos (I input, T& state)
         state.dedT = state.e * Tinv;
         state.dedr = 0.0;
     }
-    if constexpr (has_entropy<T>::value) {
+    if constexpr (has_entropy<T>) {
         state.dsdT = 1.5 * (C::k_B / (state.mu * m_nucleon)) * Tinv;
         state.dsdr = - (C::k_B / (state.mu * m_nucleon)) * rhoinv;
     }

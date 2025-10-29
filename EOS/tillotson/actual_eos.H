@@ -175,7 +175,7 @@ void actual_eos (I input, T& state)
 
     // Arbitrary value for entropy
 
-    if constexpr (has_entropy<T>::value) {
+    if constexpr (has_entropy<T>) {
         state.s = 1.0_rt;
     }
 }
