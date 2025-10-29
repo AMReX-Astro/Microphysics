@@ -173,13 +173,8 @@ concept has_enthalpy = requires { std::declval<T&>().h; };
 template <typename T>
 concept has_entropy = requires { std::declval<T&>().s; };
 
-template <typename T, typename Enable = void>
-struct has_pressure
-    : std::false_type {};
-
 template <typename T>
-struct has_pressure<T, decltype((void)T::p, void())>
-    : std::true_type {};
+concept has_pressure = requires { std::declval<T&>().p; };
 
 template <typename T, typename Enable = void>
 struct has_dpdA

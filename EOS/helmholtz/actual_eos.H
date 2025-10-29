@@ -426,7 +426,7 @@ void apply_electrons (T& state)
     [[maybe_unused]] amrex::Real deepda  = -state.y_e * ytot1 * (free +  df_d * din) + state.T * dsepda;
     [[maybe_unused]] amrex::Real deepdz  = ytot1* (free + state.y_e * df_d * state.rho) + state.T * dsepdz;
 
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         state.p    = state.p + pele;
         state.dpdT = state.dpdT + dpepdt;
         state.dpdr = state.dpdr + dpepdd;
@@ -516,7 +516,7 @@ void apply_ions (T& state)
                    (pion * deni + eion) * tempi * tempi +
                    1.5e0_rt * kergavo * tempi * ytot1;
 
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         state.p    = state.p + pion;
         state.dpdT = state.dpdT + dpiondt;
         state.dpdr = state.dpdr + dpiondd;
@@ -600,7 +600,7 @@ void apply_radiation (T& state)
     // sets these terms instead of adding to them,
     // since it comes first.
 
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         state.p    = prad;
         state.dpdr = dpraddd;
         state.dpdT = dpraddt;
@@ -773,7 +773,7 @@ void apply_coulomb_corrections (T& state)
     amrex::Real p_temp = std::numeric_limits<amrex::Real>::max();
     amrex::Real e_temp = std::numeric_limits<amrex::Real>::max();
 
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         p_temp = state.p + pcoul;
     }
     if constexpr (has_energy<T>) {
@@ -798,7 +798,7 @@ void apply_coulomb_corrections (T& state)
         decouldz = 0.0e0_rt;
     }
 
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         state.p    = state.p + pcoul;
         state.dpdr = state.dpdr + dpcouldd;
         state.dpdT = state.dpdT + dpcouldt;
@@ -858,7 +858,7 @@ void prepare_for_iterations (I input, const T& state,
     }
     else if (input == eos_input_tp) {
 
-        if constexpr (has_pressure<T>::value) {
+        if constexpr (has_pressure<T>) {
             v_want = state.p;
             var  = ipres;
             dvar = idens;
@@ -867,7 +867,7 @@ void prepare_for_iterations (I input, const T& state,
     }
     else if (input == eos_input_rp) {
 
-        if constexpr (has_pressure<T>::value) {
+        if constexpr (has_pressure<T>) {
             v_want = state.p;
             var  = ipres;
             dvar = itemp;
@@ -885,7 +885,7 @@ void prepare_for_iterations (I input, const T& state,
     }
     else if (input == eos_input_ps) {
 
-        if constexpr (has_pressure<T>::value && has_entropy<T>) {
+        if constexpr (has_pressure<T> && has_entropy<T>) {
             single_iter = false;
             v1_want = state.p;
             v2_want = state.s;
@@ -896,7 +896,7 @@ void prepare_for_iterations (I input, const T& state,
     }
     else if (input == eos_input_ph) {
 
-        if constexpr (has_pressure<T>::value && has_enthalpy<T>) {
+        if constexpr (has_pressure<T> && has_enthalpy<T>) {
             single_iter = false;
             v1_want = state.p;
             v2_want = state.h;
@@ -943,7 +943,7 @@ void single_iter_update (T& state, int var, int dvar,
         xtol = ttol;
 
         if (var == ipres) {
-            if constexpr (has_pressure<T>::value) {
+            if constexpr (has_pressure<T>) {
                 v    = state.p;
                 dvdx = state.dpdT;
             }
@@ -976,7 +976,7 @@ void single_iter_update (T& state, int var, int dvar,
         xtol = dtol;
 
         if (var == ipres) {
-            if constexpr (has_pressure<T>::value) {
+            if constexpr (has_pressure<T>) {
                 v    = state.p;
                 dvdx = state.dpdr;
             }
@@ -1046,7 +1046,7 @@ void double_iter_update (T& state, int var1, int var2,
     amrex::Real rold = state.rho;
 
     if (var1 == ipres) {
-        if constexpr (has_pressure<T>::value) {
+        if constexpr (has_pressure<T>) {
             v1    = state.p;
             dv1dt = state.dpdT;
             dv1dr = state.dpdr;
@@ -1075,7 +1075,7 @@ void double_iter_update (T& state, int var1, int var2,
     }
 
     if (var2 == ipres) {
-        if constexpr (has_pressure<T>::value) {
+        if constexpr (has_pressure<T>) {
             v2    = state.p;
             dv2dt = state.dpdT;
             dv2dr = state.dpdr;
@@ -1149,7 +1149,7 @@ void finalize_state (I input, T& state,
     using namespace helmholtz;
 
     // Calculate some remaining derivatives
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         state.dpde = state.dpdT / state.dedT;
         state.dpdr_e = state.dpdr - state.dpdT * state.dedr / state.dedT;
     }
@@ -1158,7 +1158,7 @@ void finalize_state (I input, T& state,
     if constexpr (has_energy<T>) {
         state.cv = state.dedT;
 
-        if constexpr (has_pressure<T>::value) {
+        if constexpr (has_pressure<T>) {
             amrex::Real chit = state.T / state.p * state.dpdT;
             amrex::Real chid = state.dpdr * state.rho / state.p;
 
@@ -1169,7 +1169,7 @@ void finalize_state (I input, T& state,
 
     // Use the non-relativistic version of the sound speed, cs = sqrt(gam_1 * P / rho).
     // This replaces the relativistic version that comes out of helmeos.
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         state.cs = std::sqrt(state.gam1 * state.p / state.rho);
     }
 
@@ -1184,14 +1184,14 @@ void finalize_state (I input, T& state,
        }
        else if (input == eos_input_tp) {
 
-           if constexpr (has_pressure<T>::value) {
+           if constexpr (has_pressure<T>) {
                state.p = v_want;
            }
 
        }
        else if (input == eos_input_rp) {
 
-           if constexpr (has_pressure<T>::value) {
+           if constexpr (has_pressure<T>) {
                state.p = v_want;
            }
 
@@ -1205,7 +1205,7 @@ void finalize_state (I input, T& state,
        }
        else if (input == eos_input_ps) {
 
-           if constexpr (has_pressure<T>::value) {
+           if constexpr (has_pressure<T>) {
                state.p = v1_want;
            }
            if constexpr (has_entropy<T>) {
@@ -1215,7 +1215,7 @@ void finalize_state (I input, T& state,
        }
        else if (input == eos_input_ph) {
 
-           if constexpr (has_pressure<T>::value) {
+           if constexpr (has_pressure<T>) {
                state.p = v1_want;
            }
            if constexpr (has_enthalpy<T>) {

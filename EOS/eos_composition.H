@@ -109,7 +109,7 @@ eos_xderivs_t composition_derivatives (const T& state)
           state_xderivs.dedX[n] = 0.0_rt;
       }
 
-      if constexpr (has_pressure<T>::value) {
+      if constexpr (has_pressure<T>) {
           if (state.dpdr != 0.0) {
 
               state_xderivs.dhdX[n] = state_xderivs.dedX[n]

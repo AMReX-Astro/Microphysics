@@ -174,7 +174,7 @@ void actual_eos (I input, T& state)
     case eos_input_rp:
         // dens, pressure, and xmass are inputs
 
-        if constexpr (has_pressure<T>::value) {
+        if constexpr (has_pressure<T>) {
             dens = state.rho;
 
             // stop the integration if the pressure < 0
@@ -230,7 +230,7 @@ void actual_eos (I input, T& state)
         state.e = eint;
     }
 
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         amrex::Real pressure = state.rho * eint / sum_gammasinv;
         state.p = pressure;
 
@@ -247,7 +247,7 @@ void actual_eos (I input, T& state)
     if constexpr (has_energy<T>) {
         state.dedT = dedT;
         state.dedr = dedr;
-        if constexpr (has_pressure<T>::value) {
+        if constexpr (has_pressure<T>) {
             state.dpde = state.dpdT / state.dedT;
         }
     }

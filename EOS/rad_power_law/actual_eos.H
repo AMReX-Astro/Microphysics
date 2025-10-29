@@ -104,10 +104,10 @@ void actual_eos (I input, T& state)
     // Set some data to nonsense values so that things intentionally go wrong
     // if this EOS is somehow used for hydro.
 
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         state.p    = -1.e0_rt;
     }
-    if constexpr (has_pressure<T>::value && has_energy<T>) {
+    if constexpr (has_pressure<T> && has_energy<T>) {
         state.gam1 = -1.e0_rt;
         state.cs   = -1.e0_rt;
     }
@@ -120,7 +120,7 @@ void actual_eos (I input, T& state)
 
     // Give dpdr a value for the purposes of the composition_derivatives routine.
 
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         state.dpdr = 0.e0_rt;
     }
 }

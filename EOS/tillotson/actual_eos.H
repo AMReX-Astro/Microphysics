@@ -126,7 +126,7 @@ void actual_eos (I input, T& state)
 
     // Pressure and pressure derivatives
 
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         state.p = pres;
         state.dpdr_e = dpdr_e;
         state.dpde = dpde;
@@ -141,13 +141,13 @@ void actual_eos (I input, T& state)
 
     // Sound speed
 
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         state.cs = std::sqrt(state.dpdr_e);
     }
 
     // Compute gamma from sound speed
 
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         state.gam1 = state.cs * state.cs * state.rho / state.p;
     }
 
@@ -155,7 +155,7 @@ void actual_eos (I input, T& state)
 
     state.cv = eos_rp::eos_c_v;
 
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         state.cp = state.gam1 * eos_rp::eos_c_v;
     }
 

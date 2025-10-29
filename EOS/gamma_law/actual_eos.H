@@ -99,7 +99,7 @@ void actual_eos (I input, T& state)
           // Solve for the density:
           // p = rho k T / (mu m_nucleon)
 
-          if constexpr (has_pressure<T>::value) {
+          if constexpr (has_pressure<T>) {
               state.rho =  state.p * state.mu * m_nucleon / (C::k_B * state.T);
           }
 
@@ -112,7 +112,7 @@ void actual_eos (I input, T& state)
           // Solve for the temperature:
           // p = rho k T / (mu m_nucleon)
 
-          if constexpr (has_pressure<T>::value) {
+          if constexpr (has_pressure<T>) {
               state.T = state.p * state.mu * m_nucleon / (C::k_B * state.rho);
           }
 
@@ -139,7 +139,7 @@ void actual_eos (I input, T& state)
           // Invert Sackur-Tetrode eqn (below) using
           // rho = p mu m_nucleon / (k T)
 
-          if constexpr (has_pressure<T>::value && has_entropy<T>) {
+          if constexpr (has_pressure<T> && has_entropy<T>) {
               state.T = std::pow(state.p, 2.0/5.0) *
                         std::pow(2.0 * M_PI * C::hbar * C::hbar / (state.mu * m_nucleon), 3.0/5.0) *
                         std::exp(2.0 * state.mu * m_nucleon * state.s / (5.0 * C::k_B) - 1.0) / C::k_B;
@@ -148,7 +148,7 @@ void actual_eos (I input, T& state)
           // Solve for the density
           // rho = p mu m_nucleon / (k T)
 
-          if constexpr (has_pressure<T>::value) {
+          if constexpr (has_pressure<T>) {
               state.rho = state.p * state.mu * m_nucleon / (C::k_B * state.T);
           }
 
@@ -160,7 +160,7 @@ void actual_eos (I input, T& state)
 
           // Solve for temperature and density
 
-          if constexpr (has_pressure<T>::value && has_enthalpy<T>) {
+          if constexpr (has_pressure<T> && has_enthalpy<T>) {
               state.rho = state.p / state.h * eos_rp::eos_gamma / (eos_rp::eos_gamma - 1.0);
               state.T = state.p * state.mu * m_nucleon / (C::k_B * state.rho);
           }
@@ -199,7 +199,7 @@ void actual_eos (I input, T& state)
     // specific internal energy using the gamma-law EOS relation.
     amrex::Real pressure = state.rho * state.T * C::k_B / (state.mu * m_nucleon);
     amrex::Real energy = pressure / (eos_rp::eos_gamma - 1.0) * rhoinv;
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         state.p = pressure;
     }
     if constexpr (has_energy<T>) {
@@ -222,7 +222,7 @@ void actual_eos (I input, T& state)
     }
 
     // Compute the thermodynamic derivatives and specific heats
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         state.dpdT = state.p * Tinv;
         state.dpdr = state.p * rhoinv;
     }
@@ -254,7 +254,7 @@ void actual_eos (I input, T& state)
     if constexpr (has_energy<T>) {
         state.cv = state.dedT;
 
-        if constexpr (has_pressure<T>::value) {
+        if constexpr (has_pressure<T>) {
             state.cp = eos_rp::eos_gamma * state.cv;
 
             state.gam1 = eos_rp::eos_gamma;

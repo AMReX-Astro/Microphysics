@@ -120,7 +120,7 @@ void actual_eos (I input, T& state)
 
         // Solve for the density:
         // p = rho k T / (abar m_nucleon)
-        if constexpr (has_pressure<T>::value) {
+        if constexpr (has_pressure<T>) {
             dens = state.p * state.abar * (m_nucleon / C::k_B) / state.T;
             temp = state.T;
         }
@@ -133,7 +133,7 @@ void actual_eos (I input, T& state)
 
         // Solve for the temperature:
         // p = rho k T / (mu m_nucleon)
-        if constexpr (has_pressure<T>::value) {
+        if constexpr (has_pressure<T>) {
             dens = state.rho;
             temp = state.p * state.abar * (m_nucleon / C::k_B) / state.rho;
         }
@@ -167,7 +167,7 @@ void actual_eos (I input, T& state)
         // pressure, enthalpy and xmass are inputs
 
         // Solve for temperature and density
-        if constexpr (has_pressure<T>::value && has_enthalpy<T>) {
+        if constexpr (has_pressure<T> && has_enthalpy<T>) {
             dens = state.p * state.abar / state.h * sumYg_gm1;
             temp = state.p * state.abar * (m_nucleon / C::k_B) / dens;
         }
@@ -206,7 +206,7 @@ void actual_eos (I input, T& state)
 
     // Compute the pressure simply from the ideal gas law, and the
     // specific internal energy using the gamma-law EOS relation.
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         state.p = pres;
     }
     if constexpr (has_energy<T>) {
@@ -230,7 +230,7 @@ void actual_eos (I input, T& state)
     // Compute the thermodynamic derivatives and specific heats
     amrex::Real dpdT = pres / temp;
     amrex::Real dpdr = pres / dens;
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         state.dpdT = dpdT;
         state.dpdr = dpdr;
     }
@@ -259,7 +259,7 @@ void actual_eos (I input, T& state)
     if constexpr (has_energy<T>) {
         state.cv = state.dedT;
     }
-    if constexpr (has_pressure<T>::value && has_energy<T>) {
+    if constexpr (has_pressure<T> && has_energy<T>) {
         state.cp = enth / state.T;
 
         state.gam1 = state.cp / state.cv;
@@ -284,7 +284,7 @@ void actual_eos (I input, T& state)
     }
 
     // Sound speed
-    if constexpr (has_pressure<T>::value && has_energy<T>) {
+    if constexpr (has_pressure<T> && has_energy<T>) {
         state.cs = std::sqrt(state.gam1 * state.p / dens);
     }
 }

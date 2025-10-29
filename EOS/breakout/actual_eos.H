@@ -71,10 +71,10 @@ void actual_eos (I input, T& state)
             state.cv = cv;
             state.e = e;
         }
-        if constexpr (has_pressure<T>::value) {
+        if constexpr (has_pressure<T>) {
             state.p = (gamma_const - 1.0_rt) * state.rho * e;
         }
-        if constexpr (has_pressure<T>::value && has_energy<T>) {
+        if constexpr (has_pressure<T> && has_energy<T>) {
             state.gam1 = gamma_const;
         }
 
@@ -102,7 +102,7 @@ void actual_eos (I input, T& state)
     {
         // dens, pres, and xmass are inputs
 
-        if constexpr (has_pressure<T>::value) {
+        if constexpr (has_pressure<T>) {
             amrex::Real poverrho = state.p / state.rho;
             state.T = poverrho * state.mu * (1.0_rt / R);
             if constexpr (has_energy<T>) {
@@ -121,7 +121,7 @@ void actual_eos (I input, T& state)
             amrex::Real poverrho = (gamma_const - 1.0_rt) * state.e;
             state.T = poverrho * state.mu * (1.0_rt / R);
 
-            if constexpr (has_pressure<T>::value) {
+            if constexpr (has_pressure<T>) {
                 state.p = poverrho * state.rho;
                 state.gam1 = gamma_const;
 

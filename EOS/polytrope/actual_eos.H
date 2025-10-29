@@ -127,7 +127,7 @@ void actual_eos (I input, T& state)
     amrex::Real temp = state.T;
 
     amrex::Real pres = 1.0_rt;
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         pres = state.p;
     }
 
@@ -275,12 +275,12 @@ void actual_eos (I input, T& state)
     if constexpr (has_energy<T>) {
         state.e   = eint;
     }
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         state.p   = pres;
     }
 
     // Compute the thermodynamic derivatives and specific heats
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         state.dpdT = 0.0_rt;
         state.dpdr = gamma_const * pres / dens;
     }
@@ -297,7 +297,7 @@ void actual_eos (I input, T& state)
         state.dhdr = state.dedr + gm1 * pres / (dens * dens);
     }
 
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         state.dpde = 0.0_rt;
         state.dpdr_e = gamma_const * pres / dens;
     }
@@ -305,7 +305,7 @@ void actual_eos (I input, T& state)
     if constexpr (has_energy<T>) {
         state.cv = state.dedT;
     }
-    if constexpr (has_pressure<T>::value && has_energy<T>) {
+    if constexpr (has_pressure<T> && has_energy<T>) {
         state.cp = gamma_const * state.cv;
 
         state.gam1 = gamma_const;
@@ -328,7 +328,7 @@ void actual_eos (I input, T& state)
     }
 
     // sound speed
-    if constexpr (has_pressure<T>::value && has_energy<T>) {
+    if constexpr (has_pressure<T> && has_energy<T>) {
         state.cs = std::sqrt(gamma_const * pres / dens);
     }
 }

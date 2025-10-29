@@ -131,7 +131,7 @@ template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void reset_p (T& state, bool& has_been_reset)
 {
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         if (state.p < EOSData::minp || state.p > EOSData::maxp) {
             eos_reset(state, has_been_reset);
         }
@@ -301,7 +301,7 @@ template <typename T>
 AMREX_INLINE
 void check_p (T& state)
 {
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         if (state.p < EOSData::minp) {
             print_state(state);
             amrex::Error("EOS: p smaller than minp.");

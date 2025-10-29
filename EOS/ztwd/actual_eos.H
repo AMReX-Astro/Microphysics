@@ -136,7 +136,7 @@ void actual_eos (I input, T& state)
     amrex::Real temp = state.T;
 
     amrex::Real pres = 1.0_rt;
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         pres = state.p;
     }
 
@@ -298,13 +298,13 @@ void actual_eos (I input, T& state)
     if constexpr (has_energy<T>) {
         state.e   = eint;
     }
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         state.p   = pres;
     }
 
     // All temperature derivatives are zero since the gas is temperature-independent.
 
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         state.dpdT = 0.0_rt;
     }
     if constexpr (has_enthalpy<T>) {
@@ -325,7 +325,7 @@ void actual_eos (I input, T& state)
     amrex::Real dpdr = dxdr * dpdx(x);
     amrex::Real dhdr = dxdr * dhdx(x, B);
 
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         state.dpdr = dpdr;
     }
     if constexpr (has_enthalpy<T>) {
@@ -343,13 +343,13 @@ void actual_eos (I input, T& state)
     if constexpr (has_energy<T>) {
         state.cv = 0.0_rt;
     }
-    if constexpr (has_pressure<T>::value && has_energy<T>) {
+    if constexpr (has_pressure<T> && has_energy<T>) {
         state.cp = 0.0_rt;
     }
 
     // Adiabatic gamma_1 == d(log p) / d(log rho) |_s.
 
-    if constexpr (has_pressure<T>::value && has_energy<T>) {
+    if constexpr (has_pressure<T> && has_energy<T>) {
         state.gam1 = state.dpdr * (state.rho / state.p);
     }
 
@@ -371,7 +371,7 @@ void actual_eos (I input, T& state)
 
     // Sound speed.
 
-    if constexpr (has_pressure<T>::value && has_energy<T>) {
+    if constexpr (has_pressure<T> && has_energy<T>) {
         state.cs = std::sqrt(state.dpdr);
     }
 }
