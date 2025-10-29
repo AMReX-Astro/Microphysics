@@ -184,7 +184,7 @@ void rate_triplealf(const tf_t<number_t>& tf, const amrex::Real den, number_t& f
     // this is a(a,g)be8
     const number_t aa    = 7.40e5_rt * tf.t9i32 * admath::exp(-1.0663_rt*tf.t9i);
     const number_t bb    = 4.164e9_rt * tf.t9i23 * admath::exp(-13.49_rt*tf.t9i13 - tf.t92*q1);
-    const number_t cc    = 1.0e0_rt + 0.031_rt*tf.t913 + 8.009_rt*tf.t923 + 1.732_rt*tf.t9
+    const number_t cc    = 1.0e0_rt + 0.031_rt*tf.t913 + 8.009_rt*tf.t923 + 1.732_rt*tf.t9  // NOLINT(modernize-use-std-numbers)
           + 49.883_rt*tf.t943 + 27.426_rt*tf.t953;
     const number_t r2abe    = aa + bb * cc;
 
@@ -1384,13 +1384,13 @@ void ecapnuc(const amrex::Real etakep, const amrex::Real temp,
 {
     constexpr amrex::Real qn1    = -2.0716446e-06_rt;
     constexpr amrex::Real ftinv  = 1.0e0_rt/1083.9269e0_rt;
-    constexpr amrex::Real twoln  = 0.6931472e0_rt;
+    constexpr amrex::Real twoln  = std::numbers::ln2_v<long double>;
     constexpr amrex::Real cmk5   = 1.3635675e-49_rt;
     constexpr amrex::Real cmk6   = 2.2993864e-59_rt;
     constexpr amrex::Real bk     = 1.38062e-16_rt;
     constexpr amrex::Real qn2    = 2.0716446e-06_rt;
     constexpr amrex::Real c2me   = 8.1872665e-07_rt;
-    constexpr amrex::Real pi     = 3.1415927e0_rt;
+    constexpr amrex::Real pi     = std::numbers::pi_v<long double>;
     constexpr amrex::Real pi2    = pi * pi;
 
     // c2me is the constant used to convert the neutrino energy
