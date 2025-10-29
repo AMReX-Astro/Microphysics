@@ -444,7 +444,7 @@ void apply_electrons (T& state)
         state.dsdr = state.dsdr + dsepdd;
     }
 
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_energy<T>) {
         state.e    = state.e + eele;
         state.dedT = state.dedT + deepdt;
         state.dedr = state.dedr + deepdd;
@@ -528,7 +528,7 @@ void apply_ions (T& state)
         }
     }
 
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_energy<T>) {
         state.e    = state.e + eion;
         state.dedT = state.dedT + deiondt;
         state.dedr = state.dedr + deiondd;
@@ -612,7 +612,7 @@ void apply_radiation (T& state)
         }
     }
 
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_energy<T>) {
         state.e    = erad;
         state.dedr = deraddd;
         state.dedT = deraddt;
@@ -776,7 +776,7 @@ void apply_coulomb_corrections (T& state)
     if constexpr (has_pressure<T>::value) {
         p_temp = state.p + pcoul;
     }
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_energy<T>) {
         e_temp = state.e + ecoul;
     }
 
@@ -810,7 +810,7 @@ void apply_coulomb_corrections (T& state)
         }
     }
 
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_energy<T>) {
         state.e    = state.e + ecoul;
         state.dedr = state.dedr + decouldd;
         state.dedT = state.dedT + decouldt;
@@ -876,7 +876,7 @@ void prepare_for_iterations (I input, const T& state,
     }
     else if (input == eos_input_re) {
 
-        if constexpr (has_energy<T>::value) {
+        if constexpr (has_energy<T>) {
             v_want = state.e;
             var  = iener;
             dvar = itemp;
@@ -949,7 +949,7 @@ void single_iter_update (T& state, int var, int dvar,
             }
         }
         else if (var == iener) {
-            if constexpr (has_energy<T>::value) {
+            if constexpr (has_energy<T>) {
                 v    = state.e;
                 dvdx = state.dedT;
             }
@@ -982,7 +982,7 @@ void single_iter_update (T& state, int var, int dvar,
             }
         }
         else if (var == iener) {
-            if constexpr (has_energy<T>::value) {
+            if constexpr (has_energy<T>) {
                 v    = state.e;
                 dvdx = state.dedr;
             }
@@ -1053,7 +1053,7 @@ void double_iter_update (T& state, int var1, int var2,
         }
     }
     else if (var1 == iener) {
-        if constexpr (has_energy<T>::value) {
+        if constexpr (has_energy<T>) {
             v1    = state.e;
             dv1dt = state.dedT;
             dv1dr = state.dedr;
@@ -1082,7 +1082,7 @@ void double_iter_update (T& state, int var1, int var2,
         }
     }
     else if (var2 == iener) {
-        if constexpr (has_energy<T>::value) {
+        if constexpr (has_energy<T>) {
             v2    = state.e;
             dv2dt = state.dedT;
             dv2dr = state.dedr;
@@ -1155,7 +1155,7 @@ void finalize_state (I input, T& state,
     }
 
     // Specific heats and Gamma_1
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_energy<T>) {
         state.cv = state.dedT;
 
         if constexpr (has_pressure<T>::value) {
@@ -1198,7 +1198,7 @@ void finalize_state (I input, T& state,
        }
        else if (input == eos_input_re) {
 
-           if constexpr (has_energy<T>::value) {
+           if constexpr (has_energy<T>) {
                state.e = v_want;
            }
 

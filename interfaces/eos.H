@@ -98,7 +98,7 @@ template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void reset_e (T& state, bool& has_been_reset)
 {
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_energy<T>) {
         if (state.e < EOSData::mine || state.e > EOSData::maxe) {
             eos_reset(state, has_been_reset);
         }
@@ -252,7 +252,7 @@ template <typename T>
 AMREX_INLINE
 void check_e (T& state)
 {
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_energy<T>) {
         if (state.e < EOSData::mine) {
             print_state(state);
             amrex::Error("EOS: e smaller than mine.");

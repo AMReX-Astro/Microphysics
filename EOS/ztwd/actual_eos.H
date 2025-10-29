@@ -146,7 +146,7 @@ void actual_eos (I input, T& state)
     }
 
     amrex::Real eint = 1.0_rt;
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_energy<T>) {
         eint = state.e;
     }
 
@@ -295,7 +295,7 @@ void actual_eos (I input, T& state)
     if constexpr (has_entropy<T>::value) {
         state.s   = entr;
     }
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_energy<T>) {
         state.e   = eint;
     }
     if constexpr (has_pressure<T>::value) {
@@ -310,7 +310,7 @@ void actual_eos (I input, T& state)
     if constexpr (has_enthalpy<T>::value) {
         state.dhdT = 0.0_rt;
     }
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_energy<T>) {
         state.dedT = 0.0_rt;
     }
     if constexpr (has_entropy<T>::value) {
@@ -331,7 +331,7 @@ void actual_eos (I input, T& state)
     if constexpr (has_enthalpy<T>::value) {
         state.dhdr = dhdr;
     }
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_energy<T>) {
         state.dedr = dhdr - dpdr / state.rho + pres / (state.rho * state.rho);
     }
     if constexpr (has_entropy<T>::value) {
@@ -340,16 +340,16 @@ void actual_eos (I input, T& state)
 
     // Heat capacities are zero: the gas properties don't change when the temperature changes.
 
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_energy<T>) {
         state.cv = 0.0_rt;
     }
-    if constexpr (has_pressure<T>::value && has_energy<T>::value) {
+    if constexpr (has_pressure<T>::value && has_energy<T>) {
         state.cp = 0.0_rt;
     }
 
     // Adiabatic gamma_1 == d(log p) / d(log rho) |_s.
 
-    if constexpr (has_pressure<T>::value && has_energy<T>::value) {
+    if constexpr (has_pressure<T>::value && has_energy<T>) {
         state.gam1 = state.dpdr * (state.rho / state.p);
     }
 
@@ -371,7 +371,7 @@ void actual_eos (I input, T& state)
 
     // Sound speed.
 
-    if constexpr (has_pressure<T>::value && has_energy<T>::value) {
+    if constexpr (has_pressure<T>::value && has_energy<T>) {
         state.cs = std::sqrt(state.dpdr);
     }
 }

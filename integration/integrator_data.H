@@ -40,7 +40,7 @@ constexpr int integrator_neqs ()
         int_neqs += NumSpec;
     }
 
-    if constexpr (has_energy<BurnT>::value) {
+    if constexpr (has_energy<BurnT>) {
         int_neqs += 1;
     }
 #else

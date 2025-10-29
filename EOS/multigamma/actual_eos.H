@@ -146,7 +146,7 @@ void actual_eos (I input, T& state)
 
         // Solve for the temperature
         // e = k T / [(mu m_nucleon)*(gamma-1)]
-        if constexpr (has_energy<T>::value) {
+        if constexpr (has_energy<T>) {
             dens = state.rho;
             temp = state.e * (m_nucleon / C::k_B) / sumY_gm1;
         }
@@ -209,7 +209,7 @@ void actual_eos (I input, T& state)
     if constexpr (has_pressure<T>::value) {
         state.p = pres;
     }
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_energy<T>) {
         state.e = ener;
     }
 
@@ -237,7 +237,7 @@ void actual_eos (I input, T& state)
 
     amrex::Real dedT = ener / temp;
     amrex::Real dedr = 0.0_rt;
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_energy<T>) {
         state.dedT = dedT;
         state.dedr = dedr;
     }
@@ -256,10 +256,10 @@ void actual_eos (I input, T& state)
         state.dhdr = dhdr;
     }
 
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_energy<T>) {
         state.cv = state.dedT;
     }
-    if constexpr (has_pressure<T>::value && has_energy<T>::value) {
+    if constexpr (has_pressure<T>::value && has_energy<T>) {
         state.cp = enth / state.T;
 
         state.gam1 = state.cp / state.cv;
@@ -284,7 +284,7 @@ void actual_eos (I input, T& state)
     }
 
     // Sound speed
-    if constexpr (has_pressure<T>::value && has_energy<T>::value) {
+    if constexpr (has_pressure<T>::value && has_energy<T>) {
         state.cs = std::sqrt(state.gam1 * state.p / dens);
     }
 }

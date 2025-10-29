@@ -125,7 +125,7 @@ void actual_eos (I input, T& state)
           // Solve for the temperature
           // e = k T / [(mu m_nucleon)*(gamma-1)]
 
-          if constexpr (has_energy<T>::value) {
+          if constexpr (has_energy<T>) {
               state.T = state.e * state.mu * m_nucleon * (eos_rp::eos_gamma - 1.0) / C::k_B;
           }
 
@@ -202,7 +202,7 @@ void actual_eos (I input, T& state)
     if constexpr (has_pressure<T>::value) {
         state.p = pressure;
     }
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_energy<T>) {
         state.e = energy;
     }
 
@@ -226,7 +226,7 @@ void actual_eos (I input, T& state)
         state.dpdT = state.p * Tinv;
         state.dpdr = state.p * rhoinv;
     }
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_energy<T>) {
         state.dedT = state.e * Tinv;
         state.dedr = 0.0;
     }
@@ -251,7 +251,7 @@ void actual_eos (I input, T& state)
         state.ppos = 0.0;
     }
 
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_energy<T>) {
         state.cv = state.dedT;
 
         if constexpr (has_pressure<T>::value) {

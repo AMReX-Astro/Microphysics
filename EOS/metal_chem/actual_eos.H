@@ -144,7 +144,7 @@ void actual_eos (I input, T& state)
         // dens, energy, and xmass are inputs
         // Solve for the temperature
 
-        if constexpr (has_energy<T>::value) {
+        if constexpr (has_energy<T>) {
             dens = state.rho;
 
             // stop the integration if the internal energy < 0
@@ -226,7 +226,7 @@ void actual_eos (I input, T& state)
     state.T   = temp;
     state.rho = dens;
 
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_energy<T>) {
         state.e = eint;
     }
 
@@ -244,7 +244,7 @@ void actual_eos (I input, T& state)
 
     amrex::Real dedT = sum_gammasinv * sum_Abarinv * gasconstant;
     amrex::Real dedr = 0.0_rt;
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_energy<T>) {
         state.dedT = dedT;
         state.dedr = dedr;
         if constexpr (has_pressure<T>::value) {

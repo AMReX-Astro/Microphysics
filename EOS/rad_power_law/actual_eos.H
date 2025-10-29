@@ -75,7 +75,7 @@ void actual_eos (I input, T& state)
 
     case eos_input_rt:
 
-        if constexpr (has_energy<T>::value) {
+        if constexpr (has_energy<T>) {
             state.cv = eos_rp::eos_const_c_v * std::pow(state.rho, eos_rp::eos_c_v_exp_m) * std::pow(state.T, -eos_rp::eos_c_v_exp_n);
             state.e  = eos_rp::eos_const_c_v * std::pow(state.rho, eos_rp::eos_c_v_exp_m) * std::pow(state.T, 1 - eos_rp::eos_c_v_exp_n) / (1 - eos_rp::eos_c_v_exp_n);
         }
@@ -84,7 +84,7 @@ void actual_eos (I input, T& state)
 
     case eos_input_re:
 
-        if constexpr (has_energy<T>::value) {
+        if constexpr (has_energy<T>) {
             state.T  = std::pow((1 - eos_rp::eos_c_v_exp_n) * state.e * std::pow(state.rho, -eos_rp::eos_c_v_exp_m) / eos_rp::eos_const_c_v, 1.0_rt / (1.0_rt - eos_rp::eos_c_v_exp_n));
             state.cv = eos_rp::eos_const_c_v * std::pow(state.rho, eos_rp::eos_c_v_exp_m) * std::pow(state.T, -eos_rp::eos_c_v_exp_n);
         }
@@ -107,7 +107,7 @@ void actual_eos (I input, T& state)
     if constexpr (has_pressure<T>::value) {
         state.p    = -1.e0_rt;
     }
-    if constexpr (has_pressure<T>::value && has_energy<T>::value) {
+    if constexpr (has_pressure<T>::value && has_energy<T>) {
         state.gam1 = -1.e0_rt;
         state.cs   = -1.e0_rt;
     }
