@@ -410,7 +410,7 @@ void eos (const I input, T& state)
   }
 #endif
 
-  if constexpr (has_xn<T>::value) {
+  if constexpr (has_xn<T>) {
       // Get abar, zbar, etc.
       composition(state);
   }

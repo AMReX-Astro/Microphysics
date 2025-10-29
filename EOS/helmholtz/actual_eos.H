@@ -456,16 +456,16 @@ void apply_electrons (T& state)
         }
     }
 
-    if constexpr (has_eta<T>::value) {
+    if constexpr (has_eta<T>) {
         state.eta = etaele;
     }
 
-    if constexpr (has_xne_xnp<T>::value) {
+    if constexpr (has_xne_xnp<T>) {
         state.xne = xnefer;
         state.xnp = 0.0e0_rt;
     }
 
-    if constexpr (has_pele_ppos<T>::value) {
+    if constexpr (has_pele_ppos<T>) {
         state.pele = pele;
         state.ppos = 0.0e0_rt;
     }

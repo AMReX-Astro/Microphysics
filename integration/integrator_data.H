@@ -36,7 +36,7 @@ constexpr int integrator_neqs ()
     int int_neqs = 0;
 
 #ifdef STRANG
-    if constexpr (has_xn<BurnT>::value) {
+    if constexpr (has_xn<BurnT>) {
         int_neqs += NumSpec;
     }
 

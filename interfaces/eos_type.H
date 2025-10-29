@@ -188,67 +188,32 @@ concept has_dedA = requires { std::declval<T&>().dedA; };
 template <typename T>
 concept has_dedZ = requires { std::declval<T&>().dedZ; };
 
-template <typename T, typename Enable = void>
-struct has_G
-    : std::false_type {};
+template <typename T>
+concept has_G = requires { std::declval<T&>().G; };
 
 template <typename T>
-struct has_G<T, decltype((void)T::G, void())>
-    : std::true_type {};
-
-template <typename T, typename Enable = void>
-struct has_pele_ppos
-    : std::false_type {};
+concept has_pele_ppos = requires { std::declval<T&>().pele; };
 
 template <typename T>
-struct has_pele_ppos<T, decltype((void)T::pele, void())>
-    : std::true_type {};
-
-template <typename T, typename Enable = void>
-struct has_xne_xnp
-    : std::false_type {};
+concept has_xne_xnp = requires { std::declval<T&>().xne; };
 
 template <typename T>
-struct has_xne_xnp<T, decltype((void)T::xne, void())>
-    : std::true_type {};
-
-template <typename T, typename Enable = void>
-struct has_eta
-    : std::false_type {};
+concept has_eta = requires { std::declval<T&>().eta; };
 
 template <typename T>
-struct has_eta<T, decltype((void)T::eta, void())>
-    : std::true_type {};
-
-template <typename T, typename Enable = void>
-struct has_conductivity
-    : std::false_type {};
+concept has_conductivity = requires { std::declval<T&>().conductivity; };
 
 template <typename T>
-struct has_conductivity<T, decltype((void)T::conductivity, void())>
-    : std::true_type {};
-
-template <typename T, typename Enable = void>
-struct has_xn
-    : std::false_type {};
+concept has_xn = requires { std::declval<T&>().xn; };
 
 template <typename T>
-struct has_xn<T, decltype((void)T::xn, void())>
-    : std::true_type {};
-
-template <typename T, typename Enable = void>
-struct has_base_variables
-    : std::false_type {};
-
-template <typename T>
-struct has_base_variables<T, decltype((void)T::rho, void())>
-    : std::true_type {};
+concept has_base_variables = requires { std::declval<T&>().rho; };
 
 template <typename T>
 inline
 std::ostream& print_state (std::ostream& o, T const& eos_state)
 {
-    if constexpr (has_base_variables<T>::value) {
+    if constexpr (has_base_variables<T>) {
         o << "rho = " << eos_state.rho << std::endl;
         o << "T =   " << eos_state.T << std::endl;
         o << "xn = ";
@@ -298,24 +263,24 @@ std::ostream& print_state (std::ostream& o, T const& eos_state)
         o << "dpdr_e = " << eos_state.dpdr_e  << std::endl;
     }
 
-    if constexpr (has_base_variables<T>::value) {
+    if constexpr (has_base_variables<T>) {
         o << "cv = " << eos_state.cv << std::endl;
     }
     if constexpr (has_pressure<T>) {
         o << "cp = " << eos_state.cp << std::endl;
     }
-    if constexpr (has_xne_xnp<T>::value) {
+    if constexpr (has_xne_xnp<T>) {
         o << "xne = " << eos_state.xne << std::endl;
         o << "xnp = " << eos_state.xnp << std::endl;
     }
-    if constexpr (has_eta<T>::value) {
+    if constexpr (has_eta<T>) {
         o << "eta = " << eos_state.eta << std::endl;
     }
-    if constexpr (has_pele_ppos<T>::value) {
+    if constexpr (has_pele_ppos<T>) {
         o << "pele = " << eos_state.pele << std::endl;
         o << "ppos = " << eos_state.ppos << std::endl;
     }
-    if constexpr (has_base_variables<T>::value) {
+    if constexpr (has_base_variables<T>) {
         o << "mu = " << eos_state.mu << std::endl;
         o << "mu_e = " << eos_state.mu_e << std::endl;
         o << "y_e = " << eos_state.y_e << std::endl;
@@ -325,7 +290,7 @@ std::ostream& print_state (std::ostream& o, T const& eos_state)
         o << "cs = " << eos_state.cs << std::endl;
     }
 
-    if constexpr (has_base_variables<T>::value) {
+    if constexpr (has_base_variables<T>) {
         o << "abar = " << eos_state.abar << std::endl;
         o << "zbar = " << eos_state.zbar << std::endl;
     }
@@ -343,7 +308,7 @@ std::ostream& print_state (std::ostream& o, T const& eos_state)
         o << "dedZ = " << eos_state.dedZ << std::endl;
     }
 #ifdef CONDUCTIVITY
-    if constexpr (has_conductivity<T>::value) {
+    if constexpr (has_conductivity<T>) {
         o << "conductivity = " << eos_state.conductivity << std::endl;
     }
 #endif

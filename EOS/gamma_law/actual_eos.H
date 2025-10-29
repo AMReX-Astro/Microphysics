@@ -54,7 +54,7 @@ void actual_eos (I input, T& state)
     // Get the mass of a nucleon from m_u.
     const amrex::Real m_nucleon = C::m_u;
 
-    if constexpr (has_xn<T>::value) {
+    if constexpr (has_xn<T>) {
         if (eos_rp::eos_assume_neutral) {
             state.mu = state.abar;
         } else {
@@ -239,14 +239,14 @@ void actual_eos (I input, T& state)
         state.dhdr = 0.0;
     }
 
-    if constexpr (has_xne_xnp<T>::value) {
+    if constexpr (has_xne_xnp<T>) {
         state.xne = 0.0;
         state.xnp = 0.0;
     }
-    if constexpr (has_eta<T>::value) {
+    if constexpr (has_eta<T>) {
         state.eta = 0.0;
     }
-    if constexpr (has_pele_ppos<T>::value) {
+    if constexpr (has_pele_ppos<T>) {
         state.pele = 0.0;
         state.ppos = 0.0;
     }
@@ -264,7 +264,7 @@ void actual_eos (I input, T& state)
 
             // sound speed
             state.cs = std::sqrt(eos_rp::eos_gamma * state.p * rhoinv);
-            if constexpr (has_G<T>::value) {
+            if constexpr (has_G<T>) {
                 state.G = 0.5 * (1.0 + eos_rp::eos_gamma);
             }
         }
