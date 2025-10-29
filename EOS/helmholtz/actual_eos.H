@@ -1175,9 +1175,9 @@ void finalize_state (I input, T& state,
 
     if (input_is_constant) {
 
-       if (input == eos_input_rh) {
+       if (input == eos_input_rh) {  // NOLINT(bugprone-branch-clone)
 
-           if constexpr (has_enthalpy<T>) {  // NOLINT(bugprone-branch-clone)
+           if constexpr (has_enthalpy<T>) {
                state.h = v_want;
            }
 
