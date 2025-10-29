@@ -284,7 +284,7 @@ std::ostream& print_state (std::ostream& o, T const& eos_state)
         o << std::endl;
 #endif
     }
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         o << "p = " << eos_state.p << std::endl;
     }
     if constexpr (has_energy<T>) {
@@ -297,7 +297,7 @@ std::ostream& print_state (std::ostream& o, T const& eos_state)
         o << "s = " << eos_state.s << std::endl;
     }
 
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         o << "dpdT = " << eos_state.dpdT << std::endl;
         o << "dpdr = " << eos_state.dpdr << std::endl;
     }
@@ -313,7 +313,7 @@ std::ostream& print_state (std::ostream& o, T const& eos_state)
         o << "dsdT = " << eos_state.dsdT << std::endl;
         o << "dsdr = " << eos_state.dsdr << std::endl;
     }
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         o << "dpde = " << eos_state.dpde << std::endl;
         o << "dpdr_e = " << eos_state.dpdr_e  << std::endl;
     }
@@ -321,7 +321,7 @@ std::ostream& print_state (std::ostream& o, T const& eos_state)
     if constexpr (has_base_variables<T>::value) {
         o << "cv = " << eos_state.cv << std::endl;
     }
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         o << "cp = " << eos_state.cp << std::endl;
     }
     if constexpr (has_xne_xnp<T>::value) {
@@ -340,7 +340,7 @@ std::ostream& print_state (std::ostream& o, T const& eos_state)
         o << "mu_e = " << eos_state.mu_e << std::endl;
         o << "y_e = " << eos_state.y_e << std::endl;
     }
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         o << "gam1 = " << eos_state.gam1 << std::endl;
         o << "cs = " << eos_state.cs << std::endl;
     }
