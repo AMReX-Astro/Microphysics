@@ -2,6 +2,8 @@
 
 ## 25.11
 
+  * add support for reduced precision Jacobian (#1862)
+
   * make some more quantities const / constexpr (#1864, #1866, #1871)
 
   * add loop unrolling to linpack (#1865)
