@@ -1357,7 +1357,7 @@ void rhs (const burn_t& burn_state, amrex::Array1D<amrex::Real, 1, nrhs>& ydot)
 
 // Analytical Jacobian
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void jac (const burn_t& burn_state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
+void jac (const burn_t& burn_state, ArrayUtil::MathArray2D<jac_t, 1, neqs, 1, neqs>& jac)
 {
     rhs_state_t<autodiff::dual> rhs_state;
 
@@ -1521,7 +1521,7 @@ void actual_rhs (const burn_t& state, amrex::Array1D<amrex::Real, 1, neqs>& ydot
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void actual_jac (const burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
+void actual_jac (const burn_t& state, ArrayUtil::MathArray2D<jac_t, 1, neqs, 1, neqs>& jac)
 {
     RHS::jac(state, jac);
 }
