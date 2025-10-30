@@ -17,7 +17,7 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void circle_theorem_sprad(const amrex::Real time, BurnT& state, T& int_state, amrex::Real& sprad)
 {
 
-    ArrayUtil::MathArray2D<1, INT_NEQS, 1, INT_NEQS> jac_array;
+    ArrayUtil::MathArray2D<jac_t, 1, INT_NEQS, 1, INT_NEQS> jac_array;
 
     if (integrator_rp::jacobian == 1) {
         jac(time, state, int_state, jac_array);

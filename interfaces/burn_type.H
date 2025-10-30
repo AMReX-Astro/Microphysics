@@ -56,7 +56,15 @@ const int SVAR  = SEDEN+1;
 const int SVAR_EVOLVE = SFX;
 
 // this is the data type of the dense Jacobian that the network wants.
-using  JacNetArray2D = ArrayUtil::MathArray2D<1, neqs, 1, neqs>;
+
+// the Jacobian can have a different type that our system
+#ifdef SINGLE_PRECISION_JACOBIAN
+using jac_t = float;
+#else
+using jac_t = amrex::Real;
+#endif
+
+using  JacNetArray2D = ArrayUtil::MathArray2D<jac_t, 1, neqs, 1, neqs>;
 
 struct burn_t
 {
