@@ -231,6 +231,17 @@ is done using <code class="docutils literal notranslate"><span class="pre">conse
 <p id="index-4">For the other networks (usually pynucastro networks), the implementation is
 provided in <code class="docutils literal notranslate"><span class="pre">Microphysics/util/linpack.H</span></code> and is templated on the number
 of equations.  Pivoting can be disabled by setting <code class="docutils literal notranslate"><span class="pre">integrator.linalg_do_pivoting=0</span></code>.</p>
+<div class="admonition tip" id="index-5">
+<p class="admonition-title">Tip</p>
+<p>The storage for the Jacobian can take up the most memory when
+integrating the reaction system.  It is possible to store the
+Jacobian as single-precision, by building with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">USE_SINGLE_PRECISION_JACOBIAN</span><span class="o">=</span><span class="n">TRUE</span>
+</pre></div>
+</div>
+<p>This can speed up the integration prevent the code from running out
+of memory when run on GPUs.</p>
+</div>
 </section>
 <section id="integration-errors">
 <h2>Integration errors<a class="headerlink" href="#integration-errors" title="Link to this heading"></a></h2>
@@ -286,7 +297,7 @@ equations during a simulation.  Typically, the smaller the tolerance
 is, the more accurate the results will be.  However, if the tolerance
 is too small, the code may run for too long, the ODE solver will
 never converge, or it might require at timestep that underflows.</p>
-<p id="index-5">There are separate tolerances for the mass fractions and the energy,
+<p id="index-6">There are separate tolerances for the mass fractions and the energy,
 and there are both relative and absolute tolerances which act together.
 The tolerances are:</p>
 <ul class="simple">
@@ -310,7 +321,7 @@ best served via a relative tolerance.</p></li>
 will set the error that the integrator tries to achieve.  If the mass fraction
 is large, <span class="math notranslate nohighlight">\(\mathcal{O}(1)\)</span>, then the relative tolerance dominates.</p>
 <p>Some suggestions when setting tolerances:</p>
-<ul class="simple" id="index-6">
+<ul class="simple" id="index-7">
 <li><p>If a burn does not converge with one type of Jacobian (analytic or
 numerical) then it may do better with the other type.  This can be
 automated via the <code class="docutils literal notranslate"><span class="pre">integrator.use_burn_retry</span></code> mechanism described
@@ -346,7 +357,7 @@ fractions.  Looser than this can produce large errors.</p>
 </section>
 <section id="controlling-species-sum-k-x-k-1">
 <h2>Controlling Species <span class="math notranslate nohighlight">\(\sum_k X_k = 1\)</span><a class="headerlink" href="#controlling-species-sum-k-x-k-1" title="Link to this heading"></a></h2>
-<p id="index-7">The ODE integrators don’t know about the constraint that</p>
+<p id="index-8">The ODE integrators don’t know about the constraint that</p>
 <p><div class="math notranslate nohighlight">
 \[\sum_k X_k = 1\]</div>
 </p>
@@ -375,7 +386,7 @@ all in <span class="math notranslate nohighlight">\([\mathtt{SMALL\_X\_SAFE}, 1.
 </section>
 <section id="retry-mechanism">
 <h2>Retry Mechanism<a class="headerlink" href="#retry-mechanism" title="Link to this heading"></a></h2>
-<p id="index-8">Integration can fail for a number of reasons.  Some of the errors you may see are:</p>
+<p id="index-9">Integration can fail for a number of reasons.  Some of the errors you may see are:</p>
 <ol class="arabic simple">
 <li><p>Not enough steps allowed (<code class="docutils literal notranslate"><span class="pre">integrator.ode_max_steps</span></code>)</p></li>
 <li><p>The timestep selected by the integrator is too small (comparable to
