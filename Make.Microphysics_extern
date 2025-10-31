@@ -29,6 +29,12 @@ ifeq ($(USE_NONAKA_PLOT),TRUE)
   DEFINES += -DNONAKA_PLOT
 endif
 
+# sometimes we benefit from loop unrolling.  This specifies
+# the size of the unroll
+NET_LOOP_UNROLL_LEN ?= 4
+DEFINES += -DNET_LOOP_UNROLL_LEN=$(NET_LOOP_UNROLL_LEN)
+
+
 SCREEN_METHOD ?= screen5
 ifeq ($(SCREEN_METHOD), null)
   DEFINES += -DSCREEN_METHOD=SCREEN_METHOD_null

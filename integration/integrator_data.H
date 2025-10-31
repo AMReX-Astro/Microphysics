@@ -52,6 +52,6 @@ constexpr int integrator_neqs ()
 
 using IArray1D = amrex::Array1D<short, 1, INT_NEQS>;
 using RArray1D = amrex::Array1D<amrex::Real, 1, INT_NEQS>;
-using RArray2D = ArrayUtil::MathArray2D<1, INT_NEQS, 1, INT_NEQS>;
+using RArray2D = ArrayUtil::MathArray2D<jac_t, 1, INT_NEQS, 1, INT_NEQS>;
 
 #endif
