@@ -106,8 +106,9 @@ def doit():
     rho = 1.e7
     T = 6.e9
 
-    net.plot(rho, T, comp, outfile="ase.png",
-             rotated=True, hide_xalpha=True, curved_edges=True,
+    net.plot(rho, T, comp, outfile="ase-iron.png",
+             rotated=True, hide_xalpha=True,
+             use_net_rate=True,
              size=(1500, 450),
              node_size=600, node_font_size=11,
              Z_range=(1, 29))
