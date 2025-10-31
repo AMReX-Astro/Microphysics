@@ -833,7 +833,7 @@ void apply_coulomb_corrections (T& state)
 
 template <typename I, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void prepare_for_iterations (I input, T& state,
+void prepare_for_iterations (I input, const T& state,
                              bool& single_iter, amrex::Real& v_want, amrex::Real& v1_want, amrex::Real& v2_want,
                              int& var, int& dvar, int& var1, int& var2)
 {

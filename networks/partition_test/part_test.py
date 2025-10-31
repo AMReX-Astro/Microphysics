@@ -1,7 +1,7 @@
 import pynucastro as pyna
 
 reaclib_library = pyna.ReacLibLibrary()
-fwd_reactions = reaclib_library.derived_forward()
+fwd_reactions = reaclib_library.forward_for_detailed_balance()
 
 nuclei = ["p", "he4", "fe52", "ni56", "co55"]
 

@@ -17,87 +17,87 @@ namespace part_fun {
 
     // this is T9
 
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> temp_array_1;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> temp_array_1;
 
     // this is log10(partition function)
 
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> O16_pf_array;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> O16_pf_array;
 
     // this is log10(partition function)
 
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Ne20_pf_array;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Ne20_pf_array;
 
     // this is log10(partition function)
 
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Na23_pf_array;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Na23_pf_array;
 
     // this is log10(partition function)
 
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Mg24_pf_array;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Mg24_pf_array;
 
     // this is log10(partition function)
 
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Al27_pf_array;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Al27_pf_array;
 
     // this is log10(partition function)
 
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Si28_pf_array;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Si28_pf_array;
 
     // this is log10(partition function)
 
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> P31_pf_array;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> P31_pf_array;
 
     // this is log10(partition function)
 
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> S32_pf_array;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> S32_pf_array;
 
     // this is log10(partition function)
 
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Cl35_pf_array;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Cl35_pf_array;
 
     // this is log10(partition function)
 
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Ar36_pf_array;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Ar36_pf_array;
 
     // this is log10(partition function)
 
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> K39_pf_array;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> K39_pf_array;
 
     // this is log10(partition function)
 
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Ca40_pf_array;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Ca40_pf_array;
 
     // this is log10(partition function)
 
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Sc43_pf_array;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Sc43_pf_array;
 
     // this is log10(partition function)
 
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Ti44_pf_array;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Ti44_pf_array;
 
     // this is log10(partition function)
 
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> V47_pf_array;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> V47_pf_array;
 
     // this is log10(partition function)
 
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Cr48_pf_array;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Cr48_pf_array;
 
     // this is log10(partition function)
 
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Mn51_pf_array;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Mn51_pf_array;
 
     // this is log10(partition function)
 
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Fe52_pf_array;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Fe52_pf_array;
 
     // this is log10(partition function)
 
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Co55_pf_array;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Co55_pf_array;
 
     // this is log10(partition function)
 
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Ni56_pf_array;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Ni56_pf_array;
 
 
 
@@ -141,7 +141,7 @@ namespace part_fun {
             // find the derivative (with respect to T, not T9)
 
             amrex::Real dpf_dT9 = pf * M_LN10 * slope;
-            dpf_dT = dpf_dT9 / 1.e9_rt;
+            dpf_dT = dpf_dT9 * 1.e-9_rt;
 
         } else {
 
