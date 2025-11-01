@@ -55,7 +55,7 @@ namespace part_fun {
             // find the derivative (with respect to T, not T9)
 
             amrex::Real dpf_dT9 = pf * M_LN10 * slope;
-            dpf_dT = dpf_dT9 / 1.e9_rt;
+            dpf_dT = dpf_dT9 * 1.e-9_rt;
 
         } else {
 
@@ -173,6 +173,7 @@ constexpr amrex::Real get_spin_state(const int inuc) {
     case Zn64:
     case Zn66:
     case Ga62:
+    case Ga64:
     case Ge64:
         spin = 1;
         break;
@@ -241,6 +242,7 @@ constexpr amrex::Real get_spin_state(const int inuc) {
     case Zn61:
     case Zn63:
     case Ga63:
+    case Ge63:
         spin = 4;
         break;
 
@@ -289,6 +291,7 @@ constexpr amrex::Real get_spin_state(const int inuc) {
     case Cr51:
     case Mn53:
     case Fe53:
+    case Co53:
     case Co55:
     case Co57:
     case Co59:

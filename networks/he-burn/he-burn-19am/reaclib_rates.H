@@ -50,7 +50,7 @@ void rate_p_C12_to_N13(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dra
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // ls09r
@@ -67,7 +67,7 @@ void rate_p_C12_to_N13(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dra
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -99,7 +99,7 @@ void rate_He4_C12_to_O16(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // nac2 
@@ -116,7 +116,7 @@ void rate_He4_C12_to_O16(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -148,7 +148,7 @@ void rate_He4_O16_to_Ne20(const tf_t& tfactors, amrex::Real& rate, amrex::Real& 
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // co10n
@@ -165,7 +165,7 @@ void rate_He4_O16_to_Ne20(const tf_t& tfactors, amrex::Real& rate, amrex::Real& 
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // co10r
@@ -182,7 +182,7 @@ void rate_He4_O16_to_Ne20(const tf_t& tfactors, amrex::Real& rate, amrex::Real& 
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -214,7 +214,7 @@ void rate_He4_Ne20_to_Mg24(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10r
@@ -231,7 +231,7 @@ void rate_He4_Ne20_to_Mg24(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10r
@@ -248,7 +248,7 @@ void rate_He4_Ne20_to_Mg24(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10n
@@ -265,7 +265,7 @@ void rate_He4_Ne20_to_Mg24(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -297,7 +297,7 @@ void rate_p_Na23_to_Mg24(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10r
@@ -314,7 +314,7 @@ void rate_p_Na23_to_Mg24(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10n
@@ -331,7 +331,7 @@ void rate_p_Na23_to_Mg24(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -363,7 +363,7 @@ void rate_He4_Mg24_to_Si28(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // st08r
@@ -380,7 +380,7 @@ void rate_He4_Mg24_to_Si28(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -412,7 +412,7 @@ void rate_p_Al27_to_Si28(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10r
@@ -429,7 +429,7 @@ void rate_p_Al27_to_Si28(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10n
@@ -446,7 +446,7 @@ void rate_p_Al27_to_Si28(const tf_t& tfactors, amrex::Real& rate, amrex::Real& d
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -478,7 +478,7 @@ void rate_He4_Si28_to_S32(const tf_t& tfactors, amrex::Real& rate, amrex::Real& 
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -510,7 +510,7 @@ void rate_p_P31_to_S32(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dra
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10r
@@ -527,7 +527,7 @@ void rate_p_P31_to_S32(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dra
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10n
@@ -544,7 +544,7 @@ void rate_p_P31_to_S32(const tf_t& tfactors, amrex::Real& rate, amrex::Real& dra
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -576,7 +576,7 @@ void rate_C12_C12_to_p_Na23(const tf_t& tfactors, amrex::Real& rate, amrex::Real
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -608,7 +608,7 @@ void rate_C12_C12_to_He4_Ne20(const tf_t& tfactors, amrex::Real& rate, amrex::Re
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -640,7 +640,7 @@ void rate_He4_N13_to_p_O16(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -672,7 +672,7 @@ void rate_C12_O16_to_p_Al27(const tf_t& tfactors, amrex::Real& rate, amrex::Real
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -704,7 +704,7 @@ void rate_C12_O16_to_He4_Mg24(const tf_t& tfactors, amrex::Real& rate, amrex::Re
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -736,7 +736,7 @@ void rate_O16_O16_to_p_P31(const tf_t& tfactors, amrex::Real& rate, amrex::Real&
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -768,7 +768,7 @@ void rate_O16_O16_to_He4_Si28(const tf_t& tfactors, amrex::Real& rate, amrex::Re
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -800,7 +800,7 @@ void rate_p_Na23_to_He4_Ne20(const tf_t& tfactors, amrex::Real& rate, amrex::Rea
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10r
@@ -817,7 +817,7 @@ void rate_p_Na23_to_He4_Ne20(const tf_t& tfactors, amrex::Real& rate, amrex::Rea
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10n
@@ -834,7 +834,7 @@ void rate_p_Na23_to_He4_Ne20(const tf_t& tfactors, amrex::Real& rate, amrex::Rea
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -866,7 +866,7 @@ void rate_p_Al27_to_He4_Mg24(const tf_t& tfactors, amrex::Real& rate, amrex::Rea
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10r
@@ -883,7 +883,7 @@ void rate_p_Al27_to_He4_Mg24(const tf_t& tfactors, amrex::Real& rate, amrex::Rea
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10n
@@ -900,7 +900,7 @@ void rate_p_Al27_to_He4_Mg24(const tf_t& tfactors, amrex::Real& rate, amrex::Rea
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -932,7 +932,7 @@ void rate_p_P31_to_He4_Si28(const tf_t& tfactors, amrex::Real& rate, amrex::Real
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10r
@@ -949,7 +949,7 @@ void rate_p_P31_to_He4_Si28(const tf_t& tfactors, amrex::Real& rate, amrex::Real
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10n
@@ -966,7 +966,7 @@ void rate_p_P31_to_He4_Si28(const tf_t& tfactors, amrex::Real& rate, amrex::Real
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -998,7 +998,7 @@ void rate_He4_He4_He4_to_C12(const tf_t& tfactors, amrex::Real& rate, amrex::Rea
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // fy05n
@@ -1015,7 +1015,7 @@ void rate_He4_He4_He4_to_C12(const tf_t& tfactors, amrex::Real& rate, amrex::Rea
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // fy05r
@@ -1032,7 +1032,7 @@ void rate_He4_He4_He4_to_C12(const tf_t& tfactors, amrex::Real& rate, amrex::Rea
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -1064,7 +1064,7 @@ void rate_He4_N14_to_F18_removed(const tf_t& tfactors, amrex::Real& rate, amrex:
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10r
@@ -1081,7 +1081,7 @@ void rate_He4_N14_to_F18_removed(const tf_t& tfactors, amrex::Real& rate, amrex:
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10n
@@ -1098,7 +1098,7 @@ void rate_He4_N14_to_F18_removed(const tf_t& tfactors, amrex::Real& rate, amrex:
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -1130,7 +1130,7 @@ void rate_p_O16_to_F17_removed(const tf_t& tfactors, amrex::Real& rate, amrex::R
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -1162,7 +1162,7 @@ void rate_C12_C12_to_n_Mg23_removed(const tf_t& tfactors, amrex::Real& rate, amr
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -1194,7 +1194,7 @@ void rate_O16_O16_to_n_S31_removed(const tf_t& tfactors, amrex::Real& rate, amre
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -1226,7 +1226,7 @@ void rate_C12_O16_to_n_Si27_removed(const tf_t& tfactors, amrex::Real& rate, amr
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -1258,7 +1258,7 @@ void rate_He4_S32_to_Ar36_removed(const tf_t& tfactors, amrex::Real& rate, amrex
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -1290,7 +1290,7 @@ void rate_p_Cl35_to_Ar36_removed(const tf_t& tfactors, amrex::Real& rate, amrex:
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10n
@@ -1307,7 +1307,7 @@ void rate_p_Cl35_to_Ar36_removed(const tf_t& tfactors, amrex::Real& rate, amrex:
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10r
@@ -1324,7 +1324,7 @@ void rate_p_Cl35_to_Ar36_removed(const tf_t& tfactors, amrex::Real& rate, amrex:
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10r
@@ -1341,7 +1341,7 @@ void rate_p_Cl35_to_Ar36_removed(const tf_t& tfactors, amrex::Real& rate, amrex:
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -1373,7 +1373,7 @@ void rate_p_Cl35_to_He4_S32_removed(const tf_t& tfactors, amrex::Real& rate, amr
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10r
@@ -1390,7 +1390,7 @@ void rate_p_Cl35_to_He4_S32_removed(const tf_t& tfactors, amrex::Real& rate, amr
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10n
@@ -1407,7 +1407,7 @@ void rate_p_Cl35_to_He4_S32_removed(const tf_t& tfactors, amrex::Real& rate, amr
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10r
@@ -1424,7 +1424,7 @@ void rate_p_Cl35_to_He4_S32_removed(const tf_t& tfactors, amrex::Real& rate, amr
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -1456,7 +1456,7 @@ void rate_He4_Ar36_to_Ca40_removed(const tf_t& tfactors, amrex::Real& rate, amre
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -1488,7 +1488,7 @@ void rate_p_K39_to_Ca40_removed(const tf_t& tfactors, amrex::Real& rate, amrex::
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // lo18r
@@ -1505,7 +1505,7 @@ void rate_p_K39_to_Ca40_removed(const tf_t& tfactors, amrex::Real& rate, amrex::
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // lo18r
@@ -1522,7 +1522,7 @@ void rate_p_K39_to_Ca40_removed(const tf_t& tfactors, amrex::Real& rate, amrex::
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -1554,7 +1554,7 @@ void rate_p_K39_to_He4_Ar36_removed(const tf_t& tfactors, amrex::Real& rate, amr
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -1586,7 +1586,7 @@ void rate_He4_Ca40_to_Ti44_removed(const tf_t& tfactors, amrex::Real& rate, amre
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -1618,7 +1618,7 @@ void rate_p_Sc43_to_Ti44_removed(const tf_t& tfactors, amrex::Real& rate, amrex:
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -1650,7 +1650,7 @@ void rate_p_Sc43_to_He4_Ca40_removed(const tf_t& tfactors, amrex::Real& rate, am
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -1682,7 +1682,7 @@ void rate_He4_Ti44_to_Cr48_removed(const tf_t& tfactors, amrex::Real& rate, amre
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -1714,7 +1714,7 @@ void rate_He4_Ti44_to_p_V47_removed(const tf_t& tfactors, amrex::Real& rate, amr
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -1746,7 +1746,7 @@ void rate_p_V47_to_Cr48_removed(const tf_t& tfactors, amrex::Real& rate, amrex::
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // nfisn
@@ -1763,7 +1763,7 @@ void rate_p_V47_to_Cr48_removed(const tf_t& tfactors, amrex::Real& rate, amrex::
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // nfisn
@@ -1780,7 +1780,7 @@ void rate_p_V47_to_Cr48_removed(const tf_t& tfactors, amrex::Real& rate, amrex::
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // nfisn
@@ -1797,7 +1797,7 @@ void rate_p_V47_to_Cr48_removed(const tf_t& tfactors, amrex::Real& rate, amrex::
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -1829,7 +1829,7 @@ void rate_He4_Cr48_to_Fe52_removed(const tf_t& tfactors, amrex::Real& rate, amre
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -1861,7 +1861,7 @@ void rate_He4_Cr48_to_p_Mn51_removed(const tf_t& tfactors, amrex::Real& rate, am
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -1893,7 +1893,7 @@ void rate_p_Mn51_to_Fe52_removed(const tf_t& tfactors, amrex::Real& rate, amrex:
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -1925,7 +1925,7 @@ void rate_He4_Fe52_to_Ni56_removed(const tf_t& tfactors, amrex::Real& rate, amre
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -1957,7 +1957,7 @@ void rate_He4_Fe52_to_p_Co55_removed(const tf_t& tfactors, amrex::Real& rate, am
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -1989,7 +1989,7 @@ void rate_p_Co55_to_Ni56_removed(const tf_t& tfactors, amrex::Real& rate, amrex:
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 }
@@ -2021,7 +2021,7 @@ void rate_N13_to_p_C12_derived(const tf_t& tfactors, amrex::Real& rate, amrex::R
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // ls09c
@@ -2038,7 +2038,7 @@ void rate_N13_to_p_C12_derived(const tf_t& tfactors, amrex::Real& rate, amrex::R
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 
@@ -2097,7 +2097,7 @@ void rate_O16_to_He4_C12_derived(const tf_t& tfactors, amrex::Real& rate, amrex:
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // nac2 
@@ -2114,7 +2114,7 @@ void rate_O16_to_He4_C12_derived(const tf_t& tfactors, amrex::Real& rate, amrex:
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 
@@ -2170,7 +2170,7 @@ void rate_Ne20_to_He4_O16_derived(const tf_t& tfactors, amrex::Real& rate, amrex
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // co10c
@@ -2187,7 +2187,7 @@ void rate_Ne20_to_He4_O16_derived(const tf_t& tfactors, amrex::Real& rate, amrex
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // co10c
@@ -2204,7 +2204,7 @@ void rate_Ne20_to_He4_O16_derived(const tf_t& tfactors, amrex::Real& rate, amrex
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 
@@ -2261,7 +2261,7 @@ void rate_Mg24_to_p_Na23_derived(const tf_t& tfactors, amrex::Real& rate, amrex:
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10c
@@ -2276,7 +2276,7 @@ void rate_Mg24_to_p_Na23_derived(const tf_t& tfactors, amrex::Real& rate, amrex:
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10c
@@ -2293,7 +2293,7 @@ void rate_Mg24_to_p_Na23_derived(const tf_t& tfactors, amrex::Real& rate, amrex:
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 
@@ -2350,7 +2350,7 @@ void rate_Mg24_to_He4_Ne20_derived(const tf_t& tfactors, amrex::Real& rate, amre
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10c
@@ -2365,7 +2365,7 @@ void rate_Mg24_to_He4_Ne20_derived(const tf_t& tfactors, amrex::Real& rate, amre
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10c
@@ -2380,7 +2380,7 @@ void rate_Mg24_to_He4_Ne20_derived(const tf_t& tfactors, amrex::Real& rate, amre
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10c
@@ -2397,7 +2397,7 @@ void rate_Mg24_to_He4_Ne20_derived(const tf_t& tfactors, amrex::Real& rate, amre
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 
@@ -2454,7 +2454,7 @@ void rate_Si28_to_p_Al27_derived(const tf_t& tfactors, amrex::Real& rate, amrex:
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10c
@@ -2471,7 +2471,7 @@ void rate_Si28_to_p_Al27_derived(const tf_t& tfactors, amrex::Real& rate, amrex:
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10c
@@ -2488,7 +2488,7 @@ void rate_Si28_to_p_Al27_derived(const tf_t& tfactors, amrex::Real& rate, amrex:
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 
@@ -2543,7 +2543,7 @@ void rate_Si28_to_He4_Mg24_derived(const tf_t& tfactors, amrex::Real& rate, amre
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // st08r
@@ -2560,7 +2560,7 @@ void rate_Si28_to_He4_Mg24_derived(const tf_t& tfactors, amrex::Real& rate, amre
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 
@@ -2617,7 +2617,7 @@ void rate_S32_to_p_P31_derived(const tf_t& tfactors, amrex::Real& rate, amrex::R
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10c
@@ -2632,7 +2632,7 @@ void rate_S32_to_p_P31_derived(const tf_t& tfactors, amrex::Real& rate, amrex::R
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10c
@@ -2649,7 +2649,7 @@ void rate_S32_to_p_P31_derived(const tf_t& tfactors, amrex::Real& rate, amrex::R
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 
@@ -2706,7 +2706,7 @@ void rate_S32_to_He4_Si28_derived(const tf_t& tfactors, amrex::Real& rate, amrex
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 
@@ -2763,7 +2763,7 @@ void rate_C12_to_He4_He4_He4_derived(const tf_t& tfactors, amrex::Real& rate, am
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // fy05c
@@ -2780,7 +2780,7 @@ void rate_C12_to_He4_He4_He4_derived(const tf_t& tfactors, amrex::Real& rate, am
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // fy05c
@@ -2797,7 +2797,7 @@ void rate_C12_to_He4_He4_He4_derived(const tf_t& tfactors, amrex::Real& rate, am
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 
@@ -2851,7 +2851,7 @@ void rate_p_O16_to_He4_N13_derived(const tf_t& tfactors, amrex::Real& rate, amre
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 
@@ -2914,7 +2914,7 @@ void rate_He4_Ne20_to_p_Na23_derived(const tf_t& tfactors, amrex::Real& rate, am
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10c
@@ -2931,7 +2931,7 @@ void rate_He4_Ne20_to_p_Na23_derived(const tf_t& tfactors, amrex::Real& rate, am
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10c
@@ -2948,7 +2948,7 @@ void rate_He4_Ne20_to_p_Na23_derived(const tf_t& tfactors, amrex::Real& rate, am
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 
@@ -3010,7 +3010,7 @@ void rate_He4_Mg24_to_p_Al27_derived(const tf_t& tfactors, amrex::Real& rate, am
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10c
@@ -3027,7 +3027,7 @@ void rate_He4_Mg24_to_p_Al27_derived(const tf_t& tfactors, amrex::Real& rate, am
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10c
@@ -3044,7 +3044,7 @@ void rate_He4_Mg24_to_p_Al27_derived(const tf_t& tfactors, amrex::Real& rate, am
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 
@@ -3106,7 +3106,7 @@ void rate_He4_Si28_to_p_P31_derived(const tf_t& tfactors, amrex::Real& rate, amr
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10c
@@ -3123,7 +3123,7 @@ void rate_He4_Si28_to_p_P31_derived(const tf_t& tfactors, amrex::Real& rate, amr
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10c
@@ -3140,7 +3140,7 @@ void rate_He4_Si28_to_p_P31_derived(const tf_t& tfactors, amrex::Real& rate, amr
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 
@@ -3202,7 +3202,7 @@ void rate_He4_S32_to_p_Cl35_derived_removed(const tf_t& tfactors, amrex::Real& r
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10c
@@ -3219,7 +3219,7 @@ void rate_He4_S32_to_p_Cl35_derived_removed(const tf_t& tfactors, amrex::Real& r
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10c
@@ -3236,7 +3236,7 @@ void rate_He4_S32_to_p_Cl35_derived_removed(const tf_t& tfactors, amrex::Real& r
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10c
@@ -3253,7 +3253,7 @@ void rate_He4_S32_to_p_Cl35_derived_removed(const tf_t& tfactors, amrex::Real& r
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 
@@ -3315,7 +3315,7 @@ void rate_Ar36_to_He4_S32_derived_removed(const tf_t& tfactors, amrex::Real& rat
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 
@@ -3370,7 +3370,7 @@ void rate_Ar36_to_p_Cl35_derived_removed(const tf_t& tfactors, amrex::Real& rate
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10c
@@ -3387,7 +3387,7 @@ void rate_Ar36_to_p_Cl35_derived_removed(const tf_t& tfactors, amrex::Real& rate
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10c
@@ -3404,7 +3404,7 @@ void rate_Ar36_to_p_Cl35_derived_removed(const tf_t& tfactors, amrex::Real& rate
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // il10c
@@ -3419,7 +3419,7 @@ void rate_Ar36_to_p_Cl35_derived_removed(const tf_t& tfactors, amrex::Real& rate
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 
@@ -3476,7 +3476,7 @@ void rate_He4_Ar36_to_p_K39_derived_removed(const tf_t& tfactors, amrex::Real& r
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 
@@ -3538,7 +3538,7 @@ void rate_Ca40_to_He4_Ar36_derived_removed(const tf_t& tfactors, amrex::Real& ra
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 
@@ -3595,7 +3595,7 @@ void rate_Ca40_to_p_K39_derived_removed(const tf_t& tfactors, amrex::Real& rate,
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // lo18r
@@ -3612,7 +3612,7 @@ void rate_Ca40_to_p_K39_derived_removed(const tf_t& tfactors, amrex::Real& rate,
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // lo18r
@@ -3629,7 +3629,7 @@ void rate_Ca40_to_p_K39_derived_removed(const tf_t& tfactors, amrex::Real& rate,
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 
@@ -3686,7 +3686,7 @@ void rate_He4_Ca40_to_p_Sc43_derived_removed(const tf_t& tfactors, amrex::Real& 
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 
@@ -3748,7 +3748,7 @@ void rate_Ti44_to_He4_Ca40_derived_removed(const tf_t& tfactors, amrex::Real& ra
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 
@@ -3805,7 +3805,7 @@ void rate_Ti44_to_p_Sc43_derived_removed(const tf_t& tfactors, amrex::Real& rate
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 
@@ -3862,7 +3862,7 @@ void rate_Cr48_to_He4_Ti44_derived_removed(const tf_t& tfactors, amrex::Real& ra
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 
@@ -3919,7 +3919,7 @@ void rate_Cr48_to_p_V47_derived_removed(const tf_t& tfactors, amrex::Real& rate,
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // nfisn
@@ -3936,7 +3936,7 @@ void rate_Cr48_to_p_V47_derived_removed(const tf_t& tfactors, amrex::Real& rate,
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // nfisn
@@ -3953,7 +3953,7 @@ void rate_Cr48_to_p_V47_derived_removed(const tf_t& tfactors, amrex::Real& rate,
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
     // nfisn
@@ -3970,7 +3970,7 @@ void rate_Cr48_to_p_V47_derived_removed(const tf_t& tfactors, amrex::Real& rate,
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 
@@ -4027,7 +4027,7 @@ void rate_p_V47_to_He4_Ti44_derived_removed(const tf_t& tfactors, amrex::Real& r
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 
@@ -4089,7 +4089,7 @@ void rate_Fe52_to_He4_Cr48_derived_removed(const tf_t& tfactors, amrex::Real& ra
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 
@@ -4146,7 +4146,7 @@ void rate_Fe52_to_p_Mn51_derived_removed(const tf_t& tfactors, amrex::Real& rate
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 
@@ -4203,7 +4203,7 @@ void rate_p_Mn51_to_He4_Cr48_derived_removed(const tf_t& tfactors, amrex::Real& 
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 
@@ -4265,7 +4265,7 @@ void rate_Ni56_to_He4_Fe52_derived_removed(const tf_t& tfactors, amrex::Real& ra
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 
@@ -4322,7 +4322,7 @@ void rate_Ni56_to_p_Co55_derived_removed(const tf_t& tfactors, amrex::Real& rate
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 
@@ -4379,7 +4379,7 @@ void rate_p_Co55_to_He4_Fe52_derived_removed(const tf_t& tfactors, amrex::Real& 
     set_rate = std::exp(ln_set_rate);
     rate += set_rate;
     if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
     }
 
 

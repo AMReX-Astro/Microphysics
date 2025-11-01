@@ -41,7 +41,7 @@ bool do_rhs (int i, int j, int k, amrex::Array4<amrex::Real> const& state, const
 
     amrex::Array1D<amrex::Real, 1, neqs> ydot;
 
-    ArrayUtil::MathArray2D<1, neqs, 1, neqs> jac;
+    ArrayUtil::MathArray2D<jac_t, 1, neqs, 1, neqs> jac;
 
 #ifdef NEW_NETWORK_IMPLEMENTATION
     RHS::rhs(burn_state, ydot);

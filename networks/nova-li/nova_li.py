@@ -23,16 +23,7 @@ def create_network():
     # remove duplicates
     all_lib = nova_library + weak_library
 
-    dupes = all_lib.find_duplicate_links()
-
-    rates_to_remove = []
-    for d in dupes:
-        for r in d:
-            if isinstance(r, pyna.rates.ReacLibRate):
-                rates_to_remove.append(r)
-
-    for r in rates_to_remove:
-        all_lib.remove_rate(r)
+    all_lib.eliminate_duplicates(rate_type_preference="tabular")
 
     net = AmrexAstroCxxNetwork(libraries=[all_lib])
 
