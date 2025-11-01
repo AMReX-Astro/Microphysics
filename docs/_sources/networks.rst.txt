@@ -37,17 +37,14 @@ Microphysics knows the properties of the fluid.
    .. code:: python
 
       import os
-      import importlib
+      from pathlib import Path
+      import sys
 
       mp = os.getenv("MICROPHYSICS_HOME")
+      moddir = Path(mp) / "networks" / "CNO_extras"
+      sys.path.insert(0, str(moddir))
 
-      # change this to reflect the network you want
-      loc = f"{mp}/networks/CNO_extras/CNO_extras.py"
-
-      spec = importlib.util.spec_from_file_location("pynet", loc)
-      pynet = importlib.util.module_from_spec(spec)
-      spec.loader.exec_module(pynet)
-
+      import CNO_extras as pynet
       net = pynet.create_network()
 
    You can then work with the network through the ``net`` object, for instance
