@@ -410,6 +410,19 @@ The full network appears as:
    :align: center
 
 
+``ase-iron``
+------------
+
+As with ``ase``, this network is constructed to have reverse rates for all forward rates, allowing
+it to be used with the :ref:`self_consistent_nse` solver.  It builds off of ``ase`` by including
+more iron-group nuclei (using the same nuclei as ``he-burn-28amnp``).
+
+The full network appears as:
+
+.. figure:: ../../networks/he-burn/ase-iron/ase-iron.png
+   :align: center
+
+
 ``cno_he_burn_33a``
 -------------------
 
