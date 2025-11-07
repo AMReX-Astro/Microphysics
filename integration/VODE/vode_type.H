@@ -143,11 +143,11 @@ struct dvode_t
     amrex::Array1D<amrex::Real, 1, int_neqs> y;
 
     // Jacobian
-    ArrayUtil::MathArray2D<1, int_neqs, 1, int_neqs> jac;
+    ArrayUtil::MathArray2D<jac_t, 1, int_neqs, 1, int_neqs> jac;
 
 #ifdef ALLOW_JACOBIAN_CACHING
     // Saved Jacobian
-    ArrayUtil::MathArray2D<1, int_neqs, 1, int_neqs> jac_save;
+    ArrayUtil::MathArray2D<jac_t, 1, int_neqs, 1, int_neqs> jac_save;
 #endif
 
     // the Nordsieck history array
