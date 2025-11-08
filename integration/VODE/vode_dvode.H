@@ -238,7 +238,7 @@ int dvode (BurnT& state, DvodeT& vstate)
 
        if (vstate.n_step > MIN_NSE_BAILOUT_STEPS && vstate.tn <= vstate.tout
 #ifdef NSE_NET
-           && vstate.n_step % nse_check_interval == 0
+           && (vstate.n_step % nse_check_interval == 0 || state.T > 6.e9_rt)
 #endif
            ) {
            // first we need to make the burn_t in sync
