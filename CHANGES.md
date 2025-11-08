@@ -1,5 +1,27 @@
 # Changelog
 
+## 25.11
+
+  * add support for reduced precision Jacobian (#1862)
+
+  * make some more quantities const / constexpr (#1864, #1866, #1871)
+
+  * add loop unrolling to linpack (#1865)
+
+  * update networks to pynucastro 2.8.0 (#1870)
+
+  * github CI action updates (#1874)
+
+  * fix the `part_func` network generation script (#1873)
+
+  * fix comment about Jacobian (#1861)
+
+  * remove `symmetric_screening` args in networks (#1859)
+
+  * doc improvements (#1855)
+
+  * use more concise method to eliminate rate duplicates in networks (#1854)
+
 ## 25.10
 
   * update the NSE solver docs to explain network compatibility (#1852)

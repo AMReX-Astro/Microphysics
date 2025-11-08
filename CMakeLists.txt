@@ -182,6 +182,7 @@ set(BUILD_UNIT_TEST_PC false CACHE BOOL "Do you want to build the primordial che
 set(BUILD_UNIT_TEST_MC false CACHE BOOL "Do you want to build the metal chem unit test? (true/false)")
 
 add_compile_options(-Werror -Wall -Wextra)
+add_compile_definitions(NET_LOOP_UNROLL_LEN=1)
 
 #setting sourcefiles and directories needed to make the test here
 #so that they are accessible to codes using
