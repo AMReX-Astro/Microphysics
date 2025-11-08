@@ -290,6 +290,13 @@ void fill_reaction_timescale(amrex::Array1D<T, 1, Rates::NumRates>& reaction_tim
         }
     }
 
+    //
+    // 4) If the rate only involves Neutron, Proton or Helium-4
+    //
+    if (non_NHA_ind(1) == -1) {
+        return;
+    }
+
     // Calculate the forward and reverse rates of the current rate index
 
     amrex::Real b_f;
