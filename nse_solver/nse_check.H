@@ -45,6 +45,10 @@ void check_nse_molar(const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
 
     for (int n = 0; n < NumSpec; ++n) {
 
+        if (Y(n+1) == 0.0_rt || Y_nse(n+1) == 0.0_rt) {
+            continue;
+        }
+
         if (n == NSE_INDEX::H1_index || n == NSE_INDEX::N_index) {
             r /= Y(n+1) * Y(n+1);
             r_nse /= Y_nse(n+1) * Y_nse(n+1);
