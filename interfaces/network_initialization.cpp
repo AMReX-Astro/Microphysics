@@ -1,3 +1,6 @@
+#include <AMReX_BLassert.H>
+#include <extern_parameters.H>
+
 #ifdef REACTIONS
 #include <actual_network.H>
 #ifdef NEW_NETWORK_IMPLEMENTATION
@@ -21,7 +24,7 @@ void network_init()
 
 #ifdef REACTIONS
 #ifdef NONAKA_PLOT
-nonaka_init();
+    nonaka_init();
 #endif
 #ifdef NEW_NETWORK_IMPLEMENTATION
     actual_network_init();
@@ -36,4 +39,8 @@ nonaka_init();
     init_nse();
 #endif
 #endif
+
+    // some safety checks
+    AMREX_ALWAYS_ASSERT(integrator_rp::ode_max_steps > 0);
+
 }
