@@ -38,9 +38,10 @@ void network_init()
     // read in the NSE table (if there is one)
     init_nse();
 #endif
-#endif
-
     // some safety checks
     AMREX_ALWAYS_ASSERT(integrator_rp::ode_max_steps > 0);
+
+#endif // REACTIONS
+
 
 }
