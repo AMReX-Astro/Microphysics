@@ -22,98 +22,121 @@ namespace part_fun {
     // this is log10(partition function)
 
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> O16_pf_array;
+    constexpr amrex::Real O16_pf_threshold_T9 = 10.0;
 
     // this is log10(partition function)
 
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Ne20_pf_array;
+    constexpr amrex::Real Ne20_pf_threshold_T9 = 1.0;
 
     // this is log10(partition function)
 
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Na23_pf_array;
+    constexpr amrex::Real Na23_pf_threshold_T9 = 0.3;
 
     // this is log10(partition function)
 
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Mg24_pf_array;
+    constexpr amrex::Real Mg24_pf_threshold_T9 = 0.9;
 
     // this is log10(partition function)
 
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Al27_pf_array;
+    constexpr amrex::Real Al27_pf_threshold_T9 = 0.7;
 
     // this is log10(partition function)
 
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Si28_pf_array;
+    constexpr amrex::Real Si28_pf_threshold_T9 = 1.0;
 
     // this is log10(partition function)
 
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> P31_pf_array;
+    constexpr amrex::Real P31_pf_threshold_T9 = 0.9;
 
     // this is log10(partition function)
 
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> S32_pf_array;
+    constexpr amrex::Real S32_pf_threshold_T9 = 1.5;
 
     // this is log10(partition function)
 
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Cl35_pf_array;
+    constexpr amrex::Real Cl35_pf_threshold_T9 = 1.0;
 
     // this is log10(partition function)
 
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Ar36_pf_array;
+    constexpr amrex::Real Ar36_pf_threshold_T9 = 1.0;
 
     // this is log10(partition function)
 
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> K39_pf_array;
+    constexpr amrex::Real K39_pf_threshold_T9 = 2.0;
 
     // this is log10(partition function)
 
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Ca40_pf_array;
+    constexpr amrex::Real Ca40_pf_threshold_T9 = 2.5;
 
     // this is log10(partition function)
 
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Sc43_pf_array;
+    constexpr amrex::Real Sc43_pf_threshold_T9 = 0.01;
 
     // this is log10(partition function)
 
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Ti44_pf_array;
+    constexpr amrex::Real Ti44_pf_threshold_T9 = 0.7;
 
     // this is log10(partition function)
 
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> V47_pf_array;
+    constexpr amrex::Real V47_pf_threshold_T9 = -1.0;
 
     // this is log10(partition function)
 
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Cr48_pf_array;
+    constexpr amrex::Real Cr48_pf_threshold_T9 = 0.5;
 
     // this is log10(partition function)
 
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Mn51_pf_array;
+    constexpr amrex::Real Mn51_pf_threshold_T9 = 0.15;
 
     // this is log10(partition function)
 
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Fe52_pf_array;
+    constexpr amrex::Real Fe52_pf_threshold_T9 = 0.6;
 
     // this is log10(partition function)
 
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Co55_pf_array;
+    constexpr amrex::Real Co55_pf_threshold_T9 = 1.5;
 
     // this is log10(partition function)
 
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Ni56_pf_array;
+    constexpr amrex::Real Ni56_pf_threshold_T9 = 1.5;
 
 
 
-    // interpolation routine
+    // index locator
 
     template <typename T>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void interpolate_pf(const amrex::Real t9, const T& temp_array, const T& pf_array,
-                        amrex::Real& pf, amrex::Real& dpf_dT) {
+    int
+    index_pf(const amrex::Real t9, const T& temp_array) {
 
         int left = temp_array.lo();
         int right = temp_array.hi();
 
+        int idx = -1;
+
         if (t9 >= temp_array(left) && t9 < temp_array(right)) {
 
-            // find the largest temperature element <= t9 using a binary search
+            // find the largest temperature element <= t9 using a
+            // binary search
 
             while (left < right) {
                 int mid = (left + right) / 2;
@@ -124,11 +147,37 @@ namespace part_fun {
                 }
             }
 
-            const int idx = right - 1;
+            idx = right - 1;
+        }
 
-            // now we have temp_array[idx] <= t9 < temp_array[idx+1]
+        return idx;
+    }
 
-            // construct the slope -- this is (log10(pf_{i+1}) - log10(pf_i)) / (T_{i+1} - T_i)
+    // interpolation routine
+
+    template <typename T>
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    void interpolate_pf(const amrex::Real t9, int idx,
+                        const T& temp_array, const T& pf_array,
+                        amrex::Real& pf, amrex::Real& dpf_dT) {
+
+        // if the index is -1, we are either outside of the bounds or
+        // we never computed it.  try recomputing here
+        if (idx == -1) {
+            idx = index_pf(t9, temp_array);
+        }
+
+        // if the index is still -1, then we are out-of-bounds, so
+        // just skip the interpolation
+
+        if (idx != -1) {
+
+            // we have idx such that:
+            // temp_array[idx] <= t9 < temp_array[idx+1]
+            AMREX_ASSERT(t9 >= temp_array(idx) && t9 < temp_array(idx+1));
+
+            // construct the slope -- this is
+            // (log10(pf_{i+1}) - log10(pf_i)) / (T_{i+1} - T_i)
 
             amrex::Real slope = (pf_array(idx+1) - pf_array(idx)) /
                                 (temp_array(idx+1) - temp_array(idx));
@@ -153,104 +202,154 @@ namespace part_fun {
 
     }
 
+
+
     struct pf_cache_t {
         // Store the coefficient and derivative adjacent in memory, as they're
         // always accessed at the same time.
         // The entries will be default-initialized to zero, which is fine since
         // log10(x) is never zero.
         amrex::Array2D<amrex::Real, 1, NumSpecTotal, 1, 2, amrex::Order::C> data{};
+        int index_temp_array_1{-1};
+
     };
 
 }
 
-// main interface
+// get the partition function for nucleus inuc.  Here pf_cache
+// should already contain the index into the temp / pf arrays
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void get_partition_function(const int inuc, [[maybe_unused]] const tf_t& tfactors,
+void get_partition_function(const int inuc,
+                            [[maybe_unused]] const tf_t& tfactors,
+                            part_fun::pf_cache_t& pf_cache,
                             amrex::Real& pf, amrex::Real& dpf_dT) {
+
+    pf = 1.0_rt;
+    dpf_dT = 0.0_rt;
 
     // inuc is the 1-based index for the species
 
     switch (inuc) {
 
     case O16:
-        part_fun::interpolate_pf(tfactors.T9, part_fun::temp_array_1, part_fun::O16_pf_array, pf, dpf_dT);
+        if (tfactors.T9 > part_fun::O16_pf_threshold_T9) {
+            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::O16_pf_array, pf, dpf_dT);
+        }
         break;
 
     case Ne20:
-        part_fun::interpolate_pf(tfactors.T9, part_fun::temp_array_1, part_fun::Ne20_pf_array, pf, dpf_dT);
+        if (tfactors.T9 > part_fun::Ne20_pf_threshold_T9) {
+            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Ne20_pf_array, pf, dpf_dT);
+        }
         break;
 
     case Na23:
-        part_fun::interpolate_pf(tfactors.T9, part_fun::temp_array_1, part_fun::Na23_pf_array, pf, dpf_dT);
+        if (tfactors.T9 > part_fun::Na23_pf_threshold_T9) {
+            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Na23_pf_array, pf, dpf_dT);
+        }
         break;
 
     case Mg24:
-        part_fun::interpolate_pf(tfactors.T9, part_fun::temp_array_1, part_fun::Mg24_pf_array, pf, dpf_dT);
+        if (tfactors.T9 > part_fun::Mg24_pf_threshold_T9) {
+            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Mg24_pf_array, pf, dpf_dT);
+        }
         break;
 
     case Al27:
-        part_fun::interpolate_pf(tfactors.T9, part_fun::temp_array_1, part_fun::Al27_pf_array, pf, dpf_dT);
+        if (tfactors.T9 > part_fun::Al27_pf_threshold_T9) {
+            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Al27_pf_array, pf, dpf_dT);
+        }
         break;
 
     case Si28:
-        part_fun::interpolate_pf(tfactors.T9, part_fun::temp_array_1, part_fun::Si28_pf_array, pf, dpf_dT);
+        if (tfactors.T9 > part_fun::Si28_pf_threshold_T9) {
+            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Si28_pf_array, pf, dpf_dT);
+        }
         break;
 
     case P31:
-        part_fun::interpolate_pf(tfactors.T9, part_fun::temp_array_1, part_fun::P31_pf_array, pf, dpf_dT);
+        if (tfactors.T9 > part_fun::P31_pf_threshold_T9) {
+            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::P31_pf_array, pf, dpf_dT);
+        }
         break;
 
     case S32:
-        part_fun::interpolate_pf(tfactors.T9, part_fun::temp_array_1, part_fun::S32_pf_array, pf, dpf_dT);
+        if (tfactors.T9 > part_fun::S32_pf_threshold_T9) {
+            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::S32_pf_array, pf, dpf_dT);
+        }
         break;
 
     case Cl35:
-        part_fun::interpolate_pf(tfactors.T9, part_fun::temp_array_1, part_fun::Cl35_pf_array, pf, dpf_dT);
+        if (tfactors.T9 > part_fun::Cl35_pf_threshold_T9) {
+            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Cl35_pf_array, pf, dpf_dT);
+        }
         break;
 
     case Ar36:
-        part_fun::interpolate_pf(tfactors.T9, part_fun::temp_array_1, part_fun::Ar36_pf_array, pf, dpf_dT);
+        if (tfactors.T9 > part_fun::Ar36_pf_threshold_T9) {
+            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Ar36_pf_array, pf, dpf_dT);
+        }
         break;
 
     case K39:
-        part_fun::interpolate_pf(tfactors.T9, part_fun::temp_array_1, part_fun::K39_pf_array, pf, dpf_dT);
+        if (tfactors.T9 > part_fun::K39_pf_threshold_T9) {
+            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::K39_pf_array, pf, dpf_dT);
+        }
         break;
 
     case Ca40:
-        part_fun::interpolate_pf(tfactors.T9, part_fun::temp_array_1, part_fun::Ca40_pf_array, pf, dpf_dT);
+        if (tfactors.T9 > part_fun::Ca40_pf_threshold_T9) {
+            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Ca40_pf_array, pf, dpf_dT);
+        }
         break;
 
     case Sc43:
-        part_fun::interpolate_pf(tfactors.T9, part_fun::temp_array_1, part_fun::Sc43_pf_array, pf, dpf_dT);
+        if (tfactors.T9 > part_fun::Sc43_pf_threshold_T9) {
+            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Sc43_pf_array, pf, dpf_dT);
+        }
         break;
 
     case Ti44:
-        part_fun::interpolate_pf(tfactors.T9, part_fun::temp_array_1, part_fun::Ti44_pf_array, pf, dpf_dT);
+        if (tfactors.T9 > part_fun::Ti44_pf_threshold_T9) {
+            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Ti44_pf_array, pf, dpf_dT);
+        }
         break;
 
     case V47:
-        part_fun::interpolate_pf(tfactors.T9, part_fun::temp_array_1, part_fun::V47_pf_array, pf, dpf_dT);
+        if (tfactors.T9 > part_fun::V47_pf_threshold_T9) {
+            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::V47_pf_array, pf, dpf_dT);
+        }
         break;
 
     case Cr48:
-        part_fun::interpolate_pf(tfactors.T9, part_fun::temp_array_1, part_fun::Cr48_pf_array, pf, dpf_dT);
+        if (tfactors.T9 > part_fun::Cr48_pf_threshold_T9) {
+            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Cr48_pf_array, pf, dpf_dT);
+        }
         break;
 
     case Mn51:
-        part_fun::interpolate_pf(tfactors.T9, part_fun::temp_array_1, part_fun::Mn51_pf_array, pf, dpf_dT);
+        if (tfactors.T9 > part_fun::Mn51_pf_threshold_T9) {
+            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Mn51_pf_array, pf, dpf_dT);
+        }
         break;
 
     case Fe52:
-        part_fun::interpolate_pf(tfactors.T9, part_fun::temp_array_1, part_fun::Fe52_pf_array, pf, dpf_dT);
+        if (tfactors.T9 > part_fun::Fe52_pf_threshold_T9) {
+            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Fe52_pf_array, pf, dpf_dT);
+        }
         break;
 
     case Co55:
-        part_fun::interpolate_pf(tfactors.T9, part_fun::temp_array_1, part_fun::Co55_pf_array, pf, dpf_dT);
+        if (tfactors.T9 > part_fun::Co55_pf_threshold_T9) {
+            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Co55_pf_array, pf, dpf_dT);
+        }
         break;
 
     case Ni56:
-        part_fun::interpolate_pf(tfactors.T9, part_fun::temp_array_1, part_fun::Ni56_pf_array, pf, dpf_dT);
+        if (tfactors.T9 > part_fun::Ni56_pf_threshold_T9) {
+            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Ni56_pf_array, pf, dpf_dT);
+        }
         break;
 
 
@@ -263,6 +362,25 @@ void get_partition_function(const int inuc, [[maybe_unused]] const tf_t& tfactor
 
 }
 
+
+// a version of get_parition_function where we have not cached the
+// index into the arrays
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void get_partition_function(const int inuc,
+                            [[maybe_unused]] const tf_t& tfactors,
+                            amrex::Real& pf, amrex::Real& dpf_dT) {
+
+    // create a dummy cache.  This will initialize the indices
+    // to -1 and we will force a search for the correct index
+    // when we do the interpolation.
+
+    part_fun::pf_cache_t pf_cache;
+
+    get_partition_function(inuc, tfactors, pf_cache, pf, dpf_dT);
+}
+
+
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void get_partition_function_cached(const int inuc, const tf_t& tfactors,
                                    part_fun::pf_cache_t& pf_cache,
@@ -273,7 +391,7 @@ void get_partition_function_cached(const int inuc, const tf_t& tfactors,
         pf = pf_cache.data(inuc, 1);
         dpf_dT = pf_cache.data(inuc, 2);
     } else {
-        get_partition_function(inuc, tfactors, pf, dpf_dT);
+        get_partition_function(inuc, tfactors, pf_cache, pf, dpf_dT);
         pf_cache.data(inuc, 1) = pf;
         pf_cache.data(inuc, 2) = dpf_dT;
     }
