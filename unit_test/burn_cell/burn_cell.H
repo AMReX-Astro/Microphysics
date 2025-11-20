@@ -119,6 +119,8 @@ void burn_cell_c()
 
     state_over_time << std::setw(25) << "# Time";
     state_over_time << std::setw(25) << "Temperature";
+    state_over_time << std::setw(25) << "Energy";
+    state_over_time << std::setw(25) << "Ye";
     for(int x = 0; x < NumSpec; ++x){
         const std::string& element = short_spec_names_cxx[x];
         state_over_time << std::setw(25) << element;
@@ -128,8 +130,12 @@ void burn_cell_c()
 
     amrex::Real t = 0.0;
 
+    composition(burn_state);
+
     state_over_time << std::setw(25) << t;
     state_over_time << std::setw(25) << burn_state.T;
+    state_over_time << std::setw(25) << burn_state.e;
+    state_over_time << std::setw(25) << burn_state.y_e;
     for (double X : burn_state.xn) {
         state_over_time << std::setw(25) << X;
     }
@@ -177,8 +183,12 @@ void burn_cell_c()
 
         t += dt;
 
+        composition(burn_state);
+
         state_over_time << std::setw(25) << t;
         state_over_time << std::setw(25) << burn_state.T;
+        state_over_time << std::setw(25) << burn_state.e;
+        state_over_time << std::setw(25) << burn_state.y_e;
         for (double X : burn_state.xn) {
              state_over_time << std::setw(25) << X;
         }
