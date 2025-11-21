@@ -56,17 +56,9 @@ void nse_hybrid_solver(nse_solver_data<T>& state_data,
     // mode = 1: scales internally
     // mode = 2: scales based on user-supplied diag
 
-    if constexpr(neqs == 2){
-        hj.mode = 1;
-    } else {
-        hj.mode = 2;
-
-        // Scale variable, this is to work with hj.mode = 2
-
-        hj.diag(1) = 1.0_rt;
-        hj.diag(2) = 1.0_rt;
-        hj.diag(3) = 1e9_rt;
-    }
+    // Choose mode 1 for all.
+    // If T is unknown, we manually scale to work with T9
+    hj.mode = 1;
 
     // random flag number for evaluation in for loop;
 
@@ -85,7 +77,8 @@ void nse_hybrid_solver(nse_solver_data<T>& state_data,
     outer_x(1) = state_data.state.mu_p;
     outer_x(2) = state_data.state.mu_n;
     if constexpr (neqs == 3) {
-        outer_x(3) = state_data.state.T;
+        // For temperature, solve for T9.
+        outer_x(3) = state_data.state.T * 1.e-9_rt;
     }
 
     // fine tuning initial guesses
@@ -115,7 +108,7 @@ void nse_hybrid_solver(nse_solver_data<T>& state_data,
             bool converged = true;
 
             if constexpr (neqs == 3) {
-                if (hj.x(3) < 1.0e9_rt || hj.x(3) >= 2e10_rt) {
+                if (hj.x(3) < 1.0_rt || hj.x(3) >= 20.0_rt) {
                     // If temperature is too low or even negative.
                     // Or if the temperature is too high
                     // Then the solved Temperature is not correct.
@@ -134,7 +127,8 @@ void nse_hybrid_solver(nse_solver_data<T>& state_data,
                 state_data.state.mu_p = hj.x(1);
                 state_data.state.mu_n = hj.x(2);
                 if constexpr (neqs == 3) {
-                    state_data.state.T = hj.x(3);
+                    // Convert to T from T9
+                    state_data.state.T = hj.x(3) * 1.e9_rt;
                 }
                 return;
             }
