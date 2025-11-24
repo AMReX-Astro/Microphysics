@@ -1060,8 +1060,11 @@ void evaluate_rates(const burn_t& state,
 
     rate_eval.enuc_weak = 0.0_rt;
 
+    amrex::Real log_temp = std::log10(state.T);
+    amrex::Real log_rhoy = std::log10(rhoy);
+
     tabular_evaluate(j_F17_O17_meta, j_F17_O17_rhoy, j_F17_O17_temp, j_F17_O17_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+                     log_rhoy, log_temp, state.T, rate, drate_dt, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_F17_to_O17) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_F17_to_O17) = drate_dt;
@@ -1069,7 +1072,7 @@ void evaluate_rates(const burn_t& state,
     rate_eval.enuc_weak += C::n_A * Y(F17) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_O17_F17_meta, j_O17_F17_rhoy, j_O17_F17_temp, j_O17_F17_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+                     log_rhoy, log_temp, state.T, rate, drate_dt, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_O17_to_F17) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_O17_to_F17) = drate_dt;
@@ -1077,7 +1080,7 @@ void evaluate_rates(const burn_t& state,
     rate_eval.enuc_weak += C::n_A * Y(O17) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_F18_Ne18_meta, j_F18_Ne18_rhoy, j_F18_Ne18_temp, j_F18_Ne18_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+                     log_rhoy, log_temp, state.T, rate, drate_dt, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_F18_to_Ne18) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_F18_to_Ne18) = drate_dt;
@@ -1085,7 +1088,7 @@ void evaluate_rates(const burn_t& state,
     rate_eval.enuc_weak += C::n_A * Y(F18) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_F18_O18_meta, j_F18_O18_rhoy, j_F18_O18_temp, j_F18_O18_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+                     log_rhoy, log_temp, state.T, rate, drate_dt, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_F18_to_O18) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_F18_to_O18) = drate_dt;
@@ -1093,7 +1096,7 @@ void evaluate_rates(const burn_t& state,
     rate_eval.enuc_weak += C::n_A * Y(F18) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_Ne18_F18_meta, j_Ne18_F18_rhoy, j_Ne18_F18_temp, j_Ne18_F18_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+                     log_rhoy, log_temp, state.T, rate, drate_dt, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_Ne18_to_F18) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Ne18_to_F18) = drate_dt;
@@ -1101,7 +1104,7 @@ void evaluate_rates(const burn_t& state,
     rate_eval.enuc_weak += C::n_A * Y(Ne18) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_O18_F18_meta, j_O18_F18_rhoy, j_O18_F18_temp, j_O18_F18_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+                     log_rhoy, log_temp, state.T, rate, drate_dt, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_O18_to_F18) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_O18_to_F18) = drate_dt;
@@ -1109,7 +1112,7 @@ void evaluate_rates(const burn_t& state,
     rate_eval.enuc_weak += C::n_A * Y(O18) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_F19_Ne19_meta, j_F19_Ne19_rhoy, j_F19_Ne19_temp, j_F19_Ne19_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+                     log_rhoy, log_temp, state.T, rate, drate_dt, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_F19_to_Ne19) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_F19_to_Ne19) = drate_dt;
@@ -1117,7 +1120,7 @@ void evaluate_rates(const burn_t& state,
     rate_eval.enuc_weak += C::n_A * Y(F19) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_Ne19_F19_meta, j_Ne19_F19_rhoy, j_Ne19_F19_temp, j_Ne19_F19_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+                     log_rhoy, log_temp, state.T, rate, drate_dt, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_Ne19_to_F19) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Ne19_to_F19) = drate_dt;
@@ -1125,7 +1128,7 @@ void evaluate_rates(const burn_t& state,
     rate_eval.enuc_weak += C::n_A * Y(Ne19) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_Mg22_Na22_meta, j_Mg22_Na22_rhoy, j_Mg22_Na22_temp, j_Mg22_Na22_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+                     log_rhoy, log_temp, state.T, rate, drate_dt, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_Mg22_to_Na22) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Mg22_to_Na22) = drate_dt;
@@ -1133,7 +1136,7 @@ void evaluate_rates(const burn_t& state,
     rate_eval.enuc_weak += C::n_A * Y(Mg22) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_Na22_Mg22_meta, j_Na22_Mg22_rhoy, j_Na22_Mg22_temp, j_Na22_Mg22_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+                     log_rhoy, log_temp, state.T, rate, drate_dt, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_Na22_to_Mg22) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Na22_to_Mg22) = drate_dt;
@@ -1188,53 +1191,56 @@ void get_ydot_weak(const burn_t& state,
 
     // Calculate tabular rates and get ydot_weak
 
+    amrex::Real log_temp = std::log10(state.T);
+    amrex::Real log_rhoy = std::log10(rhoy);
+
     tabular_evaluate(j_F17_O17_meta, j_F17_O17_rhoy, j_F17_O17_temp, j_F17_O17_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+                     log_rhoy, log_temp, state.T, rate, drate_dt, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_F17_to_O17) = rate;
     rate_eval.enuc_weak += C::n_A * Y(F17) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_O17_F17_meta, j_O17_F17_rhoy, j_O17_F17_temp, j_O17_F17_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+                     log_rhoy, log_temp, state.T, rate, drate_dt, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_O17_to_F17) = rate;
     rate_eval.enuc_weak += C::n_A * Y(O17) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_F18_Ne18_meta, j_F18_Ne18_rhoy, j_F18_Ne18_temp, j_F18_Ne18_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+                     log_rhoy, log_temp, state.T, rate, drate_dt, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_F18_to_Ne18) = rate;
     rate_eval.enuc_weak += C::n_A * Y(F18) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_F18_O18_meta, j_F18_O18_rhoy, j_F18_O18_temp, j_F18_O18_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+                     log_rhoy, log_temp, state.T, rate, drate_dt, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_F18_to_O18) = rate;
     rate_eval.enuc_weak += C::n_A * Y(F18) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_Ne18_F18_meta, j_Ne18_F18_rhoy, j_Ne18_F18_temp, j_Ne18_F18_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+                     log_rhoy, log_temp, state.T, rate, drate_dt, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_Ne18_to_F18) = rate;
     rate_eval.enuc_weak += C::n_A * Y(Ne18) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_O18_F18_meta, j_O18_F18_rhoy, j_O18_F18_temp, j_O18_F18_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+                     log_rhoy, log_temp, state.T, rate, drate_dt, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_O18_to_F18) = rate;
     rate_eval.enuc_weak += C::n_A * Y(O18) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_F19_Ne19_meta, j_F19_Ne19_rhoy, j_F19_Ne19_temp, j_F19_Ne19_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+                     log_rhoy, log_temp, state.T, rate, drate_dt, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_F19_to_Ne19) = rate;
     rate_eval.enuc_weak += C::n_A * Y(F19) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_Ne19_F19_meta, j_Ne19_F19_rhoy, j_Ne19_F19_temp, j_Ne19_F19_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+                     log_rhoy, log_temp, state.T, rate, drate_dt, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_Ne19_to_F19) = rate;
     rate_eval.enuc_weak += C::n_A * Y(Ne19) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_Mg22_Na22_meta, j_Mg22_Na22_rhoy, j_Mg22_Na22_temp, j_Mg22_Na22_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+                     log_rhoy, log_temp, state.T, rate, drate_dt, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_Mg22_to_Na22) = rate;
     rate_eval.enuc_weak += C::n_A * Y(Mg22) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_Na22_Mg22_meta, j_Na22_Mg22_rhoy, j_Na22_Mg22_temp, j_Na22_Mg22_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+                     log_rhoy, log_temp, state.T, rate, drate_dt, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_Na22_to_Mg22) = rate;
     rate_eval.enuc_weak += C::n_A * Y(Na22) * (edot_nu + edot_gamma);
 
