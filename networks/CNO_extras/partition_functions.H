@@ -13,6 +13,77 @@ using namespace Species;
 
 namespace part_fun {
 
+    constexpr int npts_1 = 72;
+
+    // this is T9
+
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> temp_array_1;
+
+    // this is log10(partition function)
+
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> O14_pf_array;
+    constexpr amrex::Real O14_pf_threshold_T9 = 10.0;
+
+    // this is log10(partition function)
+
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> O15_pf_array;
+    constexpr amrex::Real O15_pf_threshold_T9 = 10.0;
+
+    // this is log10(partition function)
+
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> O16_pf_array;
+    constexpr amrex::Real O16_pf_threshold_T9 = 10.0;
+
+    // this is log10(partition function)
+
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> O17_pf_array;
+    constexpr amrex::Real O17_pf_threshold_T9 = 2.0;
+
+    // this is log10(partition function)
+
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> O18_pf_array;
+    constexpr amrex::Real O18_pf_threshold_T9 = 3.0;
+
+    // this is log10(partition function)
+
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> F17_pf_array;
+    constexpr amrex::Real F17_pf_threshold_T9 = 1.0;
+
+    // this is log10(partition function)
+
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> F18_pf_array;
+    constexpr amrex::Real F18_pf_threshold_T9 = 1.5;
+
+    // this is log10(partition function)
+
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> F19_pf_array;
+    constexpr amrex::Real F19_pf_threshold_T9 = 0.2;
+
+    // this is log10(partition function)
+
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Ne18_pf_array;
+    constexpr amrex::Real Ne18_pf_threshold_T9 = 1.0;
+
+    // this is log10(partition function)
+
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Ne19_pf_array;
+    constexpr amrex::Real Ne19_pf_threshold_T9 = 0.15;
+
+    // this is log10(partition function)
+
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Ne20_pf_array;
+    constexpr amrex::Real Ne20_pf_threshold_T9 = 1.0;
+
+    // this is log10(partition function)
+
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Mg22_pf_array;
+    constexpr amrex::Real Mg22_pf_threshold_T9 = 0.8;
+
+    // this is log10(partition function)
+
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Mg24_pf_array;
+    constexpr amrex::Real Mg24_pf_threshold_T9 = 0.9;
+
 
 
     // index locator
@@ -104,6 +175,8 @@ namespace part_fun {
         // The entries will be default-initialized to zero, which is fine since
         // log10(x) is never zero.
         amrex::Array2D<amrex::Real, 1, NumSpecTotal, 1, 2, amrex::Order::C> data{};
+        int index_temp_array_1{-1};
+
     };
 
 }
@@ -123,6 +196,84 @@ void get_partition_function(const int inuc,
     // inuc is the 1-based index for the species
 
     switch (inuc) {
+
+    case O14:
+        if (tfactors.T9 > part_fun::O14_pf_threshold_T9) {
+            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::O14_pf_array, pf, dpf_dT);
+        }
+        break;
+
+    case O15:
+        if (tfactors.T9 > part_fun::O15_pf_threshold_T9) {
+            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::O15_pf_array, pf, dpf_dT);
+        }
+        break;
+
+    case O16:
+        if (tfactors.T9 > part_fun::O16_pf_threshold_T9) {
+            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::O16_pf_array, pf, dpf_dT);
+        }
+        break;
+
+    case O17:
+        if (tfactors.T9 > part_fun::O17_pf_threshold_T9) {
+            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::O17_pf_array, pf, dpf_dT);
+        }
+        break;
+
+    case O18:
+        if (tfactors.T9 > part_fun::O18_pf_threshold_T9) {
+            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::O18_pf_array, pf, dpf_dT);
+        }
+        break;
+
+    case F17:
+        if (tfactors.T9 > part_fun::F17_pf_threshold_T9) {
+            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::F17_pf_array, pf, dpf_dT);
+        }
+        break;
+
+    case F18:
+        if (tfactors.T9 > part_fun::F18_pf_threshold_T9) {
+            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::F18_pf_array, pf, dpf_dT);
+        }
+        break;
+
+    case F19:
+        if (tfactors.T9 > part_fun::F19_pf_threshold_T9) {
+            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::F19_pf_array, pf, dpf_dT);
+        }
+        break;
+
+    case Ne18:
+        if (tfactors.T9 > part_fun::Ne18_pf_threshold_T9) {
+            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Ne18_pf_array, pf, dpf_dT);
+        }
+        break;
+
+    case Ne19:
+        if (tfactors.T9 > part_fun::Ne19_pf_threshold_T9) {
+            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Ne19_pf_array, pf, dpf_dT);
+        }
+        break;
+
+    case Ne20:
+        if (tfactors.T9 > part_fun::Ne20_pf_threshold_T9) {
+            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Ne20_pf_array, pf, dpf_dT);
+        }
+        break;
+
+    case Mg22:
+        if (tfactors.T9 > part_fun::Mg22_pf_threshold_T9) {
+            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Mg22_pf_array, pf, dpf_dT);
+        }
+        break;
+
+    case Mg24:
+        if (tfactors.T9 > part_fun::Mg24_pf_threshold_T9) {
+            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Mg24_pf_array, pf, dpf_dT);
+        }
+        break;
 
 
     default:
