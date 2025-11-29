@@ -2678,14 +2678,6 @@ namespace Rates
         NumRates = k_p_to_n
     };
 
-    // number of reaclib rates
-
-    const int NrateReaclib = 1458;
-
-    // number of tabular rates
-
-    const int NrateTabular = 168;
-
     // rate names -- note: the rates are 1-based, not zero-based, so we pad
     // this vector with rate_names[0] = "" so the indices line up with the
     // NetworkRates enum
