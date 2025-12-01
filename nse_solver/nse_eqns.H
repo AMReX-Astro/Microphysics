@@ -250,7 +250,7 @@ void nse_fcn(amrex::Array1D<amrex::Real, 1, 3>& x,
     auto nse_state = state_data.state;
     nse_state.mu_p = x(1);
     nse_state.mu_n = x(2);
-    nse_state.T    = x(3);
+    nse_state.T    = x(3) * 1.0e9_rt;
 
     // Finish evaluating NSE X_k
 
@@ -384,7 +384,7 @@ void nse_jcn(amrex::Array1D<amrex::Real, 1, 3>& x,
     auto nse_state = state_data.state;
     nse_state.mu_p = x(1);
     nse_state.mu_n = x(2);
-    nse_state.T    = x(3);
+    nse_state.T    = x(3) * 1.0e9_rt;
 
     const amrex::Real T_in = nse_state.T;
     const amrex::Real e_in = state_data.state.e;
@@ -471,20 +471,20 @@ void nse_jcn(amrex::Array1D<amrex::Real, 1, 3>& x,
 
         amrex::Real dX_dmu_p = nse_state.xn[n] * zion[n] * ikTMeV;
         amrex::Real dX_dmu_n = nse_state.xn[n] * (aion[n] - zion[n]) * ikTMeV;
-        amrex::Real dX_dT = nse_state.xn[n] *
+        amrex::Real dX_dT9 = 1.0e9_rt * nse_state.xn[n] *
             (dpf_dT / pf - du_c_dT + (1.5_rt - (zion[n] * nse_state.mu_p +
                                                 (aion[n] - zion[n]) * nse_state.mu_n +
                                                 network::bion(n+1)) * ikTMeV) / T_in);
 
         fjac(1, 1) += dX_dmu_p;
         fjac(1, 2) += dX_dmu_n;
-        fjac(1, 3) += dX_dT;
+        fjac(1, 3) += dX_dT9;
         fjac(2, 1) += zion[n] * aion_inv[n] * dX_dmu_p;
         fjac(2, 2) += zion[n] * aion_inv[n] * dX_dmu_n;
-        fjac(2, 3) += zion[n] * aion_inv[n] * dX_dT;
+        fjac(2, 3) += zion[n] * aion_inv[n] * dX_dT9;
         fjac(3, 1) += aion_inv[n] * dX_dmu_p;
         fjac(3, 2) += aion_inv[n] * dX_dmu_n;
-        fjac(3, 3) += aion_inv[n] * dX_dT;
+        fjac(3, 3) += aion_inv[n] * dX_dT9;
     }
 
     //
@@ -501,13 +501,15 @@ void nse_jcn(amrex::Array1D<amrex::Real, 1, 3>& x,
     eos_state.T = T_in;
     eos(eos_input_rt, eos_state);
 
+    amrex::Real de_dT9 = 1.0e9_rt * eos_state.dedT;
+
     fjac(3, 1) = - eos_state.abar * eos_state.abar *
         (eos_state.dedA + Ye * eos_state.dedZ) * fjac(3, 1) / e_in;
 
     fjac(3, 2) = - eos_state.abar * eos_state.abar *
         (eos_state.dedA + Ye * eos_state.dedZ) * fjac(3, 2) / e_in;
 
-    fjac(3, 3) = (eos_state.dedT - eos_state.abar * eos_state.abar *
+    fjac(3, 3) = (de_dT9 - eos_state.abar * eos_state.abar *
                   (eos_state.dedA + Ye * eos_state.dedZ) * fjac(3, 3)) / e_in;
 }
 

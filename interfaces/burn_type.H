@@ -306,7 +306,8 @@ void normalize_abundances_sdc_burn (BurnT& state)
 
     amrex::Real rhoX_sum = 0.0_rt;
     for (int n = 0; n < NumSpec; n++) {
-        state.y[SFS+n] = amrex::max(amrex::min(state.y[SFS+n], state.y[SRHO]), 0.0_rt);
+        state.y[SFS+n] = amrex::max(amrex::min(state.y[SFS+n], state.y[SRHO]),
+                                    state.y[SRHO] * integrator_rp::SMALL_X_SAFE);
         rhoX_sum += state.y[SFS+n];
     }
     rhoX_sum /= state.y[SRHO];
