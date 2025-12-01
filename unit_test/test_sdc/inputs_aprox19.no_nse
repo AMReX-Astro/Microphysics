@@ -1,7 +1,5 @@
 n_cell = 16
 
-do_cxx = 1
-
 prefix = react_aprox19_sdc_
 
 unit_test.dens_min   = 1.e4

@@ -31,6 +31,13 @@ bool do_react (const plot_t& p, const int i, const int j, const int k,
 #ifdef AUX_THERMO
     set_aux_comp_from_X(eos_state);
 #endif
+#ifdef NSE_NET
+    // if we are doing self-consistent NSE, then set Ye manually
+    eos_state.y_e = 0.0_rt;
+    for (int n = 0; n < NumSpec; ++n) {
+        eos_state.y_e = eos_state.xn[n] * zion[n] * aion_inv[n];
+    }
+#endif
 
     eos(eos_input_rt, eos_state);
 
@@ -48,6 +55,12 @@ bool do_react (const plot_t& p, const int i, const int j, const int k,
     for (int n = 0; n < NumAux; n++) {
         burn_state.y[SFX+n] = burn_state.rho * eos_state.aux[n];
     }
+#endif
+#ifdef NSE_NET
+    burn_state.y_e = eos_state.y_e;
+
+    burn_state.mu_p = unit_test_rp::mu_p;
+    burn_state.mu_n = unit_test_rp::mu_n;
 #endif
 
     burn_state.y[SRHO] = state(i, j, k, p.irho);
@@ -107,6 +120,10 @@ bool do_react (const plot_t& p, const int i, const int j, const int k,
     for (int n = 0; n < NumAux; ++n) {
         state(i, j, k, p.iaux + n) = burn_state.y[SFX+n]/burn_state.rho;
     }
+#endif
+
+#ifdef NSE
+    state(i, j, k, p.inse) = burn_state.nse;
 #endif
 
     state(i, j, k, p.irho_Hnuc) = (burn_state.y[SEINT] - rhoe_old) / unit_test_rp::tmax;
