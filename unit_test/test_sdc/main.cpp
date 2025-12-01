@@ -227,7 +227,9 @@ void main_main ()
     int n_rhs_max = integrator_n_rhs.max(0);
     long n_rhs_sum = integrator_n_rhs.sum(0, 0, true);
 
+#ifdef NSE
     long n_nse_sum = integrator_n_rhs.sum(1, 0, true);
+#endif
 
     // get the name of the integrator from the build info functions
     // written at compile time.  We will append the name of the
@@ -261,6 +263,8 @@ void main_main ()
               << n_rhs_sum / n_cell_cubed << std::endl;
     std::cout << "max number of rhs calls: " << n_rhs_max << std::endl;
     std::cout << std::endl;
+#ifdef NSE
     std::cout << "fraction of zones in NSE: " << static_cast<amrex::Real>(n_nse_sum) / n_cell_cubed << std::endl;
+#endif
 
 }
