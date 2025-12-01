@@ -5,15 +5,14 @@ prefix = react_aprox19_sdc_
 unit_test.dens_min   = 1.e7
 unit_test.dens_max   = 5.e8
 unit_test.temp_min   = 1.e8
-unit_test.temp_max   = 5.e9
+unit_test.temp_max   = 6.e9
 
 unit_test.small_dens = 1.e3
 
-unit_test.tmax = 2.e-6
+unit_test.tmax = 1.e-6
 
 unit_test.primary_species_1 = helium-4
-unit_test.primary_species_2 = iron-54
-unit_test.primary_species_3 = nickel-56
+unit_test.primary_species_2 = nickel-56
 
 integrator.jacobian = 1
 
