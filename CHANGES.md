@@ -1,5 +1,31 @@
 # Changelog
 
+## 25,12
+
+  * update CI actions (#1885)
+
+  * manually scale T in NSE solve to get better convergence (#1884)
+
+  * add loop unrolling to MathArray2D (#1872)
+
+  * add a check that `integrator.ode_max_steps` is positive (#1882)
+
+  * add energy and Ye output to the `burn_cell` unit test (#1883)
+
+  * regenerate pynucastro networks with caching of interpolation
+    indices (#1879)
+
+  * allow for more species inputs in the unit tests (#1878)
+
+  * avoid a possible divide-by-zero in the NSE solver and add a
+    species mass fraction floor (#1881)
+
+  * fix a bounds issue in the NSE solver (#1880)
+
+  * fix compiler warnings if neutrinos are disabled (#1856)
+
+  * add an `ase-iron` network for self-consistent NSE (#1860)
+
 ## 25.11
 
   * add support for reduced precision Jacobian (#1862)
