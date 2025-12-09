@@ -126,7 +126,7 @@ void burn_cell_c()
 
         // See the result of constraint eq and jacobian using the solved input
 
-        amrex::Array1D<amrex::Real, 1, 3> x {nse_state.mu_p, nse_state.mu_n, nse_state.T};
+        amrex::Array1D<amrex::Real, 1, 3> x {nse_state.mu_p, nse_state.mu_n, nse_state.T * 1.e-9};
         amrex::Array1D<amrex::Real, 1, 3> f;
         amrex::Array2D<amrex::Real, 1, 3, 1, 3> jac;
         int flag = 0;

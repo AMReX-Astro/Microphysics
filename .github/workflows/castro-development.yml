@@ -11,15 +11,15 @@ jobs:
     name: Castro development
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - name: Download Castro
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         repository: 'AMReX-Astro/Castro'
         ref: development
         path: 'Castro'
     - name: Download AMReX
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         repository: 'AMReX-Codes/amrex'
         ref: development
