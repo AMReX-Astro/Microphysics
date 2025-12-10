@@ -129,7 +129,11 @@ bool do_react (const plot_t& p, const int i, const int j, const int k,
     state(i, j, k, p.irho_Hnuc) = (burn_state.y[SEINT] - rhoe_old) / unit_test_rp::tmax;
 
     n_rhs(i, j, k, 0) = burn_state.n_rhs;
+#ifdef NSE
     n_rhs(i, j, k, 1) = static_cast<int>(burn_state.nse);
+#else
+    n_rhs(i, j, k, 1) = 0;
+#endif
 
     return burn_state.success;
 
