@@ -19,6 +19,10 @@ plot_t init_variables() {
   p.irodot = p.next_index(NumSpec);
   p.irho_Hnuc = p.next_index(1);
 
+#ifdef NSE
+  p.inse = p.next_index(1);
+#endif
+
   return p;
 }
 
@@ -41,4 +45,9 @@ void get_varnames(const plot_t& p, amrex::Vector<std::string>& names) {
       names[p.iaux_old + n] = "old_" + aux_names_cxx[n];
   }
 #endif
+
+#ifdef NSE
+  names[p.inse] = "in_nse";
+#endif
+
 }
