@@ -78,10 +78,13 @@ struct rock_t {
     // block
 
     // number of function evaluations
-    int nfe;
+    int n_rhs;
 
     // number of integration stesp
-    int nsteps;
+    int n_step;
+
+    // not used -- number of Jacobian evals
+    int n_jac{};
 
     // number of accepted steps
     int naccpt;
@@ -100,6 +103,9 @@ struct rock_t {
 
     // minimum value of the spectral radius (nearest int)
     int min_rho;
+
+    // not used here, but needed for compatibility with other integrators
+    short jacobian_type;
 
 };
 

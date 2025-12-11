@@ -350,8 +350,8 @@ int rockcore (BurnT& state, RockT& rstate)
 
     // initializations
 
-    rstate.nfe = 0;
-    rstate.nsteps = 0;
+    rstate.n_rhs = 0;
+    rstate.n_step = 0;
     rstate.naccpt = 0;
     rstate.nreject = 0;
     rstate.nfesig = 0;
@@ -379,11 +379,11 @@ int rockcore (BurnT& state, RockT& rstate)
     }
     rhs(rstate.t, state, rstate, rstate.fn);   // TODO: I think this can be removed -- we already filled for finding rstate.h
 
-    rstate.nfe++;
+    rstate.n_rhs++;
     Real errp = err;
     Real eigmax{};
 
-    while (rstate.nsteps < integrator_rp::ode_max_steps) {
+    while (rstate.n_step < integrator_rp::ode_max_steps) {
 
         // Step-size is adjusted.
 
@@ -414,7 +414,7 @@ int rockcore (BurnT& state, RockT& rstate)
         }
 
         // The number of stages
-        if (rock_order == 2) {
+        if (integrator_rp::rock_order == 2) {
             rstate.mdeg = static_cast<int>(std::sqrt((1.5_rt + rstate.h * eigmax) / 0.811_rt)) + 1;
 
             if (rstate.mdeg > 200) {
@@ -455,21 +455,21 @@ int rockcore (BurnT& state, RockT& rstate)
 
         // Computation of an integration step.
 
-        if (rock_order == 2) {
+        if (integrator_rp::rock_order == 2) {
             err = r2step(state, rstate);
-            rstate.nfe += rstate.mdeg + 1;
+            rstate.n_rhs += rstate.mdeg + 1;
         } else {
             err = r4step(state, rstate);
-            rstate.nfe += rstate.mdeg + 4;
+            rstate.n_rhs += rstate.mdeg + 4;
         }
 
         mdego = rstate.mdeg;
-        rstate.nsteps++;
+        rstate.n_step++;
 
         // Error control procedure.
 
         Real fac;
-        if (rock_order == 2) {
+        if (integrator_rp::rock_order == 2) {
             fac = std::sqrt(1.0_rt / err);
 
             if (errp != 0.0_rt && ! reject) {
@@ -509,7 +509,7 @@ int rockcore (BurnT& state, RockT& rstate)
             hp = rstate.h;
             rstate.h = hnew;
             nrho++;
-            int rho_cycle = rock_order == 2 ? 25 : 10;
+            int rho_cycle = integrator_rp::rock_order == 2 ? 25 : 10;
             nrho = nrho+1 % rho_cycle;
             if (last) {
                 return IERR_SUCCESS;
@@ -519,7 +519,7 @@ int rockcore (BurnT& state, RockT& rstate)
                     rstate.fn(i) = rstate.fnt(i);
                 }
             }
-            rstate.nfe++;
+            rstate.n_rhs++;
             errp = err;
             continue;
         }
@@ -529,7 +529,7 @@ int rockcore (BurnT& state, RockT& rstate)
         reject = true;
         last = false;
         rstate.h = 0.8_rt * hnew;
-        if (rstate.nsteps == 0) {
+        if (rstate.n_step == 0) {
             rstate.h = 0.1e0 * rstate.h;
         }
         if (told == rstate.t) {
