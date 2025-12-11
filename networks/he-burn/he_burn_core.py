@@ -132,30 +132,21 @@ def get_core_library(*,
     all_lib += iron_weak_lib
 
     if do_detailed_balance:
-        rates_to_derive = core_lib.backward().get_rates()
+        rates_to_derive = all_lib.backward().get_rates()
 
         # now for each of those derived rates, look to see if the pair exists
 
         for r in rates_to_derive:
-            fr = core_lib.get_rate_by_nuclei(r.products, r.reactants)
+            fr = all_lib.get_rate_by_nuclei(r.products, r.reactants)
             if fr:
                 print(f"modifying {r} from {fr}")
-                core_lib.remove_rate(r)
+                all_lib.remove_rate(r)
                 d = pyna.DerivedRate(rate=fr, compute_Q=True, use_pf=True)
-                core_lib.add_rate(d)
+                all_lib.add_rate(d)
 
     # we may have duplicate rates -- we want to remove any ReacLib rates
     # that we have tabular rates for
 
-    dupes = all_lib.find_duplicate_links()
-
-    rates_to_remove = []
-    for d in dupes:
-        for r in d:
-            if isinstance(r, ReacLibRate):
-                rates_to_remove.append(r)
-
-    for r in rates_to_remove:
-        all_lib.remove_rate(r)
+    all_lib.eliminate_duplicates(rate_type_preference="tabular")
 
     return all_lib

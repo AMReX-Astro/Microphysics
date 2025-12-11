@@ -9,7 +9,7 @@ namespace part_fun {
 
     // this is T9
 
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> temp_array_1= {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> temp_array_1= {
         0.01, 0.15, 0.2, 0.3, 0.4,
         0.5, 0.6, 0.7, 0.8, 0.9,
         1.0, 1.5, 2.0, 2.5, 3.0,
@@ -30,7 +30,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> O14_pf_array = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> O14_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
@@ -50,7 +50,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> O15_pf_array = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> O15_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
@@ -70,7 +70,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> O16_pf_array = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> O16_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
@@ -90,7 +90,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> O17_pf_array = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> O17_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.004321373782642578, 0.004321373782642578,
@@ -110,7 +110,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> O18_pf_array = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> O18_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
@@ -130,7 +130,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> F17_pf_array = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> F17_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.004321373782642578, 0.008600171761917567, 0.012837224705172217, 0.021189299069938092,
@@ -150,7 +150,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> F18_pf_array = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> F18_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.008600171761917567, 0.02530586526477026, 0.04921802267018165,
@@ -170,7 +170,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> F19_pf_array = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> F19_pf_array = {
         0.0, 0.0, 0.0, 0.008600171761917567, 0.021189299069938092,
         0.04532297878665747, 0.07918124604762482, 0.11058971029924897, 0.14301480025409505, 0.17609125905568124,
         0.20682587603184974, 0.32633586092875144, 0.40312052117581787, 0.4548448600085102, 0.4941545940184428,
@@ -190,7 +190,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Ne18_pf_array = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Ne18_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 8.685880952436747e-07, 3.821623291793711e-05, 0.00034078742672235857, 0.0014740966917327273,
@@ -210,7 +210,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Ne19_pf_array = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Ne19_pf_array = {
         0.0, 0.0, 1.3028814913777444e-06, 0.00013982031331027489, 0.001441200906721522,
         0.0058550331034921905, 0.014843829183159709, 0.028644035649810974, 0.046524428475543715, 0.067325701327402,
         0.08987227329808917, 0.20243300501861436, 0.29142235685380635, 0.3573212585177977, 0.4076299980711713,
@@ -230,7 +230,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Ne20_pf_array = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Ne20_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 6.948656121358244e-06, 0.00016586881316040883, 0.0011034421778731533, 0.003892457497077877,
@@ -250,7 +250,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Ne21_pf_array = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Ne21_pf_array = {
         0.0, 0.0, 0.0, 8.685880952436747e-07, 2.4754079983896385e-05,
         0.0001901793368385613, 0.0007372402163824667, 0.0019404293040471109, 0.0040039218205739505, 0.007021925578680666,
         0.010986057727319889, 0.04118891376750491, 0.0777722105539352, 0.11230632139519969, 0.14260436993417835,
@@ -270,7 +270,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Ne22_pf_array = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Ne22_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
         8.685880952436747e-07, 0.00011333607006293108, 0.0013316746125432487, 0.00581432571545805, 0.01542095475951367,
@@ -290,7 +290,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Na21_pf_array = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Na21_pf_array = {
         0.0, 0.0, 0.0, 1.7371744532199383e-06, 4.2993025588799044e-05,
         0.0002939178842668198, 0.0010601207732299054, 0.002647623871988166, 0.005251315614863394, 0.008928323290411695,
         0.013622881796825869, 0.04729823686205941, 0.08590500730687979, 0.1212511654957699, 0.15172247554052798,
@@ -310,7 +310,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Na22_pf_array = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Na22_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         4.342942647204277e-07, 2.605759074128604e-06, 1.3028639028478182e-05, 4.559852671908958e-05, 0.00011984873864003521,
         0.0002626687122755098, 0.0029928105843703536, 0.010836979076306525, 0.02428653620880802, 0.04242704733870039,
@@ -330,7 +330,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Na23_pf_array = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Na23_pf_array = {
         0.0, 0.0, 0.0, 0.0, 1.7371744532199383e-06,
         2.3885539658322847e-05, 0.00013113713282427166, 0.0004423207528904243, 0.0010999766245234136, 0.002232173197636284,
         0.003929471989446119, 0.021128907257497758, 0.0479649055541949, 0.07726249885377771, 0.10525805048344757,
@@ -350,7 +350,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Mg24_pf_array = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Mg24_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
         4.342942647204277e-07, 5.471765757979972e-05, 0.0007714899373308071, 0.0037633124724497633, 0.010764115210255056,
@@ -370,7 +370,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Al27_pf_array = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Al27_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 8.685880952436747e-07, 3.4743419578801875e-06,
         1.0422942490878872e-05, 0.00032429686817590634, 0.0018833542475028369, 0.005477808032249925, 0.011239204769804155,
@@ -390,7 +390,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Si28_pf_array = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Si28_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 2.1714669808675565e-06, 7.12184552784347e-05, 0.0005624812393818785, 0.002223099674110693,
@@ -410,7 +410,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> P31_pf_array = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> P31_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
         4.342942647204277e-07, 4.820401221806151e-05, 0.0005624812393818785, 0.002468018295084159, 0.006670091319158333,
@@ -430,7 +430,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> S32_pf_array = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> S32_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 5.211502513843472e-06, 6.948155872801059e-05, 0.0003893875360542875,
@@ -450,7 +450,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Cl35_pf_array = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Cl35_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 1.8239985202970884e-05, 0.00020710907627919203, 0.0009431313908907785, 0.002698987769012708,
@@ -470,7 +470,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Ar36_pf_array = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Ar36_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 4.342942647204277e-07, 2.3451268844214655e-05, 0.00023141729162330258, 0.0010622869460975197,
@@ -490,7 +490,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> K39_pf_array = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> K39_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 3.908632748276029e-06, 3.4307908925770636e-05,
@@ -510,7 +510,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Ca40_pf_array = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Ca40_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 3.4743419578801875e-06,
@@ -530,7 +530,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Sc43_pf_array = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Sc43_pf_array = {
         0.0, 1.7371744532199383e-06, 3.2136602621167924e-05, 0.0006088881229004689, 0.0026394223512168323,
         0.006348788305828209, 0.011375876688411647, 0.017242084547645732, 0.02355944464942603, 0.03006796257543875,
         0.03661053325876141, 0.06810122175372875, 0.09804672309111766, 0.12848424511267922, 0.16058766813472455,
@@ -550,7 +550,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Ti44_pf_array = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Ti44_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 4.342942647204277e-07, 1.7371744532199383e-06,
         7.382943437485089e-06, 0.0004987179011085028, 0.004043078170724821, 0.01413521502778782, 0.032426549056877405,
@@ -570,7 +570,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> V47_pf_array = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> V47_pf_array = {
         2.518834949526704e-05, 0.0007584840322833457, 0.004226764680268442, 0.024475815916759104, 0.05998274311239668,
         0.10280266491559079, 0.14672973694476377, 0.1885209834473098, 0.22688178294786615, 0.2615226538586488,
         0.29260868165003595, 0.4071409645052156, 0.48021742410342627, 0.5329079468954852, 0.5750746363992424,
@@ -590,7 +590,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Cr48_pf_array = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Cr48_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 8.685880952436747e-07, 8.251516766996927e-06, 3.951899976600419e-05, 0.00013330794422173613,
         0.00035120219371925, 0.006401856055765157, 0.02685304570895992, 0.06215311825135839, 0.10696594975266842,
@@ -610,7 +610,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Mn51_pf_array = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Mn51_pf_array = {
         0.0, 0.0, 4.342942647204277e-07, 6.0362737871404116e-05, 0.0005954436481690331,
         0.002352703452491265, 0.0058636025937444025, 0.011219737158250306, 0.018191443590229183, 0.026405776501228783,
         0.035473365577059296, 0.08393991903492294, 0.12694077261184436, 0.16267998396542166, 0.19356340377635362,
@@ -630,7 +630,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Fe52_pf_array = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Fe52_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 1.7371744532199383e-06, 9.554373504133797e-06, 3.778197643341552e-05,
         0.00011333607006293108, 0.0030242952161453874, 0.015422212189991184, 0.040215337130588114, 0.07478865660777631,
@@ -650,7 +650,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Co55_pf_array = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Co55_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 8.685880952436747e-07, 1.4331481434642371e-05, 9.336327741651445e-05,
@@ -670,7 +670,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Ni56_pf_array = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Ni56_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 4.342942647204277e-07, 7.817230319428646e-06, 6.42708273977769e-05,

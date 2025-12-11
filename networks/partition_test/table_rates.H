@@ -8,7 +8,7 @@
 
 #include <AMReX_Array.H>
 
-using namespace amrex;
+using namespace amrex::literals;
 
 void init_tabular();
 
@@ -22,7 +22,7 @@ void init_tabular();
 
 const int num_tables = 0;
 
-enum TableVars
+enum TableVars : std::uint8_t
 {
     jtab_mu      = 1,
     jtab_dq      = 2,
@@ -45,12 +45,12 @@ struct table_t
 // we add a 7th index, k_index_dlogr_dlogt used for computing the derivative
 // of Log(rate) with respect of Log(temperature) by using the table
 // values. It isn't an index into the table but into the 'entries'
-// array. Is important to mention that although we compute dlogr/dlogT is
+// array. Is important to mention that although we compute dlogr/dlogT as
 // the computed quantity in 'entries', we pursue ultimately
 // dr/dt as the final desired quantity to be computed for this index.
 
 const int  k_index_dlogr_dlogt  = 7;
-const int add_vars              = 1;  // 1 Additional Var in entries
+constexpr int add_vars = 1;  // 1 Additional Var in entries
 
 
 namespace rate_tables
@@ -144,7 +144,7 @@ evaluate_linear_1d(const amrex::Real fhi, const amrex::Real flo, const amrex::Re
     // This function is a 1-D linear interpolator, that keeps x constant to xlo or xhi, based
     // on the side, if x is outside [xlo, xhi] respectively.
 
-    amrex::Real xx = Clamp(x, xlo, xhi);
+    amrex::Real xx = amrex::Clamp(x, xlo, xhi);
     amrex::Real f = flo + (fhi - flo) * (xx - xlo) / (xhi - xlo);
 
     return f;
@@ -160,15 +160,17 @@ evaluate_linear_2d(const amrex::Real fip1jp1, const amrex::Real fip1j, const amr
 
     amrex::Real f;
     amrex::Real dx = xhi - xlo;
+    amrex::Real dxinv = 1.0_rt / dx;
     amrex::Real dy = yhi - ylo;
+    amrex::Real dyinv = 1.0_rt / dy;
 
     amrex::Real E =  fij;
-    amrex::Real C = (fijp1 - fij) / dy;
-    amrex::Real B = (fip1j - fij) / dx;
-    amrex::Real A = (fip1jp1 - B * dx - C * dy - E) / (dx * dy);
+    amrex::Real C = (fijp1 - fij) * dyinv;
+    amrex::Real B = (fip1j - fij) * dxinv;
+    amrex::Real A = (fip1jp1 - B * dx - C * dy - E) * (dxinv * dyinv);
 
-    amrex::Real xx = Clamp(x, xlo, xhi);
-    amrex::Real yy = Clamp(y, ylo, yhi);
+    amrex::Real xx = amrex::Clamp(x, xlo, xhi);
+    amrex::Real yy = amrex::Clamp(y, ylo, yhi);
 
     f =  A * (xx - xlo) * (yy - ylo) +
          B * (xx - xlo) +
@@ -182,16 +184,14 @@ evaluate_linear_2d(const amrex::Real fip1jp1, const amrex::Real fip1j, const amr
 template<typename R, typename T, typename D>
 AMREX_INLINE AMREX_GPU_HOST_DEVICE
 amrex::Real
-evaluate_vars(const table_t& table_meta, const R& log_rhoy_table, const T& log_temp_table, const D& data,
-                    const amrex::Real log_rhoy, const amrex::Real log_temp, const int component)
+evaluate_vars(const int irhoy_lo, const int jtemp_lo,
+              const R& log_rhoy_table, const T& log_temp_table, const D& data,
+              const amrex::Real log_rhoy, const amrex::Real log_temp, const int component)
 {
     // This function evaluates the 2-D interpolator, for several pairs of rho_ye and temperature.
 
-    int jtemp_lo = vector_index_lu(table_meta.ntemp, log_temp_table, log_temp);
-    int jtemp_hi = jtemp_lo + 1;
-
-    int irhoy_lo = vector_index_lu(table_meta.nrhoy, log_rhoy_table, log_rhoy);
     int irhoy_hi = irhoy_lo + 1;
+    int jtemp_hi = jtemp_lo + 1;
 
     amrex::Real rhoy_lo = log_rhoy_table(irhoy_lo);
     amrex::Real rhoy_hi = log_rhoy_table(irhoy_hi);
@@ -214,16 +214,14 @@ evaluate_vars(const table_t& table_meta, const R& log_rhoy_table, const T& log_t
 template<typename R, typename T, typename D>
 AMREX_INLINE AMREX_GPU_HOST_DEVICE
 amrex::Real
-evaluate_dr_dtemp(const table_t& table_meta, const R& log_rhoy_table, const T& log_temp_table, const D& data,
+evaluate_dr_dtemp(const int irhoy_lo, const int jtemp_lo,
+                  const table_t& table_meta, const R& log_rhoy_table, const T& log_temp_table, const D& data,
                   const amrex::Real log_rhoy, const amrex::Real log_temp)
 {
     // The main objective of this function is compute dlogr_dlogt.
 
-    int irhoy_lo = vector_index_lu(table_meta.nrhoy, log_rhoy_table, log_rhoy);
-    int irhoy_hi = irhoy_lo + 1;
-
-    int jtemp_lo = vector_index_lu(table_meta.ntemp, log_temp_table, log_temp);
-    int jtemp_hi = jtemp_lo + 1;
+    const int irhoy_hi = irhoy_lo + 1;
+    const int jtemp_hi = jtemp_lo + 1;
 
     amrex::Real dlogr_dlogt;
 
@@ -254,19 +252,19 @@ evaluate_dr_dtemp(const table_t& table_meta, const R& log_rhoy_table, const T& l
         // Finally, we perform a 1d-linear interpolation between dlogr_dlogt_ip1
         // and dlogr_dlogt_i to compute dlogr_dlogt
 
-        amrex::Real log_rhoy_lo = log_rhoy_table(irhoy_lo);
-        amrex::Real log_rhoy_hi = log_rhoy_table(irhoy_hi);
+        const amrex::Real log_rhoy_lo = log_rhoy_table(irhoy_lo);
+        const amrex::Real log_rhoy_hi = log_rhoy_table(irhoy_hi);
 
-        amrex::Real log_temp_lo = log_temp_table(jtemp_lo);
-        amrex::Real log_temp_hi = log_temp_table(jtemp_hi);
+        const amrex::Real log_temp_lo = log_temp_table(jtemp_lo);
+        const amrex::Real log_temp_hi = log_temp_table(jtemp_hi);
 
-        amrex::Real fij     = data(jtemp_lo, irhoy_lo, jtab_rate);
-        amrex::Real fip1j   = data(jtemp_lo, irhoy_hi, jtab_rate);
-        amrex::Real fijp1   = data(jtemp_hi, irhoy_lo, jtab_rate);
-        amrex::Real fip1jp1 = data(jtemp_hi, irhoy_hi, jtab_rate);
+        const amrex::Real fij     = data(jtemp_lo, irhoy_lo, jtab_rate);
+        const amrex::Real fip1j   = data(jtemp_lo, irhoy_hi, jtab_rate);
+        const amrex::Real fijp1   = data(jtemp_hi, irhoy_lo, jtab_rate);
+        const amrex::Real fip1jp1 = data(jtemp_hi, irhoy_hi, jtab_rate);
 
-        amrex::Real dlogr_dlogt_i   = (fijp1 - fij) / (log_temp_hi - log_temp_lo);
-        amrex::Real dlogr_dlogt_ip1 = (fip1jp1 - fip1j) / (log_temp_hi - log_temp_lo);
+        const amrex::Real dlogr_dlogt_i   = (fijp1 - fij) / (log_temp_hi - log_temp_lo);
+        const amrex::Real dlogr_dlogt_ip1 = (fip1jp1 - fip1j) / (log_temp_hi - log_temp_lo);
 
         if ((log_temp < log_temp_lo) || (log_temp > log_temp_hi)) {
             dlogr_dlogt = 0.0_rt;
@@ -322,28 +320,30 @@ evaluate_dr_dtemp(const table_t& table_meta, const R& log_rhoy_table, const T& l
         // Finally, we perform a 2d-linear interpolation to
         // compute dlogr_dlogt.
 
-        amrex::Real log_temp_jm1  = log_temp_table(jtemp_lo-1);
-        amrex::Real log_temp_j    = log_temp_table(jtemp_lo);
-        amrex::Real log_temp_jp1  = log_temp_table(jtemp_hi);
-        amrex::Real log_temp_jp2  = log_temp_table(jtemp_hi+1);
+        const amrex::Real log_temp_jm1  = log_temp_table(jtemp_lo-1);
+        const amrex::Real log_temp_j    = log_temp_table(jtemp_lo);
+        const amrex::Real log_temp_jp1  = log_temp_table(jtemp_hi);
+        const amrex::Real log_temp_jp2  = log_temp_table(jtemp_hi+1);
 
-        amrex::Real log_rhoy_lo = log_rhoy_table(irhoy_lo);
-        amrex::Real log_rhoy_hi = log_rhoy_table(irhoy_hi);
+        const amrex::Real log_rhoy_lo = log_rhoy_table(irhoy_lo);
+        const amrex::Real log_rhoy_hi = log_rhoy_table(irhoy_hi);
 
-        amrex::Real fijm1   = data(jtemp_lo-1, irhoy_lo, jtab_rate);
-        amrex::Real fij     = data(jtemp_lo, irhoy_lo, jtab_rate);
-        amrex::Real fijp1   = data(jtemp_hi, irhoy_lo, jtab_rate);
-        amrex::Real fijp2   = data(jtemp_hi+1, irhoy_lo, jtab_rate);
+        const amrex::Real fijm1   = data(jtemp_lo-1, irhoy_lo, jtab_rate);
+        const amrex::Real fij     = data(jtemp_lo, irhoy_lo, jtab_rate);
+        const amrex::Real fijp1   = data(jtemp_hi, irhoy_lo, jtab_rate);
+        const amrex::Real fijp2   = data(jtemp_hi+1, irhoy_lo, jtab_rate);
 
-        amrex::Real fip1jm1 = data(jtemp_lo-1, irhoy_hi, jtab_rate);
-        amrex::Real fip1j   = data(jtemp_lo, irhoy_hi, jtab_rate);
-        amrex::Real fip1jp1 = data(jtemp_hi, irhoy_hi, jtab_rate);
-        amrex::Real fip1jp2 = data(jtemp_hi+1, irhoy_hi, jtab_rate);
+        const amrex::Real fip1jm1 = data(jtemp_lo-1, irhoy_hi, jtab_rate);
+        const amrex::Real fip1j   = data(jtemp_lo, irhoy_hi, jtab_rate);
+        const amrex::Real fip1jp1 = data(jtemp_hi, irhoy_hi, jtab_rate);
+        const amrex::Real fip1jp2 = data(jtemp_hi+1, irhoy_hi, jtab_rate);
 
-        amrex::Real dlogr_dlogt_ij     = (fijp1 - fijm1)/(log_temp_jp1 - log_temp_jm1);
-        amrex::Real dlogr_dlogt_ijp1   = (fijp2 - fij)/(log_temp_jp2 - log_temp_j);
-        amrex::Real dlogr_dlogt_ip1j   = (fip1jp1 - fip1jm1)/(log_temp_jp1 - log_temp_jm1);
-        amrex::Real dlogr_dlogt_ip1jp1 = (fip1jp2 - fip1j)/(log_temp_jp2 - log_temp_j);
+        const amrex::Real dlogTinv1 = 1.0_rt / (log_temp_jp1 - log_temp_jm1);
+        const amrex::Real dlogTinv2 = 1.0_rt / (log_temp_jp2 - log_temp_j);
+        const amrex::Real dlogr_dlogt_ij     = (fijp1 - fijm1) * dlogTinv1;
+        const amrex::Real dlogr_dlogt_ijp1   = (fijp2 - fij) * dlogTinv2;
+        const amrex::Real dlogr_dlogt_ip1j   = (fip1jp1 - fip1jm1) * dlogTinv1;
+        const amrex::Real dlogr_dlogt_ip1jp1 = (fip1jp2 - fip1j) * dlogTinv2;
 
         dlogr_dlogt = evaluate_linear_2d(dlogr_dlogt_ip1jp1,  dlogr_dlogt_ip1j, dlogr_dlogt_ijp1, dlogr_dlogt_ij,
                                          log_rhoy_hi, log_rhoy_lo, log_temp_jp1, log_temp_j,
@@ -357,16 +357,29 @@ evaluate_dr_dtemp(const table_t& table_meta, const R& log_rhoy_table, const T& l
 template <typename R, typename T, typename D>
 AMREX_INLINE AMREX_GPU_HOST_DEVICE
 void
-get_entries(const table_t& table_meta, const R& log_rhoy_table, const T& log_temp_table, const D& data,
-            const amrex::Real log_rhoy, const amrex::Real log_temp, amrex::Array1D<amrex::Real, 1, num_vars+1>& entries)
+get_entries(const int irhoy_lo, const int jtemp_lo,
+            const table_t& table_meta, const R& log_rhoy_table, const T& log_temp_table, const D& data,
+            const amrex::Real log_rhoy, const amrex::Real log_temp, amrex::Array1D<amrex::Real, 1, num_vars+add_vars>& entries)
 {
-    for (int ivar = 1; ivar <= num_vars; ivar++) {
-        entries(ivar) = evaluate_vars(table_meta, log_rhoy_table, log_temp_table, data,
-                                         log_rhoy, log_temp, ivar);
-    }
 
-    entries(k_index_dlogr_dlogt)  = evaluate_dr_dtemp(table_meta, log_rhoy_table, log_temp_table, data,
-                                             log_rhoy, log_temp);
+    // only interpolate the quantities we currently use
+
+    entries(jtab_rate) = evaluate_vars(irhoy_lo, jtemp_lo,
+                                       log_rhoy_table, log_temp_table, data,
+                                       log_rhoy, log_temp, jtab_rate);
+
+    entries(jtab_nuloss) = evaluate_vars(irhoy_lo, jtemp_lo,
+                                         log_rhoy_table, log_temp_table, data,
+                                         log_rhoy, log_temp, jtab_nuloss);
+
+    entries(jtab_gamma) = evaluate_vars(irhoy_lo, jtemp_lo,
+                                        log_rhoy_table, log_temp_table, data,
+                                        log_rhoy, log_temp, jtab_gamma);
+
+    entries(k_index_dlogr_dlogt) =
+        evaluate_dr_dtemp(irhoy_lo, jtemp_lo,
+                          table_meta, log_rhoy_table, log_temp_table, data,
+                          log_rhoy, log_temp);
 }
 
 template <typename R, typename T, typename D>
@@ -377,14 +390,21 @@ tabular_evaluate(const table_t& table_meta,
                  const amrex::Real rhoy, const amrex::Real temp,
                  amrex::Real& rate, amrex::Real& drate_dt, amrex::Real& edot_nu, amrex::Real& edot_gamma)
 {
-    amrex::Array1D<amrex::Real, 1, num_vars+1> entries;
+    amrex::Array1D<amrex::Real, 1, num_vars+add_vars> entries;
 
     // Get the table entries at this rhoy, temp
 
-    amrex::Real log_rhoy = std::log10(rhoy);
-    amrex::Real log_temp = std::log10(temp);
+    const amrex::Real log_rhoy = std::log10(rhoy);
+    const amrex::Real log_temp = std::log10(temp);
 
-    get_entries(table_meta, log_rhoy_table, log_temp_table, data,
+    // get the index into the table -- all components are
+    // stored with the same indices
+
+    int irhoy_lo = vector_index_lu(table_meta.nrhoy, log_rhoy_table, log_rhoy);
+    int jtemp_lo = vector_index_lu(table_meta.ntemp, log_temp_table, log_temp);
+
+    get_entries(irhoy_lo, jtemp_lo,
+                table_meta, log_rhoy_table, log_temp_table, data,
                 log_rhoy, log_temp, entries);
 
     // Fill outputs: rate, d(rate)/d(temperature), and

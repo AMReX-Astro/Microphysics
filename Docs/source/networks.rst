@@ -37,17 +37,14 @@ Microphysics knows the properties of the fluid.
    .. code:: python
 
       import os
-      import importlib
+      from pathlib import Path
+      import sys
 
       mp = os.getenv("MICROPHYSICS_HOME")
+      moddir = Path(mp) / "networks" / "CNO_extras"
+      sys.path.insert(0, str(moddir))
 
-      # change this to reflect the network you want
-      loc = f"{mp}/networks/CNO_extras/CNO_extras.py"
-
-      spec = importlib.util.spec_from_file_location("pynet", loc)
-      pynet = importlib.util.module_from_spec(spec)
-      spec.loader.exec_module(pynet)
-
+      import CNO_extras as pynet
       net = pynet.create_network()
 
    You can then work with the network through the ``net`` object, for instance
@@ -176,8 +173,13 @@ burning.  This network is managed by pynucastro.
    above).
 
 
+nova networks
+=============
+
+Two networks have been created for exploring novae.
+
 ``nova``
-========
+--------
 
 This network is composed of 17 nuclei: $\isotm{H}{1,2}$,
 $\isotm{He}{3,4}$, $\isotm{Be}{7}$, $\isotm{B}{8}$,
@@ -209,6 +211,19 @@ $\isotm{N}{15}(p,\alpha)\isotm{C}{12}$ and $\isotm{O}{17}(p,\alpha)\isotm{N}{14}
 Once the temperature reaches a threshold of $\gtrsim 10^8\,\mathrm{K}$, the fast $p$-captures, for example,
 $\isotm{N}{13}(p,\gamma)\isotm{O}{14}$, are more likely than the $\beta^{+}$-decays $\isotm{N}{13}(\beta^{+}\nu_e)\isotm{C}{13}$
 reactions. These rates are also included in this network.
+
+``nova-li``
+-----------
+
+This network builds on ``nova`` and adds $\isotm{Li}{7}$ as well as
+nuclei beyond fluorine.  It should give a more accurate energy in late
+stages of the burst, and can also be used to explore lithium
+production.
+
+.. figure:: ../../networks/nova-li/nova-li.png
+   :align: center
+
+
 
 
 He-burning networks
@@ -392,6 +407,19 @@ $\alpha$-chain without a modified rate (which does not behave well with NSE).
 The full network appears as:
 
 .. figure:: ../../networks/he-burn/ase/ase.png
+   :align: center
+
+
+``ase-iron``
+------------
+
+As with ``ase``, this network is constructed to have reverse rates for all forward rates, allowing
+it to be used with the :ref:`self_consistent_nse` solver.  It builds off of ``ase`` by including
+more iron-group nuclei (using the same nuclei as ``he-burn-28amnp``).
+
+The full network appears as:
+
+.. figure:: ../../networks/he-burn/ase-iron/ase-iron.png
    :align: center
 
 

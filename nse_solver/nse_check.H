@@ -45,6 +45,10 @@ void check_nse_molar(const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
 
     for (int n = 0; n < NumSpec; ++n) {
 
+        if (Y(n+1) == 0.0_rt || Y_nse(n+1) == 0.0_rt) {
+            continue;
+        }
+
         if (n == NSE_INDEX::H1_index || n == NSE_INDEX::N_index) {
             r /= Y(n+1) * Y(n+1);
             r_nse /= Y_nse(n+1) * Y_nse(n+1);
@@ -290,6 +294,13 @@ void fill_reaction_timescale(amrex::Array1D<T, 1, Rates::NumRates>& reaction_tim
         }
     }
 
+    //
+    // 4) If the rate only involves Neutron, Proton or Helium-4
+    //
+    if (non_NHA_ind(1) == -1) {
+        return;
+    }
+
     // Calculate the forward and reverse rates of the current rate index
 
     amrex::Real b_f;
@@ -323,9 +334,13 @@ void fill_reaction_timescale(amrex::Array1D<T, 1, Rates::NumRates>& reaction_tim
     // isotopes into groups, so we need to do calculations iteratively.
     //
 
-    amrex::Real t_i = Y(NSE_INDEX::rate_indices(current_rate_index, non_NHA_ind(1))+1) / amrex::min(b_f, b_r);
-    if (non_NHA_ind(2) != -1) {
-        t_i = amrex::min(t_i, Y(NSE_INDEX::rate_indices(current_rate_index, non_NHA_ind(2))+1) / amrex::min(b_f, b_r));
+    amrex::Real t_i = std::numeric_limits<amrex::Real>::max();
+    amrex::Real b_min = amrex::min(b_f, b_r);
+    if (b_min != 0.0_rt) {
+        t_i = Y(NSE_INDEX::rate_indices(current_rate_index, non_NHA_ind(1))+1) / b_min;
+        if (non_NHA_ind(2) != -1) {
+            t_i = amrex::min(t_i, Y(NSE_INDEX::rate_indices(current_rate_index, non_NHA_ind(2))+1) / b_min);
+        }
     }
 
     //
@@ -334,7 +349,7 @@ void fill_reaction_timescale(amrex::Array1D<T, 1, Rates::NumRates>& reaction_tim
     // See Equation 17 in Kushnir Paper
     //
 
-    if ((2.0_rt * std::abs(b_f - b_r) / (b_f + b_r) < ase_tol) &&
+    if ((2.0_rt * std::abs(b_f - b_r) < ase_tol * (b_f + b_r)) &&
         (t_i < ase_tol * t_s)) {
         reaction_timescales(current_rate_index) = t_i;
     }
@@ -538,6 +553,15 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
 
     if ((T_in < T_min_nse) || (T_nse_net > 0.0_rt && T_in < T_nse_net)) {
         return current_state.nse;
+    }
+
+    // Check if any of the input rhoX is negative
+    // This indicates a burn failure, so we should return false
+
+    for (int n = 0; n < NumSpec; ++n) {
+        if (current_state.y[SFS+n] < 0.0_rt) {
+            return current_state.nse;
+        }
     }
 
     // Get the NSE state using (rho, T, Ye) as input

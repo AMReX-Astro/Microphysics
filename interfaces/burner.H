@@ -41,12 +41,6 @@ void burner (BurnT& state, amrex::Real dt)
         // burn as usual
         integrator(state, dt);
 
-#if !defined(SDC) && defined(AUX_THERMO)
-        // update the aux from the new X's this is not needed with the
-        // SDC method, since we took care of that internally.
-        set_aux_comp_from_X(state);
-#endif
-
         // if we failed our burn, it may have been because we tried to
         // enter NSE and required too many steps.  At this point, the
         // aux data, T, and e represent the result from the incomplete
@@ -75,14 +69,6 @@ void burner (BurnT& state, amrex::Real dt)
 #endif
         }
     }
-
-#ifndef AMREX_USE_GPU
-    if (! state.success) {
-        std::cout << state << std::endl;
-        std::cout << in_nse(state) << std::endl;
-        amrex::Error("unsuccessful burn");
-    }
-#endif
 #else
     // we did not compile with NSE
     integrator(state, dt);

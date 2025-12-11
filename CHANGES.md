@@ -1,5 +1,83 @@
 # Changelog
 
+## 25,12
+
+  * update CI actions (#1885)
+
+  * manually scale T in NSE solve to get better convergence (#1884)
+
+  * add loop unrolling to MathArray2D (#1872)
+
+  * add a check that `integrator.ode_max_steps` is positive (#1882)
+
+  * add energy and Ye output to the `burn_cell` unit test (#1883)
+
+  * regenerate pynucastro networks with caching of interpolation
+    indices (#1879)
+
+  * allow for more species inputs in the unit tests (#1878)
+
+  * avoid a possible divide-by-zero in the NSE solver and add a
+    species mass fraction floor (#1881)
+
+  * fix a bounds issue in the NSE solver (#1880)
+
+  * fix compiler warnings if neutrinos are disabled (#1856)
+
+  * add an `ase-iron` network for self-consistent NSE (#1860)
+
+## 25.11
+
+  * add support for reduced precision Jacobian (#1862)
+
+  * make some more quantities const / constexpr (#1864, #1866, #1871)
+
+  * add loop unrolling to linpack (#1865)
+
+  * update networks to pynucastro 2.8.0 (#1870)
+
+  * github CI action updates (#1874)
+
+  * fix the `part_func` network generation script (#1873)
+
+  * fix comment about Jacobian (#1861)
+
+  * remove `symmetric_screening` args in networks (#1859)
+
+  * doc improvements (#1855)
+
+  * use more concise method to eliminate rate duplicates in networks (#1854)
+
+## 25.10
+
+  * update the NSE solver docs to explain network compatibility (#1852)
+
+  * the NSE solver is now more robust to negative (rho X) and avoiding
+    division by zero (#1851)
+
+  * `nova-li` network was added, which builds on `nova` but includes Li and
+    some heavier breakout nuclei (#1798)
+
+  * the script used for the He burning networks was relying on a shared reference
+    between libraries.  This script has been cleaned-up. (#1850)
+
+  * all pynucastro nets have been updated to fix a bounds issue in the
+    partition functions (#1849)
+
+  * `cno-he-burn-34am` is a new CNO + He network that has a better choice of
+    rates than the previous `cno-he-burn-33a` network. (#1819)
+
+  * The He burning networks have been updated to better connect odd-Z
+    and even-Z nuclei using a modified rate.  The names have been updated to
+    reflect the changes. (#1788)
+
+  * pynucastro-generated networks are now importable from python, to aid in
+    analysis (#1837)
+
+  * MacOS CI has been updated (#1848)
+
+  * CI action dependency version updates (#1847)
+
 ## 25.09
 
   * update MacOS CI (#1844)

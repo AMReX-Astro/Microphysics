@@ -74,7 +74,7 @@ def create_network():
     r1 = subch.get_rate_by_name("c12(p,g)n13")
     r2 = subch.get_rate_by_name("n13(he4,p)o16")
 
-    net = AmrexAstroCxxNetwork(libraries=[subch], symmetric_screening=False, disable_rate_params=[r1, r2])
+    net = AmrexAstroCxxNetwork(libraries=[subch], disable_rate_params=[r1, r2])
     net.make_ap_pg_approx(intermediate_nuclei=["cl35", "k39", "sc43", "v47", "mn51", "co55"])
     net.remove_nuclei(["cl35", "k39", "sc43", "v47", "mn51", "co55"])
 

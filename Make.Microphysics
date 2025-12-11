@@ -123,7 +123,7 @@ EXTERN_PARAMETERS := $(shell $(MICROPHYSICS_HOME)/util/build_scripts/findparams.
 
 $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern_parameters.cpp: $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern_parameters.H
 
-$(MICROPHYSICS_AUTO_SOURCE_DIR)/extern_parameters.H: $(EXTERN_PARAMETERS) $(EXTERN_TEMPLATE)
+$(MICROPHYSICS_AUTO_SOURCE_DIR)/extern_parameters.H: $(EXTERN_PARAMETERS)
 	@if [ ! -d $(MICROPHYSICS_AUTO_SOURCE_DIR) ]; then mkdir -p $(MICROPHYSICS_AUTO_SOURCE_DIR); fi
 	$(MICROPHYSICS_HOME)/util/build_scripts/write_probin.py \
            --cxx_prefix $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern \
