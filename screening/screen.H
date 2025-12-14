@@ -185,7 +185,7 @@ number_t debye_huckel (const plasma_state_t<number_t>& state,
 template <typename number_t>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 number_t actual_screen5 (const plasma_state_t<number_t>& state,
-                       const scrn::screen_factors_t& scn_fac)
+                         const scrn::screen_factors_t& scn_fac)
 {
     // this subroutine calculates screening factors and their derivatives
     // for nuclear reaction rates in the weak, intermediate and strong regimes.
@@ -200,17 +200,18 @@ number_t actual_screen5 (const plasma_state_t<number_t>& state,
 
 
     // fact = 2^(1/3)
-    const amrex::Real fact    = 1.25992104989487e0_rt;
-    const amrex::Real gamefx  = 0.3e0_rt;          // lower gamma limit for intermediate screening
-    const amrex::Real gamefs  = 0.8e0_rt;          // upper gamma limit for intermediate screening
-    const amrex::Real h12_max = 300.e0_rt;
+    constexpr amrex::Real fact    = 1.25992104989487e0_rt;
+    constexpr amrex::Real gamefx  = 0.3e0_rt;          // lower gamma limit for intermediate screening
+    constexpr amrex::Real gamefs  = 0.8e0_rt;          // upper gamma limit for intermediate screening
+    constexpr amrex::Real inv_dg = 1.0_rt / (gamefs - gamefx);
+    constexpr amrex::Real h12_max = 300.e0_rt;
 
     // Get the ion data based on the input index
-    amrex::Real z1 = scn_fac.z1;
-    amrex::Real z2 = scn_fac.z2;
+    const amrex::Real z1 = scn_fac.z1;
+    const amrex::Real z2 = scn_fac.z2;
 
     // calculate individual screening factors
-    amrex::Real bb = z1 * z2;
+    const amrex::Real bb = z1 * z2;
     number_t gamp = state.aa;
 
     // In Eq.4 in Itoh:1979, this term is 2*Z_1*Z_2/(Z_1^(1/3) + Z_2^(1/3))
@@ -252,7 +253,7 @@ number_t actual_screen5 (const plasma_state_t<number_t>& state,
     // Full version of Eq. 19 in Graboske:1973 by considering weak regime
     // and Wallace:1982 Eq. A14. Here the degeneracy factor is assumed to be 1.
 
-    number_t h12w = bb * state.qlam0z;
+    const number_t h12w = bb * state.qlam0z;
 
     number_t h12 = h12w;
 
@@ -262,32 +263,32 @@ number_t actual_screen5 (const plasma_state_t<number_t>& state,
 
       // gamma_ij^(1/4)
 
-        number_t gamp14 = admath::pow(gamp, 0.25_rt);
+        const number_t gamp14 = admath::pow(gamp, 0.25_rt);
 
         // Here we follow Eq. A9 in Wallace:1982
         // See Eq. 25 Alastuey:1978, Eq. 16 and 17 in Jancovici:1977 for reference
-        number_t cc = 0.896434e0_rt * gamp * scn_fac.zhat
+        const number_t cc = 0.896434e0_rt * gamp * scn_fac.zhat
             - 3.44740e0_rt * gamp14 * scn_fac.zhat2
             - 0.5551e0_rt * (admath::log(gamp) + scn_fac.lzav)
             - 2.996e0_rt;
 
         // (3gamma_ij/tau_ij)^3
-        number_t a3 = alph12 * alph12 * alph12;
+        const number_t a3 = alph12 * alph12 * alph12;
 
         // Part of Eq. 28 in Alastuey:1978
-        number_t rr = (5.0_rt/32.0_rt) - alph12*(0.014e0_rt + 0.0128e0_rt*alph12);
+        const number_t rr = (5.0_rt/32.0_rt) - alph12*(0.014e0_rt + 0.0128e0_rt*alph12);
 
         // Part of Eq. 28 in Alastuey:1978
-        number_t ss = tau12*rr;
+        const number_t ss = tau12*rr;
 
         // Part of Eq. 31 in Alastuey:1978
-        number_t tt = -0.0098e0_rt + 0.0048e0_rt*alph12;
+        const number_t tt = -0.0098e0_rt + 0.0048e0_rt*alph12;
 
         // Part of Eq. 31 in Alastuey:1978
-        number_t uu = 0.0055e0_rt + alph12*tt;
+        const number_t uu = 0.0055e0_rt + alph12*tt;
 
         // Part of Eq. 31 in Alastuey:1978
-        number_t vv = gamef * alph12 * uu;
+        const number_t vv = gamef * alph12 * uu;
 
         // Exponent of Eq. 32 in Alastuey:1978, which uses Eq.28 and Eq.31
         // Strong screening factor
@@ -295,34 +296,22 @@ number_t actual_screen5 (const plasma_state_t<number_t>& state,
 
         // See conclusion and Eq. 34 in Alastuey:1978
         // This is an extra factor to account for quantum effects
-        rr = 1.0_rt - 0.0562e0_rt*a3;
+        // In extreme case, limit to 0.77, see conclusion in Alastuey:1978
 
-        number_t xlgfac;
-
-        // In extreme case, rr is 0.77, see conclusion in Alastuey:1978
-        if (rr >= 0.77e0_rt) {
-            xlgfac = rr;
-        } else {
-            xlgfac = 0.77e0_rt;
-        }
+        const number_t xlgfac = admath::max(1.0_rt - 0.0562e0_rt*a3, 0.77_rt);
 
         // Include the extra factor that accounts for quantum effects
-        h12 = admath::log(xlgfac) + h12;
+        h12 += admath::log(xlgfac);
 
         // If gamma_ij < upper limit of intermediate regime
         // then it is in the intermediate regime, else strong screening.
         if (gamef <= gamefs) {
-            amrex::Real dgamma = 1.0e0_rt/(gamefs - gamefx);
-
-            rr =  dgamma*(gamefs - gamef);
-
-            ss = dgamma*(gamef - gamefx);
-
-            vv = h12;
+            const number_t weight1 =  inv_dg * (gamefs - gamef);
+            const number_t weight2 = inv_dg * (gamef - gamefx);
 
             // Then the screening factor is a combination
             // of the strong and weak screening factor.
-            h12 = h12w*rr + vv*ss;
+            h12 = h12w * weight1 + h12 * weight2;
         }
 
         // end of intermediate and strong screening
