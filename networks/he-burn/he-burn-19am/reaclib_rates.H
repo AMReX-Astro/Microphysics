@@ -4700,7 +4700,7 @@ fill_reaclib_rates(const tf_t& tfactors, T& rate_eval)
 
     part_fun::pf_cache_t pf_cache{};
 
-    pf_cache.index_temp_array_1 = part_fun::index_pf(tfactors.T9, part_fun::temp_array_1);
+    pf_cache.index_temp_array_1 = interp_net::find_index(tfactors.T9, part_fun::temp_array_1);
 
     rate_p_C12_to_N13<do_T_derivatives>(tfactors, rate, drate_dT);
     rate_eval.screened_rates(k_p_C12_to_N13) = rate;
