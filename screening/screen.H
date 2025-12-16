@@ -263,7 +263,7 @@ number_t actual_screen5 (const plasma_state_t<number_t>& state,
 
       // gamma_ij^(1/4)
 
-        const number_t gamp14 = admath::pow(gamp, 0.25_rt);
+        const number_t gamp14 = admath::sqrt(admath::sqrt(gamp));
 
         // Here we follow Eq. A9 in Wallace:1982
         // See Eq. 25 Alastuey:1978, Eq. 16 and 17 in Jancovici:1977 for reference
