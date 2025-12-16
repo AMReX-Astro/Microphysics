@@ -289,14 +289,6 @@ namespace Rates
         NumRates = k_He4_Mg24_to_C12_O16_derived
     };
 
-    // number of reaclib rates
-
-    const int NrateReaclib = 63;
-
-    // number of tabular rates
-
-    const int NrateTabular = 8;
-
     // rate names -- note: the rates are 1-based, not zero-based, so we pad
     // this vector with rate_names[0] = "" so the indices line up with the
     // NetworkRates enum
@@ -389,7 +381,7 @@ namespace NSE_INDEX
     // First 3 row indices for reactants, followed by 3 product indices
     // last index is the corresponding reverse rate index.
 
-    extern AMREX_GPU_MANAGED amrex::Array2D<int, 1, Rates::NumRates, 1, 7, amrex::Order::C> rate_indices;
+    extern AMREX_GPU_MANAGED amrex::Array2D<std::int8_t, 1, Rates::NumRates, 1, 7, amrex::Order::C> rate_indices;
 }
 #endif
 
