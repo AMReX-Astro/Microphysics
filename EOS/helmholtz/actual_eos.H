@@ -290,18 +290,6 @@ void apply_electrons (T& state)
     sid[2] = xpsi0(mxd);
     sid[3] = -xpsi1(mxd) * dd_sav[iat];
 
-    // derivatives of weight functions
-    dsit[0] = xdpsi0(xt) * dti_sav[jat];
-    dsit[1] = xdpsi1(xt);
-
-    dsit[2] = -xdpsi0(mxt) * dti_sav[jat];
-    dsit[3] = xdpsi1(mxt);
-
-    dsid[0] = xdpsi0(xd) * ddi_sav[iat];
-    dsid[1] = xdpsi1(xd);
-
-    dsid[2] = -xdpsi0(mxd) * ddi_sav[iat];
-    dsid[3] = xdpsi1(mxd);
 
     // Reuse subexpressions that would go into computing the
     // cubic interpolation.
