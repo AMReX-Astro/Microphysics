@@ -45,57 +45,57 @@ constexpr std::string_view eos_name = "helmholtz";
 // quintic hermite polynomial functions
 // psi0 and its derivatives
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-amrex::Real psi0 (amrex::Real z)
+amrex::Real psi0 (amrex::Real z) noexcept
 {
     return z * z * z * (z * (-6.0e0_rt * z + 15.0e0_rt) -10.0e0_rt) + 1.0e0_rt;
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-amrex::Real dpsi0 (amrex::Real z)
+amrex::Real dpsi0 (amrex::Real z) noexcept
 {
     return z * z * (z * (-30.0e0_rt*z + 60.0e0_rt) - 30.0e0_rt);
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-amrex::Real ddpsi0 (amrex::Real z)
+amrex::Real ddpsi0 (amrex::Real z) noexcept
 {
     return z * (z * (-120.0e0_rt * z + 180.0e0_rt) - 60.0e0_rt);
 }
 
 // psi1 and its derivatives
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-amrex::Real psi1 (amrex::Real z)
+amrex::Real psi1 (amrex::Real z) noexcept
 {
     return z * ( z * z * (z * (-3.0e0_rt * z + 8.0e0_rt) - 6.0e0_rt) + 1.0e0_rt);
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-amrex::Real dpsi1 (amrex::Real z)
+amrex::Real dpsi1 (amrex::Real z) noexcept
 {
     return z * z * ( z * (-15.0e0_rt * z + 32.0e0_rt) - 18.0e0_rt) + 1.0e0_rt;
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-amrex::Real ddpsi1 (amrex::Real z)
+amrex::Real ddpsi1 (amrex::Real z) noexcept
 {
     return z * (z * (-60.0e0_rt * z + 96.0e0_rt) - 36.0e0_rt);
 }
 
 // psi2 and its derivatives
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-amrex::Real psi2 (amrex::Real z)
+amrex::Real psi2 (amrex::Real z) noexcept
 {
     return 0.5e0_rt * z * z * ( z * ( z * (-z + 3.0e0_rt) - 3.0e0_rt) + 1.0e0_rt);
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-amrex::Real dpsi2 (amrex::Real z)
+amrex::Real dpsi2 (amrex::Real z) noexcept
 {
     return 0.5e0_rt * z * (z * (z * (-5.0e0_rt * z + 12.0e0_rt) - 9.0e0_rt) + 2.0e0_rt);
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-amrex::Real ddpsi2 (amrex::Real z)
+amrex::Real ddpsi2 (amrex::Real z) noexcept
 {
     return 0.5e0_rt * (z * ( z * (-20.0e0_rt * z + 36.0e0_rt) - 18.0e0_rt) + 2.0e0_rt);
 }
@@ -103,7 +103,7 @@ amrex::Real ddpsi2 (amrex::Real z)
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void fwt (const amrex::Real* AMREX_RESTRICT fi,
           const amrex::Real* AMREX_RESTRICT wt,
-          amrex::Real* AMREX_RESTRICT fwtr)
+          amrex::Real* AMREX_RESTRICT fwtr) noexcept
 {
 
     fwtr[0] = fi[ 0]*wt[0] + fi[ 1]*wt[1] + fi[ 2]*wt[2] + fi[18]*wt[3] + fi[19]*wt[4] + fi[20]*wt[5];
@@ -117,26 +117,26 @@ void fwt (const amrex::Real* AMREX_RESTRICT fi,
 // cubic hermite polynomial functions
 // psi0 & derivatives
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-amrex::Real xpsi0(amrex::Real z)
+amrex::Real xpsi0(amrex::Real z) noexcept
 {
     return z * z * (2.0e0_rt * z - 3.0e0_rt) + 1.0_rt;
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-amrex::Real xdpsi0(amrex::Real z)
+amrex::Real xdpsi0(amrex::Real z) noexcept
 {
     return z * (6.0e0_rt * z - 6.0e0_rt);
 }
 
 // psi1 & derivatives
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-amrex::Real xpsi1(amrex::Real z)
+amrex::Real xpsi1(amrex::Real z) noexcept
 {
     return z * (z * (z - 2.0e0_rt) + 1.0e0_rt);
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-amrex::Real xdpsi1(amrex::Real z)
+amrex::Real xdpsi1(amrex::Real z) noexcept
 {
     return z * (3.0e0_rt * z - 4.0e0_rt) + 1.0e0_rt;
 }
