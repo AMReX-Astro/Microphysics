@@ -143,6 +143,23 @@ amrex::Real xdpsi1(amrex::Real z) noexcept
 
 
 
+namespace electron_table_indexing {
+
+    struct Term {
+        int dj;   // 0 or 1
+        int di;   // 0 or 1
+        int n;    // 0..3
+    };
+
+    constexpr std::array<Term, 16> map = {{
+            {0,0,0}, {0,0,1}, {1,0,0}, {1,0,1},
+            {0,0,2}, {0,0,3}, {1,0,2}, {1,0,3},
+            {0,1,0}, {0,1,1}, {1,1,0}, {1,1,1},
+            {0,1,2}, {0,1,3}, {1,1,2}, {1,1,3}}};
+
+}
+
+
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void apply_electrons (T& state)
@@ -315,88 +332,38 @@ void apply_electrons (T& state)
     // immediately evaluate the cubic interpolant below as
     // fi * wdt, which ensures that we have the right combination
     // of grid points and derivatives at grid points to evaluate
-    // the interpolation correctly. Alternate indexing schemes are
-    // possible if we were to reorder wdt.
-    fi[ 0] = dpdf[jat  ][iat  ][0];
-    fi[ 1] = dpdf[jat  ][iat  ][1];
-    fi[ 4] = dpdf[jat  ][iat  ][2];
-    fi[ 5] = dpdf[jat  ][iat  ][3];
-
-    fi[ 8] = dpdf[jat  ][iat+1][0];
-    fi[ 9] = dpdf[jat  ][iat+1][1];
-    fi[12] = dpdf[jat  ][iat+1][2];
-    fi[13] = dpdf[jat  ][iat+1][3];
-
-    fi[ 2] = dpdf[jat+1][iat  ][0];
-    fi[ 3] = dpdf[jat+1][iat  ][1];
-    fi[ 6] = dpdf[jat+1][iat  ][2];
-    fi[ 7] = dpdf[jat+1][iat  ][3];
-
-    fi[10] = dpdf[jat+1][iat+1][0];
-    fi[11] = dpdf[jat+1][iat+1][1];
-    fi[14] = dpdf[jat+1][iat+1][2];
-    fi[15] = dpdf[jat+1][iat+1][3];
+    // the interpolation correctly. This is handled by map,
+    // giving the j offset, i offset, and component
 
     // pressure derivative with density
     amrex::Real dpepdd = 0.0e0_rt;
-    for (int i = 0; i <= 15; ++i) {
-        dpepdd = dpepdd + fi[i] * wdt[i];
-    }
+    amrex::constexpr_for<0, 16>([&] (auto T) {
+        constexpr int t = T;
+        constexpr auto m = map[t];
+
+        dpepdd += dpdf[jat+m.dj][iat+m.di][m.n] * wdt[t];
+    });
     dpepdd = amrex::max(state.y_e * dpepdd, 0.0e0_rt);
 
-    // Read in the tabular data for the electron chemical potential.
-    fi[ 0] = ef[jat  ][iat  ][0];
-    fi[ 1] = ef[jat  ][iat  ][1];
-    fi[ 4] = ef[jat  ][iat  ][2];
-    fi[ 5] = ef[jat  ][iat  ][3];
-
-    fi[ 8] = ef[jat  ][iat+1][0];
-    fi[ 9] = ef[jat  ][iat+1][1];
-    fi[12] = ef[jat  ][iat+1][2];
-    fi[13] = ef[jat  ][iat+1][3];
-
-    fi[ 2] = ef[jat+1][iat  ][0];
-    fi[ 3] = ef[jat+1][iat  ][1];
-    fi[ 6] = ef[jat+1][iat  ][2];
-    fi[ 7] = ef[jat+1][iat  ][3];
-
-    fi[10] = ef[jat+1][iat+1][0];
-    fi[11] = ef[jat+1][iat+1][1];
-    fi[14] = ef[jat+1][iat+1][2];
-    fi[15] = ef[jat+1][iat+1][3];
 
     // electron chemical potential etaele
     amrex::Real etaele = 0.0e0_rt;
-    for (int i = 0; i <= 15; ++i) {
-        etaele = etaele + fi[i] * wdt[i];
-    }
+    amrex::constexpr_for<0, 16>([&] (auto T) {
+        constexpr int t = T;
+        constexpr auto m = map[t];
 
-    // Read in the tabular data for the number density.
-    fi[ 0] = xf[jat  ][iat  ][0];
-    fi[ 1] = xf[jat  ][iat  ][1];
-    fi[ 4] = xf[jat  ][iat  ][2];
-    fi[ 5] = xf[jat  ][iat  ][3];
+        etaele += ef[jat+m.dj][iat+m.di][m.n] * wdt[t];
+    });
 
-    fi[ 8] = xf[jat  ][iat+1][0];
-    fi[ 9] = xf[jat  ][iat+1][1];
-    fi[12] = xf[jat  ][iat+1][2];
-    fi[13] = xf[jat  ][iat+1][3];
-
-    fi[ 2] = xf[jat+1][iat  ][0];
-    fi[ 3] = xf[jat+1][iat  ][1];
-    fi[ 6] = xf[jat+1][iat  ][2];
-    fi[ 7] = xf[jat+1][iat  ][3];
-
-    fi[10] = xf[jat+1][iat+1][0];
-    fi[11] = xf[jat+1][iat+1][1];
-    fi[14] = xf[jat+1][iat+1][2];
-    fi[15] = xf[jat+1][iat+1][3];
 
     // electron + positron number densities
     amrex::Real xnefer = 0.0e0_rt;
-    for (int i = 0; i <= 15; ++i) {
-        xnefer = xnefer + fi[i] * wdt[i];
-    }
+    amrex::constexpr_for<0, 16>([&] (auto T) {
+        constexpr int t = T;
+        constexpr auto m = map[t];
+
+        xnefer += xf[jat+m.dj][iat+m.di][m.n] * wdt[t];
+    });
 
     // the desired electron-positron thermodynamic quantities
 
