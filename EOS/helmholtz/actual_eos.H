@@ -10,6 +10,7 @@
 #include <AMReX_REAL.H>
 #include <AMReX_ParallelDescriptor.H>
 #include <AMReX_Algorithm.H>
+#include <AMReX_Loop.H>
 
 #include <extern_parameters.H>
 #include <fundamental_constants.H>
