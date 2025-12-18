@@ -337,32 +337,32 @@ void apply_electrons (T& state)
 
     // pressure derivative with density
     amrex::Real dpepdd = 0.0e0_rt;
-    amrex::constexpr_for<0, 16>([&] (auto T) {
-        constexpr int t = T;
-        constexpr auto m = map[t];
+    amrex::constexpr_for<0, 16>([&] (auto K) {
+        constexpr int k = K;
+        constexpr auto m = electron_table_indexing::map[k];
 
-        dpepdd += dpdf[jat+m.dj][iat+m.di][m.n] * wdt[t];
+        dpepdd += dpdf[jat+m.dj][iat+m.di][m.n] * wdt[k];
     });
     dpepdd = amrex::max(state.y_e * dpepdd, 0.0e0_rt);
 
 
     // electron chemical potential etaele
     amrex::Real etaele = 0.0e0_rt;
-    amrex::constexpr_for<0, 16>([&] (auto T) {
-        constexpr int t = T;
-        constexpr auto m = map[t];
+    amrex::constexpr_for<0, 16>([&] (auto K) {
+        constexpr int k = K;
+        constexpr auto m = electron_table_indexing::map[k];
 
-        etaele += ef[jat+m.dj][iat+m.di][m.n] * wdt[t];
+        etaele += ef[jat+m.dj][iat+m.di][m.n] * wdt[k];
     });
 
 
     // electron + positron number densities
     amrex::Real xnefer = 0.0e0_rt;
-    amrex::constexpr_for<0, 16>([&] (auto T) {
-        constexpr int t = T;
-        constexpr auto m = map[t];
+    amrex::constexpr_for<0, 16>([&] (auto K) {
+        constexpr int k = K;
+        constexpr auto m = electron_table_indexing::map[k];
 
-        xnefer += xf[jat+m.dj][iat+m.di][m.n] * wdt[t];
+        xnefer += xf[jat+m.dj][iat+m.di][m.n] * wdt[k];
     });
 
     // the desired electron-positron thermodynamic quantities
