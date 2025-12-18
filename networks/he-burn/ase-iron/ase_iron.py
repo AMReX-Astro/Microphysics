@@ -28,7 +28,7 @@ def get_library():
     for r, mp in other_rates:
         _r = reaclib_lib.get_rate_by_name(r)
         forward_rate = pyna.ModifiedRate(_r, new_products=[mp])
-        derived_rate = pyna.DerivedRate(rate=forward_rate, compute_Q=True, use_pf=True)
+        derived_rate = pyna.DerivedRate(forward_rate, use_pf=True)
         subch += pyna.Library(rates=[forward_rate, derived_rate])
 
     # C12+Ne20 and reverse
@@ -70,7 +70,7 @@ def get_library():
             if fr:
                 print(f"modifying {r} from {fr}")
                 subch.remove_rate(r)
-                d = pyna.DerivedRate(rate=fr, compute_Q=True, use_pf=True)
+                d = pyna.DerivedRate(fr, use_pf=True)
                 subch.add_rate(d)
 
     subch.eliminate_duplicates(rate_type_preference="tabular")
