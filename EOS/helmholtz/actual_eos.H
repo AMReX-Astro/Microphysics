@@ -180,17 +180,7 @@ void apply_electrons (T& state)
     amrex::Real mxt = 1.0e0_rt - xt;
     amrex::Real mxd = 1.0e0_rt - xd;
 
-    // the six density and six temperature basis functions
-    amrex::Real sit[6];
-
-    sit[0] = psi0(xt);
-    sit[1] = psi1(xt) * dt_sav[jat];
-    sit[2] = psi2(xt) * dt2_sav[jat];
-
-    sit[3] =  psi0(mxt);
-    sit[4] = -psi1(mxt) * dt_sav[jat];
-    sit[5] =  psi2(mxt) * dt2_sav[jat];
-
+    // the six density basis functions
     amrex::Real sid[6];
 
     sid[0] =  psi0(xd);
@@ -202,16 +192,6 @@ void apply_electrons (T& state)
     sid[5] =  psi2(mxd) * dd2_sav[iat];
 
     // derivatives of the weight functions
-    amrex::Real dsit[6];
-
-    dsit[0] =  dpsi0(xt) * dti_sav[jat];
-    dsit[1] =  dpsi1(xt);
-    dsit[2] =  dpsi2(xt) * dt_sav[jat];
-
-    dsit[3] = -dpsi0(mxt) * dti_sav[jat];
-    dsit[4] =  dpsi1(mxt);
-    dsit[5] = -dpsi2(mxt) * dt_sav[jat];
-
     amrex::Real dsid[6];
 
     dsid[0] =  dpsi0(xd) * ddi_sav[iat];
@@ -222,17 +202,6 @@ void apply_electrons (T& state)
     dsid[4] =  dpsi1(mxd);
     dsid[5] = -dpsi2(mxd) * dd_sav[iat];
 
-    // second derivatives of the weight functions
-    amrex::Real ddsit[6];
-
-    ddsit[0] =  ddpsi0(xt) * dt2i_sav[jat];
-    ddsit[1] =  ddpsi1(xt) * dti_sav[jat];
-    ddsit[2] =  ddpsi2(xt);
-
-    ddsit[3] =  ddpsi0(mxt) * dt2i_sav[jat];
-    ddsit[4] = -ddpsi1(mxt) * dti_sav[jat];
-    ddsit[5] =  ddpsi2(mxt);
-
     // This array saves some subexpressions that go into
     // computing the biquintic polynomial. Instead of explicitly
     // constructing it in full, we'll use these subexpressions
@@ -240,8 +209,21 @@ void apply_electrons (T& state)
     // (table data * temperature terms) * density terms.
 
     amrex::Real fwtr[6];
+    amrex::Real sit[6];
 
-    fwt(fi, sit, fwtr);
+    {
+        // temperature basis functions
+
+        sit[0] = psi0(xt);
+        sit[1] = psi1(xt) * dt_sav[jat];
+        sit[2] = psi2(xt) * dt2_sav[jat];
+
+        sit[3] =  psi0(mxt);
+        sit[4] = -psi1(mxt) * dt_sav[jat];
+        sit[5] =  psi2(mxt) * dt2_sav[jat];
+
+        fwt(fi, sit, fwtr);
+    }
 
     amrex::Real free = 0.e0_rt;
     amrex::Real df_d = 0.e0_rt;
@@ -254,7 +236,19 @@ void apply_electrons (T& state)
         df_d = df_d + fwtr[i] * dsid[i];
     }
 
-    fwt(fi, dsit, fwtr);
+    {
+        // temperature derivative of weight functions
+        // this was originally called dsit
+        sit[0] =  dpsi0(xt) * dti_sav[jat];
+        sit[1] =  dpsi1(xt);
+        sit[2] =  dpsi2(xt) * dt_sav[jat];
+
+        sit[3] = -dpsi0(mxt) * dti_sav[jat];
+        sit[4] =  dpsi1(mxt);
+        sit[5] = -dpsi2(mxt) * dt_sav[jat];
+
+        fwt(fi, sit, fwtr);
+    }
 
     amrex::Real df_t = 0.e0_rt;
     amrex::Real df_dt = 0.e0_rt;
@@ -267,7 +261,20 @@ void apply_electrons (T& state)
         df_dt += fwtr[i] * dsid[i];
     }
 
-    fwt(fi, ddsit, fwtr);
+    {
+        // second derivatives of the weight functions
+        // this was originally called ddsit
+
+        sit[0] =  ddpsi0(xt) * dt2i_sav[jat];
+        sit[1] =  ddpsi1(xt) * dti_sav[jat];
+        sit[2] =  ddpsi2(xt);
+
+        sit[3] =  ddpsi0(mxt) * dt2i_sav[jat];
+        sit[4] = -ddpsi1(mxt) * dti_sav[jat];
+        sit[5] =  ddpsi2(mxt);
+
+        fwt(fi, sit, fwtr);
+    }
 
     amrex::Real df_tt = 0.e0_rt;
     for (int i = 0; i <= 5; ++i) {
