@@ -319,7 +319,10 @@ number_t actual_screen5 (const plasma_state_t<number_t>& state,
 
     // machine limit the output
     // further limit to avoid the pycnonuclear regime
-    h12 = admath::max(admath::min(h12, h12_max), 0.0_rt);
+    h12 = admath::min(h12, h12_max);
+    if (h12 <= 0.0) {
+        return 1.0;
+    }
     return admath::exp(h12);
 }
 
