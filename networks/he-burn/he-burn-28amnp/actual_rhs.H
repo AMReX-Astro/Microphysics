@@ -38,9 +38,10 @@ void ener_gener_rate(T const& dydt, amrex::Real& enuc)
 
     enuc = 0.0_rt;
 
-    for (int n = 1; n <= NumSpec; ++n) {
-        enuc += dydt(n) * network::mion(n);
-    }
+    amrex::constexpr_for<1, NumSpec+1>([&] (auto n)
+    {
+        enuc += dydt(n) * network::mion<n>();
+    });
 
     enuc *= C::enuc_conv2;
 }
@@ -815,8 +816,11 @@ void evaluate_rates(const burn_t& state,
 
     rate_eval.enuc_weak = 0.0_rt;
 
+    amrex::Real log_temp = std::log10(state.T);
+    amrex::Real log_rhoy = std::log10(rhoy);
+
     tabular_evaluate(j_Co56_Fe56_meta, j_Co56_Fe56_rhoy, j_Co56_Fe56_temp, j_Co56_Fe56_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+                     log_rhoy, log_temp, state.T, rate, drate_dt, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_Co56_to_Fe56) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Co56_to_Fe56) = drate_dt;
@@ -824,7 +828,7 @@ void evaluate_rates(const burn_t& state,
     rate_eval.enuc_weak += C::n_A * Y(Co56) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_Co56_Ni56_meta, j_Co56_Ni56_rhoy, j_Co56_Ni56_temp, j_Co56_Ni56_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+                     log_rhoy, log_temp, state.T, rate, drate_dt, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_Co56_to_Ni56) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Co56_to_Ni56) = drate_dt;
@@ -832,7 +836,7 @@ void evaluate_rates(const burn_t& state,
     rate_eval.enuc_weak += C::n_A * Y(Co56) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_Fe56_Co56_meta, j_Fe56_Co56_rhoy, j_Fe56_Co56_temp, j_Fe56_Co56_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+                     log_rhoy, log_temp, state.T, rate, drate_dt, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_Fe56_to_Co56) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Fe56_to_Co56) = drate_dt;
@@ -840,7 +844,7 @@ void evaluate_rates(const burn_t& state,
     rate_eval.enuc_weak += C::n_A * Y(Fe56) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_Ni56_Co56_meta, j_Ni56_Co56_rhoy, j_Ni56_Co56_temp, j_Ni56_Co56_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+                     log_rhoy, log_temp, state.T, rate, drate_dt, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_Ni56_to_Co56) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Ni56_to_Co56) = drate_dt;
@@ -848,7 +852,7 @@ void evaluate_rates(const burn_t& state,
     rate_eval.enuc_weak += C::n_A * Y(Ni56) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_n_p_meta, j_n_p_rhoy, j_n_p_temp, j_n_p_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+                     log_rhoy, log_temp, state.T, rate, drate_dt, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_n_to_p) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_n_to_p) = drate_dt;
@@ -856,7 +860,7 @@ void evaluate_rates(const burn_t& state,
     rate_eval.enuc_weak += C::n_A * Y(N) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_p_n_meta, j_p_n_rhoy, j_p_n_temp, j_p_n_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+                     log_rhoy, log_temp, state.T, rate, drate_dt, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_p_to_n) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_p_to_n) = drate_dt;
@@ -911,33 +915,36 @@ void get_ydot_weak(const burn_t& state,
 
     // Calculate tabular rates and get ydot_weak
 
+    amrex::Real log_temp = std::log10(state.T);
+    amrex::Real log_rhoy = std::log10(rhoy);
+
     tabular_evaluate(j_Co56_Fe56_meta, j_Co56_Fe56_rhoy, j_Co56_Fe56_temp, j_Co56_Fe56_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+                     log_rhoy, log_temp, state.T, rate, drate_dt, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_Co56_to_Fe56) = rate;
     rate_eval.enuc_weak += C::n_A * Y(Co56) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_Co56_Ni56_meta, j_Co56_Ni56_rhoy, j_Co56_Ni56_temp, j_Co56_Ni56_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+                     log_rhoy, log_temp, state.T, rate, drate_dt, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_Co56_to_Ni56) = rate;
     rate_eval.enuc_weak += C::n_A * Y(Co56) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_Fe56_Co56_meta, j_Fe56_Co56_rhoy, j_Fe56_Co56_temp, j_Fe56_Co56_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+                     log_rhoy, log_temp, state.T, rate, drate_dt, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_Fe56_to_Co56) = rate;
     rate_eval.enuc_weak += C::n_A * Y(Fe56) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_Ni56_Co56_meta, j_Ni56_Co56_rhoy, j_Ni56_Co56_temp, j_Ni56_Co56_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+                     log_rhoy, log_temp, state.T, rate, drate_dt, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_Ni56_to_Co56) = rate;
     rate_eval.enuc_weak += C::n_A * Y(Ni56) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_n_p_meta, j_n_p_rhoy, j_n_p_temp, j_n_p_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+                     log_rhoy, log_temp, state.T, rate, drate_dt, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_n_to_p) = rate;
     rate_eval.enuc_weak += C::n_A * Y(N) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_p_n_meta, j_p_n_rhoy, j_p_n_temp, j_p_n_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+                     log_rhoy, log_temp, state.T, rate, drate_dt, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_p_to_n) = rate;
     rate_eval.enuc_weak += C::n_A * Y(H1) * (edot_nu + edot_gamma);
 
