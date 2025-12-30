@@ -2618,25 +2618,50 @@ void rate_C12_O16_to_Si28_modified(const tf_t& tfactors, amrex::Real& rate, amre
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_N13_to_p_C12_derived(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_N13_to_p_C12_derived(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // N13 --> p + C12
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 0.00028189664206047983;
-    amrex::Real Q_kBT = -1.9434910639993015 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    ratio *= std::sqrt(amrex::Math::powi<3>(tfactors.T9 * 1.0e9_rt));
+    rate = 0.0;
+    drate_dT = 0.0;
 
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_p_C12_to_N13_reaclib);
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // ls09n
+    ln_set_rate =  40.05912868369347 + -22.55327727125054 * tfactors.T9i + -13.692 * tfactors.T913i + -0.230881 * tfactors.T913
+                         + 4.44362 * tfactors.T9 + -3.15898 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (1.5 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_p_C12_to_N13_reaclib);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  22.55327727125054 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -13.692 * tfactors.T943i + (1.0/3.0) * -0.230881 * tfactors.T923i
+                                  + 4.44362 + (5.0/3.0) * -3.15898 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
+
+    // ls09r
+    ln_set_rate =  40.45372868369347 + -26.33176727125054 * tfactors.T9i + -5.10735 * tfactors.T913i + -2.24111 * tfactors.T913
+                         + 0.148883 * tfactors.T9;
+
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dln_set_rate_dT9 =  26.33176727125054 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -5.10735 * tfactors.T943i + (1.0/3.0) * -2.24111 * tfactors.T923i
+                                  + 0.148883;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real C12_pf, dC12_pf_dT;
@@ -2671,25 +2696,50 @@ void rate_N13_to_p_C12_derived(const T& rate_eval, const tf_t& tfactors, amrex::
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_O16_to_He4_C12_derived(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_O16_to_He4_C12_derived(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // O16 --> He4 + C12
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 0.0016254843301234132;
-    amrex::Real Q_kBT = -7.161917969999712 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    ratio *= std::sqrt(amrex::Math::powi<3>(tfactors.T9 * 1.0e9_rt));
+    rate = 0.0;
+    drate_dT = 0.0;
 
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_He4_C12_to_O16_reaclib);
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // nac2 
+    ln_set_rate =  279.29694929711803 + -84.95157686791681 * tfactors.T9i + 103.411 * tfactors.T913i + -420.567 * tfactors.T913
+                         + 64.0874 * tfactors.T9 + -12.4624 * tfactors.T953 + 138.803 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (1.5 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_He4_C12_to_O16_reaclib);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  84.95157686791681 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 103.411 * tfactors.T943i + (1.0/3.0) * -420.567 * tfactors.T923i
+                                  + 64.0874 + (5.0/3.0) * -12.4624 * tfactors.T923 + 138.803 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
+
+    // nac2 
+    ln_set_rate =  94.31554929711804 + -84.50314686791681 * tfactors.T9i + 58.9128 * tfactors.T913i + -148.273 * tfactors.T913
+                         + 9.08324 * tfactors.T9 + -0.541041 * tfactors.T953 + 71.8554 * tfactors.lnT9;
+
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dln_set_rate_dT9 =  84.50314686791681 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 58.9128 * tfactors.T943i + (1.0/3.0) * -148.273 * tfactors.T923i
+                                  + 9.08324 + (5.0/3.0) * -0.541041 * tfactors.T923 + 71.8554 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real C12_pf, dC12_pf_dT;
@@ -2723,25 +2773,65 @@ void rate_O16_to_He4_C12_derived(const T& rate_eval, const tf_t& tfactors, amrex
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Ne20_to_He4_O16_derived(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_Ne20_to_He4_O16_derived(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Ne20 --> He4 + O16
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 0.0017895591866166972;
-    amrex::Real Q_kBT = -4.729845970000538 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    ratio *= std::sqrt(amrex::Math::powi<3>(tfactors.T9 * 1.0e9_rt));
+    rate = 0.0;
+    drate_dT = 0.0;
 
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_He4_O16_to_Ne20_reaclib);
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // co10r
+    ln_set_rate =  28.644822801502126 + -65.24608327101186 * tfactors.T9i;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (1.5 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_He4_O16_to_Ne20_reaclib);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  65.24608327101186 * tfactors.T9i * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
+
+    // co10n
+    ln_set_rate =  48.662112801502126 + -54.887583271011856 * tfactors.T9i + -39.7262 * tfactors.T913i + -0.210799 * tfactors.T913
+                         + 0.442879 * tfactors.T9 + -0.0797753 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dln_set_rate_dT9 =  54.887583271011856 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -39.7262 * tfactors.T943i + (1.0/3.0) * -0.210799 * tfactors.T923i
+                                  + 0.442879 + (5.0/3.0) * -0.0797753 * tfactors.T923 + 0.833333 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
+
+    // co10r
+    ln_set_rate =  34.267592801502126 + -67.65188327101185 * tfactors.T9i + -3.65925 * tfactors.T913
+                         + 0.714224 * tfactors.T9 + -0.00107508 * tfactors.T953;
+
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dln_set_rate_dT9 =  67.65188327101185 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -3.65925 * tfactors.T923i
+                                  + 0.714224 + (5.0/3.0) * -0.00107508 * tfactors.T923;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real He4_pf, dHe4_pf_dT;
@@ -2774,25 +2864,65 @@ void rate_Ne20_to_He4_O16_derived(const T& rate_eval, const tf_t& tfactors, amre
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Mg24_to_p_Na23_derived(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_Mg24_to_p_Na23_derived(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Mg24 --> p + Na23
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 0.0023893015506829445;
-    amrex::Real Q_kBT = -11.692695564000061 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    ratio *= std::sqrt(amrex::Math::powi<3>(tfactors.T9 * 1.0e9_rt));
+    rate = 0.0;
+    drate_dT = 0.0;
 
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_p_Na23_to_Mg24_reaclib);
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // il10r
+    ln_set_rate =  34.10754456146302 + -138.96838756220694 * tfactors.T9i + -0.360588 * tfactors.T913
+                         + 1.4187 * tfactors.T9 + -0.184061 * tfactors.T953;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (1.5 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_p_Na23_to_Mg24_reaclib);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  138.96838756220694 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -0.360588 * tfactors.T923i
+                                  + 1.4187 + (5.0/3.0) * -0.184061 * tfactors.T923;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
+
+    // il10r
+    ln_set_rate =  20.02229456146302 + -137.30028756220693 * tfactors.T9i;
+
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dln_set_rate_dT9 =  137.30028756220693 * tfactors.T9i * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
+
+    // il10n
+    ln_set_rate =  43.95564456146302 + -135.68809756220693 * tfactors.T9i + -20.6428 * tfactors.T913i + 1.52954 * tfactors.T913
+                         + 2.7487 * tfactors.T9 + -1.0 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dln_set_rate_dT9 =  135.68809756220693 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -20.6428 * tfactors.T943i + (1.0/3.0) * 1.52954 * tfactors.T923i
+                                  + 2.7487 + (5.0/3.0) * -1.0 * tfactors.T923 + 0.833333 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real Na23_pf, dNa23_pf_dT;
@@ -2825,25 +2955,80 @@ void rate_Mg24_to_p_Na23_derived(const T& rate_eval, const tf_t& tfactors, amrex
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Mg24_to_He4_Ne20_derived(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_Mg24_to_He4_Ne20_derived(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Mg24 --> He4 + Ne20
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 0.0019034449262058997;
-    amrex::Real Q_kBT = -9.31656167000121 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    ratio *= std::sqrt(amrex::Math::powi<3>(tfactors.T9 * 1.0e9_rt));
+    rate = 0.0;
+    drate_dT = 0.0;
 
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_He4_Ne20_to_Mg24_reaclib);
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // il10r
+    ln_set_rate =  16.022538839949377 + -120.89510873006792 * tfactors.T9i + 16.9229 * tfactors.T913
+                         + -2.57325 * tfactors.T9 + 0.208997 * tfactors.T953;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (1.5 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_He4_Ne20_to_Mg24_reaclib);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  120.89510873006792 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 16.9229 * tfactors.T923i
+                                  + -2.57325 + (5.0/3.0) * 0.208997 * tfactors.T923;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
+
+    // il10r
+    ln_set_rate =  26.80387883994938 + -117.33446873006791 * tfactors.T9i;
+
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dln_set_rate_dT9 =  117.33446873006791 * tfactors.T9i * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
+
+    // il10r
+    ln_set_rate =  -13.884691160050622 + -110.62025873006792 * tfactors.T9i;
+
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dln_set_rate_dT9 =  110.62025873006792 * tfactors.T9i * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
+
+    // il10n
+    ln_set_rate =  49.32660883994938 + -108.11420873006792 * tfactors.T9i + -46.2525 * tfactors.T913i + 5.58901 * tfactors.T913
+                         + 7.61843 * tfactors.T9 + -3.683 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dln_set_rate_dT9 =  108.11420873006792 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -46.2525 * tfactors.T943i + (1.0/3.0) * 5.58901 * tfactors.T923i
+                                  + 7.61843 + (5.0/3.0) * -3.683 * tfactors.T923 + 0.833333 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real He4_pf, dHe4_pf_dT;
@@ -2876,25 +3061,67 @@ void rate_Mg24_to_He4_Ne20_derived(const T& rate_eval, const tf_t& tfactors, amr
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Si28_to_p_Al27_derived(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_Si28_to_p_Al27_derived(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Si28 --> p + Al27
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 0.0036170500002771144;
-    amrex::Real Q_kBT = -11.584908164001932 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    ratio *= std::sqrt(amrex::Math::powi<3>(tfactors.T9 * 1.0e9_rt));
+    rate = 0.0;
+    drate_dT = 0.0;
 
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_p_Al27_to_Si28_reaclib);
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // il10r
+    ln_set_rate =  11.79640225299924 + -136.34123672565389 * tfactors.T9i + 23.8634 * tfactors.T913
+                         + -3.70135 * tfactors.T9 + 0.28964 * tfactors.T953;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (1.5 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_p_Al27_to_Si28_reaclib);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  136.34123672565389 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 23.8634 * tfactors.T923i
+                                  + -3.70135 + (5.0/3.0) * 0.28964 * tfactors.T923;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
+
+    // il10r
+    ln_set_rate =  111.48620225299923 + -134.82458972565388 * tfactors.T9i + -26.8327 * tfactors.T913i + -116.137 * tfactors.T913
+                         + 0.00950567 * tfactors.T9 + 0.00999755 * tfactors.T953;
+
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dln_set_rate_dT9 =  134.82458972565388 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -26.8327 * tfactors.T943i + (1.0/3.0) * -116.137 * tfactors.T923i
+                                  + 0.00950567 + (5.0/3.0) * 0.00999755 * tfactors.T923;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
+
+    // il10n
+    ln_set_rate =  46.569302252999236 + -134.43727672565387 * tfactors.T9i + -23.2205 * tfactors.T913i
+                         + -2.0 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dln_set_rate_dT9 =  134.43727672565387 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -23.2205 * tfactors.T943i
+                                  + (5.0/3.0) * -2.0 * tfactors.T923 + 0.833333 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real p_pf, dp_pf_dT;
@@ -2927,25 +3154,48 @@ void rate_Si28_to_p_Al27_derived(const T& rate_eval, const tf_t& tfactors, amrex
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Si28_to_He4_Mg24_derived(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_Si28_to_He4_Mg24_derived(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Si28 --> He4 + Mg24
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 0.0019853803931734024;
-    amrex::Real Q_kBT = -9.98413496999995 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    ratio *= std::sqrt(amrex::Math::powi<3>(tfactors.T9 * 1.0e9_rt));
+    rate = 0.0;
+    drate_dT = 0.0;
 
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_He4_Mg24_to_Si28_reaclib);
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // st08r
+    ln_set_rate =  32.902724006057724 + -131.49007518736627 * tfactors.T9i;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (1.5 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_He4_Mg24_to_Si28_reaclib);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  131.49007518736627 * tfactors.T9i * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
+
+    // st08r
+    ln_set_rate =  -25.68644599394228 + -128.6942751873663 * tfactors.T9i + 21.3721 * tfactors.T913i + 37.7649 * tfactors.T913
+                         + -4.10635 * tfactors.T9 + 0.249618 * tfactors.T953;
+
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dln_set_rate_dT9 =  128.6942751873663 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 21.3721 * tfactors.T943i + (1.0/3.0) * 37.7649 * tfactors.T923i
+                                  + -4.10635 + (5.0/3.0) * 0.249618 * tfactors.T923;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real He4_pf, dHe4_pf_dT;
@@ -2978,25 +3228,65 @@ void rate_Si28_to_He4_Mg24_derived(const T& rate_eval, const tf_t& tfactors, amr
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_S32_to_p_P31_derived(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_S32_to_p_P31_derived(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // S32 --> p + P31
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 0.0012137199057359403;
-    amrex::Real Q_kBT = -8.863963764002593 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    ratio *= std::sqrt(amrex::Math::powi<3>(tfactors.T9 * 1.0e9_rt));
+    rate = 0.0;
+    drate_dT = 0.0;
 
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_p_P31_to_S32_reaclib);
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // il10r
+    ln_set_rate =  25.192389422303187 + -106.63906812813134 * tfactors.T9i + 8.09341 * tfactors.T913
+                         + -0.615971 * tfactors.T9 + 0.031159 * tfactors.T953;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (1.5 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_p_P31_to_S32_reaclib);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  106.63906812813134 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 8.09341 * tfactors.T923i
+                                  + -0.615971 + (5.0/3.0) * 0.031159 * tfactors.T923;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
+
+    // il10r
+    ln_set_rate =  21.702443422303187 + -105.12160812813134 * tfactors.T9i;
+
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dln_set_rate_dT9 =  105.12160812813134 * tfactors.T9i * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
+
+    // il10n
+    ln_set_rate =  43.630433422303184 + -102.86202812813134 * tfactors.T9i + -25.3278 * tfactors.T913i + 6.4931 * tfactors.T913
+                         + -9.27513 * tfactors.T9 + -0.610439 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dln_set_rate_dT9 =  102.86202812813134 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -25.3278 * tfactors.T943i + (1.0/3.0) * 6.4931 * tfactors.T923i
+                                  + -9.27513 + (5.0/3.0) * -0.610439 * tfactors.T923 + 0.833333 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real p_pf, dp_pf_dT;
@@ -3029,25 +3319,33 @@ void rate_S32_to_p_P31_derived(const T& rate_eval, const tf_t& tfactors, amrex::
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_S32_to_He4_Si28_derived(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_S32_to_He4_Si28_derived(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // S32 --> He4 + Si28
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 0.0020469666932336;
-    amrex::Real Q_kBT = -6.9476558700022695 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    ratio *= std::sqrt(amrex::Math::powi<3>(tfactors.T9 * 1.0e9_rt));
+    rate = 0.0;
+    drate_dT = 0.0;
 
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_He4_Si28_to_S32_reaclib);
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  72.8147025119699 + -80.62419844573512 * tfactors.T9i + -59.4896 * tfactors.T913i + 4.47205 * tfactors.T913
+                         + -4.78989 * tfactors.T9 + 0.557201 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (1.5 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_He4_Si28_to_S32_reaclib);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  80.62419844573512 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -59.4896 * tfactors.T943i + (1.0/3.0) * 4.47205 * tfactors.T923i
+                                  + -4.78989 + (5.0/3.0) * 0.557201 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real He4_pf, dHe4_pf_dT;
@@ -3080,25 +3378,33 @@ void rate_S32_to_He4_Si28_derived(const T& rate_eval, const tf_t& tfactors, amre
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Fe52_to_p_nse_Mn51_derived(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_Fe52_to_p_nse_Mn51_derived(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Fe52 --> p_nse + Mn51
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 0.0037087238653468386;
-    amrex::Real Q_kBT = -7.377871064004735 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    ratio *= std::sqrt(amrex::Math::powi<3>(tfactors.T9 * 1.0e9_rt));
+    rate = 0.0;
+    drate_dT = 0.0;
 
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_p_nse_Mn51_to_Fe52_reaclib);
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  61.7474313222804 + -85.61663846070292 * tfactors.T9i + -36.1825 * tfactors.T913i + 0.873042 * tfactors.T913
+                         + -2.89731 * tfactors.T9 + 0.364394 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (1.5 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_p_nse_Mn51_to_Fe52_reaclib);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  85.61663846070292 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -36.1825 * tfactors.T943i + (1.0/3.0) * 0.873042 * tfactors.T923i
+                                  + -2.89731 + (5.0/3.0) * 0.364394 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real Mn51_pf, dMn51_pf_dT;
@@ -3131,25 +3437,33 @@ void rate_Fe52_to_p_nse_Mn51_derived(const T& rate_eval, const tf_t& tfactors, a
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Fe52_to_He4_Cr48_derived(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_Fe52_to_He4_Cr48_derived(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Fe52 --> He4 + Cr48
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 0.0022179215444048704;
-    amrex::Real Q_kBT = -7.9360158700054875 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    ratio *= std::sqrt(amrex::Math::powi<3>(tfactors.T9 * 1.0e9_rt));
+    rate = 0.0;
+    drate_dT = 0.0;
 
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_He4_Cr48_to_Fe52_reaclib);
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  90.149113992515 + -92.09363997638769 * tfactors.T9i + -86.7459 * tfactors.T913i + -9.79373 * tfactors.T913
+                         + -0.772169 * tfactors.T9 + 0.155883 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (1.5 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_He4_Cr48_to_Fe52_reaclib);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  92.09363997638769 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -86.7459 * tfactors.T943i + (1.0/3.0) * -9.79373 * tfactors.T923i
+                                  + -0.772169 + (5.0/3.0) * 0.155883 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real Cr48_pf, dCr48_pf_dT;
@@ -3182,25 +3496,33 @@ void rate_Fe52_to_He4_Cr48_derived(const T& rate_eval, const tf_t& tfactors, amr
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Co55_to_He4_Mn51_derived(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_Co55_to_He4_Mn51_derived(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Co55 --> He4 + Mn51
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 0.0016747914576913715;
-    amrex::Real Q_kBT = -8.211715870003866 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    ratio *= std::sqrt(amrex::Math::powi<3>(tfactors.T9 * 1.0e9_rt));
+    rate = 0.0;
+    drate_dT = 0.0;
 
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_He4_Mn51_to_Co55_reaclib);
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  90.61473213109255 + -95.29300562248024 * tfactors.T9i + -89.274 * tfactors.T913i + -10.4373 * tfactors.T913
+                         + 1.00492 * tfactors.T9 + -0.125548 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (1.5 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_He4_Mn51_to_Co55_reaclib);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  95.29300562248024 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -89.274 * tfactors.T943i + (1.0/3.0) * -10.4373 * tfactors.T923i
+                                  + 1.00492 + (5.0/3.0) * -0.125548 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real Mn51_pf, dMn51_pf_dT;
@@ -3233,25 +3555,33 @@ void rate_Co55_to_He4_Mn51_derived(const T& rate_eval, const tf_t& tfactors, amr
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Ni56_to_p_nse_Co55_derived(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_Ni56_to_p_nse_Co55_derived(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Ni56 --> p_nse + Co55
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 0.004955314145592046;
-    amrex::Real Q_kBT = -7.166571063993911 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    ratio *= std::sqrt(amrex::Math::powi<3>(tfactors.T9 * 1.0e9_rt));
+    rate = 0.0;
+    drate_dT = 0.0;
 
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_p_nse_Co55_to_Ni56_reaclib);
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  63.15120404192561 + -83.16460378149377 * tfactors.T9i + -38.1053 * tfactors.T913i + -0.210947 * tfactors.T913
+                         + -2.68377 * tfactors.T9 + 0.355814 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (1.5 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_p_nse_Co55_to_Ni56_reaclib);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  83.16460378149377 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -38.1053 * tfactors.T943i + (1.0/3.0) * -0.210947 * tfactors.T923i
+                                  + -2.68377 + (5.0/3.0) * 0.355814 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real Ni56_pf, dNi56_pf_dT;
@@ -3284,25 +3614,33 @@ void rate_Ni56_to_p_nse_Co55_derived(const T& rate_eval, const tf_t& tfactors, a
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Ni56_to_He4_Fe52_derived(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_Ni56_to_He4_Fe52_derived(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Ni56 --> He4 + Fe52
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 0.0022377286911973004;
-    amrex::Real Q_kBT = -8.000415869992421 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    ratio *= std::sqrt(amrex::Math::powi<3>(tfactors.T9 * 1.0e9_rt));
+    rate = 0.0;
+    drate_dT = 0.0;
 
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_He4_Fe52_to_Ni56_reaclib);
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  91.62430485073777 + -92.8409709432639 * tfactors.T9i + -91.6819 * tfactors.T913i + -9.51885 * tfactors.T913
+                         + -0.533014 * tfactors.T9 + 0.0892607 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (1.5 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_He4_Fe52_to_Ni56_reaclib);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  92.8409709432639 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -91.6819 * tfactors.T943i + (1.0/3.0) * -9.51885 * tfactors.T923i
+                                  + -0.533014 + (5.0/3.0) * 0.0892607 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real Ni56_pf, dNi56_pf_dT;
@@ -3335,25 +3673,67 @@ void rate_Ni56_to_He4_Fe52_derived(const T& rate_eval, const tf_t& tfactors, amr
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_C12_to_He4_He4_He4_derived(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_C12_to_He4_He4_He4_derived(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // C12 --> 3 He4
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 2.0089297549344094e-07;
-    amrex::Real Q_kBT = -7.274747609999003 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    ratio *= std::sqrt(amrex::Math::powi<6>(tfactors.T9 * 1.0e9_rt));
+    rate = 0.0;
+    drate_dT = 0.0;
 
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_He4_He4_He4_to_C12_reaclib);
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // fy05r
+    ln_set_rate =  34.960903979912985 + -85.44440046993657 * tfactors.T9i + -23.57 * tfactors.T913i + 20.4886 * tfactors.T913
+                         + -12.9882 * tfactors.T9 + -20.0 * tfactors.T953 + 0.8333300000000001 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (3.0 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_He4_He4_He4_to_C12_reaclib);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  85.44440046993657 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -23.57 * tfactors.T943i + (1.0/3.0) * 20.4886 * tfactors.T923i
+                                  + -12.9882 + (5.0/3.0) * -20.0 * tfactors.T923 + 0.8333300000000001 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
+
+    // fy05n
+    ln_set_rate =  45.77825197991298 + -84.41994046993656 * tfactors.T9i + -37.06 * tfactors.T913i + 29.3493 * tfactors.T913
+                         + -115.507 * tfactors.T9 + -10.0 * tfactors.T953 + 1.66667 * tfactors.lnT9;
+
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dln_set_rate_dT9 =  84.41994046993656 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -37.06 * tfactors.T943i + (1.0/3.0) * 29.3493 * tfactors.T923i
+                                  + -115.507 + (5.0/3.0) * -10.0 * tfactors.T923 + 1.66667 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
+
+    // fy05r
+    ln_set_rate =  22.39880397991298 + -88.54650046993656 * tfactors.T9i + -13.49 * tfactors.T913i + 21.4259 * tfactors.T913
+                         + -1.34769 * tfactors.T9 + 0.0879816 * tfactors.T953 + -10.1653 * tfactors.lnT9;
+
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dln_set_rate_dT9 =  88.54650046993656 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -13.49 * tfactors.T943i + (1.0/3.0) * 21.4259 * tfactors.T923i
+                                  + -1.34769 + (5.0/3.0) * 0.0879816 * tfactors.T923 + -10.1653 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real C12_pf, dC12_pf_dT;
@@ -3383,23 +3763,33 @@ void rate_C12_to_He4_He4_He4_derived(const T& rate_eval, const tf_t& tfactors, a
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_p_O16_to_He4_N13_derived(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_p_O16_to_He4_N13_derived(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // O16 + p --> He4 + N13
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 5.766242259014467;
-    amrex::Real Q_kBT = -5.218426906001445 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_He4_N13_to_p_O16_reaclib);
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // cf88n
+    ln_set_rate =  42.21642061342456 + -60.55732959667829 * tfactors.T9i + -35.829 * tfactors.T913i + -0.530275 * tfactors.T913
+                         + -0.982462 * tfactors.T9 + 0.0808059 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (0.0 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_He4_N13_to_p_O16_reaclib);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  60.55732959667829 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -35.829 * tfactors.T943i + (1.0/3.0) * -0.530275 * tfactors.T923i
+                                  + -0.982462 + (5.0/3.0) * 0.0808059 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real p_pf, dp_pf_dT;
@@ -3438,23 +3828,67 @@ void rate_p_O16_to_He4_N13_derived(const T& rate_eval, const tf_t& tfactors, amr
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_He4_Ne20_to_p_Na23_derived(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_He4_Ne20_to_p_Na23_derived(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Ne20 + He4 --> p + Na23
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 1.2552512120460946;
-    amrex::Real Q_kBT = -2.3761338939988508 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_p_Na23_to_He4_Ne20_reaclib);
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // il10r
+    ln_set_rate =  -6.360024278486355 + -29.88965883213902 * tfactors.T9i + 19.7297 * tfactors.T913
+                         + -2.20987 * tfactors.T9 + 0.153374 * tfactors.T953 + -1.5 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (0.0 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_p_Na23_to_He4_Ne20_reaclib);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  29.88965883213902 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 19.7297 * tfactors.T923i
+                                  + -2.20987 + (5.0/3.0) * 0.153374 * tfactors.T923 + -1.5 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
+
+    // il10r
+    ln_set_rate =  0.24516522151364528 + -29.43491883213902 * tfactors.T9i
+                         + -1.5 * tfactors.lnT9;
+
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dln_set_rate_dT9 =  29.43491883213902 * tfactors.T9i * tfactors.T9i
+                                  + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
+
+    // il10n
+    ln_set_rate =  19.202935721513644 + -27.57388883213902 * tfactors.T9i + -20.0024 * tfactors.T913i + 11.5988 * tfactors.T913
+                         + -1.37398 * tfactors.T9 + -1.0 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dln_set_rate_dT9 =  27.57388883213902 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -20.0024 * tfactors.T943i + (1.0/3.0) * 11.5988 * tfactors.T923i
+                                  + -1.37398 + (5.0/3.0) * -1.0 * tfactors.T923 + -0.666667 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real Na23_pf, dNa23_pf_dT;
@@ -3492,23 +3926,67 @@ void rate_He4_Ne20_to_p_Na23_derived(const T& rate_eval, const tf_t& tfactors, a
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_He4_Mg24_to_p_Al27_derived(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_He4_Mg24_to_p_Al27_derived(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Mg24 + He4 --> p + Al27
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 1.8218423092693468;
-    amrex::Real Q_kBT = -1.6007731940019818 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_p_Al27_to_He4_Mg24_reaclib);
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // il10r
+    ln_set_rate =  -6.4280417530584835 + -22.8187015382876 * tfactors.T9i + 18.0416 * tfactors.T913
+                         + -1.54137 * tfactors.T9 + 0.0847506 * tfactors.T953 + -1.5 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (0.0 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_p_Al27_to_He4_Mg24_reaclib);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  22.8187015382876 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 18.0416 * tfactors.T923i
+                                  + -1.54137 + (5.0/3.0) * 0.0847506 * tfactors.T923 + -1.5 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
+
+    // il10r
+    ln_set_rate =  -26.268451753058486 + -19.539213538287598 * tfactors.T9i + 5.18642 * tfactors.T913i + -34.7936 * tfactors.T913
+                         + 168.225 * tfactors.T9 + -115.825 * tfactors.T953 + -1.5 * tfactors.lnT9;
+
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dln_set_rate_dT9 =  19.539213538287598 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 5.18642 * tfactors.T943i + (1.0/3.0) * -34.7936 * tfactors.T923i
+                                  + 168.225 + (5.0/3.0) * -115.825 * tfactors.T923 + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
+
+    // il10n
+    ln_set_rate =  30.057448246941515 + -18.5762015382876 * tfactors.T9i + -26.4162 * tfactors.T913i
+                         + -2.0 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dln_set_rate_dT9 =  18.5762015382876 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -26.4162 * tfactors.T943i
+                                  + (5.0/3.0) * -2.0 * tfactors.T923 + -0.666667 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real p_pf, dp_pf_dT;
@@ -3546,23 +4024,67 @@ void rate_He4_Mg24_to_p_Al27_derived(const T& rate_eval, const tf_t& tfactors, a
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_He4_Si28_to_p_P31_derived(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_He4_Si28_to_p_P31_derived(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Si28 + He4 --> p + P31
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 0.5929358351300884;
-    amrex::Real Q_kBT = -1.9163078940003233 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_p_P31_to_He4_Si28_reaclib);
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // il10r
+    ln_set_rate =  -11.415669089666713 + -25.66357968239622 * tfactors.T9i + 21.521 * tfactors.T913
+                         + -1.90355 * tfactors.T9 + 0.092724 * tfactors.T953 + -1.5 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (0.0 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_p_P31_to_He4_Si28_reaclib);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  25.66357968239622 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 21.521 * tfactors.T923i
+                                  + -1.90355 + (5.0/3.0) * 0.092724 * tfactors.T923 + -1.5 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
+
+    // il10r
+    ln_set_rate =  -13.441669089666712 + -24.11498968239622 * tfactors.T9i
+                         + -1.5 * tfactors.lnT9;
+
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dln_set_rate_dT9 =  24.11498968239622 * tfactors.T9i * tfactors.T9i
+                                  + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
+
+    // il10n
+    ln_set_rate =  60.360230910333286 + -22.23782968239622 * tfactors.T9i + -31.932 * tfactors.T913i + -77.0334 * tfactors.T913
+                         + -43.6847 * tfactors.T9 + -4.28955 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dln_set_rate_dT9 =  22.23782968239622 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -31.932 * tfactors.T943i + (1.0/3.0) * -77.0334 * tfactors.T923i
+                                  + -43.6847 + (5.0/3.0) * -4.28955 * tfactors.T923 + -0.666667 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real p_pf, dp_pf_dT;
@@ -3600,23 +4122,33 @@ void rate_He4_Si28_to_p_P31_derived(const T& rate_eval, const tf_t& tfactors, am
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_p_nse_Mn51_to_He4_Cr48_derived(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_p_nse_Mn51_to_He4_Cr48_derived(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Mn51 + p_nse --> He4 + Cr48
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 0.5980282234351387;
-    amrex::Real Q_kBT = -0.5581448060026141 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_He4_Cr48_to_p_nse_Mn51_reaclib);
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  58.71348267023461 + -6.477001515706388 * tfactors.T9i + -86.7459 * tfactors.T913i + 1.05653 * tfactors.T913
+                         + -1.15757 * tfactors.T9 + 0.0877546 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (0.0 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_He4_Cr48_to_p_nse_Mn51_reaclib);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  6.477001515706388 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -86.7459 * tfactors.T943i + (1.0/3.0) * 1.05653 * tfactors.T923i
+                                  + -1.15757 + (5.0/3.0) * 0.0877546 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real p_nse_pf, dp_nse_pf_dT;
@@ -3654,23 +4186,33 @@ void rate_p_nse_Mn51_to_He4_Cr48_derived(const T& rate_eval, const tf_t& tfactor
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_p_nse_Co55_to_He4_Fe52_derived(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_p_nse_Co55_to_He4_Fe52_derived(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Co55 + p_nse --> He4 + Fe52
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 0.45158160016713594;
-    amrex::Real Q_kBT = -0.8338448059985103 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_He4_Fe52_to_p_nse_Co55_reaclib);
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  61.42570080881217 + -9.676367161770123 * tfactors.T9i + -91.6819 * tfactors.T913i + -0.329235 * tfactors.T913
+                         + -0.780924 * tfactors.T9 + 0.0425179 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (0.0 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_He4_Fe52_to_p_nse_Co55_reaclib);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  9.676367161770123 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -91.6819 * tfactors.T943i + (1.0/3.0) * -0.329235 * tfactors.T923i
+                                  + -0.780924 + (5.0/3.0) * 0.0425179 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real p_nse_pf, dp_nse_pf_dT;
@@ -3708,25 +4250,33 @@ void rate_p_nse_Co55_to_He4_Fe52_derived(const T& rate_eval, const tf_t& tfactor
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Co55_to_p_nse_Fe54_derived(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_Co55_to_p_nse_Fe54_derived(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Co55 --> p_nse + Fe54
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 7.738014712867733e-05;
-    amrex::Real Q_kBT = -5.0643710640004365 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    ratio *= std::sqrt(amrex::Math::powi<3>(tfactors.T9 * 1.0e9_rt));
+    rate = 0.0;
+    drate_dT = 0.0;
 
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_p_nse_Fe54_to_Co55_reaclib);
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  57.84851844810453 + -58.769585786446925 * tfactors.T9i + -37.1544 * tfactors.T913i + 0.950364 * tfactors.T913
+                         + -1.77529 * tfactors.T9 + 0.198562 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (1.5 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_p_nse_Fe54_to_Co55_reaclib);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  58.769585786446925 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -37.1544 * tfactors.T943i + (1.0/3.0) * 0.950364 * tfactors.T923i
+                                  + -1.77529 + (5.0/3.0) * 0.198562 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real p_nse_pf, dp_nse_pf_dT;
@@ -3759,25 +4309,33 @@ void rate_Co55_to_p_nse_Fe54_derived(const T& rate_eval, const tf_t& tfactors, a
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Co56_to_n_Co55_derived(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_Co56_to_n_Co55_derived(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Co56 --> n + Co55
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 0.0005517947438389569;
-    amrex::Real Q_kBT = -10.081818100002103 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    ratio *= std::sqrt(amrex::Math::powi<3>(tfactors.T9 * 1.0e9_rt));
+    rate = 0.0;
+    drate_dT = 0.0;
 
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_n_Co55_to_Co56_reaclib);
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  40.64756433371103 + -116.994640839646 * tfactors.T9i + -1.86357 * tfactors.T913
+                         + 0.616591 * tfactors.T9 + -0.0839313 * tfactors.T953 + 1.5 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (1.5 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_n_Co55_to_Co56_reaclib);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  116.994640839646 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -1.86357 * tfactors.T923i
+                                  + 0.616591 + (5.0/3.0) * -0.0839313 * tfactors.T923 + 1.5 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real n_pf, dn_pf_dT;
@@ -3810,25 +4368,33 @@ void rate_Co56_to_n_Co55_derived(const T& rate_eval, const tf_t& tfactors, amrex
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Co57_to_n_Co56_derived(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_Co57_to_n_Co56_derived(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Co57 --> n + Co56
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 0.0006987408286997239;
-    amrex::Real Q_kBT = -11.376518100002114 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    ratio *= std::sqrt(amrex::Math::powi<3>(tfactors.T9 * 1.0e9_rt));
+    rate = 0.0;
+    drate_dT = 0.0;
 
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_n_Co56_to_Co57_reaclib);
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  41.17386809654295 + -132.01901045161702 * tfactors.T9i + -1.37855 * tfactors.T913
+                         + 0.299896 * tfactors.T9 + -0.04382 * tfactors.T953 + 1.5 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (1.5 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_n_Co56_to_Co57_reaclib);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  132.01901045161702 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -1.37855 * tfactors.T923i
+                                  + 0.299896 + (5.0/3.0) * -0.04382 * tfactors.T923 + 1.5 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real n_pf, dn_pf_dT;
@@ -3861,25 +4427,33 @@ void rate_Co57_to_n_Co56_derived(const T& rate_eval, const tf_t& tfactors, amrex
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Co57_to_p_nse_Fe56_derived(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_Co57_to_p_nse_Fe56_derived(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Co57 --> p_nse + Fe56
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 7.745938038729025e-05;
-    amrex::Real Q_kBT = -6.027511063998631 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    ratio *= std::sqrt(amrex::Math::powi<3>(tfactors.T9 * 1.0e9_rt));
+    rate = 0.0;
+    drate_dT = 0.0;
 
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_p_nse_Fe56_to_Co57_reaclib);
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  57.68564187237867 + -69.94636137001571 * tfactors.T9i + -37.1625 * tfactors.T913i + 1.06776 * tfactors.T913
+                         + -1.31689 * tfactors.T9 + 0.122089 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (1.5 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_p_nse_Fe56_to_Co57_reaclib);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  69.94636137001571 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -37.1625 * tfactors.T943i + (1.0/3.0) * 1.06776 * tfactors.T923i
+                                  + -1.31689 + (5.0/3.0) * 0.122089 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real p_nse_pf, dp_nse_pf_dT;
@@ -3912,25 +4486,33 @@ void rate_Co57_to_p_nse_Fe56_derived(const T& rate_eval, const tf_t& tfactors, a
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Ni58_to_p_nse_Co57_derived(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_Ni58_to_p_nse_Co57_derived(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Ni58 --> p_nse + Co57
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 0.004960201648323489;
-    amrex::Real Q_kBT = -8.172171063995753 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    ratio *= std::sqrt(amrex::Math::powi<3>(tfactors.T9 * 1.0e9_rt));
+    rate = 0.0;
+    drate_dT = 0.0;
 
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_p_nse_Co57_to_Ni58_reaclib);
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  61.79448987125186 + -94.83410720454592 * tfactors.T9i + -38.1133 * tfactors.T913i + 1.77414 * tfactors.T913
+                         + -1.48268 * tfactors.T9 + 0.121073 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (1.5 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_p_nse_Co57_to_Ni58_reaclib);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  94.83410720454592 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -38.1133 * tfactors.T943i + (1.0/3.0) * 1.77414 * tfactors.T923i
+                                  + -1.48268 + (5.0/3.0) * 0.121073 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real p_nse_pf, dp_nse_pf_dT;
@@ -3963,25 +4545,33 @@ void rate_Ni58_to_p_nse_Co57_derived(const T& rate_eval, const tf_t& tfactors, a
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Ni58_to_He4_Fe54_derived(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_Ni58_to_He4_Fe54_derived(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Ni58 --> He4 + Fe54
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 0.002246417756289001;
-    amrex::Real Q_kBT = -6.39921586999708 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    ratio *= std::sqrt(amrex::Math::powi<3>(tfactors.T9 * 1.0e9_rt));
+    rate = 0.0;
+    drate_dT = 0.0;
 
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_He4_Fe54_to_Ni58_reaclib);
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  85.23428031558652 + -74.25981652709197 * tfactors.T9i + -91.7628 * tfactors.T913i + 4.23027 * tfactors.T913
+                         + -3.31305 * tfactors.T9 + 0.271293 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (1.5 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_He4_Fe54_to_Ni58_reaclib);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  74.25981652709197 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -91.7628 * tfactors.T943i + (1.0/3.0) * 4.23027 * tfactors.T923i
+                                  + -3.31305 + (5.0/3.0) * 0.271293 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real He4_pf, dHe4_pf_dT;
@@ -4014,23 +4604,33 @@ void rate_Ni58_to_He4_Fe54_derived(const T& rate_eval, const tf_t& tfactors, amr
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_p_nse_Fe54_to_He4_Mn51_derived(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_p_nse_Fe54_to_He4_Mn51_derived(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Fe54 + p_nse --> He4 + Mn51
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 21.64368406933008;
-    amrex::Real Q_kBT = -3.1473448060034297 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_He4_Mn51_to_p_nse_Fe54_reaclib);
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  65.35241368298804 + -36.52341983603332 * tfactors.T9i + -89.274 * tfactors.T913i + -0.862452 * tfactors.T913
+                         + -0.635672 * tfactors.T9 + 0.0196464 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (0.0 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_He4_Mn51_to_p_nse_Fe54_reaclib);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  36.52341983603332 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -89.274 * tfactors.T943i + (1.0/3.0) * -0.862452 * tfactors.T923i
+                                  + -0.635672 + (5.0/3.0) * 0.0196464 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real p_nse_pf, dp_nse_pf_dT;
@@ -4068,23 +4668,33 @@ void rate_p_nse_Fe54_to_He4_Mn51_derived(const T& rate_eval, const tf_t& tfactor
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_He4_Fe54_to_p_nse_Co57_derived(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_He4_Fe54_to_p_nse_Co57_derived(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Fe54 + He4 --> p_nse + Co57
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 2.208049519924361;
-    amrex::Real Q_kBT = -1.772955193998673 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_p_nse_Co57_to_He4_Fe54_reaclib);
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  -1.404090444334669 + -20.574290677453938 * tfactors.T9i + -38.1133 * tfactors.T913i + 29.3541 * tfactors.T913
+                         + -4.75966 * tfactors.T9 + 0.40418 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (0.0 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_p_nse_Co57_to_He4_Fe54_reaclib);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  20.574290677453938 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -38.1133 * tfactors.T943i + (1.0/3.0) * 29.3541 * tfactors.T923i
+                                  + -4.75966 + (5.0/3.0) * 0.40418 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real p_nse_pf, dp_nse_pf_dT;
@@ -4122,23 +4732,33 @@ void rate_He4_Fe54_to_p_nse_Co57_derived(const T& rate_eval, const tf_t& tfactor
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_p_nse_Fe56_to_n_Co56_derived(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_p_nse_Fe56_to_n_Co56_derived(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Fe56 + p_nse --> n + Co56
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 9.020738678854384;
-    amrex::Real Q_kBT = -5.349007036003482 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_n_Co56_to_p_nse_Fe56_reaclib);
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  22.653426224164285 + -62.07264908160129 * tfactors.T9i + -1.13331 * tfactors.T913
+                         + 0.347185 * tfactors.T9 + -0.0328879 * tfactors.T953;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (0.0 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_n_Co56_to_p_nse_Fe56_reaclib);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  62.07264908160129 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -1.13331 * tfactors.T923i
+                                  + 0.347185 + (5.0/3.0) * -0.0328879 * tfactors.T923;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real n_pf, dn_pf_dT;
@@ -4176,23 +4796,33 @@ void rate_p_nse_Fe56_to_n_Co56_derived(const T& rate_eval, const tf_t& tfactors,
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_p_nse_Co56_to_n_Ni56_derived(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_p_nse_Co56_to_n_Ni56_derived(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Co56 + p_nse --> n + Ni56
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 0.11135413974304752;
-    amrex::Real Q_kBT = -2.915247036008191 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_n_Ni56_to_p_nse_Co56_reaclib);
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  13.374260291785419 + -33.83003705815221 * tfactors.T9i + 1.76846 * tfactors.T913
+                         + 0.197992 * tfactors.T9 + -0.017494 * tfactors.T953;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (0.0 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_n_Ni56_to_p_nse_Co56_reaclib);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  33.83003705815221 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 1.76846 * tfactors.T923i
+                                  + 0.197992 + (5.0/3.0) * -0.017494 * tfactors.T923;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real n_pf, dn_pf_dT;
@@ -4230,23 +4860,33 @@ void rate_p_nse_Co56_to_n_Ni56_derived(const T& rate_eval, const tf_t& tfactors,
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_p_nse_Ni58_to_He4_Co55_derived(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_p_nse_Ni58_to_He4_Co55_derived(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Ni58 + p_nse --> He4 + Co55
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 29.030931571548685;
-    amrex::Real Q_kBT = -1.3348448059966436 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_He4_Co55_to_p_nse_Ni58_reaclib);
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  63.596461867482006 + -15.49023074064505 * tfactors.T9i + -94.1404 * tfactors.T913i + 3.39179 * tfactors.T913
+                         + -1.71062 * tfactors.T9 + 0.133003 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (0.0 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_He4_Co55_to_p_nse_Ni58_reaclib);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  15.49023074064505 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -94.1404 * tfactors.T943i + (1.0/3.0) * 3.39179 * tfactors.T923i
+                                  + -1.71062 + (5.0/3.0) * 0.133003 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real p_nse_pf, dp_nse_pf_dT;
@@ -4284,23 +4924,84 @@ void rate_p_nse_Ni58_to_He4_Co55_derived(const T& rate_eval, const tf_t& tfactor
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_He4_S32_to_p_Cl35_removed(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_He4_S32_to_p_Cl35_removed(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // S32 + He4 --> p + Cl35
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 1.164434155428163;
-    amrex::Real Q_kBT = -1.8660622939993667 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_p_Cl35_to_He4_S32_removed);
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // il10r
+    ln_set_rate =  -0.8597847344696254 + -25.589703706656962 * tfactors.T9i
+                         + -1.5 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (0.0 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_p_Cl35_to_He4_S32_removed);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  25.589703706656962 * tfactors.T9i * tfactors.T9i
+                                  + -1.5 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
+
+    // il10r
+    ln_set_rate =  -57.37716473446963 + -22.187684706656963 * tfactors.T9i + 25.5338 * tfactors.T913
+                         + 6.45824 * tfactors.T9 + -0.950294 * tfactors.T953 + -1.5 * tfactors.lnT9;
+
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dln_set_rate_dT9 =  22.187684706656963 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 25.5338 * tfactors.T923i
+                                  + 6.45824 + (5.0/3.0) * -0.950294 * tfactors.T923 + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
+
+    // il10n
+    ln_set_rate =  32.27223526553037 + -21.65475370665696 * tfactors.T9i + -30.9147 * tfactors.T913i + -1.2345 * tfactors.T913
+                         + 22.5118 * tfactors.T9 + -33.0589 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dln_set_rate_dT9 =  21.65475370665696 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -30.9147 * tfactors.T943i + (1.0/3.0) * -1.2345 * tfactors.T923i
+                                  + 22.5118 + (5.0/3.0) * -33.0589 * tfactors.T923 + -0.666667 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
+
+    // il10r
+    ln_set_rate =  2.4434452655303747 + -27.66451370665696 * tfactors.T9i + 5.33756 * tfactors.T913
+                         + 1.64418 * tfactors.T9 + -0.246167 * tfactors.T953 + -1.5 * tfactors.lnT9;
+
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dln_set_rate_dT9 =  27.66451370665696 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 5.33756 * tfactors.T923i
+                                  + 1.64418 + (5.0/3.0) * -0.246167 * tfactors.T923 + -1.5 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real p_pf, dp_pf_dT;
@@ -4338,25 +5039,33 @@ void rate_He4_S32_to_p_Cl35_removed(const T& rate_eval, const tf_t& tfactors, am
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Ar36_to_He4_S32_removed(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_Ar36_to_He4_S32_removed(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Ar36 --> He4 + S32
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 0.0020957921472510906;
-    amrex::Real Q_kBT = -6.640920770003172 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    ratio *= std::sqrt(amrex::Math::powi<3>(tfactors.T9 * 1.0e9_rt));
+    rate = 0.0;
+    drate_dT = 0.0;
 
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_He4_S32_to_Ar36_removed);
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  73.81807507159112 + -77.06468541928011 * tfactors.T9i + -65.3709 * tfactors.T913i + 5.68294 * tfactors.T913
+                         + -5.00388 * tfactors.T9 + 0.571407 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (1.5 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_He4_S32_to_Ar36_removed);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  77.06468541928011 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -65.3709 * tfactors.T943i + (1.0/3.0) * 5.68294 * tfactors.T923i
+                                  + -5.00388 + (5.0/3.0) * 0.571407 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real He4_pf, dHe4_pf_dT;
@@ -4389,25 +5098,80 @@ void rate_Ar36_to_He4_S32_removed(const T& rate_eval, const tf_t& tfactors, amre
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Ar36_to_p_Cl35_removed(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_Ar36_to_p_Cl35_removed(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Ar36 --> p + Cl35
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 0.0024404119589373;
-    amrex::Real Q_kBT = -8.506983063999229 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    ratio *= std::sqrt(amrex::Math::powi<3>(tfactors.T9 * 1.0e9_rt));
+    rate = 0.0;
+    drate_dT = 0.0;
 
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_p_Cl35_to_Ar36_removed);
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // il10r
+    ln_set_rate =  -17.4555896628785 + -99.28409012589867 * tfactors.T9i;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (1.5 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_p_Cl35_to_Ar36_removed);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  99.28409012589867 * tfactors.T9i * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
+
+    // il10n
+    ln_set_rate =  60.7561103371215 + -98.71943912589867 * tfactors.T9i + -27.8971 * tfactors.T913i + -16.2304 * tfactors.T913
+                         + 35.255 * tfactors.T9 + -25.8411 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dln_set_rate_dT9 =  98.71943912589867 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -27.8971 * tfactors.T943i + (1.0/3.0) * -16.2304 * tfactors.T923i
+                                  + 35.255 + (5.0/3.0) * -25.8411 * tfactors.T923 + 0.833333 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
+
+    // il10r
+    ln_set_rate =  17.222320337121502 + -102.37035912589867 * tfactors.T9i + 18.0179 * tfactors.T913
+                         + -2.86304 * tfactors.T9 + 0.250854 * tfactors.T953;
+
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dln_set_rate_dT9 =  102.37035912589867 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 18.0179 * tfactors.T923i
+                                  + -2.86304 + (5.0/3.0) * 0.250854 * tfactors.T923;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
+
+    // il10r
+    ln_set_rate =  16.036370337121504 + -100.72939912589868 * tfactors.T9i;
+
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dln_set_rate_dT9 =  100.72939912589868 * tfactors.T9i * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real p_pf, dp_pf_dT;
@@ -4440,23 +5204,33 @@ void rate_Ar36_to_p_Cl35_removed(const T& rate_eval, const tf_t& tfactors, amrex
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_He4_Ar36_to_p_K39_removed(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_He4_Ar36_to_p_K39_removed(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Ar36 + He4 --> p + K39
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 1.1478047817875796;
-    amrex::Real Q_kBT = -1.288402194006114 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_p_K39_to_He4_Ar36_removed);
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  20.654451232729432 + -14.951286608188832 * tfactors.T9i + -30.0732 * tfactors.T913i + 7.03263 * tfactors.T913
+                         + -1.10085 * tfactors.T9 + 0.133768 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (0.0 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_p_K39_to_He4_Ar36_removed);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  14.951286608188832 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -30.0732 * tfactors.T943i + (1.0/3.0) * 7.03263 * tfactors.T923i
+                                  + -1.10085 + (5.0/3.0) * 0.133768 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real p_pf, dp_pf_dT;
@@ -4494,25 +5268,33 @@ void rate_He4_Ar36_to_p_K39_removed(const T& rate_eval, const tf_t& tfactors, am
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Ca40_to_He4_Ar36_removed(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_Ca40_to_He4_Ar36_removed(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Ca40 --> He4 + Ar36
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 0.0021352372744340166;
-    amrex::Real Q_kBT = -7.039775869997547 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    ratio *= std::sqrt(amrex::Math::powi<3>(tfactors.T9 * 1.0e9_rt));
+    rate = 0.0;
+    drate_dT = 0.0;
 
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_He4_Ar36_to_Ca40_removed);
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  77.28432125250924 + -81.6932066550375 * tfactors.T9i + -71.0046 * tfactors.T913i + 4.0656 * tfactors.T913
+                         + -5.26509 * tfactors.T9 + 0.683546 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (1.5 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_He4_Ar36_to_Ca40_removed);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  81.6932066550375 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -71.0046 * tfactors.T943i + (1.0/3.0) * 4.0656 * tfactors.T923i
+                                  + -5.26509 + (5.0/3.0) * 0.683546 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real He4_pf, dHe4_pf_dT;
@@ -4545,25 +5327,67 @@ void rate_Ca40_to_He4_Ar36_removed(const T& rate_eval, const tf_t& tfactors, amr
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Ca40_to_p_K39_removed(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_Ca40_to_p_K39_removed(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Ca40 --> p + K39
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 0.002450835553846443;
-    amrex::Real Q_kBT = -8.32817806400366 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    ratio *= std::sqrt(amrex::Math::powi<3>(tfactors.T9 * 1.0e9_rt));
+    rate = 0.0;
+    drate_dT = 0.0;
 
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_p_K39_to_Ca40_removed);
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // lo18r
+    ln_set_rate =  2786.453572485239 + -101.86683326322634 * tfactors.T9i + 802.18 * tfactors.T913i + -4010.27 * tfactors.T913
+                         + 1137.69 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (1.5 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_p_K39_to_Ca40_removed);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  101.86683326322634 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 802.18 * tfactors.T943i + (1.0/3.0) * -4010.27 * tfactors.T923i
+                                  + 1137.69 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
+
+    // lo18r
+    ln_set_rate =  613.1725724852388 + -109.20919326322634 * tfactors.T9i + 641.844 * tfactors.T913i + -1248.49 * tfactors.T913
+                         + 566.426 * tfactors.lnT9;
+
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dln_set_rate_dT9 =  109.20919326322634 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 641.844 * tfactors.T943i + (1.0/3.0) * -1248.49 * tfactors.T923i
+                                  + 566.426 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
+
+    // lo18r
+    ln_set_rate =  127.32557248523868 + -98.30957326322634 * tfactors.T9i + 41.1723 * tfactors.T913i + -149.299 * tfactors.T913
+                         + 10.5229 * tfactors.T9 + -0.68208 * tfactors.T953 + 60.7367 * tfactors.lnT9;
+
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dln_set_rate_dT9 =  98.30957326322634 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 41.1723 * tfactors.T943i + (1.0/3.0) * -149.299 * tfactors.T923i
+                                  + 10.5229 + (5.0/3.0) * -0.68208 * tfactors.T923 + 60.7367 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real p_pf, dp_pf_dT;
@@ -4596,23 +5420,33 @@ void rate_Ca40_to_p_K39_removed(const T& rate_eval, const tf_t& tfactors, amrex:
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_He4_Ca40_to_p_Sc43_removed(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_He4_Ca40_to_p_Sc43_removed(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Ca40 + He4 --> p + Sc43
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 2.269518190046766;
-    amrex::Real Q_kBT = -3.522357194003101 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_p_Sc43_to_He4_Ca40_removed);
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  35.67546755788414 + -40.87525788838128 * tfactors.T9i + -32.1734 * tfactors.T913i + 0.0296879 * tfactors.T913
+                         + -0.95232 * tfactors.T9 + 0.129022 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (0.0 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_p_Sc43_to_He4_Ca40_removed);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  40.87525788838128 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -32.1734 * tfactors.T943i + (1.0/3.0) * 0.0296879 * tfactors.T923i
+                                  + -0.95232 + (5.0/3.0) * 0.129022 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real p_pf, dp_pf_dT;
@@ -4650,25 +5484,33 @@ void rate_He4_Ca40_to_p_Sc43_removed(const T& rate_eval, const tf_t& tfactors, a
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Ti44_to_He4_Ca40_removed(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_Ti44_to_He4_Ca40_removed(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Ti44 --> He4 + Ca40
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 0.0021673845668759716;
-    amrex::Real Q_kBT = -5.127113869992141 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    ratio *= std::sqrt(amrex::Math::powi<3>(tfactors.T9 * 1.0e9_rt));
+    rate = 0.0;
+    drate_dT = 0.0;
 
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_He4_Ca40_to_Ti44_removed);
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // chw0 
+    ln_set_rate =  78.7006646483486 + -59.497685815574556 * tfactors.T9i + -76.4273 * tfactors.T913i + 3.87451 * tfactors.T913
+                         + -3.61477 * tfactors.T9 + 0.367451 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (1.5 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_He4_Ca40_to_Ti44_removed);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  59.497685815574556 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -76.4273 * tfactors.T943i + (1.0/3.0) * 3.87451 * tfactors.T923i
+                                  + -3.61477 + (5.0/3.0) * 0.367451 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real He4_pf, dHe4_pf_dT;
@@ -4701,25 +5543,33 @@ void rate_Ti44_to_He4_Ca40_removed(const T& rate_eval, const tf_t& tfactors, amr
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Ti44_to_p_Sc43_removed(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_Ti44_to_p_Sc43_removed(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Ti44 --> p + Sc43
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 0.004918918699351648;
-    amrex::Real Q_kBT = -8.649471063995243 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    ratio *= std::sqrt(amrex::Math::powi<3>(tfactors.T9 * 1.0e9_rt));
+    rate = 0.0;
+    drate_dT = 0.0;
 
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_p_Sc43_to_Ti44_removed);
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  62.61343220623275 + -100.37294370395584 * tfactors.T9i + -32.1734 * tfactors.T913i + -1.77078 * tfactors.T913
+                         + -2.21706 * tfactors.T9 + 0.298499 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (1.5 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_p_Sc43_to_Ti44_removed);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  100.37294370395584 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -32.1734 * tfactors.T943i + (1.0/3.0) * -1.77078 * tfactors.T923i
+                                  + -2.21706 + (5.0/3.0) * 0.298499 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real p_pf, dp_pf_dT;
@@ -4752,25 +5602,33 @@ void rate_Ti44_to_p_Sc43_removed(const T& rate_eval, const tf_t& tfactors, amrex
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Cr48_to_He4_Ti44_removed(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_Cr48_to_He4_Ti44_removed(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Cr48 --> He4 + Ti44
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 0.0021948664061815595;
-    amrex::Real Q_kBT = -7.6973158699968405 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    ratio *= std::sqrt(amrex::Math::powi<3>(tfactors.T9 * 1.0e9_rt));
+    rate = 0.0;
+    drate_dT = 0.0;
 
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_He4_Ti44_to_Cr48_removed);
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  89.75906465832496 + -89.32364150067335 * tfactors.T9i + -81.667 * tfactors.T913i + -10.6333 * tfactors.T913
+                         + -0.672613 * tfactors.T9 + 0.161209 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (1.5 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_He4_Ti44_to_Cr48_removed);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  89.32364150067335 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -81.667 * tfactors.T943i + (1.0/3.0) * -10.6333 * tfactors.T923i
+                                  + -0.672613 + (5.0/3.0) * 0.161209 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real Cr48_pf, dCr48_pf_dT;
@@ -4803,25 +5661,84 @@ void rate_Cr48_to_He4_Ti44_removed(const T& rate_eval, const tf_t& tfactors, amr
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Cr48_to_p_V47_removed(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_Cr48_to_p_V47_removed(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Cr48 --> p + V47
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 0.0024665232387831902;
-    amrex::Real Q_kBT = -8.102901063992563 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    ratio *= std::sqrt(amrex::Math::powi<3>(tfactors.T9 * 1.0e9_rt));
+    rate = 0.0;
+    drate_dT = 0.0;
 
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_p_V47_to_Cr48_removed);
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // nfisn
+    ln_set_rate =  67.75975303984968 + -100.08956223422913 * tfactors.T9i + -34.0548 * tfactors.T913i + -3.41973 * tfactors.T913
+                         + 1.16501 * tfactors.T9 + -0.105543 * tfactors.T953 + -6.20886 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (1.5 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_p_V47_to_Cr48_removed);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  100.08956223422913 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -34.0548 * tfactors.T943i + (1.0/3.0) * -3.41973 * tfactors.T923i
+                                  + 1.16501 + (5.0/3.0) * -0.105543 * tfactors.T923 + -6.20886 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
+
+    // nfisn
+    ln_set_rate =  536.5429530398497 + -99.32517223422913 * tfactors.T9i + 317.171 * tfactors.T913i + -911.679 * tfactors.T913
+                         + 94.4245 * tfactors.T9 + -10.1973 * tfactors.T953 + 332.227 * tfactors.lnT9;
+
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dln_set_rate_dT9 =  99.32517223422913 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 317.171 * tfactors.T943i + (1.0/3.0) * -911.679 * tfactors.T923i
+                                  + 94.4245 + (5.0/3.0) * -10.1973 * tfactors.T923 + 332.227 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
+
+    // nfisn
+    ln_set_rate =  48.911453039849675 + -93.78359723422913 * tfactors.T9i + -45.9868 * tfactors.T913i + 13.6822 * tfactors.T913
+                         + -0.376902 * tfactors.T9 + -0.0194875 * tfactors.T953 + -6.9232499999999995 * tfactors.lnT9;
+
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dln_set_rate_dT9 =  93.78359723422913 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -45.9868 * tfactors.T943i + (1.0/3.0) * 13.6822 * tfactors.T923i
+                                  + -0.376902 + (5.0/3.0) * -0.0194875 * tfactors.T923 + -6.9232499999999995 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
+
+    // nfisn
+    ln_set_rate =  65.64255303984969 + -94.54467623422913 * tfactors.T9i + -110.655 * tfactors.T913i + 83.0232 * tfactors.T913
+                         + -19.7762 * tfactors.T9 + 3.03961 * tfactors.T953 + -47.9742 * tfactors.lnT9;
+
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dln_set_rate_dT9 =  94.54467623422913 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -110.655 * tfactors.T943i + (1.0/3.0) * 83.0232 * tfactors.T923i
+                                  + -19.7762 + (5.0/3.0) * 3.03961 * tfactors.T923 + -47.9742 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real Cr48_pf, dCr48_pf_dT;
@@ -4854,23 +5771,33 @@ void rate_Cr48_to_p_V47_removed(const T& rate_eval, const tf_t& tfactors, amrex:
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_p_V47_to_He4_Ti44_removed(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_p_V47_to_He4_Ti44_removed(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // V47 + p --> He4 + Ti44
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 0.8898624475414845;
-    amrex::Real Q_kBT = 0.4055851939957223 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_He4_Ti44_to_p_V47_removed);
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // chw0r
+    ln_set_rate =  -76.63208838152472 + -6.086479266444237 * tfactors.T9i + 70.2835 * tfactors.T913
+                         + -7.99061 * tfactors.T9 + 0.486213 * tfactors.T953 + -1.5 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (0.0 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_He4_Ti44_to_p_V47_removed);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  6.086479266444237 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 70.2835 * tfactors.T923i
+                                  + -7.99061 + (5.0/3.0) * 0.486213 * tfactors.T923 + -1.5 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real p_pf, dp_pf_dT;
@@ -4908,25 +5835,33 @@ void rate_p_V47_to_He4_Ti44_removed(const T& rate_eval, const tf_t& tfactors, am
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Fe54_to_n_Fe53_removed(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_Fe54_to_n_Fe53_removed(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Fe54 --> n + Fe53
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 0.004961965295535373;
-    amrex::Real Q_kBT = -13.378418100002976 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    ratio *= std::sqrt(amrex::Math::powi<3>(tfactors.T9 * 1.0e9_rt));
+    rate = 0.0;
+    drate_dT = 0.0;
 
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_n_Fe53_to_Fe54_removed);
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  42.23234536763495 + -155.25009527915813 * tfactors.T9i + -1.10421 * tfactors.T913
+                         + 0.379905 * tfactors.T9 + -0.0581878 * tfactors.T953 + 1.5 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (1.5 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_n_Fe53_to_Fe54_removed);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  155.25009527915813 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -1.10421 * tfactors.T923i
+                                  + 0.379905 + (5.0/3.0) * -0.0581878 * tfactors.T923 + 1.5 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real n_pf, dn_pf_dT;
@@ -4959,25 +5894,33 @@ void rate_Fe54_to_n_Fe53_removed(const T& rate_eval, const tf_t& tfactors, amrex
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Fe53_to_n_Fe52_removed(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_Fe53_to_n_Fe52_removed(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Fe53 --> n + Fe52
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 7.747917802697315e-05;
-    amrex::Real Q_kBT = -10.686718099998421 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    ratio *= std::sqrt(amrex::Math::powi<3>(tfactors.T9 * 1.0e9_rt));
+    rate = 0.0;
+    drate_dT = 0.0;
 
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_n_Fe52_to_Fe53_removed);
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  37.50789742709653 + -124.0142138513289 * tfactors.T9i + -0.344319 * tfactors.T913
+                         + 0.178277 * tfactors.T9 + -0.0334326 * tfactors.T953 + 1.5 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (1.5 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_n_Fe52_to_Fe53_removed);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  124.0142138513289 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -0.344319 * tfactors.T923i
+                                  + 0.178277 + (5.0/3.0) * -0.0334326 * tfactors.T923 + 1.5 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real n_pf, dn_pf_dT;
@@ -5010,25 +5953,33 @@ void rate_Fe53_to_n_Fe52_removed(const T& rate_eval, const tf_t& tfactors, amrex
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Fe56_to_n_Fe55_removed(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_Fe56_to_n_Fe55_removed(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Fe56 --> n + Fe55
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 0.002483201755819107;
-    amrex::Real Q_kBT = -11.197078100005754 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    ratio *= std::sqrt(amrex::Math::powi<3>(tfactors.T9 * 1.0e9_rt));
+    rate = 0.0;
+    drate_dT = 0.0;
 
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_n_Fe55_to_Fe56_removed);
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // ks03 
+    ln_set_rate =  46.806892234523204 + -130.0322634199283 * tfactors.T9i + 8.06062 * tfactors.T913i + -14.4809 * tfactors.T913
+                         + 0.94252 * tfactors.T9 + -0.0776007 * tfactors.T953 + 7.97093 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (1.5 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_n_Fe55_to_Fe56_removed);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  130.0322634199283 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 8.06062 * tfactors.T943i + (1.0/3.0) * -14.4809 * tfactors.T923i
+                                  + 0.94252 + (5.0/3.0) * -0.0776007 * tfactors.T923 + 7.97093 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real n_pf, dn_pf_dT;
@@ -5061,25 +6012,33 @@ void rate_Fe56_to_n_Fe55_removed(const T& rate_eval, const tf_t& tfactors, amrex
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Fe55_to_n_Fe54_removed(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_Fe55_to_n_Fe54_removed(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Fe55 --> n + Fe54
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 0.00015510907420772846;
-    amrex::Real Q_kBT = -9.298118100000266 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    ratio *= std::sqrt(amrex::Math::powi<3>(tfactors.T9 * 1.0e9_rt));
+    rate = 0.0;
+    drate_dT = 0.0;
 
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_n_Fe54_to_Fe55_removed);
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // ks03 
+    ln_set_rate =  21.50487677145662 + -107.84100838776588 * tfactors.T9i + -8.66617 * tfactors.T913i + 26.4472 * tfactors.T913
+                         + -1.9222 * tfactors.T9 + 0.0986404 * tfactors.T953 + -8.28317 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (1.5 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_n_Fe54_to_Fe55_removed);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  107.84100838776588 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -8.66617 * tfactors.T943i + (1.0/3.0) * 26.4472 * tfactors.T923i
+                                  + -1.9222 + (5.0/3.0) * 0.0986404 * tfactors.T923 + -8.28317 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real n_pf, dn_pf_dT;
@@ -5112,25 +6071,33 @@ void rate_Fe55_to_n_Fe54_removed(const T& rate_eval, const tf_t& tfactors, amrex
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Ni58_to_n_Ni57_removed(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_Ni58_to_n_Ni57_removed(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Ni58 --> n + Ni57
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 0.002485653242244135;
-    amrex::Real Q_kBT = -12.216218100000214 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    ratio *= std::sqrt(amrex::Math::powi<3>(tfactors.T9 * 1.0e9_rt));
+    rate = 0.0;
+    drate_dT = 0.0;
 
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_n_Ni57_to_Ni58_removed);
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  42.36077897558323 + -141.76332431826057 * tfactors.T9i + -1.90814 * tfactors.T913
+                         + 0.493188 * tfactors.T9 + -0.0684633 * tfactors.T953 + 1.5 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (1.5 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_n_Ni57_to_Ni58_removed);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  141.76332431826057 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -1.90814 * tfactors.T923i
+                                  + 0.493188 + (5.0/3.0) * -0.0684633 * tfactors.T923 + 1.5 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real n_pf, dn_pf_dT;
@@ -5163,25 +6130,33 @@ void rate_Ni58_to_n_Ni57_removed(const T& rate_eval, const tf_t& tfactors, amrex
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_Ni57_to_n_Ni56_removed(const T& rate_eval, const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+void rate_Ni57_to_n_Ni56_removed(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Ni57 --> n + Ni56
 
-    // Evaluate the equilibrium ratio without partition function
-    amrex::Real ratio = 0.00015526775629461862;
-    amrex::Real Q_kBT = -10.247718100005844 / (C::k_MeV * tfactors.T9 * 1.0e9_rt);
-    ratio *= std::exp(Q_kBT);
-    ratio *= std::sqrt(amrex::Math::powi<3>(tfactors.T9 * 1.0e9_rt));
+    rate = 0.0;
+    drate_dT = 0.0;
 
-    // Apply the ratio without partition function
-    // Note that screening is not yet applied to the inverse rate
-    rate = rate_eval.screened_rates(k_n_Ni56_to_Ni57_removed);
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  38.391039283997 + -118.91983039605456 * tfactors.T9i + -1.19665 * tfactors.T913
+                         + 0.507179 * tfactors.T9 + -0.074604 * tfactors.T953 + 1.5 * tfactors.lnT9;
+
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        amrex::Real dratio_dT = ratio * tfactors.T9i * 1.0e-9_rt * (1.5 - Q_kBT);
-        drate_dT = rate_eval.dscreened_rates_dT(k_n_Ni56_to_Ni57_removed);
-        drate_dT = drate_dT * ratio + rate * dratio_dT;
+        dln_set_rate_dT9 =  118.91983039605456 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -1.19665 * tfactors.T923i
+                                  + 0.507179 + (5.0/3.0) * -0.074604 * tfactors.T923 + 1.5 * tfactors.T9i;
     }
-    rate *= ratio;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
+    }
 
     // Now apply partition function effects
     amrex::Real n_pf, dn_pf_dT;
@@ -5895,301 +6870,301 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
 
     pf_cache.index_temp_array_1 = interp_net::find_index(tfactors.T9, part_fun::temp_array_1);
 
-    rate_N13_to_p_C12_derived<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_N13_to_p_C12_derived<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_N13_to_p_C12_derived) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_N13_to_p_C12_derived) = drate_dT;
 
     }
-    rate_O16_to_He4_C12_derived<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_O16_to_He4_C12_derived<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_O16_to_He4_C12_derived) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_O16_to_He4_C12_derived) = drate_dT;
 
     }
-    rate_Ne20_to_He4_O16_derived<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_Ne20_to_He4_O16_derived<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_Ne20_to_He4_O16_derived) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Ne20_to_He4_O16_derived) = drate_dT;
 
     }
-    rate_Mg24_to_p_Na23_derived<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_Mg24_to_p_Na23_derived<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_Mg24_to_p_Na23_derived) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Mg24_to_p_Na23_derived) = drate_dT;
 
     }
-    rate_Mg24_to_He4_Ne20_derived<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_Mg24_to_He4_Ne20_derived<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_Mg24_to_He4_Ne20_derived) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Mg24_to_He4_Ne20_derived) = drate_dT;
 
     }
-    rate_Si28_to_p_Al27_derived<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_Si28_to_p_Al27_derived<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_Si28_to_p_Al27_derived) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Si28_to_p_Al27_derived) = drate_dT;
 
     }
-    rate_Si28_to_He4_Mg24_derived<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_Si28_to_He4_Mg24_derived<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_Si28_to_He4_Mg24_derived) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Si28_to_He4_Mg24_derived) = drate_dT;
 
     }
-    rate_S32_to_p_P31_derived<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_S32_to_p_P31_derived<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_S32_to_p_P31_derived) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_S32_to_p_P31_derived) = drate_dT;
 
     }
-    rate_S32_to_He4_Si28_derived<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_S32_to_He4_Si28_derived<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_S32_to_He4_Si28_derived) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_S32_to_He4_Si28_derived) = drate_dT;
 
     }
-    rate_Fe52_to_p_nse_Mn51_derived<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_Fe52_to_p_nse_Mn51_derived<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_Fe52_to_p_nse_Mn51_derived) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Fe52_to_p_nse_Mn51_derived) = drate_dT;
 
     }
-    rate_Fe52_to_He4_Cr48_derived<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_Fe52_to_He4_Cr48_derived<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_Fe52_to_He4_Cr48_derived) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Fe52_to_He4_Cr48_derived) = drate_dT;
 
     }
-    rate_Co55_to_He4_Mn51_derived<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_Co55_to_He4_Mn51_derived<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_Co55_to_He4_Mn51_derived) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Co55_to_He4_Mn51_derived) = drate_dT;
 
     }
-    rate_Ni56_to_p_nse_Co55_derived<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_Ni56_to_p_nse_Co55_derived<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_Ni56_to_p_nse_Co55_derived) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Ni56_to_p_nse_Co55_derived) = drate_dT;
 
     }
-    rate_Ni56_to_He4_Fe52_derived<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_Ni56_to_He4_Fe52_derived<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_Ni56_to_He4_Fe52_derived) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Ni56_to_He4_Fe52_derived) = drate_dT;
 
     }
-    rate_C12_to_He4_He4_He4_derived<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_C12_to_He4_He4_He4_derived<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_C12_to_He4_He4_He4_derived) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_C12_to_He4_He4_He4_derived) = drate_dT;
 
     }
-    rate_p_O16_to_He4_N13_derived<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_p_O16_to_He4_N13_derived<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_p_O16_to_He4_N13_derived) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_p_O16_to_He4_N13_derived) = drate_dT;
 
     }
-    rate_He4_Ne20_to_p_Na23_derived<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_He4_Ne20_to_p_Na23_derived<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_He4_Ne20_to_p_Na23_derived) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_He4_Ne20_to_p_Na23_derived) = drate_dT;
 
     }
-    rate_He4_Mg24_to_p_Al27_derived<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_He4_Mg24_to_p_Al27_derived<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_He4_Mg24_to_p_Al27_derived) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_He4_Mg24_to_p_Al27_derived) = drate_dT;
 
     }
-    rate_He4_Si28_to_p_P31_derived<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_He4_Si28_to_p_P31_derived<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_He4_Si28_to_p_P31_derived) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_He4_Si28_to_p_P31_derived) = drate_dT;
 
     }
-    rate_p_nse_Mn51_to_He4_Cr48_derived<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_p_nse_Mn51_to_He4_Cr48_derived<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_p_nse_Mn51_to_He4_Cr48_derived) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_p_nse_Mn51_to_He4_Cr48_derived) = drate_dT;
 
     }
-    rate_p_nse_Co55_to_He4_Fe52_derived<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_p_nse_Co55_to_He4_Fe52_derived<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_p_nse_Co55_to_He4_Fe52_derived) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_p_nse_Co55_to_He4_Fe52_derived) = drate_dT;
 
     }
-    rate_Co55_to_p_nse_Fe54_derived<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_Co55_to_p_nse_Fe54_derived<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_Co55_to_p_nse_Fe54_derived) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Co55_to_p_nse_Fe54_derived) = drate_dT;
 
     }
-    rate_Co56_to_n_Co55_derived<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_Co56_to_n_Co55_derived<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_Co56_to_n_Co55_derived) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Co56_to_n_Co55_derived) = drate_dT;
 
     }
-    rate_Co57_to_n_Co56_derived<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_Co57_to_n_Co56_derived<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_Co57_to_n_Co56_derived) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Co57_to_n_Co56_derived) = drate_dT;
 
     }
-    rate_Co57_to_p_nse_Fe56_derived<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_Co57_to_p_nse_Fe56_derived<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_Co57_to_p_nse_Fe56_derived) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Co57_to_p_nse_Fe56_derived) = drate_dT;
 
     }
-    rate_Ni58_to_p_nse_Co57_derived<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_Ni58_to_p_nse_Co57_derived<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_Ni58_to_p_nse_Co57_derived) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Ni58_to_p_nse_Co57_derived) = drate_dT;
 
     }
-    rate_Ni58_to_He4_Fe54_derived<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_Ni58_to_He4_Fe54_derived<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_Ni58_to_He4_Fe54_derived) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Ni58_to_He4_Fe54_derived) = drate_dT;
 
     }
-    rate_p_nse_Fe54_to_He4_Mn51_derived<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_p_nse_Fe54_to_He4_Mn51_derived<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_p_nse_Fe54_to_He4_Mn51_derived) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_p_nse_Fe54_to_He4_Mn51_derived) = drate_dT;
 
     }
-    rate_He4_Fe54_to_p_nse_Co57_derived<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_He4_Fe54_to_p_nse_Co57_derived<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_He4_Fe54_to_p_nse_Co57_derived) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_He4_Fe54_to_p_nse_Co57_derived) = drate_dT;
 
     }
-    rate_p_nse_Fe56_to_n_Co56_derived<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_p_nse_Fe56_to_n_Co56_derived<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_p_nse_Fe56_to_n_Co56_derived) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_p_nse_Fe56_to_n_Co56_derived) = drate_dT;
 
     }
-    rate_p_nse_Co56_to_n_Ni56_derived<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_p_nse_Co56_to_n_Ni56_derived<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_p_nse_Co56_to_n_Ni56_derived) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_p_nse_Co56_to_n_Ni56_derived) = drate_dT;
 
     }
-    rate_p_nse_Ni58_to_He4_Co55_derived<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_p_nse_Ni58_to_He4_Co55_derived<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_p_nse_Ni58_to_He4_Co55_derived) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_p_nse_Ni58_to_He4_Co55_derived) = drate_dT;
 
     }
-    rate_He4_S32_to_p_Cl35_removed<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_He4_S32_to_p_Cl35_removed<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_He4_S32_to_p_Cl35_removed) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_He4_S32_to_p_Cl35_removed) = drate_dT;
 
     }
-    rate_Ar36_to_He4_S32_removed<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_Ar36_to_He4_S32_removed<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_Ar36_to_He4_S32_removed) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Ar36_to_He4_S32_removed) = drate_dT;
 
     }
-    rate_Ar36_to_p_Cl35_removed<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_Ar36_to_p_Cl35_removed<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_Ar36_to_p_Cl35_removed) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Ar36_to_p_Cl35_removed) = drate_dT;
 
     }
-    rate_He4_Ar36_to_p_K39_removed<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_He4_Ar36_to_p_K39_removed<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_He4_Ar36_to_p_K39_removed) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_He4_Ar36_to_p_K39_removed) = drate_dT;
 
     }
-    rate_Ca40_to_He4_Ar36_removed<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_Ca40_to_He4_Ar36_removed<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_Ca40_to_He4_Ar36_removed) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Ca40_to_He4_Ar36_removed) = drate_dT;
 
     }
-    rate_Ca40_to_p_K39_removed<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_Ca40_to_p_K39_removed<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_Ca40_to_p_K39_removed) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Ca40_to_p_K39_removed) = drate_dT;
 
     }
-    rate_He4_Ca40_to_p_Sc43_removed<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_He4_Ca40_to_p_Sc43_removed<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_He4_Ca40_to_p_Sc43_removed) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_He4_Ca40_to_p_Sc43_removed) = drate_dT;
 
     }
-    rate_Ti44_to_He4_Ca40_removed<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_Ti44_to_He4_Ca40_removed<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_Ti44_to_He4_Ca40_removed) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Ti44_to_He4_Ca40_removed) = drate_dT;
 
     }
-    rate_Ti44_to_p_Sc43_removed<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_Ti44_to_p_Sc43_removed<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_Ti44_to_p_Sc43_removed) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Ti44_to_p_Sc43_removed) = drate_dT;
 
     }
-    rate_Cr48_to_He4_Ti44_removed<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_Cr48_to_He4_Ti44_removed<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_Cr48_to_He4_Ti44_removed) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Cr48_to_He4_Ti44_removed) = drate_dT;
 
     }
-    rate_Cr48_to_p_V47_removed<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_Cr48_to_p_V47_removed<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_Cr48_to_p_V47_removed) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Cr48_to_p_V47_removed) = drate_dT;
 
     }
-    rate_p_V47_to_He4_Ti44_removed<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_p_V47_to_He4_Ti44_removed<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_p_V47_to_He4_Ti44_removed) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_p_V47_to_He4_Ti44_removed) = drate_dT;
 
     }
-    rate_Fe54_to_n_Fe53_removed<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_Fe54_to_n_Fe53_removed<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_Fe54_to_n_Fe53_removed) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Fe54_to_n_Fe53_removed) = drate_dT;
 
     }
-    rate_Fe53_to_n_Fe52_removed<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_Fe53_to_n_Fe52_removed<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_Fe53_to_n_Fe52_removed) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Fe53_to_n_Fe52_removed) = drate_dT;
 
     }
-    rate_Fe56_to_n_Fe55_removed<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_Fe56_to_n_Fe55_removed<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_Fe56_to_n_Fe55_removed) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Fe56_to_n_Fe55_removed) = drate_dT;
 
     }
-    rate_Fe55_to_n_Fe54_removed<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_Fe55_to_n_Fe54_removed<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_Fe55_to_n_Fe54_removed) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Fe55_to_n_Fe54_removed) = drate_dT;
 
     }
-    rate_Ni58_to_n_Ni57_removed<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_Ni58_to_n_Ni57_removed<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_Ni58_to_n_Ni57_removed) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Ni58_to_n_Ni57_removed) = drate_dT;
 
     }
-    rate_Ni57_to_n_Ni56_removed<T>(rate_eval, tfactors, rate, drate_dT, pf_cache);
+    rate_Ni57_to_n_Ni56_removed<T>(tfactors, rate, drate_dT, rate_eval, pf_cache);
     rate_eval.screened_rates(k_Ni57_to_n_Ni56_removed) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_Ni57_to_n_Ni56_removed) = drate_dT;
