@@ -261,8 +261,7 @@ number_t actual_screen5 (const plasma_state_t<number_t>& state,
 
     if (gamef > gamefx) {
 
-      // gamma_ij^(1/4)
-
+        // gamma_ij^(1/4)
         const number_t gamp14 = admath::sqrt(admath::sqrt(gamp));
 
         // Here we follow Eq. A9 in Wallace:1982
