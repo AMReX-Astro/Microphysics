@@ -1429,17 +1429,23 @@ void get_ydot_weak(const burn_t& state,
 
     ydot_nuc(C12) = 0.0_rt;
 
-    ydot_nuc(C13) = 0.0_rt;
+    ydot_nuc(C13) =
+        screened_rates(k_N13_to_C13_reaclib)*Y(N13);
 
-    ydot_nuc(N13) = 0.0_rt;
+    ydot_nuc(N13) =
+        -screened_rates(k_N13_to_C13_reaclib)*Y(N13);
 
-    ydot_nuc(N14) = 0.0_rt;
+    ydot_nuc(N14) =
+        screened_rates(k_O14_to_N14_reaclib)*Y(O14);
 
-    ydot_nuc(N15) = 0.0_rt;
+    ydot_nuc(N15) =
+        screened_rates(k_O15_to_N15_reaclib)*Y(O15);
 
-    ydot_nuc(O14) = 0.0_rt;
+    ydot_nuc(O14) =
+        -screened_rates(k_O14_to_N14_reaclib)*Y(O14);
 
-    ydot_nuc(O15) = 0.0_rt;
+    ydot_nuc(O15) =
+        -screened_rates(k_O15_to_N15_reaclib)*Y(O15);
 
     ydot_nuc(O16) = 0.0_rt;
 

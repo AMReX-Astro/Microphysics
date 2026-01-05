@@ -759,35 +759,52 @@ void get_ydot_weak(const burn_t& state,
 
     auto screened_rates = rate_eval.screened_rates;
 
-    ydot_nuc(H1) = 0.0_rt;
+    ydot_nuc(H1) =
+        -screened_rates(k_p_p_to_d_reaclib_bet_pos)*amrex::Math::powi<2>(Y(H1))*state.rho +
+        -screened_rates(k_p_p_to_d_reaclib_electron_capture)*amrex::Math::powi<2>(Y(H1))*amrex::Math::powi<2>(state.rho)*state.y_e +
+        -screened_rates(k_p_He3_to_He4_reaclib)*Y(He3)*Y(H1)*state.rho;
 
-    ydot_nuc(H2) = 0.0_rt;
+    ydot_nuc(H2) =
+        0.5*screened_rates(k_p_p_to_d_reaclib_bet_pos)*amrex::Math::powi<2>(Y(H1))*state.rho +
+        0.5*screened_rates(k_p_p_to_d_reaclib_electron_capture)*amrex::Math::powi<2>(Y(H1))*amrex::Math::powi<2>(state.rho)*state.y_e;
 
-    ydot_nuc(He3) = 0.0_rt;
+    ydot_nuc(He3) =
+        -screened_rates(k_p_He3_to_He4_reaclib)*Y(He3)*Y(H1)*state.rho;
 
-    ydot_nuc(He4) = 0.0_rt;
+    ydot_nuc(He4) =
+        2.0*screened_rates(k_B8_to_He4_He4_reaclib)*Y(B8) +
+        screened_rates(k_p_He3_to_He4_reaclib)*Y(He3)*Y(H1)*state.rho;
 
-    ydot_nuc(Li7) = 0.0_rt;
+    ydot_nuc(Li7) =
+        screened_rates(k_Be7_to_Li7_reaclib)*Y(Be7)*state.rho*state.y_e;
 
-    ydot_nuc(Be7) = 0.0_rt;
+    ydot_nuc(Be7) =
+        -screened_rates(k_Be7_to_Li7_reaclib)*Y(Be7)*state.rho*state.y_e;
 
-    ydot_nuc(B8) = 0.0_rt;
+    ydot_nuc(B8) =
+        -screened_rates(k_B8_to_He4_He4_reaclib)*Y(B8);
 
     ydot_nuc(B11) = 0.0_rt;
 
     ydot_nuc(C12) = 0.0_rt;
 
-    ydot_nuc(C13) = 0.0_rt;
+    ydot_nuc(C13) =
+        screened_rates(k_N13_to_C13_reaclib)*Y(N13);
 
-    ydot_nuc(N13) = 0.0_rt;
+    ydot_nuc(N13) =
+        -screened_rates(k_N13_to_C13_reaclib)*Y(N13);
 
-    ydot_nuc(N14) = 0.0_rt;
+    ydot_nuc(N14) =
+        screened_rates(k_O14_to_N14_reaclib)*Y(O14);
 
-    ydot_nuc(N15) = 0.0_rt;
+    ydot_nuc(N15) =
+        screened_rates(k_O15_to_N15_reaclib)*Y(O15);
 
-    ydot_nuc(O14) = 0.0_rt;
+    ydot_nuc(O14) =
+        -screened_rates(k_O14_to_N14_reaclib)*Y(O14);
 
-    ydot_nuc(O15) = 0.0_rt;
+    ydot_nuc(O15) =
+        -screened_rates(k_O15_to_N15_reaclib)*Y(O15);
 
     ydot_nuc(O16) = 0.0_rt;
 

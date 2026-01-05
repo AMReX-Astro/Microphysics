@@ -9573,23 +9573,35 @@ void get_ydot_weak(const burn_t& state,
         (-screened_rates(k_n_to_p_weaktab)*Y(N) + screened_rates(k_p_to_n_weaktab)*Y(H1));
 
     ydot_nuc(H1) =
+        screened_rates(k_Zn59_to_p_Ni58_reaclib)*Y(Zn59) +
+        -screened_rates(k_p_p_to_d_reaclib_bet_pos)*amrex::Math::powi<2>(Y(H1))*state.rho +
+        -screened_rates(k_p_p_to_d_reaclib_electron_capture)*amrex::Math::powi<2>(Y(H1))*amrex::Math::powi<2>(state.rho)*state.y_e +
+        -screened_rates(k_p_He3_to_He4_reaclib)*Y(He3)*Y(H1)*state.rho +
         (screened_rates(k_n_to_p_weaktab)*Y(N) + -screened_rates(k_p_to_n_weaktab)*Y(H1));
 
-    ydot_nuc(H2) = 0.0_rt;
+    ydot_nuc(H2) =
+        0.5*screened_rates(k_p_p_to_d_reaclib_bet_pos)*amrex::Math::powi<2>(Y(H1))*state.rho +
+        0.5*screened_rates(k_p_p_to_d_reaclib_electron_capture)*amrex::Math::powi<2>(Y(H1))*amrex::Math::powi<2>(state.rho)*state.y_e;
 
-    ydot_nuc(He3) = 0.0_rt;
+    ydot_nuc(He3) =
+        -screened_rates(k_p_He3_to_He4_reaclib)*Y(He3)*Y(H1)*state.rho;
 
-    ydot_nuc(He4) = 0.0_rt;
+    ydot_nuc(He4) =
+        2.0*screened_rates(k_B8_to_He4_He4_reaclib)*Y(B8) +
+        screened_rates(k_p_He3_to_He4_reaclib)*Y(He3)*Y(H1)*state.rho;
 
     ydot_nuc(Li6) = 0.0_rt;
 
-    ydot_nuc(Li7) = 0.0_rt;
+    ydot_nuc(Li7) =
+        screened_rates(k_Be7_to_Li7_reaclib)*Y(Be7)*state.rho*state.y_e;
 
-    ydot_nuc(Be7) = 0.0_rt;
+    ydot_nuc(Be7) =
+        -screened_rates(k_Be7_to_Li7_reaclib)*Y(Be7)*state.rho*state.y_e;
 
     ydot_nuc(Be9) = 0.0_rt;
 
-    ydot_nuc(B8) = 0.0_rt;
+    ydot_nuc(B8) =
+        -screened_rates(k_B8_to_He4_He4_reaclib)*Y(B8);
 
     ydot_nuc(B10) = 0.0_rt;
 
@@ -9597,35 +9609,51 @@ void get_ydot_weak(const burn_t& state,
 
     ydot_nuc(C12) = 0.0_rt;
 
-    ydot_nuc(C13) = 0.0_rt;
+    ydot_nuc(C13) =
+        screened_rates(k_N13_to_C13_reaclib)*Y(N13);
 
-    ydot_nuc(C14) = 0.0_rt;
+    ydot_nuc(C14) =
+        -screened_rates(k_C14_to_N14_reaclib)*Y(C14);
 
-    ydot_nuc(N13) = 0.0_rt;
+    ydot_nuc(N13) =
+        -screened_rates(k_N13_to_C13_reaclib)*Y(N13);
 
-    ydot_nuc(N14) = 0.0_rt;
+    ydot_nuc(N14) =
+        screened_rates(k_C14_to_N14_reaclib)*Y(C14) +
+        screened_rates(k_O14_to_N14_reaclib)*Y(O14);
 
-    ydot_nuc(N15) = 0.0_rt;
+    ydot_nuc(N15) =
+        screened_rates(k_O15_to_N15_reaclib)*Y(O15);
 
-    ydot_nuc(O14) = 0.0_rt;
+    ydot_nuc(O14) =
+        -screened_rates(k_O14_to_N14_reaclib)*Y(O14);
 
-    ydot_nuc(O15) = 0.0_rt;
+    ydot_nuc(O15) =
+        -screened_rates(k_O15_to_N15_reaclib)*Y(O15);
 
     ydot_nuc(O16) = 0.0_rt;
 
-    ydot_nuc(O17) = 0.0_rt;
+    ydot_nuc(O17) =
+        screened_rates(k_F17_to_O17_reaclib)*Y(F17);
 
-    ydot_nuc(O18) = 0.0_rt;
+    ydot_nuc(O18) =
+        screened_rates(k_F18_to_O18_reaclib)*Y(F18);
 
-    ydot_nuc(F17) = 0.0_rt;
+    ydot_nuc(F17) =
+        -screened_rates(k_F17_to_O17_reaclib)*Y(F17);
 
-    ydot_nuc(F18) = 0.0_rt;
+    ydot_nuc(F18) =
+        -screened_rates(k_F18_to_O18_reaclib)*Y(F18) +
+        screened_rates(k_Ne18_to_F18_reaclib)*Y(Ne18);
 
-    ydot_nuc(F19) = 0.0_rt;
+    ydot_nuc(F19) =
+        screened_rates(k_Ne19_to_F19_reaclib)*Y(Ne19);
 
-    ydot_nuc(Ne18) = 0.0_rt;
+    ydot_nuc(Ne18) =
+        -screened_rates(k_Ne18_to_F18_reaclib)*Y(Ne18);
 
-    ydot_nuc(Ne19) = 0.0_rt;
+    ydot_nuc(Ne19) =
+        -screened_rates(k_Ne19_to_F19_reaclib)*Y(Ne19);
 
     ydot_nuc(Ne20) = 0.0_rt;
 
@@ -9963,6 +9991,7 @@ void get_ydot_weak(const burn_t& state,
         (-screened_rates(k_Ni57_to_Co57_weaktab)*Y(Ni57) + screened_rates(k_Co57_to_Ni57_weaktab)*Y(Co57));
 
     ydot_nuc(Ni58) =
+        screened_rates(k_Zn59_to_p_Ni58_reaclib)*Y(Zn59) +
         (screened_rates(k_Co58_to_Ni58_weaktab)*Y(Co58) + -screened_rates(k_Ni58_to_Co58_weaktab)*Y(Ni58)) +
         (screened_rates(k_Cu58_to_Ni58_weaktab)*Y(Cu58) + -screened_rates(k_Ni58_to_Cu58_weaktab)*Y(Ni58));
 
@@ -9992,6 +10021,7 @@ void get_ydot_weak(const burn_t& state,
         (-screened_rates(k_Cu58_to_Ni58_weaktab)*Y(Cu58) + screened_rates(k_Ni58_to_Cu58_weaktab)*Y(Ni58));
 
     ydot_nuc(Cu59) =
+        screened_rates(k_Zn59_to_Cu59_reaclib)*Y(Zn59) +
         (-screened_rates(k_Cu59_to_Ni59_weaktab)*Y(Cu59) + screened_rates(k_Ni59_to_Cu59_weaktab)*Y(Ni59));
 
     ydot_nuc(Cu60) =
@@ -10017,7 +10047,9 @@ void get_ydot_weak(const burn_t& state,
     ydot_nuc(Cu65) =
         (screened_rates(k_Zn65_to_Cu65_weaktab)*Y(Zn65) + -screened_rates(k_Cu65_to_Zn65_weaktab)*Y(Cu65));
 
-    ydot_nuc(Zn59) = 0.0_rt;
+    ydot_nuc(Zn59) =
+        -screened_rates(k_Zn59_to_Cu59_reaclib)*Y(Zn59) +
+        -screened_rates(k_Zn59_to_p_Ni58_reaclib)*Y(Zn59);
 
     ydot_nuc(Zn60) =
         (-screened_rates(k_Zn60_to_Cu60_weaktab)*Y(Zn60) + screened_rates(k_Cu60_to_Zn60_weaktab)*Y(Cu60));
@@ -10046,13 +10078,15 @@ void get_ydot_weak(const burn_t& state,
         (-screened_rates(k_Ga62_to_Zn62_weaktab)*Y(Ga62) + screened_rates(k_Zn62_to_Ga62_weaktab)*Y(Zn62));
 
     ydot_nuc(Ga63) =
+        screened_rates(k_Ge63_to_Ga63_reaclib)*Y(Ge63) +
         (-screened_rates(k_Ga63_to_Zn63_weaktab)*Y(Ga63) + screened_rates(k_Zn63_to_Ga63_weaktab)*Y(Zn63));
 
     ydot_nuc(Ga64) =
         (-screened_rates(k_Ga64_to_Zn64_weaktab)*Y(Ga64) + screened_rates(k_Zn64_to_Ga64_weaktab)*Y(Zn64)) +
         (screened_rates(k_Ge64_to_Ga64_weaktab)*Y(Ge64) + -screened_rates(k_Ga64_to_Ge64_weaktab)*Y(Ga64));
 
-    ydot_nuc(Ge63) = 0.0_rt;
+    ydot_nuc(Ge63) =
+        -screened_rates(k_Ge63_to_Ga63_reaclib)*Y(Ge63);
 
     ydot_nuc(Ge64) =
         (-screened_rates(k_Ge64_to_Ga64_weaktab)*Y(Ge64) + screened_rates(k_Ga64_to_Ge64_weaktab)*Y(Ga64));
