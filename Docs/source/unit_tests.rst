@@ -117,7 +117,7 @@ by options in the input file.
 One-zone tests
 ==============
 
-.. index:: burn_cell, burn_cell_primordial_chem, burn_cell_sdc, eos_cell, jac_cell, nse_table_cell, nse_net_cell, part_func_cell
+.. index:: burn_cell, burn_cell_primordial_chem, burn_cell_sdc, eos_cell, jac_cell, nse_table_cell, nse_net_cell, part_func_cell, interp_cell
 
 * ``burn_cell`` :
 
