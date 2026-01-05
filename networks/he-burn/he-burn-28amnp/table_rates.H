@@ -8,6 +8,8 @@
 
 #include <AMReX_Array.H>
 
+#include <interp_tools.H>
+
 using namespace amrex::literals;
 
 void init_tabular();
@@ -45,12 +47,12 @@ struct table_t
 // we add a 7th index, k_index_dlogr_dlogt used for computing the derivative
 // of Log(rate) with respect of Log(temperature) by using the table
 // values. It isn't an index into the table but into the 'entries'
-// array. Is important to mention that although we compute dlogr/dlogT is
+// array. Is important to mention that although we compute dlogr/dlogT as
 // the computed quantity in 'entries', we pursue ultimately
 // dr/dt as the final desired quantity to be computed for this index.
 
 const int  k_index_dlogr_dlogt  = 7;
-const int add_vars              = 1;  // 1 Additional Var in entries
+constexpr int add_vars = 1;  // 1 Additional Var in entries
 
 
 namespace rate_tables
@@ -131,42 +133,6 @@ void init_tab_info(const table_t& tf, const std::string& file, R& log_rhoy_table
 }
 
 
-template <typename V>
-AMREX_INLINE AMREX_GPU_HOST_DEVICE
-int vector_index_lu(const int vlen, const V& vector, const amrex::Real fvar)
-{
-
-    // Returns the greatest index of vector for which vector(index) < fvar.
-    // Return 1 if fvar < vector(1)
-    // Return size(vector)-1 if fvar > vector(size(vector))
-    // The interval [index, index+1] brackets fvar for fvar within the range of vector.
-
-    int index;
-
-    if (fvar < vector(1)) {
-        index = 1;
-    } else if (fvar > vector(vlen)) {
-        index = vlen - 1;
-    } else {
-        int nup = vlen;
-        int ndn = 1;
-        for (int i = 1; i <= vlen; ++i) {
-            int j = ndn + (nup - ndn)/2;
-            if (fvar < vector(j)) {
-                nup = j;
-            } else {
-                ndn = j;
-            }
-            if ((nup - ndn) == 1) {
-                break;
-            }
-        }
-        index = ndn;
-    }
-    return index;
-}
-
-
 AMREX_INLINE AMREX_GPU_HOST_DEVICE
 amrex::Real
 evaluate_linear_1d(const amrex::Real fhi, const amrex::Real flo, const amrex::Real xhi, const amrex::Real xlo, const amrex::Real x)
@@ -214,16 +180,14 @@ evaluate_linear_2d(const amrex::Real fip1jp1, const amrex::Real fip1j, const amr
 template<typename R, typename T, typename D>
 AMREX_INLINE AMREX_GPU_HOST_DEVICE
 amrex::Real
-evaluate_vars(const table_t& table_meta, const R& log_rhoy_table, const T& log_temp_table, const D& data,
-                    const amrex::Real log_rhoy, const amrex::Real log_temp, const int component)
+evaluate_vars(const int irhoy_lo, const int jtemp_lo,
+              const R& log_rhoy_table, const T& log_temp_table, const D& data,
+              const amrex::Real log_rhoy, const amrex::Real log_temp, const int component)
 {
     // This function evaluates the 2-D interpolator, for several pairs of rho_ye and temperature.
 
-    int jtemp_lo = vector_index_lu(table_meta.ntemp, log_temp_table, log_temp);
-    int jtemp_hi = jtemp_lo + 1;
-
-    int irhoy_lo = vector_index_lu(table_meta.nrhoy, log_rhoy_table, log_rhoy);
     int irhoy_hi = irhoy_lo + 1;
+    int jtemp_hi = jtemp_lo + 1;
 
     amrex::Real rhoy_lo = log_rhoy_table(irhoy_lo);
     amrex::Real rhoy_hi = log_rhoy_table(irhoy_hi);
@@ -237,7 +201,7 @@ evaluate_vars(const table_t& table_meta, const R& log_rhoy_table, const T& log_t
     amrex::Real fip1jp1 = data(jtemp_hi, irhoy_hi, component);
 
     amrex::Real r = evaluate_linear_2d(fip1jp1, fip1j, fijp1, fij,
-                                rhoy_hi, rhoy_lo, t_hi, t_lo, log_rhoy, log_temp);
+                                       rhoy_hi, rhoy_lo, t_hi, t_lo, log_rhoy, log_temp);
 
     return r;
 }
@@ -246,15 +210,13 @@ evaluate_vars(const table_t& table_meta, const R& log_rhoy_table, const T& log_t
 template<typename R, typename T, typename D>
 AMREX_INLINE AMREX_GPU_HOST_DEVICE
 amrex::Real
-evaluate_dr_dtemp(const table_t& table_meta, const R& log_rhoy_table, const T& log_temp_table, const D& data,
+evaluate_dr_dtemp(const int irhoy_lo, const int jtemp_lo,
+                  const table_t& table_meta, const R& log_rhoy_table, const T& log_temp_table, const D& data,
                   const amrex::Real log_rhoy, const amrex::Real log_temp)
 {
     // The main objective of this function is compute dlogr_dlogt.
 
-    const int irhoy_lo = vector_index_lu(table_meta.nrhoy, log_rhoy_table, log_rhoy);
     const int irhoy_hi = irhoy_lo + 1;
-
-    const int jtemp_lo = vector_index_lu(table_meta.ntemp, log_temp_table, log_temp);
     const int jtemp_hi = jtemp_lo + 1;
 
     amrex::Real dlogr_dlogt;
@@ -391,16 +353,29 @@ evaluate_dr_dtemp(const table_t& table_meta, const R& log_rhoy_table, const T& l
 template <typename R, typename T, typename D>
 AMREX_INLINE AMREX_GPU_HOST_DEVICE
 void
-get_entries(const table_t& table_meta, const R& log_rhoy_table, const T& log_temp_table, const D& data,
-            const amrex::Real log_rhoy, const amrex::Real log_temp, amrex::Array1D<amrex::Real, 1, num_vars+1>& entries)
+get_entries(const int irhoy_lo, const int jtemp_lo,
+            const table_t& table_meta, const R& log_rhoy_table, const T& log_temp_table, const D& data,
+            const amrex::Real log_rhoy, const amrex::Real log_temp, amrex::Array1D<amrex::Real, 1, num_vars+add_vars>& entries)
 {
-    for (int ivar = 1; ivar <= num_vars; ivar++) {
-        entries(ivar) = evaluate_vars(table_meta, log_rhoy_table, log_temp_table, data,
-                                         log_rhoy, log_temp, ivar);
-    }
 
-    entries(k_index_dlogr_dlogt)  = evaluate_dr_dtemp(table_meta, log_rhoy_table, log_temp_table, data,
-                                             log_rhoy, log_temp);
+    // only interpolate the quantities we currently use
+
+    entries(jtab_rate) = evaluate_vars(irhoy_lo, jtemp_lo,
+                                       log_rhoy_table, log_temp_table, data,
+                                       log_rhoy, log_temp, jtab_rate);
+
+    entries(jtab_nuloss) = evaluate_vars(irhoy_lo, jtemp_lo,
+                                         log_rhoy_table, log_temp_table, data,
+                                         log_rhoy, log_temp, jtab_nuloss);
+
+    entries(jtab_gamma) = evaluate_vars(irhoy_lo, jtemp_lo,
+                                        log_rhoy_table, log_temp_table, data,
+                                        log_rhoy, log_temp, jtab_gamma);
+
+    entries(k_index_dlogr_dlogt) =
+        evaluate_dr_dtemp(irhoy_lo, jtemp_lo,
+                          table_meta, log_rhoy_table, log_temp_table, data,
+                          log_rhoy, log_temp);
 }
 
 template <typename R, typename T, typename D>
@@ -408,17 +383,21 @@ AMREX_INLINE AMREX_GPU_HOST_DEVICE
 void
 tabular_evaluate(const table_t& table_meta,
                  const R& log_rhoy_table, const T& log_temp_table, const D& data,
-                 const amrex::Real rhoy, const amrex::Real temp,
+                 const amrex::Real log_rhoy, const amrex::Real log_temp, const amrex::Real temp,
                  amrex::Real& rate, amrex::Real& drate_dt, amrex::Real& edot_nu, amrex::Real& edot_gamma)
 {
-    amrex::Array1D<amrex::Real, 1, num_vars+1> entries;
+    amrex::Array1D<amrex::Real, 1, num_vars+add_vars> entries;
 
     // Get the table entries at this rhoy, temp
 
-    const amrex::Real log_rhoy = std::log10(rhoy);
-    const amrex::Real log_temp = std::log10(temp);
+    // get the index into the table -- all components are
+    // stored with the same indices
 
-    get_entries(table_meta, log_rhoy_table, log_temp_table, data,
+    const int irhoy_lo = interp_net::find_index_extrap(log_rhoy, log_rhoy_table);
+    const int jtemp_lo = interp_net::find_index_extrap(log_temp, log_temp_table);
+
+    get_entries(irhoy_lo, jtemp_lo,
+                table_meta, log_rhoy_table, log_temp_table, data,
                 log_rhoy, log_temp, entries);
 
     // Fill outputs: rate, d(rate)/d(temperature), and

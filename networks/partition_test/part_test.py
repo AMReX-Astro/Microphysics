@@ -10,7 +10,7 @@ fwd_rates_lib = fwd_reactions.linking_nuclei(nuclist=nuclei,
 
 derived = []
 for r in fwd_rates_lib.get_rates():
-    d = pyna.DerivedRate(rate=r, compute_Q=False, use_pf=True)
+    d = pyna.DerivedRate(r, use_pf=True)
     derived.append(d)
 
 der_rates_lib = pyna.Library(rates=derived)
