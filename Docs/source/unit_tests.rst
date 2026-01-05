@@ -138,6 +138,11 @@ One-zone tests
   given a $\rho$, $T$, and $X_k$, call the equation of state and print out
   the thermodynamic information.  See :ref:`sec:eos_cell` for more information.
 
+* ``interp_cell`` :
+
+  This tests the cubic interpolant used in pynucastro networks for interpolating
+  a rate that is given as pairs of $(T, N_A \langle \sigma v \rangle)$.
+
 * ``jac_cell`` :
 
   for a single thermodynamic state, compute the analytic Jacobian
