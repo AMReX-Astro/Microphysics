@@ -1,5 +1,29 @@
 # Changelog
 
+## 26.01
+
+  * eliminate an exp at the low end of screening (#1893)
+
+  * use `constexpr_for` in helmholtz to map into 3D arrays (#1904)
+
+  * clean up `apply_electrons` in the helmholtz EOS (#1903)
+
+  * remove `compute_Q` and `rate=` in the `DerivedRate` constructors
+    for pynucastro nets (#1902)
+
+  * update networks with the latest pynucastro (#1886)
+
+  * update the github actions (#1900, #1901)
+
+  * some optimizations to helmholtz EOS (#1896)
+
+  * add `kerg` constant (#1895)
+
+  * allow `test_sdc` to build when NSE is not defined (#1894)
+    and add support for self-consistent NSE (#1890)
+
+  * update python doc package requirements (#1892)
+
 ## 25,12
 
   * update CI actions (#1885)

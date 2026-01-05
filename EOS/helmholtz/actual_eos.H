@@ -10,6 +10,7 @@
 #include <AMReX_REAL.H>
 #include <AMReX_ParallelDescriptor.H>
 #include <AMReX_Algorithm.H>
+#include <AMReX_Loop.H>
 
 #include <extern_parameters.H>
 #include <fundamental_constants.H>
@@ -44,65 +45,68 @@ constexpr std::string_view eos_name = "helmholtz";
 
 // quintic hermite polynomial functions
 // psi0 and its derivatives
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-amrex::Real psi0 (amrex::Real z)
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+amrex::Real psi0 (amrex::Real z) noexcept
 {
     return z * z * z * (z * (-6.0e0_rt * z + 15.0e0_rt) -10.0e0_rt) + 1.0e0_rt;
 }
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-amrex::Real dpsi0 (amrex::Real z)
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+amrex::Real dpsi0 (amrex::Real z) noexcept
 {
     return z * z * (z * (-30.0e0_rt*z + 60.0e0_rt) - 30.0e0_rt);
 }
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-amrex::Real ddpsi0 (amrex::Real z)
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+amrex::Real ddpsi0 (amrex::Real z) noexcept
 {
     return z * (z * (-120.0e0_rt * z + 180.0e0_rt) - 60.0e0_rt);
 }
 
 // psi1 and its derivatives
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-amrex::Real psi1 (amrex::Real z)
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+amrex::Real psi1 (amrex::Real z) noexcept
 {
     return z * ( z * z * (z * (-3.0e0_rt * z + 8.0e0_rt) - 6.0e0_rt) + 1.0e0_rt);
 }
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-amrex::Real dpsi1 (amrex::Real z)
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+amrex::Real dpsi1 (amrex::Real z) noexcept
 {
     return z * z * ( z * (-15.0e0_rt * z + 32.0e0_rt) - 18.0e0_rt) + 1.0e0_rt;
 }
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-amrex::Real ddpsi1 (amrex::Real z)
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+amrex::Real ddpsi1 (amrex::Real z) noexcept
 {
     return z * (z * (-60.0e0_rt * z + 96.0e0_rt) - 36.0e0_rt);
 }
 
 // psi2 and its derivatives
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-amrex::Real psi2 (amrex::Real z)
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+amrex::Real psi2 (amrex::Real z) noexcept
 {
     return 0.5e0_rt * z * z * ( z * ( z * (-z + 3.0e0_rt) - 3.0e0_rt) + 1.0e0_rt);
 }
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-amrex::Real dpsi2 (amrex::Real z)
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+amrex::Real dpsi2 (amrex::Real z) noexcept
 {
     return 0.5e0_rt * z * (z * (z * (-5.0e0_rt * z + 12.0e0_rt) - 9.0e0_rt) + 2.0e0_rt);
 }
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-amrex::Real ddpsi2 (amrex::Real z)
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+amrex::Real ddpsi2 (amrex::Real z) noexcept
 {
     return 0.5e0_rt * (z * ( z * (-20.0e0_rt * z + 36.0e0_rt) - 18.0e0_rt) + 2.0e0_rt);
 }
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void fwt (const amrex::Real* fi, const amrex::Real* wt, amrex::Real* fwtr)
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void fwt (const amrex::Real* AMREX_RESTRICT fi,
+          const amrex::Real* AMREX_RESTRICT wt,
+          amrex::Real* AMREX_RESTRICT fwtr) noexcept
 {
+
     fwtr[0] = fi[ 0]*wt[0] + fi[ 1]*wt[1] + fi[ 2]*wt[2] + fi[18]*wt[3] + fi[19]*wt[4] + fi[20]*wt[5];
     fwtr[1] = fi[ 3]*wt[0] + fi[ 5]*wt[1] + fi[ 7]*wt[2] + fi[21]*wt[3] + fi[23]*wt[4] + fi[25]*wt[5];
     fwtr[2] = fi[ 4]*wt[0] + fi[ 6]*wt[1] + fi[ 8]*wt[2] + fi[22]*wt[3] + fi[24]*wt[4] + fi[26]*wt[5];
@@ -114,30 +118,47 @@ void fwt (const amrex::Real* fi, const amrex::Real* wt, amrex::Real* fwtr)
 // cubic hermite polynomial functions
 // psi0 & derivatives
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-amrex::Real xpsi0(amrex::Real z)
+amrex::Real xpsi0(amrex::Real z) noexcept
 {
     return z * z * (2.0e0_rt * z - 3.0e0_rt) + 1.0_rt;
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-amrex::Real xdpsi0(amrex::Real z)
+amrex::Real xdpsi0(amrex::Real z) noexcept
 {
     return z * (6.0e0_rt * z - 6.0e0_rt);
 }
 
 // psi1 & derivatives
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-amrex::Real xpsi1(amrex::Real z)
+amrex::Real xpsi1(amrex::Real z) noexcept
 {
     return z * (z * (z - 2.0e0_rt) + 1.0e0_rt);
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-amrex::Real xdpsi1(amrex::Real z)
+amrex::Real xdpsi1(amrex::Real z) noexcept
 {
     return z * (3.0e0_rt * z - 4.0e0_rt) + 1.0e0_rt;
 }
 
+
+
+namespace electron_table_indexing {
+
+    struct Term {
+        int dj;   // 0 or 1
+        int di;   // 0 or 1
+        int n;    // 0..3
+    };
+
+    constexpr std::array<Term, 16> map = {{
+            {0,0,0}, {0,0,1}, {1,0,0}, {1,0,1},
+            {0,0,2}, {0,0,3}, {1,0,2}, {1,0,3},
+            {0,1,0}, {0,1,1}, {1,1,0}, {1,1,1},
+            {0,1,2}, {0,1,3}, {1,1,2}, {1,1,3}}};
+
+}
 
 
 template <typename T>
@@ -177,17 +198,7 @@ void apply_electrons (T& state)
     amrex::Real mxt = 1.0e0_rt - xt;
     amrex::Real mxd = 1.0e0_rt - xd;
 
-    // the six density and six temperature basis functions
-    amrex::Real sit[6];
-
-    sit[0] = psi0(xt);
-    sit[1] = psi1(xt) * dt_sav[jat];
-    sit[2] = psi2(xt) * dt2_sav[jat];
-
-    sit[3] =  psi0(mxt);
-    sit[4] = -psi1(mxt) * dt_sav[jat];
-    sit[5] =  psi2(mxt) * dt2_sav[jat];
-
+    // the six density basis functions
     amrex::Real sid[6];
 
     sid[0] =  psi0(xd);
@@ -199,16 +210,6 @@ void apply_electrons (T& state)
     sid[5] =  psi2(mxd) * dd2_sav[iat];
 
     // derivatives of the weight functions
-    amrex::Real dsit[6];
-
-    dsit[0] =  dpsi0(xt) * dti_sav[jat];
-    dsit[1] =  dpsi1(xt);
-    dsit[2] =  dpsi2(xt) * dt_sav[jat];
-
-    dsit[3] = -dpsi0(mxt) * dti_sav[jat];
-    dsit[4] =  dpsi1(mxt);
-    dsit[5] = -dpsi2(mxt) * dt_sav[jat];
-
     amrex::Real dsid[6];
 
     dsid[0] =  dpsi0(xd) * ddi_sav[iat];
@@ -219,17 +220,6 @@ void apply_electrons (T& state)
     dsid[4] =  dpsi1(mxd);
     dsid[5] = -dpsi2(mxd) * dd_sav[iat];
 
-    // second derivatives of the weight functions
-    amrex::Real ddsit[6];
-
-    ddsit[0] =  ddpsi0(xt) * dt2i_sav[jat];
-    ddsit[1] =  ddpsi1(xt) * dti_sav[jat];
-    ddsit[2] =  ddpsi2(xt);
-
-    ddsit[3] =  ddpsi0(mxt) * dt2i_sav[jat];
-    ddsit[4] = -ddpsi1(mxt) * dti_sav[jat];
-    ddsit[5] =  ddpsi2(mxt);
-
     // This array saves some subexpressions that go into
     // computing the biquintic polynomial. Instead of explicitly
     // constructing it in full, we'll use these subexpressions
@@ -237,8 +227,21 @@ void apply_electrons (T& state)
     // (table data * temperature terms) * density terms.
 
     amrex::Real fwtr[6];
+    amrex::Real sit[6];
 
-    fwt(fi, sit, fwtr);
+    {
+        // temperature basis functions
+
+        sit[0] = psi0(xt);
+        sit[1] = psi1(xt) * dt_sav[jat];
+        sit[2] = psi2(xt) * dt2_sav[jat];
+
+        sit[3] =  psi0(mxt);
+        sit[4] = -psi1(mxt) * dt_sav[jat];
+        sit[5] =  psi2(mxt) * dt2_sav[jat];
+
+        fwt(fi, sit, fwtr);
+    }
 
     amrex::Real free = 0.e0_rt;
     amrex::Real df_d = 0.e0_rt;
@@ -251,7 +254,19 @@ void apply_electrons (T& state)
         df_d = df_d + fwtr[i] * dsid[i];
     }
 
-    fwt(fi, dsit, fwtr);
+    {
+        // temperature derivative of weight functions
+        // this was originally called dsit
+        sit[0] =  dpsi0(xt) * dti_sav[jat];
+        sit[1] =  dpsi1(xt);
+        sit[2] =  dpsi2(xt) * dt_sav[jat];
+
+        sit[3] = -dpsi0(mxt) * dti_sav[jat];
+        sit[4] =  dpsi1(mxt);
+        sit[5] = -dpsi2(mxt) * dt_sav[jat];
+
+        fwt(fi, sit, fwtr);
+    }
 
     amrex::Real df_t = 0.e0_rt;
     amrex::Real df_dt = 0.e0_rt;
@@ -264,7 +279,20 @@ void apply_electrons (T& state)
         df_dt += fwtr[i] * dsid[i];
     }
 
-    fwt(fi, ddsit, fwtr);
+    {
+        // second derivatives of the weight functions
+        // this was originally called ddsit
+
+        sit[0] =  ddpsi0(xt) * dt2i_sav[jat];
+        sit[1] =  ddpsi1(xt) * dti_sav[jat];
+        sit[2] =  ddpsi2(xt);
+
+        sit[3] =  ddpsi0(mxt) * dt2i_sav[jat];
+        sit[4] = -ddpsi1(mxt) * dti_sav[jat];
+        sit[5] =  ddpsi2(mxt);
+
+        fwt(fi, sit, fwtr);
+    }
 
     amrex::Real df_tt = 0.e0_rt;
     for (int i = 0; i <= 5; ++i) {
@@ -287,18 +315,6 @@ void apply_electrons (T& state)
     sid[2] = xpsi0(mxd);
     sid[3] = -xpsi1(mxd) * dd_sav[iat];
 
-    // derivatives of weight functions
-    dsit[0] = xdpsi0(xt) * dti_sav[jat];
-    dsit[1] = xdpsi1(xt);
-
-    dsit[2] = -xdpsi0(mxt) * dti_sav[jat];
-    dsit[3] = xdpsi1(mxt);
-
-    dsid[0] = xdpsi0(xd) * ddi_sav[iat];
-    dsid[1] = xdpsi1(xd);
-
-    dsid[2] = -xdpsi0(mxd) * ddi_sav[iat];
-    dsid[3] = xdpsi1(mxd);
 
     // Reuse subexpressions that would go into computing the
     // cubic interpolation.
@@ -317,88 +333,38 @@ void apply_electrons (T& state)
     // immediately evaluate the cubic interpolant below as
     // fi * wdt, which ensures that we have the right combination
     // of grid points and derivatives at grid points to evaluate
-    // the interpolation correctly. Alternate indexing schemes are
-    // possible if we were to reorder wdt.
-    fi[ 0] = dpdf[jat  ][iat  ][0];
-    fi[ 1] = dpdf[jat  ][iat  ][1];
-    fi[ 4] = dpdf[jat  ][iat  ][2];
-    fi[ 5] = dpdf[jat  ][iat  ][3];
-
-    fi[ 8] = dpdf[jat  ][iat+1][0];
-    fi[ 9] = dpdf[jat  ][iat+1][1];
-    fi[12] = dpdf[jat  ][iat+1][2];
-    fi[13] = dpdf[jat  ][iat+1][3];
-
-    fi[ 2] = dpdf[jat+1][iat  ][0];
-    fi[ 3] = dpdf[jat+1][iat  ][1];
-    fi[ 6] = dpdf[jat+1][iat  ][2];
-    fi[ 7] = dpdf[jat+1][iat  ][3];
-
-    fi[10] = dpdf[jat+1][iat+1][0];
-    fi[11] = dpdf[jat+1][iat+1][1];
-    fi[14] = dpdf[jat+1][iat+1][2];
-    fi[15] = dpdf[jat+1][iat+1][3];
+    // the interpolation correctly. This is handled by map,
+    // giving the j offset, i offset, and component
 
     // pressure derivative with density
     amrex::Real dpepdd = 0.0e0_rt;
-    for (int i = 0; i <= 15; ++i) {
-        dpepdd = dpepdd + fi[i] * wdt[i];
-    }
+    amrex::constexpr_for<0, 16>([&] (auto K) {
+        constexpr int k = K;
+        constexpr auto m = electron_table_indexing::map[k];
+
+        dpepdd += dpdf[jat+m.dj][iat+m.di][m.n] * wdt[k];
+    });
     dpepdd = amrex::max(state.y_e * dpepdd, 0.0e0_rt);
 
-    // Read in the tabular data for the electron chemical potential.
-    fi[ 0] = ef[jat  ][iat  ][0];
-    fi[ 1] = ef[jat  ][iat  ][1];
-    fi[ 4] = ef[jat  ][iat  ][2];
-    fi[ 5] = ef[jat  ][iat  ][3];
-
-    fi[ 8] = ef[jat  ][iat+1][0];
-    fi[ 9] = ef[jat  ][iat+1][1];
-    fi[12] = ef[jat  ][iat+1][2];
-    fi[13] = ef[jat  ][iat+1][3];
-
-    fi[ 2] = ef[jat+1][iat  ][0];
-    fi[ 3] = ef[jat+1][iat  ][1];
-    fi[ 6] = ef[jat+1][iat  ][2];
-    fi[ 7] = ef[jat+1][iat  ][3];
-
-    fi[10] = ef[jat+1][iat+1][0];
-    fi[11] = ef[jat+1][iat+1][1];
-    fi[14] = ef[jat+1][iat+1][2];
-    fi[15] = ef[jat+1][iat+1][3];
 
     // electron chemical potential etaele
     amrex::Real etaele = 0.0e0_rt;
-    for (int i = 0; i <= 15; ++i) {
-        etaele = etaele + fi[i] * wdt[i];
-    }
+    amrex::constexpr_for<0, 16>([&] (auto K) {
+        constexpr int k = K;
+        constexpr auto m = electron_table_indexing::map[k];
 
-    // Read in the tabular data for the number density.
-    fi[ 0] = xf[jat  ][iat  ][0];
-    fi[ 1] = xf[jat  ][iat  ][1];
-    fi[ 4] = xf[jat  ][iat  ][2];
-    fi[ 5] = xf[jat  ][iat  ][3];
+        etaele += ef[jat+m.dj][iat+m.di][m.n] * wdt[k];
+    });
 
-    fi[ 8] = xf[jat  ][iat+1][0];
-    fi[ 9] = xf[jat  ][iat+1][1];
-    fi[12] = xf[jat  ][iat+1][2];
-    fi[13] = xf[jat  ][iat+1][3];
-
-    fi[ 2] = xf[jat+1][iat  ][0];
-    fi[ 3] = xf[jat+1][iat  ][1];
-    fi[ 6] = xf[jat+1][iat  ][2];
-    fi[ 7] = xf[jat+1][iat  ][3];
-
-    fi[10] = xf[jat+1][iat+1][0];
-    fi[11] = xf[jat+1][iat+1][1];
-    fi[14] = xf[jat+1][iat+1][2];
-    fi[15] = xf[jat+1][iat+1][3];
 
     // electron + positron number densities
     amrex::Real xnefer = 0.0e0_rt;
-    for (int i = 0; i <= 15; ++i) {
-        xnefer = xnefer + fi[i] * wdt[i];
-    }
+    amrex::constexpr_for<0, 16>([&] (auto K) {
+        constexpr int k = K;
+        constexpr auto m = electron_table_indexing::map[k];
+
+        xnefer += xf[jat+m.dj][iat+m.di][m.n] * wdt[k];
+    });
 
     // the desired electron-positron thermodynamic quantities
 

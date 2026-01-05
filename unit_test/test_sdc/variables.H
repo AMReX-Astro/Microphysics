@@ -10,25 +10,26 @@ class plot_t {
 
 public:
 
-
-  int irho = -1;
-  int itemp = -1;
-  int ispec = -1;
-  int ispec_old = -1;
+    int irho = -1;
+    int itemp = -1;
+    int ispec = -1;
+    int ispec_old = -1;
 #if NAUX_NET > 0
-  int iaux = -1;
-  int iaux_old = -1;
+    int iaux = -1;
+    int iaux_old = -1;
 #endif
-  int irodot = -1;
-  int irho_Hnuc = -1;
+    int irodot = -1;
+    int irho_Hnuc = -1;
+#ifdef NSE
+    int inse = -1;
+#endif
+    int n_plot_comps = 0;
 
-  int n_plot_comps = 0;
-
-  int next_index(const int num) {
-    int next = n_plot_comps;
-    n_plot_comps += num;
-    return next;
-  }
+    int next_index(const int num) {
+        int next = n_plot_comps;
+        n_plot_comps += num;
+        return next;
+    }
 
 };
 
