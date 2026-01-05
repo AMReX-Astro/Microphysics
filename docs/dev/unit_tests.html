@@ -249,6 +249,10 @@ See <a class="reference internal" href="burn_cell_sdc.html#sec-burn-cell-sdc"><s
 <p>given a <span class="math notranslate nohighlight">\(\rho\)</span>, <span class="math notranslate nohighlight">\(T\)</span>, and <span class="math notranslate nohighlight">\(X_k\)</span>, call the equation of state and print out
 the thermodynamic information.  See <a class="reference internal" href="eos_cell.html#sec-eos-cell"><span class="std std-ref">eos_cell</span></a> for more information.</p>
 </li>
+<li><p><code class="docutils literal notranslate"><span class="pre">interp_cell</span></code> :</p>
+<p>This tests the cubic interpolant used in pynucastro networks for interpolating
+a rate that is given as pairs of <span class="math notranslate nohighlight">\((T, N_A \langle \sigma v \rangle)\)</span>.</p>
+</li>
 <li><p><code class="docutils literal notranslate"><span class="pre">jac_cell</span></code> :</p>
 <p>for a single thermodynamic state, compute the analytic Jacobian
 (using the functions provided by the network) and a numerical
