@@ -371,9 +371,24 @@ void derivs(const amrex::Real y, const amrex::Real (&f)[3],
 }
 
 
-amrex::Real heating_rate(const eos_t& eos_state) {
+amrex::Real heating_term(const amrex::Real T0, const eos_t& eos_state) {
     /*
       Evaluates the heating term -- triple alpha process
+      Use general fitting:
+        ϵ_3⍺ = 5.3e21 F_scn rho5^2 Y^3 / T8^3 exp(-44 / T8)
+
+      Also apply optional enhancement factor due to quick
+      subsequent reaction rate: C12(p,g)N13(p,g)O14, where
+
+        F_enh = 1 + Q12 / Q3a ≅ 1.9
+
+      only when X(H) > 1.e-3.
+
+      Note that we technically want temperature derivative.
+      Although we technically have analytic form, but since
+      the EOS is e(T,p), then ϱ is also temperature dependent.
+      So to capture the effect, let's do a numerical difference.
+      Use logarithmnic diff instead of linear diff for better accuracy.
      */
 
     // Q-value of C12 + 2p -> O14 ( C12(p,g)N13(p,g)O14 ) = 6.57 MeV
@@ -382,21 +397,29 @@ amrex::Real heating_rate(const eos_t& eos_state) {
     constexpr amrex::Real Q3a = 7.274_rt;
     constexpr amrex::Real enhance_fac = 1.0 + Q12 / Q3a;
 
+    // Call EOS to find density.
+    auto tmp_state = eos_state;
+    tmp_state.T = T0;
+    eos(eos_input_tp, tmp_state);
+
     // Find screening factor
+
     constexpr int do_T_derivatives = 1;
     using number_t = std::conditional_t<do_T_derivatives, autodiff::dual, amrex::Real>;
-    number_t temp = eos_state.T;
-    autodiff::seed(temp);
+    number_t temp = tmp_state.T;
+    if constexpr(do_T_derivatives) {
+        autodiff::seed(temp);
+    }
 
     plasma_state_t<number_t> pstate{};
     amrex::Array1D<amrex::Real, 1, NumSpec> Y;
     for (int n = 0; n < NumSpec; ++n) {
-        Y(n+1) = eos_state.xn[n] * aion_inv[n];
+        Y(n+1) = tmp_state.xn[n] * aion_inv[n];
     }
 
     amrex::Real scor, scor2, dscor_dt, dscor2_dt;
 
-    fill_plasma_state(pstate, temp, eos_state.rho, Y);
+    fill_plasma_state(pstate, temp, tmp_state.rho, Y);
 
     constexpr auto scn_fac = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 2.0_rt, 4.0_rt);
     actual_screen(pstate, scn_fac, scor, dscor_dt);
@@ -405,32 +428,35 @@ amrex::Real heating_rate(const eos_t& eos_state) {
     actual_screen(pstate, scn_fac2, scor2, dscor2_dt);
 
     amrex::Real Fscn = scor * scor2;
-    amrex::Real dFscn_dT = scor * dscor2_dt + dscor_dt * dscor2_dt;
+    // amrex::Real dFscn_dT = scor * dscor2_dt + dscor_dt * scor2;
 
-    // Maybe use actual triple alpha from pynucastro? But then
-    // eps_3a = 5.3e21 F_scn rho5^2 Y^3 / T8^3 exp(-44 / T8)
-    amrex::Real epsilon_3a = 5.3e21 * std::pow(eos_state.rho * 1.0e-5, 2) *
-        std::pow(eos_state.xn[Species::He4-1], 3) * std::pow(eos_state.T * 1.0e-8, -3) *
-        std::exp(-44.0 * 1.0e8 / eos_state.T);
+    // eps_3a = 5.3e21 Fscn rho5^2 Y^3 / T8^3 exp(-44 / T8)
+    amrex::Real heat = 5.3e11 * Fscn * std::pow(tmp_state.rho, 2) *
+        std::pow(tmp_state.xn[Species::He4-1], 3) * std::pow(tmp_state.T * 1.0e-8, -3) *
+        std::exp(-44.0 * 1.0e8 / tmp_state.T);
 
     // If there is enough hydrogen for the rapid proton capture reactions:
     // C12(p,g)N13(p,g)O14, i.e. when X(H1) > 1.0e-3,
     // then apply an additional enhancement factor due to enhancement, ~ 1.9
-    if (eos_state.xn[Species::H1-1] > 1.0e-3_rt) {
-        epsilon_3a *= enhance_fac;
+    if (tmp_state.xn[Species::H1-1] > 1.0e-3_rt) {
+        heat *= enhance_fac;
     }
 
     // Heating term is temperature derivative of epsilon_3a including screening enhancement.
-    amrex::Real heat = (-3.0_rt * Fscn / eos_state.T +
-                        44.0_rt * Fscn / (eos_state.T * eos_state.T * 1.0e-8_rt) +
-                        dFscn_dT) * epsilon_3a;
+    // Also note that since the EOS is e(T, p), this means ϱ is also temperature dependent.
+    // Need dϱ/dT, but eos doesn't seem to provide this.
+    // Let's use numerical jacobian instead of analytic, like settle version.
 
-    std::cout << std::scientific;
-    std::cout << "heat rate is = " << heat << std::endl;
+    // amrex::Real heat = (-3.0_rt * Fscn / tmp_state.T +
+    //                     44.0_rt * Fscn / (tmp_state.T * tmp_state.T * 1.0e-8_rt) +
+    //                     dFscn_dT) * epsilon_3a;
+
     return heat;
 }
 
-amrex::Real cooling_rate(const amrex::Real yb, const eos_t& eos_state) {
+
+amrex::Real cooling_term(const amrex::Real T0, const amrex::Real yb,
+                         const eos_t& eos_state) {
     /*
       Evaluates the cooling term.
       Get cooling rate by combining:
@@ -446,28 +472,14 @@ amrex::Real cooling_rate(const amrex::Real yb, const eos_t& eos_state) {
       we should do a finite difference here.
      */
 
-    // Find conductivity
+    // Call EOS to find conductivity
     auto tmp_state = eos_state;
+    tmp_state.T = T0;
+    eos(eos_input_tp, tmp_state);
+
     actual_conductivity(tmp_state);
     amrex::Real k_th = tmp_state.conductivity;
-
-    // Find conductivity temperature dependence via finite difference
-
-    tmp_state.T = eos_state.T * 1.001_rt;
-    actual_conductivity(tmp_state);
-    amrex::Real k_hi = tmp_state.conductivity;
-
-    tmp_state.T = eos_state.T / 1.001_rt;
-    actual_conductivity(tmp_state);
-    amrex::Real k_lo = tmp_state.conductivity;
-
-    amrex::Real d_kth_dT = (k_hi - k_lo) / (eos_state.T * (1.001_rt - 1.0_rt / 1.001_rt));
-
-    amrex::Real cool = 0.25_rt * eos_state.rho *
-        (k_th + eos_state.T * d_kth_dT) / (yb * yb);
-
-    std::cout << std::scientific;
-    std::cout << "cool rate is = " << cool << std::endl;
+    amrex::Real cool = 0.25_rt * tmp_state.rho * tmp_state.T * k_th / (yb * yb);
 
     return cool;
 }
@@ -555,18 +567,33 @@ amrex::Real yb_constraint_eq(amrex::Real log10yb_0, State& state) {
     eos_state.xn[Species::O14-1] = O14 * state.Z0;
     eos_state.xn[Species::O15-1] = O15 * state.Z0;
 
-    // Find density via Temperature and pressure
-    eos(eos_input_tp, eos_state);
-
     // After Tb is solved, assume we have runaway when
     // heating rate is larger than cooling rate, i.e.
     // d eps_3a / dT = d eps_cool / dT
 
-    amrex::Real heat = heating_rate(eos_state);
-    amrex::Real cool = cooling_rate(state.yb, eos_state);
-    amrex::Real diff = (heat - cool) / cool;
+    // To find temperature derivative of heating (triple-alpha) and cooling term
+    // Do a logarithmic difference: de/dT = (e / T) dln(e)/dln(T)
+    // dln(e)/dln(T) = [ln(e2) - ln(e1)] / [ln(T2) - ln(T1)] = ln(e2/e1) / ln(T2/T1)
+    // This is more accurate than linear difference for expressions that involve exponentials.
+
+    constexpr amrex::Real PERTURB_RATIO = 1.0e-3_rt;
+    amrex::Real dT = state.Tb * PERTURB_RATIO;
+
+    amrex::Real heat = heating_term(state.Tb, eos_state);
+    amrex::Real heatp = heating_term(state.Tb + dT, eos_state);
+    amrex::Real dheat_dT = heat * std::log(heatp/heat) /
+        (state.Tb * std::log(1 + PERTURB_RATIO));
+
+    amrex::Real cool = cooling_term(state.Tb, state.yb, eos_state);
+    amrex::Real coolp = cooling_term(state.Tb + dT, state.yb, eos_state);
+    amrex::Real dcool_dT = cool * std::log(coolp/cool) /
+        (state.Tb * std::log(1 + PERTURB_RATIO));
+
+    amrex::Real diff = (dheat_dT - dcool_dT) / dcool_dT;
 
     std::cout << std::scientific;
+    std::cout << "heat rate is = " << dheat_dT << std::endl;
+    std::cout << "cool rate is = " << dcool_dT << std::endl;
     std::cout << "yb = " << state.yb
               << ", Tb = " << state.Tb
               << ", (heat-cool) / cool = " << diff
@@ -650,6 +677,7 @@ void find_ignition_condition() {
     // This is also the ignition column depth
     // Assume that we work with log10(yb)
 
+    std::cout << "\n" << std::endl;
     std::cout << "Searching for ignition column depth..." << std::endl;
     find_yb(state);
 
@@ -668,12 +696,18 @@ void find_ignition_condition() {
     // Find density via Temperature and pressure
     eos(eos_input_tp, eos_state);
 
+    std::cout << "\n" << std::endl;
+    std::cout << "------------------------ SOLUTION ------------------------" << std::endl;
     std::cout << "Solved ignition column depth: y = " << state.yb << std::endl;
     std::cout << "With ignition temperature: T = " << state.Tb << std::endl;
     std::cout << "With ignition pressure: P = " << state.g * state.yb << std::endl;
     std::cout << "With ignition density: ϱ = " << eos_state.rho << std::endl;
     std::cout << "With relative height: z = " << state.z << std::endl;
 
+    // Redshift factor used in settle
+    constexpr amrex::Real ZZ = 1.31;
+
+    std::cout << "With recurrence time (hours): y/mdot = " << ZZ * state.yb / state.mdot / 3600.0 << std::endl;
     for (int n = 0; n < NumSpec; ++n) {
         std::cout << "X(" << short_spec_names_cxx[n] << ") is " << eos_state.xn[n] << std::endl;
     }

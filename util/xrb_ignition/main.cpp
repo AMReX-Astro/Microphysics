@@ -15,8 +15,6 @@ int main(int argc, char *argv[]) {
 
   amrex::Initialize(argc, argv);
 
-  std::cout << "starting the single zone burn..." << std::endl;
-
   amrex::ParmParse ppa("amr");
 
   init_unit_test();
