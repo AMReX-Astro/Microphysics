@@ -40,17 +40,20 @@ struct State
     // Bot boundary column depth, temperature and flux
     // This is assumed to be the ignition condition
     amrex::Real yb, Tb, Fb;
+
+    // Height below the top layer corresponding to yt,
+    amrex::Real z;
 };
 
 
 template<int NEQ>
-void rk4(amrex::Real t0, amrex::Real tmax, amrex::Real stepsize,
+void rk4(const amrex::Real t0, const amrex::Real tmax, const amrex::Real stepsize,
          const amrex::Real (&f0)[NEQ], const State& state,
-         void (*rhs)(const amrex::Real t, const amrex::Real (&f)[NEQ],
-                     const State& state, amrex::Real (&dfdt)[NEQ]),
-         amrex::Real* t_array, amrex::Real (*f_array)[NEQ], int nsteps) {
+         void (*rhs)(const amrex::Real, const amrex::Real (&)[NEQ],
+                     const State&, amrex::Real (&)[NEQ]),
+         amrex::Real (&f_new)[NEQ]) {
     /* Runge-Kutta 4 IVP solver for multiple variables: df1/dt, df2dt, ...
-       where NEQ is the number of variables.
+       where NEQ is the number of variables. It just solves to tmax.
 
        Parameters
        ----------
@@ -62,18 +65,16 @@ void rk4(amrex::Real t0, amrex::Real tmax, amrex::Real stepsize,
      */
 
     // Set initial condition
-    amrex::Real dt = stepsize;
 
-    t_array[0] = t0;
+    amrex::Real dt = stepsize;
     amrex::Real t = t0;
-    int i =0;
 
     for (int n = 0; n < NEQ; ++n) {
-        f_array[0][n] = f0[n];
+        f_new[n] = f0[n];
     }
 
     amrex::Real k1[NEQ], k2[NEQ], k3[NEQ], k4[NEQ];
-    amrex::Real ytmp[NEQ];
+    amrex::Real ftmp[NEQ], f[NEQ];
 
     while (t < tmax) {
 
@@ -82,34 +83,35 @@ void rk4(amrex::Real t0, amrex::Real tmax, amrex::Real stepsize,
             dt = tmax - t;
         }
 
-        // Array of y's of size NEQ, number of variables.
-        const amrex::Real (&y)[NEQ] = f_array[i];
-
-        rhs(t, y, state, k1);
-
+        // Set current f
         for (int n = 0; n < NEQ; ++n) {
-            ytmp[n] = y[n] + 0.5_rt * dt * k1[n];
+            f[n] = f_new[n];
         }
-        rhs(t + 0.5_rt * dt, ytmp, state, k2);
+
+        rhs(t, f, state, k1);
 
         for (int n = 0; n < NEQ; ++n) {
-            ytmp[n] = y[n] + 0.5_rt * dt * k2[n];
+            ftmp[n] = f[n] + 0.5_rt * dt * k1[n];
         }
-        rhs(t + 0.5_rt * dt, ytmp, state, k3);
+        rhs(t + 0.5_rt * dt, ftmp, state, k2);
 
         for (int n = 0; n < NEQ; ++n) {
-            ytmp[n] = y[n] + dt * k3[n];
+            ftmp[n] = f[n] + 0.5_rt * dt * k2[n];
         }
-        rhs(t + dt, ytmp, state, k4);
+        rhs(t + 0.5_rt * dt, ftmp, state, k3);
 
         for (int n = 0; n < NEQ; ++n) {
-            f_array[i+1][n] = y[n] + (dt / 6.0_rt) *
+            ftmp[n] = f[n] + dt * k3[n];
+        }
+        rhs(t + dt, ftmp, state, k4);
+
+        for (int n = 0; n < NEQ; ++n) {
+            f_new[n] = f[n] + (dt / 6.0_rt) *
                 (k1[n] + 2.0_rt*k2[n] + 2.0_rt*k3[n] + k4[n]);
         }
 
+        // update time
         t += dt;
-        t_array[i+1] = t;
-        i++;
     }
 }
 
@@ -131,7 +133,7 @@ amrex::Real zbrent(amrex::Real a,
     // Makre sure roots are bracketed
     // i.e. they have opposite sign
     if (fa * fb > 0.0_rt) {
-        amrex::Abort("Brent: root not bracketed");
+        std::cout << "Warning: root not bracketed" << std::endl;
     }
 
     // Make large value on the left?
@@ -358,7 +360,7 @@ amrex::Real yb_constraint_eq(amrex::Real log10yb_0, State& state) {
        given the guess ignition column depth, yb_0.
        Note the guess value is given in log10(yb) */
 
-    state.yb = std::pow(log10yb_0, 10);
+    state.yb = std::pow(10, log10yb_0);
 
     // Set upper boundary conditions, i.e. initial conditions: yt, Tt, and Ft
 
@@ -403,25 +405,25 @@ amrex::Real yb_constraint_eq(amrex::Real log10yb_0, State& state) {
     // How do I make sure F(yb) = Fb?
     // Note that we used Fb to find Ft: Ft = epsilon_H
 
-    // Use state.yt as stepsize and find array_size
-    int nsteps = static_cast<int>(std::ceil((state.yb - state.yt) / state.yt)) + 1;
-
     constexpr int NEQ = 3;
-    amrex::Real y_array[nsteps];
-    amrex::Real f_array[nsteps][NEQ];
+    amrex::Real f_array[NEQ];
     amrex::Real f0_array[NEQ] = {state.Tt, state.Ft, 0.0_rt};
 
-    // t0=yt, tmax=yb, step_size=yt, f0=Tt,
+    // t0=yt, tmax=yb, step_size=yt, f0={Tt, Ft, 0.0}
+    // Integrates to find f_array corresponding to yb.
     rk4<NEQ>(state.yt, state.yb, state.yt,
              f0_array, state, derivs,
-             y_array, f_array, nsteps);
+             f_array);
 
     // Update solution Tb to State
-    state.Tb = f_array[nsteps-1][0];
+    state.Tb = f_array[0];
 
     // Make sure solution to F(yb) is the same as Fb
 
-    assert(state.Fb - f_array[nsteps-1][-1] < 1.0e-3);
+    assert(std::abs(state.Fb - f_array[1]) < 1.0e-3 * state.Fb);
+
+    // update relative height
+    state.z = f_array[2];
 
     // Since we need density and opacity, get eos first.
 
@@ -444,7 +446,15 @@ amrex::Real yb_constraint_eq(amrex::Real log10yb_0, State& state) {
 
     amrex::Real heat = heating_rate(eos_state);
     amrex::Real cool = cooling_rate(state.yb, eos_state);
-    return (heat - cool) / cool;
+    amrex::Real diff = (heat - cool) / cool;
+
+    std::cout << std::scientific;
+    std::cout << "yb = " << state.yb
+              << ", Tb = " << state.Tb
+              << ", (heat-cool) / cool = " << diff
+              << std::endl;
+
+    return diff;
 }
 
 
@@ -464,10 +474,14 @@ void find_ignition_condition() {
      */
 
     // Gravitational Acceleration for 1.4 solar mass and 11 km NS.
-    constexpr amrex::Real g = 1.5e14_rt;
+    // constexpr amrex::Real g = 1.5e14_rt;
+    constexpr amrex::Real g = 2.45e14_rt;  // This is what settle version uses.
     constexpr amrex::Real R = 1.1e6_rt;
 
     State state;
+
+    state.g = g;
+    state.R = R;
 
     // Read in input parameters: X, Z, F_b, and mdot
 
@@ -481,7 +495,7 @@ void find_ignition_condition() {
     amrex::Real mdot_Edd = 8.8e4_rt;  // Come back later
 
     // Input mdot should be in eddington unit.
-    amrex::Real mdot = unit_test_rp::mdot * mdot_Edd;
+    state.mdot = unit_test_rp::mdot * mdot_Edd;
 
     // Input Fb is MeV/nucleon/mdot.
     // Brown & Bildstein showed that electron capture rates can
@@ -490,7 +504,8 @@ void find_ignition_condition() {
     // If don't include compressional term, use higher constant Fb
     // to account for compressional heating. They use ~1.5 MeV/nucleon
     // Convert to CGS.
-    state.Fb = unit_test_rp::Fb * state.mdot * 14.62_rt * 5.8e21_rt; // Not sure why multiplied by these constants, supposedly it is to convert to CGS...
+    // Here they used mdot in Eddington unit
+    state.Fb = unit_test_rp::Fb * unit_test_rp::mdot * 14.62_rt * 5.8e21_rt; // Not sure why multiplied by these constants, supposedly it is to convert to CGS...
 
     // Get the initial helium mass fraction
     state.Y0 = 1.0_rt - state.X0 - state.Z0;
@@ -505,11 +520,40 @@ void find_ignition_condition() {
     // Depletion Column Depth: yd = X mdot E_H / epsilon_H
     state.yd = state.X0 * state.mdot * E_H / epsilon_H;
 
+    // Display input parameters to stdout
+    std::cout << "Base flux is " << unit_test_rp::Fb << std::endl;
+    std::cout << "In CGS, base flux is " << state.Fb << std::endl;
+    std::cout << "Metallicity is " << unit_test_rp::Z << std::endl;
+    std::cout << "Accreted H fraction is " << unit_test_rp::X << std::endl;
+    std::cout << "mdot/Edd is " << unit_test_rp::mdot << std::endl;
+    std::cout << "Depletion column depth is " << state.yd << std::endl;
+
     // Now compute the base column depth: yb via root find.
     // This is also the ignition column depth
     // Assume that we work with log10(yb)
 
+    std::cout << "Searching for ignition column depth..." << std::endl;
     find_yb(state);
+
+    // Use solution to find density via EOS
+
+    eos_t eos_state;
+    eos_state.T = state.Tb;
+    eos_state.p = state.g * state.yb;
+
+    amrex::Real X = std::max(state.X0 * (1.0_rt - state.yb / state.yd), 0.0_rt);
+    eos_state.xn[Species::H1-1] = X;
+    eos_state.xn[Species::He4-1] = 1 - X - state.Z0;
+    eos_state.xn[Species::O14-1] = O14 * state.Z0;
+    eos_state.xn[Species::O15-1] = O15 * state.Z0;
+
+    // Find density via Temperature and pressure
+    eos(eos_input_tp, eos_state);
+
+    std::cout << "Solved ignition column depth: y = " << state.yb << std::endl;
+    std::cout << "With ignition temperature: T = " << state.Tb << std::endl;
+    std::cout << "With ignition pressure: P = " << state.g * state.yb << std::endl;
+    std::cout << "With ignition density: ϱ = " << eos_state.rho << std::endl;
 }
 
 #endif
