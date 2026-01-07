@@ -47,7 +47,120 @@ struct State
 
 
 template<int NEQ>
-void rk4(const amrex::Real t0, const amrex::Real tmax, const amrex::Real stepsize,
+AMREX_FORCE_INLINE
+void rk4_step(amrex::Real t, amrex::Real dt,
+              const amrex::Real (&f)[NEQ], const State& state,
+              void (*rhs)(amrex::Real, const amrex::Real (&)[NEQ],
+                          const State&, amrex::Real (&)[NEQ]),
+              amrex::Real (&fout)[NEQ])
+{
+    amrex::Real k1[NEQ], k2[NEQ], k3[NEQ], k4[NEQ];
+    amrex::Real ftmp[NEQ];
+
+    rhs(t, f, state, k1);
+
+    for (int n = 0; n < NEQ; ++n)
+        ftmp[n] = f[n] + 0.5_rt * dt * k1[n];
+    rhs(t + 0.5_rt*dt, ftmp, state, k2);
+
+    for (int n = 0; n < NEQ; ++n)
+        ftmp[n] = f[n] + 0.5_rt * dt * k2[n];
+    rhs(t + 0.5_rt*dt, ftmp, state, k3);
+
+    for (int n = 0; n < NEQ; ++n)
+        ftmp[n] = f[n] + dt * k3[n];
+    rhs(t + dt, ftmp, state, k4);
+
+    for (int n = 0; n < NEQ; ++n)
+        fout[n] = f[n] + (dt / 6.0_rt) *
+            (k1[n] + 2.0_rt*k2[n] + 2.0_rt*k3[n] + k4[n]);
+}
+
+
+template<int NEQ>
+void rk4_adaptive(amrex::Real t0, amrex::Real tmax,
+                  amrex::Real dt_init, amrex::Real eps,
+                  const amrex::Real (&f0)[NEQ], const State& state,
+                  void (*rhs)(amrex::Real, const amrex::Real (&)[NEQ],
+                              const State&, amrex::Real (&)[NEQ]),
+                  amrex::Real (&f_new)[NEQ])
+{
+    constexpr amrex::Real SAFETY = 0.9_rt;
+    constexpr amrex::Real GROW   = -0.2_rt;   // 1/(order+1)
+    constexpr amrex::Real SHRINK = -0.25_rt;  // 1/order
+    constexpr amrex::Real TINY   = 1.e-30_rt;
+
+    amrex::Real t = t0;
+    amrex::Real dt = dt_init;
+
+    for (int n = 0; n < NEQ; ++n) {
+        f_new[n] = f0[n];
+    }
+
+    amrex::Real y_big[NEQ], y_half[NEQ], y_tmp[NEQ], yscal[NEQ];
+
+    while (t < tmax) {
+
+        if (t + dt > tmax) {
+            dt = tmax - t;
+        }
+
+        // scaling for error norm
+        for (int n = 0; n < NEQ; ++n) {
+            yscal[n] = std::abs(f_new[n]) + TINY;
+        }
+
+        amrex::Real errmax;
+
+        for (;;) {
+            // one big step
+            rk4_step<NEQ>(t, dt, f_new, state, rhs, y_big);
+
+            // two half steps
+            rk4_step<NEQ>(t, 0.5_rt*dt, f_new, state, rhs, y_tmp);
+            rk4_step<NEQ>(t + 0.5_rt*dt, 0.5_rt*dt, y_tmp, state, rhs, y_half);
+
+            // compute error
+            errmax = 0.0_rt;
+            for (int n = 0; n < NEQ; ++n) {
+                amrex::Real err = std::abs(y_half[n] - y_big[n]) / yscal[n];
+                errmax = std::max(errmax, err);
+            }
+            errmax /= eps;
+
+            if (errmax <= 1.0_rt) {
+                break;
+            }
+
+            // reduce timestep
+            amrex::Real dt_new = SAFETY * dt * std::pow(errmax, SHRINK);
+            dt = std::max(dt_new, 0.1_rt * dt);
+
+            if (dt <= TINY) {
+                amrex::Abort("rk4_adaptive: timestep underflow");
+            }
+        }
+
+        // accept step
+        t += dt;
+        for (int n = 0; n < NEQ; ++n)
+            f_new[n] = y_half[n];
+
+        // increase timestep
+        amrex::Real dt_new;
+        if (errmax > 1.e-4_rt) {
+            dt_new = SAFETY * dt * std::pow(errmax, GROW);
+        } else {
+            dt_new = 5.0_rt * dt;
+        }
+        dt = std::min(dt_new, tmax - t);
+    }
+}
+
+
+
+template<int NEQ>
+void rk4(const amrex::Real t0, const amrex::Real tmax, const amrex::Real dt_init,
          const amrex::Real (&f0)[NEQ], const State& state,
          void (*rhs)(const amrex::Real, const amrex::Real (&)[NEQ],
                      const State&, amrex::Real (&)[NEQ]),
@@ -59,14 +172,14 @@ void rk4(const amrex::Real t0, const amrex::Real tmax, const amrex::Real stepsiz
        ----------
        t0: Initial time
        tmax: Final time
-       stepsize: Stepsize used for integration
+       dt_init: initial Stepsize used for integration
        f0: Initial value corresponding to t0, f(t0) = f0.
        rhs: Function that computes the derivative, df / dt
      */
 
     // Set initial condition
 
-    amrex::Real dt = stepsize;
+    amrex::Real dt = dt_init;
     amrex::Real t = t0;
 
     for (int n = 0; n < NEQ; ++n) {
@@ -79,7 +192,7 @@ void rk4(const amrex::Real t0, const amrex::Real tmax, const amrex::Real stepsiz
     while (t < tmax) {
 
         // Change stepsize so that we don't overshoot
-        if (t + stepsize > tmax) {
+        if (t + dt > tmax) {
             dt = tmax - t;
         }
 
@@ -312,6 +425,8 @@ amrex::Real heating_rate(const eos_t& eos_state) {
                         44.0_rt * Fscn / (eos_state.T * eos_state.T * 1.0e-8_rt) +
                         dFscn_dT) * epsilon_3a;
 
+    std::cout << std::scientific;
+    std::cout << "heat rate is = " << heat << std::endl;
     return heat;
 }
 
@@ -350,6 +465,9 @@ amrex::Real cooling_rate(const amrex::Real yb, const eos_t& eos_state) {
 
     amrex::Real cool = 0.25_rt * eos_state.rho *
         (k_th + eos_state.T * d_kth_dT) / (yb * yb);
+
+    std::cout << std::scientific;
+    std::cout << "cool rate is = " << cool << std::endl;
 
     return cool;
 }
@@ -411,9 +529,9 @@ amrex::Real yb_constraint_eq(amrex::Real log10yb_0, State& state) {
 
     // t0=yt, tmax=yb, step_size=yt, f0={Tt, Ft, 0.0}
     // Integrates to find f_array corresponding to yb.
-    rk4<NEQ>(state.yt, state.yb, state.yt,
-             f0_array, state, derivs,
-             f_array);
+    rk4_adaptive<NEQ>(state.yt, state.yb, state.yt, 1.0e-6,
+                      f0_array, state, derivs,
+                      f_array);
 
     // Update solution Tb to State
     state.Tb = f_array[0];
@@ -526,7 +644,7 @@ void find_ignition_condition() {
     std::cout << "Metallicity is " << unit_test_rp::Z << std::endl;
     std::cout << "Accreted H fraction is " << unit_test_rp::X << std::endl;
     std::cout << "mdot/Edd is " << unit_test_rp::mdot << std::endl;
-    std::cout << "Depletion column depth is " << state.yd << std::endl;
+    std::cout << std::scientific << "Depletion column depth is " << state.yd << std::endl;
 
     // Now compute the base column depth: yb via root find.
     // This is also the ignition column depth
@@ -554,6 +672,11 @@ void find_ignition_condition() {
     std::cout << "With ignition temperature: T = " << state.Tb << std::endl;
     std::cout << "With ignition pressure: P = " << state.g * state.yb << std::endl;
     std::cout << "With ignition density: ϱ = " << eos_state.rho << std::endl;
+    std::cout << "With relative height: z = " << state.z << std::endl;
+
+    for (int n = 0; n < NumSpec; ++n) {
+        std::cout << "X(" << short_spec_names_cxx[n] << ") is " << eos_state.xn[n] << std::endl;
+    }
 }
 
 #endif
