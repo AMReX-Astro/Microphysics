@@ -471,16 +471,21 @@ void apply_ions (T& state)
     [[maybe_unused]] amrex::Real deionda = 1.5e0_rt * dpionda * deni;
     [[maybe_unused]] amrex::Real deiondz = 0.0e0_rt;
 
-    amrex::Real x       = state.abar * state.abar * std::sqrt(state.abar) * deni / avo_eos;
-    amrex::Real s       = sioncon * state.T;
-    amrex::Real z       = x * s * std::sqrt(s);
-    amrex::Real y       = std::log(z);
-    amrex::Real sion    = (pion * deni + eion) * tempi + kergavo * ytot1 * y;
-    amrex::Real dsiondd = (dpiondd * deni - pion * deni * deni + deiondd) * tempi -
-                   kergavo * deni * ytot1;
-    amrex::Real dsiondt = (dpiondt * deni + deiondt) * tempi -
-                   (pion * deni + eion) * tempi * tempi +
-                   1.5e0_rt * kergavo * tempi * ytot1;
+    [[maybe_unused]] amrex::Real sion{};
+    [[maybe_unused]] amrex::Real dsiondd{};
+    [[maybe_unused]] amrex::Real dsiondt{};
+    if constexpr (has_entropy<T>::value) {
+        amrex::Real x       = state.abar * state.abar * std::sqrt(state.abar) * deni / avo_eos;
+        amrex::Real s       = sioncon * state.T;
+        amrex::Real z       = x * s * std::sqrt(s);
+        amrex::Real y       = std::log(z);
+        amrex::Real sion    = (pion * deni + eion) * tempi + kergavo * ytot1 * y;
+        amrex::Real dsiondd = (dpiondd * deni - pion * deni * deni + deiondd) * tempi -
+            kergavo * deni * ytot1;
+        amrex::Real dsiondt = (dpiondt * deni + deiondt) * tempi -
+            (pion * deni + eion) * tempi * tempi +
+            1.5e0_rt * kergavo * tempi * ytot1;
+    }
 
     if constexpr (has_pressure<T>::value) {
         state.p    = state.p + pion;
@@ -558,9 +563,14 @@ void apply_radiation (T& state)
     [[maybe_unused]] amrex::Real deradda = 0.0e0_rt;
     [[maybe_unused]] amrex::Real deraddz = 0.0e0_rt;
 
-    amrex::Real srad    = (prad * deni + erad) * tempi;
-    amrex::Real dsraddd = (dpraddd * deni - prad * deni * deni + deraddd) * tempi;
-    amrex::Real dsraddt = (dpraddt * deni + deraddt - srad) * tempi;
+    [[maybe_unused]] amrex::Real srad{};
+    [[maybe_unused]] amrex::Real dsraddd{};
+    [[maybe_unused]] amrex::Real dsraddt{};
+    if constexpr (has_entropy<T>::value) {
+        srad    = (prad * deni + erad) * tempi;
+        dsraddd = (dpraddd * deni - prad * deni * deni + deraddd) * tempi;
+        dsraddt = (dpraddt * deni + deraddt - srad) * tempi;
+    }
 
     // Note that unlike the other terms, radiation
     // sets these terms instead of adding to them,
@@ -635,7 +645,7 @@ void apply_coulomb_corrections (T& state)
     [[maybe_unused]] amrex::Real decoulda = 0.e0_rt;
     [[maybe_unused]] amrex::Real decouldz = 0.e0_rt;
 
-    amrex::Real s, x, y, z; // temporary variables
+    amrex::Real s, z; // temporary variables
 
     // uniform background corrections only
     // from yakovlev & shalybkov 1989
@@ -671,18 +681,21 @@ void apply_coulomb_corrections (T& state)
     // .yakovlev & shalybkov 1989 equations 82, 85, 86, 87
     if (plasg >= 1.0e0_rt)
     {
-        x        = std::pow(plasg, 0.25e0_rt);
-        y        = avo_eos * ytot1 * kerg;
+        amrex::Real x = std::pow(plasg, 0.25e0_rt);
+        amrex::Real y = avo_eos * ytot1 * kerg;
         ecoul    = y * state.T * (a1 * plasg + b1 * x + c1 / x + d1);
         pcoul    = onethird * state.rho * ecoul;
-        scoul    = -y * (3.0e0_rt * b1 * x - 5.0e0_rt*c1 / x +
-                    d1 * (std::log(plasg) - 1.0e0_rt) - e1);
+
+        if constexpr (has_entropy<T>::value) {
+            scoul  = -y * (3.0e0_rt * b1 * x - 5.0e0_rt*c1 / x +
+                           d1 * (std::log(plasg) - 1.0e0_rt) - e1);
+        }
 
         y        = avo_eos*ytot1*kt*(a1 + 0.25e0_rt/plasg*(b1*x - c1/x));
         decouldd = y * plasgdd;
         decouldt = y * plasgdt + ecoul/state.T;
 
-        decoulda = y * plasgda - ecoul/state.abar;
+        decoulda = y * plasgda - ecoul * ytot1;
         decouldz = y * plasgdz;
 
         y        = onethird * state.rho;
@@ -692,10 +705,12 @@ void apply_coulomb_corrections (T& state)
         dpcoulda = y * decoulda;
         dpcouldz = y * decouldz;
 
-       y        = -avo_eos * kerg / (state.abar * plasg) *
-                   (0.75e0_rt * b1 * x + 1.25e0_rt * c1 / x + d1);
-       dscouldd = y * plasgdd;
-       dscouldt = y * plasgdt;
+       if constexpr (has_entropy<T>::value) {
+           y = -avo_eos * kerg / (state.abar * plasg) *
+               (0.75e0_rt * b1 * x + 1.25e0_rt * c1 / x + d1);
+           dscouldd = y * plasgdd;
+           dscouldt = y * plasgdt;
+       }
 
        // yakovlev & shalybkov 1989 equations 102, 103, 104
     }
@@ -708,12 +723,14 @@ void apply_coulomb_corrections (T& state)
         amrex::Real dpionda = dxnida * kt;
         amrex::Real dpiondz = 0.0e0_rt;
 
-        x        = plasg * std::sqrt(plasg);
-        y        = std::pow(plasg, b2);
+        amrex::Real x = plasg * std::sqrt(plasg);
+        amrex::Real y = std::pow(plasg, b2);
         z        = c2 * x - onethird * a2 * y;
         pcoul    = -pion * z;
         ecoul    = 3.0e0_rt * pcoul / state.rho;
-        scoul    = -avo_eos / state.abar * kerg * (c2 * x -a2 * (b2 - 1.0e0_rt) / b2 * y);
+        if constexpr (has_entropy<T>::value) {
+            scoul = -avo_eos * ytot1 * kerg * (c2 * x -a2 * (b2 - 1.0e0_rt) / b2 * y);
+        }
 
         s        = 1.5e0_rt * c2 * x / plasg - onethird * a2 * b2 * y / plasg;
         dpcouldd = -dpiondd * z - pion * s * plasgdd;
@@ -727,10 +744,12 @@ void apply_coulomb_corrections (T& state)
         decoulda = s * dpcoulda;
         decouldz = s * dpcouldz;
 
-        s        = -avo_eos * kerg / (state.abar * plasg) *
-                    (1.5e0_rt * c2 * x - a2 * (b2 - 1.0e0_rt) * y);
-        dscouldd = s * plasgdd;
-        dscouldt = s * plasgdt;
+        if constexpr (has_entropy<T>::value) {
+            s = -avo_eos * kerg / (state.abar * plasg) *
+                (1.5e0_rt * c2 * x - a2 * (b2 - 1.0e0_rt) * y);
+            dscouldd = s * plasgdd;
+            dscouldt = s * plasgdt;
+        }
     }
 
     // Disable Coulomb corrections if they cause
@@ -754,9 +773,11 @@ void apply_coulomb_corrections (T& state)
         ecoul    = 0.0e0_rt;
         decouldd = 0.0e0_rt;
         decouldt = 0.0e0_rt;
-        scoul    = 0.0e0_rt;
-        dscouldd = 0.0e0_rt;
-        dscouldt = 0.0e0_rt;
+        if constexpr (has_entropy<T>::value) {
+            scoul    = 0.0e0_rt;
+            dscouldd = 0.0e0_rt;
+            dscouldt = 0.0e0_rt;
+        }
 
         dpcoulda = 0.0e0_rt;
         dpcouldz = 0.0e0_rt;
