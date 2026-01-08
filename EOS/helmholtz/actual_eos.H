@@ -479,10 +479,10 @@ void apply_ions (T& state)
         amrex::Real s       = sioncon * state.T;
         amrex::Real z       = x * s * std::sqrt(s);
         amrex::Real y       = std::log(z);
-        amrex::Real sion    = (pion * deni + eion) * tempi + kergavo * ytot1 * y;
-        amrex::Real dsiondd = (dpiondd * deni - pion * deni * deni + deiondd) * tempi -
+        sion    = (pion * deni + eion) * tempi + kergavo * ytot1 * y;
+        dsiondd = (dpiondd * deni - pion * deni * deni + deiondd) * tempi -
             kergavo * deni * ytot1;
-        amrex::Real dsiondt = (dpiondt * deni + deiondt) * tempi -
+        dsiondt = (dpiondt * deni + deiondt) * tempi -
             (pion * deni + eion) * tempi * tempi +
             1.5e0_rt * kergavo * tempi * ytot1;
     }
