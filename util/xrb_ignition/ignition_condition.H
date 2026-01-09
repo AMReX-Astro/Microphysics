@@ -52,8 +52,9 @@ void rk4_step(amrex::Real t, amrex::Real dt,
               const amrex::Real (&f)[NEQ], const State& state,
               void (*rhs)(amrex::Real, const amrex::Real (&)[NEQ],
                           const State&, amrex::Real (&)[NEQ]),
-              amrex::Real (&fout)[NEQ])
-{
+              amrex::Real (&fout)[NEQ]) {
+    // Single rk4 update.
+
     amrex::Real k1[NEQ], k2[NEQ], k3[NEQ], k4[NEQ];
     amrex::Real ftmp[NEQ];
 
@@ -83,8 +84,9 @@ void rk4_adaptive(amrex::Real t0, amrex::Real tmax,
                   const amrex::Real (&f0)[NEQ], const State& state,
                   void (*rhs)(amrex::Real, const amrex::Real (&)[NEQ],
                               const State&, amrex::Real (&)[NEQ]),
-                  amrex::Real (&f_new)[NEQ])
-{
+                  amrex::Real (&f_new)[NEQ]) {
+    // rk4 with adaptive timestepping
+
     constexpr amrex::Real SAFETY = 0.9_rt;
     constexpr amrex::Real GROW   = -0.2_rt;   // 1/(order+1)
     constexpr amrex::Real SHRINK = -0.25_rt;  // 1/order
@@ -186,8 +188,7 @@ void rk4(const amrex::Real t0, const amrex::Real tmax, const amrex::Real dt_init
         f_new[n] = f0[n];
     }
 
-    amrex::Real k1[NEQ], k2[NEQ], k3[NEQ], k4[NEQ];
-    amrex::Real ftmp[NEQ], f[NEQ];
+    amrex::Real f[NEQ];
 
     while (t < tmax) {
 
@@ -201,27 +202,7 @@ void rk4(const amrex::Real t0, const amrex::Real tmax, const amrex::Real dt_init
             f[n] = f_new[n];
         }
 
-        rhs(t, f, state, k1);
-
-        for (int n = 0; n < NEQ; ++n) {
-            ftmp[n] = f[n] + 0.5_rt * dt * k1[n];
-        }
-        rhs(t + 0.5_rt * dt, ftmp, state, k2);
-
-        for (int n = 0; n < NEQ; ++n) {
-            ftmp[n] = f[n] + 0.5_rt * dt * k2[n];
-        }
-        rhs(t + 0.5_rt * dt, ftmp, state, k3);
-
-        for (int n = 0; n < NEQ; ++n) {
-            ftmp[n] = f[n] + dt * k3[n];
-        }
-        rhs(t + dt, ftmp, state, k4);
-
-        for (int n = 0; n < NEQ; ++n) {
-            f_new[n] = f[n] + (dt / 6.0_rt) *
-                (k1[n] + 2.0_rt*k2[n] + 2.0_rt*k3[n] + k4[n]);
-        }
+        rk4_step(t, dt, f, state, rhs, f_new);
 
         // update time
         t += dt;
@@ -431,8 +412,9 @@ amrex::Real heating_term(const amrex::Real T0, const eos_t& eos_state) {
     // amrex::Real dFscn_dT = scor * dscor2_dt + dscor_dt * scor2;
 
     // eps_3a = 5.3e21 Fscn rho5^2 Y^3 / T8^3 exp(-44 / T8)
-    amrex::Real heat = 5.3e11 * Fscn * std::pow(tmp_state.rho, 2) *
-        std::pow(tmp_state.xn[Species::He4-1], 3) * std::pow(tmp_state.T * 1.0e-8, -3) *
+    amrex::Real heat = 5.3e11 * Fscn * tmp_state.rho * tmp_state.rho *
+        amrex::Math::powi<3>(tmp_state.xn[Species::He4-1]) *
+        amrex::Math::powi<-3>(tmp_state.T * 1.0e-8) *
         std::exp(-44.0 * 1.0e8 / tmp_state.T);
 
     // If there is enough hydrogen for the rapid proton capture reactions:
@@ -517,11 +499,11 @@ amrex::Real yb_constraint_eq(amrex::Real log10yb_0, State& state) {
     // If we were to compute kappa manually, we need eos.
     // i.e. we need two inputs. We have p=g * yt, so we need rho?
 
-    state.Tt = std::pow(2650.0 * state.Ft * state.yt, 0.25);
+    state.Tt = std::sqrt(std::sqrt(2650.0 * state.Ft * state.yt));
 
     // Now set the lower boundary conditions: yb, Tb, and Fb
     // Here Fb is assumed to be given. Note that the original version
-    // includes a special term for compressional heating, if thats included
+    // includes a special term for compressional heating, if that is included
     // then we have to solve for Fb. However, it is sufficient to include
     // an extra constant heating term to account for compressional heating.
     // yb is what we're after, so we need Tb.
@@ -539,8 +521,13 @@ amrex::Real yb_constraint_eq(amrex::Real log10yb_0, State& state) {
     amrex::Real f_array[NEQ];
     amrex::Real f0_array[NEQ] = {state.Tt, state.Ft, 0.0_rt};
 
-    // t0=yt, tmax=yb, step_size=yt, f0={Tt, Ft, 0.0}
+    // t0=yt, tmax=yb, dt=yt, f0={Tt, Ft, 0.0}
     // Integrates to find f_array corresponding to yb.
+
+    // rk4<NEQ>(state.yt, state.yb, state.yt,
+    //          f0_array, state, derivs,
+    //          f_array);
+
     rk4_adaptive<NEQ>(state.yt, state.yb, state.yt, 1.0e-6,
                       f0_array, state, derivs,
                       f_array);
