@@ -170,9 +170,6 @@ void apply_electrons (T& state)
     // assume complete ionization
     [[maybe_unused]] amrex::Real ytot1 = 1.0e0_rt / state.abar;
 
-    // define mu -- the total mean molecular weight including both electrons and ions
-    state.mu = 1.0e0_rt / (1.0e0_rt / state.abar + 1.0e0_rt / state.mu_e);
-
     // enter the table with ye*den
     amrex::Real din = state.y_e * state.rho;
 
@@ -1113,6 +1110,9 @@ void finalize_state (I input, T& state,
                      amrex::Real v_want, amrex::Real v1_want, amrex::Real v2_want)
 {
     using namespace helmholtz;
+
+    // define mu -- the total mean molecular weight including both electrons and ions
+    state.mu = 1.0e0_rt / (1.0e0_rt / state.abar + 1.0e0_rt / state.mu_e);
 
     // Calculate some remaining derivatives
     if constexpr (has_pressure<T>::value) {
