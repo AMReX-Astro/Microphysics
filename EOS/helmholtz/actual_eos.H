@@ -117,31 +117,18 @@ void fwt (const amrex::Real* AMREX_RESTRICT fi,
 
 // cubic hermite polynomial functions
 // psi0 & derivatives
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 amrex::Real xpsi0(amrex::Real z) noexcept
 {
     return z * z * (2.0e0_rt * z - 3.0e0_rt) + 1.0_rt;
 }
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-amrex::Real xdpsi0(amrex::Real z) noexcept
-{
-    return z * (6.0e0_rt * z - 6.0e0_rt);
-}
-
 // psi1 & derivatives
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 amrex::Real xpsi1(amrex::Real z) noexcept
 {
     return z * (z * (z - 2.0e0_rt) + 1.0e0_rt);
 }
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-amrex::Real xdpsi1(amrex::Real z) noexcept
-{
-    return z * (3.0e0_rt * z - 4.0e0_rt) + 1.0e0_rt;
-}
-
 
 
 namespace electron_table_indexing {
@@ -337,15 +324,16 @@ void apply_electrons (T& state)
     // giving the j offset, i offset, and component
 
     // pressure derivative with density
-    amrex::Real dpepdd = 0.0e0_rt;
-    amrex::constexpr_for<0, 16>([&] (auto K) {
-        constexpr int k = K;
-        constexpr auto m = electron_table_indexing::map[k];
+    [[maybe_unused]] amrex::Real dpepdd = 0.0e0_rt;
+    if constexpr (has_pressure<T>::value) {
+        amrex::constexpr_for<0, 16>([&] (auto K) {
+            constexpr int k = K;
+            constexpr auto m = electron_table_indexing::map[k];
 
-        dpepdd += dpdf[jat+m.dj][iat+m.di][m.n] * wdt[k];
-    });
-    dpepdd = amrex::max(state.y_e * dpepdd, 0.0e0_rt);
-
+            dpepdd += dpdf[jat+m.dj][iat+m.di][m.n] * wdt[k];
+        });
+        dpepdd = amrex::max(state.y_e * dpepdd, 0.0e0_rt);
+    }
 
     // electron chemical potential etaele
     [[maybe_unused]] amrex::Real etaele{};
@@ -380,13 +368,15 @@ void apply_electrons (T& state)
     amrex::Real dpepdt  = x * df_dt;
     [[maybe_unused]] amrex::Real dpepda{};
     [[maybe_unused]] amrex::Real dpepdz{};
-    if constexpr (has_dpdA<T>::value || has_dpdZ<T>::value) {
-        amrex::Real s       = dpepdd/state.y_e - 2.0e0_rt * din * df_d;
-        if constexpr (has_dpdA<T>::value) {
-            dpepda  = -ytot1 * (2.0e0_rt * pele + s * din);
-        }
-        if constexpr (has_dpdZ<T>::value) {
-            dpepdz  = state.rho*ytot1*(2.0e0_rt * din * df_d  +  s);
+    if constexpr (has_pressure<T>::value) {
+        if constexpr (has_dpdA<T>::value || has_dpdZ<T>::value) {
+            amrex::Real s       = dpepdd/state.y_e - 2.0e0_rt * din * df_d;
+            if constexpr (has_dpdA<T>::value) {
+                dpepda  = -ytot1 * (2.0e0_rt * pele + s * din);
+            }
+            if constexpr (has_dpdZ<T>::value) {
+                dpepdz  = state.rho*ytot1*(2.0e0_rt * din * df_d  +  s);
+            }
         }
     }
 
