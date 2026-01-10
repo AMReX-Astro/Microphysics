@@ -348,23 +348,26 @@ void apply_electrons (T& state)
 
 
     // electron chemical potential etaele
-    amrex::Real etaele = 0.0e0_rt;
-    amrex::constexpr_for<0, 16>([&] (auto K) {
-        constexpr int k = K;
-        constexpr auto m = electron_table_indexing::map[k];
+    [[maybe_unused]] amrex::Real etaele{};
+    if constexpr (has_eta<T>) {
+        amrex::constexpr_for<0, 16>([&] (auto K) {
+            constexpr int k = K;
+            constexpr auto m = electron_table_indexing::map[k];
 
-        etaele += ef[jat+m.dj][iat+m.di][m.n] * wdt[k];
-    });
-
+            etaele += ef[jat+m.dj][iat+m.di][m.n] * wdt[k];
+        });
+    }
 
     // electron + positron number densities
-    amrex::Real xnefer = 0.0e0_rt;
-    amrex::constexpr_for<0, 16>([&] (auto K) {
-        constexpr int k = K;
-        constexpr auto m = electron_table_indexing::map[k];
+    [[maybe_unused]] amrex::Real xnefer{};
+    if constexpr (has_xne_xnp<T>) {
+        amrex::constexpr_for<0, 16>([&] (auto K) {
+            constexpr int k = K;
+            constexpr auto m = electron_table_indexing::map[k];
 
-        xnefer += xf[jat+m.dj][iat+m.di][m.n] * wdt[k];
-    });
+            xnefer += xf[jat+m.dj][iat+m.di][m.n] * wdt[k];
+        });
+    }
 
     // the desired electron-positron thermodynamic quantities
 
@@ -375,22 +378,38 @@ void apply_electrons (T& state)
     amrex::Real x       = din * din;
     amrex::Real pele    = x * df_d;
     amrex::Real dpepdt  = x * df_dt;
-    [[maybe_unused]] amrex::Real s       = dpepdd/state.y_e - 2.0e0_rt * din * df_d;
-    [[maybe_unused]] amrex::Real dpepda  = -ytot1 * (2.0e0_rt * pele + s * din);
-    [[maybe_unused]] amrex::Real dpepdz  = state.rho*ytot1*(2.0e0_rt * din * df_d  +  s);
+    [[maybe_unused]] amrex::Real dpepda{};
+    [[maybe_unused]] amrex::Real dpepdz{};
+    if constexpr (has_dpdA<T> || has_dpdZ<T>) {
+        amrex::Real s       = dpepdd/state.y_e - 2.0e0_rt * din * df_d;
+        if constexpr (has_dpdA<T>) {
+            dpepda  = -ytot1 * (2.0e0_rt * pele + s * din);
+        }
+        if constexpr (has_dpdZ<T>) {
+            dpepdz  = state.rho*ytot1*(2.0e0_rt * din * df_d  +  s);
+        }
+    }
 
     x            = state.y_e * state.y_e;
     amrex::Real sele    = -df_t * state.y_e;
     amrex::Real dsepdt  = -df_tt * state.y_e;
     amrex::Real dsepdd  = -df_dt * x;
-    [[maybe_unused]] amrex::Real dsepda  = ytot1 * (state.y_e * df_dt * din - sele);
-    [[maybe_unused]] amrex::Real dsepdz  = -ytot1 * (state.y_e * df_dt * state.rho  + df_t);
 
     amrex::Real eele    = state.y_e*free + state.T * sele;
     amrex::Real deepdt  = state.T * dsepdt;
     amrex::Real deepdd  = x * df_d + state.T * dsepdd;
-    [[maybe_unused]] amrex::Real deepda  = -state.y_e * ytot1 * (free +  df_d * din) + state.T * dsepda;
-    [[maybe_unused]] amrex::Real deepdz  = ytot1* (free + state.y_e * df_d * state.rho) + state.T * dsepdz;
+
+    [[maybe_unused]] amrex::Real deepda{};
+    if constexpr (has_dedA<T>) {
+        amrex::Real dsepda = ytot1 * (state.y_e * df_dt * din - sele);
+        deepda = -state.y_e * ytot1 * (free +  df_d * din) + state.T * dsepda;
+    }
+
+    [[maybe_unused]] amrex::Real deepdz{};
+    if constexpr (has_dedZ<T>) {
+        amrex::Real dsepdz = -ytot1 * (state.y_e * df_dt * state.rho  + df_t);
+        deepdz = ytot1* (free + state.y_e * df_d * state.rho) + state.T * dsepdz;
+    }
 
     if constexpr (has_pressure<T>) {
         state.p    = state.p + pele;
@@ -549,14 +568,10 @@ void apply_radiation (T& state)
 
     amrex::Real dpraddd = 0.0e0_rt;
     amrex::Real dpraddt = 4.0e0_rt * prad * tempi;
-    [[maybe_unused]] amrex::Real dpradda = 0.0e0_rt;
-    [[maybe_unused]] amrex::Real dpraddz = 0.0e0_rt;
 
     amrex::Real erad    = 3.0e0_rt * prad*deni;
     amrex::Real deraddd = -erad * deni;
     amrex::Real deraddt = 3.0e0_rt * dpraddt * deni;
-    [[maybe_unused]] amrex::Real deradda = 0.0e0_rt;
-    [[maybe_unused]] amrex::Real deraddz = 0.0e0_rt;
 
     amrex::Real srad    = (prad * deni + erad) * tempi;
     amrex::Real dsraddd = (dpraddd * deni - prad * deni * deni + deraddd) * tempi;
@@ -571,10 +586,10 @@ void apply_radiation (T& state)
         state.dpdr = dpraddd;
         state.dpdT = dpraddt;
         if constexpr (has_dpdA<T>) {
-            state.dpdA = dpradda;
+            state.dpdA = 0.0_rt;
         }
         if constexpr (has_dpdZ<T>) {
-            state.dpdZ = dpraddz;
+            state.dpdZ = 0.0_rt;
         }
     }
 
@@ -583,10 +598,10 @@ void apply_radiation (T& state)
         state.dedr = deraddd;
         state.dedT = deraddt;
         if constexpr (has_dedA<T>) {
-            state.dedA = deradda;
+            state.dedA = 0.0_rt;
         }
         if constexpr (has_dedZ<T>) {
-            state.dedZ = deraddz;
+            state.dedZ = 0.0_rt;
         }
     }
 
