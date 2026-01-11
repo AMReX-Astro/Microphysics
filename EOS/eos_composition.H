@@ -58,28 +58,22 @@ void composition (T& state)
 
 #ifdef AUX_THERMO
 
-  state.mu_e = 1.0 / state.aux[iye];
+  state.mu_e = 1.0_rt / state.aux[iye];
   state.y_e = state.aux[iye];
   state.abar = state.aux[iabar];
   state.zbar = state.abar * state.y_e;
 
 #else
 
-  amrex::Real sum = 0;
+  state.y_e = 0.0_rt;
+  state.abar = 0.0_rt;
   for (int n = 0; n < NumSpec; n++) {
-    sum += state.xn[n] * zion[n] * aion_inv[n];
+    state.y_e += state.xn[n] * zion[n] * aion_inv[n];
+    state.abar += state.xn[n] * aion_inv[n];
   }
+  state.abar = 1.0_rt / state.abar;
 
-  state.mu_e = 1.0 / sum;
-  state.y_e = sum;
-
-  sum = 0;
-
-  for (int n = 0; n < NumSpec; n++) {
-    sum += state.xn[n] * aion_inv[n];
-  }
-
-  state.abar = 1.0 / sum;
+  state.mu_e = 1.0_rt / state.y_e;
   state.zbar = state.abar * state.y_e;
 #endif
 }
