@@ -117,31 +117,18 @@ void fwt (const amrex::Real* AMREX_RESTRICT fi,
 
 // cubic hermite polynomial functions
 // psi0 & derivatives
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 amrex::Real xpsi0(amrex::Real z) noexcept
 {
     return z * z * (2.0e0_rt * z - 3.0e0_rt) + 1.0_rt;
 }
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-amrex::Real xdpsi0(amrex::Real z) noexcept
-{
-    return z * (6.0e0_rt * z - 6.0e0_rt);
-}
-
 // psi1 & derivatives
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 amrex::Real xpsi1(amrex::Real z) noexcept
 {
     return z * (z * (z - 2.0e0_rt) + 1.0e0_rt);
 }
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-amrex::Real xdpsi1(amrex::Real z) noexcept
-{
-    return z * (3.0e0_rt * z - 4.0e0_rt) + 1.0e0_rt;
-}
-
 
 
 namespace electron_table_indexing {
@@ -334,15 +321,16 @@ void apply_electrons (T& state)
     // giving the j offset, i offset, and component
 
     // pressure derivative with density
-    amrex::Real dpepdd = 0.0e0_rt;
-    amrex::constexpr_for<0, 16>([&] (auto K) {
-        constexpr int k = K;
-        constexpr auto m = electron_table_indexing::map[k];
+    [[maybe_unused]] amrex::Real dpepdd = 0.0e0_rt;
+    if constexpr (has_pressure<T>::value) {
+        amrex::constexpr_for<0, 16>([&] (auto K) {
+            constexpr int k = K;
+            constexpr auto m = electron_table_indexing::map[k];
 
-        dpepdd += dpdf[jat+m.dj][iat+m.di][m.n] * wdt[k];
-    });
-    dpepdd = amrex::max(state.y_e * dpepdd, 0.0e0_rt);
-
+            dpepdd += dpdf[jat+m.dj][iat+m.di][m.n] * wdt[k];
+        });
+        dpepdd = amrex::max(state.y_e * dpepdd, 0.0e0_rt);
+    }
 
     // electron chemical potential etaele
     [[maybe_unused]] amrex::Real etaele{};
@@ -377,13 +365,15 @@ void apply_electrons (T& state)
     amrex::Real dpepdt  = x * df_dt;
     [[maybe_unused]] amrex::Real dpepda{};
     [[maybe_unused]] amrex::Real dpepdz{};
-    if constexpr (has_dpdA<T>::value || has_dpdZ<T>::value) {
-        amrex::Real s       = dpepdd/state.y_e - 2.0e0_rt * din * df_d;
-        if constexpr (has_dpdA<T>::value) {
-            dpepda  = -ytot1 * (2.0e0_rt * pele + s * din);
-        }
-        if constexpr (has_dpdZ<T>::value) {
-            dpepdz  = state.rho*ytot1*(2.0e0_rt * din * df_d  +  s);
+    if constexpr (has_pressure<T>::value) {
+        if constexpr (has_dpdA<T>::value || has_dpdZ<T>::value) {
+            amrex::Real s       = dpepdd/state.y_e - 2.0e0_rt * din * df_d;
+            if constexpr (has_dpdA<T>::value) {
+                dpepda  = -ytot1 * (2.0e0_rt * pele + s * din);
+            }
+            if constexpr (has_dpdZ<T>::value) {
+                dpepdz  = state.rho*ytot1*(2.0e0_rt * din * df_d  +  s);
+            }
         }
     }
 
@@ -487,16 +477,21 @@ void apply_ions (T& state)
     [[maybe_unused]] amrex::Real deionda = 1.5e0_rt * dpionda * deni;
     [[maybe_unused]] amrex::Real deiondz = 0.0e0_rt;
 
-    amrex::Real x       = state.abar * state.abar * std::sqrt(state.abar) * deni / avo_eos;
-    amrex::Real s       = sioncon * state.T;
-    amrex::Real z       = x * s * std::sqrt(s);
-    amrex::Real y       = std::log(z);
-    amrex::Real sion    = (pion * deni + eion) * tempi + kergavo * ytot1 * y;
-    amrex::Real dsiondd = (dpiondd * deni - pion * deni * deni + deiondd) * tempi -
-                   kergavo * deni * ytot1;
-    amrex::Real dsiondt = (dpiondt * deni + deiondt) * tempi -
-                   (pion * deni + eion) * tempi * tempi +
-                   1.5e0_rt * kergavo * tempi * ytot1;
+    [[maybe_unused]] amrex::Real sion{};
+    [[maybe_unused]] amrex::Real dsiondd{};
+    [[maybe_unused]] amrex::Real dsiondt{};
+    if constexpr (has_entropy<T>::value) {
+        amrex::Real x       = state.abar * state.abar * std::sqrt(state.abar) * deni / avo_eos;
+        amrex::Real s       = sioncon * state.T;
+        amrex::Real z       = x * s * std::sqrt(s);
+        amrex::Real y       = std::log(z);
+        sion    = (pion * deni + eion) * tempi + kergavo * ytot1 * y;
+        dsiondd = (dpiondd * deni - pion * deni * deni + deiondd) * tempi -
+            kergavo * deni * ytot1;
+        dsiondt = (dpiondt * deni + deiondt) * tempi -
+            (pion * deni + eion) * tempi * tempi +
+            1.5e0_rt * kergavo * tempi * ytot1;
+    }
 
     if constexpr (has_pressure<T>::value) {
         state.p    = state.p + pion;
@@ -570,9 +565,14 @@ void apply_radiation (T& state)
     amrex::Real deraddd = -erad * deni;
     amrex::Real deraddt = 3.0e0_rt * dpraddt * deni;
 
-    amrex::Real srad    = (prad * deni + erad) * tempi;
-    amrex::Real dsraddd = (dpraddd * deni - prad * deni * deni + deraddd) * tempi;
-    amrex::Real dsraddt = (dpraddt * deni + deraddt - srad) * tempi;
+    [[maybe_unused]] amrex::Real srad{};
+    [[maybe_unused]] amrex::Real dsraddd{};
+    [[maybe_unused]] amrex::Real dsraddt{};
+    if constexpr (has_entropy<T>::value) {
+        srad    = (prad * deni + erad) * tempi;
+        dsraddd = (dpraddd * deni - prad * deni * deni + deraddd) * tempi;
+        dsraddt = (dpraddt * deni + deraddt - srad) * tempi;
+    }
 
     // Note that unlike the other terms, radiation
     // sets these terms instead of adding to them,
@@ -647,7 +647,7 @@ void apply_coulomb_corrections (T& state)
     [[maybe_unused]] amrex::Real decoulda = 0.e0_rt;
     [[maybe_unused]] amrex::Real decouldz = 0.e0_rt;
 
-    amrex::Real s, x, y, z; // temporary variables
+    amrex::Real s, z; // temporary variables
 
     // uniform background corrections only
     // from yakovlev & shalybkov 1989
@@ -683,18 +683,21 @@ void apply_coulomb_corrections (T& state)
     // .yakovlev & shalybkov 1989 equations 82, 85, 86, 87
     if (plasg >= 1.0e0_rt)
     {
-        x        = std::pow(plasg, 0.25e0_rt);
-        y        = avo_eos * ytot1 * kerg;
+        amrex::Real x = std::pow(plasg, 0.25e0_rt);
+        amrex::Real y = avo_eos * ytot1 * kerg;
         ecoul    = y * state.T * (a1 * plasg + b1 * x + c1 / x + d1);
         pcoul    = onethird * state.rho * ecoul;
-        scoul    = -y * (3.0e0_rt * b1 * x - 5.0e0_rt*c1 / x +
-                    d1 * (std::log(plasg) - 1.0e0_rt) - e1);
+
+        if constexpr (has_entropy<T>::value) {
+            scoul  = -y * (3.0e0_rt * b1 * x - 5.0e0_rt*c1 / x +
+                           d1 * (std::log(plasg) - 1.0e0_rt) - e1);
+        }
 
         y        = avo_eos*ytot1*kt*(a1 + 0.25e0_rt/plasg*(b1*x - c1/x));
         decouldd = y * plasgdd;
         decouldt = y * plasgdt + ecoul/state.T;
 
-        decoulda = y * plasgda - ecoul/state.abar;
+        decoulda = y * plasgda - ecoul * ytot1;
         decouldz = y * plasgdz;
 
         y        = onethird * state.rho;
@@ -704,10 +707,12 @@ void apply_coulomb_corrections (T& state)
         dpcoulda = y * decoulda;
         dpcouldz = y * decouldz;
 
-       y        = -avo_eos * kerg / (state.abar * plasg) *
-                   (0.75e0_rt * b1 * x + 1.25e0_rt * c1 / x + d1);
-       dscouldd = y * plasgdd;
-       dscouldt = y * plasgdt;
+       if constexpr (has_entropy<T>::value) {
+           y = -avo_eos * kerg / (state.abar * plasg) *
+               (0.75e0_rt * b1 * x + 1.25e0_rt * c1 / x + d1);
+           dscouldd = y * plasgdd;
+           dscouldt = y * plasgdt;
+       }
 
        // yakovlev & shalybkov 1989 equations 102, 103, 104
     }
@@ -720,12 +725,14 @@ void apply_coulomb_corrections (T& state)
         amrex::Real dpionda = dxnida * kt;
         amrex::Real dpiondz = 0.0e0_rt;
 
-        x        = plasg * std::sqrt(plasg);
-        y        = std::pow(plasg, b2);
+        amrex::Real x = plasg * std::sqrt(plasg);
+        amrex::Real y = std::pow(plasg, b2);
         z        = c2 * x - onethird * a2 * y;
         pcoul    = -pion * z;
         ecoul    = 3.0e0_rt * pcoul / state.rho;
-        scoul    = -avo_eos / state.abar * kerg * (c2 * x -a2 * (b2 - 1.0e0_rt) / b2 * y);
+        if constexpr (has_entropy<T>::value) {
+            scoul = -avo_eos * ytot1 * kerg * (c2 * x -a2 * (b2 - 1.0e0_rt) / b2 * y);
+        }
 
         s        = 1.5e0_rt * c2 * x / plasg - onethird * a2 * b2 * y / plasg;
         dpcouldd = -dpiondd * z - pion * s * plasgdd;
@@ -739,10 +746,12 @@ void apply_coulomb_corrections (T& state)
         decoulda = s * dpcoulda;
         decouldz = s * dpcouldz;
 
-        s        = -avo_eos * kerg / (state.abar * plasg) *
-                    (1.5e0_rt * c2 * x - a2 * (b2 - 1.0e0_rt) * y);
-        dscouldd = s * plasgdd;
-        dscouldt = s * plasgdt;
+        if constexpr (has_entropy<T>::value) {
+            s = -avo_eos * kerg / (state.abar * plasg) *
+                (1.5e0_rt * c2 * x - a2 * (b2 - 1.0e0_rt) * y);
+            dscouldd = s * plasgdd;
+            dscouldt = s * plasgdt;
+        }
     }
 
     // Disable Coulomb corrections if they cause
@@ -766,9 +775,11 @@ void apply_coulomb_corrections (T& state)
         ecoul    = 0.0e0_rt;
         decouldd = 0.0e0_rt;
         decouldt = 0.0e0_rt;
-        scoul    = 0.0e0_rt;
-        dscouldd = 0.0e0_rt;
-        dscouldt = 0.0e0_rt;
+        if constexpr (has_entropy<T>::value) {
+            scoul    = 0.0e0_rt;
+            dscouldd = 0.0e0_rt;
+            dscouldt = 0.0e0_rt;
+        }
 
         dpcoulda = 0.0e0_rt;
         dpcouldz = 0.0e0_rt;
