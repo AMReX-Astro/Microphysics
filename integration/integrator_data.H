@@ -2,6 +2,7 @@
 #define INTEGRATOR_DATA_H
 
 #include <cstdint>
+#include <limits>
 
 #include <burn_type.H>
 
@@ -17,6 +18,10 @@ using smallint_t = short;  //std::conditional_t<(INT_NEQS < 255), std::uint8_t, 
 // abundance is unreasonably small or large (each X must satisfy
 // -failure_tolerance <= X <= 1.0 + failure_tolerance).
 constexpr amrex::Real species_failure_tolerance = 1.e-2_rt;
+
+// for outputting the burn state failure, use enough precision
+// to be reproducible (not guaranteed for std::fixed)
+constexpr int OUTDIGITS = std::numeric_limits<amrex::Real>::max_digits10;
 
 #ifdef NSE
 constexpr int MIN_NSE_BAILOUT_STEPS = 10;
