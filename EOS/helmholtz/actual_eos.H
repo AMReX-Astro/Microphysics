@@ -322,7 +322,7 @@ void apply_electrons (T& state)
 
     // pressure derivative with density
     [[maybe_unused]] amrex::Real dpepdd = 0.0e0_rt;
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         amrex::constexpr_for<0, 16>([&] (auto K) {
             constexpr int k = K;
             constexpr auto m = electron_table_indexing::map[k];
@@ -368,10 +368,10 @@ void apply_electrons (T& state)
     if constexpr (has_pressure<T>) {
         if constexpr (has_dpdA<T> || has_dpdZ<T>) {
             amrex::Real s       = dpepdd/state.y_e - 2.0e0_rt * din * df_d;
-            if constexpr (has_dpdA<T>::value) {
+            if constexpr (has_dpdA<T>) {
                 dpepda  = -ytot1 * (2.0e0_rt * pele + s * din);
             }
-            if constexpr (has_dpdZ<T>::value) {
+            if constexpr (has_dpdZ<T>) {
                 dpepdz  = state.rho*ytot1*(2.0e0_rt * din * df_d  +  s);
             }
         }
@@ -480,7 +480,7 @@ void apply_ions (T& state)
     [[maybe_unused]] amrex::Real sion{};
     [[maybe_unused]] amrex::Real dsiondd{};
     [[maybe_unused]] amrex::Real dsiondt{};
-    if constexpr (has_entropy<T>::value) {
+    if constexpr (has_entropy<T>) {
         amrex::Real x       = state.abar * state.abar * std::sqrt(state.abar) * deni / avo_eos;
         amrex::Real s       = sioncon * state.T;
         amrex::Real z       = x * s * std::sqrt(s);
@@ -568,7 +568,7 @@ void apply_radiation (T& state)
     [[maybe_unused]] amrex::Real srad{};
     [[maybe_unused]] amrex::Real dsraddd{};
     [[maybe_unused]] amrex::Real dsraddt{};
-    if constexpr (has_entropy<T>::value) {
+    if constexpr (has_entropy<T>) {
         srad    = (prad * deni + erad) * tempi;
         dsraddd = (dpraddd * deni - prad * deni * deni + deraddd) * tempi;
         dsraddt = (dpraddt * deni + deraddt - srad) * tempi;
@@ -688,7 +688,7 @@ void apply_coulomb_corrections (T& state)
         ecoul    = y * state.T * (a1 * plasg + b1 * x + c1 / x + d1);
         pcoul    = onethird * state.rho * ecoul;
 
-        if constexpr (has_entropy<T>::value) {
+        if constexpr (has_entropy<T>) {
             scoul  = -y * (3.0e0_rt * b1 * x - 5.0e0_rt*c1 / x +
                            d1 * (std::log(plasg) - 1.0e0_rt) - e1);
         }
@@ -707,7 +707,7 @@ void apply_coulomb_corrections (T& state)
         dpcoulda = y * decoulda;
         dpcouldz = y * decouldz;
 
-       if constexpr (has_entropy<T>::value) {
+       if constexpr (has_entropy<T>) {
            y = -avo_eos * kerg / (state.abar * plasg) *
                (0.75e0_rt * b1 * x + 1.25e0_rt * c1 / x + d1);
            dscouldd = y * plasgdd;
@@ -730,7 +730,7 @@ void apply_coulomb_corrections (T& state)
         z        = c2 * x - onethird * a2 * y;
         pcoul    = -pion * z;
         ecoul    = 3.0e0_rt * pcoul / state.rho;
-        if constexpr (has_entropy<T>::value) {
+        if constexpr (has_entropy<T>) {
             scoul = -avo_eos * ytot1 * kerg * (c2 * x -a2 * (b2 - 1.0e0_rt) / b2 * y);
         }
 
@@ -746,7 +746,7 @@ void apply_coulomb_corrections (T& state)
         decoulda = s * dpcoulda;
         decouldz = s * dpcouldz;
 
-        if constexpr (has_entropy<T>::value) {
+        if constexpr (has_entropy<T>) {
             s = -avo_eos * kerg / (state.abar * plasg) *
                 (1.5e0_rt * c2 * x - a2 * (b2 - 1.0e0_rt) * y);
             dscouldd = s * plasgdd;
@@ -775,7 +775,7 @@ void apply_coulomb_corrections (T& state)
         ecoul    = 0.0e0_rt;
         decouldd = 0.0e0_rt;
         decouldt = 0.0e0_rt;
-        if constexpr (has_entropy<T>::value) {
+        if constexpr (has_entropy<T>) {
             scoul    = 0.0e0_rt;
             dscouldd = 0.0e0_rt;
             dscouldt = 0.0e0_rt;
