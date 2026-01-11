@@ -42,11 +42,11 @@ constexpr int integrator_neqs ()
     int int_neqs = 0;
 
 #ifdef STRANG
-    if constexpr (has_xn<BurnT>::value) {
+    if constexpr (has_xn<BurnT>) {
         int_neqs += NumSpec;
     }
 
-    if constexpr (has_energy<BurnT>::value) {
+    if constexpr (has_energy<BurnT>) {
         int_neqs += 1;
     }
 #else
