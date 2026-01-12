@@ -22,7 +22,7 @@ using namespace network_rp;
 ///
 /// given a rho, T, and Ye index, return the 1-d index into the NSE table arrays
 ///
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 int nse_idx(const int ir, const int it, const int ic) {
     // this uses a 1-based indexing
     return (ir-1) * nse_table_size::ntemp * nse_table_size::nye + (it-1) * nse_table_size::nye + ic;
@@ -78,38 +78,38 @@ void init_nse() {
 
 }
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 amrex::Real nse_table_logT(const int it) {
     return nse_table_size::logT_min + static_cast<amrex::Real>(it-1) * nse_table_size::dlogT;
 }
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 amrex::Real nse_table_logrho(const int ir) {
     return nse_table_size::logrho_min + static_cast<amrex::Real>(ir-1) * nse_table_size::dlogrho;
 }
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 amrex::Real nse_table_ye(const int ic) {
     return nse_table_size::ye_max - static_cast<amrex::Real>(ic-1) * nse_table_size::dye;
 }
 
 // return the index in the table such that logrho[irho] < input density
 // note: this is a 1-based index
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 int nse_get_logrho_index(const amrex::Real logrho) {
 
-    int ir0 = static_cast<int>((logrho - nse_table_size::logrho_min) /
-                               nse_table_size::dlogrho - 1.e-6_rt);
+    int ir0 = static_cast<int>((logrho - nse_table_size::logrho_min) *
+                               nse_table_size::inv_dlogrho - 1.e-6_rt);
     return ir0 + 1;
 }
 
 // return the index in the table such that logT[it] < input temperature
 // note: this is a 1-based index
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 int nse_get_logT_index(const amrex::Real logT) {
 
-    int it0 = static_cast<int>((logT - nse_table_size::logT_min) /
-                               nse_table_size::dlogT - 1.e-6_rt);
+    int it0 = static_cast<int>((logT - nse_table_size::logT_min) *
+                               nse_table_size::inv_dlogT - 1.e-6_rt);
     return it0 + 1;
 }
 
@@ -118,8 +118,8 @@ int nse_get_logT_index(const amrex::Real logT) {
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 int nse_get_ye_index(const amrex::Real ye) {
 
-    int ic0 = static_cast<int>((nse_table_size::ye_max - ye) /
-                               nse_table_size::dye - 1.0e-6_rt);
+    int ic0 = static_cast<int>((nse_table_size::ye_max - ye) *
+                               nse_table_size::inv_dye - 1.0e-6_rt);
     return ic0 + 1;
 }
 
@@ -189,9 +189,9 @@ amrex::Real trilinear(const int ir1, const int it1, const int ic1,
     amrex::Real r0 = nse_table_logrho(ir1);
     amrex::Real x0 = nse_table_ye(ic1);
 
-    amrex::Real td = (temp - t0) / nse_table_size::dlogT;
-    amrex::Real rd = (rho - r0) / nse_table_size::dlogrho;
-    amrex::Real xd = (x0 - ye) / nse_table_size::dye;
+    amrex::Real td = (temp - t0) * nse_table_size::inv_dlogT;
+    amrex::Real rd = (rho - r0) * nse_table_size::inv_dlogrho;
+    amrex::Real xd = (x0 - ye) * nse_table_size::inv_dye;
     xd = amrex::max(0.0_rt, xd);
 
     amrex::Real omtd = 1.0_rt - td;
@@ -529,7 +529,7 @@ nse_interp_dT(const amrex::Real temp, const amrex::Real rho, const amrex::Real y
     // note: this is returning the derivative wrt log10(T), so we need to
     // convert to d/dT
 
-    amrex::Real ddatadT = tricubic_dT(ir0, it0, ic0, rholog, tlog, yet, data) / (std::log(10.0_rt) * temp);
+    amrex::Real ddatadT = tricubic_dT(ir0, it0, ic0, rholog, tlog, yet, data) / (M_LN10 * temp);
 
     return ddatadT;
 
@@ -582,7 +582,7 @@ nse_interp_drho(const amrex::Real temp, const amrex::Real rho, const amrex::Real
     // note: this is returning the derivative wrt log10(rho), so we need to
     // convert to d/drho
 
-    amrex::Real ddatadrho = tricubic_drho(ir0, it0, ic0, rholog, tlog, yet, data) / (std::log(10.0_rt) * rho);
+    amrex::Real ddatadrho = tricubic_drho(ir0, it0, ic0, rholog, tlog, yet, data) / (M_LN10 * rho);
 
     return ddatadrho;
 
