@@ -1,4 +1,6 @@
 
+set(CMAKE_CXX_STANDARD 20)
+
 if(BUILD_UNIT_TEST_PC)
   #add primordial_chem test
   add_subdirectory(burn_cell_primordial_chem)
