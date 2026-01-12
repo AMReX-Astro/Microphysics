@@ -100,11 +100,10 @@ int get_root_index(const int nuc_ind,
     // This function returns the root index of the nuclei
     // by providing the nuclei index [0, NumSpec-1], and group indices, group_ind
 
-    int root_index;
     int scratch_ind = nuc_ind;
 
     while(true) {
-        root_index = group_ind(scratch_ind + 1);
+        int root_index = group_ind(scratch_ind + 1);
 
         if (root_index != scratch_ind + 1) {
             scratch_ind = root_index - 1;
@@ -166,9 +165,6 @@ bool in_single_group(const amrex::Array1D<int, 1, NumSpec>& group_ind) {
 
     int nonLIG_index = -1;
 
-    int oddN_group = -1;
-    int evenN_group = -1;
-
     bool in_single_group = true;
 
     // Consider NSE when there is a single group with an optional LIG group
@@ -199,6 +195,9 @@ bool in_single_group(const amrex::Array1D<int, 1, NumSpec>& group_ind) {
     if (NSE_INDEX::N_index == -1 && !in_single_group) {
 
         in_single_group = true;
+
+        int oddN_group = -1;
+        int evenN_group = -1;
 
         for (int n = 0; n < NumSpec; ++n) {
 
