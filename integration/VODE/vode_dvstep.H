@@ -82,14 +82,13 @@ int dvstep (BurnT& state, DvodeT& vstate)
     constexpr amrex::Real ONEPSM = 1.00001e0_rt;
     constexpr amrex::Real THRESH = 1.5e0_rt;
 
-    amrex::Real CNQUOT{}, DDN{}, DSM{}, DUP{}, TOLD{};
-    amrex::Real FLOTL{}, R{};
+    amrex::Real DSM{};
     int NCF{}, NFLAG{};
 
     constexpr int int_neqs = integrator_neqs<BurnT>();
 
     int kflag = 0;
-    TOLD = vstate.tn;
+    amrex::Real TOLD = vstate.tn;
     NCF = 0;
     vstate.JCUR = 0;
     NFLAG = 0;
@@ -117,7 +116,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
 
         // Rescale the history array for a change in H by a factor of ETA.
 
-        R = 1.0_rt;
+        amrex::Real R = 1.0_rt;
 
         for (int j = 2; j <= vstate.L; ++j) {
             R *= vstate.ETA;
@@ -201,7 +200,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
             vstate.ETA = amrex::max(vstate.ETA, HMIN / std::abs(vstate.H));
 
             // Rescale the history array for a change in H by a factor of ETA.
-            R = 1.0_rt;
+            amrex::Real R = 1.0_rt;
 
             for (int j = 2; j <= vstate.L; ++j) {
                 R *= vstate.ETA;
@@ -357,7 +356,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
                 vstate.ETAMAX = ETAMX2;
             }
 
-            R = 1.0_rt / vstate.tq(2);
+            amrex::Real R = 1.0_rt / vstate.tq(2);
             for (int i = 1; i <= int_neqs; ++i) {
                 vstate.acor(i) *= R;
             }
@@ -389,7 +388,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
         if (kflag > KFC) {
 
             // Compute ratio of new H to current H at the current order.
-            FLOTL = vstate.L;
+            amrex::Real FLOTL = vstate.L;
             vstate.ETA = 1.0_rt / (std::pow(BIAS2 * DSM, 1.0_rt / FLOTL) + ADDON);
             vstate.ETA = amrex::max(vstate.ETA, HMIN / std::abs(vstate.H), ETAMIN);
             if ((kflag <= -2) && (vstate.ETA > ETAMXF)) {
@@ -397,7 +396,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
             }
 
             // Rescale the history array for a change in H by a factor of ETA.
-            R = 1.0_rt;
+            amrex::Real R = 1.0_rt;
 
             for (int j = 2; j <= vstate.L; ++j) {
                 R *= vstate.ETA;
@@ -434,7 +433,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
             vstate.NQWAIT = vstate.L;
 
             // Rescale the history array for a change in H by a factor of ETA.
-            R = 1.0_rt;
+            amrex::Real R = 1.0_rt;
 
             for (int j = 2; j <= vstate.L; ++j) {
                 R *= vstate.ETA;
@@ -477,7 +476,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
     bool already_set_eta = false;
 
     // Compute ratio of new H to current H at the current order.
-    FLOTL = vstate.L;
+    amrex::Real FLOTL = vstate.L;
     const amrex::Real ETAQ = 1.0_rt / (std::pow(BIAS2 * DSM, 1.0_rt / FLOTL) + ADDON);
     if (vstate.NQWAIT == 0) {
         vstate.NQWAIT = 2;
@@ -486,7 +485,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
 
         if (vstate.NQ != 1) {
             // Compute ratio of new H to current H at the current order less one.
-            DDN = 0.0_rt;
+            amrex::Real DDN = 0.0_rt;
             for (int i = 1; i <= int_neqs; ++i) {
                 DDN += (vstate.yh(i,vstate.L) * vstate.ewt(i)) * (vstate.yh(i,vstate.L) * vstate.ewt(i));
             }
@@ -498,11 +497,11 @@ int dvstep (BurnT& state, DvodeT& vstate)
 
         if (vstate.L != VODE_LMAX) {
             // Compute ratio of new H to current H at current order plus one.
-            CNQUOT = (vstate.tq(5) / vstate.CONP) * std::pow(vstate.H / vstate.tau(2), vstate.L);
+            amrex::Real CNQUOT = (vstate.tq(5) / vstate.CONP) * std::pow(vstate.H / vstate.tau(2), vstate.L);
             for (int i = 1; i <= int_neqs; ++i) {
                 vstate.savf(i) = vstate.acor(i) - CNQUOT * vstate.yh(i,VODE_LMAX);
             }
-            DUP = 0.0_rt;
+            amrex::Real DUP = 0.0_rt;
             for (int i = 1; i <= int_neqs; ++i) {
                 DUP += (vstate.savf(i) * vstate.ewt(i)) * (vstate.savf(i) * vstate.ewt(i));
             }
@@ -547,7 +546,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
         if (vstate.n_step <= 10) {
             vstate.ETAMAX = ETAMX2;
         }
-        R = 1.0_rt / vstate.tq(2);
+        amrex::Real R = 1.0_rt / vstate.tq(2);
         for (int i = 1; i <= int_neqs; ++i) {
             vstate.acor(i) *= R;
         }
@@ -561,7 +560,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
     if (vstate.n_step <= 10) {
         vstate.ETAMAX = ETAMX2;
     }
-    R = 1.0_rt / vstate.tq(2);
+    amrex::Real R = 1.0_rt / vstate.tq(2);
     for (int i = 1; i <= int_neqs; ++i) {
         vstate.acor(i) *= R;
     }

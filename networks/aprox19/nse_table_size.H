@@ -27,5 +27,10 @@ namespace nse_table_size {
     constexpr amrex::Real ye_max = 0.5;
     constexpr amrex::Real dye = 0.0025;
 
+    constexpr amrex::Real inv_dlogT = 1.0_rt / dlogT;
+    constexpr amrex::Real inv_dlogrho = 1.0_rt / dlogrho;
+    constexpr amrex::Real inv_dye = 1.0_rt / dye;
+
+
 }
 #endif
