@@ -223,12 +223,18 @@ int dvstep (BurnT& state, DvodeT& vstate)
 
 #ifdef SDC
         if (vstate.y(SEINT+1) < 0.0_rt) {
+#ifdef MICROPHYSICS_DEBUG
+            std::cout << "rejecting due to rho e" << std::endl;
+#endif
             valid_update = false;
         }
 
         amrex::Real rho_current = state.rho_orig + vstate.tn * state.ydot_a[SRHO];
 
         if (rho_current < 0.0_rt) {
+#ifdef MICROPHYSICS_DEBUG
+            std::cout << "rejecting due to rho" << std::endl;
+#endif
             valid_update = false;
         }
 #endif
@@ -294,11 +300,17 @@ int dvstep (BurnT& state, DvodeT& vstate)
             }
 
             if (vstate.y(SFS+i) < -species_failure_tolerance * rho_current) {
+#ifdef MICROPHYSICS_DEBUG
+                std::cout << "rejecting step due to negative species " << i << std::endl;
+#endif
                 valid_update = false;
                 break;
             }
 
             if (vstate.y(SFS+i) > (1.0_rt + species_failure_tolerance) * rho_current) {
+#ifdef MICROPHYSICS_DEBUG
+                std::cout << "rejecting step due to large species " << i << std::endl;
+#endif
                 valid_update = false;
                 break;
             }
@@ -313,6 +325,19 @@ int dvstep (BurnT& state, DvodeT& vstate)
         DSM = ACNRM / vstate.tq(2);
         if (DSM <= 1.0_rt && valid_update) {
 
+#ifdef SDC
+            // do normalization if desired
+            amrex::Real rhoX_sum{};
+            for (int n = 1; n <= NumSpec; ++n) {
+                vstate.y(SFS+n) = amrex::Clamp(vstate.y(SFS+n), 0.0, rho_current);
+                rhoX_sum += vstate.y(SFS+n);
+            }
+
+            amrex::Real fac = rho_current / rhoX_sum;
+            for (int n = 1; n <= NumSpec; ++n) {
+                vstate.y(SFS+n) *= fac;
+            }
+#endif
             // After a successful step, update the yh and TAU arrays and decrement
             // NQWAIT. If NQWAIT is then 1 and NQ .lt. MAXORD, then ACOR is saved
             // for use in a possible order increase on the next step.
