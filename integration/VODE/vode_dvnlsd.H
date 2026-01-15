@@ -112,6 +112,32 @@ amrex::Real dvnlsd (int& NFLAG, BurnT& state, DvodeT& vstate)
                               (vstate.RL1 * vstate.yh(i,2) + vstate.acor(i));
             }
 
+            // sometime VODE goes way off tangent.  If these mass fractions
+            // are really bad, then let's just bail now
+
+            {
+                amrex::Real rho_current = state.rho_orig + vstate.tn * state.ydot_a[SRHO];
+#ifdef SDC
+                amrex::Real thresh = species_failure_tolerance * rho_current;
+#else
+                amrex::Real thresh = species_failure_tolerance;
+#endif
+                bool fail{};
+                for (int i = 1; i <= NumSpec; ++i) {
+                    if (vstate.y(i) < -thresh) {
+                        fail = true;
+                        break;
+                    }
+                }
+
+                if (fail) {
+                    NFLAG = -1;
+                    vstate.ICF = 2;
+                    vstate.IPUP = 1;
+                    return ACNRM;
+                }
+            }
+
 #ifdef NEW_NETWORK_IMPLEMENTATION
             RHS::dgesl(vstate.jac, vstate.y);
 #else
