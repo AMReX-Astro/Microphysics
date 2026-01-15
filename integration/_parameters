@@ -93,6 +93,10 @@ retry_atol_enuc                real      -1
 # are in [0, 1]?
 do_species_clip              bool         1
 
+# in the corrector loop, do we check if the predicted state is
+# valid (X > 0) before calling the RHS?
+do_corrector_validation      bool         0
+
 # flag for turning on the use of number densities for all species
 use_number_densities     bool     0
 
