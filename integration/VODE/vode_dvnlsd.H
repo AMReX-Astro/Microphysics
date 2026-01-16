@@ -112,9 +112,6 @@ amrex::Real dvnlsd (int& NFLAG, BurnT& state, DvodeT& vstate)
                               (vstate.RL1 * vstate.yh(i,2) + vstate.acor(i));
             }
 
-            // sometime VODE goes way off tangent.  If these mass fractions
-            // are really bad, then let's just bail now
-
 #ifdef NEW_NETWORK_IMPLEMENTATION
             RHS::dgesl(vstate.jac, vstate.y);
 #else
@@ -147,6 +144,9 @@ amrex::Real dvnlsd (int& NFLAG, BurnT& state, DvodeT& vstate)
             for (int i = 1; i <= int_neqs; ++i) {
                 vstate.y(i) = vstate.yh(i,1) + vstate.acor(i);
             }
+
+            // sometime VODE goes way off tangent.  If these mass fractions
+            // are really bad, then let's just bail now
 
             if (integrator_rp::do_corrector_validation) {
 #ifdef SDC
