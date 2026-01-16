@@ -248,7 +248,7 @@ fractions.  Looser than this can produce large errors.
 Controlling Species $\sum_k X_k = 1$
 ====================================
 
-.. index:: integrator.renormalize_abundances, integrator.SMALL_X_SAFE, integrator.do_species_clip
+.. index:: integrator.renormalize_abundances, integrator.SMALL_X_SAFE, integrator.do_species_clip, integrator.do_corrector_validation
 
 The ODE integrators don't know about the constraint that
 
@@ -279,6 +279,12 @@ constraint on the intermediate states during the integration.
 
   This is enabled by default.
 
+* ``integrator.do_corrector_validation`` : in the nonlinear solve
+  corrector loop, when we get a corrected integration state, do we
+  check to make sure the mass fractions are valid before calling the
+  righthand function?  This is needed in some cases if
+  ``integrator.do_species_clip`` is disabled.  Note: this is not
+  implemented for every integrator.
 
 
 Retry Mechanism
