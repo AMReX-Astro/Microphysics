@@ -9,7 +9,7 @@
 #ifndef NETWORK_PROPERTIES_H
 #define NETWORK_PROPERTIES_H
 
-#if defined(__GNUC__)
+#ifdef __GNUC__
 #define MICROPHYSICS_UNUSED [[gnu::unused]]
 #else
 #define MICROPHYSICS_UNUSED

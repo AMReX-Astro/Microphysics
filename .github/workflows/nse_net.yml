@@ -5,7 +5,7 @@ jobs:
   nse_net:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -65,3 +65,23 @@ jobs:
         run: |
           cd unit_test/nse_net_cell/make_table
           diff -I "^Initializing AMReX" -I "^AMReX" -I "^reading in reaclib rates" test.out ci-benchmarks/nse_net_make_table_unit_test.out
+
+      - name: Compile, nse_compatibility (NSE_NET, ase-test, integration)
+        run: |
+          cd nse_solver/nse_compatibility
+          make realclean
+          make NETWORK_DIR=he-burn/ase-test -j 4
+
+      - name: Run nse_compatibility (NSE_NET, ase-test, integration)
+        run: |
+          cd nse_solver/nse_compatibility
+          ./main3d.gnu.ex inputs_nse_compatibility amrex.fpe_trap_{invalid,zero,overflow}=1 > test.out
+
+      - name: Print backtrace
+        if: ${{ failure() && hashFiles('nse_solver/nse_compatibility/Backtrace.0') != '' }}
+        run: cat nse_solver/nse_compatibility/Backtrace.0
+
+      - name: Compare to stored output (NSE_NET, ase-test, integration)
+        run: |
+          cd nse_solver/nse_compatibility
+          diff -I "^Initializing AMReX" -I "^AMReX" -I "^reading in reaclib rates" test.out ci-benchmarks/nse_net_integration_unit_test.out

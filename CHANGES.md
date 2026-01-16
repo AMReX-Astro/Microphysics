@@ -1,5 +1,77 @@
 # Changelog
 
+## 26.01
+
+  * eliminate an exp at the low end of screening (#1893)
+
+  * use `constexpr_for` in helmholtz to map into 3D arrays (#1904)
+
+  * clean up `apply_electrons` in the helmholtz EOS (#1903)
+
+  * remove `compute_Q` and `rate=` in the `DerivedRate` constructors
+    for pynucastro nets (#1902)
+
+  * update networks with the latest pynucastro (#1886)
+
+  * update the github actions (#1900, #1901)
+
+  * some optimizations to helmholtz EOS (#1896)
+
+  * add `kerg` constant (#1895)
+
+  * allow `test_sdc` to build when NSE is not defined (#1894)
+    and add support for self-consistent NSE (#1890)
+
+  * update python doc package requirements (#1892)
+
+## 25,12
+
+  * update CI actions (#1885)
+
+  * manually scale T in NSE solve to get better convergence (#1884)
+
+  * add loop unrolling to MathArray2D (#1872)
+
+  * add a check that `integrator.ode_max_steps` is positive (#1882)
+
+  * add energy and Ye output to the `burn_cell` unit test (#1883)
+
+  * regenerate pynucastro networks with caching of interpolation
+    indices (#1879)
+
+  * allow for more species inputs in the unit tests (#1878)
+
+  * avoid a possible divide-by-zero in the NSE solver and add a
+    species mass fraction floor (#1881)
+
+  * fix a bounds issue in the NSE solver (#1880)
+
+  * fix compiler warnings if neutrinos are disabled (#1856)
+
+  * add an `ase-iron` network for self-consistent NSE (#1860)
+
+## 25.11
+
+  * add support for reduced precision Jacobian (#1862)
+
+  * make some more quantities const / constexpr (#1864, #1866, #1871)
+
+  * add loop unrolling to linpack (#1865)
+
+  * update networks to pynucastro 2.8.0 (#1870)
+
+  * github CI action updates (#1874)
+
+  * fix the `part_func` network generation script (#1873)
+
+  * fix comment about Jacobian (#1861)
+
+  * remove `symmetric_screening` args in networks (#1859)
+
+  * doc improvements (#1855)
+
+  * use more concise method to eliminate rate duplicates in networks (#1854)
+
 ## 25.10
 
   * update the NSE solver docs to explain network compatibility (#1852)

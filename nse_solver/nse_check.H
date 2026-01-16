@@ -45,6 +45,10 @@ void check_nse_molar(const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
 
     for (int n = 0; n < NumSpec; ++n) {
 
+        if (Y(n+1) == 0.0_rt || Y_nse(n+1) == 0.0_rt) {
+            continue;
+        }
+
         if (n == NSE_INDEX::H1_index || n == NSE_INDEX::N_index) {
             r /= Y(n+1) * Y(n+1);
             r_nse /= Y_nse(n+1) * Y_nse(n+1);
@@ -96,11 +100,10 @@ int get_root_index(const int nuc_ind,
     // This function returns the root index of the nuclei
     // by providing the nuclei index [0, NumSpec-1], and group indices, group_ind
 
-    int root_index;
     int scratch_ind = nuc_ind;
 
     while(true) {
-        root_index = group_ind(scratch_ind + 1);
+        int root_index = group_ind(scratch_ind + 1);
 
         if (root_index != scratch_ind + 1) {
             scratch_ind = root_index - 1;
@@ -162,9 +165,6 @@ bool in_single_group(const amrex::Array1D<int, 1, NumSpec>& group_ind) {
 
     int nonLIG_index = -1;
 
-    int oddN_group = -1;
-    int evenN_group = -1;
-
     bool in_single_group = true;
 
     // Consider NSE when there is a single group with an optional LIG group
@@ -195,6 +195,9 @@ bool in_single_group(const amrex::Array1D<int, 1, NumSpec>& group_ind) {
     if (NSE_INDEX::N_index == -1 && !in_single_group) {
 
         in_single_group = true;
+
+        int oddN_group = -1;
+        int evenN_group = -1;
 
         for (int n = 0; n < NumSpec; ++n) {
 
@@ -288,6 +291,13 @@ void fill_reaction_timescale(amrex::Array1D<T, 1, Rates::NumRates>& reaction_tim
 
             non_NHA_ind(non_NHA_counts) = k;
         }
+    }
+
+    //
+    // 4) If the rate only involves Neutron, Proton or Helium-4
+    //
+    if (non_NHA_ind(1) == -1) {
+        return;
     }
 
     // Calculate the forward and reverse rates of the current rate index

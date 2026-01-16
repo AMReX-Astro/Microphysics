@@ -336,11 +336,11 @@ are effectively accounted for in the approximate rates.
 There are 2 runtime parameters that can be used
 to disable rates:
 
-* ``network.disable_p_c12__n13`` : if set to ``1``, then the rate
+* ``network.disable_p_C12_to_N13_reaclib`` : if set to ``1``, then the rate
   :math:`\isotm{C}{12}(p,\gamma)\isotm{N}{13}` and its inverse are
   disabled.
 
-* ``network.disable_he4_n13__p_o16`` : if set to ``1``, then the rate
+* ``network.disable_He4_N13_to_p_O16_reaclib`` : if set to ``1``, then the rate
   :math:`\isotm{N}{13}(\alpha,p)\isotm{O}{16}` and its inverse are
   disabled.
 
@@ -407,6 +407,19 @@ $\alpha$-chain without a modified rate (which does not behave well with NSE).
 The full network appears as:
 
 .. figure:: ../../networks/he-burn/ase/ase.png
+   :align: center
+
+
+``ase-iron``
+------------
+
+As with ``ase``, this network is constructed to have reverse rates for all forward rates, allowing
+it to be used with the :ref:`self_consistent_nse` solver.  It builds off of ``ase`` by including
+more iron-group nuclei (using the same nuclei as ``he-burn-28amnp``).
+
+The full network appears as:
+
+.. figure:: ../../networks/he-burn/ase-iron/ase-iron.png
    :align: center
 
 

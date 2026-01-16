@@ -1213,7 +1213,7 @@ void rhs_init ()
 // for each term in ydot).
 template<int nrhs>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rhs (burn_t& burn_state, amrex::Array1D<amrex::Real, 1, nrhs>& ydot)
+void rhs (const burn_t& burn_state, amrex::Array1D<amrex::Real, 1, nrhs>& ydot)
 {
     static_assert(nrhs == neqs || nrhs == 2 * neqs);
 
@@ -1323,10 +1323,10 @@ void rhs (burn_t& burn_state, amrex::Array1D<amrex::Real, 1, nrhs>& ydot)
 
     // Evaluate the neutrino cooling.
     amrex::Real sneut = 0.0;
-    amrex::Real dsneutdt = 0.0, dsneutdd = 0.0, dsnuda = 0.0, dsnudz = 0.0;
 
 #ifdef NEUTRINOS
     constexpr int do_derivatives{0};
+    amrex::Real dsneutdt = 0.0, dsneutdd = 0.0, dsnuda = 0.0, dsnudz = 0.0;
     neutrino_cooling<do_derivatives>(burn_state.T, burn_state.rho,
                                      burn_state.abar, burn_state.zbar,
                                      sneut, dsneutdt, dsneutdd, dsnuda, dsnudz);
@@ -1357,7 +1357,7 @@ void rhs (burn_t& burn_state, amrex::Array1D<amrex::Real, 1, nrhs>& ydot)
 
 // Analytical Jacobian
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void jac (burn_t& burn_state, ArrayUtil::MathArray2D<jac_t, 1, neqs, 1, neqs>& jac)
+void jac (const burn_t& burn_state, ArrayUtil::MathArray2D<jac_t, 1, neqs, 1, neqs>& jac)
 {
     rhs_state_t<autodiff::dual> rhs_state;
 
@@ -1473,17 +1473,16 @@ void jac (burn_t& burn_state, ArrayUtil::MathArray2D<jac_t, 1, neqs, 1, neqs>& j
     });
 
     // Evaluate the neutrino cooling.
-    amrex::Real sneut = 0.0;
-    amrex::Real dsneutdt = 0.0, dsneutdd = 0.0, dsnuda = 0.0, dsnudz = 0.0;
+    amrex::Real dsneutdt = 0.0, dsnuda = 0.0, dsnudz = 0.0;
 
 #ifdef NEUTRINOS
     constexpr int do_derivatives{1};
+    amrex::Real sneut = 0.0;
+    amrex::Real dsneutdd = 0.0;
     neutrino_cooling<do_derivatives>(burn_state.T, burn_state.rho,
                                      burn_state.abar, burn_state.zbar,
                                      sneut, dsneutdt, dsneutdd, dsnuda, dsnudz);
 #endif
-    amrex::ignore_unused(sneut, dsneutdd);
-
     jac(net_ienuc, net_ienuc) = -temperature_to_energy_jacobian(burn_state, dsneutdt);
 
     amrex::constexpr_for<1, NumSpec+1>([&] (auto j)
@@ -1515,13 +1514,13 @@ void jac (burn_t& burn_state, ArrayUtil::MathArray2D<jac_t, 1, neqs, 1, neqs>& j
 // namespace. This should be retired later when nothing still depends on those names.
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void actual_rhs (burn_t& state, amrex::Array1D<amrex::Real, 1, neqs>& ydot)
+void actual_rhs (const burn_t& state, amrex::Array1D<amrex::Real, 1, neqs>& ydot)
 {
     RHS::rhs(state, ydot);
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void actual_jac (burn_t& state, ArrayUtil::MathArray2D<jac_t, 1, neqs, 1, neqs>& jac)
+void actual_jac (const burn_t& state, ArrayUtil::MathArray2D<jac_t, 1, neqs, 1, neqs>& jac)
 {
     RHS::jac(state, jac);
 }

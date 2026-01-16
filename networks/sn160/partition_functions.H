@@ -7,6 +7,7 @@
 #include <tfactors.H>
 #include <fundamental_constants.H>
 #include <network_properties.H>
+#include <interp_tools.H>
 
 using namespace amrex::literals;
 using namespace Species;
@@ -14,35 +15,31 @@ using namespace Species;
 namespace part_fun {
 
 
-
     // interpolation routine
 
     template <typename T>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void interpolate_pf(const amrex::Real t9, const T& temp_array, const T& pf_array,
+    void interpolate_pf(const amrex::Real t9, int idx,
+                        const T& temp_array, const T& pf_array,
                         amrex::Real& pf, amrex::Real& dpf_dT) {
 
-        int left = temp_array.lo();
-        int right = temp_array.hi();
+        // if the index is -1, we are either outside of the bounds or
+        // we never computed it.  try recomputing here
+        if (idx == -1) {
+            idx = interp_net::find_index(t9, temp_array);
+        }
 
-        if (t9 >= temp_array(left) && t9 < temp_array(right)) {
+        // if the index is still -1, then we are out-of-bounds, so
+        // just skip the interpolation
 
-            // find the largest temperature element <= t9 using a binary search
+        if (idx != -1) {
 
-            while (left < right) {
-                int mid = (left + right) / 2;
-                if (temp_array(mid) > t9) {
-                    right = mid;
-                } else {
-                    left = mid + 1;
-                }
-            }
+            // we have idx such that:
+            // temp_array[idx] <= t9 < temp_array[idx+1]
+            AMREX_ASSERT(t9 >= temp_array(idx) && t9 < temp_array(idx+1));
 
-            const int idx = right - 1;
-
-            // now we have temp_array[idx] <= t9 < temp_array[idx+1]
-
-            // construct the slope -- this is (log10(pf_{i+1}) - log10(pf_i)) / (T_{i+1} - T_i)
+            // construct the slope -- this is
+            // (log10(pf_{i+1}) - log10(pf_i)) / (T_{i+1} - T_i)
 
             amrex::Real slope = (pf_array(idx+1) - pf_array(idx)) /
                                 (temp_array(idx+1) - temp_array(idx));
@@ -55,7 +52,7 @@ namespace part_fun {
             // find the derivative (with respect to T, not T9)
 
             amrex::Real dpf_dT9 = pf * M_LN10 * slope;
-            dpf_dT = dpf_dT9 / 1.e9_rt;
+            dpf_dT = dpf_dT9 * 1.e-9_rt;
 
         } else {
 
@@ -67,6 +64,8 @@ namespace part_fun {
 
     }
 
+
+
     struct pf_cache_t {
         // Store the coefficient and derivative adjacent in memory, as they're
         // always accessed at the same time.
@@ -77,11 +76,17 @@ namespace part_fun {
 
 }
 
-// main interface
+// get the partition function for nucleus inuc.  Here pf_cache
+// should already contain the index into the temp / pf arrays
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void get_partition_function(const int inuc, [[maybe_unused]] const tf_t& tfactors,
+void get_partition_function(const int inuc,
+                            [[maybe_unused]] const tf_t& tfactors,
+                            part_fun::pf_cache_t& pf_cache,
                             amrex::Real& pf, amrex::Real& dpf_dT) {
+
+    pf = 1.0_rt;
+    dpf_dT = 0.0_rt;
 
     // inuc is the 1-based index for the species
 
@@ -97,6 +102,25 @@ void get_partition_function(const int inuc, [[maybe_unused]] const tf_t& tfactor
 
 }
 
+
+// a version of get_parition_function where we have not cached the
+// index into the arrays
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void get_partition_function(const int inuc,
+                            [[maybe_unused]] const tf_t& tfactors,
+                            amrex::Real& pf, amrex::Real& dpf_dT) {
+
+    // create a dummy cache.  This will initialize the indices
+    // to -1 and we will force a search for the correct index
+    // when we do the interpolation.
+
+    part_fun::pf_cache_t pf_cache;
+
+    get_partition_function(inuc, tfactors, pf_cache, pf, dpf_dT);
+}
+
+
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void get_partition_function_cached(const int inuc, const tf_t& tfactors,
                                    part_fun::pf_cache_t& pf_cache,
@@ -107,7 +131,7 @@ void get_partition_function_cached(const int inuc, const tf_t& tfactors,
         pf = pf_cache.data(inuc, 1);
         dpf_dT = pf_cache.data(inuc, 2);
     } else {
-        get_partition_function(inuc, tfactors, pf, dpf_dT);
+        get_partition_function(inuc, tfactors, pf_cache, pf, dpf_dT);
         pf_cache.data(inuc, 1) = pf;
         pf_cache.data(inuc, 2) = dpf_dT;
     }
@@ -173,6 +197,7 @@ constexpr amrex::Real get_spin_state(const int inuc) {
     case Zn64:
     case Zn66:
     case Ga62:
+    case Ga64:
     case Ge64:
         spin = 1;
         break;
@@ -241,6 +266,7 @@ constexpr amrex::Real get_spin_state(const int inuc) {
     case Zn61:
     case Zn63:
     case Ga63:
+    case Ge63:
         spin = 4;
         break;
 
@@ -289,6 +315,7 @@ constexpr amrex::Real get_spin_state(const int inuc) {
     case Cr51:
     case Mn53:
     case Fe53:
+    case Co53:
     case Co55:
     case Co57:
     case Co59:
