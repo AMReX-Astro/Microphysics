@@ -148,7 +148,7 @@ amrex::Real dvnlsd (int& NFLAG, BurnT& state, DvodeT& vstate)
             // sometime VODE goes way off tangent.  If these mass fractions
             // are really bad, then let's just bail now
 
-            if (integrator_rp::do_corrector_validation) {
+            if (integrator_rp::do_corrector_validation && !integrator_rp::use_number_densities) {
 #ifdef SDC
                 const amrex::Real rho_current = state.rho_orig + vstate.tn * state.ydot_a[SRHO];
                 const amrex::Real thresh = species_failure_tolerance * rho_current;
@@ -163,6 +163,10 @@ amrex::Real dvnlsd (int& NFLAG, BurnT& state, DvodeT& vstate)
                     }
                 }
 
+                // this resets the flags in the same fashion as is done above
+                // for a singular matrix.  ICF = 2 means "unrecoverable error",
+                // IPUP = 1 forces a Jacobian reevaluation.  The return value,
+                // ACNRM is ignored in this case (since NFLAG != 0)
                 if (fail) {
                     NFLAG = -1;
                     vstate.ICF = 2;
