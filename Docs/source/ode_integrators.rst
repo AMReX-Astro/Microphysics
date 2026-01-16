@@ -275,9 +275,11 @@ constraint on the intermediate states during the integration.
   The default is ``1.e-30``.
 
 * ``integrator.do_species_clip`` : this enforces that the mass fractions
-  all in $[\mathtt{SMALL\_X\_SAFE}, 1.0]$.
+  all in $[\mathtt{SMALL\_X\_SAFE}, 1.0]$ before calling the network righthand
+  side function.
 
-  This is enabled by default.
+  This is off by default.  Turning this on can sometimes make the integrator
+  work a lot harder.
 
 * ``integrator.do_corrector_validation`` : in the nonlinear solve
   corrector loop, when we get a corrected integration state, do we
