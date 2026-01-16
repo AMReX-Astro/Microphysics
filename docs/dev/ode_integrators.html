@@ -379,9 +379,17 @@ fractions stay positive and larger than some floor <code class="docutils literal
 <li><p><code class="docutils literal notranslate"><span class="pre">integrator.SMALL_X_SAFE</span></code> : this is the floor on the mass fractions.
 The default is <code class="docutils literal notranslate"><span class="pre">1.e-30</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">integrator.do_species_clip</span></code> : this enforces that the mass fractions
-all in <span class="math notranslate nohighlight">\([\mathtt{SMALL\_X\_SAFE}, 1.0]\)</span>.</p>
-<p>This is enabled by default.</p>
+all in <span class="math notranslate nohighlight">\([\mathtt{SMALL\_X\_SAFE}, 1.0]\)</span> before calling the network righthand
+side function.</p>
+<p>This is off by default.  Turning this on can sometimes make the integrator
+work a lot harder.</p>
 </li>
+<li><p><code class="docutils literal notranslate"><span class="pre">integrator.do_corrector_validation</span></code> : in the nonlinear solve
+corrector loop, when we get a corrected integration state, do we
+check to make sure the mass fractions are valid before calling the
+righthand function?  This is needed in some cases if
+<code class="docutils literal notranslate"><span class="pre">integrator.do_species_clip</span></code> is disabled.  Note: this is not
+implemented for every integrator.</p></li>
 </ul>
 </section>
 <section id="retry-mechanism">
