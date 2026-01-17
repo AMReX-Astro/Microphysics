@@ -100,10 +100,17 @@ EXTERN_CORE += $(EOS_PATH)
 # the table into the problem directory.
 ifeq ($(findstring helmholtz, $(EOS_DIR)), helmholtz)
    all: table
+   ifeq ($(USE_NEW_HELMHOLTZ_TABLE), TRUE)
+      DEFINES += -DUSE_NEW_HELMHOLTZ_TABLE
+   endif
 endif
 
 table:
+   ifeq ($(USE_NEW_HELMHOLTZ_TABLE), TRUE)
+	@if [ ! -f helm_table_fastmath_p128_q800.dat ]; then echo Linking helm_table_fastmath_p128_q800.dat; ln -s $(EOS_PATH)/helm_table_fastmath_p128_q800.dat .;  fi
+   else
 	@if [ ! -f helm_table.dat ]; then echo Linking helm_table.dat; ln -s $(EOS_PATH)/helm_table.dat .;  fi
+   endif
 
 # USE_ALL_NSE will be used if any of the NSE techniques is applied
 ifeq ($(USE_NSE_TABLE),TRUE)
@@ -189,5 +196,6 @@ endif
 
 clean::
 	@if [ -L helm_table.dat ]; then rm -f helm_table.dat; fi
+	@if [ -L helm_table_fastmath_p128_q800.dat ]; then rm -f helm_table_fastmath_p128_q800.dat; fi
 	@if [ -L reaclib_rate_metadata.dat ]; then rm -f reaclib_rate_metadata.dat; fi
 	$(foreach t, $(wildcard *_betadecay.dat *_electroncapture.dat nse*.tbl), $(shell if [ -L $t ]; then rm -f $t; fi))

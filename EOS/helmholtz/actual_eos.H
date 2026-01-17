@@ -21,6 +21,9 @@
 #include <actual_eos_data.H>
 #include <cmath>
 #include <vector>
+#if defined(USE_NEW_HELMHOLTZ_TABLE)
+#include <mp_math.H>
+#endif
 
 // Frank Timmes Helmholtz based Equation of State
 // https://cococubed.com/
@@ -163,9 +166,15 @@ void apply_electrons (T& state)
     amrex::Real din = state.y_e * state.rho;
 
     // hash locate this temperature and density
+#if defined(USE_NEW_HELMHOLTZ_TABLE)
+    // we use the fastmath variant of log
+    int jat = int((mp::fastlg2(state.T) - tlo) * tstpi) + 1;
+    int iat = int((mp::fastlg2(din) - dlo) * dstpi) + 1;
+#else
     int jat = int((std::log10(state.T) - tlo) * tstpi) + 1;
-    jat = amrex::Clamp(jat, 1, jmax-1) - 1;
     int iat = int((std::log10(din) - dlo) * dstpi) + 1;
+#endif
+    jat = amrex::Clamp(jat, 1, jmax-1) - 1;
     iat = amrex::Clamp(iat, 1, imax-1) - 1;
 
     amrex::Real fi[36];
@@ -1314,10 +1323,19 @@ void actual_eos_init ()
 
     for (int j = 0; j < jmax; ++j) {
         amrex::Real tsav = tlo + j * tstp;
+#if defined(USE_NEW_HELMHOLTZ_TABLE)
+        t[j] = mp::fastpow2(tsav);
+#else
         t[j] = std::pow(10.0e0_rt, tsav);
+#endif
+
         for (int i = 0; i < imax; ++i) {
             amrex::Real dsav = dlo + i * dstp;
+#if defined(USE_NEW_HELMHOLTZ_TABLE)
+            d[i] = mp::fastpow2(dsav);
+#else
             d[i] = std::pow(10.0e0_rt, dsav);
+#endif
         }
     }
 
@@ -1335,7 +1353,12 @@ void actual_eos_init ()
 
         // open the table
         std::ifstream table;
+
+#if defined(USE_NEW_HELMHOLTZ_TABLE)
+        table.open("helm_table_fastmath_p128_q800.dat");
+#else
         table.open("helm_table.dat");
+#endif
 
         if (!table.is_open()) {
             // the table was not present or we could not open it; abort
@@ -1464,10 +1487,18 @@ void actual_eos_init ()
 
     // Set up the minimum and maximum possible densities.
 
+#if defined(USE_NEW_HELMHOLTZ_TABLE)
+    EOSData::mintemp = mp::fastpow2(tlo);
+    EOSData::maxtemp = mp::fastpow2(thi);
+    EOSData::mindens = mp::fastpow2(dlo);
+    EOSData::maxdens = mp::fastpow2(dhi);
+#else
     EOSData::mintemp = std::pow(10.e0_rt, tlo);
     EOSData::maxtemp = std::pow(10.e0_rt, thi);
     EOSData::mindens = std::pow(10.e0_rt, dlo);
     EOSData::maxdens = std::pow(10.e0_rt, dhi);
+#endif
+
 }
 
 
