@@ -178,7 +178,7 @@ void enforce_post_burn_constraints(burn_t &state) {
 
 
 AMREX_INLINE
-auto burn_cell_multi_c(int n_zones) -> int {
+auto burn_cell_multi_c(int n_zones, bool enable_gpu) -> int {
 
   constexpr amrex::Real rel_tol = 1.0e-10_rt;
   constexpr amrex::Real abs_tol = 1.0e-12_rt;
@@ -415,10 +415,14 @@ auto burn_cell_multi_c(int n_zones) -> int {
   std::vector<burn_t> gpu_states;
   std::vector<amrex::Real> gpu_times;
   MultiZoneSummary gpu_summary;
-  auto gpu_start = std::chrono::steady_clock::now();
-  bool gpu_success = run_multi_zone(true, gpu_states, gpu_times, gpu_summary);
-  auto gpu_end = std::chrono::steady_clock::now();
-  std::chrono::duration<double> gpu_wall = gpu_end - gpu_start;
+  bool gpu_success = true;
+  std::chrono::duration<double> gpu_wall(0.0);
+  if (enable_gpu) {
+    auto gpu_start = std::chrono::steady_clock::now();
+    gpu_success = run_multi_zone(true, gpu_states, gpu_times, gpu_summary);
+    auto gpu_end = std::chrono::steady_clock::now();
+    gpu_wall = gpu_end - gpu_start;
+  }
 
   auto print_summary = [&](const std::string &label,
                            const MultiZoneSummary &summary) {
@@ -439,9 +443,14 @@ auto burn_cell_multi_c(int n_zones) -> int {
   print_summary("CPU", cpu_summary);
   std::cout << "CPU multi-zone burn walltime (s): " << cpu_wall.count()
             << std::endl;
-  print_summary("GPU", gpu_summary);
-  std::cout << "GPU multi-zone burn walltime (s): " << gpu_wall.count()
-            << std::endl;
+  if (enable_gpu) {
+    print_summary("GPU", gpu_summary);
+    std::cout << "GPU multi-zone burn walltime (s): " << gpu_wall.count()
+              << std::endl;
+  } else {
+    std::cout << "GPU multi-zone burn skipped (no GPU backend)"
+              << std::endl;
+  }
 
   auto within_tol = [&](amrex::Real a, amrex::Real b) -> bool {
     amrex::Real diff = std::abs(a - b);
@@ -501,53 +510,56 @@ auto burn_cell_multi_c(int n_zones) -> int {
     field_norms[field].record(cpu_value - gpu_value, cpu_value);
   };
 
-  for (int iz = 0; iz < n_zones; ++iz) {
-    bool cpu_zone_success =
-        cpu_states[iz].success && cpu_states[iz].e > 0.0_rt;
-    bool gpu_zone_success =
-        gpu_states[iz].success && gpu_states[iz].e > 0.0_rt;
+  if (enable_gpu) {
+    for (int iz = 0; iz < n_zones; ++iz) {
+      bool cpu_zone_success =
+          cpu_states[iz].success && cpu_states[iz].e > 0.0_rt;
+      bool gpu_zone_success =
+          gpu_states[iz].success && gpu_states[iz].e > 0.0_rt;
 
-    if (cpu_zone_success != gpu_zone_success) {
-      record_mismatch(iz, "success_flag",
-                      cpu_zone_success ? 1.0_rt : 0.0_rt,
-                      gpu_zone_success ? 1.0_rt : 0.0_rt);
-      record_difference("success_flag",
+      if (cpu_zone_success != gpu_zone_success) {
+        record_mismatch(iz, "success_flag",
                         cpu_zone_success ? 1.0_rt : 0.0_rt,
-                        gpu_zone_success ? 1.0_rt : 0.0_rt, false);
-      continue;
-    }
-    if (!cpu_zone_success) {
-      continue;
-    }
-
-    if (!within_tol(cpu_times[iz], gpu_times[iz])) {
-      record_mismatch(iz, "time", cpu_times[iz], gpu_times[iz]);
-    }
-    record_difference("time", cpu_times[iz], gpu_times[iz], false);
-
-    if (!within_tol(cpu_states[iz].rho, gpu_states[iz].rho)) {
-      record_mismatch(iz, "rho", cpu_states[iz].rho, gpu_states[iz].rho);
-    }
-    record_difference("rho", cpu_states[iz].rho, gpu_states[iz].rho, false);
-    if (!within_tol(cpu_states[iz].T, gpu_states[iz].T)) {
-      record_mismatch(iz, "T", cpu_states[iz].T, gpu_states[iz].T);
-    }
-    record_difference("temperature", cpu_states[iz].T, gpu_states[iz].T, true);
-    if (!within_tol(cpu_states[iz].e, gpu_states[iz].e)) {
-      record_mismatch(iz, "e", cpu_states[iz].e, gpu_states[iz].e);
-    }
-    record_difference("e", cpu_states[iz].e, gpu_states[iz].e, false);
-    for (int n = 0; n < NumSpec; ++n) {
-      if (!within_tol(cpu_states[iz].xn[n], gpu_states[iz].xn[n])) {
-        std::string label =
-            "xn(" + std::string(short_spec_names_cxx[n]) + ")";
-        record_mismatch(iz, label, cpu_states[iz].xn[n],
-                        gpu_states[iz].xn[n]);
+                        gpu_zone_success ? 1.0_rt : 0.0_rt);
+        record_difference("success_flag",
+                          cpu_zone_success ? 1.0_rt : 0.0_rt,
+                          gpu_zone_success ? 1.0_rt : 0.0_rt, false);
+        continue;
       }
-      std::string norm_label =
-          "number_density(" + std::string(short_spec_names_cxx[n]) + ")";
-      record_difference(norm_label, cpu_states[iz].xn[n],
-                        gpu_states[iz].xn[n], true);
+      if (!cpu_zone_success) {
+        continue;
+      }
+
+      if (!within_tol(cpu_times[iz], gpu_times[iz])) {
+        record_mismatch(iz, "time", cpu_times[iz], gpu_times[iz]);
+      }
+      record_difference("time", cpu_times[iz], gpu_times[iz], false);
+
+      if (!within_tol(cpu_states[iz].rho, gpu_states[iz].rho)) {
+        record_mismatch(iz, "rho", cpu_states[iz].rho, gpu_states[iz].rho);
+      }
+      record_difference("rho", cpu_states[iz].rho, gpu_states[iz].rho, false);
+      if (!within_tol(cpu_states[iz].T, gpu_states[iz].T)) {
+        record_mismatch(iz, "T", cpu_states[iz].T, gpu_states[iz].T);
+      }
+      record_difference("temperature", cpu_states[iz].T, gpu_states[iz].T,
+                        true);
+      if (!within_tol(cpu_states[iz].e, gpu_states[iz].e)) {
+        record_mismatch(iz, "e", cpu_states[iz].e, gpu_states[iz].e);
+      }
+      record_difference("e", cpu_states[iz].e, gpu_states[iz].e, false);
+      for (int n = 0; n < NumSpec; ++n) {
+        if (!within_tol(cpu_states[iz].xn[n], gpu_states[iz].xn[n])) {
+          std::string label =
+              "xn(" + std::string(short_spec_names_cxx[n]) + ")";
+          record_mismatch(iz, label, cpu_states[iz].xn[n],
+                          gpu_states[iz].xn[n]);
+        }
+        std::string norm_label =
+            "number_density(" + std::string(short_spec_names_cxx[n]) + ")";
+        record_difference(norm_label, cpu_states[iz].xn[n],
+                          gpu_states[iz].xn[n], true);
+      }
     }
   }
 
@@ -582,15 +594,15 @@ auto burn_cell_multi_c(int n_zones) -> int {
         print_norm(label, it->second);
       }
     }
-  } else {
+  } else if (enable_gpu) {
     std::cout << "No comparable CPU/GPU multi-zone states to compute norms"
               << std::endl;
   }
 
-  if (mismatch_summary.empty()) {
+  if (mismatch_summary.empty() && enable_gpu) {
     std::cout << "CPU/GPU multi-zone states agree within tolerances"
               << std::endl;
-  } else {
+  } else if (enable_gpu) {
     std::cout << "CPU/GPU mismatches detected:" << std::endl;
     for (const auto &entry : mismatch_summary) {
       const auto &field = entry.first;
@@ -606,6 +618,9 @@ auto burn_cell_multi_c(int n_zones) -> int {
     }
   }
 
+  if (!enable_gpu) {
+    return cpu_success;
+  }
   return (cpu_success && gpu_success && mismatch_summary.empty());
 }
 #endif

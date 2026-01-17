@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 
+#include <AMReX_Config.H>
 #include <AMReX_MultiFab.H>
 #include <AMReX_ParmParse.H>
 using namespace amrex;
@@ -40,8 +41,13 @@ int main(int argc, char *argv[]) {
     // C++ Network, RHS, screening, rates initialization
     network_init();
 
+    bool enable_gpu = false;
+#ifdef AMREX_USE_GPU
+    enable_gpu = true;
+#endif
+
     std::cout << "\nstarting the multi-zone burn..." << std::endl;
-    int multi_success = burn_cell_multi_c(n_zones);
+    int multi_success = burn_cell_multi_c(n_zones, enable_gpu);
 
     success = multi_success;
   }
