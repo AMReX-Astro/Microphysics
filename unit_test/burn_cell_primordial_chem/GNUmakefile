@@ -7,6 +7,7 @@ DEBUG      = FALSE
 DIM        = 1
 
 COMP       = gnu
+EXTRACXXFLAGS += -Wno-psabi
 
 USE_MPI    = FALSE
 USE_OMP    = FALSE
@@ -38,3 +39,5 @@ Bpack   := ./Make.package
 Blocs   := .
 
 include $(MICROPHYSICS_HOME)/unit_test/Make.unit_test
+
+
