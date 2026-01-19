@@ -16,11 +16,12 @@
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 T get_T_independent_nonexponent_nse_state(const T& state) {
-    // This function calculates a portion of the nse_state that is not dependent
-    // on Temperature. This way we don't have to calculate the same
-    // component repeatedly.
+    // It computes  (2J + 1) m^{5/2} (kB 1e9 / 2 π ħ^2)^{3/2}
+    // a portion of the nse_state that is not dependent on Temperature.
+    // This way we don't have to calculate the same component repeatedly.
 
     T nse_state = state;
+    constexpr amrex::Real kBGK_2PiHbar2 = (C::k_B * 1.0e9_rt) / (2.0_rt * M_PI * C::hbar * C::hbar);
 
     // set spin
 
@@ -40,9 +41,9 @@ T get_T_independent_nonexponent_nse_state(const T& state) {
         spin = get_spin_state(n+1);
 #endif
 
-        // find temperature independent parts
+        // find temperature independent part
 
-        nse_state.xn[n] = network::mion(n+1) * spin / state.rho;
+        nse_state.xn[n] = std::sqrt(amrex::Math<5>(network::mion()<n+1>)) * spin * kBGK_2PiHbar2;
     }
 
     return nse_state;
