@@ -186,11 +186,11 @@ void integrator_cleanup (IntegratorT& int_state, BurnT& state,
     }
 
     for (int n = 0; n < NumSpec; ++n) {
-        if (state.y[SFS+n] / state.rho < -species_failure_tolerance) {
+        if (state.y[SFS+n] < -state.rho * species_failure_tolerance) {
             state.success = false;
         }
 
-        if (state.y[SFS+n] / state.rho > 1.0_rt + species_failure_tolerance) {
+        if (state.y[SFS+n] > state.rho * (1.0_rt + species_failure_tolerance)) {
             state.success = false;
         }
     }
