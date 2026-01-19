@@ -445,6 +445,9 @@ number_t chugunov2007 (const plasma_state_t<number_t>& state,
     // machine limit the output
     constexpr amrex::Real h_max = 300.e0_rt;
     h = admath::min(h, h_max);
+    if (h <= 0.0) {
+        return 1.0;
+    }
     return admath::exp(h);
 }
 
@@ -537,6 +540,9 @@ number_t chugunov2009 (const plasma_state_t<number_t>& state,
     // machine limit the output
     constexpr amrex::Real h12_max = 300.e0_rt;
     h12 = admath::min(h12, h12_max);
+    if (h12 <= 0.0) {
+        return 1.0;
+    }
     return admath::exp(h12);
 }
 
@@ -632,7 +638,9 @@ number_t chabrier1998 (const plasma_state_t<number_t>& state,
 
     constexpr amrex::Real h12_max = 300.0_rt;
     h12 = admath::min(h12_max, h12);
-
+    if (h12 <= 0.0) {
+        return 1.0;
+    }
     return admath::exp(h12);
 }
 #endif
