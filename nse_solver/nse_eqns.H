@@ -27,18 +27,10 @@ T get_T_independent_nonexponent_nse_state(const T& state) {
     amrex::Real spin = 1.0_rt;
 
     for (int n = 0; n < NumSpec; ++n) {
-#ifdef NEW_NETWORK_IMPLEMENTATION
-        if (n == NSE_INDEX::H1_index) {
-            nse_state.xn[n] = 0.0_rt;
-            continue;
-        }
-#endif
 
         // fill spin
 
-#ifndef NEW_NETWORK_IMPLEMENTATION
         spin = get_spin_state(n+1);
-#endif
 
         // find temperature independent parts
 
@@ -65,21 +57,11 @@ void apply_T_dependent_nonexponent_nse_state(T& nse_state) {
 
     amrex::Real pf = 1.0_rt;
     [[maybe_unused]] amrex::Real dpf_dT;
-#ifndef NEW_NETWORK_IMPLEMENTATION
     auto tfactors = evaluate_tfactors(T_in);
-#endif
 
     for (int n = 0; n < NumSpec; ++n) {
-#ifdef NEW_NETWORK_IMPLEMENTATION
-        if (n == NSE_INDEX::H1_index) {
-            nse_state.xn[n] = 0.0_rt;
-            continue;
-        }
-#endif
 
-#ifndef NEW_NETWORK_IMPLEMENTATION
         get_partition_function(n+1, tfactors, pf, dpf_dT);
-#endif
 
         // Apply temperature-dependent part
 
@@ -114,11 +96,7 @@ void compute_coulomb_contribution(amrex::Array1D<amrex::Real, 1, NumSpec>& u_c,
         std::cbrt(1.333333333333_rt * M_PI * n_e) / (C::k_B * T_in);
 
     for (int n = 0; n < NumSpec; ++n) {
-#ifdef NEW_NETWORK_IMPLEMENTATION
-        if (n == NSE_INDEX::H1_index) {
-            continue;
-        }
-#endif
+
         // term for calculating u_c
 
         amrex::Real Gamma = std::cbrt(amrex::Math::powi<5>(zion[n])) * Gamma_e;
@@ -153,12 +131,6 @@ void apply_nse_exponent(T& nse_state,
     amrex::Real ikTMeV = C::MeV2erg / (C::k_B * T_in);
 
     for (int n = 0; n < NumSpec; ++n) {
-#ifdef NEW_NETWORK_IMPLEMENTATION
-        if (n == NSE_INDEX::H1_index) {
-            nse_state.xn[n] = 0.0_rt;
-            continue;
-        }
-#endif
 
         // Apply the exponent part
 
@@ -173,16 +145,10 @@ void apply_nse_exponent(T& nse_state,
         nse_state.xn[n] *= std::exp(exponent);
     }
 
+    // Compute the corresponding electron fraction, Ye.
+
     nse_state.y_e = 0.0_rt;
-
     for (int n = 0; n < NumSpec; ++n) {
-#ifdef NEW_NETWORK_IMPLEMENTATION
-        if (n == NSE_INDEX::H1_index) {
-            continue;
-        }
-#endif
-        // constraint equation 1, mass fraction sum to 1
-
         nse_state.y_e += nse_state.xn[n] * zion[n] * aion_inv[n];
     }
 }
@@ -216,16 +182,10 @@ void nse_fcn(amrex::Array1D<amrex::Real, 1, 2>& x,
 
     apply_nse_exponent(nse_state, state_data.u_c);
 
+    // constraint equation 1, mass fraction sum to 1
+
     fvec(1) = -1.0_rt;
-
     for (int n = 0; n < NumSpec; ++n) {
-#ifdef NEW_NETWORK_IMPLEMENTATION
-        if (n == NSE_INDEX::H1_index) {
-            continue;
-        }
-#endif
-        // constraint equation 1, mass fraction sum to 1
-
         fvec(1) += nse_state.xn[n];
     }
 
@@ -271,16 +231,10 @@ void nse_fcn(amrex::Array1D<amrex::Real, 1, 3>& x,
 
     apply_nse_exponent(nse_state, u_c);
 
+    // constraint equation 1, mass fraction sum to 1
+
     fvec(1) = -1.0_rt;
-
     for (int n = 0; n < NumSpec; ++n) {
-#ifdef NEW_NETWORK_IMPLEMENTATION
-        if (n == NSE_INDEX::H1_index) {
-            continue;
-        }
-#endif
-        // constraint equation 1, mass fraction sum to 1
-
         fvec(1) += nse_state.xn[n];
     }
 
@@ -343,11 +297,7 @@ void nse_jcn(amrex::Array1D<amrex::Real, 1, 2>& x,
     amrex::Real ikTMeV = C::MeV2erg / (C::k_B * T_in);
 
     for (int n = 0; n < NumSpec; ++n) {
-#ifdef NEW_NETWORK_IMPLEMENTATION
-        if (n == NSE_INDEX::H1_index) {
-            continue;
-        }
-#endif
+
         // Pre-compute some relevant derivatives
 
         amrex::Real dX_dmu_p = nse_state.xn[n] * zion[n] * ikTMeV;
@@ -403,30 +353,21 @@ void nse_jcn(amrex::Array1D<amrex::Real, 1, 3>& x,
     constexpr amrex::Real A_3 = -0.5_rt * gcem::sqrt(3.0_rt) - A_1 / sqrt_A2;
 #endif
 
-#ifndef NEW_NETWORK_IMPLEMENTATION
     auto tfactors = evaluate_tfactors(T_in);
-#endif
 
     //
     // Evaluate the X_k and Jacobian at the same time to save runtime
     //
 
     for (int n = 0; n < NumSpec; ++n) {
-#ifdef NEW_NETWORK_IMPLEMENTATION
-        if (n == NSE_INDEX::H1_index) {
-            continue;
-        }
-#endif
+
         // Find X_k for each individual nuclei
 
         // fill partition function and its temperature derivative
 
         amrex::Real pf = 1.0_rt;
         amrex::Real dpf_dT = 0.0_rt;
-
-#ifndef NEW_NETWORK_IMPLEMENTATION
         get_partition_function(n+1, tfactors, pf, dpf_dT);
-#endif
 
         // Apply temperature dependent part
 

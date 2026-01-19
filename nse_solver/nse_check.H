@@ -13,10 +13,6 @@
 #include <microphysics_sort.H>
 #include <nse_solver.H>
 
-// Currently doesn't support aprox networks, only networks produced by pynucastro
-
-#ifndef NEW_NETWORK_IMPLEMENTATION
-
 // First check to see if we're in the ballpark of nse state
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -531,7 +527,6 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const amrex::Real 
     }
 
 }
-#endif
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -539,8 +534,6 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
 
     // This function returns the boolean that tells whether we're in nse or not
     // Note that it only works with pynucastro network for now.
-
-#ifndef NEW_NETWORK_IMPLEMENTATION
 
     current_state.nse = false;
 
@@ -657,12 +650,6 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
 
     current_state.nse = in_single_group(group_ind);
     return current_state.nse;
-
-#else
-    amrex::Error("in_nse() is currently not supported for aprox networks!");
-    return false;
-#endif
-
 }
 
 #endif
