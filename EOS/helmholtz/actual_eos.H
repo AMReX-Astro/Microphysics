@@ -1315,10 +1315,11 @@ void actual_eos_init ()
     for (int j = 0; j < jmax; ++j) {
         amrex::Real tsav = tlo + j * tstp;
         t[j] = std::pow(10.0e0_rt, tsav);
-        for (int i = 0; i < imax; ++i) {
-            amrex::Real dsav = dlo + i * dstp;
-            d[i] = std::pow(10.0e0_rt, dsav);
-        }
+    }
+
+    for (int i = 0; i < imax; ++i) {
+        amrex::Real dsav = dlo + i * dstp;
+        d[i] = std::pow(10.0e0_rt, dsav);
     }
 
     // it does not work on all machines (for GPUs) broadcast to other
