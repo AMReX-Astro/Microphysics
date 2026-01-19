@@ -325,19 +325,39 @@ int dvstep (BurnT& state, DvodeT& vstate)
         DSM = ACNRM / vstate.tq(2);
         if (DSM <= 1.0_rt && valid_update) {
 
-#ifdef SDC
             // do normalization if desired
-            amrex::Real rhoX_sum{};
-            for (int n = 1; n <= NumSpec; ++n) {
-                vstate.y(SFS+n) = amrex::Clamp(vstate.y(SFS+n), 0.0, rho_current);
-                rhoX_sum += vstate.y(SFS+n);
+
+            if (integrator_rp::do_renormalization_each_step &&
+                !integrator_rp::use_number_densities) {
+
+#if defined(SDC)
+                amrex::Real rhoX_sum{};
+                for (int n = 1; n <= NumSpec; ++n) {
+                    vstate.y(SFS+n) = amrex::Clamp(vstate.y(SFS+n),
+                                                   rho_current * integrator_rp::SMALL_X_SAFE, rho_current);
+                    rhoX_sum += vstate.y(SFS+n);
+                }
+
+                amrex::Real fac = rho_current / rhoX_sum;
+                for (int n = 1; n <= NumSpec; ++n) {
+                    vstate.y(SFS+n) *= fac;
+                }
+
+#elif defined(STRANG)
+                amrex::Real X_sum{};
+                for (int n = 1; n <= NumSpec; ++n) {
+                    vstate.y(SFS+n) = amrex::Clamp(vstate.y(SFS+n),
+                                                   integrator_rp::SMALL_X_SAFE, 1.0_rt);
+                    X_sum += vstate.y(SFS+n);
+                }
+
+                amrex::Real fac = 1.0_rt / X_sum;
+                for (int n = 1; n <= NumSpec; ++n) {
+                    vstate.y(SFS+n) *= fac;
+                }
+#endif
             }
 
-            amrex::Real fac = rho_current / rhoX_sum;
-            for (int n = 1; n <= NumSpec; ++n) {
-                vstate.y(SFS+n) *= fac;
-            }
-#endif
             // After a successful step, update the yh and TAU arrays and decrement
             // NQWAIT. If NQWAIT is then 1 and NQ .lt. MAXORD, then ACOR is saved
             // for use in a possible order increase on the next step.

@@ -153,7 +153,6 @@ int single_step (BurnT& state, BeT& be, const amrex::Real dt)
 
             // if we didn't set another error, then we probably ran
             // out of iterations, so set nonconvergence
-
             ierr = IERR_CORRECTOR_CONVERGENCE;
 
             // reset the solution to the original
