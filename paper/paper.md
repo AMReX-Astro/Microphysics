@@ -85,7 +85,7 @@ affiliations:
   name: Lawrence Berkeley National Laboratory, Berkeley, CA, USA
 - index: 8
   name: Leiden Observatory, Leiden, The Netherlands
-- index: 8
+- index: 9
   name: Arizona State University, Tempe, AZ, USA
 - index: 10
   name: Department of Physics and Astronomy, Michigan State University, E. Lansing, MI, USA
