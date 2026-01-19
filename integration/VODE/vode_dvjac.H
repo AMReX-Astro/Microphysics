@@ -35,9 +35,7 @@ void dvjac (int& IERPJ, BurnT& state, DvodeT& vstate)
 
     if (integrator_rp::use_jacobian_caching) {
         evaluate_jacobian = 0;
-    }
 
-    if (integrator_rp::use_jacobian_caching) {
         // Now evaluate the cases where we're caching the Jacobian but aren't
         // going to be using the cached Jacobian.
 

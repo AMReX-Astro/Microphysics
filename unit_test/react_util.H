@@ -88,7 +88,7 @@ init_t setup_composition(const int nz) {
 
 
 AMREX_INLINE AMREX_GPU_HOST_DEVICE
-void get_xn(const int k, const init_t cd, amrex::Real *xn_zone, bool uniform_composition=false) {
+void get_xn(const int k, const init_t& cd, amrex::Real *xn_zone, bool uniform_composition=false) {
 
     for (int n = 0; n < NumSpec; n++) {
         xn_zone[n] = 0.0_rt;
