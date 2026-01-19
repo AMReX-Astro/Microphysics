@@ -6,8 +6,6 @@
 
 #include <tfactors.H>
 #include <actual_network.H>
-#include <partition_functions.H>
-#include <interp_tools.H>
 
 using namespace Rates;
 using namespace Species;
@@ -171,7 +169,6 @@ void rate_He4_C12_to_O16_reaclib(const tf_t& tfactors, amrex::Real& rate, amrex:
 
 
 
-
 template <int do_T_derivatives, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void
@@ -205,18 +202,6 @@ fill_reaclib_rates(const tf_t& tfactors, T& rate_eval)
         rate_eval.dscreened_rates_dT(k_He4_C12_to_O16_reaclib) = drate_dT;
 
     }
-
-}
-
-template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void
-fill_derived_rates(const tf_t& tfactors, T& rate_eval)
-{
-
-    amrex::Real rate;
-    amrex::Real drate_dT;
-
 
 }
 
