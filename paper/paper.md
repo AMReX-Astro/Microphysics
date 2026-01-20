@@ -119,7 +119,8 @@ are many astrophysics simulation codes built around the AMReX library,
 with each specializing in different astrophysics phenomena.  Each of
 these codes share some common needs.  The Microphysics library was
 created to minimize developer effort across these codes and coordinate
-the approach to exascale compute architectures.
+the approach to exascale compute architectures, in particular, GPU
+support for astrophysical simulation codes.
 
 
 # Design
@@ -134,8 +135,7 @@ in GPUs grew (with early support added to Microphysics in 2015),
 Castro moved from a mix of C++ and Fortran to pure C++ to take
 advantage of GPU-offloading afforded by the AMReX library and C++
 ports of all physics routines and solvers were added to Microphysics.
-At this point, the development focused solely on AMReX-based codes and
-C++ and the project was formally named the AMReX-Astrophysics
+At this point, the project was formally named the AMReX-Astrophysics
 Microphysics library.  Today, the library is completely written in C++
 and relies heavily on the AMReX data structures to take advantage of
 GPUs.  The GPU-enabled reaction network integrators led to the Quokka
@@ -146,21 +146,6 @@ state, reaction networks and screening methods, nuclear statistical
 equilibrium solvers and tabulations, thermal conductivities, and
 opacities, as well as the tools needed to work with them, most notably
 the suite of stiff ODE integrators for the networks.
-
-There are two ways to use Microphysics: in a standalone fashion (via
-the unit tests) for simple investigations or as part of an
-(AMReX-based) application code.  In both cases, the core
-(compile-time) requirement is to select a network---this defines the
-composition that is then used by most of the other physics routines.
-
-Microphysics uses header-only implementations of all functionality as
-much as possible, to allow for easier compiler inlining.  Generally,
-the physics routines and solvers are written to work on a single zone
-from a simulation code, and in AMReX, a C++ lambda-capturing approach
-is used to loop over zones (and offload to GPUs if desired).  We also
-leverage C++17 `if constexpr` templating to compile out unnecessary
-computations for performance.
-
 Several classic Fortran libraries have been converted to header-only
 C++ implementations, including the VODE integrator [@vode], the hybrid
 Powell method of MINPACK [@powell], and the Runge-Kutta Chebyshev
@@ -172,18 +157,14 @@ We also make use of the C++ autodiff library [@autodiff] to compute
 thermodynamic derivatives required in the Jacobians of our reaction
 networks.
 
-Another key design feature is the separation of the reaction network
-from the integrator.  This allows us to easily experiment with
-different integration methods (such as the RKC integrator) and also
-support different modes of coupling reactions to a simulation code,
-including operator splitting and spectral deferred corrections (SDC)
-(see, e.g., @castro_simple_sdc).  The latter is especially important
-for explosive astrophysical flows.
-
-Finally, most of the physics is chosen at compile-time.  This allows
-Microphysics to provide the number of species as a `constexpr` value
-(which many application codes need), and also greatly reduces the
-compilation time (due to the templating used throughout the library).
+Microphysics uses header-only implementations of all functionality as
+much as possible, to allow for easier compiler inlining, which is
+especially important in GPU kernels.  Generally,
+the physics routines and solvers are written to work on a single zone
+from a simulation code, and in AMReX, a C++ lambda-capturing approach
+is used to loop over zones (and offload to GPUs if desired).  We also
+leverage C++17 `if constexpr` templating to compile out unnecessary
+computations for performance.
 
 Microphysics is designed such that all computation takes place on
 GPUs.  When used with an application code, this permits the simulation
@@ -198,6 +179,29 @@ basis with different tolerances or Jacobian approximations or pass the
 failure back to the application code to deal with.  This strategy
 has been successful for many large scale simulations [@Zingale_2025].
 
+
+There are two ways to use Microphysics: in a standalone fashion (via
+the unit tests) for simple investigations or as part of an
+(AMReX-based) application code.  In both cases, the core
+(compile-time) requirement is to select a network---this defines the
+composition that is then used by most of the other physics routines.
+
+
+
+Another key design feature is the separation of the reaction network
+from the integrator.  This allows us to easily experiment with
+different integration methods (such as the RKC integrator) and also
+support different modes of coupling reactions to a simulation code,
+including operator splitting and spectral deferred corrections (SDC)
+(see, e.g., @castro_simple_sdc).  The latter is especially important
+for explosive astrophysical flows.
+
+Finally, most of the physics is chosen at compile-time.  This allows
+Microphysics to provide the number of species as a `constexpr` value
+(which many application codes need), and also greatly reduces the
+compilation time (due to the templating used throughout the library).
+
+
 # Research Impact Statement
 
 Microphysics has been used for simulations of convective Urca
@@ -206,13 +210,12 @@ for simulations of nova [@Smith2025], X-ray bursts [@Harpole_2021],
 thermonuclear supernovae [@Zingale_2024_dd], and convection in massive
 stars [@Zingale_2024] with Castro. This Microphysics library has also
 enabled recent work in astrophysical machine learning to train deep
-neural networks modeling nuclear reactions in [@nn_astro_2022] and
-[@dnn_astro_2025].
+neural networks modeling nuclear reactions [@nn_astro_2022,@dnn_astro_2025].
 
 # AI Usage Disclosure
 
-No generative AI was used for code or documentation generation in the
-git repository.  We have experimented with using AI tools for code
+No generative AI/LLM was used for code or documentation generation in the
+git repository.  We have experimented with using AI/LLM tools for code
 review and for suggesting places to focus our optimization efforts on,
 but the resulting coding, benchmarking, and testing is then done by
 humans.
