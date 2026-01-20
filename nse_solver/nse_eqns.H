@@ -15,57 +15,22 @@
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-T get_T_independent_nonexponent_nse_state(const T& state) {
-    // It computes  (2J + 1) m^{5/2} (kB 1e9 / 2 π ħ^2)^{3/2}
+T get_T_independent_nse_state(const T& state) {
+    // Computes (2J + 1) m^{5/2} (kB 1e9 / 2 π ħ^2)^{3/2}
     // a portion of the nse_state that is not dependent on Temperature.
-    // This way we don't have to calculate the same component repeatedly.
 
     T nse_state = state;
     constexpr amrex::Real kBGK_2PiHbar2 = (C::k_B * 1.0e9_rt) / (2.0_rt * M_PI * C::hbar * C::hbar);
 
-    for (int n = 0; n < NumSpec; ++n) {
-
-        // fill spin
-
-        amrex::Real spin = get_spin_state(n+1);
-
-        // find temperature independent part
-
-        nse_state.xn[n] = std::sqrt(amrex::Math<5>(network::mion()<n+1>)) * spin * kBGK_2PiHbar2;
-    }
+    amrex::constexpr_for<0, NumSpec>([&] (auto n)
+    {
+        nse_state.xn[n] = std::sqrt(amrex::Math<5>(network::mion<n+1>())) *
+            get_spin_state<n+1>() * kBGK_2PiHbar2;
+    });
 
     return nse_state;
 }
 
-
-template <typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void apply_T_dependent_nonexponent_nse_state(T& nse_state) {
-    // This function applies the temperature dependent piece
-    // that does not dependent on the chemical potential.
-
-    // The input nse_state should be the state obtained from
-    // get_T_independent_nse_state()
-
-    amrex::Real T_in = nse_state.T_fixed > 0.0_rt ? nse_state.T_fixed : nse_state.T;
-    constexpr amrex::Real kBi2PiHbar2 = C::k_B / (2.0_rt * M_PI * C::hbar * C::hbar);
-
-    auto tfactors = evaluate_tfactors(T_in);
-
-    for (int n = 0; n < NumSpec; ++n) {
-
-        // Evaluate temperature-dependent nuclear partition function
-
-        amrex::Real pf;
-        [[maybe_unused]] amrex::Real dpf_dT;
-        get_partition_function(n+1, tfactors, pf, dpf_dT);
-
-        // Apply temperature-dependent part
-
-        amrex::Real power = network::mion(n+1) * T_in * kBi2PiHbar2;
-        nse_state.xn[n] *= pf * std::sqrt(amrex::Math::powi<3>(power));
-    }
-}
 
 
 #if SCREEN_METHOD == SCREEN_METHOD_chabrier1998
@@ -116,16 +81,55 @@ void compute_coulomb_contribution(amrex::Array1D<amrex::Real, 1, NumSpec>& u_c,
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void evaluate_T_dependent_nse_state(amrex::Array1D<amrex::Real, 1, NumSpec>& log_term,
+                                    const T& state) {
+    // Evaluates the temperature dependent piece and stores in in exponent.
+    // i.e. (B - μ^c)/kBT + 1.5 lnT9 + ln(pf)
+    // This is the term will be used inside the exp()
+
+    amrex::Real T_in = nse_state.T_fixed > 0.0_rt ? nse_state.T_fixed : nse_state.T;
+    amrex::Real ikTMeV = 1.0_rt / (C::k_MeV * T_in);
+
+    auto tfactors = evaluate_tfactors(T_in);
+
+    // Evaluate the coulomb potential: μ^c / kBT
+
+    amrex::Array1D<amrex::Real, 1, NumSpec>& u_c {0.0_rt}
+#if SCREEN_METHOD == SCREEN_METHOD_chabrier1998
+    compute_coulomb_contribution(u_c, state);
+#endif
+
+    part_fun::pf_cache_t pf_cache;
+
+    for (int n = 1; n <= NumSpec; ++n) {
+
+        // Evaluate internal nuclear partition function, in log space
+
+        amrex::Real logpf;
+        [[maybe_unused]] amrex::Real dlogpf_dT9;
+        get_partition_function_cached(n, tfactors, pf_cache, logpf, dlogpf_dT9);
+
+        // Compute the log term
+
+        log_term(n) = networks::bion<n>() * ikTMeV - u_c(n) +
+            1.5_rt * tfactors.lnT9 + logpf;
+    }
+}
+
+
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void apply_nse_exponent(T& nse_state,
-                        const amrex::Array1D<amrex::Real, 1, NumSpec>& u_c) {
+                        const amrex::Array1D<amrex::Real, 1, NumSpec>& log_term) {
     // This function applies the nse exponent which depends on
-    // the chemical potential.
+    // the chemical potential and the precomputed Temperature term
+    // from evaluate_T_dependent_exponent_nse_state
 
     // if we are doing drive_initial_convection, we want to use
     // the temperature that comes in through T_fixed
 
     amrex::Real T_in = nse_state.T_fixed > 0.0_rt ? nse_state.T_fixed : nse_state.T;
-    amrex::Real ikTMeV = C::MeV2erg / (C::k_B * T_in);
+    amrex::Real ikTMeV = 1.0_rt / (C::k_MeV * T_in);
 
     for (int n = 0; n < NumSpec; ++n) {
 
@@ -135,9 +139,9 @@ void apply_nse_exponent(T& nse_state,
         // iteration will make it happy again
 
         amrex::Real exponent = amrex::min(500.0_rt,
-                                          (zion[n] * nse_state.mu_p + (aion[n] - zion[n]) *
-                                           nse_state.mu_n + network::bion(n+1)) *
-                                          ikTMeV - u_c(n+1));
+                                          (zion[n] * nse_state.mu_p +
+                                           (aion[n] - zion[n]) * nse_state.mu_n) *
+                                          ikTMeV + log_term(n));
 
         nse_state.xn[n] *= std::exp(exponent);
     }
@@ -155,10 +159,10 @@ void apply_nse_exponent(T& nse_state,
 ///
 /// 1) Mass Conservation: Sum_k X_k - 1 = 0
 /// 2) Charge Conservation: Sum_k Z_k X_k / A_k - Ye = 0
-/// 3) Energy Conservation: e(rho, X_k^NSE, Ye) - e_in = 0
+/// 3) Energy Conservation: e(rho, X_k^NSE, Ye) / e_in - 1 = 0
 ///
-/// When the input is (rho, T, Ye), we solve for the first two Eqns
-/// When the input is (rho, e, Ye), we solve for all three Eqns.
+/// When the input is (rho, T, Ye), x = (μ_p, μ_n), solve for the first two Eqns
+/// When the input is (rho, e, Ye), x = (μ_p, μ_n, T9), solve for all three Eqns.
 /// the energy constraint is used to solve for Temperature.
 ///
 
@@ -168,6 +172,7 @@ void nse_fcn(amrex::Array1D<amrex::Real, 1, 2>& x,
              amrex::Array1D<amrex::Real, 1, 2>& fvec,
              const T& state_data, int& iflag) {
     // Constraint Equations for (rho, T, Ye) input.
+    // x = (μ_p, μ_n)
 
     amrex::ignore_unused(iflag);
 
@@ -177,7 +182,7 @@ void nse_fcn(amrex::Array1D<amrex::Real, 1, 2>& x,
 
     // Apply exponent component for calculating nse mass fractions
 
-    apply_nse_exponent(nse_state, state_data.u_c);
+    apply_nse_exponent(nse_state, state_data.log_term);
 
     // constraint equation 1, mass fraction sum to 1
 
@@ -199,6 +204,7 @@ void nse_fcn(amrex::Array1D<amrex::Real, 1, 3>& x,
              amrex::Array1D<amrex::Real, 1, 3>& fvec,
              const T& state_data, int& iflag) {
     // Constraint Equations for (rho, e, Ye) input.
+    // x = (μ_p, μ_n, T9)
 
     amrex::ignore_unused(iflag);
 
@@ -211,22 +217,15 @@ void nse_fcn(amrex::Array1D<amrex::Real, 1, 3>& x,
 
     // Finish evaluating NSE X_k
 
-    // Apply the temperature dependent bit
+    // Evaluate the temperature dependent piece, including screening.
 
-    apply_T_dependent_nonexponent_nse_state(nse_state);
-
-    // Find screening term
-
-    amrex::Array1D<amrex::Real, 1, NumSpec> u_c{0.0_rt};
-
-#if SCREEN_METHOD == SCREEN_METHOD_chabrier1998
-    compute_coulomb_contribution(u_c, nse_state);
-#endif
+    amrex::Array1D<amrex::Real, 1, NumSpec> log_term{0.0_rt};
+    evaluate_T_dependent_exponent_nse_state(log_term, nse_state);
 
     // Apply exponent for calculating NSE mass fractions
     // This also updates y_e.
 
-    apply_nse_exponent(nse_state, u_c);
+    apply_nse_exponent(nse_state, log_term);
 
     // constraint equation 1, mass fraction sum to 1
 
@@ -262,7 +261,7 @@ void nse_fcn(amrex::Array1D<amrex::Real, 1, 3>& x,
 /// NSE constraint Jacobian: ∂F_i/∂x_j
 ///
 /// When the input is (rho, T, Ye), x_j = {μ_p, μ_n}
-/// When the input is (rho, e, Ye), x_j = {μ_p, μ_n, T}
+/// When the input is (rho, e, Ye), x_j = {μ_p, μ_n, T9}
 ///
 
 template <typename T>
@@ -278,7 +277,7 @@ void nse_jcn(amrex::Array1D<amrex::Real, 1, 2>& x,
     nse_state.mu_p = x(1);
     nse_state.mu_n = x(2);
 
-    apply_nse_exponent(nse_state, state_data.u_c);
+    apply_nse_exponent(nse_state, state_data.log_term);
 
     // evaluate jacobian of the constraint
 
@@ -291,7 +290,7 @@ void nse_jcn(amrex::Array1D<amrex::Real, 1, 2>& x,
     // the temperature that comes in through T_fixed
 
     amrex::Real T_in = nse_state.T_fixed > 0.0_rt ? nse_state.T_fixed : nse_state.T;
-    amrex::Real ikTMeV = C::MeV2erg / (C::k_B * T_in);
+    amrex::Real ikTMeV = 1.0_rt / (C::k_MeV * T_in);
 
     for (int n = 0; n < NumSpec; ++n) {
 

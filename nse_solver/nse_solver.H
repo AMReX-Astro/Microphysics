@@ -36,7 +36,7 @@ template <typename T>
 struct nse_solver_data
 {
     T state;
-    amrex::Array1D<amrex::Real, 1, NumSpec> u_c;
+    amrex::Array1D<amrex::Real, 1, NumSpec> log_term;
 };
 
 template <int neqs, typename T>
@@ -322,18 +322,13 @@ T get_nse_state_rty(T& state,
 
     // First get the temperature-independent part.
 
-    state_data.state =  get_T_independent_nonexponent_nse_state(state);
+    state_data.state = get_T_independent_nse_state(state);
 
     // Since Temperature is fixed in this mode,
-    // Get Temperature dependent pieces now
+    // Get Temperature dependent exponent pieces, including screening
 
-    apply_T_dependent_nonexponent_nse_state(state_data.state);
-
-    // if use chabrier1998 screening, calculate the coulomb correction term
-
-#if SCREEN_METHOD == SCREEN_METHOD_chabrier1998
-    compute_coulomb_contribution(state_data.u_c, state);
-#endif
+    evaluate_T_dependent_nse_state(state_data.log_term,
+                                   state_data.state);
 
     // invoke newton-raphson or hybrj to solve chemical potential of proton and neutron
     // which are the exponent part of the nse mass fraction calculation
@@ -347,7 +342,7 @@ T get_nse_state_rty(T& state,
     // Apply exponent for calculating nse mass fractions
     // This updates y_e as well.
 
-    apply_nse_exponent(state_data.state, state_data.u_c);
+    apply_nse_exponent(state_data.state, state_data.log_term);
 
     // update mu_n and mu_p to input state
 
@@ -580,7 +575,7 @@ T get_nse_state_rey(T& state,
 
     // First get the temperature-independent part.
 
-    state_data.state = get_T_independent_nonexponent_nse_state(state);
+    state_data.state = get_T_independent_nse_state(state);
 
     // invoke newton-raphson or hybrj to solve mu_p, mu_n and T.
     // For (rho, e, Ye) input, there are three constraint eqns.
@@ -593,19 +588,14 @@ T get_nse_state_rey(T& state,
     // Now that mu_p, mu_n and T are solved and stored in state_data.state.
     // Finish evaluating the NSE composition.
 
-    // Apply the temperature dependent piece
+    // Evaluate the temperature dependent piece, including screening
 
-    apply_T_dependent_nonexponent_nse_state(state_data.state);
-
-    // if use chabrier1998 screening, calculate the coulomb correction term
-
-#if SCREEN_METHOD == SCREEN_METHOD_chabrier1998
-    compute_coulomb_contribution(state_data.u_c, state_data.state);
-#endif
+    evaluate_T_dependent_nse_state(state_data.log_term,
+                                   state_data.state);
 
     // Apply exponent for calculating NSE mass fractions
 
-    apply_nse_exponent(state_data.state, state_data.u_c);
+    apply_nse_exponent(state_data.state, state_data.log_term);
 
     // update rhoX in the output nse_state
 
