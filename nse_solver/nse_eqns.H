@@ -16,7 +16,7 @@
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 T get_T_independent_nse_state(const T& state) {
-    // Computes (2J + 1) m^{5/2} (kB 1e9 / 2 π ħ^2)^{3/2}
+    // Computes (2J + 1) m^{5/2} (kB 1e9 / 2 π ħ^2)^{3/2} / ρ
     // a portion of the nse_state that is not dependent on Temperature.
 
     T nse_state = state;
@@ -24,19 +24,19 @@ T get_T_independent_nse_state(const T& state) {
 
     amrex::constexpr_for<0, NumSpec>([&] (auto n)
     {
-        nse_state.xn[n] = gcem::pow(network::mion<n+1>(), 2.5_rt) *
-            get_spin_state<n+1>() * kBGK_2PiHbar2;
+        // Note, using gcem::sqrt instead of std, would get underflow and get 0 here
+        nse_state.xn[n] = std::sqrt(amrex::Math::powi<5>(network::mion<n+1>())) *
+            get_spin_state<n+1>() * gcem::sqrt(amrex::Math::powi<3>(kBGK_2PiHbar2)) / state.rho;
     });
 
     return nse_state;
 }
 
 
-
 #if SCREEN_METHOD == SCREEN_METHOD_chabrier1998
 template <int do_T9_derivatives, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void compute_coulomb_contribution(amrex::Array2D<amrex::Real, 1, NumSpec, 1, 2>& u_c,
+void compute_coulomb_contribution(amrex::Array2D<amrex::Real, 1, NumSpec, 1, 2, amrex::Order::C>& u_c,
                                   const T& state) {
     // This function computes the coulomb contribution and its T9 derivative
 
@@ -57,11 +57,11 @@ void compute_coulomb_contribution(amrex::Array2D<amrex::Real, 1, NumSpec, 1, 2>&
     const amrex::Real Gamma_e = C::q_e * C::q_e *
         std::cbrt(1.333333333333_rt * M_PI * n_e) / (C::k_B * T_in);
 
-    for (int n = 1; n <= NumSpec; ++n) {
+    for (int n = 0; n < NumSpec; ++n) {
 
         // term for calculating u_c
 
-        amrex::Real Gamma = std::cbrt(amrex::Math<5>(zion[n])) * Gamma_e;
+        amrex::Real Gamma = std::cbrt(amrex::Math::powi<5>(zion[n])) * Gamma_e;
 
         // chemical potential for coulomb correction
         // see appendix of Calder 2007, doi:10.1086/510709 for more detail
@@ -73,7 +73,7 @@ void compute_coulomb_contribution(amrex::Array2D<amrex::Real, 1, NumSpec, 1, 2>&
         // i.e. normalized by kb T
         //
 
-        u_c(n, 1) = chabrier1998_helmholtz_F<amrex::Real>(Gamma);
+        u_c(n+1, 1) = chabrier1998_helmholtz_F<amrex::Real>(Gamma);
 
         if constexpr (do_T9_derivatives) {
             constexpr amrex::Real A_1 = -0.9052_rt;
@@ -87,7 +87,7 @@ void compute_coulomb_contribution(amrex::Array2D<amrex::Real, 1, NumSpec, 1, 2>&
             // Find temperature derivative of the coulomb potential term: d (μ^c/kbT) / dT
             // Perhaps switch to using autodiff, but the expression seems simple enough.
 
-            u_c(n, 2) = dGamma_dT9 * std::sqrt(Gamma) *
+            u_c(n+1, 2) = dGamma_dT9 * std::sqrt(Gamma) *
                 (A_3 / (1.0_rt + Gamma) + A_1 / std::sqrt(A_2 + Gamma));
         }
     }
@@ -97,20 +97,20 @@ void compute_coulomb_contribution(amrex::Array2D<amrex::Real, 1, NumSpec, 1, 2>&
 
 template <int do_T9_derivatives, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void evaluate_T_dependent_nse_state(amrex::Array2D<amrex::Real, 1, NumSpec, 1, 2>& log_data,
+void evaluate_T_dependent_nse_state(amrex::Array2D<amrex::Real, 1, NumSpec, 1, 2, amrex::Order::C>& log_data,
                                     const T& state) {
     // Evaluates the temperature dependent piece and its T9 derivative.
     // i.e. (B - μ^c)/kBT + 1.5 lnT9 + ln(pf)
     // This is the term will be used inside the exp()
 
-    amrex::Real T_in = nse_state.T_fixed > 0.0_rt ? nse_state.T_fixed : nse_state.T;
+    amrex::Real T_in = state.T_fixed > 0.0_rt ? state.T_fixed : state.T;
     amrex::Real ikTMeV = 1.0_rt / (C::k_MeV * T_in);
 
     auto tfactors = evaluate_tfactors(T_in);
 
     // Evaluate the coulomb potential: μ^c / kBT and potentially find its T9 derivative
 
-    amrex::Array2D<amrex::Real, 1, NumSpec, 1, 2, amrex::Order::C> u_c {0.0_rt}
+    amrex::Array2D<amrex::Real, 1, NumSpec, 1, 2, amrex::Order::C> u_c {0.0_rt};
 #if SCREEN_METHOD == SCREEN_METHOD_chabrier1998
     compute_coulomb_contribution<do_T9_derivatives>(u_c, state);
 #endif
@@ -127,12 +127,12 @@ void evaluate_T_dependent_nse_state(amrex::Array2D<amrex::Real, 1, NumSpec, 1, 2
 
         // Compute the log term
 
-        log_data(n, 1) = networks::bion<n>() * ikTMeV - u_c(n) +
+        log_data(n, 1) = network::bion(n) * ikTMeV - u_c(n, 1) +
             1.5_rt * tfactors.lnT9 + logpf;
 
         if constexpr (do_T9_derivatives) {
-            log_data(n, 2) = (1.5_rt - networks::bion<n>() * ikTMeV) * tfactors.T9i +
-                dlogpf_dT9 - u_c(2, n);
+            log_data(n, 2) = (1.5_rt - network::bion(n) * ikTMeV) * tfactors.T9i +
+                dlogpf_dT9 - u_c(n, 2);
         }
     }
 }
@@ -141,7 +141,7 @@ void evaluate_T_dependent_nse_state(amrex::Array2D<amrex::Real, 1, NumSpec, 1, 2
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void apply_nse_exponent(T& nse_state,
-                        amrex::Array2D<amrex::Real, 1, NumSpec, 1, 2>& log_data) {
+                        const amrex::Array2D<amrex::Real, 1, NumSpec, 1, 2, amrex::Order::C>& log_data) {
     // This function applies the nse exponent which depends on
     // the chemical potential and the precomputed Temperature term
     // from evaluate_T_dependent_exponent_nse_state
@@ -229,7 +229,7 @@ void nse_fcn(amrex::Array1D<amrex::Real, 1, 3>& x,
 
     amrex::ignore_unused(iflag);
 
-    // here state is the nse_state from get_T_independent_nonexponent_nse_state
+    // here state is the nse_state from get_T_independent_nse_state
 
     auto nse_state = state_data.state;
     nse_state.mu_p = x(1);
@@ -241,7 +241,8 @@ void nse_fcn(amrex::Array1D<amrex::Real, 1, 3>& x,
     // Evaluate the temperature dependent piece, including screening.
 
     amrex::Array2D<amrex::Real, 1, NumSpec, 1, 2, amrex::Order::C> log_data{0.0_rt};
-    evaluate_T_dependent_nse_state(log_data, nse_state);
+    constexpr int do_T9_derivatives = 0;
+    evaluate_T_dependent_nse_state<do_T9_derivatives>(log_data, nse_state);
 
     // Apply exponent for calculating NSE mass fractions
     // This also updates y_e.
@@ -361,9 +362,9 @@ void nse_jcn(amrex::Array1D<amrex::Real, 1, 3>& x,
 
     // Evaluate the temperature dependent piece and its T9 derivative
 
-    amrex::Array2D<amrex::Real, 1, NumSpec, 1, 2, amrex::Order::C> log_data {0.0_rt}
+    amrex::Array2D<amrex::Real, 1, NumSpec, 1, 2, amrex::Order::C> log_data {0.0_rt};
     constexpr int do_T9_derivatives = 1;
-    evaluate_T_dependent_nse_state<do_T9_derivatives>(log_data, nse_state)
+    evaluate_T_dependent_nse_state<do_T9_derivatives>(log_data, nse_state);
 
     //
     // Evaluate the X_k and Jacobian at the same time to save runtime
@@ -376,7 +377,7 @@ void nse_jcn(amrex::Array1D<amrex::Real, 1, 3>& x,
         // Apply exponent part to xn
 
         amrex::Real mu_kBT = (zion[n] * nse_state.mu_p + (aion[n] - zion[n]) * nse_state.mu_n) * ikTMeV;
-        amrex::Real exponent = amrex::min(500.0_rt, mu_kBT);
+        amrex::Real exponent = amrex::min(500.0_rt, log_data(n+1,1) + mu_kBT);
 
         nse_state.xn[n] *= std::exp(exponent);
 
@@ -386,7 +387,7 @@ void nse_jcn(amrex::Array1D<amrex::Real, 1, 3>& x,
 
         amrex::Real dX_dmu_p = nse_state.xn[n] * zion[n] * ikTMeV;
         amrex::Real dX_dmu_n = nse_state.xn[n] * (aion[n] - zion[n]) * ikTMeV;
-        amrex::Real dX_dT9 = nse_state.xn[n] * (log_data(n+1, 2) - mu_kBT * T9i)
+        amrex::Real dX_dT9 = nse_state.xn[n] * (log_data(n+1, 2) - mu_kBT * T9i);
 
         fjac(1, 1) += dX_dmu_p;
         fjac(1, 2) += dX_dmu_n;

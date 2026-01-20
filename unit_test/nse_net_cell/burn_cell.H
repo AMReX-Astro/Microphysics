@@ -132,7 +132,7 @@ void burn_cell_c()
         int flag = 0;
 
         nse_solver_data<burn_t> state_data = {nse_state, {0.0_rt}};
-        state_data.state = get_T_independent_nonexponent_nse_state(nse_state);
+        state_data.state = get_T_independent_nse_state(nse_state);
 
         nse_fcn(x, f, state_data, flag);
         nse_jcn(x, jac, state_data, flag);

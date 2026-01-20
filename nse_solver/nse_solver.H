@@ -329,9 +329,9 @@ T get_nse_state_rty(T& state,
     // Since Temperature is fixed in this mode,
     // Get Temperature dependent exponent pieces, including screening
     // The values are stored in log_data
-
-    evaluate_T_dependent_nse_state(state_data.log_data,
-                                   state_data.state);
+    constexpr int do_T9_derivatives = 0;
+    evaluate_T_dependent_nse_state<do_T9_derivatives>(state_data.log_data,
+                                                      state_data.state);
 
     // invoke newton-raphson or hybrj to solve chemical potential of proton and neutron
     // which are the exponent part of the nse mass fraction calculation
@@ -592,9 +592,9 @@ T get_nse_state_rey(T& state,
     // Finish evaluating the NSE composition.
 
     // Evaluate the temperature dependent piece, including screening
-
-    evaluate_T_dependent_nse_state(state_data.log_data,
-                                   state_data.state);
+    constexpr int do_T9_derivatives = 0;
+    evaluate_T_dependent_nse_state<do_T9_derivatives>(state_data.log_data,
+                                                      state_data.state);
 
     // Apply exponent for calculating NSE mass fractions
 
