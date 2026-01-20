@@ -158,7 +158,7 @@ thermodynamic derivatives required in the Jacobians of our reaction
 networks.
 
 Microphysics uses header-only implementations of all functionality as
-much as possible, to allow for easier compiler inlining, which is
+much as possible to allow for easier compiler inlining, which is
 especially important in GPU kernels.  We also leverage C++17 `if
 constexpr` templating to compile out unnecessary computations for
 performance.  Generally, the physics routines and solvers are written
@@ -169,8 +169,7 @@ permits the simulation state data to be allocated directly in GPU
 memory and left there for the entire simulation, with all physics run
 directly on the GPU.  Since each zone in a simulation usually will
 have a different thermodynamic state, the integration of reaction
-networks can lead to thread divergence issues, since some zones will
-have an easier burn than others.  To help mitigate this issue, we can
+networks can lead to thread divergence issues.  To help mitigate this issue, we can
 cap the number of integration steps and either retry an integration on
 a zone-by-zone basis with different tolerances or Jacobian
 approximations or pass the failure back to the application code to
@@ -191,9 +190,9 @@ the unit tests) for simple investigations or as part of an
 (AMReX-based) application code.  In both cases, the core
 (compile-time) requirement is to select a network---this defines the
 composition that is then used by most of the other physics routines.
-This choice is done at compile-time, allowing
+This compile-time requirement also allows
 Microphysics to provide the number of species as a `constexpr` value
-(which many application codes need), and also greatly reducing the
+(which many application codes need), and greatly reduces the
 compilation time (due to the templating used throughout the library).
 
 # Research Impact Statement
@@ -208,11 +207,11 @@ neural networks modeling nuclear reactions [@nn_astro_2022; @dnn_astro_2025].
 
 # AI Usage Disclosure
 
-No generative AI/LLM was used for code or documentation generation in the
-git repository.  We have experimented with using AI/LLM tools for code
-review and for suggesting places to focus our optimization efforts on,
-but the resulting coding, benchmarking, and testing is then done by
-humans.
+No generative AI/LLM was used for producing code or documentation in
+the git repository or for this paper.  We have experimented with using
+AI/LLM tools for code review and for suggesting places to focus our
+optimization efforts on, but the resulting coding, benchmarking, and
+testing is then done by humans.
 
 
 # Acknowledgements
