@@ -36,7 +36,9 @@ template <typename T>
 struct nse_solver_data
 {
     T state;
-    amrex::Array1D<amrex::Real, 1, NumSpec> log_term;
+
+    // Holds the Temperature dependent log terms and derivative w.r.t T9
+    amrex::Array2D<amrex::Real, 1, NumSpec, 1, 2, amrex::Order::C> log_data;
 };
 
 template <int neqs, typename T>
@@ -326,8 +328,9 @@ T get_nse_state_rty(T& state,
 
     // Since Temperature is fixed in this mode,
     // Get Temperature dependent exponent pieces, including screening
+    // The values are stored in log_data
 
-    evaluate_T_dependent_nse_state(state_data.log_term,
+    evaluate_T_dependent_nse_state(state_data.log_data,
                                    state_data.state);
 
     // invoke newton-raphson or hybrj to solve chemical potential of proton and neutron
@@ -339,10 +342,10 @@ T get_nse_state_rty(T& state,
 
     nse_solve<nConstraintEqns, T>(state_data, eps);
 
-    // Apply exponent for calculating nse mass fractions
+    // Apply the log_data for calculating nse mass fractions
     // This updates y_e as well.
 
-    apply_nse_exponent(state_data.state, state_data.log_term);
+    apply_nse_exponent(state_data.state, state_data.log_data);
 
     // update mu_n and mu_p to input state
 
@@ -590,12 +593,12 @@ T get_nse_state_rey(T& state,
 
     // Evaluate the temperature dependent piece, including screening
 
-    evaluate_T_dependent_nse_state(state_data.log_term,
+    evaluate_T_dependent_nse_state(state_data.log_data,
                                    state_data.state);
 
     // Apply exponent for calculating NSE mass fractions
 
-    apply_nse_exponent(state_data.state, state_data.log_term);
+    apply_nse_exponent(state_data.state, state_data.log_data);
 
     // update rhoX in the output nse_state
 
