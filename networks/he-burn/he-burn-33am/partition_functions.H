@@ -494,78 +494,88 @@ void get_partition_function_cached(const int inuc, const tf_t& tfactors,
     }
 }
 
-// spins
 
+template <int spec>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-constexpr amrex::Real get_spin_state(const int inuc) {
+constexpr amrex::Real get_spin_state() {
 
-    amrex::Real spin = -1.0;
+    static_assert(spec >= 1 && spec <= NumSpec);
 
-    switch (inuc) {  // NOLINT(bugprone-switch-missing-default-case)
+    // Set the spin states (2J + 1) of the element
 
-    case He4:
-    case C12:
-    case O16:
-    case Ne20:
-    case Mg24:
-    case Si28:
-    case S32:
-    case Ar36:
-    case Ca40:
-    case Ti44:
-    case Cr48:
-    case Fe52:
-    case Fe54:
-    case Fe56:
-    case Ni56:
-    case Ni58:
-    case Zn60:
-        spin = 1;
-        break;
-
-    case N:
-    case H1:
-    case N13:
-    case P31:
-        spin = 2;
-        break;
-
-    case N14:
-        spin = 3;
-        break;
-
-    case Na23:
-    case Fe55:
-    case Ni57:
-    case Cu59:
-    case Cl35:
-    case K39:
-    case V47:
-        spin = 4;
-        break;
-
-    case Al27:
-    case Mn51:
-    case Mn55:
-        spin = 6;
-        break;
-
-    case Fe53:
-    case Co55:
-    case Co57:
-    case Sc43:
-        spin = 8;
-        break;
-
-    case Co56:
-        spin = 9;
-        break;
-
-
+    if constexpr (
+        spec == He4 || spec == C12 || spec == O16 ||
+        spec == Ne20 || spec == Mg24 || spec == Si28 ||
+        spec == S32 || spec == Ar36 || spec == Ca40 ||
+        spec == Ti44 || spec == Cr48 || spec == Fe52 ||
+        spec == Fe54 || spec == Fe56 || spec == Ni56 ||
+        spec == Ni58 || spec == Zn60
+                  )
+    {
+        return 1.0_rt;
+    }
+    else if constexpr (
+        spec == N || spec == H1 || spec == N13 ||
+        spec == P31
+                       )
+    {
+        return 2.0_rt;
+    }
+    else if constexpr (
+        spec == N14
+                       )
+    {
+        return 3.0_rt;
+    }
+    else if constexpr (
+        spec == Na23 || spec == Fe55 || spec == Ni57 ||
+        spec == Cu59 || spec == Cl35 || spec == K39 ||
+        spec == V47
+                       )
+    {
+        return 4.0_rt;
+    }
+    else if constexpr (
+        spec == Al27 || spec == Mn51 || spec == Mn55
+                       )
+    {
+        return 6.0_rt;
+    }
+    else if constexpr (
+        spec == Fe53 || spec == Co55 || spec == Co57 ||
+        spec == Sc43
+                       )
+    {
+        return 8.0_rt;
+    }
+    else if constexpr (
+        spec == Co56
+                       )
+    {
+        return 9.0_rt;
     }
 
-    return spin;
+    // Return -1 if we don't recognize the species.
+    return -1.0_rt;
+}
 
+
+// Legacy (non-templated) interface
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+amrex::Real get_spin_state (int spec) {
+
+    amrex::Real s = -1.0_rt;
+
+    // Set the spin states (2J + 1) of the element
+
+    amrex::constexpr_for<1, NumSpec+1>([&] (auto n) {
+        if (n == spec) {
+            s = get_spin_state<n>();
+        }
+    });
+
+    return s;
 }
 
 

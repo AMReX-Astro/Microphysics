@@ -1,1 +1,1 @@
-pynucastro version: 2.9.0-91-g158e0d5d6
+pynucastro version: 2.9.0-16-g73e052e60
