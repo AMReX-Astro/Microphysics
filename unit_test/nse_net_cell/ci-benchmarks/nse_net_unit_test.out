@@ -1,5 +1,5 @@
-Initializing AMReX (24.10-446-ga27e2e958050)...
-AMReX (24.10-446-ga27e2e958050) initialized
+Initializing AMReX (26.01-18-ga27e2e958050)...
+AMReX (26.01-18-ga27e2e958050) initialized
 starting the single zone burn...
 reading in network electron-capture / beta-decay tables...
 chemical potential of proton is -3
@@ -32,14 +32,14 @@ Using nse.solve_nse_e_mode == 1 :
 change in T: 6000000000 6069144727
 change in abar: 7.026880148 6.26238884
 recovered energy: 2.784234255e+18 2.784234255e+18
-Constraint Eqns using solved input are: -1.071365219e-14 -4.440892099e-16 -5.551115123e-16 
+Constraint Eqns using solved input are: -2.498001805e-15 1.054711873e-15 1.110223025e-15 
 Constraint Jacobian using solved input are: 19.70206532 19.80498652 3.069602949 9.82702147 9.875043853 1.533907452 0.2616834419 0.2616834419 0.7450188201 
 -----------------------------------------------
 Using nse.solve_nse_e_mode == 2 :
 change in T: 6000000000 6069144727
 change in abar: 7.026880148 6.26238884
 recovered energy: 2.784234255e+18 2.784234255e+18
-Constraint Eqns using solved input are: -6.332157021e-13 -2.764455331e-14 -3.734790255e-13 
+Constraint Eqns using solved input are: -6.932510122e-13 -3.103073354e-14 -3.900213486e-13 
 Constraint Jacobian using solved input are: 19.70206532 19.80498652 3.069602949 9.82702147 9.875043853 1.533907452 0.2616834419 0.2616834419 0.7450188201 
 -----------------------------------------------
-AMReX (24.10-446-ga27e2e958050) finalized
+AMReX (26.01-18-ga27e2e958050) finalized
