@@ -184,7 +184,7 @@ different integration methods (such as the RKC integrator) and also
 support different modes of coupling reactions to a simulation code,
 including operator splitting and spectral deferred corrections (SDC)
 (see, e.g., @castro_simple_sdc).  The latter is especially important
-for explosive astrophysical flows.  Tight integration with pynucastro [@pynucastro], [@pynucastro2], allows for the generation of custom reaction networks for a science problem.
+for explosive astrophysical flows.  Tight integration with pynucastro [@pynucastro; @pynucastro2], allows for the generation of custom reaction networks for a science problem.
 
 There are two ways to use Microphysics: in a standalone fashion (via
 the unit tests) for simple investigations or as part of an
@@ -204,7 +204,7 @@ for simulations of nova [@Smith2025], X-ray bursts [@Harpole_2021],
 thermonuclear supernovae [@Zingale_2024_dd], and convection in massive
 stars [@Zingale_2024] with Castro. This Microphysics library has also
 enabled recent work in astrophysical machine learning to train deep
-neural networks modeling nuclear reactions [@nn_astro_2022], [@dnn_astro_2025].
+neural networks modeling nuclear reactions [@nn_astro_2022; @dnn_astro_2025].
 
 # AI Usage Disclosure
 
