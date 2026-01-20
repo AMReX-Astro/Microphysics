@@ -133,7 +133,7 @@ Microphysics, which was an attempt to co-develop microphysics routines
 for the Castro and the Flash [@flash] simulation codes.  As interest
 in GPUs grew (with early support added to Microphysics in 2015),
 Castro moved from a mix of C++ and Fortran to pure C++ to take
-advantage of GPU-offloading afforded by the AMReX library and C++
+advantage of GPU-offloading afforded by the AMReX library, and C++
 ports of all physics routines and solvers were added to Microphysics.
 At this point, the project was formally named the AMReX-Astrophysics
 Microphysics library.  Today, the library is completely written in C++
@@ -159,33 +159,23 @@ networks.
 
 Microphysics uses header-only implementations of all functionality as
 much as possible, to allow for easier compiler inlining, which is
-especially important in GPU kernels.  Generally,
-the physics routines and solvers are written to work on a single zone
-from a simulation code, and in AMReX, a C++ lambda-capturing approach
-is used to loop over zones (and offload to GPUs if desired).  We also
-leverage C++17 `if constexpr` templating to compile out unnecessary
-computations for performance.
-
-Microphysics is designed such that all computation takes place on
-GPUs.  When used with an application code, this permits the simulation
-state data to be allocated directly in GPU memory and left there for
-the entire simulation.  For the ODE integration, the integrator
-(e.g. VODE) is run on the GPU directly.  Since each zone in a
-simulation usually will have a different thermodynamic state, this can
-lead to thread divergence issues, since some zones will have an easier
-burn than others.  To help mitigate this issue, we can cap the number
-of integration steps and either retry an integration on a zone-by-zone
-basis with different tolerances or Jacobian approximations or pass the
-failure back to the application code to deal with.  This strategy
-has been successful for many large scale simulations [@Zingale_2025].
-
-
-There are two ways to use Microphysics: in a standalone fashion (via
-the unit tests) for simple investigations or as part of an
-(AMReX-based) application code.  In both cases, the core
-(compile-time) requirement is to select a network---this defines the
-composition that is then used by most of the other physics routines.
-
+especially important in GPU kernels.  We also leverage C++17 `if
+constexpr` templating to compile out unnecessary computations for
+performance.  Generally, the physics routines and solvers are written
+to work on a single zone from a simulation code, and in AMReX, a C++
+lambda-capturing approach is used to loop over zones (and offload to
+GPUs if desired).  When used with an application code, this design
+permits the simulation state data to be allocated directly in GPU
+memory and left there for the entire simulation, with all physics run
+directly on the GPU.  Since each zone in a simulation usually will
+have a different thermodynamic state, the integration of reaction
+networks can lead to thread divergence issues, since some zones will
+have an easier burn than others.  To help mitigate this issue, we can
+cap the number of integration steps and either retry an integration on
+a zone-by-zone basis with different tolerances or Jacobian
+approximations or pass the failure back to the application code to
+deal with.  This strategy has been successful for many large scale
+simulations [@Zingale_2025].
 
 
 Another key design feature is the separation of the reaction network
@@ -194,13 +184,17 @@ different integration methods (such as the RKC integrator) and also
 support different modes of coupling reactions to a simulation code,
 including operator splitting and spectral deferred corrections (SDC)
 (see, e.g., @castro_simple_sdc).  The latter is especially important
-for explosive astrophysical flows.
+for explosive astrophysical flows.  Tight integration with pynucastro [@pynucastro], [@pynucastro2], allows for the generation of custom reaction networks for a science problem.
 
-Finally, most of the physics is chosen at compile-time.  This allows
+There are two ways to use Microphysics: in a standalone fashion (via
+the unit tests) for simple investigations or as part of an
+(AMReX-based) application code.  In both cases, the core
+(compile-time) requirement is to select a network---this defines the
+composition that is then used by most of the other physics routines.
+This choice is done at compile-time, allowing
 Microphysics to provide the number of species as a `constexpr` value
-(which many application codes need), and also greatly reduces the
+(which many application codes need), and also greatly reducing the
 compilation time (due to the templating used throughout the library).
-
 
 # Research Impact Statement
 
@@ -210,7 +204,7 @@ for simulations of nova [@Smith2025], X-ray bursts [@Harpole_2021],
 thermonuclear supernovae [@Zingale_2024_dd], and convection in massive
 stars [@Zingale_2024] with Castro. This Microphysics library has also
 enabled recent work in astrophysical machine learning to train deep
-neural networks modeling nuclear reactions [@nn_astro_2022,@dnn_astro_2025].
+neural networks modeling nuclear reactions [@nn_astro_2022], [@dnn_astro_2025].
 
 # AI Usage Disclosure
 
