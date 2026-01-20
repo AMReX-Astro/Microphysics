@@ -23,15 +23,11 @@ T get_T_independent_nonexponent_nse_state(const T& state) {
     T nse_state = state;
     constexpr amrex::Real kBGK_2PiHbar2 = (C::k_B * 1.0e9_rt) / (2.0_rt * M_PI * C::hbar * C::hbar);
 
-    // set spin
-
-    amrex::Real spin = 1.0_rt;
-
     for (int n = 0; n < NumSpec; ++n) {
 
         // fill spin
 
-        spin = get_spin_state(n+1);
+        amrex::Real spin = get_spin_state(n+1);
 
         // find temperature independent part
 
@@ -54,14 +50,14 @@ void apply_T_dependent_nonexponent_nse_state(T& nse_state) {
     amrex::Real T_in = nse_state.T_fixed > 0.0_rt ? nse_state.T_fixed : nse_state.T;
     constexpr amrex::Real kBi2PiHbar2 = C::k_B / (2.0_rt * M_PI * C::hbar * C::hbar);
 
-    // Initialize temperature-dependent nuclear partition function
-
-    amrex::Real pf = 1.0_rt;
-    [[maybe_unused]] amrex::Real dpf_dT;
     auto tfactors = evaluate_tfactors(T_in);
 
     for (int n = 0; n < NumSpec; ++n) {
 
+        // Evaluate temperature-dependent nuclear partition function
+
+        amrex::Real pf;
+        [[maybe_unused]] amrex::Real dpf_dT;
         get_partition_function(n+1, tfactors, pf, dpf_dT);
 
         // Apply temperature-dependent part
@@ -366,8 +362,7 @@ void nse_jcn(amrex::Array1D<amrex::Real, 1, 3>& x,
 
         // fill partition function and its temperature derivative
 
-        amrex::Real pf = 1.0_rt;
-        amrex::Real dpf_dT = 0.0_rt;
+        amrex::Real pf, dpf_dT;
         get_partition_function(n+1, tfactors, pf, dpf_dT);
 
         // Apply temperature dependent part
