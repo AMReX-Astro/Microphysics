@@ -11,9 +11,7 @@
 #include <cmath>
 #include <AMReX_Array.H>
 #include <actual_network.H>
-#ifndef NEW_NETWORK_IMPLEMENTATION
 #include <actual_rhs.H>
-#endif
 #include <eos_composition.H>
 #include <microphysics_sort.H>
 #include <hybrj.H>
@@ -40,7 +38,6 @@ struct nse_solver_data
     T state;
     amrex::Array1D<amrex::Real, 1, NumSpec> u_c;
 };
-
 
 template <int neqs, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -296,11 +293,6 @@ void nse_solve(nse_solver_data<T>& state_data,
     else {
         bool singular_network = true;
         for (int n = 0; n < NumSpec; ++n) {
-#ifdef NEW_NETWORK_IMPLEMENTATION
-            if (n == NSE_INDEX::H1_index) {
-                continue;
-            }
-#endif
             if (zion[n] != aion[n] - zion[n]) {
                 singular_network = false;
             }
@@ -704,6 +696,6 @@ T get_actual_nse_state(nse_input_t input,
         amrex::Abort("Unknown NSE input mode");
         return state;
     }
-
 }
+
 #endif
