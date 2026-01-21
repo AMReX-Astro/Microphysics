@@ -82,7 +82,7 @@ void compute_coulomb_contribution(amrex::Array2D<amrex::Real, 1, NumSpec, 1, 2, 
 
             // Find dΓ / dT9 = - Γ / T9
 
-            amrex::Real dGamma_dT9 = - Gamma * 1.0e-9_rt / T_in;
+            amrex::Real dGamma_dT9 = - Gamma * 1.0e9_rt / T_in;
 
             // Find temperature derivative of the coulomb potential term: d (μ^c/kbT) / dT
             // Perhaps switch to using autodiff, but the expression seems simple enough.
