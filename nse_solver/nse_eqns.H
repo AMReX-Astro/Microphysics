@@ -180,8 +180,8 @@ void apply_nse_exponent(nse_solver_data<T>& state_data) {
     auto& nse_state = state_data.state;
 
     const amrex::Real T_in = nse_state.T_fixed > 0.0_rt ? nse_state.T_fixed : nse_state.T;
-    constexpr amrex::Real ikMeV_GK = 1.0e-9_rt / C::k_MeV;
     const amrex::Real T9i = 1.0e9_rt / T_in;
+    constexpr amrex::Real ikMeV_GK = 1.0e-9_rt / C::k_MeV;
     const amrex::Real ikTMeV = ikMeV_GK * T9i;
 
     for (int n = 0; n < NumSpec; ++n) {
@@ -278,6 +278,7 @@ void nse_fcn(amrex::Array1D<amrex::Real, 1, 3>& x,
     // Finish evaluating NSE X_k
 
     // get the temperature dependent piece, including screening.
+
     constexpr int do_T9_derivatives = 0;
     get_T_dependent_nse_state<do_T9_derivatives>(nse_state_data);
 
@@ -450,16 +451,16 @@ void nse_jcn(amrex::Array1D<amrex::Real, 1, 3>& x,
     eos_state.T = T_in;
     eos(eos_input_rt, eos_state);
 
-    amrex::Real de_dT9 = 1.0e9_rt * eos_state.dedT;
+    // de/dT9 normalize by input energy.
+    amrex::Real de_dT9_norm = 1.0e9_rt * eos_state.dedT * e_inv;
 
-    fjac(3, 1) = - eos_state.abar * eos_state.abar *
-        (eos_state.dedA + Ye * eos_state.dedZ) * fjac(3, 1) * e_inv;
+    // -abar^2 * (de/dabar + Ye de/dzbar) normalized by input energy
+    amrex::Real common_term = -eos_state.abar * eos_state.abar *
+        (eos_state.dedA + Ye * eos_state.dedZ) * e_inv;
 
-    fjac(3, 2) = - eos_state.abar * eos_state.abar *
-        (eos_state.dedA + Ye * eos_state.dedZ) * fjac(3, 2) * e_inv;
-
-    fjac(3, 3) = (de_dT9 - eos_state.abar * eos_state.abar *
-                  (eos_state.dedA + Ye * eos_state.dedZ) * fjac(3, 3)) * e_inv;
+    fjac(3, 1) *= common_term;
+    fjac(3, 2) *= common_term;
+    fjac(3, 3) = de_dT9_norm + common_term * fjac(3, 3);
 }
 
 #endif
