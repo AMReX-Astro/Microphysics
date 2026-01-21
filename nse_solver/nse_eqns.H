@@ -97,16 +97,20 @@ void compute_coulomb_contribution(amrex::Array2D<amrex::Real, 1, NumSpec, 1, 2, 
 
 template <int do_T9_derivatives, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void evaluate_T_dependent_nse_state(amrex::Array2D<amrex::Real, 1, NumSpec, 1, 2, amrex::Order::C>& log_data,
-                                    const T& state) {
-    // Evaluates the temperature dependent piece and its T9 derivative.
-    // i.e. (B - μ^c)/kBT + 1.5 lnT9 + ln(pf)
-    // This is the term will be used inside the exp()
+void get_T_dependent_nse_state(amrex::Array2D<amrex::Real, 1, NumSpec, 1, 2, amrex::Order::C>& log_data,
+                               T& state) {
+    // It does two things:
+    // 1. Applies T9^{3/2} to the input state,
+    //    where the input state should come from get_T_independent_nse_state()
+    // 2. Evaluates the temperature dependent piece in the exponent
+    //    i.e. - μ^c/kBT  + ln(pf)
+    //    This is the term will be used inside the exp()
+    //    It also evaluates the dlog/T9 derivative, including the effect of T9^{3/2}
+    //    i.e. dlog/dT9 = 1.5 / T9 - du^c/dT9 + dlogpf/dT9
 
     amrex::Real T_in = state.T_fixed > 0.0_rt ? state.T_fixed : state.T;
-    amrex::Real ikTMeV = 1.0_rt / (C::k_MeV * T_in);
-
-    auto tfactors = evaluate_tfactors(T_in);
+    amrex::Real T9 = T_in * 1.0e-9_rt;
+    [[maybe_unused]] amrex::Real T9i = 1.0_rt / T9;
 
     // Evaluate the coulomb potential: μ^c / kBT and potentially find its T9 derivative
 
@@ -117,22 +121,23 @@ void evaluate_T_dependent_nse_state(amrex::Array2D<amrex::Real, 1, NumSpec, 1, 2
 
     part_fun::pf_cache_t pf_cache;
 
-    for (int n = 1; n <= NumSpec; ++n) {
+    for (int n = 0; n < NumSpec; ++n) {
 
         // Evaluate internal nuclear partition function, in log space
 
         amrex::Real logpf;
         [[maybe_unused]] amrex::Real dlogpf_dT9;
-        get_partition_function_cached(n, tfactors, pf_cache, logpf, dlogpf_dT9);
+        get_partition_function_cached(n+1, T9, pf_cache, logpf, dlogpf_dT9);
 
         // Compute the log term
 
-        log_data(n, 1) = network::bion(n) * ikTMeV - u_c(n, 1) +
-            1.5_rt * tfactors.lnT9 + logpf;
+        log_data(n+1, 1) = logpf - u_c(n+1, 1);
+
+        // Apply T9^{3/2} to the state
+        state.xn[n] *= std::sqrt(amrex::Math::powi<3>(T9));
 
         if constexpr (do_T9_derivatives) {
-            log_data(n, 2) = (1.5_rt - network::bion(n) * ikTMeV) * tfactors.T9i +
-                dlogpf_dT9 - u_c(n, 2);
+            log_data(n+1, 2) = 1.5_rt * T9i + dlogpf_dT9 - u_c(n+1, 2);
         }
     }
 }
@@ -161,8 +166,9 @@ void apply_nse_exponent(T& nse_state,
 
         amrex::Real exponent = amrex::min(500.0_rt,
                                           (zion[n] * nse_state.mu_p +
-                                           (aion[n] - zion[n]) * nse_state.mu_n) *
-                                          ikTMeV + log_data(n+1, 1));
+                                           (aion[n] - zion[n]) * nse_state.mu_n +
+                                           network::bion(n+1)) * ikTMeV +
+                                          log_data(n+1, 1));
 
         nse_state.xn[n] *= std::exp(exponent);
     }
@@ -238,11 +244,11 @@ void nse_fcn(amrex::Array1D<amrex::Real, 1, 3>& x,
 
     // Finish evaluating NSE X_k
 
-    // Evaluate the temperature dependent piece, including screening.
+    // get the temperature dependent piece, including screening.
 
     amrex::Array2D<amrex::Real, 1, NumSpec, 1, 2, amrex::Order::C> log_data{0.0_rt};
     constexpr int do_T9_derivatives = 0;
-    evaluate_T_dependent_nse_state<do_T9_derivatives>(log_data, nse_state);
+    get_T_dependent_nse_state<do_T9_derivatives>(log_data, nse_state);
 
     // Apply exponent for calculating NSE mass fractions
     // This also updates y_e.
@@ -364,7 +370,7 @@ void nse_jcn(amrex::Array1D<amrex::Real, 1, 3>& x,
 
     amrex::Array2D<amrex::Real, 1, NumSpec, 1, 2, amrex::Order::C> log_data {0.0_rt};
     constexpr int do_T9_derivatives = 1;
-    evaluate_T_dependent_nse_state<do_T9_derivatives>(log_data, nse_state);
+    get_T_dependent_nse_state<do_T9_derivatives>(log_data, nse_state);
 
     //
     // Evaluate the X_k and Jacobian at the same time to save runtime
@@ -376,7 +382,10 @@ void nse_jcn(amrex::Array1D<amrex::Real, 1, 3>& x,
 
         // Apply exponent part to xn
 
-        amrex::Real mu_kBT = (zion[n] * nse_state.mu_p + (aion[n] - zion[n]) * nse_state.mu_n) * ikTMeV;
+        amrex::Real mu_kBT = (zion[n] * nse_state.mu_p +
+                              (aion[n] - zion[n]) * nse_state.mu_n +
+                              network::bion(n+1)) * ikTMeV;
+
         amrex::Real exponent = amrex::min(500.0_rt, log_data(n+1,1) + mu_kBT);
 
         nse_state.xn[n] *= std::exp(exponent);
