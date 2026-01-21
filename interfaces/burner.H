@@ -50,23 +50,27 @@ void burner (BurnT& state, amrex::Real dt)
         // left after the failure
         amrex::Real dt_remaining = amrex::max(dt - state.time, 0.0_rt);
 
-        // we use a relaxed NSE criteria now to catch states that are
-        // right on the edge of being in NSE
+        if (!state.success && dt_remaining > 0.0_rt) {
+
+            // Proceed with NSE burn if NSE is detected within integrator
+            // If we allow a relaxed NSE criteria to catch states that are
+            // right on the edge of being in NSE, then evaluate that here.
 #ifdef NSE_TABLE
-        if (in_nse(state, true) && !state.success && dt_remaining > 0.0) {
+            if (state.error_code == IERR_ENTERED_NSE || in_nse(state, true)) {
 #else
-        if (in_nse(state, nse_skip_molar) && !state.success && dt_remaining > 0.0) {
+            if (state.error_code == IERR_ENTERED_NSE || (nse_skip_molar && in_nse(state, nse_skip_molar))) {
 #endif
 
 #ifndef AMREX_USE_GPU
-            std::cout << "recovering burn failure in NSE, zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
+                std::cout << "recovering burn failure in NSE, zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
 #endif
 
-            // This will append to state.e the amount additional
-            // energy released from adjusting to the new NSE state
+                // This will append to state.e the amount additional
+                // energy released from adjusting to the new NSE state
 #ifdef SDC
-            sdc_nse_burn(state, dt_remaining);
+                sdc_nse_burn(state, dt_remaining);
 #endif
+            }
         }
     }
 #else

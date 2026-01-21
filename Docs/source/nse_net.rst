@@ -354,3 +354,7 @@ to the self-consistent nse check:
   the subsequent NSE checks. This is mainly to avoid unnecessary computations
   of computing the NSE mass fractions when the current temperature is too low.
   This is set to 4.0e9 by default.
+
+* ``nse.nse_check_interval`` is the interval at which we perform the
+  nse check in the integrator. This is used to minimize the
+  expensive check overhead. This is set to 5 by default.

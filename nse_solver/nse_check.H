@@ -554,15 +554,6 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
         return current_state.nse;
     }
 
-    // Check if any of the input rhoX is negative
-    // This indicates a burn failure, so we should return false
-
-    for (int n = 0; n < NumSpec; ++n) {
-        if (current_state.y[SFS+n] < 0.0_rt) {
-            return current_state.nse;
-        }
-    }
-
     // Get the NSE state using (rho, T, Ye) as input
     // Then compare input molar fractions to the NSE molar fractions.
 

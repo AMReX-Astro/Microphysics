@@ -246,15 +246,17 @@ int rkclow (BurnT& state, RkcT& rstate)
        // wild exploration.  Also ensure we are not working > tmax,
        // so we don't need to worry about extrapolating back in time.
 
-       if (rstate.nsteps > MIN_NSE_BAILOUT_STEPS && rstate.t <= rstate.tout) {
+       // For NSE_NET, we only check for some interval to prevent
+       // expensive check overhead
+
+       if (rstate.nsteps > MIN_NSE_BAILOUT_STEPS && rstate.t <= rstate.tout
+#ifdef NSE_NET
+           && (vstate.n_step % nse_check_interval == 0 || state.T > 6.e9_rt)
+#endif
+           ) {
            // first we need to make the burn_t in sync
 
-#ifdef STRANG
-           update_thermodynamics(state, rstate);
-#endif
-#ifdef SDC
            int_to_burn(rstate.t, rstate, state);
-#endif
 
            if (in_nse(state)) {
                return IERR_ENTERED_NSE;
