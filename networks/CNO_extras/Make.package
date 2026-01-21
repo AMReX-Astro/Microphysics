@@ -1,3 +1,4 @@
+PYNUCASTRO_NETWORK = TRUE
 CEXE_headers += network_properties.H
 
 ifeq ($(USE_REACT),TRUE)
@@ -11,6 +12,8 @@ ifeq ($(USE_REACT),TRUE)
   CEXE_headers += reaclib_rates.H
   CEXE_headers += table_rates.H
   CEXE_sources += table_rates_data.cpp
+  CEXE_headers += temperature_table_rates.H
+  CEXE_headers += derived_rates.H
   USE_SCREENING = TRUE
   USE_NEUTRINOS = TRUE
 endif
