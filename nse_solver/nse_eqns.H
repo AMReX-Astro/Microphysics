@@ -37,9 +37,9 @@ T get_T_independent_nse_state(const T& state) {
 
     amrex::constexpr_for<0, NumSpec>([&] (auto n)
     {
-        // Note, using gcem::sqrt instead of std, would get underflow and get 0 here
-        nse_state.xn[n] = std::sqrt(amrex::Math::powi<5>(network::mion<n+1>())) *
-            get_spin_state<n+1>() * gcem::sqrt(amrex::Math::powi<3>(kBGK_2PiHbar2)) * rho_inv;
+        // Absorb mion into kBGK_2PiHbar2 to prevent underflow at compile time.
+        nse_state.xn[n] = network::mion<n+1>() * get_spin_state<n+1>() *
+            gcem::sqrt(amrex::Math::powi<3>(network::mion<n+1>() * kBGK_2PiHbar2)) * rho_inv;
     });
 
     return nse_state;
@@ -74,11 +74,18 @@ void compute_coulomb_contribution(amrex::Array1D<amrex::Real, 1, NumSpec>& u_c,
         C::q_e * C::q_e * gcem::pow(4.0_rt * M_PI / 3.0_rt, 1.0_rt / 3.0_rt) / (C::k_B * 1.0e9_rt);
     const amrex::Real Gamma_e = gamma_e_constants * std::cbrt(n_e) * T9i;
 
-    for (int n = 0; n < NumSpec; ++n) {
+    // Precompute Z^{5/3}
+    amrex::Array1D<amrex::Real, 1, NumSpec> Z_53;
+    amrex::constexpr_for<1, NumSpec+1>([&] (auto n)
+    {
+        Z_53(n) = gcem::pow(NetworkProperties::zion(n), 5.0_rt / 3.0_rt);
+    });
+
+    for (int n = 1; n <= NumSpec; ++n) {
 
         // term for calculating u_c
 
-        amrex::Real Gamma = std::cbrt(amrex::Math::powi<5>(zion[n])) * Gamma_e;
+        amrex::Real Gamma = Z_53(n) * Gamma_e;
 
         // chemical potential for coulomb correction
         // see appendix of Calder 2007, doi:10.1086/510709 for more detail
@@ -87,10 +94,10 @@ void compute_coulomb_contribution(amrex::Array1D<amrex::Real, 1, NumSpec>& u_c,
 
         //
         // Here u_c is a dimensionless quantity.
-        // i.e. normalized by kb T
+        // i.e. normalized by kB T
         //
 
-        u_c(n+1) = chabrier1998_helmholtz_F<amrex::Real>(Gamma);
+        u_c(n) = chabrier1998_helmholtz_F<amrex::Real>(Gamma);
 
         if constexpr (do_T9_derivatives) {
             constexpr amrex::Real A_1 = -0.9052_rt;
@@ -101,10 +108,10 @@ void compute_coulomb_contribution(amrex::Array1D<amrex::Real, 1, NumSpec>& u_c,
 
             amrex::Real dGamma_dT9 = - Gamma * T9i;
 
-            // Find temperature derivative of the coulomb potential term: d (μ^c/kbT) / dT
+            // Find temperature derivative of the coulomb potential term: d (μ^c/kBT) / dT
             // Perhaps switch to using autodiff, but the expression seems simple enough.
 
-            du_c_dT9(n+1) = dGamma_dT9 * std::sqrt(Gamma) *
+            du_c_dT9(n) = dGamma_dT9 * std::sqrt(Gamma) *
                 (A_3 / (1.0_rt + Gamma) + A_1 / std::sqrt(A_2 + Gamma));
         }
     }
@@ -425,13 +432,14 @@ void nse_jcn(amrex::Array1D<amrex::Real, 1, 3>& x,
         amrex::Real dX_dmu_p = nse_state.xn[n] * zion[n] * ikTMeV;
         amrex::Real dX_dmu_n = nse_state.xn[n] * (aion[n] - zion[n]) * ikTMeV;
         amrex::Real dX_dT9 = nse_state.xn[n] * nse_state_data.dlogX_dT9(n+1);
+        amrex::Real Z_over_A = zion[n] * aion_inv[n];
 
         fjac(1, 1) += dX_dmu_p;
         fjac(1, 2) += dX_dmu_n;
         fjac(1, 3) += dX_dT9;
-        fjac(2, 1) += zion[n] * aion_inv[n] * dX_dmu_p;
-        fjac(2, 2) += zion[n] * aion_inv[n] * dX_dmu_n;
-        fjac(2, 3) += zion[n] * aion_inv[n] * dX_dT9;
+        fjac(2, 1) += Z_over_A * dX_dmu_p;
+        fjac(2, 2) += Z_over_A * dX_dmu_n;
+        fjac(2, 3) += Z_over_A * dX_dT9;
         fjac(3, 1) += aion_inv[n] * dX_dmu_p;
         fjac(3, 2) += aion_inv[n] * dX_dmu_n;
         fjac(3, 3) += aion_inv[n] * dX_dT9;
