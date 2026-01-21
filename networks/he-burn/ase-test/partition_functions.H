@@ -181,11 +181,11 @@ namespace part_fun {
 
         AMREX_GPU_HOST_DEVICE AMREX_INLINE
         pf_cache_t() {
-            // The entries will be default-initialized to -900, log(partition_function)
-            // should never be -900.
+            // The entries will be default-initialized to -900,
+            // log(partition_function) should never be -900.
             for (int i = 1; i <= NumSpecTotal; ++i) {
-                    data(i,1) = -900.0_rt;
-                    data(i,2) = -900.0_rt;
+                    data(i, 1) = -900.0_rt;
+                    data(i, 2) = -900.0_rt;
             }
         }
     };
@@ -197,7 +197,7 @@ namespace part_fun {
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void get_partition_function(const int inuc,
-                            [[maybe_unused]] const tf_t& tfactors,
+                            [[maybe_unused]] const amrex::Real T9,
                             const part_fun::pf_cache_t& pf_cache,
                             amrex::Real& logpf, amrex::Real& dlogpf_dT9) {
 
@@ -209,128 +209,128 @@ void get_partition_function(const int inuc,
     switch (inuc) {
 
     case O16:
-        if (tfactors.T9 > part_fun::O16_pf_threshold_T9) {
-            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::O16_pf_array, logpf, dlogpf_dT9);
+        if (T9 > part_fun::O16_pf_threshold_T9) {
+            part_fun::interpolate_pf(T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::O16_pf_array, logpf, dlogpf_dT9);
         }
         break;
 
     case F17:
-        if (tfactors.T9 > part_fun::F17_pf_threshold_T9) {
-            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::F17_pf_array, logpf, dlogpf_dT9);
+        if (T9 > part_fun::F17_pf_threshold_T9) {
+            part_fun::interpolate_pf(T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::F17_pf_array, logpf, dlogpf_dT9);
         }
         break;
 
     case Ne20:
-        if (tfactors.T9 > part_fun::Ne20_pf_threshold_T9) {
-            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Ne20_pf_array, logpf, dlogpf_dT9);
+        if (T9 > part_fun::Ne20_pf_threshold_T9) {
+            part_fun::interpolate_pf(T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Ne20_pf_array, logpf, dlogpf_dT9);
         }
         break;
 
     case Na23:
-        if (tfactors.T9 > part_fun::Na23_pf_threshold_T9) {
-            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Na23_pf_array, logpf, dlogpf_dT9);
+        if (T9 > part_fun::Na23_pf_threshold_T9) {
+            part_fun::interpolate_pf(T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Na23_pf_array, logpf, dlogpf_dT9);
         }
         break;
 
     case Mg24:
-        if (tfactors.T9 > part_fun::Mg24_pf_threshold_T9) {
-            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Mg24_pf_array, logpf, dlogpf_dT9);
+        if (T9 > part_fun::Mg24_pf_threshold_T9) {
+            part_fun::interpolate_pf(T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Mg24_pf_array, logpf, dlogpf_dT9);
         }
         break;
 
     case Al27:
-        if (tfactors.T9 > part_fun::Al27_pf_threshold_T9) {
-            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Al27_pf_array, logpf, dlogpf_dT9);
+        if (T9 > part_fun::Al27_pf_threshold_T9) {
+            part_fun::interpolate_pf(T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Al27_pf_array, logpf, dlogpf_dT9);
         }
         break;
 
     case Si28:
-        if (tfactors.T9 > part_fun::Si28_pf_threshold_T9) {
-            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Si28_pf_array, logpf, dlogpf_dT9);
+        if (T9 > part_fun::Si28_pf_threshold_T9) {
+            part_fun::interpolate_pf(T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Si28_pf_array, logpf, dlogpf_dT9);
         }
         break;
 
     case P31:
-        if (tfactors.T9 > part_fun::P31_pf_threshold_T9) {
-            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::P31_pf_array, logpf, dlogpf_dT9);
+        if (T9 > part_fun::P31_pf_threshold_T9) {
+            part_fun::interpolate_pf(T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::P31_pf_array, logpf, dlogpf_dT9);
         }
         break;
 
     case S32:
-        if (tfactors.T9 > part_fun::S32_pf_threshold_T9) {
-            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::S32_pf_array, logpf, dlogpf_dT9);
+        if (T9 > part_fun::S32_pf_threshold_T9) {
+            part_fun::interpolate_pf(T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::S32_pf_array, logpf, dlogpf_dT9);
         }
         break;
 
     case Cl35:
-        if (tfactors.T9 > part_fun::Cl35_pf_threshold_T9) {
-            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Cl35_pf_array, logpf, dlogpf_dT9);
+        if (T9 > part_fun::Cl35_pf_threshold_T9) {
+            part_fun::interpolate_pf(T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Cl35_pf_array, logpf, dlogpf_dT9);
         }
         break;
 
     case Ar36:
-        if (tfactors.T9 > part_fun::Ar36_pf_threshold_T9) {
-            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Ar36_pf_array, logpf, dlogpf_dT9);
+        if (T9 > part_fun::Ar36_pf_threshold_T9) {
+            part_fun::interpolate_pf(T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Ar36_pf_array, logpf, dlogpf_dT9);
         }
         break;
 
     case K39:
-        if (tfactors.T9 > part_fun::K39_pf_threshold_T9) {
-            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::K39_pf_array, logpf, dlogpf_dT9);
+        if (T9 > part_fun::K39_pf_threshold_T9) {
+            part_fun::interpolate_pf(T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::K39_pf_array, logpf, dlogpf_dT9);
         }
         break;
 
     case Ca40:
-        if (tfactors.T9 > part_fun::Ca40_pf_threshold_T9) {
-            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Ca40_pf_array, logpf, dlogpf_dT9);
+        if (T9 > part_fun::Ca40_pf_threshold_T9) {
+            part_fun::interpolate_pf(T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Ca40_pf_array, logpf, dlogpf_dT9);
         }
         break;
 
     case Sc43:
-        if (tfactors.T9 > part_fun::Sc43_pf_threshold_T9) {
-            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Sc43_pf_array, logpf, dlogpf_dT9);
+        if (T9 > part_fun::Sc43_pf_threshold_T9) {
+            part_fun::interpolate_pf(T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Sc43_pf_array, logpf, dlogpf_dT9);
         }
         break;
 
     case Ti44:
-        if (tfactors.T9 > part_fun::Ti44_pf_threshold_T9) {
-            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Ti44_pf_array, logpf, dlogpf_dT9);
+        if (T9 > part_fun::Ti44_pf_threshold_T9) {
+            part_fun::interpolate_pf(T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Ti44_pf_array, logpf, dlogpf_dT9);
         }
         break;
 
     case V47:
-        if (tfactors.T9 > part_fun::V47_pf_threshold_T9) {
-            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::V47_pf_array, logpf, dlogpf_dT9);
+        if (T9 > part_fun::V47_pf_threshold_T9) {
+            part_fun::interpolate_pf(T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::V47_pf_array, logpf, dlogpf_dT9);
         }
         break;
 
     case Cr48:
-        if (tfactors.T9 > part_fun::Cr48_pf_threshold_T9) {
-            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Cr48_pf_array, logpf, dlogpf_dT9);
+        if (T9 > part_fun::Cr48_pf_threshold_T9) {
+            part_fun::interpolate_pf(T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Cr48_pf_array, logpf, dlogpf_dT9);
         }
         break;
 
     case Mn51:
-        if (tfactors.T9 > part_fun::Mn51_pf_threshold_T9) {
-            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Mn51_pf_array, logpf, dlogpf_dT9);
+        if (T9 > part_fun::Mn51_pf_threshold_T9) {
+            part_fun::interpolate_pf(T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Mn51_pf_array, logpf, dlogpf_dT9);
         }
         break;
 
     case Fe52:
-        if (tfactors.T9 > part_fun::Fe52_pf_threshold_T9) {
-            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Fe52_pf_array, logpf, dlogpf_dT9);
+        if (T9 > part_fun::Fe52_pf_threshold_T9) {
+            part_fun::interpolate_pf(T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Fe52_pf_array, logpf, dlogpf_dT9);
         }
         break;
 
     case Co55:
-        if (tfactors.T9 > part_fun::Co55_pf_threshold_T9) {
-            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Co55_pf_array, logpf, dlogpf_dT9);
+        if (T9 > part_fun::Co55_pf_threshold_T9) {
+            part_fun::interpolate_pf(T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Co55_pf_array, logpf, dlogpf_dT9);
         }
         break;
 
     case Ni56:
-        if (tfactors.T9 > part_fun::Ni56_pf_threshold_T9) {
-            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Ni56_pf_array, logpf, dlogpf_dT9);
+        if (T9 > part_fun::Ni56_pf_threshold_T9) {
+            part_fun::interpolate_pf(T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Ni56_pf_array, logpf, dlogpf_dT9);
         }
         break;
 
@@ -345,9 +345,9 @@ void get_partition_function(const int inuc,
 }
 
 
-// a version of get_parition_function where we have not cached the
-// index into the arrays. And returns pf and dpf_dT instead of
-// logpf and dlogpf_dT9
+// a version of get_partition_function where we have not cached the
+// index into the arrays. Uses tfactors instead of T9 as argument,
+// and returns pf and dpf_dT instead of logpf and dlogpf_dT9
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void get_partition_function(const int inuc,
@@ -361,25 +361,25 @@ void get_partition_function(const int inuc,
     part_fun::pf_cache_t pf_cache;
 
     amrex::Real logpf, dlogpf_dT9;
-    get_partition_function(inuc, tfactors, pf_cache, logpf, dlogpf_dT9);
+    get_partition_function(inuc, tfactors.T9, pf_cache, logpf, dlogpf_dT9);
 
-    // Convert to logpf to pf and dlogpf_dT9 to dpf_dT
+    // Convert logpf to pf and dlogpf_dT9 to dpf_dT
     pf = std::exp(logpf);
     dpf_dT = pf * dlogpf_dT9 * 1.e-9_rt;
 }
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void get_partition_function_cached(const int inuc, const tf_t& tfactors,
+void get_partition_function_cached(const int inuc, const amrex::Real T9,
                                    part_fun::pf_cache_t& pf_cache,
                                    amrex::Real& logpf, amrex::Real& dlogpf_dT9) {
     if (pf_cache.data(inuc, 1) != -900.0_rt) {
         // present in cache
-        amrex::ignore_unused(tfactors);
+        amrex::ignore_unused(T9);
         logpf = pf_cache.data(inuc, 1);
         dlogpf_dT9 = pf_cache.data(inuc, 2);
     } else {
-        get_partition_function(inuc, tfactors, pf_cache, logpf, dlogpf_dT9);
+        get_partition_function(inuc, T9, pf_cache, logpf, dlogpf_dT9);
         pf_cache.data(inuc, 1) = logpf;
         pf_cache.data(inuc, 2) = dlogpf_dT9;
     }

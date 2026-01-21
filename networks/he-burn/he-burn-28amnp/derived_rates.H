@@ -115,7 +115,7 @@ void rate_O16_to_He4_C12_derived(const tf_t& tfactors, amrex::Real& rate, amrex:
     amrex::Real O16_log_pf, dO16_log_pf_dT9;
 
     // interpolating O16 partition function
-    get_partition_function_cached(O16, tfactors, pf_cache, O16_log_pf, dO16_log_pf_dT9);
+    get_partition_function_cached(O16, tfactors.T9, pf_cache, O16_log_pf, dO16_log_pf_dT9);
 
     amrex::Real net_log_pf = He4_log_pf + C12_log_pf - O16_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dHe4_log_pf_dT9 + dC12_log_pf_dT9 - dO16_log_pf_dT9;
@@ -188,12 +188,12 @@ void rate_Ne20_to_He4_O16_derived(const tf_t& tfactors, amrex::Real& rate, amrex
     amrex::Real O16_log_pf, dO16_log_pf_dT9;
 
     // interpolating O16 partition function
-    get_partition_function_cached(O16, tfactors, pf_cache, O16_log_pf, dO16_log_pf_dT9);
+    get_partition_function_cached(O16, tfactors.T9, pf_cache, O16_log_pf, dO16_log_pf_dT9);
 
     amrex::Real Ne20_log_pf, dNe20_log_pf_dT9;
 
     // interpolating Ne20 partition function
-    get_partition_function_cached(Ne20, tfactors, pf_cache, Ne20_log_pf, dNe20_log_pf_dT9);
+    get_partition_function_cached(Ne20, tfactors.T9, pf_cache, Ne20_log_pf, dNe20_log_pf_dT9);
 
     amrex::Real net_log_pf = He4_log_pf + O16_log_pf - Ne20_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dHe4_log_pf_dT9 + dO16_log_pf_dT9 - dNe20_log_pf_dT9;
@@ -279,7 +279,7 @@ void rate_Mg24_to_p_Na23_derived(const tf_t& tfactors, amrex::Real& rate, amrex:
     amrex::Real Na23_log_pf, dNa23_log_pf_dT9;
 
     // interpolating Na23 partition function
-    get_partition_function_cached(Na23, tfactors, pf_cache, Na23_log_pf, dNa23_log_pf_dT9);
+    get_partition_function_cached(Na23, tfactors.T9, pf_cache, Na23_log_pf, dNa23_log_pf_dT9);
 
     amrex::Real p_log_pf, dp_log_pf_dT9;
 
@@ -290,7 +290,7 @@ void rate_Mg24_to_p_Na23_derived(const tf_t& tfactors, amrex::Real& rate, amrex:
     amrex::Real Mg24_log_pf, dMg24_log_pf_dT9;
 
     // interpolating Mg24 partition function
-    get_partition_function_cached(Mg24, tfactors, pf_cache, Mg24_log_pf, dMg24_log_pf_dT9);
+    get_partition_function_cached(Mg24, tfactors.T9, pf_cache, Mg24_log_pf, dMg24_log_pf_dT9);
 
     amrex::Real net_log_pf = p_log_pf + Na23_log_pf - Mg24_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dp_log_pf_dT9 + dNa23_log_pf_dT9 - dMg24_log_pf_dT9;
@@ -382,12 +382,12 @@ void rate_Mg24_to_He4_Ne20_derived(const tf_t& tfactors, amrex::Real& rate, amre
     amrex::Real Mg24_log_pf, dMg24_log_pf_dT9;
 
     // interpolating Mg24 partition function
-    get_partition_function_cached(Mg24, tfactors, pf_cache, Mg24_log_pf, dMg24_log_pf_dT9);
+    get_partition_function_cached(Mg24, tfactors.T9, pf_cache, Mg24_log_pf, dMg24_log_pf_dT9);
 
     amrex::Real Ne20_log_pf, dNe20_log_pf_dT9;
 
     // interpolating Ne20 partition function
-    get_partition_function_cached(Ne20, tfactors, pf_cache, Ne20_log_pf, dNe20_log_pf_dT9);
+    get_partition_function_cached(Ne20, tfactors.T9, pf_cache, Ne20_log_pf, dNe20_log_pf_dT9);
 
     amrex::Real net_log_pf = He4_log_pf + Ne20_log_pf - Mg24_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dHe4_log_pf_dT9 + dNe20_log_pf_dT9 - dMg24_log_pf_dT9;
@@ -498,12 +498,12 @@ void rate_Si28_to_p_Al27_derived(const tf_t& tfactors, amrex::Real& rate, amrex:
     amrex::Real Al27_log_pf, dAl27_log_pf_dT9;
 
     // interpolating Al27 partition function
-    get_partition_function_cached(Al27, tfactors, pf_cache, Al27_log_pf, dAl27_log_pf_dT9);
+    get_partition_function_cached(Al27, tfactors.T9, pf_cache, Al27_log_pf, dAl27_log_pf_dT9);
 
     amrex::Real Si28_log_pf, dSi28_log_pf_dT9;
 
     // interpolating Si28 partition function
-    get_partition_function_cached(Si28, tfactors, pf_cache, Si28_log_pf, dSi28_log_pf_dT9);
+    get_partition_function_cached(Si28, tfactors.T9, pf_cache, Si28_log_pf, dSi28_log_pf_dT9);
 
     amrex::Real net_log_pf = p_log_pf + Al27_log_pf - Si28_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dp_log_pf_dT9 + dAl27_log_pf_dT9 - dSi28_log_pf_dT9;
@@ -597,12 +597,12 @@ void rate_Si28_to_He4_Mg24_derived(const tf_t& tfactors, amrex::Real& rate, amre
     amrex::Real Mg24_log_pf, dMg24_log_pf_dT9;
 
     // interpolating Mg24 partition function
-    get_partition_function_cached(Mg24, tfactors, pf_cache, Mg24_log_pf, dMg24_log_pf_dT9);
+    get_partition_function_cached(Mg24, tfactors.T9, pf_cache, Mg24_log_pf, dMg24_log_pf_dT9);
 
     amrex::Real Si28_log_pf, dSi28_log_pf_dT9;
 
     // interpolating Si28 partition function
-    get_partition_function_cached(Si28, tfactors, pf_cache, Si28_log_pf, dSi28_log_pf_dT9);
+    get_partition_function_cached(Si28, tfactors.T9, pf_cache, Si28_log_pf, dSi28_log_pf_dT9);
 
     amrex::Real net_log_pf = He4_log_pf + Mg24_log_pf - Si28_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dHe4_log_pf_dT9 + dMg24_log_pf_dT9 - dSi28_log_pf_dT9;
@@ -673,12 +673,12 @@ void rate_S32_to_p_P31_derived(const tf_t& tfactors, amrex::Real& rate, amrex::R
     amrex::Real S32_log_pf, dS32_log_pf_dT9;
 
     // interpolating S32 partition function
-    get_partition_function_cached(S32, tfactors, pf_cache, S32_log_pf, dS32_log_pf_dT9);
+    get_partition_function_cached(S32, tfactors.T9, pf_cache, S32_log_pf, dS32_log_pf_dT9);
 
     amrex::Real P31_log_pf, dP31_log_pf_dT9;
 
     // interpolating P31 partition function
-    get_partition_function_cached(P31, tfactors, pf_cache, P31_log_pf, dP31_log_pf_dT9);
+    get_partition_function_cached(P31, tfactors.T9, pf_cache, P31_log_pf, dP31_log_pf_dT9);
 
     amrex::Real net_log_pf = p_log_pf + P31_log_pf - S32_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dp_log_pf_dT9 + dP31_log_pf_dT9 - dS32_log_pf_dT9;
@@ -770,12 +770,12 @@ void rate_S32_to_He4_Si28_derived(const tf_t& tfactors, amrex::Real& rate, amrex
     amrex::Real S32_log_pf, dS32_log_pf_dT9;
 
     // interpolating S32 partition function
-    get_partition_function_cached(S32, tfactors, pf_cache, S32_log_pf, dS32_log_pf_dT9);
+    get_partition_function_cached(S32, tfactors.T9, pf_cache, S32_log_pf, dS32_log_pf_dT9);
 
     amrex::Real Si28_log_pf, dSi28_log_pf_dT9;
 
     // interpolating Si28 partition function
-    get_partition_function_cached(Si28, tfactors, pf_cache, Si28_log_pf, dSi28_log_pf_dT9);
+    get_partition_function_cached(Si28, tfactors.T9, pf_cache, Si28_log_pf, dSi28_log_pf_dT9);
 
     amrex::Real net_log_pf = He4_log_pf + Si28_log_pf - S32_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dHe4_log_pf_dT9 + dSi28_log_pf_dT9 - dS32_log_pf_dT9;
@@ -821,7 +821,7 @@ void rate_Fe52_to_p_nse_Mn51_derived(const tf_t& tfactors, amrex::Real& rate, am
     amrex::Real Mn51_log_pf, dMn51_log_pf_dT9;
 
     // interpolating Mn51 partition function
-    get_partition_function_cached(Mn51, tfactors, pf_cache, Mn51_log_pf, dMn51_log_pf_dT9);
+    get_partition_function_cached(Mn51, tfactors.T9, pf_cache, Mn51_log_pf, dMn51_log_pf_dT9);
 
     amrex::Real p_nse_log_pf, dp_nse_log_pf_dT9;
 
@@ -832,7 +832,7 @@ void rate_Fe52_to_p_nse_Mn51_derived(const tf_t& tfactors, amrex::Real& rate, am
     amrex::Real Fe52_log_pf, dFe52_log_pf_dT9;
 
     // interpolating Fe52 partition function
-    get_partition_function_cached(Fe52, tfactors, pf_cache, Fe52_log_pf, dFe52_log_pf_dT9);
+    get_partition_function_cached(Fe52, tfactors.T9, pf_cache, Fe52_log_pf, dFe52_log_pf_dT9);
 
     amrex::Real net_log_pf = p_nse_log_pf + Mn51_log_pf - Fe52_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dp_nse_log_pf_dT9 + dMn51_log_pf_dT9 - dFe52_log_pf_dT9;
@@ -878,7 +878,7 @@ void rate_Fe52_to_He4_Cr48_derived(const tf_t& tfactors, amrex::Real& rate, amre
     amrex::Real Cr48_log_pf, dCr48_log_pf_dT9;
 
     // interpolating Cr48 partition function
-    get_partition_function_cached(Cr48, tfactors, pf_cache, Cr48_log_pf, dCr48_log_pf_dT9);
+    get_partition_function_cached(Cr48, tfactors.T9, pf_cache, Cr48_log_pf, dCr48_log_pf_dT9);
 
     amrex::Real He4_log_pf, dHe4_log_pf_dT9;
 
@@ -889,7 +889,7 @@ void rate_Fe52_to_He4_Cr48_derived(const tf_t& tfactors, amrex::Real& rate, amre
     amrex::Real Fe52_log_pf, dFe52_log_pf_dT9;
 
     // interpolating Fe52 partition function
-    get_partition_function_cached(Fe52, tfactors, pf_cache, Fe52_log_pf, dFe52_log_pf_dT9);
+    get_partition_function_cached(Fe52, tfactors.T9, pf_cache, Fe52_log_pf, dFe52_log_pf_dT9);
 
     amrex::Real net_log_pf = He4_log_pf + Cr48_log_pf - Fe52_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dHe4_log_pf_dT9 + dCr48_log_pf_dT9 - dFe52_log_pf_dT9;
@@ -935,7 +935,7 @@ void rate_Co55_to_He4_Mn51_derived(const tf_t& tfactors, amrex::Real& rate, amre
     amrex::Real Mn51_log_pf, dMn51_log_pf_dT9;
 
     // interpolating Mn51 partition function
-    get_partition_function_cached(Mn51, tfactors, pf_cache, Mn51_log_pf, dMn51_log_pf_dT9);
+    get_partition_function_cached(Mn51, tfactors.T9, pf_cache, Mn51_log_pf, dMn51_log_pf_dT9);
 
     amrex::Real He4_log_pf, dHe4_log_pf_dT9;
 
@@ -946,7 +946,7 @@ void rate_Co55_to_He4_Mn51_derived(const tf_t& tfactors, amrex::Real& rate, amre
     amrex::Real Co55_log_pf, dCo55_log_pf_dT9;
 
     // interpolating Co55 partition function
-    get_partition_function_cached(Co55, tfactors, pf_cache, Co55_log_pf, dCo55_log_pf_dT9);
+    get_partition_function_cached(Co55, tfactors.T9, pf_cache, Co55_log_pf, dCo55_log_pf_dT9);
 
     amrex::Real net_log_pf = He4_log_pf + Mn51_log_pf - Co55_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dHe4_log_pf_dT9 + dMn51_log_pf_dT9 - dCo55_log_pf_dT9;
@@ -992,7 +992,7 @@ void rate_Ni56_to_p_nse_Co55_derived(const tf_t& tfactors, amrex::Real& rate, am
     amrex::Real Ni56_log_pf, dNi56_log_pf_dT9;
 
     // interpolating Ni56 partition function
-    get_partition_function_cached(Ni56, tfactors, pf_cache, Ni56_log_pf, dNi56_log_pf_dT9);
+    get_partition_function_cached(Ni56, tfactors.T9, pf_cache, Ni56_log_pf, dNi56_log_pf_dT9);
 
     amrex::Real p_nse_log_pf, dp_nse_log_pf_dT9;
 
@@ -1003,7 +1003,7 @@ void rate_Ni56_to_p_nse_Co55_derived(const tf_t& tfactors, amrex::Real& rate, am
     amrex::Real Co55_log_pf, dCo55_log_pf_dT9;
 
     // interpolating Co55 partition function
-    get_partition_function_cached(Co55, tfactors, pf_cache, Co55_log_pf, dCo55_log_pf_dT9);
+    get_partition_function_cached(Co55, tfactors.T9, pf_cache, Co55_log_pf, dCo55_log_pf_dT9);
 
     amrex::Real net_log_pf = p_nse_log_pf + Co55_log_pf - Ni56_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dp_nse_log_pf_dT9 + dCo55_log_pf_dT9 - dNi56_log_pf_dT9;
@@ -1049,7 +1049,7 @@ void rate_Ni56_to_He4_Fe52_derived(const tf_t& tfactors, amrex::Real& rate, amre
     amrex::Real Ni56_log_pf, dNi56_log_pf_dT9;
 
     // interpolating Ni56 partition function
-    get_partition_function_cached(Ni56, tfactors, pf_cache, Ni56_log_pf, dNi56_log_pf_dT9);
+    get_partition_function_cached(Ni56, tfactors.T9, pf_cache, Ni56_log_pf, dNi56_log_pf_dT9);
 
     amrex::Real He4_log_pf, dHe4_log_pf_dT9;
 
@@ -1060,7 +1060,7 @@ void rate_Ni56_to_He4_Fe52_derived(const tf_t& tfactors, amrex::Real& rate, amre
     amrex::Real Fe52_log_pf, dFe52_log_pf_dT9;
 
     // interpolating Fe52 partition function
-    get_partition_function_cached(Fe52, tfactors, pf_cache, Fe52_log_pf, dFe52_log_pf_dT9);
+    get_partition_function_cached(Fe52, tfactors.T9, pf_cache, Fe52_log_pf, dFe52_log_pf_dT9);
 
     amrex::Real net_log_pf = He4_log_pf + Fe52_log_pf - Ni56_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dHe4_log_pf_dT9 + dFe52_log_pf_dT9 - dNi56_log_pf_dT9;
@@ -1207,7 +1207,7 @@ void rate_p_O16_to_He4_N13_derived(const tf_t& tfactors, amrex::Real& rate, amre
     amrex::Real O16_log_pf, dO16_log_pf_dT9;
 
     // interpolating O16 partition function
-    get_partition_function_cached(O16, tfactors, pf_cache, O16_log_pf, dO16_log_pf_dT9);
+    get_partition_function_cached(O16, tfactors.T9, pf_cache, O16_log_pf, dO16_log_pf_dT9);
 
     amrex::Real He4_log_pf, dHe4_log_pf_dT9;
 
@@ -1265,7 +1265,7 @@ void rate_He4_Ne20_to_p_Na23_derived(const tf_t& tfactors, amrex::Real& rate, am
     amrex::Real Na23_log_pf, dNa23_log_pf_dT9;
 
     // interpolating Na23 partition function
-    get_partition_function_cached(Na23, tfactors, pf_cache, Na23_log_pf, dNa23_log_pf_dT9);
+    get_partition_function_cached(Na23, tfactors.T9, pf_cache, Na23_log_pf, dNa23_log_pf_dT9);
 
     amrex::Real p_log_pf, dp_log_pf_dT9;
 
@@ -1282,7 +1282,7 @@ void rate_He4_Ne20_to_p_Na23_derived(const tf_t& tfactors, amrex::Real& rate, am
     amrex::Real Ne20_log_pf, dNe20_log_pf_dT9;
 
     // interpolating Ne20 partition function
-    get_partition_function_cached(Ne20, tfactors, pf_cache, Ne20_log_pf, dNe20_log_pf_dT9);
+    get_partition_function_cached(Ne20, tfactors.T9, pf_cache, Ne20_log_pf, dNe20_log_pf_dT9);
 
     amrex::Real net_log_pf = p_log_pf + Na23_log_pf - He4_log_pf - Ne20_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dp_log_pf_dT9 + dNa23_log_pf_dT9 - dHe4_log_pf_dT9 - dNe20_log_pf_dT9;
@@ -1376,12 +1376,12 @@ void rate_He4_Mg24_to_p_Al27_derived(const tf_t& tfactors, amrex::Real& rate, am
     amrex::Real Al27_log_pf, dAl27_log_pf_dT9;
 
     // interpolating Al27 partition function
-    get_partition_function_cached(Al27, tfactors, pf_cache, Al27_log_pf, dAl27_log_pf_dT9);
+    get_partition_function_cached(Al27, tfactors.T9, pf_cache, Al27_log_pf, dAl27_log_pf_dT9);
 
     amrex::Real Mg24_log_pf, dMg24_log_pf_dT9;
 
     // interpolating Mg24 partition function
-    get_partition_function_cached(Mg24, tfactors, pf_cache, Mg24_log_pf, dMg24_log_pf_dT9);
+    get_partition_function_cached(Mg24, tfactors.T9, pf_cache, Mg24_log_pf, dMg24_log_pf_dT9);
 
     amrex::Real He4_log_pf, dHe4_log_pf_dT9;
 
@@ -1487,12 +1487,12 @@ void rate_He4_Si28_to_p_P31_derived(const tf_t& tfactors, amrex::Real& rate, amr
     amrex::Real P31_log_pf, dP31_log_pf_dT9;
 
     // interpolating P31 partition function
-    get_partition_function_cached(P31, tfactors, pf_cache, P31_log_pf, dP31_log_pf_dT9);
+    get_partition_function_cached(P31, tfactors.T9, pf_cache, P31_log_pf, dP31_log_pf_dT9);
 
     amrex::Real Si28_log_pf, dSi28_log_pf_dT9;
 
     // interpolating Si28 partition function
-    get_partition_function_cached(Si28, tfactors, pf_cache, Si28_log_pf, dSi28_log_pf_dT9);
+    get_partition_function_cached(Si28, tfactors.T9, pf_cache, Si28_log_pf, dSi28_log_pf_dT9);
 
     amrex::Real net_log_pf = p_log_pf + P31_log_pf - He4_log_pf - Si28_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dp_log_pf_dT9 + dP31_log_pf_dT9 - dHe4_log_pf_dT9 - dSi28_log_pf_dT9;
@@ -1586,7 +1586,7 @@ void rate_p_nse_Mn51_to_He4_Cr48_derived(const tf_t& tfactors, amrex::Real& rate
     amrex::Real Cr48_log_pf, dCr48_log_pf_dT9;
 
     // interpolating Cr48 partition function
-    get_partition_function_cached(Cr48, tfactors, pf_cache, Cr48_log_pf, dCr48_log_pf_dT9);
+    get_partition_function_cached(Cr48, tfactors.T9, pf_cache, Cr48_log_pf, dCr48_log_pf_dT9);
 
     amrex::Real He4_log_pf, dHe4_log_pf_dT9;
 
@@ -1597,7 +1597,7 @@ void rate_p_nse_Mn51_to_He4_Cr48_derived(const tf_t& tfactors, amrex::Real& rate
     amrex::Real Mn51_log_pf, dMn51_log_pf_dT9;
 
     // interpolating Mn51 partition function
-    get_partition_function_cached(Mn51, tfactors, pf_cache, Mn51_log_pf, dMn51_log_pf_dT9);
+    get_partition_function_cached(Mn51, tfactors.T9, pf_cache, Mn51_log_pf, dMn51_log_pf_dT9);
 
     amrex::Real net_log_pf = He4_log_pf + Cr48_log_pf - p_nse_log_pf - Mn51_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dHe4_log_pf_dT9 + dCr48_log_pf_dT9 - dp_nse_log_pf_dT9 - dMn51_log_pf_dT9;
@@ -1655,12 +1655,12 @@ void rate_p_nse_Co55_to_He4_Fe52_derived(const tf_t& tfactors, amrex::Real& rate
     amrex::Real Co55_log_pf, dCo55_log_pf_dT9;
 
     // interpolating Co55 partition function
-    get_partition_function_cached(Co55, tfactors, pf_cache, Co55_log_pf, dCo55_log_pf_dT9);
+    get_partition_function_cached(Co55, tfactors.T9, pf_cache, Co55_log_pf, dCo55_log_pf_dT9);
 
     amrex::Real Fe52_log_pf, dFe52_log_pf_dT9;
 
     // interpolating Fe52 partition function
-    get_partition_function_cached(Fe52, tfactors, pf_cache, Fe52_log_pf, dFe52_log_pf_dT9);
+    get_partition_function_cached(Fe52, tfactors.T9, pf_cache, Fe52_log_pf, dFe52_log_pf_dT9);
 
     amrex::Real net_log_pf = He4_log_pf + Fe52_log_pf - p_nse_log_pf - Co55_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dHe4_log_pf_dT9 + dFe52_log_pf_dT9 - dp_nse_log_pf_dT9 - dCo55_log_pf_dT9;
@@ -1712,12 +1712,12 @@ void rate_Co55_to_p_nse_Fe54_derived(const tf_t& tfactors, amrex::Real& rate, am
     amrex::Real Co55_log_pf, dCo55_log_pf_dT9;
 
     // interpolating Co55 partition function
-    get_partition_function_cached(Co55, tfactors, pf_cache, Co55_log_pf, dCo55_log_pf_dT9);
+    get_partition_function_cached(Co55, tfactors.T9, pf_cache, Co55_log_pf, dCo55_log_pf_dT9);
 
     amrex::Real Fe54_log_pf, dFe54_log_pf_dT9;
 
     // interpolating Fe54 partition function
-    get_partition_function_cached(Fe54, tfactors, pf_cache, Fe54_log_pf, dFe54_log_pf_dT9);
+    get_partition_function_cached(Fe54, tfactors.T9, pf_cache, Fe54_log_pf, dFe54_log_pf_dT9);
 
     amrex::Real net_log_pf = p_nse_log_pf + Fe54_log_pf - Co55_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dp_nse_log_pf_dT9 + dFe54_log_pf_dT9 - dCo55_log_pf_dT9;
@@ -1769,12 +1769,12 @@ void rate_Co56_to_n_Co55_derived(const tf_t& tfactors, amrex::Real& rate, amrex:
     amrex::Real Co55_log_pf, dCo55_log_pf_dT9;
 
     // interpolating Co55 partition function
-    get_partition_function_cached(Co55, tfactors, pf_cache, Co55_log_pf, dCo55_log_pf_dT9);
+    get_partition_function_cached(Co55, tfactors.T9, pf_cache, Co55_log_pf, dCo55_log_pf_dT9);
 
     amrex::Real Co56_log_pf, dCo56_log_pf_dT9;
 
     // interpolating Co56 partition function
-    get_partition_function_cached(Co56, tfactors, pf_cache, Co56_log_pf, dCo56_log_pf_dT9);
+    get_partition_function_cached(Co56, tfactors.T9, pf_cache, Co56_log_pf, dCo56_log_pf_dT9);
 
     amrex::Real net_log_pf = n_log_pf + Co55_log_pf - Co56_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dn_log_pf_dT9 + dCo55_log_pf_dT9 - dCo56_log_pf_dT9;
@@ -1826,12 +1826,12 @@ void rate_Co57_to_n_Co56_derived(const tf_t& tfactors, amrex::Real& rate, amrex:
     amrex::Real Co56_log_pf, dCo56_log_pf_dT9;
 
     // interpolating Co56 partition function
-    get_partition_function_cached(Co56, tfactors, pf_cache, Co56_log_pf, dCo56_log_pf_dT9);
+    get_partition_function_cached(Co56, tfactors.T9, pf_cache, Co56_log_pf, dCo56_log_pf_dT9);
 
     amrex::Real Co57_log_pf, dCo57_log_pf_dT9;
 
     // interpolating Co57 partition function
-    get_partition_function_cached(Co57, tfactors, pf_cache, Co57_log_pf, dCo57_log_pf_dT9);
+    get_partition_function_cached(Co57, tfactors.T9, pf_cache, Co57_log_pf, dCo57_log_pf_dT9);
 
     amrex::Real net_log_pf = n_log_pf + Co56_log_pf - Co57_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dn_log_pf_dT9 + dCo56_log_pf_dT9 - dCo57_log_pf_dT9;
@@ -1883,12 +1883,12 @@ void rate_Co57_to_p_nse_Fe56_derived(const tf_t& tfactors, amrex::Real& rate, am
     amrex::Real Fe56_log_pf, dFe56_log_pf_dT9;
 
     // interpolating Fe56 partition function
-    get_partition_function_cached(Fe56, tfactors, pf_cache, Fe56_log_pf, dFe56_log_pf_dT9);
+    get_partition_function_cached(Fe56, tfactors.T9, pf_cache, Fe56_log_pf, dFe56_log_pf_dT9);
 
     amrex::Real Co57_log_pf, dCo57_log_pf_dT9;
 
     // interpolating Co57 partition function
-    get_partition_function_cached(Co57, tfactors, pf_cache, Co57_log_pf, dCo57_log_pf_dT9);
+    get_partition_function_cached(Co57, tfactors.T9, pf_cache, Co57_log_pf, dCo57_log_pf_dT9);
 
     amrex::Real net_log_pf = p_nse_log_pf + Fe56_log_pf - Co57_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dp_nse_log_pf_dT9 + dFe56_log_pf_dT9 - dCo57_log_pf_dT9;
@@ -1940,12 +1940,12 @@ void rate_Ni58_to_p_nse_Co57_derived(const tf_t& tfactors, amrex::Real& rate, am
     amrex::Real Ni58_log_pf, dNi58_log_pf_dT9;
 
     // interpolating Ni58 partition function
-    get_partition_function_cached(Ni58, tfactors, pf_cache, Ni58_log_pf, dNi58_log_pf_dT9);
+    get_partition_function_cached(Ni58, tfactors.T9, pf_cache, Ni58_log_pf, dNi58_log_pf_dT9);
 
     amrex::Real Co57_log_pf, dCo57_log_pf_dT9;
 
     // interpolating Co57 partition function
-    get_partition_function_cached(Co57, tfactors, pf_cache, Co57_log_pf, dCo57_log_pf_dT9);
+    get_partition_function_cached(Co57, tfactors.T9, pf_cache, Co57_log_pf, dCo57_log_pf_dT9);
 
     amrex::Real net_log_pf = p_nse_log_pf + Co57_log_pf - Ni58_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dp_nse_log_pf_dT9 + dCo57_log_pf_dT9 - dNi58_log_pf_dT9;
@@ -1997,12 +1997,12 @@ void rate_Ni58_to_He4_Fe54_derived(const tf_t& tfactors, amrex::Real& rate, amre
     amrex::Real Ni58_log_pf, dNi58_log_pf_dT9;
 
     // interpolating Ni58 partition function
-    get_partition_function_cached(Ni58, tfactors, pf_cache, Ni58_log_pf, dNi58_log_pf_dT9);
+    get_partition_function_cached(Ni58, tfactors.T9, pf_cache, Ni58_log_pf, dNi58_log_pf_dT9);
 
     amrex::Real Fe54_log_pf, dFe54_log_pf_dT9;
 
     // interpolating Fe54 partition function
-    get_partition_function_cached(Fe54, tfactors, pf_cache, Fe54_log_pf, dFe54_log_pf_dT9);
+    get_partition_function_cached(Fe54, tfactors.T9, pf_cache, Fe54_log_pf, dFe54_log_pf_dT9);
 
     amrex::Real net_log_pf = He4_log_pf + Fe54_log_pf - Ni58_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dHe4_log_pf_dT9 + dFe54_log_pf_dT9 - dNi58_log_pf_dT9;
@@ -2054,7 +2054,7 @@ void rate_p_nse_Fe54_to_He4_Mn51_derived(const tf_t& tfactors, amrex::Real& rate
     amrex::Real Mn51_log_pf, dMn51_log_pf_dT9;
 
     // interpolating Mn51 partition function
-    get_partition_function_cached(Mn51, tfactors, pf_cache, Mn51_log_pf, dMn51_log_pf_dT9);
+    get_partition_function_cached(Mn51, tfactors.T9, pf_cache, Mn51_log_pf, dMn51_log_pf_dT9);
 
     amrex::Real He4_log_pf, dHe4_log_pf_dT9;
 
@@ -2065,7 +2065,7 @@ void rate_p_nse_Fe54_to_He4_Mn51_derived(const tf_t& tfactors, amrex::Real& rate
     amrex::Real Fe54_log_pf, dFe54_log_pf_dT9;
 
     // interpolating Fe54 partition function
-    get_partition_function_cached(Fe54, tfactors, pf_cache, Fe54_log_pf, dFe54_log_pf_dT9);
+    get_partition_function_cached(Fe54, tfactors.T9, pf_cache, Fe54_log_pf, dFe54_log_pf_dT9);
 
     amrex::Real net_log_pf = He4_log_pf + Mn51_log_pf - p_nse_log_pf - Fe54_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dHe4_log_pf_dT9 + dMn51_log_pf_dT9 - dp_nse_log_pf_dT9 - dFe54_log_pf_dT9;
@@ -2123,12 +2123,12 @@ void rate_He4_Fe54_to_p_nse_Co57_derived(const tf_t& tfactors, amrex::Real& rate
     amrex::Real Co57_log_pf, dCo57_log_pf_dT9;
 
     // interpolating Co57 partition function
-    get_partition_function_cached(Co57, tfactors, pf_cache, Co57_log_pf, dCo57_log_pf_dT9);
+    get_partition_function_cached(Co57, tfactors.T9, pf_cache, Co57_log_pf, dCo57_log_pf_dT9);
 
     amrex::Real Fe54_log_pf, dFe54_log_pf_dT9;
 
     // interpolating Fe54 partition function
-    get_partition_function_cached(Fe54, tfactors, pf_cache, Fe54_log_pf, dFe54_log_pf_dT9);
+    get_partition_function_cached(Fe54, tfactors.T9, pf_cache, Fe54_log_pf, dFe54_log_pf_dT9);
 
     amrex::Real net_log_pf = p_nse_log_pf + Co57_log_pf - He4_log_pf - Fe54_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dp_nse_log_pf_dT9 + dCo57_log_pf_dT9 - dHe4_log_pf_dT9 - dFe54_log_pf_dT9;
@@ -2186,12 +2186,12 @@ void rate_p_nse_Fe56_to_n_Co56_derived(const tf_t& tfactors, amrex::Real& rate, 
     amrex::Real Fe56_log_pf, dFe56_log_pf_dT9;
 
     // interpolating Fe56 partition function
-    get_partition_function_cached(Fe56, tfactors, pf_cache, Fe56_log_pf, dFe56_log_pf_dT9);
+    get_partition_function_cached(Fe56, tfactors.T9, pf_cache, Fe56_log_pf, dFe56_log_pf_dT9);
 
     amrex::Real Co56_log_pf, dCo56_log_pf_dT9;
 
     // interpolating Co56 partition function
-    get_partition_function_cached(Co56, tfactors, pf_cache, Co56_log_pf, dCo56_log_pf_dT9);
+    get_partition_function_cached(Co56, tfactors.T9, pf_cache, Co56_log_pf, dCo56_log_pf_dT9);
 
     amrex::Real net_log_pf = n_log_pf + Co56_log_pf - p_nse_log_pf - Fe56_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dn_log_pf_dT9 + dCo56_log_pf_dT9 - dp_nse_log_pf_dT9 - dFe56_log_pf_dT9;
@@ -2243,7 +2243,7 @@ void rate_p_nse_Co56_to_n_Ni56_derived(const tf_t& tfactors, amrex::Real& rate, 
     amrex::Real Ni56_log_pf, dNi56_log_pf_dT9;
 
     // interpolating Ni56 partition function
-    get_partition_function_cached(Ni56, tfactors, pf_cache, Ni56_log_pf, dNi56_log_pf_dT9);
+    get_partition_function_cached(Ni56, tfactors.T9, pf_cache, Ni56_log_pf, dNi56_log_pf_dT9);
 
     amrex::Real p_nse_log_pf, dp_nse_log_pf_dT9;
 
@@ -2254,7 +2254,7 @@ void rate_p_nse_Co56_to_n_Ni56_derived(const tf_t& tfactors, amrex::Real& rate, 
     amrex::Real Co56_log_pf, dCo56_log_pf_dT9;
 
     // interpolating Co56 partition function
-    get_partition_function_cached(Co56, tfactors, pf_cache, Co56_log_pf, dCo56_log_pf_dT9);
+    get_partition_function_cached(Co56, tfactors.T9, pf_cache, Co56_log_pf, dCo56_log_pf_dT9);
 
     amrex::Real net_log_pf = n_log_pf + Ni56_log_pf - p_nse_log_pf - Co56_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dn_log_pf_dT9 + dNi56_log_pf_dT9 - dp_nse_log_pf_dT9 - dCo56_log_pf_dT9;
@@ -2312,12 +2312,12 @@ void rate_p_nse_Ni58_to_He4_Co55_derived(const tf_t& tfactors, amrex::Real& rate
     amrex::Real Co55_log_pf, dCo55_log_pf_dT9;
 
     // interpolating Co55 partition function
-    get_partition_function_cached(Co55, tfactors, pf_cache, Co55_log_pf, dCo55_log_pf_dT9);
+    get_partition_function_cached(Co55, tfactors.T9, pf_cache, Co55_log_pf, dCo55_log_pf_dT9);
 
     amrex::Real Ni58_log_pf, dNi58_log_pf_dT9;
 
     // interpolating Ni58 partition function
-    get_partition_function_cached(Ni58, tfactors, pf_cache, Ni58_log_pf, dNi58_log_pf_dT9);
+    get_partition_function_cached(Ni58, tfactors.T9, pf_cache, Ni58_log_pf, dNi58_log_pf_dT9);
 
     amrex::Real net_log_pf = He4_log_pf + Co55_log_pf - p_nse_log_pf - Ni58_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dHe4_log_pf_dT9 + dCo55_log_pf_dT9 - dp_nse_log_pf_dT9 - dNi58_log_pf_dT9;
@@ -2369,12 +2369,12 @@ void rate_He4_S32_to_p_Cl35_removed(const tf_t& tfactors, amrex::Real& rate, amr
     amrex::Real Cl35_log_pf, dCl35_log_pf_dT9;
 
     // interpolating Cl35 partition function
-    get_partition_function_cached(Cl35, tfactors, pf_cache, Cl35_log_pf, dCl35_log_pf_dT9);
+    get_partition_function_cached(Cl35, tfactors.T9, pf_cache, Cl35_log_pf, dCl35_log_pf_dT9);
 
     amrex::Real S32_log_pf, dS32_log_pf_dT9;
 
     // interpolating S32 partition function
-    get_partition_function_cached(S32, tfactors, pf_cache, S32_log_pf, dS32_log_pf_dT9);
+    get_partition_function_cached(S32, tfactors.T9, pf_cache, S32_log_pf, dS32_log_pf_dT9);
 
     amrex::Real He4_log_pf, dHe4_log_pf_dT9;
 
@@ -2495,12 +2495,12 @@ void rate_Ar36_to_He4_S32_removed(const tf_t& tfactors, amrex::Real& rate, amrex
     amrex::Real S32_log_pf, dS32_log_pf_dT9;
 
     // interpolating S32 partition function
-    get_partition_function_cached(S32, tfactors, pf_cache, S32_log_pf, dS32_log_pf_dT9);
+    get_partition_function_cached(S32, tfactors.T9, pf_cache, S32_log_pf, dS32_log_pf_dT9);
 
     amrex::Real Ar36_log_pf, dAr36_log_pf_dT9;
 
     // interpolating Ar36 partition function
-    get_partition_function_cached(Ar36, tfactors, pf_cache, Ar36_log_pf, dAr36_log_pf_dT9);
+    get_partition_function_cached(Ar36, tfactors.T9, pf_cache, Ar36_log_pf, dAr36_log_pf_dT9);
 
     amrex::Real net_log_pf = He4_log_pf + S32_log_pf - Ar36_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dHe4_log_pf_dT9 + dS32_log_pf_dT9 - dAr36_log_pf_dT9;
@@ -2552,12 +2552,12 @@ void rate_Ar36_to_p_Cl35_removed(const tf_t& tfactors, amrex::Real& rate, amrex:
     amrex::Real Cl35_log_pf, dCl35_log_pf_dT9;
 
     // interpolating Cl35 partition function
-    get_partition_function_cached(Cl35, tfactors, pf_cache, Cl35_log_pf, dCl35_log_pf_dT9);
+    get_partition_function_cached(Cl35, tfactors.T9, pf_cache, Cl35_log_pf, dCl35_log_pf_dT9);
 
     amrex::Real Ar36_log_pf, dAr36_log_pf_dT9;
 
     // interpolating Ar36 partition function
-    get_partition_function_cached(Ar36, tfactors, pf_cache, Ar36_log_pf, dAr36_log_pf_dT9);
+    get_partition_function_cached(Ar36, tfactors.T9, pf_cache, Ar36_log_pf, dAr36_log_pf_dT9);
 
     amrex::Real net_log_pf = p_log_pf + Cl35_log_pf - Ar36_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dp_log_pf_dT9 + dCl35_log_pf_dT9 - dAr36_log_pf_dT9;
@@ -2668,12 +2668,12 @@ void rate_He4_Ar36_to_p_K39_removed(const tf_t& tfactors, amrex::Real& rate, amr
     amrex::Real K39_log_pf, dK39_log_pf_dT9;
 
     // interpolating K39 partition function
-    get_partition_function_cached(K39, tfactors, pf_cache, K39_log_pf, dK39_log_pf_dT9);
+    get_partition_function_cached(K39, tfactors.T9, pf_cache, K39_log_pf, dK39_log_pf_dT9);
 
     amrex::Real Ar36_log_pf, dAr36_log_pf_dT9;
 
     // interpolating Ar36 partition function
-    get_partition_function_cached(Ar36, tfactors, pf_cache, Ar36_log_pf, dAr36_log_pf_dT9);
+    get_partition_function_cached(Ar36, tfactors.T9, pf_cache, Ar36_log_pf, dAr36_log_pf_dT9);
 
     amrex::Real He4_log_pf, dHe4_log_pf_dT9;
 
@@ -2731,12 +2731,12 @@ void rate_Ca40_to_He4_Ar36_removed(const tf_t& tfactors, amrex::Real& rate, amre
     amrex::Real Ca40_log_pf, dCa40_log_pf_dT9;
 
     // interpolating Ca40 partition function
-    get_partition_function_cached(Ca40, tfactors, pf_cache, Ca40_log_pf, dCa40_log_pf_dT9);
+    get_partition_function_cached(Ca40, tfactors.T9, pf_cache, Ca40_log_pf, dCa40_log_pf_dT9);
 
     amrex::Real Ar36_log_pf, dAr36_log_pf_dT9;
 
     // interpolating Ar36 partition function
-    get_partition_function_cached(Ar36, tfactors, pf_cache, Ar36_log_pf, dAr36_log_pf_dT9);
+    get_partition_function_cached(Ar36, tfactors.T9, pf_cache, Ar36_log_pf, dAr36_log_pf_dT9);
 
     amrex::Real net_log_pf = He4_log_pf + Ar36_log_pf - Ca40_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dHe4_log_pf_dT9 + dAr36_log_pf_dT9 - dCa40_log_pf_dT9;
@@ -2788,12 +2788,12 @@ void rate_Ca40_to_p_K39_removed(const tf_t& tfactors, amrex::Real& rate, amrex::
     amrex::Real Ca40_log_pf, dCa40_log_pf_dT9;
 
     // interpolating Ca40 partition function
-    get_partition_function_cached(Ca40, tfactors, pf_cache, Ca40_log_pf, dCa40_log_pf_dT9);
+    get_partition_function_cached(Ca40, tfactors.T9, pf_cache, Ca40_log_pf, dCa40_log_pf_dT9);
 
     amrex::Real K39_log_pf, dK39_log_pf_dT9;
 
     // interpolating K39 partition function
-    get_partition_function_cached(K39, tfactors, pf_cache, K39_log_pf, dK39_log_pf_dT9);
+    get_partition_function_cached(K39, tfactors.T9, pf_cache, K39_log_pf, dK39_log_pf_dT9);
 
     amrex::Real net_log_pf = p_log_pf + K39_log_pf - Ca40_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dp_log_pf_dT9 + dK39_log_pf_dT9 - dCa40_log_pf_dT9;
@@ -2887,7 +2887,7 @@ void rate_He4_Ca40_to_p_Sc43_removed(const tf_t& tfactors, amrex::Real& rate, am
     amrex::Real Ca40_log_pf, dCa40_log_pf_dT9;
 
     // interpolating Ca40 partition function
-    get_partition_function_cached(Ca40, tfactors, pf_cache, Ca40_log_pf, dCa40_log_pf_dT9);
+    get_partition_function_cached(Ca40, tfactors.T9, pf_cache, Ca40_log_pf, dCa40_log_pf_dT9);
 
     amrex::Real He4_log_pf, dHe4_log_pf_dT9;
 
@@ -2898,7 +2898,7 @@ void rate_He4_Ca40_to_p_Sc43_removed(const tf_t& tfactors, amrex::Real& rate, am
     amrex::Real Sc43_log_pf, dSc43_log_pf_dT9;
 
     // interpolating Sc43 partition function
-    get_partition_function_cached(Sc43, tfactors, pf_cache, Sc43_log_pf, dSc43_log_pf_dT9);
+    get_partition_function_cached(Sc43, tfactors.T9, pf_cache, Sc43_log_pf, dSc43_log_pf_dT9);
 
     amrex::Real net_log_pf = p_log_pf + Sc43_log_pf - He4_log_pf - Ca40_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dp_log_pf_dT9 + dSc43_log_pf_dT9 - dHe4_log_pf_dT9 - dCa40_log_pf_dT9;
@@ -2950,12 +2950,12 @@ void rate_Ti44_to_He4_Ca40_removed(const tf_t& tfactors, amrex::Real& rate, amre
     amrex::Real Ca40_log_pf, dCa40_log_pf_dT9;
 
     // interpolating Ca40 partition function
-    get_partition_function_cached(Ca40, tfactors, pf_cache, Ca40_log_pf, dCa40_log_pf_dT9);
+    get_partition_function_cached(Ca40, tfactors.T9, pf_cache, Ca40_log_pf, dCa40_log_pf_dT9);
 
     amrex::Real Ti44_log_pf, dTi44_log_pf_dT9;
 
     // interpolating Ti44 partition function
-    get_partition_function_cached(Ti44, tfactors, pf_cache, Ti44_log_pf, dTi44_log_pf_dT9);
+    get_partition_function_cached(Ti44, tfactors.T9, pf_cache, Ti44_log_pf, dTi44_log_pf_dT9);
 
     amrex::Real net_log_pf = He4_log_pf + Ca40_log_pf - Ti44_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dHe4_log_pf_dT9 + dCa40_log_pf_dT9 - dTi44_log_pf_dT9;
@@ -3007,12 +3007,12 @@ void rate_Ti44_to_p_Sc43_removed(const tf_t& tfactors, amrex::Real& rate, amrex:
     amrex::Real Ti44_log_pf, dTi44_log_pf_dT9;
 
     // interpolating Ti44 partition function
-    get_partition_function_cached(Ti44, tfactors, pf_cache, Ti44_log_pf, dTi44_log_pf_dT9);
+    get_partition_function_cached(Ti44, tfactors.T9, pf_cache, Ti44_log_pf, dTi44_log_pf_dT9);
 
     amrex::Real Sc43_log_pf, dSc43_log_pf_dT9;
 
     // interpolating Sc43 partition function
-    get_partition_function_cached(Sc43, tfactors, pf_cache, Sc43_log_pf, dSc43_log_pf_dT9);
+    get_partition_function_cached(Sc43, tfactors.T9, pf_cache, Sc43_log_pf, dSc43_log_pf_dT9);
 
     amrex::Real net_log_pf = p_log_pf + Sc43_log_pf - Ti44_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dp_log_pf_dT9 + dSc43_log_pf_dT9 - dTi44_log_pf_dT9;
@@ -3058,7 +3058,7 @@ void rate_Cr48_to_He4_Ti44_removed(const tf_t& tfactors, amrex::Real& rate, amre
     amrex::Real Cr48_log_pf, dCr48_log_pf_dT9;
 
     // interpolating Cr48 partition function
-    get_partition_function_cached(Cr48, tfactors, pf_cache, Cr48_log_pf, dCr48_log_pf_dT9);
+    get_partition_function_cached(Cr48, tfactors.T9, pf_cache, Cr48_log_pf, dCr48_log_pf_dT9);
 
     amrex::Real He4_log_pf, dHe4_log_pf_dT9;
 
@@ -3069,7 +3069,7 @@ void rate_Cr48_to_He4_Ti44_removed(const tf_t& tfactors, amrex::Real& rate, amre
     amrex::Real Ti44_log_pf, dTi44_log_pf_dT9;
 
     // interpolating Ti44 partition function
-    get_partition_function_cached(Ti44, tfactors, pf_cache, Ti44_log_pf, dTi44_log_pf_dT9);
+    get_partition_function_cached(Ti44, tfactors.T9, pf_cache, Ti44_log_pf, dTi44_log_pf_dT9);
 
     amrex::Real net_log_pf = He4_log_pf + Ti44_log_pf - Cr48_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dHe4_log_pf_dT9 + dTi44_log_pf_dT9 - dCr48_log_pf_dT9;
@@ -3115,7 +3115,7 @@ void rate_Cr48_to_p_V47_removed(const tf_t& tfactors, amrex::Real& rate, amrex::
     amrex::Real Cr48_log_pf, dCr48_log_pf_dT9;
 
     // interpolating Cr48 partition function
-    get_partition_function_cached(Cr48, tfactors, pf_cache, Cr48_log_pf, dCr48_log_pf_dT9);
+    get_partition_function_cached(Cr48, tfactors.T9, pf_cache, Cr48_log_pf, dCr48_log_pf_dT9);
 
     amrex::Real p_log_pf, dp_log_pf_dT9;
 
@@ -3126,7 +3126,7 @@ void rate_Cr48_to_p_V47_removed(const tf_t& tfactors, amrex::Real& rate, amrex::
     amrex::Real V47_log_pf, dV47_log_pf_dT9;
 
     // interpolating V47 partition function
-    get_partition_function_cached(V47, tfactors, pf_cache, V47_log_pf, dV47_log_pf_dT9);
+    get_partition_function_cached(V47, tfactors.T9, pf_cache, V47_log_pf, dV47_log_pf_dT9);
 
     amrex::Real net_log_pf = p_log_pf + V47_log_pf - Cr48_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dp_log_pf_dT9 + dV47_log_pf_dT9 - dCr48_log_pf_dT9;
@@ -3247,12 +3247,12 @@ void rate_p_V47_to_He4_Ti44_removed(const tf_t& tfactors, amrex::Real& rate, amr
     amrex::Real V47_log_pf, dV47_log_pf_dT9;
 
     // interpolating V47 partition function
-    get_partition_function_cached(V47, tfactors, pf_cache, V47_log_pf, dV47_log_pf_dT9);
+    get_partition_function_cached(V47, tfactors.T9, pf_cache, V47_log_pf, dV47_log_pf_dT9);
 
     amrex::Real Ti44_log_pf, dTi44_log_pf_dT9;
 
     // interpolating Ti44 partition function
-    get_partition_function_cached(Ti44, tfactors, pf_cache, Ti44_log_pf, dTi44_log_pf_dT9);
+    get_partition_function_cached(Ti44, tfactors.T9, pf_cache, Ti44_log_pf, dTi44_log_pf_dT9);
 
     amrex::Real net_log_pf = He4_log_pf + Ti44_log_pf - p_log_pf - V47_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dHe4_log_pf_dT9 + dTi44_log_pf_dT9 - dp_log_pf_dT9 - dV47_log_pf_dT9;
@@ -3304,12 +3304,12 @@ void rate_Fe54_to_n_Fe53_removed(const tf_t& tfactors, amrex::Real& rate, amrex:
     amrex::Real Fe53_log_pf, dFe53_log_pf_dT9;
 
     // interpolating Fe53 partition function
-    get_partition_function_cached(Fe53, tfactors, pf_cache, Fe53_log_pf, dFe53_log_pf_dT9);
+    get_partition_function_cached(Fe53, tfactors.T9, pf_cache, Fe53_log_pf, dFe53_log_pf_dT9);
 
     amrex::Real Fe54_log_pf, dFe54_log_pf_dT9;
 
     // interpolating Fe54 partition function
-    get_partition_function_cached(Fe54, tfactors, pf_cache, Fe54_log_pf, dFe54_log_pf_dT9);
+    get_partition_function_cached(Fe54, tfactors.T9, pf_cache, Fe54_log_pf, dFe54_log_pf_dT9);
 
     amrex::Real net_log_pf = n_log_pf + Fe53_log_pf - Fe54_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dn_log_pf_dT9 + dFe53_log_pf_dT9 - dFe54_log_pf_dT9;
@@ -3361,12 +3361,12 @@ void rate_Fe53_to_n_Fe52_removed(const tf_t& tfactors, amrex::Real& rate, amrex:
     amrex::Real Fe52_log_pf, dFe52_log_pf_dT9;
 
     // interpolating Fe52 partition function
-    get_partition_function_cached(Fe52, tfactors, pf_cache, Fe52_log_pf, dFe52_log_pf_dT9);
+    get_partition_function_cached(Fe52, tfactors.T9, pf_cache, Fe52_log_pf, dFe52_log_pf_dT9);
 
     amrex::Real Fe53_log_pf, dFe53_log_pf_dT9;
 
     // interpolating Fe53 partition function
-    get_partition_function_cached(Fe53, tfactors, pf_cache, Fe53_log_pf, dFe53_log_pf_dT9);
+    get_partition_function_cached(Fe53, tfactors.T9, pf_cache, Fe53_log_pf, dFe53_log_pf_dT9);
 
     amrex::Real net_log_pf = n_log_pf + Fe52_log_pf - Fe53_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dn_log_pf_dT9 + dFe52_log_pf_dT9 - dFe53_log_pf_dT9;
@@ -3418,12 +3418,12 @@ void rate_Fe56_to_n_Fe55_removed(const tf_t& tfactors, amrex::Real& rate, amrex:
     amrex::Real Fe56_log_pf, dFe56_log_pf_dT9;
 
     // interpolating Fe56 partition function
-    get_partition_function_cached(Fe56, tfactors, pf_cache, Fe56_log_pf, dFe56_log_pf_dT9);
+    get_partition_function_cached(Fe56, tfactors.T9, pf_cache, Fe56_log_pf, dFe56_log_pf_dT9);
 
     amrex::Real Fe55_log_pf, dFe55_log_pf_dT9;
 
     // interpolating Fe55 partition function
-    get_partition_function_cached(Fe55, tfactors, pf_cache, Fe55_log_pf, dFe55_log_pf_dT9);
+    get_partition_function_cached(Fe55, tfactors.T9, pf_cache, Fe55_log_pf, dFe55_log_pf_dT9);
 
     amrex::Real net_log_pf = n_log_pf + Fe55_log_pf - Fe56_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dn_log_pf_dT9 + dFe55_log_pf_dT9 - dFe56_log_pf_dT9;
@@ -3475,12 +3475,12 @@ void rate_Fe55_to_n_Fe54_removed(const tf_t& tfactors, amrex::Real& rate, amrex:
     amrex::Real Fe55_log_pf, dFe55_log_pf_dT9;
 
     // interpolating Fe55 partition function
-    get_partition_function_cached(Fe55, tfactors, pf_cache, Fe55_log_pf, dFe55_log_pf_dT9);
+    get_partition_function_cached(Fe55, tfactors.T9, pf_cache, Fe55_log_pf, dFe55_log_pf_dT9);
 
     amrex::Real Fe54_log_pf, dFe54_log_pf_dT9;
 
     // interpolating Fe54 partition function
-    get_partition_function_cached(Fe54, tfactors, pf_cache, Fe54_log_pf, dFe54_log_pf_dT9);
+    get_partition_function_cached(Fe54, tfactors.T9, pf_cache, Fe54_log_pf, dFe54_log_pf_dT9);
 
     amrex::Real net_log_pf = n_log_pf + Fe54_log_pf - Fe55_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dn_log_pf_dT9 + dFe54_log_pf_dT9 - dFe55_log_pf_dT9;
@@ -3532,12 +3532,12 @@ void rate_Ni58_to_n_Ni57_removed(const tf_t& tfactors, amrex::Real& rate, amrex:
     amrex::Real Ni57_log_pf, dNi57_log_pf_dT9;
 
     // interpolating Ni57 partition function
-    get_partition_function_cached(Ni57, tfactors, pf_cache, Ni57_log_pf, dNi57_log_pf_dT9);
+    get_partition_function_cached(Ni57, tfactors.T9, pf_cache, Ni57_log_pf, dNi57_log_pf_dT9);
 
     amrex::Real Ni58_log_pf, dNi58_log_pf_dT9;
 
     // interpolating Ni58 partition function
-    get_partition_function_cached(Ni58, tfactors, pf_cache, Ni58_log_pf, dNi58_log_pf_dT9);
+    get_partition_function_cached(Ni58, tfactors.T9, pf_cache, Ni58_log_pf, dNi58_log_pf_dT9);
 
     amrex::Real net_log_pf = n_log_pf + Ni57_log_pf - Ni58_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dn_log_pf_dT9 + dNi57_log_pf_dT9 - dNi58_log_pf_dT9;
@@ -3589,12 +3589,12 @@ void rate_Ni57_to_n_Ni56_removed(const tf_t& tfactors, amrex::Real& rate, amrex:
     amrex::Real Ni56_log_pf, dNi56_log_pf_dT9;
 
     // interpolating Ni56 partition function
-    get_partition_function_cached(Ni56, tfactors, pf_cache, Ni56_log_pf, dNi56_log_pf_dT9);
+    get_partition_function_cached(Ni56, tfactors.T9, pf_cache, Ni56_log_pf, dNi56_log_pf_dT9);
 
     amrex::Real Ni57_log_pf, dNi57_log_pf_dT9;
 
     // interpolating Ni57 partition function
-    get_partition_function_cached(Ni57, tfactors, pf_cache, Ni57_log_pf, dNi57_log_pf_dT9);
+    get_partition_function_cached(Ni57, tfactors.T9, pf_cache, Ni57_log_pf, dNi57_log_pf_dT9);
 
     amrex::Real net_log_pf = n_log_pf + Ni56_log_pf - Ni57_log_pf;
     [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dn_log_pf_dT9 + dNi56_log_pf_dT9 - dNi57_log_pf_dT9;
