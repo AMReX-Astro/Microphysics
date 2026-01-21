@@ -100,6 +100,14 @@ system.
 
 .. toctree::
    :maxdepth: 1
+   :caption: API
+
+   filelist
+   classlist
+.. namespacelist
+
+.. toctree::
+   :maxdepth: 1
    :caption: References
    :hidden:
 
