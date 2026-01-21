@@ -146,17 +146,6 @@ namespace network
     }
 }
 
-#ifdef NSE_NET
-namespace NSE_INDEX
-{
-    // P_index is for photoionization proton
-    constexpr int P_index = 18;
-    constexpr int H1_index = 0;
-    constexpr int N_index = 17;
-    constexpr int He4_index = 2;
-}
-#endif
-
 namespace Rates {
     enum NetworkRates : std::uint8_t {
         H1_H1_to_He3 = 1,
