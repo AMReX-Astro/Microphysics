@@ -149,8 +149,9 @@ and neutron and from there gets the abundances of each of the nuclei
 under the assumption of NSE, following the procedure outlined in <span id="id2">[<a class="reference internal" href="zreferences.html#id36" title="A. C. Calder, D. M. Townsley, I. R. Seitenzahl, F. Peng, O. E. B. Messer, N. Vladimirova, E. F. Brown, J. W. Truran, and D. Q. Lamb. Capturing the fire: flame energetics and neutronization for type ia supernova simulations. The Astrophysical Journal, 656(1):313–332, feb 2007. URL: https://doi.org/10.1086/510709, doi:10.1086/510709.">39</a>]</span>.</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
-<p>Self-consistent NSE does not support the templated C++ networks
-(like <code class="docutils literal notranslate"><span class="pre">aprox13</span></code>).  You should use a pynucastro-generated network.</p>
+<p>Self-consistent NSE is only supported for pynucastro-generated network.
+Templated C++ networks, such as <code class="docutils literal notranslate"><span class="pre">aprox13</span></code>, are not supported,
+and compiling with them will produce a compilation error.</p>
 <p>Additionally, the pynucastro network must meet the following requirements:</p>
 <ul class="simple">
 <li><p>Every rate should have an inverse rate, recomputed with detailed balancing</p></li>
