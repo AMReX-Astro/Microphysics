@@ -563,7 +563,7 @@ T get_nse_state_rey(T& state,
 
     // Initializes the initial state
 
-    nse_solver_data<T> state_data = {state, {0.0_rt}};
+    nse_solver_data<T> state_data = {state, {0.0_rt}, {0.0_rt}};
 
     // First get the temperature-independent part.
 
