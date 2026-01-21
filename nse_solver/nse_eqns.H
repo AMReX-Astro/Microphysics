@@ -21,12 +21,13 @@ T get_T_independent_nse_state(const T& state) {
 
     T nse_state = state;
     constexpr amrex::Real kBGK_2PiHbar2 = (C::k_B * 1.0e9_rt) / (2.0_rt * M_PI * C::hbar * C::hbar);
+    const amrex::Real rho_inv = 1.0_rt / state.rho;
 
     amrex::constexpr_for<0, NumSpec>([&] (auto n)
     {
         // Note, using gcem::sqrt instead of std, would get underflow and get 0 here
         nse_state.xn[n] = std::sqrt(amrex::Math::powi<5>(network::mion<n+1>())) *
-            get_spin_state<n+1>() * gcem::sqrt(amrex::Math::powi<3>(kBGK_2PiHbar2)) / state.rho;
+            get_spin_state<n+1>() * gcem::sqrt(amrex::Math::powi<3>(kBGK_2PiHbar2)) * rho_inv;
     });
 
     return nse_state;
@@ -56,6 +57,7 @@ void compute_coulomb_contribution(amrex::Array2D<amrex::Real, 1, NumSpec, 1, 2, 
     const amrex::Real n_e = state.rho * state.y_e * C::n_A;
     const amrex::Real Gamma_e = C::q_e * C::q_e *
         std::cbrt(1.333333333333_rt * M_PI * n_e) / (C::k_B * T_in);
+    const amrex::Real T9i = 1.0e9_rt / T_in;
 
     for (int n = 0; n < NumSpec; ++n) {
 
@@ -82,7 +84,7 @@ void compute_coulomb_contribution(amrex::Array2D<amrex::Real, 1, NumSpec, 1, 2, 
 
             // Find dΓ / dT9 = - Γ / T9
 
-            amrex::Real dGamma_dT9 = - Gamma * 1.0e9_rt / T_in;
+            amrex::Real dGamma_dT9 = - Gamma * T9i;
 
             // Find temperature derivative of the coulomb potential term: d (μ^c/kbT) / dT
             // Perhaps switch to using autodiff, but the expression seems simple enough.
@@ -362,7 +364,7 @@ void nse_jcn(amrex::Array1D<amrex::Real, 1, 3>& x,
 
     const amrex::Real T_in = nse_state.T;
     const amrex::Real T9i = 1.0_rt / x(3);
-    const amrex::Real e_in = state_data.state.e;
+    const amrex::Real e_inv = 1.0_rt / state_data.state.e;
     const amrex::Real Ye = state_data.state.y_e;
     const amrex::Real ikTMeV = 1.0_rt / (C::k_MeV * T_in);
 
@@ -426,13 +428,13 @@ void nse_jcn(amrex::Array1D<amrex::Real, 1, 3>& x,
     amrex::Real de_dT9 = 1.0e9_rt * eos_state.dedT;
 
     fjac(3, 1) = - eos_state.abar * eos_state.abar *
-        (eos_state.dedA + Ye * eos_state.dedZ) * fjac(3, 1) / e_in;
+        (eos_state.dedA + Ye * eos_state.dedZ) * fjac(3, 1) * e_inv;
 
     fjac(3, 2) = - eos_state.abar * eos_state.abar *
-        (eos_state.dedA + Ye * eos_state.dedZ) * fjac(3, 2) / e_in;
+        (eos_state.dedA + Ye * eos_state.dedZ) * fjac(3, 2) * e_inv;
 
     fjac(3, 3) = (de_dT9 - eos_state.abar * eos_state.abar *
-                  (eos_state.dedA + Ye * eos_state.dedZ) * fjac(3, 3)) / e_in;
+                  (eos_state.dedA + Ye * eos_state.dedZ) * fjac(3, 3)) * e_inv;
 }
 
 #endif
