@@ -31,16 +31,6 @@ enum nse_input_t : std::uint8_t {
     nse_input_rey
 };
 
-
-template <typename T>
-struct nse_solver_data
-{
-    T state;
-
-    // Holds the Temperature dependent log terms and derivative w.r.t T9
-    amrex::Array2D<amrex::Real, 1, NumSpec, 1, 2, amrex::Order::C> log_data;
-};
-
 template <int neqs, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void nse_hybrid_solver(nse_solver_data<T>& state_data,
@@ -320,7 +310,7 @@ T get_nse_state_rty(T& state,
 
     // Initializes the initial state
 
-    nse_solver_data<T> state_data = {state, {0.0_rt}};
+    nse_solver_data<T> state_data = {state, {0.0_rt}, {0.0_rt}};
 
     // First get the temperature-independent part.
 
@@ -330,8 +320,7 @@ T get_nse_state_rty(T& state,
     // Get Temperature dependent exponent pieces, including screening
     // The values are stored in log_data
     constexpr int do_T9_derivatives = 0;
-    get_T_dependent_nse_state<do_T9_derivatives>(state_data.log_data,
-                                                 state_data.state);
+    get_T_dependent_nse_state<do_T9_derivatives>(state_data);
 
     // invoke newton-raphson or hybrj to solve chemical potential of proton and neutron
     // which are the exponent part of the nse mass fraction calculation
@@ -345,18 +334,18 @@ T get_nse_state_rty(T& state,
     // Apply the log_data for calculating nse mass fractions
     // This updates y_e as well.
 
-    apply_nse_exponent(state_data.state, state_data.log_data);
-
-    // update mu_n and mu_p to input state
-
-    state.mu_p = state_data.state.mu_p;
-    state.mu_n = state_data.state.mu_n;
+    apply_nse_exponent<do_T9_derivatives>(state_data);
 
     // update rhoX in the output nse_state
 
     for (int n = 0; n < NumSpec; ++n) {
         state_data.state.y[SFS+n] = state.rho * state_data.state.xn[n];
     }
+
+    // update mu_n and mu_p to input state
+
+    state.mu_p = state_data.state.mu_p;
+    state.mu_n = state_data.state.mu_n;
 
     return state_data.state;
 }
@@ -593,12 +582,11 @@ T get_nse_state_rey(T& state,
 
     // Evaluate the temperature dependent piece, including screening
     constexpr int do_T9_derivatives = 0;
-    get_T_dependent_nse_state<do_T9_derivatives>(state_data.log_data,
-                                                 state_data.state);
+    get_T_dependent_nse_state<do_T9_derivatives>(state_data);
 
     // Apply exponent for calculating NSE mass fractions
 
-    apply_nse_exponent(state_data.state, state_data.log_data);
+    apply_nse_exponent<do_T9_derivatives>(state_data);
 
     // update rhoX in the output nse_state
 
