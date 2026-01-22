@@ -161,6 +161,7 @@ void get_T_dependent_nse_state(nse_solver_data<T>& state_data) {
         state_data.log_data(n+1) = logpf - u_c(n+1);
 
         // Apply T9^{3/2} to the state
+
         state.xn[n] *= T9_32;
 
         if constexpr (do_T9_derivatives) {
