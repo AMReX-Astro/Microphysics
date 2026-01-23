@@ -21,7 +21,9 @@ amrex::Real temperature_to_energy_jacobian (const BurnT& state, const amrex::Rea
 }
 
 
+#ifndef AMREX_USE_GPU
 template <typename BurnT, typename T>
+AMREX_INLINE
 void
 print_jacobian (const T& jac) {
 
@@ -45,5 +47,6 @@ print_jacobian (const T& jac) {
         std::cout << std::endl;
     }
 }
+#endif
 
 #endif
