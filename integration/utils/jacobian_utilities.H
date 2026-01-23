@@ -1,7 +1,9 @@
 #ifndef JACOBIAN_UTILITIES_H
 #define JACOBIAN_UTILITIES_H
 
+#ifndef AMREX_USE_GPU
 #include <format>
+#endif
 
 #include <burn_type.H>
 #include <extern_parameters.H>
