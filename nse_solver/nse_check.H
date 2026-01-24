@@ -154,45 +154,6 @@ bool in_single_group(amrex::Array1D<int, 1, NumSpec>& group_idx) {
 
     }
 
-    // If there no neutrons are in the network and original condition failed
-    // Consider a looser condition by looking at nuclei heavier than Si28
-    // There seems to be two big groups after Si28 in NSE:
-    // 1) isotopes with even N
-    // 2) isotopes with odd N
-
-    if (NSE_INDEX::N_index == -1 && !in_single_group) {
-
-        in_single_group = true;
-
-        int oddN_group = -1;
-        int evenN_group = -1;
-
-        for (int n = 0; n < NumSpec; ++n) {
-
-            if (zion[n] >= 14) {
-
-                // Get even N group index
-                if (evenN_group == -1 && std::fmod(aion[n] - zion[n], 2) == 0.0_rt) {
-                    evenN_group = get_root_index(n+1, group_idx);
-                    continue;
-                }
-
-                // Get odd N group index
-                if (oddN_group == -1 && std::fmod(aion[n] - zion[n], 2) == 1.0_rt) {
-                    oddN_group = get_root_index(n+1, group_idx);
-                    continue;
-                }
-
-                if ((std::fmod(aion[n] - zion[n], 2) == 0.0_rt && evenN_group != get_root_index(n+1, group_idx)) ||
-                    (std::fmod(aion[n] - zion[n], 2) == 1.0_rt &&  oddN_group != get_root_index(n+1, group_idx))) {
-                    in_single_group = false;
-                    break;
-                }
-            }
-
-        }
-    }
-
     return in_single_group;
 }
 
