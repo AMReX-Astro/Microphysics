@@ -131,7 +131,7 @@ void burn_cell_c()
         amrex::Array2D<amrex::Real, 1, 3, 1, 3> jac;
         int flag = 0;
 
-        nse_solver_data<burn_t> state_data = {nse_state, {0.0_rt}, {0.0_rt};
+        nse_solver_data<burn_t> state_data = {nse_state, {0.0_rt}, {0.0_rt}};
         state_data.state = get_T_independent_nse_state(nse_state);
 
         nse_fcn(x, f, state_data, flag);
