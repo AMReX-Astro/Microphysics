@@ -285,7 +285,7 @@ void fill_reaction_timescale(amrex::Array1D<T, 1, NSE_INDEX::NumNSERatePairs>& r
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void fill_merge_indices(amrex::Real& merge_idx1, amrex::Real& merge_idx2,
+void fill_merge_indices(int& merge_idx1, int& merge_idx2,
                         const int current_rate_pair,
                         amrex::Array1D<int, 1, NumSpec>& group_idx) {
     // Determines the merge indices for the current rate pair.
@@ -401,8 +401,8 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_idx, const amrex::Real 
 
         // Fill in the nuclei indices for merging
 
-        amrex::Real merge_idx1 = -1;
-        amrex::Real merge_idx2 = -1;
+        int merge_idx1 = -1;
+        int merge_idx2 = -1;
         fill_merge_indices(merge_idx1, merge_idx2, rate_pair_idx, group_idx);
 
         // Check if merge indices are -1, which means nothing to merge
