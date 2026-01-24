@@ -32,16 +32,19 @@ void check_nse_molar(const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
     nse_check = false;
 
     if constexpr (NSE_INDEX::He4_index == -1) {
-        amrex::error("NSE Check requires at least He4 to be in the network.")
+        amrex::Error("NSE Check requires at least He4 to be in the network.");
     }
 
     if constexpr (NSE_INDEX::N_index != -1 && NSE_INDEX::H1_index != -1) {
 
         // Molar fraction check from Eq. 14 in Kushnir & Katz, 2019.
+        constexpr auto n = NSE_INDEX::N_index;
+        constexpr auto p = NSE_INDEX::H1_index;
+        constexpr auto a = NSE_INDEX::He4_index;
 
-        if (Y(N) != 0.0_rt && Y(H1) != 0.0_rt) {
-            amrex::Real r = Y(He4) / (Y(H1) * Y(H1) * Y(N) * Y(N));
-            amrex::Real r_nse = Y_nse(He4) / (Y_nse(H1) * Y_nse(H1) * Y_nse(N) * Y_nse(N));
+        if (Y(n) != 0.0_rt && Y(p) != 0.0_rt) {
+            amrex::Real r = Y(a) / (Y(p) * Y(p) * Y(n) * Y(n));
+            amrex::Real r_nse = Y_nse(a) / (Y_nse(p) * Y_nse(p) * Y_nse(n) * Y_nse(n));
 
             if (std::abs(r - r_nse) < 0.5_rt * r_nse) {
                 nse_check = true;
@@ -96,13 +99,13 @@ int get_root_index(const int nuc_idx, amrex::Array1D<int, 1, NumSpec>& group_idx
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void nse_union(const int nuc_idx_a, const int nuc_idx_b,
                amrex::Array1D<int, 1, NumSpec>& group_idx,
-               amrex::Array1D<int, 1, NumSpec>& group_size>) {
+               amrex::Array1D<int, 1, NumSpec>& group_size) {
     // Joins two group represented by two nuclei index: nuc_idx_a and nuc_idx_b
     // Note that the smaller group is merged to the larger group.
     // group_size of the larger group is updated.
 
-    int root_idx_a = get_root_index(nuc_idx_a, group_ind);
-    int root_idx_b = get_root_index(nuc_idx_b, group_ind);
+    int root_idx_a = get_root_index(nuc_idx_a, group_idx);
+    int root_idx_b = get_root_index(nuc_idx_b, group_idx);
 
     // Return if they're the same group
     if (root_idx_a == root_idx_b) {
@@ -122,7 +125,7 @@ void nse_union(const int nuc_idx_a, const int nuc_idx_b,
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-bool in_single_group(const amrex::Array1D<int, 1, NumSpec>& group_idx) {
+bool in_single_group(amrex::Array1D<int, 1, NumSpec>& group_idx) {
 
     // This function checks whether all isotopes are either in the LIG group
     // or in another single group.
@@ -134,13 +137,13 @@ bool in_single_group(const amrex::Array1D<int, 1, NumSpec>& group_idx) {
 
     // Consider NSE when there is a single group with an optional LIG group
 
-    for (int n = 0; n < NumSpec; ++n) {
+    for (int n = 1; n <= NumSpec; ++n) {
         if (get_root_index(n, group_idx) == LIG_root_idx) {
             continue;
         }
 
-        if (non_LIG_index == -1) {
-            non_LIG_index = get_root_index(n, group_idx);
+        if (non_LIG_idx == -1) {
+            non_LIG_idx = get_root_index(n, group_idx);
             continue;
         }
 
@@ -266,7 +269,7 @@ void fill_reaction_timescale(amrex::Array1D<T, 1, NSE_INDEX::NumNSERatePairs>& r
     if (nonNHA2_idx != -1) {
         Y_min = amrex::min(Y_min, Y(nonNHA2_idx));
     }
-    amre::Real t_i = Y_min / b_min;
+    amrex::Real t_i = Y_min / b_min;
 
     //
     // Condition for checking if forward and reverse rates are in equilibrium
@@ -284,7 +287,7 @@ void fill_reaction_timescale(amrex::Array1D<T, 1, NSE_INDEX::NumNSERatePairs>& r
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void fill_merge_indices(amrex::Real& merge_idx1, amrex::Real& merge_idx2,
                         const int current_rate_pair,
-                        const amrex::Array1D<int, 1, NumSpec>& group_idx) {
+                        amrex::Array1D<int, 1, NumSpec>& group_idx) {
     // Determines the merge indices for the current rate pair.
     // We consider three cases for each rate pair:
     //
@@ -490,6 +493,12 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
     }
 
     auto state = current_state;
+
+    // Find the mass fraction of the current state
+
+    for (int n = 0; n < NumSpec; ++n) {
+        state.xn[n] = Y(n+1) * aion[n];
+    }
 
     // Evaluate the rates.
     // Note that only some rates are needed, so perhaps we can optimize here
