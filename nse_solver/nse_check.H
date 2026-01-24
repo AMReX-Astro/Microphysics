@@ -57,8 +57,7 @@ void check_nse_molar(const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
     // Do overall molar fraction check if the ratio check failed.
 
     for (int n = 1; n <= NumSpec; ++n) {
-        amrex::Real abs_diff = std::abs(Y(n) - Y_nse(n));
-        if (abs_diff > nse_abs_tol && abs_diff > nse_rel_tol * Y_nse(n)) {
+        if (std::abs(Y(n) - Y_nse(n)) > nse_rel_tol * Y_nse(n)) {
             return;
         }
     }
@@ -132,29 +131,14 @@ bool in_single_group(amrex::Array1D<int, 1, NumSpec>& group_idx) {
 
     const auto LIG_root_idx = get_root_index(NSE_INDEX::He4_index, group_idx);
 
-    int non_LIG_idx = -1;
-    bool in_single_group = true;
-
-    // Consider NSE when there is a single group with an optional LIG group
+    // Consider NSE when all nuclei belongs to the same group
 
     for (int n = 1; n <= NumSpec; ++n) {
-        if (get_root_index(n, group_idx) == LIG_root_idx) {
-            continue;
+        if (get_root_index(n, group_idx) != LIG_root_idx) {
+            return false;
         }
-
-        if (non_LIG_idx == -1) {
-            non_LIG_idx = get_root_index(n, group_idx);
-            continue;
-        }
-
-        if (get_root_index(n, group_idx) != non_LIG_idx) {
-            in_single_group = false;
-            break;
-        }
-
     }
-
-    return in_single_group;
+    return true;
 }
 
 
@@ -320,11 +304,9 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_idx, const amrex::Real 
 
     if constexpr (NSE_INDEX::N_index != -1) {
         nse_union(NSE_INDEX::N_index, NSE_INDEX::He4_index, group_idx, group_size);
-        // group_idx(N) = NSE_INDEX::He4_index;
     }
     if constexpr (NSE_INDEX::H1_index != -1) {
         nse_union(NSE_INDEX::H1_index, NSE_INDEX::He4_index, group_idx, group_size);
-        // group_idx(H1) = NSE_INDEX::He4_index;
     }
 
     // Create a 1D array to hold reaction_timescales and RatePair indices
