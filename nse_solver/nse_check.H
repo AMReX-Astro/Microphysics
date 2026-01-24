@@ -232,15 +232,18 @@ void fill_reaction_timescale(amrex::Array1D<T, 1, NSE_INDEX::NumNSERatePairs>& r
 
     // Four possible case for multiplicity after sorting: ABC, AAB, ABB, AAA
 
-    if (r1_idx == r2_idx && r2_idx == r3_idx) { // Case AAA
+    if (r1_idx == r2_idx && r2_idx == r3_idx) {
+        // Case AAA
         b_f *= inv6;
-    } else if (r1_idx == r2_idx || r2_idx == r3_idx) { // Case AAB or ABB
+    } else if (r1_idx == r2_idx || (r3_idx != -1 && r2_idx == r3_idx)) {
+        // Case AAB or ABB. Need to make sure r3_idx is not -1
         b_f *= 0.5_rt;
     }
 
     if (p1_idx == p2_idx && p2_idx == p3_idx) { // Case AAA
         b_r *= inv6;
-    } else if (p1_idx == p2_idx || p2_idx == p3_idx) { // Case AAB or ABB
+    } else if (p1_idx == p2_idx || (p3_idx != -1 && p2_idx == p3_idx)) {
+        // Case AAB or ABB. Need to make sure p3_idx is not -1
         b_r *= 0.5_rt;
     }
 
