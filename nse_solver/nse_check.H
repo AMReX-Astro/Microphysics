@@ -113,12 +113,15 @@ void nse_union(const int nuc_idx_a, const int nuc_idx_b,
 
     // Merge smaller group to the larger group.
     // Do the union and update group size of the larger group.
+    // Set group_size of the merged group to be 0
     if (group_size(root_idx_a) >= group_size(root_idx_b)) {
         group_idx(root_idx_b) = root_idx_a;
         group_size(root_idx_a) += group_size(root_idx_b);
+        group_size(root_idx_b) = 0;
     } else {
         group_idx(root_idx_a) = root_idx_b;
         group_size(root_idx_b) += group_size(root_idx_a);
+        group_size(root_idx_a) = 0;
     }
 }
 
@@ -212,6 +215,8 @@ void fill_reaction_timescale(amrex::Array1D<T, 1, NSE_INDEX::NumNSERatePairs>& r
     if (b_min == 0.0_rt) {
         return;
     }
+
+    // Pre-filtered RatePair will at least have 1 nuclei not in (n, H1, He4)
 
     amrex::Real Y_min = Y(nonNHA1_idx);
     if (nonNHA2_idx != -1) {
