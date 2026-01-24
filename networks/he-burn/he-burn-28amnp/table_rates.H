@@ -55,11 +55,11 @@ constexpr int add_vars = 1;  // 1 Additional Var in entries
 namespace rate_tables
 {
     // Co56 --> Fe56
-    inline constexpr table_t j_Co56_Fe56_meta{.ntemp=13, .nrhoy=11, .nvars=3, .nheader=5};
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, j_Co56_Fe56_meta.nrhoy> j_Co56_Fe56_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, j_Co56_Fe56_meta.ntemp> j_Co56_Fe56_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121, 11.0};
+    inline AMREX_GPU_MANAGED table_t j_Co56_Fe56_meta{.ntemp=13, .nrhoy=11, .nvars=3, .nheader=5};
+    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_Co56_Fe56_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
+    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 13> j_Co56_Fe56_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121, 11.0};
     // Array3D is column-major (Fortran-ordering).  T varies fastest, then rho Ye, then the component
-    inline AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, j_Co56_Fe56_meta.ntemp, 1, j_Co56_Fe56_meta.nrhoy, 1, j_Co56_Fe56_meta.nvars>
+    inline AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, num_vars>
          j_Co56_Fe56_data{
 -7.705836,       -7.707962,       -7.692263,       -7.032866,       -6.284874,       -5.970341,       -5.642062,       -5.178082,       -4.093715,       -2.791284,       -1.100233,        1.756545,        4.567038,  // RATE
 -7.679753,       -7.698752,       -7.685687,        -7.03166,       -6.284674,       -5.970255,       -5.642021,       -5.178082,       -4.093715,       -2.791284,       -1.100233,        1.756545,        4.567038,
@@ -97,11 +97,11 @@ namespace rate_tables
          };
 
     // Co56 --> Ni56
-    inline constexpr table_t j_Co56_Ni56_meta{.ntemp=13, .nrhoy=11, .nvars=3, .nheader=5};
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, j_Co56_Ni56_meta.nrhoy> j_Co56_Ni56_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, j_Co56_Ni56_meta.ntemp> j_Co56_Ni56_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121, 11.0};
+    inline AMREX_GPU_MANAGED table_t j_Co56_Ni56_meta{.ntemp=13, .nrhoy=11, .nvars=3, .nheader=5};
+    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_Co56_Ni56_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
+    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 13> j_Co56_Ni56_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121, 11.0};
     // Array3D is column-major (Fortran-ordering).  T varies fastest, then rho Ye, then the component
-    inline AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, j_Co56_Ni56_meta.ntemp, 1, j_Co56_Ni56_meta.nrhoy, 1, j_Co56_Ni56_meta.nvars>
+    inline AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, num_vars>
          j_Co56_Ni56_data{
 -99.69797,       -99.69797,      -69.758981,      -37.768387,      -23.052703,       -17.76895,        -13.4835,      -11.090722,       -8.426201,       -6.028675,       -3.404715,        0.008204,        2.897241,  // RATE
 -99.69797,       -99.69797,      -69.758998,       -37.91085,      -23.428328,      -17.788058,       -13.48505,      -11.090722,       -8.426201,       -6.028675,       -3.404715,        0.008204,        2.897241,
@@ -139,11 +139,11 @@ namespace rate_tables
          };
 
     // Fe56 --> Co56
-    inline constexpr table_t j_Fe56_Co56_meta{.ntemp=13, .nrhoy=11, .nvars=3, .nheader=5};
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, j_Fe56_Co56_meta.nrhoy> j_Fe56_Co56_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, j_Fe56_Co56_meta.ntemp> j_Fe56_Co56_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121, 11.0};
+    inline AMREX_GPU_MANAGED table_t j_Fe56_Co56_meta{.ntemp=13, .nrhoy=11, .nvars=3, .nheader=5};
+    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_Fe56_Co56_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
+    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 13> j_Fe56_Co56_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121, 11.0};
     // Array3D is column-major (Fortran-ordering).  T varies fastest, then rho Ye, then the component
-    inline AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, j_Fe56_Co56_meta.ntemp, 1, j_Fe56_Co56_meta.nrhoy, 1, j_Fe56_Co56_meta.nvars>
+    inline AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, num_vars>
          j_Fe56_Co56_data{
 -99.69797,       -99.69797,       -99.69797,      -62.854802,      -37.268611,      -27.644755,      -19.855923,      -15.693996,      -11.062186,        -6.68628,       -2.996418,        0.330264,        3.050101,  // RATE
 -99.69797,       -99.69797,       -99.69797,      -63.853019,      -37.680995,      -27.666587,      -19.856877,      -15.693996,      -11.062186,        -6.68628,       -2.996418,        0.330264,        3.050101,
@@ -181,11 +181,11 @@ namespace rate_tables
          };
 
     // Ni56 --> Co56
-    inline constexpr table_t j_Ni56_Co56_meta{.ntemp=13, .nrhoy=11, .nvars=3, .nheader=5};
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, j_Ni56_Co56_meta.nrhoy> j_Ni56_Co56_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, j_Ni56_Co56_meta.ntemp> j_Ni56_Co56_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121, 11.0};
+    inline AMREX_GPU_MANAGED table_t j_Ni56_Co56_meta{.ntemp=13, .nrhoy=11, .nvars=3, .nheader=5};
+    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_Ni56_Co56_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
+    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 13> j_Ni56_Co56_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121, 11.0};
     // Array3D is column-major (Fortran-ordering).  T varies fastest, then rho Ye, then the component
-    inline AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, j_Ni56_Co56_meta.ntemp, 1, j_Ni56_Co56_meta.nrhoy, 1, j_Ni56_Co56_meta.nvars>
+    inline AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, num_vars>
          j_Ni56_Co56_data{
 -8.684,          -9.164,          -9.291,          -9.387,          -8.777,          -7.439,       -6.183988,       -5.405627,       -4.316341,       -2.714602,       -0.608944,        2.014581,        4.728024,  // RATE
 -7.705,          -8.165,          -8.291,          -8.387,          -8.364,          -7.418,       -6.181989,       -5.405627,       -4.316341,       -2.714602,       -0.608944,        2.014581,        4.728024,
@@ -223,11 +223,11 @@ namespace rate_tables
          };
 
     // n --> p
-    inline constexpr table_t j_n_p_meta{.ntemp=13, .nrhoy=11, .nvars=3, .nheader=5};
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, j_n_p_meta.nrhoy> j_n_p_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, j_n_p_meta.ntemp> j_n_p_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121, 11.0};
+    inline AMREX_GPU_MANAGED table_t j_n_p_meta{.ntemp=13, .nrhoy=11, .nvars=3, .nheader=5};
+    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_n_p_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
+    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 13> j_n_p_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121, 11.0};
     // Array3D is column-major (Fortran-ordering).  T varies fastest, then rho Ye, then the component
-    inline AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, j_n_p_meta.ntemp, 1, j_n_p_meta.nrhoy, 1, j_n_p_meta.nvars>
+    inline AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, num_vars>
          j_n_p_data{
 -2.959,          -2.959,          -2.959,          -2.959,       -2.958959,       -2.957841,       -2.941107,       -2.874417,       -2.540055,       -1.720786,        -0.41411,        1.802004,           4.347,  // RATE
 -2.959,          -2.959,          -2.959,          -2.959,       -2.958984,       -2.957898,       -2.941192,       -2.874417,       -2.540055,       -1.720786,        -0.41411,        1.802004,           4.347,
@@ -265,11 +265,11 @@ namespace rate_tables
          };
 
     // p --> n
-    inline constexpr table_t j_p_n_meta{.ntemp=13, .nrhoy=11, .nvars=3, .nheader=5};
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, j_p_n_meta.nrhoy> j_p_n_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, j_p_n_meta.ntemp> j_p_n_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121, 11.0};
+    inline AMREX_GPU_MANAGED table_t j_p_n_meta{.ntemp=13, .nrhoy=11, .nvars=3, .nheader=5};
+    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_p_n_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
+    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 13> j_p_n_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121, 11.0};
     // Array3D is column-major (Fortran-ordering).  T varies fastest, then rho Ye, then the component
-    inline AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, j_p_n_meta.ntemp, 1, j_p_n_meta.nrhoy, 1, j_p_n_meta.nvars>
+    inline AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, num_vars>
          j_p_n_data{
 -99.69797,          -49.75,          -29.58,         -19.262,         -14.019,         -10.766,           -7.99,          -6.458,          -4.715,          -2.968,          -1.035,             1.6,           4.293,  // RATE
 -99.69797,         -48.749,          -28.58,         -18.262,         -13.606,         -10.744,          -7.989,          -6.458,          -4.715,          -2.968,          -1.035,             1.6,           4.293,

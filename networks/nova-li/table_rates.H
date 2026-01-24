@@ -55,11 +55,11 @@ constexpr int add_vars = 1;  // 1 Additional Var in entries
 namespace rate_tables
 {
     // F17 --> O17
-    inline constexpr table_t j_F17_O17_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5};
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, j_F17_O17_meta.nrhoy> j_F17_O17_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, j_F17_O17_meta.ntemp> j_F17_O17_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121};
+    inline AMREX_GPU_MANAGED table_t j_F17_O17_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5};
+    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_F17_O17_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
+    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 12> j_F17_O17_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121};
     // Array3D is column-major (Fortran-ordering).  T varies fastest, then rho Ye, then the component
-    inline AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, j_F17_O17_meta.ntemp, 1, j_F17_O17_meta.nrhoy, 1, j_F17_O17_meta.nvars>
+    inline AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 12, 1, 11, 1, num_vars>
          j_F17_O17_data{
 -1.98599,       -1.985996,       -1.985997,       -1.985998,       -1.985991,       -1.985811,       -1.984179,       -1.977601,       -1.918501,       -1.559899,       -0.462121,        1.718247,  // RATE
 -1.985903,       -1.985964,       -1.985971,       -1.985976,       -1.985976,       -1.985801,       -1.984173,       -1.977571,       -1.918501,       -1.559899,       -0.462121,        1.718247,
@@ -97,11 +97,11 @@ namespace rate_tables
          };
 
     // F18 --> O18
-    inline constexpr table_t j_F18_O18_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5};
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, j_F18_O18_meta.nrhoy> j_F18_O18_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, j_F18_O18_meta.ntemp> j_F18_O18_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121};
+    inline AMREX_GPU_MANAGED table_t j_F18_O18_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5};
+    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_F18_O18_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
+    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 12> j_F18_O18_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121};
     // Array3D is column-major (Fortran-ordering).  T varies fastest, then rho Ye, then the component
-    inline AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, j_F18_O18_meta.ntemp, 1, j_F18_O18_meta.nrhoy, 1, j_F18_O18_meta.nvars>
+    inline AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 12, 1, 11, 1, num_vars>
          j_F18_O18_data{
 -4.010762,       -4.010915,       -4.010933,       -4.010943,       -4.010771,       -4.006329,       -3.943745,       -3.744878,       -3.181896,       -2.350694,       -1.090264,        1.385945,  // RATE
 -4.008732,       -4.010152,       -4.010328,       -4.010433,       -4.010408,       -4.006087,       -3.943458,       -3.744432,       -3.181896,       -2.350694,       -1.090264,        1.385945,
@@ -139,11 +139,11 @@ namespace rate_tables
          };
 
     // Ne18 --> F18
-    inline constexpr table_t j_Ne18_F18_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5};
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, j_Ne18_F18_meta.nrhoy> j_Ne18_F18_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, j_Ne18_F18_meta.ntemp> j_Ne18_F18_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121};
+    inline AMREX_GPU_MANAGED table_t j_Ne18_F18_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5};
+    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_Ne18_F18_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
+    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 12> j_Ne18_F18_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121};
     // Array3D is column-major (Fortran-ordering).  T varies fastest, then rho Ye, then the component
-    inline AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, j_Ne18_F18_meta.ntemp, 1, j_Ne18_F18_meta.nrhoy, 1, j_Ne18_F18_meta.nvars>
+    inline AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 12, 1, 11, 1, num_vars>
          j_Ne18_F18_data{
 -0.397998,       -0.397999,          -0.398,          -0.398,       -0.397998,        -0.39797,       -0.398569,       -0.397001,       -0.387511,        -0.31553,        0.210666,         2.08323,  // RATE
 -0.397983,       -0.397994,       -0.397995,       -0.397996,       -0.397996,       -0.397969,       -0.398568,       -0.397001,       -0.387511,        -0.31553,        0.210666,         2.08323,
@@ -181,11 +181,11 @@ namespace rate_tables
          };
 
     // Ne19 --> F19
-    inline constexpr table_t j_Ne19_F19_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5};
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, j_Ne19_F19_meta.nrhoy> j_Ne19_F19_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, j_Ne19_F19_meta.ntemp> j_Ne19_F19_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121};
+    inline AMREX_GPU_MANAGED table_t j_Ne19_F19_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5};
+    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_Ne19_F19_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
+    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 12> j_Ne19_F19_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121};
     // Array3D is column-major (Fortran-ordering).  T varies fastest, then rho Ye, then the component
-    inline AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, j_Ne19_F19_meta.ntemp, 1, j_Ne19_F19_meta.nrhoy, 1, j_Ne19_F19_meta.nvars>
+    inline AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 12, 1, 11, 1, num_vars>
          j_Ne19_F19_data{
 -1.414994,       -1.414998,       -1.414998,       -1.414999,       -1.422995,       -1.439902,       -1.467534,       -1.481045,       -1.464793,       -1.231792,        -0.30521,        1.816432,  // RATE
 -1.414946,        -1.41498,       -1.414985,       -1.414988,       -1.422987,       -1.439897,       -1.467528,       -1.481045,       -1.464793,       -1.231792,        -0.30521,        1.816432,
