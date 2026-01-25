@@ -565,9 +565,10 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
 
     amrex::Array1D<amrex::Real, 1, NumSpec> Y;
     amrex::Array1D<amrex::Real, 1, NumSpec> Y_nse;
+    const amrex::Real rho_inv = 1.0_rt / current_state.rho;
 
     for (int n = 0; n < NumSpec; ++n) {
-        Y(n+1) = current_state.y[SFS+n] * aion_inv[n] / current_state.rho;
+        Y(n+1) = current_state.y[SFS+n] * aion_inv[n] * rho_inv;
         Y_nse(n+1) = nse_state.xn[n] * aion_inv[n];
     }
 
