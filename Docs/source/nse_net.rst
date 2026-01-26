@@ -171,7 +171,7 @@ The overview of the steps we take are the following:
 
   .. math::
 
-    \epsilon_\mathrm{rel} = \frac{Y^i - Y^i_\mathrm{NSE}}{Y^i_\mathrm{NSE}}
+     \frac{Y^i - Y^i_\mathrm{NSE}}{Y^i_\mathrm{NSE}} < \epsilon_\mathrm{rel}
 
   where :math:`\epsilon_\mathrm{rel}` is set by ``nse.nse_rel_tol``,
   which has a default value of 0.5.
