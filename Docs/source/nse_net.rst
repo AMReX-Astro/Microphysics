@@ -171,9 +171,10 @@ The overview of the steps we take are the following:
 
   .. math::
 
-    \epsilon_\mathrm{rel} = \frac{Y^i - Y^i_\mathrm{NSE}}{Y^i_\mathrm{NSE}} < \mathrm{nse.nse\_rel\_tol}
+    \epsilon_\mathrm{rel} = \frac{Y^i - Y^i_\mathrm{NSE}}{Y^i_\mathrm{NSE}}
 
-  where ``nse.nse_rel_tol = 0.5`` by default.
+  where :math:`\epsilon_\mathrm{rel}` is set by ``nse.nse_rel_tol``,
+  which has a default value of 0.5.
 
 .. note::
 
@@ -241,6 +242,9 @@ The overview of the steps we take are the following:
 
       2|b_f(k) - b_r(k)|/(b_f(k) + b_r(k) < \epsilon
 
+    where :math:`\epsilon` is set by ``nse.ase_tol``,
+    which has a default value of 0.1.
+
   Here we only consider two cases for merging:
 
   1. There are exactly three distinct groups: the
@@ -286,7 +290,7 @@ Here we give an outline on how the overall reactive update is done with NSE:
       * Find the NSE composition with given $[\rho]^n$, $[e]^n$,
         and $[Y_e]^n$. There are two approaches that can be selected at runtime:
 
-        1. ``nse.nse_solve_e_mode=1``: An EOS inversion algorithm is used so
+        1. ``nse.nse_solve_e_mode = 1``: An EOS inversion algorithm is used so
            that we determine $[T^*]^n$ such that $[e]^n$ remains
            unchanged after switching to the NSE composition
            via $([\rho]^n, [T^*]^n, [Y_e]^n)$ solver mode.
@@ -294,7 +298,7 @@ Here we give an outline on how the overall reactive update is done with NSE:
            to the solution, $[T^*]^n$, in the end. This can be more robust
            but slower compared to the second approach.
 
-        2. ``nse.nse_solve_e_mode=2``: Find the NSE composition directly with
+        2. ``nse.nse_solve_e_mode = 2``: Find the NSE composition directly with
            $([\rho]^n, [e]^n, [Y_e]^n)$ by using the :math:`3 \times 3`
            Jacobian matrix defined above. By using this mode, we directly solve
            :math:`T` together with the chemical potentials. It is faster,
