@@ -230,13 +230,13 @@ The overview of the steps we take are the following:
   There are two requirements for us to check whether this reaction
   can be used to group the nuclei involved, which are:
 
-  * at least 1 isotope, :math:`i`, that passes:
+  1. at least 1 isotope, :math:`i`, that passes:
 
     .. math::
 
        t_{i,k} < \epsilon \ t_s
 
-  * the forward and reverse rates satisfy:
+  2. the forward and reverse rates satisfy:
 
     .. math::
 
