@@ -4,6 +4,8 @@
 #include <AMReX_REAL.H>
 #include <AMReX_Algorithm.H>
 #include <extern_parameters.H>
+#include <actual_network.H>
+#include <partition_functions.H>
 
 ///
 /// This file contains routines needed to solve:
@@ -35,12 +37,11 @@ T get_T_independent_nse_state(const T& state) {
     constexpr amrex::Real kBGK_2PiHbar2 = (C::k_B * 1.0e9_rt) / (2.0_rt * M_PI * C::hbar * C::hbar);
     const amrex::Real rho_inv = 1.0_rt / state.rho;
 
-    amrex::constexpr_for<0, NumSpec>([&] (auto n)
-    {
+    for (int n = 0; n < NumSpec; ++n) {
         // Absorb mion into kBGK_2PiHbar2 to prevent underflow at compile time.
-        nse_state.xn[n] = network::mion<n+1>() * get_spin_state<n+1>() *
-            gcem::sqrt(amrex::Math::powi<3>(network::mion<n+1>() * kBGK_2PiHbar2)) * rho_inv;
-    });
+        nse_state.xn[n] = network::mion(n+1) * get_spin_state(n+1) *
+            std::sqrt(amrex::Math::powi<3>(network::mion(n+1) * kBGK_2PiHbar2)) * rho_inv;
+    }
 
     return nse_state;
 }
@@ -76,10 +77,9 @@ void compute_coulomb_contribution(amrex::Array1D<amrex::Real, 1, NumSpec>& u_c,
 
     // Precompute Z^{5/3}
     amrex::Array1D<amrex::Real, 1, NumSpec> Z_53;
-    amrex::constexpr_for<1, NumSpec+1>([&] (auto n)
-    {
-        Z_53(n) = gcem::pow(NetworkProperties::zion(n), 5.0_rt / 3.0_rt);
-    });
+    for (int n = 1; n <= NumSpec; ++n) {
+        Z_53(n) = std::pow(NetworkProperties::zion(n), 5.0_rt / 3.0_rt);
+    }
 
     for (int n = 1; n <= NumSpec; ++n) {
 
