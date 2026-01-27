@@ -40,7 +40,7 @@ under the assumption of NSE, following the procedure outlined in :cite:`Calder_2
    Presently it is recommended to use the ``ase`` network.
 
 The advantage of this approach is that it can be used with any reaction network,
-given that the network satisifies the above conditions.
+given that the network satisfies the above conditions.
 
 This solver is enabled by compiling with
 
