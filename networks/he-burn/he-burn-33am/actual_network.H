@@ -647,15 +647,83 @@ namespace Rates
 #ifdef NSE_NET
 namespace NSE_INDEX
 {
-    constexpr int H1_index = 1;
-    constexpr int N_index = 0;
-    constexpr int He4_index = 2;
+    // A RatePair data table, 2D array of shape (NumNSERatePairs, 8).
+    // Each row corresponds to a RatePair returned by _get_nse_rate_pairs().
+    // Nuclei indices follow NetworkSpecies and rate indices follow NetworkRates.
 
-    // Each row corresponds to the rate in NetworkRates enum
-    // First 3 row indices for reactants, followed by 3 product indices
-    // last index is the corresponding reverse rate index.
+    //  - Columns 1–3: 1-based index of reactant nuclei (forward rate)
+    //  - Columns 4–6: 1-based index of product nuclei (forward rate)
+    //  - Columns 7-8: 1-based index of non (n, H1, He4) nuclei.
+    //  - Column  9:   1-based index of the forward rate
+    //  - Column  10:  1-based index of the reverse rate
 
-    extern AMREX_GPU_MANAGED amrex::Array2D<short, 1, Rates::NumRates, 1, 7, amrex::Order::C> rate_indices;
+    constexpr int H1_index = 2;
+    constexpr int N_index = 1;
+    constexpr int He4_index = 3;
+    constexpr int NumNSERatePairs = 60;
+
+    inline AMREX_GPU_MANAGED amrex::Array2D<std::int8_t, 1, NumNSERatePairs, 1, 10, amrex::Order::C> rate_pair_data {
+        2, 4, -1, 5, -1, -1, 4, 5, 1, 105,  // fr: p_C12_to_N13_reaclib, rr: N13_to_p_C12_derived
+        3, 4, -1, 7, -1, -1, 4, 7, 2, 106,  // fr: He4_C12_to_O16_reaclib, rr: O16_to_He4_C12_derived
+        3, 7, -1, 8, -1, -1, 7, 8, 3, 107,  // fr: He4_O16_to_Ne20_reaclib, rr: Ne20_to_He4_O16_derived
+        3, 8, -1, 10, -1, -1, 8, 10, 4, 109,  // fr: He4_Ne20_to_Mg24_reaclib, rr: Mg24_to_He4_Ne20_derived
+        2, 9, -1, 10, -1, -1, 9, 10, 5, 108,  // fr: p_Na23_to_Mg24_reaclib, rr: Mg24_to_p_Na23_derived
+        3, 10, -1, 12, -1, -1, 10, 12, 6, 111,  // fr: He4_Mg24_to_Si28_reaclib, rr: Si28_to_He4_Mg24_derived
+        2, 11, -1, 12, -1, -1, 11, 12, 7, 110,  // fr: p_Al27_to_Si28_reaclib, rr: Si28_to_p_Al27_derived
+        3, 12, -1, 14, -1, -1, 12, 14, 8, 113,  // fr: He4_Si28_to_S32_reaclib, rr: S32_to_He4_Si28_derived
+        2, 13, -1, 14, -1, -1, 13, 14, 9, 112,  // fr: p_P31_to_S32_reaclib, rr: S32_to_p_P31_derived
+        3, 18, -1, 21, -1, -1, 18, 21, 10, 115,  // fr: He4_Cr48_to_Fe52_reaclib, rr: Fe52_to_He4_Cr48_derived
+        2, 19, -1, 21, -1, -1, 19, 21, 11, 114,  // fr: p_Mn51_to_Fe52_reaclib, rr: Fe52_to_p_Mn51_derived
+        3, 19, -1, 26, -1, -1, 19, 26, 12, 116,  // fr: He4_Mn51_to_Co55_reaclib, rr: Co55_to_He4_Mn51_derived
+        3, 21, -1, 29, -1, -1, 21, 29, 13, 118,  // fr: He4_Fe52_to_Ni56_reaclib, rr: Ni56_to_He4_Fe52_derived
+        2, 26, -1, 29, -1, -1, 26, 29, 14, 117,  // fr: p_Co55_to_Ni56_reaclib, rr: Ni56_to_p_Co55_derived
+        3, 26, -1, 32, -1, -1, 26, 32, 15, 119,  // fr: He4_Co55_to_Cu59_reaclib, rr: Cu59_to_He4_Co55_derived
+        3, 29, -1, 33, -1, -1, 29, 33, 16, 121,  // fr: He4_Ni56_to_Zn60_reaclib, rr: Zn60_to_He4_Ni56_derived
+        2, 32, -1, 33, -1, -1, 32, 33, 17, 120,  // fr: p_Cu59_to_Zn60_reaclib, rr: Zn60_to_p_Cu59_derived
+        3, 5, -1, 2, 7, -1, 5, 7, 20, 123,  // fr: He4_N13_to_p_O16_reaclib, rr: p_O16_to_He4_N13_derived
+        2, 9, -1, 3, 8, -1, 9, 8, 25, 124,  // fr: p_Na23_to_He4_Ne20_reaclib, rr: He4_Ne20_to_p_Na23_derived
+        2, 11, -1, 3, 10, -1, 11, 10, 26, 125,  // fr: p_Al27_to_He4_Mg24_reaclib, rr: He4_Mg24_to_p_Al27_derived
+        2, 13, -1, 3, 12, -1, 13, 12, 27, 126,  // fr: p_P31_to_He4_Si28_reaclib, rr: He4_Si28_to_p_P31_derived
+        3, 18, -1, 2, 19, -1, 18, 19, 28, 127,  // fr: He4_Cr48_to_p_Mn51_reaclib, rr: p_Mn51_to_He4_Cr48_derived
+        3, 21, -1, 2, 26, -1, 21, 26, 29, 128,  // fr: He4_Fe52_to_p_Co55_reaclib, rr: p_Co55_to_He4_Fe52_derived
+        2, 32, -1, 3, 29, -1, 32, 29, 30, 129,  // fr: p_Cu59_to_He4_Ni56_reaclib, rr: He4_Ni56_to_p_Cu59_derived
+        3, 3, 3, 4, -1, -1, 4, -1, 31, 122,  // fr: He4_He4_He4_to_C12_reaclib, rr: C12_to_He4_He4_He4_derived
+        2, 20, -1, 25, -1, -1, 20, 25, 37, 134,  // fr: p_Mn55_to_Fe56_reaclib, rr: Fe56_to_p_Mn55_derived
+        1, 21, -1, 22, -1, -1, 21, 22, 38, 130,  // fr: n_Fe52_to_Fe53_reaclib, rr: Fe53_to_n_Fe52_derived
+        1, 22, -1, 23, -1, -1, 22, 23, 39, 131,  // fr: n_Fe53_to_Fe54_reaclib, rr: Fe54_to_n_Fe53_derived
+        3, 22, -1, 30, -1, -1, 22, 30, 40, 142,  // fr: He4_Fe53_to_Ni57_reaclib, rr: Ni57_to_He4_Fe53_derived
+        1, 23, -1, 24, -1, -1, 23, 24, 41, 132,  // fr: n_Fe54_to_Fe55_reaclib, rr: Fe55_to_n_Fe54_derived
+        2, 23, -1, 26, -1, -1, 23, 26, 42, 135,  // fr: p_Fe54_to_Co55_reaclib, rr: Co55_to_p_Fe54_derived
+        3, 23, -1, 31, -1, -1, 23, 31, 43, 145,  // fr: He4_Fe54_to_Ni58_reaclib, rr: Ni58_to_He4_Fe54_derived
+        1, 24, -1, 25, -1, -1, 24, 25, 44, 133,  // fr: n_Fe55_to_Fe56_reaclib, rr: Fe56_to_n_Fe55_derived
+        2, 24, -1, 27, -1, -1, 24, 27, 45, 137,  // fr: p_Fe55_to_Co56_reaclib, rr: Co56_to_p_Fe55_derived
+        2, 25, -1, 28, -1, -1, 25, 28, 46, 139,  // fr: p_Fe56_to_Co57_reaclib, rr: Co57_to_p_Fe56_derived
+        1, 26, -1, 27, -1, -1, 26, 27, 47, 136,  // fr: n_Co55_to_Co56_reaclib, rr: Co56_to_n_Co55_derived
+        1, 27, -1, 28, -1, -1, 27, 28, 48, 138,  // fr: n_Co56_to_Co57_reaclib, rr: Co57_to_n_Co56_derived
+        2, 27, -1, 30, -1, -1, 27, 30, 49, 141,  // fr: p_Co56_to_Ni57_reaclib, rr: Ni57_to_p_Co56_derived
+        2, 28, -1, 31, -1, -1, 28, 31, 50, 144,  // fr: p_Co57_to_Ni58_reaclib, rr: Ni58_to_p_Co57_derived
+        1, 29, -1, 30, -1, -1, 29, 30, 51, 140,  // fr: n_Ni56_to_Ni57_reaclib, rr: Ni57_to_n_Ni56_derived
+        1, 30, -1, 31, -1, -1, 30, 31, 52, 143,  // fr: n_Ni57_to_Ni58_reaclib, rr: Ni58_to_n_Ni57_derived
+        2, 31, -1, 32, -1, -1, 31, 32, 53, 146,  // fr: p_Ni58_to_Cu59_reaclib, rr: Cu59_to_p_Ni58_derived
+        3, 19, -1, 2, 23, -1, 19, 23, 54, 149,  // fr: He4_Mn51_to_p_Fe54_reaclib, rr: p_Fe54_to_He4_Mn51_derived
+        3, 22, -1, 2, 27, -1, 22, 27, 55, 156,  // fr: He4_Fe53_to_p_Co56_reaclib, rr: p_Co56_to_He4_Fe53_derived
+        1, 24, -1, 2, 20, -1, 24, 20, 56, 147,  // fr: n_Fe55_to_p_Mn55_reaclib, rr: p_Mn55_to_n_Fe55_derived
+        1, 26, -1, 2, 24, -1, 26, 24, 57, 152,  // fr: n_Co55_to_p_Fe55_reaclib, rr: p_Fe55_to_n_Co55_derived
+        3, 26, -1, 2, 31, -1, 26, 31, 58, 160,  // fr: He4_Co55_to_p_Ni58_reaclib, rr: p_Ni58_to_He4_Co55_derived
+        1, 27, -1, 2, 25, -1, 27, 25, 59, 154,  // fr: n_Co56_to_p_Fe56_reaclib, rr: p_Fe56_to_n_Co56_derived
+        2, 28, -1, 3, 23, -1, 28, 23, 60, 151,  // fr: p_Co57_to_He4_Fe54_reaclib, rr: He4_Fe54_to_p_Co57_derived
+        1, 29, -1, 2, 27, -1, 29, 27, 61, 155,  // fr: n_Ni56_to_p_Co56_reaclib, rr: p_Co56_to_n_Ni56_derived
+        1, 29, -1, 3, 22, -1, 29, 22, 62, 148,  // fr: n_Ni56_to_He4_Fe53_reaclib, rr: He4_Fe53_to_n_Ni56_derived
+        1, 30, -1, 2, 28, -1, 30, 28, 63, 158,  // fr: n_Ni57_to_p_Co57_reaclib, rr: p_Co57_to_n_Ni57_derived
+        1, 30, -1, 3, 23, -1, 30, 23, 64, 150,  // fr: n_Ni57_to_He4_Fe54_reaclib, rr: He4_Fe54_to_n_Ni57_derived
+        1, 31, -1, 3, 24, -1, 31, 24, 65, 153,  // fr: n_Ni58_to_He4_Fe55_reaclib, rr: He4_Fe55_to_n_Ni58_derived
+        1, 32, -1, 3, 27, -1, 32, 27, 66, 157,  // fr: n_Cu59_to_He4_Co56_reaclib, rr: He4_Co56_to_n_Cu59_derived
+        1, 33, -1, 3, 30, -1, 33, 30, 67, 159,  // fr: n_Zn60_to_He4_Ni57_reaclib, rr: He4_Ni57_to_n_Zn60_derived
+        14, 3, -1, 15, -1, -1, 14, 15, 92, 93,  // fr: S32_He4_to_Ar36_approx, rr: Ar36_to_S32_He4_approx
+        15, 3, -1, 16, -1, -1, 15, 16, 94, 95,  // fr: Ar36_He4_to_Ca40_approx, rr: Ca40_to_Ar36_He4_approx
+        16, 3, -1, 17, -1, -1, 16, 17, 96, 97,  // fr: Ca40_He4_to_Ti44_approx, rr: Ti44_to_Ca40_He4_approx
+        17, 3, -1, 18, -1, -1, 17, 18, 98, 99  // fr: Ti44_He4_to_Cr48_approx, rr: Cr48_to_Ti44_He4_approx
+    };
 }
 #endif
 
