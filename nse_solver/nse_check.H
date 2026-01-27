@@ -188,7 +188,8 @@ void fill_reaction_timescale(amrex::Array1D<T, 1, NSE_INDEX::NumNSERatePairs>& r
         b_f *= 0.5_rt;
     }
 
-    if (p1_idx == p2_idx && p2_idx == p3_idx) { // Case AAA
+    if (p1_idx == p2_idx && p2_idx == p3_idx) {
+        // Case AAA
         b_r *= inv6;
     } else if (p1_idx == p2_idx || (p3_idx != -1 && p2_idx == p3_idx)) {
         // Case AAB or ABB. Need to make sure p3_idx is not -1
@@ -230,7 +231,7 @@ void fill_reaction_timescale(amrex::Array1D<T, 1, NSE_INDEX::NumNSERatePairs>& r
     // See Equation 17 in Kushnir Paper
     //
 
-    if ((2.0_rt * std::abs(b_f - b_r) < ase_tol * (b_f + b_r)) &&
+    if ((std::abs(b_f - b_r) < 0.5_rt * ase_tol * (b_f + b_r)) &&
         (t_i < ase_tol * t_s)) {
         reaction_timescales(current_rate_pair) = t_i;
     }
@@ -269,15 +270,17 @@ void fill_merge_indices(int& merge_idx1, int& merge_idx2,
 
     if (nonNHA1_root_idx != LIG_root_idx) {
         merge_idx1 = nonNHA1_root_idx;
-        merge_idx2 = LIG_root_idx;
     }
 
-    // If there is a second non NHA nuclei, check if its merged to LIG.
-    // If not, then use this as the second merge index.
+    // If there is a second non NHA nuclei,
+    // check if its merged to the first non NHA nuclei.
+    // If not, use this as the second merge index.
+    // If yes, use LIG as the second group for merging
 
+    merge_idx2 = LIG_root_idx;
     if (nonNHA2_idx != -1) {
         const auto nonNHA2_root_idx = get_root_index(nonNHA2_idx, group_idx);
-        if (nonNHA2_root_idx != LIG_root_idx) {
+        if (nonNHA2_root_idx != nonNHA1_root_idx) {
             merge_idx2 = nonNHA2_root_idx;
         }
     }
