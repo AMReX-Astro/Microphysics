@@ -265,19 +265,20 @@ void fill_merge_indices(int& merge_idx1, int& merge_idx2,
     const auto LIG_root_idx = get_root_index(NSE_INDEX::He4_index, group_idx);
     const auto nonNHA1_root_idx = get_root_index(nonNHA1_idx, group_idx);
 
-    // If the first non NHA nuclei is not yet merged to LIG,
-    // then this is the candidate for merging.
+    // Use the first non NHA nuclei as the candidate for merging
+    // Currently it has two possibilities: its in LIG or non in LIG
+    // 1. First non NHA nuclei already in LIG
+    // 2. First non NHA nuclei not in LIG, then set 2nd merge index to be LIG
 
+    merge_idx1 = nonNHA1_root_idx;
     if (nonNHA1_root_idx != LIG_root_idx) {
-        merge_idx1 = nonNHA1_root_idx;
+        merge_idx2 = LIG_root_idx;
     }
 
     // If there is a second non NHA nuclei,
-    // check if its merged to the first non NHA nuclei.
+    // check if it is in the same group as the first non NHA nuclei.
     // If not, use this as the second merge index.
-    // If yes, use LIG as the second group for merging
 
-    merge_idx2 = LIG_root_idx;
     if (nonNHA2_idx != -1) {
         const auto nonNHA2_root_idx = get_root_index(nonNHA2_idx, group_idx);
         if (nonNHA2_root_idx != nonNHA1_root_idx) {
