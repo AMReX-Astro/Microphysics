@@ -75,17 +75,11 @@ void compute_coulomb_contribution(amrex::Array1D<amrex::Real, 1, NumSpec>& u_c,
         C::q_e * C::q_e * gcem::pow(4.0_rt * M_PI / 3.0_rt, 1.0_rt / 3.0_rt) / (C::k_B * 1.0e9_rt);
     const amrex::Real Gamma_e = gamma_e_constants * std::cbrt(n_e) * T9i;
 
-    // Precompute Z^{5/3}
-    amrex::Array1D<amrex::Real, 1, NumSpec> Z_53;
-    for (int n = 1; n <= NumSpec; ++n) {
-        Z_53(n) = std::pow(NetworkProperties::zion(n), 5.0_rt / 3.0_rt);
-    }
-
     for (int n = 1; n <= NumSpec; ++n) {
 
         // term for calculating u_c
-
-        amrex::Real Gamma = Z_53(n) * Gamma_e;
+        amrex::Real Z_53 = amrex::Math::powi<5>(std::cbrt(NetworkProperties::zion(n)));
+        amrex::Real Gamma = Z_53 * Gamma_e;
 
         // chemical potential for coulomb correction
         // see appendix of Calder 2007, doi:10.1086/510709 for more detail
