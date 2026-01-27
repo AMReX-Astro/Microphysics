@@ -1,8 +1,12 @@
 #ifndef PARTITION_FUNCTIONS_H
 #define PARTITION_FUNCTIONS_H
 
+#include <numbers>
+
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>
+#include <AMReX_Math.H>
+#include <AMReX_ConstexprFor.H>
 
 #include <tfactors.H>
 #include <fundamental_constants.H>
@@ -20,17 +24,17 @@ namespace part_fun {
 
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> temp_array_1;
 
-    // this is log10(partition function)
+    // this is log(partition function)
 
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Fe52_pf_array;
     constexpr amrex::Real Fe52_pf_threshold_T9 = 0.6;
 
-    // this is log10(partition function)
+    // this is log(partition function)
 
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Co55_pf_array;
     constexpr amrex::Real Co55_pf_threshold_T9 = 1.5;
 
-    // this is log10(partition function)
+    // this is log(partition function)
 
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Ni56_pf_array;
     constexpr amrex::Real Ni56_pf_threshold_T9 = 1.5;
@@ -42,7 +46,7 @@ namespace part_fun {
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
     void interpolate_pf(const amrex::Real t9, int idx,
                         const T& temp_array, const T& pf_array,
-                        amrex::Real& pf, amrex::Real& dpf_dT) {
+                        amrex::Real& logpf, amrex::Real& dlogpf_dT9) {
 
         // if the index is -1, we are either outside of the bounds or
         // we never computed it.  try recomputing here
@@ -59,42 +63,41 @@ namespace part_fun {
             // temp_array[idx] <= t9 < temp_array[idx+1]
             AMREX_ASSERT(t9 >= temp_array(idx) && t9 < temp_array(idx+1));
 
-            // construct the slope -- this is
-            // (log10(pf_{i+1}) - log10(pf_i)) / (T_{i+1} - T_i)
+            // find the derivative: dlog(pf)/dT9 -- this is
+            // (log(pf_{i+1}) - log(pf_i)) / (T_{i+1} - T_i)
 
-            amrex::Real slope = (pf_array(idx+1) - pf_array(idx)) /
-                                (temp_array(idx+1) - temp_array(idx));
+            dlogpf_dT9 = (pf_array(idx+1) - pf_array(idx)) /
+                           (temp_array(idx+1) - temp_array(idx));
 
-            // find the PF
+            // find log(PF)
 
-            amrex::Real log10_pf = pf_array(idx) + slope * (t9 - temp_array(idx));
-            pf = std::pow(10.0_rt, log10_pf);
-
-            // find the derivative (with respect to T, not T9)
-
-            amrex::Real dpf_dT9 = pf * M_LN10 * slope;
-            dpf_dT = dpf_dT9 * 1.e-9_rt;
+            logpf = pf_array(idx) + dlogpf_dT9 * (t9 - temp_array(idx));
 
         } else {
 
             // T < the smallest T or >= the largest T in the partition function table
-            pf = 1.0;
-            dpf_dT = 0.0;
+            logpf = 0.0;
+            dlogpf_dT9 = 0.0;
 
         }
 
     }
 
-
-
     struct pf_cache_t {
         // Store the coefficient and derivative adjacent in memory, as they're
         // always accessed at the same time.
-        // The entries will be default-initialized to zero, which is fine since
-        // log10(x) is never zero.
-        amrex::Array2D<amrex::Real, 1, NumSpecTotal, 1, 2, amrex::Order::C> data{};
+        amrex::Array2D<amrex::Real, 1, NumSpecTotal, 1, 2, amrex::Order::C> data;
         int index_temp_array_1{-1};
 
+        AMREX_GPU_HOST_DEVICE AMREX_INLINE
+        pf_cache_t() {
+            // The entries will be default-initialized to -900,
+            // log(partition_function) should never be -900.
+            for (int i = 1; i <= NumSpecTotal; ++i) {
+                    data(i, 1) = -900.0_rt;
+                    data(i, 2) = -900.0_rt;
+            }
+        }
     };
 
 }
@@ -104,48 +107,49 @@ namespace part_fun {
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void get_partition_function(const int inuc,
-                            [[maybe_unused]] const tf_t& tfactors,
-                            part_fun::pf_cache_t& pf_cache,
-                            amrex::Real& pf, amrex::Real& dpf_dT) {
+                            [[maybe_unused]] const amrex::Real T9,
+                            const part_fun::pf_cache_t& pf_cache,
+                            amrex::Real& logpf, amrex::Real& dlogpf_dT9) {
 
-    pf = 1.0_rt;
-    dpf_dT = 0.0_rt;
+    logpf = 0.0_rt;
+    dlogpf_dT9 = 0.0_rt;
 
     // inuc is the 1-based index for the species
 
     switch (inuc) {
 
     case Fe52:
-        if (tfactors.T9 > part_fun::Fe52_pf_threshold_T9) {
-            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Fe52_pf_array, pf, dpf_dT);
+        if (T9 > part_fun::Fe52_pf_threshold_T9) {
+            part_fun::interpolate_pf(T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Fe52_pf_array, logpf, dlogpf_dT9);
         }
         break;
 
     case Co55:
-        if (tfactors.T9 > part_fun::Co55_pf_threshold_T9) {
-            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Co55_pf_array, pf, dpf_dT);
+        if (T9 > part_fun::Co55_pf_threshold_T9) {
+            part_fun::interpolate_pf(T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Co55_pf_array, logpf, dlogpf_dT9);
         }
         break;
 
     case Ni56:
-        if (tfactors.T9 > part_fun::Ni56_pf_threshold_T9) {
-            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Ni56_pf_array, pf, dpf_dT);
+        if (T9 > part_fun::Ni56_pf_threshold_T9) {
+            part_fun::interpolate_pf(T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Ni56_pf_array, logpf, dlogpf_dT9);
         }
         break;
 
 
     default:
 
-        pf = 1.0_rt;
-        dpf_dT = 0.0_rt;
+        logpf = 0.0_rt;
+        dlogpf_dT9 = 0.0_rt;
 
     }
 
 }
 
 
-// a version of get_parition_function where we have not cached the
-// index into the arrays
+// a version of get_partition_function where we have not cached the
+// index into the arrays. Uses tfactors instead of T9 as argument,
+// and returns pf and dpf_dT instead of logpf and dlogpf_dT9
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void get_partition_function(const int inuc,
@@ -158,54 +162,80 @@ void get_partition_function(const int inuc,
 
     part_fun::pf_cache_t pf_cache;
 
-    get_partition_function(inuc, tfactors, pf_cache, pf, dpf_dT);
+    amrex::Real logpf, dlogpf_dT9;
+    get_partition_function(inuc, tfactors.T9, pf_cache, logpf, dlogpf_dT9);
+
+    // Convert logpf to pf and dlogpf_dT9 to dpf_dT
+    pf = std::exp(logpf);
+    dpf_dT = pf * dlogpf_dT9 * 1.e-9_rt;
 }
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void get_partition_function_cached(const int inuc, const tf_t& tfactors,
+void get_partition_function_cached(const int inuc, const amrex::Real T9,
                                    part_fun::pf_cache_t& pf_cache,
-                                   amrex::Real& pf, amrex::Real& dpf_dT) {
-    if (pf_cache.data(inuc, 1) != 0.0_rt) {
+                                   amrex::Real& logpf, amrex::Real& dlogpf_dT9) {
+    if (pf_cache.data(inuc, 1) != -900.0_rt) {
         // present in cache
-        amrex::ignore_unused(tfactors);
-        pf = pf_cache.data(inuc, 1);
-        dpf_dT = pf_cache.data(inuc, 2);
+        amrex::ignore_unused(T9);
+        logpf = pf_cache.data(inuc, 1);
+        dlogpf_dT9 = pf_cache.data(inuc, 2);
     } else {
-        get_partition_function(inuc, tfactors, pf_cache, pf, dpf_dT);
-        pf_cache.data(inuc, 1) = pf;
-        pf_cache.data(inuc, 2) = dpf_dT;
+        get_partition_function(inuc, T9, pf_cache, logpf, dlogpf_dT9);
+        pf_cache.data(inuc, 1) = logpf;
+        pf_cache.data(inuc, 2) = dlogpf_dT9;
     }
 }
 
-// spins
 
+template <int spec>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-constexpr amrex::Real get_spin_state(const int inuc) {
+constexpr amrex::Real get_spin_state() {
 
-    amrex::Real spin = -1.0;
+    static_assert(spec >= 1 && spec <= NumSpec);
 
-    switch (inuc) {  // NOLINT(bugprone-switch-missing-default-case)
+    // Set the spin states (2J + 1) of the element
 
-    case He4:
-    case Fe52:
-    case Ni56:
-        spin = 1;
-        break;
-
-    case H1:
-        spin = 2;
-        break;
-
-    case Co55:
-        spin = 8;
-        break;
-
-
+    if constexpr (
+        spec == He4 || spec == Fe52 || spec == Ni56
+                  )
+    {
+        return 1.0_rt;
+    }
+    else if constexpr (
+        spec == H1
+                       )
+    {
+        return 2.0_rt;
+    }
+    else if constexpr (
+        spec == Co55
+                       )
+    {
+        return 8.0_rt;
     }
 
-    return spin;
+    // Return -1 if we don't recognize the species.
+    return -1.0_rt;
+}
 
+
+// Legacy (non-templated) interface
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+amrex::Real get_spin_state (int spec) {
+
+    amrex::Real s = -1.0_rt;
+
+    // Set the spin states (2J + 1) of the element
+
+    amrex::constexpr_for<1, NumSpec+1>([&] (auto n) {
+        if (n == spec) {
+            s = get_spin_state<n>();
+        }
+    });
+
+    return s;
 }
 
 
