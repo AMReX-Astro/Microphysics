@@ -215,9 +215,9 @@ namespace Rates
 #ifdef NSE_NET
 namespace NSE_INDEX
 {
-    // A RatePair data table, 2D array of shape (NumNSERatePairs, 8).
+    // A RatePair data table, 2D array of shape (NumNSERatePairs, 10).
     // Each row corresponds to a RatePair returned by _get_nse_rate_pairs().
-    // Nuclei indices follow NetworkSpecies and rate indices follow NetworkRates.
+    // Use enum names following NetworkSpecies and NetworkRates.
 
     //  - Columns 1–3: 1-based index of reactant nuclei (forward rate)
     //  - Columns 4–6: 1-based index of product nuclei (forward rate)
@@ -225,13 +225,16 @@ namespace NSE_INDEX
     //  - Column  9:   1-based index of the forward rate
     //  - Column  10:  1-based index of the reverse rate
 
+    using namespace Species;
+    using namespace Rates;
+
     constexpr int H1_index = 2;
     constexpr int N_index = 1;
     constexpr int He4_index = 3;
     constexpr int NumNSERatePairs = 1;
 
     inline AMREX_GPU_MANAGED amrex::Array2D<std::int8_t, 1, NumNSERatePairs, 1, 10, amrex::Order::C> rate_pair_data {
-        2, 9, -1, 3, 7, -1, 9, 7, 13, 12  // fr: p_Na23_to_He4_Ne20_reaclib, rr: He4_Ne20_to_p_Na23_reaclib
+        H1, Na23, -1, He4, Ne20, -1, Na23, Ne20, k_p_Na23_to_He4_Ne20_reaclib, k_He4_Ne20_to_p_Na23_reaclib
     };
 }
 #endif
