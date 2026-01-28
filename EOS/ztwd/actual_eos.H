@@ -136,22 +136,22 @@ void actual_eos (I input, T& state)
     amrex::Real temp = state.T;
 
     amrex::Real pres = 1.0_rt;
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         pres = state.p;
     }
 
     amrex::Real enth = 1.0_rt;
-    if constexpr (has_enthalpy<T>::value) {
+    if constexpr (has_enthalpy<T>) {
         enth = state.h;
     }
 
     amrex::Real eint = 1.0_rt;
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_energy<T>) {
         eint = state.e;
     }
 
     amrex::Real entr = 1.0_rt;
-    if constexpr (has_entropy<T>::value) {
+    if constexpr (has_entropy<T>) {
         entr = state.s;
     }
 
@@ -289,31 +289,31 @@ void actual_eos (I input, T& state)
 
     state.T   = temp;
     state.rho = dens;
-    if constexpr (has_enthalpy<T>::value) {
+    if constexpr (has_enthalpy<T>) {
         state.h   = enth;
     }
-    if constexpr (has_entropy<T>::value) {
+    if constexpr (has_entropy<T>) {
         state.s   = entr;
     }
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_energy<T>) {
         state.e   = eint;
     }
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         state.p   = pres;
     }
 
     // All temperature derivatives are zero since the gas is temperature-independent.
 
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         state.dpdT = 0.0_rt;
     }
-    if constexpr (has_enthalpy<T>::value) {
+    if constexpr (has_enthalpy<T>) {
         state.dhdT = 0.0_rt;
     }
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_energy<T>) {
         state.dedT = 0.0_rt;
     }
-    if constexpr (has_entropy<T>::value) {
+    if constexpr (has_entropy<T>) {
         state.dsdT = 0.0_rt;
     }
 
@@ -325,53 +325,53 @@ void actual_eos (I input, T& state)
     amrex::Real dpdr = dxdr * dpdx(x);
     amrex::Real dhdr = dxdr * dhdx(x, B);
 
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         state.dpdr = dpdr;
     }
-    if constexpr (has_enthalpy<T>::value) {
+    if constexpr (has_enthalpy<T>) {
         state.dhdr = dhdr;
     }
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_energy<T>) {
         state.dedr = dhdr - dpdr / state.rho + pres / (state.rho * state.rho);
     }
-    if constexpr (has_entropy<T>::value) {
+    if constexpr (has_entropy<T>) {
         state.dsdr = 0.0_rt;
     }
 
     // Heat capacities are zero: the gas properties don't change when the temperature changes.
 
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_energy<T>) {
         state.cv = 0.0_rt;
     }
-    if constexpr (has_pressure<T>::value && has_energy<T>::value) {
+    if constexpr (has_pressure<T> && has_energy<T>) {
         state.cp = 0.0_rt;
     }
 
     // Adiabatic gamma_1 == d(log p) / d(log rho) |_s.
 
-    if constexpr (has_pressure<T>::value && has_energy<T>::value) {
+    if constexpr (has_pressure<T> && has_energy<T>) {
         state.gam1 = state.dpdr * (state.rho / state.p);
     }
 
     // Derivatives with respect to A and Z.
 
-    if constexpr (has_dpdA<T>::value) {
+    if constexpr (has_dpdA<T>) {
         state.dpdA = -state.p / state.abar;
     }
-    if constexpr (has_dpdZ<T>::value) {
+    if constexpr (has_dpdZ<T>) {
         state.dpdZ =  state.p / (1.0_rt + state.zbar);
     }
 
-    if constexpr (has_dedA<T>::value) {
+    if constexpr (has_dedA<T>) {
         state.dedA = -state.e / state.abar;
     }
-    if constexpr (has_dedZ<T>::value) {
+    if constexpr (has_dedZ<T>) {
         state.dedZ =  state.e / (1.0_rt + state.zbar);
     }
 
     // Sound speed.
 
-    if constexpr (has_pressure<T>::value && has_energy<T>::value) {
+    if constexpr (has_pressure<T> && has_energy<T>) {
         state.cs = std::sqrt(state.dpdr);
     }
 }

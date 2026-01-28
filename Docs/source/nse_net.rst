@@ -11,8 +11,9 @@ under the assumption of NSE, following the procedure outlined in :cite:`Calder_2
 
 .. important::
 
-   Self-consistent NSE does not support the templated C++ networks
-   (like ``aprox13``).  You should use a pynucastro-generated network.
+   Self-consistent NSE is only supported for pynucastro-generated network.
+   Templated C++ networks, such as ``aprox13``, are not supported,
+   and compiling with them will produce a compilation error.
 
    Additionally, the pynucastro network must meet the following requirements:
 

@@ -5,49 +5,49 @@
 namespace NSE_INDEX
 {
     AMREX_GPU_MANAGED amrex::Array2D<short, 1, Rates::NumRates, 1, 7, amrex::Order::C> rate_indices {
-        -1, 1, 4, -1, -1, 5, 87,  // p_C12_to_N13
-        -1, 3, 4, -1, -1, 7, 88,  // He4_C12_to_O16
-        -1, 3, 7, -1, -1, 8, 89,  // He4_O16_to_Ne20
-        -1, 3, 8, -1, -1, 10, 91,  // He4_Ne20_to_Mg24
-        -1, 1, 9, -1, -1, 10, 90,  // p_Na23_to_Mg24
-        -1, 3, 10, -1, -1, 12, 93,  // He4_Mg24_to_Si28
-        -1, 1, 11, -1, -1, 12, 92,  // p_Al27_to_Si28
-        -1, 3, 12, -1, -1, 14, 95,  // He4_Si28_to_S32
-        -1, 1, 13, -1, -1, 14, 94,  // p_P31_to_S32
-        -1, 3, 18, -1, -1, 20, 97,  // He4_Cr48_to_Fe52
-        -1, 2, 19, -1, -1, 20, 96,  // p_nse_Mn51_to_Fe52
-        -1, 3, 19, -1, -1, 23, 98,  // He4_Mn51_to_Co55
-        -1, 3, 20, -1, -1, 26, 100,  // He4_Fe52_to_Ni56
-        -1, 2, 23, -1, -1, 26, 99,  // p_nse_Co55_to_Ni56
-        -1, 4, 4, -1, 1, 9, -1,  // C12_C12_to_p_Na23
-        -1, 4, 4, -1, 3, 8, -1,  // C12_C12_to_He4_Ne20
-        -1, 3, 5, -1, 1, 7, 102,  // He4_N13_to_p_O16
-        -1, 4, 7, -1, 1, 11, -1,  // C12_O16_to_p_Al27
-        -1, 4, 7, -1, 3, 10, -1,  // C12_O16_to_He4_Mg24
-        -1, 7, 7, -1, 1, 13, -1,  // O16_O16_to_p_P31
-        -1, 7, 7, -1, 3, 12, -1,  // O16_O16_to_He4_Si28
-        -1, 1, 9, -1, 3, 8, 103,  // p_Na23_to_He4_Ne20
-        -1, 1, 11, -1, 3, 10, 104,  // p_Al27_to_He4_Mg24
-        -1, 1, 13, -1, 3, 12, 105,  // p_P31_to_He4_Si28
-        -1, 3, 18, -1, 2, 19, 106,  // He4_Cr48_to_p_nse_Mn51
-        -1, 3, 20, -1, 2, 23, 107,  // He4_Fe52_to_p_nse_Co55
-        3, 3, 3, -1, -1, 4, 101,  // He4_He4_He4_to_C12
+        -1, 1, 4, -1, -1, 5, 87,  // p_C12_to_N13_reaclib
+        -1, 3, 4, -1, -1, 7, 88,  // He4_C12_to_O16_reaclib
+        -1, 3, 7, -1, -1, 8, 89,  // He4_O16_to_Ne20_reaclib
+        -1, 3, 8, -1, -1, 10, 91,  // He4_Ne20_to_Mg24_reaclib
+        -1, 1, 9, -1, -1, 10, 90,  // p_Na23_to_Mg24_reaclib
+        -1, 3, 10, -1, -1, 12, 93,  // He4_Mg24_to_Si28_reaclib
+        -1, 1, 11, -1, -1, 12, 92,  // p_Al27_to_Si28_reaclib
+        -1, 3, 12, -1, -1, 14, 95,  // He4_Si28_to_S32_reaclib
+        -1, 1, 13, -1, -1, 14, 94,  // p_P31_to_S32_reaclib
+        -1, 3, 18, -1, -1, 20, 97,  // He4_Cr48_to_Fe52_reaclib
+        -1, 2, 19, -1, -1, 20, 96,  // p_nse_Mn51_to_Fe52_reaclib
+        -1, 3, 19, -1, -1, 23, 98,  // He4_Mn51_to_Co55_reaclib
+        -1, 3, 20, -1, -1, 26, 100,  // He4_Fe52_to_Ni56_reaclib
+        -1, 2, 23, -1, -1, 26, 99,  // p_nse_Co55_to_Ni56_reaclib
+        -1, 4, 4, -1, 1, 9, -1,  // C12_C12_to_p_Na23_reaclib
+        -1, 4, 4, -1, 3, 8, -1,  // C12_C12_to_He4_Ne20_reaclib
+        -1, 3, 5, -1, 1, 7, 102,  // He4_N13_to_p_O16_reaclib
+        -1, 4, 7, -1, 1, 11, -1,  // C12_O16_to_p_Al27_reaclib
+        -1, 4, 7, -1, 3, 10, -1,  // C12_O16_to_He4_Mg24_reaclib
+        -1, 7, 7, -1, 1, 13, -1,  // O16_O16_to_p_P31_reaclib
+        -1, 7, 7, -1, 3, 12, -1,  // O16_O16_to_He4_Si28_reaclib
+        -1, 1, 9, -1, 3, 8, 103,  // p_Na23_to_He4_Ne20_reaclib
+        -1, 1, 11, -1, 3, 10, 104,  // p_Al27_to_He4_Mg24_reaclib
+        -1, 1, 13, -1, 3, 12, 105,  // p_P31_to_He4_Si28_reaclib
+        -1, 3, 18, -1, 2, 19, 106,  // He4_Cr48_to_p_nse_Mn51_reaclib
+        -1, 3, 20, -1, 2, 23, 107,  // He4_Fe52_to_p_nse_Co55_reaclib
+        3, 3, 3, -1, -1, 4, 101,  // He4_He4_He4_to_C12_reaclib
         -1, -1, -1, -1, -1, -1, -1,  // He4_N14_to_F18_removed
         -1, -1, -1, -1, -1, -1, -1,  // p_O16_to_F17_removed
         -1, -1, -1, -1, -1, -1, -1,  // C12_C12_to_n_Mg23_removed
         -1, -1, -1, -1, -1, -1, -1,  // O16_O16_to_n_S31_removed
         -1, -1, -1, -1, -1, -1, -1,  // C12_O16_to_n_Si27_removed
-        -1, 2, 21, -1, -1, 23, 108,  // p_nse_Fe54_to_Co55
-        -1, 3, 21, -1, -1, 27, 113,  // He4_Fe54_to_Ni58
-        -1, 2, 22, -1, -1, 25, 111,  // p_nse_Fe56_to_Co57
-        -1, 0, 23, -1, -1, 24, 109,  // n_Co55_to_Co56
-        -1, 0, 24, -1, -1, 25, 110,  // n_Co56_to_Co57
-        -1, 2, 25, -1, -1, 27, 112,  // p_nse_Co57_to_Ni58
-        -1, 3, 19, -1, 2, 21, 114,  // He4_Mn51_to_p_nse_Fe54
-        -1, 3, 23, -1, 2, 27, 118,  // He4_Co55_to_p_nse_Ni58
-        -1, 0, 24, -1, 2, 22, 116,  // n_Co56_to_p_nse_Fe56
-        -1, 2, 25, -1, 3, 21, 115,  // p_nse_Co57_to_He4_Fe54
-        -1, 0, 26, -1, 2, 24, 117,  // n_Ni56_to_p_nse_Co56
+        -1, 2, 21, -1, -1, 23, 108,  // p_nse_Fe54_to_Co55_reaclib
+        -1, 3, 21, -1, -1, 27, 113,  // He4_Fe54_to_Ni58_reaclib
+        -1, 2, 22, -1, -1, 25, 111,  // p_nse_Fe56_to_Co57_reaclib
+        -1, 0, 23, -1, -1, 24, 109,  // n_Co55_to_Co56_reaclib
+        -1, 0, 24, -1, -1, 25, 110,  // n_Co56_to_Co57_reaclib
+        -1, 2, 25, -1, -1, 27, 112,  // p_nse_Co57_to_Ni58_reaclib
+        -1, 3, 19, -1, 2, 21, 114,  // He4_Mn51_to_p_nse_Fe54_reaclib
+        -1, 3, 23, -1, 2, 27, 118,  // He4_Co55_to_p_nse_Ni58_reaclib
+        -1, 0, 24, -1, 2, 22, 116,  // n_Co56_to_p_nse_Fe56_reaclib
+        -1, 2, 25, -1, 3, 21, 115,  // p_nse_Co57_to_He4_Fe54_reaclib
+        -1, 0, 26, -1, 2, 24, 117,  // n_Ni56_to_p_nse_Co56_reaclib
         -1, -1, -1, -1, -1, -1, -1,  // He4_S32_to_Ar36_removed
         -1, -1, -1, -1, -1, -1, -1,  // p_Cl35_to_Ar36_removed
         -1, -1, -1, -1, -1, -1, -1,  // p_Cl35_to_He4_S32_removed
@@ -66,12 +66,12 @@ namespace NSE_INDEX
         -1, -1, -1, -1, -1, -1, -1,  // n_Fe55_to_Fe56_removed
         -1, -1, -1, -1, -1, -1, -1,  // n_Ni56_to_Ni57_removed
         -1, -1, -1, -1, -1, -1, -1,  // n_Ni57_to_Ni58_removed
-        -1, -1, 24, -1, -1, 22, 64,  // Co56_to_Fe56
-        -1, -1, 24, -1, -1, 26, -1,  // Co56_to_Ni56
-        -1, -1, 22, -1, -1, 24, -1,  // Fe56_to_Co56
-        -1, -1, 26, -1, -1, 24, 63,  // Ni56_to_Co56
-        -1, -1, 0, -1, -1, 1, 67,  // n_to_p
-        -1, -1, 1, -1, -1, 0, -1,  // p_to_n
+        -1, -1, -1, -1, -1, -1, -1,  // Co56_to_Fe56_weaktab
+        -1, -1, -1, -1, -1, -1, -1,  // Co56_to_Ni56_weaktab
+        -1, -1, -1, -1, -1, -1, -1,  // Fe56_to_Co56_weaktab
+        -1, -1, -1, -1, -1, -1, -1,  // Ni56_to_Co56_weaktab
+        -1, -1, -1, -1, -1, -1, -1,  // n_to_p_weaktab
+        -1, -1, -1, -1, -1, -1, -1,  // p_to_n_weaktab
         -1, 3, 14, -1, -1, 15, 69,  // S32_He4_to_Ar36_approx
         -1, -1, 15, -1, 3, 14, -1,  // Ar36_to_S32_He4_approx
         -1, 3, 15, -1, -1, 16, 71,  // Ar36_He4_to_Ca40_approx
@@ -123,24 +123,24 @@ namespace NSE_INDEX
         -1, 2, 22, -1, 0, 24, -1,  // p_nse_Fe56_to_n_Co56_derived
         -1, 2, 24, -1, 0, 26, -1,  // p_nse_Co56_to_n_Ni56_derived
         -1, 2, 27, -1, 3, 23, -1,  // p_nse_Ni58_to_He4_Co55_derived
-        -1, -1, -1, -1, -1, -1, -1,  // He4_S32_to_p_Cl35_derived_removed
-        -1, -1, -1, -1, -1, -1, -1,  // Ar36_to_He4_S32_derived_removed
-        -1, -1, -1, -1, -1, -1, -1,  // Ar36_to_p_Cl35_derived_removed
-        -1, -1, -1, -1, -1, -1, -1,  // He4_Ar36_to_p_K39_derived_removed
-        -1, -1, -1, -1, -1, -1, -1,  // Ca40_to_He4_Ar36_derived_removed
-        -1, -1, -1, -1, -1, -1, -1,  // Ca40_to_p_K39_derived_removed
-        -1, -1, -1, -1, -1, -1, -1,  // He4_Ca40_to_p_Sc43_derived_removed
-        -1, -1, -1, -1, -1, -1, -1,  // Ti44_to_He4_Ca40_derived_removed
-        -1, -1, -1, -1, -1, -1, -1,  // Ti44_to_p_Sc43_derived_removed
-        -1, -1, -1, -1, -1, -1, -1,  // Cr48_to_He4_Ti44_derived_removed
-        -1, -1, -1, -1, -1, -1, -1,  // Cr48_to_p_V47_derived_removed
-        -1, -1, -1, -1, -1, -1, -1,  // p_V47_to_He4_Ti44_derived_removed
-        -1, -1, -1, -1, -1, -1, -1,  // Fe54_to_n_Fe53_derived_removed
-        -1, -1, -1, -1, -1, -1, -1,  // Fe53_to_n_Fe52_derived_removed
-        -1, -1, -1, -1, -1, -1, -1,  // Fe56_to_n_Fe55_derived_removed
-        -1, -1, -1, -1, -1, -1, -1,  // Fe55_to_n_Fe54_derived_removed
-        -1, -1, -1, -1, -1, -1, -1,  // Ni58_to_n_Ni57_derived_removed
-        -1, -1, -1, -1, -1, -1, -1  // Ni57_to_n_Ni56_derived_removed
+        -1, -1, -1, -1, -1, -1, -1,  // He4_S32_to_p_Cl35_removed
+        -1, -1, -1, -1, -1, -1, -1,  // Ar36_to_He4_S32_removed
+        -1, -1, -1, -1, -1, -1, -1,  // Ar36_to_p_Cl35_removed
+        -1, -1, -1, -1, -1, -1, -1,  // He4_Ar36_to_p_K39_removed
+        -1, -1, -1, -1, -1, -1, -1,  // Ca40_to_He4_Ar36_removed
+        -1, -1, -1, -1, -1, -1, -1,  // Ca40_to_p_K39_removed
+        -1, -1, -1, -1, -1, -1, -1,  // He4_Ca40_to_p_Sc43_removed
+        -1, -1, -1, -1, -1, -1, -1,  // Ti44_to_He4_Ca40_removed
+        -1, -1, -1, -1, -1, -1, -1,  // Ti44_to_p_Sc43_removed
+        -1, -1, -1, -1, -1, -1, -1,  // Cr48_to_He4_Ti44_removed
+        -1, -1, -1, -1, -1, -1, -1,  // Cr48_to_p_V47_removed
+        -1, -1, -1, -1, -1, -1, -1,  // p_V47_to_He4_Ti44_removed
+        -1, -1, -1, -1, -1, -1, -1,  // Fe54_to_n_Fe53_removed
+        -1, -1, -1, -1, -1, -1, -1,  // Fe53_to_n_Fe52_removed
+        -1, -1, -1, -1, -1, -1, -1,  // Fe56_to_n_Fe55_removed
+        -1, -1, -1, -1, -1, -1, -1,  // Fe55_to_n_Fe54_removed
+        -1, -1, -1, -1, -1, -1, -1,  // Ni58_to_n_Ni57_removed
+        -1, -1, -1, -1, -1, -1, -1  // Ni57_to_n_Ni56_removed
     };
 }
 #endif
