@@ -75,7 +75,7 @@
 
   * update python doc package requirements (#1892)
 
-## 25,12
+## 25.12
 
   * update CI actions (#1885)
 
