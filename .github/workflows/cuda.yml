@@ -8,8 +8,8 @@ concurrency:
 
 jobs:
   cuda-compile:
-    name: CUDA@11.7 GCC
-    runs-on: ubuntu-22.04
+    name: CUDA@12.9 GCC
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
 
@@ -26,7 +26,7 @@ jobs:
           cd ../..
 
       - name: Dependencies
-        run: .github/workflows/dependencies/dependencies_nvcc.sh 11.7
+        run: .github/workflows/dependencies/dependencies_nvcc.sh 12.9
 
       - name: compile test_react (aprox13)
         run: |

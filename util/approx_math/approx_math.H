@@ -8,6 +8,12 @@
 #include <cstdint>
 #include <cstring>
 
+// some of these algorithms need constants in particular precision, so
+// we use the hardcoded values instead of getting them from
+// std::numbers
+
+// NOLINTBEGIN(modernize-use-std-numbers)
+
 using namespace amrex::literals;
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -474,4 +480,7 @@ amrex::Real fast_pow(const amrex::Real x, const amrex::Real y) {
 
     return frac_ans * int_pow(x, n);
 }
+
+// NOLINTEND(modernize-use-std-numbers)
+
 #endif

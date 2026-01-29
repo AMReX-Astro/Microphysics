@@ -37,6 +37,7 @@ enum integrator_errors : std::int8_t {
     IERR_TOO_MUCH_ACCURACY_REQUESTED = -5,
     IERR_CORRECTOR_CONVERGENCE = -6,
     IERR_LU_DECOMPOSITION_ERROR = -7,
+    IERR_BAD_STATE_IN_CORRECTOR = -8,
     IERR_ENTERED_NSE = -100
 };
 
@@ -47,11 +48,11 @@ constexpr int integrator_neqs ()
     int int_neqs = 0;
 
 #ifdef STRANG
-    if constexpr (has_xn<BurnT>::value) {
+    if constexpr (has_xn<BurnT>) {
         int_neqs += NumSpec;
     }
 
-    if constexpr (has_energy<BurnT>::value) {
+    if constexpr (has_energy<BurnT>) {
         int_neqs += 1;
     }
 #else
