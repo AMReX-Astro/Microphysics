@@ -13,7 +13,7 @@ void integrator_wrapper (BurnT& state, amrex::Real dt)
 {
 
     if constexpr (enable_retry) {
-        burn_t old_state{state};
+        const burn_t old_state{state};
 
         actual_integrator(state, dt);
 

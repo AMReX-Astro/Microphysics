@@ -13,7 +13,8 @@
 
 template <typename BurnT, typename DvodeT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void dvhin (BurnT& state, DvodeT& vstate, amrex::Real& H0, int& NITER, int& IER)
+int
+dvhin (BurnT& state, DvodeT& vstate, amrex::Real& H0, int& NITER)
 {
     // This routine computes the step size, H0, to be attempted on the
     // first step, when the user has not supplied a value for this.
@@ -34,8 +35,7 @@ void dvhin (BurnT& state, DvodeT& vstate, amrex::Real& H0, int& NITER, int& IER)
 
     if (TDIST < 2.0_rt * TROUND) {
         // Error return for vstate.tout - vstate.t too small.
-        IER = -1;
-        return;
+        return -1;
     }
 
     // Set a lower bound on h based on the roundoff level in vstate.t and vstate.tout.
@@ -132,7 +132,7 @@ void dvhin (BurnT& state, DvodeT& vstate, amrex::Real& H0, int& NITER, int& IER)
     // apply sign
     H0 = std::copysign(H0, vstate.tout - vstate.t);
     NITER = iter;
-    IER = 0;
+    return 0;
 
 }
 

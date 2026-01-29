@@ -77,7 +77,7 @@ void dvjust (int IORD, BurnT& state, DvodeT& vstate)
                 ALPH0 -= 1.0_rt / (j + 1);
                 ALPH1 += 1.0_rt / XI;
                 for (int iback = 1; iback <= j+1; ++iback) {
-                    int i = (j + 4) - iback;
+                    const int i = (j + 4) - iback;
                     vstate.el(i) = vstate.el(i) * XIOLD + vstate.el(i-1);
                 }
                 XIOLD = XI;
