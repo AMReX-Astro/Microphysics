@@ -82,8 +82,11 @@
 <li class="toctree-l1"><a class="reference internal" href="integrators.html">Reaction ODE System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ode_integrators.html">ODE Integrators</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">NSE</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="nse_tabular.html">Tabulated NSE and <code class="docutils literal notranslate"><span class="pre">aprox19</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="nse_net.html">Self-consistent NSE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#nse-evolution-modes">NSE Evolution Modes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="nse_tabular.html">Tabulated NSE and <code class="docutils literal notranslate"><span class="pre">aprox19</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="nse_net.html">Self-consistent NSE</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
@@ -143,6 +146,55 @@
 coupling hydrodynamics and reactions.  We do not support
 operator-splitting (Strang) coupling with NSE.</p>
 </div>
+<p>Nuclear statistical equilibrium (NSE) describes a state in which all strong
+nuclear reactions are in chemical equilibrium, with each forward reaction
+balanced by its reverse. The NSE condition is a state where the
+chemical potential of any isotope can be expressed as
+the sum of the chemical potentials of the its constituent neutrons and protons.
+which happens when <span class="math notranslate nohighlight">\(T \gtrsim 6 \times 10^9 \ \mathrm{K}\)</span>.
+Mathematically it means:</p>
+<div class="math notranslate nohighlight">
+\[\mu_i = Z_i \mu_p + N_i \mu_n\]</div>
+<p>Applying this assumption to the Maxwell-Boltzmann gas, the mass abundance
+of the system in NSE is uniquely defined as:</p>
+<div class="math notranslate nohighlight">
+\[X_i^{\mathrm{NSE}} = \dfrac{(m_i)^{5/2}}{\rho} g_i \left( \dfrac{k_B T}{2\pi \hbar^2} \right)^{3/2} \exp{\left( \dfrac{Z_i (\mu_p^\mathrm{kin} + \mu_p^c) + N_i \mu_n^{\mathrm{kin}} + B_i - \mu^c_i}{k_B T} \right)}\]</div>
+<p>A more detailed derivation can be found in many literature,
+e.g., <span id="id1">[<a class="reference internal" href="zreferences.html#id57" title="Alexander I. Smith, Eric T. Johnson, Zhi Chen, Kiran Eiden, Donald E. Willcox, Brendan Boyd, Lyra Cao, Christopher J. DeGrendele, and Michael Zingale. Pynucastro: a python library for nuclear astrophysics. The Astrophysical Journal, 947(2):65, apr 2023. URL: https://dx.doi.org/10.3847/1538-4357/acbaff, doi:10.3847/1538-4357/acbaff.">20</a>]</span>.</p>
+<p>There are three possible constraint equations that may be required to solve
+the NSE equation. Depending on the specified input mode, either two or all three
+constraints are needed.</p>
+<ol class="arabic">
+<li><p><em>Conservation of mass</em>, or equivalently a constraint on the input density,
+<span class="math notranslate nohighlight">\(\rho\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[f_\rho = \sum_i X_i^{\mathrm{NSE}} - 1 = 0\]</div>
+</li>
+<li><p><em>Conservation of charge</em> for strong reactions, or equivalently a constraint
+on the input electron fraction, <span class="math notranslate nohighlight">\(Y_e\)</span></p>
+<div class="math notranslate nohighlight">
+\[f_{Y_e}\sum_i \frac{Z_i}{A_i} X_i^{\mathrm{NSE}} - Y_e = 0\]</div>
+</li>
+<li><p><em>Conservation of energy</em>, or equivalently a constraint on the
+input internal energy, <span class="math notranslate nohighlight">\(e\)</span></p>
+<div class="math notranslate nohighlight">
+\[f_e = \frac{e\left(\rho, T_\mathrm{NSE}, X_i^\mathrm{NSE}\right)}{e_0} - 1 = 0\]</div>
+</li>
+</ol>
+<p>Two input modes are currently supported:</p>
+<ol class="arabic simple">
+<li><p>Given the input <span class="math notranslate nohighlight">\((\rho, T, Y_e)\)</span>, the system has two unknowns,
+the chemical potential of proton and neutron, i.e.
+<span class="math notranslate nohighlight">\((\mu_p^\mathrm{kin}, \mu_n^\mathrm{kin})\)</span>.
+In this mode, the first two constraint equations are sufficient to solve
+the system.</p></li>
+<li><p>Given the input <span class="math notranslate nohighlight">\((\rho, e_0, Y_e)\)</span>, the above equation has three unknowns,
+the chemical potential of proton and neutron and temperature, i.e.
+<span class="math notranslate nohighlight">\((\mu_p^\mathrm{kin}, \mu_n^\mathrm{kin}, T_9)\)</span>.
+In this mode, all three constraint equations are needed to solve the system.</p></li>
+</ol>
+<section id="nse-evolution-modes">
+<h2>NSE Evolution Modes<a class="headerlink" href="#nse-evolution-modes" title="Link to this heading"></a></h2>
 <p>The reaction networks in Microphysics have the ability to use NSE
 instead of integrating the entire network when the conditions are
 appropriate.  There are 2 different implementations of NSE in
@@ -160,15 +212,16 @@ meant to be used in the cores of massive stars and works only with the
 composition and advect <span class="math notranslate nohighlight">\(Y_e\)</span>, <span class="math notranslate nohighlight">\(\bar{A}\)</span>, and
 <span class="math notranslate nohighlight">\(\langle B/A\rangle\)</span>.  All of the EOS calls will work with
 these quantities.</p>
-<p>This algorithm was described in <span id="id1">[<a class="reference internal" href="zreferences.html#id47" title="Michael Zingale, Zhi Chen, Eric T. Johnson, Max P. Katz, and Alexander Smith Clark. Strong coupling of hydrodynamics and reactions in nuclear statistical equilibrium for modeling convection in massive stars. The Astrophysical Journal, 977(1):30, nov 2024. URL: https://dx.doi.org/10.3847/1538-4357/ad8a66, doi:10.3847/1538-4357/ad8a66.">46</a>]</span>.</p>
+<p>This algorithm was described in <span id="id2">[<a class="reference internal" href="zreferences.html#id47" title="Michael Zingale, Zhi Chen, Eric T. Johnson, Max P. Katz, and Alexander Smith Clark. Strong coupling of hydrodynamics and reactions in nuclear statistical equilibrium for modeling convection in massive stars. The Astrophysical Journal, 977(1):30, nov 2024. URL: https://dx.doi.org/10.3847/1538-4357/ad8a66, doi:10.3847/1538-4357/ad8a66.">46</a>]</span>.</p>
 <p>This is enabled via <code class="docutils literal notranslate"><span class="pre">USE_NSE_TABLE</span></code></p>
 </li>
 <li><p><a class="reference internal" href="nse_net.html#self-consistent-nse"><span class="std std-ref">Self-consistent NSE</span></a> : this adds an NSE solver to the network that
 can be called to find the equilibrium abundances of each of the
-species defined in the network.  It works with any of the
-pynucastro-generated networks.  Unlike the tabulated NSE, there is
-no need to advect the auxiliary composition, since this only deals
-with the isotopes defined in the main reaction network.</p>
+species defined in the network.  It only works pynucastro-generated networks.
+Note that there are requirements in order for networks to be intrinsically
+compatible with NSE, see more detail in <a class="reference internal" href="nse_net.html#self-consistent-nse"><span class="std std-ref">Self-consistent NSE</span></a>.
+Unlike the tabulated NSE, there is no need to advect an auxiliary composition,
+since this only deals with the isotopes defined in the main reaction network.</p>
 <p>This is enabled via <code class="docutils literal notranslate"><span class="pre">USE_NSE_NET</span></code></p>
 </li>
 </ul>
@@ -193,6 +246,7 @@ implementation of NSE does not matter.</p>
 <p>These two NSE solvers are in the next sections.</p>
 <div class="toctree-wrapper compound">
 </div>
+</section>
 </section>
 
 
