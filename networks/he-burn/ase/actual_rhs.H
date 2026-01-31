@@ -17,6 +17,8 @@
 #endif
 #include <reaclib_rates.H>
 #include <table_rates.H>
+#include <temperature_table_rates.H>
+#include <derived_rates.H>
 
 using namespace amrex::literals;
 using namespace ArrayUtil;
@@ -74,6 +76,8 @@ void evaluate_rates(const burn_t& state,
     const tf_t tfactors = evaluate_tfactors(state.T);
 
     fill_reaclib_rates<do_T_derivatives, T>(tfactors, rate_eval);
+
+    temp_tabular::fill_rates<do_T_derivatives, T>(tfactors, rate_eval);
 
     // Calculate Derived Rates. This should go last but before approx rates.
     fill_derived_rates<do_T_derivatives, T>(tfactors, rate_eval);
@@ -1853,7 +1857,6 @@ void actual_jac(const burn_t& state, MatrixType& jac)
 AMREX_INLINE
 void actual_rhs_init () {
 
-    init_tabular();
 
 }
 

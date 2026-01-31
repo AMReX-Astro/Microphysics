@@ -1,6 +1,8 @@
 #ifndef INTEGRATOR_DATA_H
 #define INTEGRATOR_DATA_H
 
+#include <limits>
+
 #include <burn_type.H>
 
 // Define the size of the ODE system that VODE will integrate
@@ -11,6 +13,10 @@ constexpr int INT_NEQS = NumSpec + 1;
 // abundance is unreasonably small or large (each X must satisfy
 // -failure_tolerance <= X <= 1.0 + failure_tolerance).
 constexpr amrex::Real species_failure_tolerance = 1.e-2_rt;
+
+// for outputting the burn state failure, use enough precision
+// to be reproducible (not guaranteed for std::fixed)
+constexpr int OUTDIGITS = std::numeric_limits<amrex::Real>::max_digits10;
 
 #ifdef NSE
 constexpr int MIN_NSE_BAILOUT_STEPS = 10;
@@ -26,6 +32,7 @@ enum integrator_errors : std::int8_t {
     IERR_TOO_MUCH_ACCURACY_REQUESTED = -5,
     IERR_CORRECTOR_CONVERGENCE = -6,
     IERR_LU_DECOMPOSITION_ERROR = -7,
+    IERR_BAD_STATE_IN_CORRECTOR = -8,
     IERR_ENTERED_NSE = -100
 };
 
@@ -36,11 +43,11 @@ constexpr int integrator_neqs ()
     int int_neqs = 0;
 
 #ifdef STRANG
-    if constexpr (has_xn<BurnT>::value) {
+    if constexpr (has_xn<BurnT>) {
         int_neqs += NumSpec;
     }
 
-    if constexpr (has_energy<BurnT>::value) {
+    if constexpr (has_energy<BurnT>) {
         int_neqs += 1;
     }
 #else

@@ -143,15 +143,15 @@ namespace Rates
     enum NetworkRates :
     std::uint8_t
     {
-        k_C12_C12_to_He4_Ne20 = 1,
-        k_C12_C12_to_n_Mg23 = 2,
-        k_C12_C12_to_p_Na23 = 3,
-        k_He4_C12_to_O16 = 4,
-        k_Na23_to_Ne23 = 5,
-        k_Ne23_to_Na23 = 6,
-        k_n_to_p = 7,
-        k_p_to_n = 8,
-        NumRates = k_p_to_n
+        k_C12_C12_to_He4_Ne20_reaclib = 1,
+        k_C12_C12_to_n_Mg23_reaclib = 2,
+        k_C12_C12_to_p_Na23_reaclib = 3,
+        k_He4_C12_to_O16_reaclib = 4,
+        k_Na23_to_Ne23_weaktab = 5,
+        k_Ne23_to_Na23_weaktab = 6,
+        k_n_to_p_weaktab = 7,
+        k_p_to_n_weaktab = 8,
+        NumRates = k_p_to_n_weaktab
     };
 
     // rate names -- note: the rates are 1-based, not zero-based, so we pad
@@ -160,14 +160,14 @@ namespace Rates
 
     static const std::vector<std::string> rate_names = {
         "",   // 0
-        "C12_C12_to_He4_Ne20",  // 1,
-        "C12_C12_to_n_Mg23",  // 2,
-        "C12_C12_to_p_Na23",  // 3,
-        "He4_C12_to_O16",  // 4,
-        "Na23_to_Ne23",  // 5,
-        "Ne23_to_Na23",  // 6,
-        "n_to_p",  // 7,
-        "p_to_n"  // 8,
+        "C12_C12_to_He4_Ne20_reaclib",  // 1,
+        "C12_C12_to_n_Mg23_reaclib",  // 2,
+        "C12_C12_to_p_Na23_reaclib",  // 3,
+        "He4_C12_to_O16_reaclib",  // 4,
+        "Na23_to_Ne23_weaktab",  // 5,
+        "Ne23_to_Na23_weaktab",  // 6,
+        "n_to_p_weaktab",  // 7,
+        "p_to_n_weaktab"  // 8,
     };
 
 }
@@ -175,15 +175,26 @@ namespace Rates
 #ifdef NSE_NET
 namespace NSE_INDEX
 {
-    constexpr int H1_index = 1;
-    constexpr int N_index = 0;
-    constexpr int He4_index = 2;
+    // A RatePair data table, 2D array of shape (NumNSERatePairs, 10).
+    // Each row corresponds to a RatePair returned by _get_nse_rate_pairs().
+    // Use enum names following NetworkSpecies and NetworkRates.
 
-    // Each row corresponds to the rate in NetworkRates enum
-    // First 3 row indices for reactants, followed by 3 product indices
-    // last index is the corresponding reverse rate index.
+    //  - Columns 1–3: 1-based index of reactant nuclei (forward rate)
+    //  - Columns 4–6: 1-based index of product nuclei (forward rate)
+    //  - Columns 7-8: 1-based index of non (n, H1, He4) nuclei.
+    //  - Column  9:   1-based index of the forward rate
+    //  - Column  10:  1-based index of the reverse rate
 
-    extern AMREX_GPU_MANAGED amrex::Array2D<std::int8_t, 1, Rates::NumRates, 1, 7, amrex::Order::C> rate_indices;
+    using namespace Species;
+    using namespace Rates;
+
+    constexpr int H1_index = 2;
+    constexpr int N_index = 1;
+    constexpr int He4_index = 3;
+    constexpr int NumNSERatePairs = 0;
+
+    inline AMREX_GPU_MANAGED amrex::Array2D<std::int8_t, 1, NumNSERatePairs, 1, 10, amrex::Order::C> rate_pair_data {
+    };
 }
 #endif
 

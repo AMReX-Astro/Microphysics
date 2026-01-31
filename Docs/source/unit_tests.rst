@@ -117,7 +117,7 @@ by options in the input file.
 One-zone tests
 ==============
 
-.. index:: burn_cell, burn_cell_primordial_chem, burn_cell_sdc, eos_cell, jac_cell, nse_table_cell, nse_net_cell, part_func_cell
+.. index:: burn_cell, burn_cell_primordial_chem, burn_cell_sdc, eos_cell, jac_cell, nse_table_cell, nse_net_cell, part_func_cell, interp_cell
 
 * ``burn_cell`` :
 
@@ -137,6 +137,11 @@ One-zone tests
 
   given a $\rho$, $T$, and $X_k$, call the equation of state and print out
   the thermodynamic information.  See :ref:`sec:eos_cell` for more information.
+
+* ``interp_cell`` :
+
+  This tests the cubic interpolant used in pynucastro networks for interpolating
+  a rate that is given as pairs of $(T, N_A \langle \sigma v \rangle)$.
 
 * ``jac_cell`` :
 
