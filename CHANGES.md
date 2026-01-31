@@ -2,6 +2,10 @@
 
 ## 26.02
 
+  * update the NSE check for the self-consistent solver.  The rate
+    filtering is now handled by the network.  The single_group check
+    was also simplified. (#1932)
+
   * CI updates (#1933, #1934)
 
   * regenerate pynucastro networks to inline tabular rate and
