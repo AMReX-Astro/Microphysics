@@ -176,8 +176,7 @@ number_t debye_huckel (const plasma_state_t<number_t>& state,
     number_t h_DH = z1z2 * admath::sqrt(3 * admath::powi<3>(Gamma_e) * z_ratio);
 
     // assume h >= 0.0
-    number_t h = admath::max(h_DH, 0.0_rt);
-    return h;
+    return admath::max(h_DH, 0.0_rt);
 }
 
 #if SCREEN_METHOD == SCREEN_METHOD_screen5
@@ -315,8 +314,7 @@ number_t actual_screen5 (const plasma_state_t<number_t>& state,
     }
 
     // further limit to avoid the pycnonuclear regime
-    h12 = admath::max(h12, 0.0_rt);
-    return h12;
+    return admath::max(h12, 0.0_rt);
 }
 
 #elif SCREEN_METHOD == SCREEN_METHOD_chugunov2007
@@ -437,8 +435,7 @@ number_t chugunov2007 (const plasma_state_t<number_t>& state,
     number_t h = admath::pow(gamtilde, 1.5_rt) * inner + B1 * term3 + B3 * term4;
 
     // assume h >= 0.0
-    number_t h = admath::max(h, 0.0_rt);
-    return h;
+    return admath::max(h, 0.0_rt);
 }
 
 #elif SCREEN_METHOD == SCREEN_METHOD_chugunov2009
@@ -528,8 +525,7 @@ number_t chugunov2009 (const plasma_state_t<number_t>& state,
     number_t h12 = (corr_C + Gamma_12_2) / (1.0_rt + Gamma_12_2) * h_fit;
 
     // assume h >= 0.0
-    number_t h12 = admath::max(h12, 0.0_rt);
-    return h12;
+    return admath::max(h12, 0.0_rt);
 }
 
 #elif SCREEN_METHOD == SCREEN_METHOD_chabrier1998
@@ -623,8 +619,7 @@ number_t chabrier1998 (const plasma_state_t<number_t>& state,
     number_t h12 = f1 + f2 - f12 + quantum_corr_1 + quantum_corr_2;
 
     // assume h >= 0.0
-    number_t h12 = admath::max(h12, 0.0_rt);
-    return h12;
+    return admath::max(h12, 0.0_rt);
 }
 #endif
 
