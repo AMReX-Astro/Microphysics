@@ -671,7 +671,7 @@ void actual_log_screen(const plasma_state_t<number_t>& state,
         log_scor = autodiff::val(log_scor_dual);
         log_scordt = autodiff::derivative(log_scor_dual);
     } else {
-        log_scor = scor_dual;
+        log_scor = log_scor_dual;
         log_scordt = std::numeric_limits<amrex::Real>::quiet_NaN();
     }
 }
