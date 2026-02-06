@@ -5,6 +5,6 @@
 #include <AMReX_REAL.H>
 #include <network.H>
 
-extern AMREX_GPU_MANAGED amrex::Real gammas[NumSpec];
+inline AMREX_GPU_MANAGED amrex::Real gammas[NumSpec];
 
 #endif

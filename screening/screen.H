@@ -150,7 +150,7 @@ fill_plasma_state(plasma_state_t<number_t>& state, const number_t& temp,
 
     // precomputed part of Gamma_e, from Chugunov 2009 eq. 6
     constexpr amrex::Real gamma_e_constants =
-        C::q_e*C::q_e/C::k_B * gcem::pow(4.0_rt/3.0_rt*M_PI, 1.0_rt/3.0_rt);
+        C::q_e * C::q_e * gcem::pow(4.0_rt * M_PI / 3.0_rt, 1.0_rt / 3.0_rt) / C::k_B;
     state.gamma_e_fac = gamma_e_constants * std::cbrt(state.n_e);
 }
 
@@ -445,6 +445,9 @@ number_t chugunov2007 (const plasma_state_t<number_t>& state,
     // machine limit the output
     constexpr amrex::Real h_max = 300.e0_rt;
     h = admath::min(h, h_max);
+    if (h <= 0.0) {
+        return 1.0;
+    }
     return admath::exp(h);
 }
 
@@ -537,6 +540,9 @@ number_t chugunov2009 (const plasma_state_t<number_t>& state,
     // machine limit the output
     constexpr amrex::Real h12_max = 300.e0_rt;
     h12 = admath::min(h12, h12_max);
+    if (h12 <= 0.0) {
+        return 1.0;
+    }
     return admath::exp(h12);
 }
 
@@ -550,14 +556,16 @@ number_t chabrier1998_helmholtz_F(const number_t& gamma) {
 
     constexpr amrex::Real A_1 = -0.9052_rt;
     constexpr amrex::Real A_2 = 0.6322_rt;
+    constexpr amrex::Real A_2i = 1.0_rt / A_2;
     constexpr amrex::Real sqrt_A2 = gcem::sqrt(A_2);
-    constexpr amrex::Real A_3 = -0.5_rt * gcem::sqrt(3.0_rt) - A_1 / sqrt_A2;
+    constexpr amrex::Real sqrt_A2i = 1.0_rt / sqrt_A2;
+    constexpr amrex::Real A_3 = -0.5_rt * gcem::sqrt(3.0_rt) - A_1 * sqrt_A2i;
 
     // Compute the square root terms individually, for simpler code
     const number_t sqrt_gamma = admath::sqrt(gamma);
-    const number_t term3 = admath::sqrt(1.0_rt + gamma / A_2);
+    const number_t term3 = admath::sqrt(1.0_rt + gamma * A_2i);
     const number_t term1 = sqrt_gamma * sqrt_A2 * term3;
-    const number_t term2 = sqrt_gamma / sqrt_A2;
+    const number_t term2 = sqrt_gamma * sqrt_A2i;
 
     return A_1 * (term1 - A_2 * admath::log(term2 + term3)) +
            2.0_rt * A_3 * (sqrt_gamma - admath::fast_atan(sqrt_gamma));
@@ -566,7 +574,7 @@ number_t chabrier1998_helmholtz_F(const number_t& gamma) {
 template <typename number_t>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 number_t chabrier1998 (const plasma_state_t<number_t>& state,
-                     const scrn::screen_factors_t& scn_fac)
+                       const scrn::screen_factors_t& scn_fac)
 {
     // Calculates screening factors based on Chabrier & Potekhin 1998,
     // Calder2007 and partly screen5 routine mentioned in Alastuey 1978.
@@ -630,7 +638,9 @@ number_t chabrier1998 (const plasma_state_t<number_t>& state,
 
     constexpr amrex::Real h12_max = 300.0_rt;
     h12 = admath::min(h12_max, h12);
-
+    if (h12 <= 0.0) {
+        return 1.0;
+    }
     return admath::exp(h12);
 }
 #endif
