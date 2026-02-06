@@ -208,11 +208,13 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu) -> int {
     int retry_total = 0;
 
     for (int iz = 0; iz < n_zones; ++iz) {
-      amrex::Real temp_offset =
-          0.5_rt * unit_test_rp::temperature *
-          (static_cast<amrex::Real>(iz) /
-               static_cast<amrex::Real>(n_zones - 1) -
-           0.5_rt);
+      amrex::Real temp_offset = 0.0_rt;
+      if (n_zones > 1) {
+        temp_offset = 0.5_rt * unit_test_rp::temperature *
+                      (static_cast<amrex::Real>(iz) /
+                           static_cast<amrex::Real>(n_zones - 1) -
+                       0.5_rt);
+      }
       init_burn_state(states_h[iz], 1.0_rt, temp_offset, false);
       dd_h[iz] = states_h[iz].rho;
       dt_h[iz] = 0.0_rt;

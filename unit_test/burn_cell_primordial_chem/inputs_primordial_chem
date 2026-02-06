@@ -26,7 +26,8 @@ unit_test.primary_species_12 = 1e-40
 unit_test.primary_species_13 = 1e-40
 unit_test.primary_species_14 = 0.0775e0
 
-unit_test.n_zones = 32**3
+unit_test.n_zones = 1
+#unit_test.n_zones = 32**3
 
 # integrator runtime parameters
 # are we using primordial chemistry? then we use number densities
@@ -37,7 +38,7 @@ integrator.subtract_internal_energy = 0
 integrator.do_species_clip = 0
 # minimum positive value of number densities 
 integrator.SMALL_X_SAFE = 1e-100
-integrator.burner_verbose = 0
+integrator.burner_verbose = 1
 # do you want to use the jacobian calculated in a previous step?
 integrator.use_jacobian_caching = 0
 # integration will fail if the number density > X_reject_buffer*atol
