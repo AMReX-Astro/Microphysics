@@ -1,16 +1,16 @@
-unit_test.n_zones = 8
+unit_test.n_zones = 1
 #unit_test.n_zones = 32**3
-integrator.burner_verbose = 0
+integrator.burner_verbose = 1
 
 ## unit_test runtime parameters
 unit_test.run_prefix = "burn_cell_primordial_chem_"
 
-unit_test.small_temp = 1.e1
-unit_test.small_dens = 1.e-60
-unit_test.tff_reduc = 1.e-1
+unit_test.small_temp = 10.
+unit_test.small_dens = 1.0e-60
+unit_test.tff_reduc = 0.025
 
 # number of integration steps
-unit_test.nsteps = 1000
+unit_test.nsteps = 1e4
 
 # max total time
 unit_test.tmax = 7.e20
@@ -44,6 +44,10 @@ integrator.subtract_internal_energy = 0
 
 # we do not want to clip species between 0 and 1
 integrator.do_species_clip = 0
+
+# in the corrector loop, do we check if the predicted state is
+# valid (X > 0) before calling the RHS?
+integrator.do_corrector_validation = 1
 
 # minimum positive value of number densities 
 integrator.SMALL_X_SAFE = 1e-100
