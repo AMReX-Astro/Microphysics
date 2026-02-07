@@ -484,6 +484,12 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu) -> int {
     integrator_rp::retry_atol_enuc = base_retry_atol_enuc;
   };
 
+  auto format_tol = [](amrex::Real tol) {
+    std::ostringstream out;
+    out << std::scientific << std::setprecision(10) << tol;
+    return out.str();
+  };
+
   std::vector<TolLevelResult> level_results(n_tol_levels);
   bool cpu_success = true;
   bool gpu_success = true;
@@ -492,6 +498,29 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu) -> int {
     amrex::Real scale = std::pow(tol_factor, static_cast<amrex::Real>(ilev));
     level_results[ilev].scale = scale;
     apply_tolerance_scale(scale);
+
+    if (do_richardson) {
+      std::cout << "Richardson tolerances (level " << (ilev + 1)
+                << ", scale=" << scale << "):" << std::endl;
+      std::cout << "  rtol_spec / atol_spec      : "
+                << format_tol(integrator_rp::rtol_spec) << " / "
+                << format_tol(integrator_rp::atol_spec) << std::endl;
+      std::cout << "  rtol_enuc / atol_enuc      : "
+                << format_tol(integrator_rp::rtol_enuc) << " / "
+                << format_tol(integrator_rp::atol_enuc) << std::endl;
+      if (integrator_rp::retry_rtol_spec > 0.0_rt &&
+          integrator_rp::retry_atol_spec > 0.0_rt) {
+        std::cout << "  retry_rtol_spec / retry_atol_spec : "
+                  << format_tol(integrator_rp::retry_rtol_spec) << " / "
+                  << format_tol(integrator_rp::retry_atol_spec) << std::endl;
+      }
+      if (integrator_rp::retry_rtol_enuc > 0.0_rt &&
+          integrator_rp::retry_atol_enuc > 0.0_rt) {
+        std::cout << "  retry_rtol_enuc / retry_atol_enuc : "
+                  << format_tol(integrator_rp::retry_rtol_enuc) << " / "
+                  << format_tol(integrator_rp::retry_atol_enuc) << std::endl;
+      }
+    }
 
     auto cpu_start = std::chrono::steady_clock::now();
     level_results[ilev].cpu.success =
