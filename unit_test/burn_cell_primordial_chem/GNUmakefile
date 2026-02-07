@@ -43,6 +43,9 @@ include $(MICROPHYSICS_HOME)/unit_test/Make.unit_test
 ifeq ($(USE_CUDA),TRUE)
 ifeq ($(shell uname -s),Linux)
 ifeq ($(shell uname -m),aarch64)
+# NVTX3 can trigger GCC outlined atomics on AArch64; make link+codegen robust.
+EXTRACXXFLAGS += -mno-outline-atomics
+NVCC_FLAGS += -Xcompiler -mno-outline-atomics
 override XTRALIBS += -latomic
 endif
 endif
