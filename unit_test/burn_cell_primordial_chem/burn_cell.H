@@ -341,7 +341,9 @@ void enforce_post_burn_constraints(burn_t &state) {
 
 
 AMREX_INLINE
-auto burn_cell_multi_c(int n_zones, bool enable_gpu) -> int {
+auto burn_cell_multi_c(int n_zones, bool enable_gpu,
+                       const std::string &compare_final_state_file = "")
+    -> int {
 
   constexpr amrex::Real rel_tol = 1.0e-10_rt;
   constexpr amrex::Real abs_tol = 1.0e-12_rt;
@@ -631,9 +633,14 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu) -> int {
 
   const amrex::Real tol_factor =
       amrex::max(unit_test_rp::richardson_tol_factor, 1.0_rt);
+  const bool compare_against_saved = !compare_final_state_file.empty();
   const bool do_richardson =
-      unit_test_rp::richardson_enable && (tol_factor > 1.0_rt);
+      !compare_against_saved && unit_test_rp::richardson_enable &&
+      (tol_factor > 1.0_rt);
   const int n_tol_levels = do_richardson ? 3 : 1;
+  const bool compare_backend_is_gpu = compare_against_saved && enable_gpu;
+  const bool run_gpu_backend =
+      compare_against_saved ? compare_backend_is_gpu : enable_gpu;
 
   auto apply_tolerance_scale = [&](amrex::Real scale) {
     integrator_rp::rtol_spec = base_rtol_spec / scale;
@@ -704,26 +711,31 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu) -> int {
       }
     }
 
-    auto cpu_start = std::chrono::steady_clock::now();
-    level_results[ilev].cpu.success =
-        run_multi_zone(false, level_results[ilev].cpu.states,
-                       level_results[ilev].cpu.times,
-                       level_results[ilev].cpu.summary);
-    auto cpu_end = std::chrono::steady_clock::now();
-    level_results[ilev].cpu.wall = cpu_end - cpu_start;
-    cpu_success = cpu_success && level_results[ilev].cpu.success;
-
     std::ostringstream level_label;
     if (do_richardson) {
       level_label << " (tol level " << (ilev + 1) << ", scale=" << scale
                   << ")";
     }
-    const std::string cpu_label = "CPU" + level_label.str();
-    print_summary(cpu_label, level_results[ilev].cpu.summary);
-    std::cout << "  burn walltime (s)         : "
-              << level_results[ilev].cpu.wall.count() << std::endl;
+    if (!compare_against_saved || !compare_backend_is_gpu) {
+      auto cpu_start = std::chrono::steady_clock::now();
+      level_results[ilev].cpu.success =
+          run_multi_zone(false, level_results[ilev].cpu.states,
+                         level_results[ilev].cpu.times,
+                         level_results[ilev].cpu.summary);
+      auto cpu_end = std::chrono::steady_clock::now();
+      level_results[ilev].cpu.wall = cpu_end - cpu_start;
+      cpu_success = cpu_success && level_results[ilev].cpu.success;
 
-    if (enable_gpu) {
+      const std::string cpu_label = "CPU" + level_label.str();
+      print_summary(cpu_label, level_results[ilev].cpu.summary);
+      std::cout << "  burn walltime (s)         : "
+                << level_results[ilev].cpu.wall.count() << std::endl;
+    } else if (ilev == 0) {
+      std::cout << "CPU multi-zone burn skipped (saved-state compare mode)"
+                << std::endl;
+    }
+
+    if (run_gpu_backend) {
       auto gpu_start = std::chrono::steady_clock::now();
       level_results[ilev].gpu.success =
           run_multi_zone(true, level_results[ilev].gpu.states,
@@ -749,6 +761,11 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu) -> int {
   const auto &cpu_times = level_results.front().cpu.times;
   const auto &gpu_states = level_results.front().gpu.states;
   const auto &gpu_times = level_results.front().gpu.times;
+  const auto &compare_states = compare_backend_is_gpu ? gpu_states : cpu_states;
+  const auto &compare_times = compare_backend_is_gpu ? gpu_times : cpu_times;
+  const bool compare_backend_success =
+      compare_backend_is_gpu ? level_results.front().gpu.success
+                             : level_results.front().cpu.success;
 
   struct RichardsonEstimate {
     bool valid = false;
@@ -800,6 +817,206 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu) -> int {
     est.valid = true;
     return est;
   };
+
+  auto within_tol = [&](amrex::Real a, amrex::Real b) -> bool {
+    amrex::Real diff = std::abs(a - b);
+    amrex::Real scale = std::max(std::abs(a), std::abs(b));
+    return diff <= (abs_tol + rel_tol * scale);
+  };
+
+  if (compare_against_saved) {
+    struct SavedZoneData {
+      bool present = false;
+      int zone = -1;
+      amrex::Real time = 0.0_rt;
+      amrex::Real rho = 0.0_rt;
+      amrex::Real T = 0.0_rt;
+      amrex::Real e = 0.0_rt;
+      int success = 0;
+      std::array<amrex::Real, NumSpec> xn{};
+      int trunc_valid = 0;
+      amrex::Real trunc_err_T = 0.0_rt;
+      amrex::Real trunc_err_e = 0.0_rt;
+      std::array<amrex::Real, NumSpec> trunc_err_xn{};
+    };
+
+    std::ifstream ifs(compare_final_state_file);
+    if (!ifs) {
+      std::cout << "ERROR: unable to open saved final-state file "
+                << compare_final_state_file << std::endl;
+      return false;
+    }
+
+    std::vector<SavedZoneData> saved(n_zones);
+    std::string line;
+    int parsed_rows = 0;
+    while (std::getline(ifs, line)) {
+      if (line.empty() || line[0] == '#') {
+        continue;
+      }
+
+      std::istringstream iss(line);
+      SavedZoneData row;
+      if (!(iss >> row.zone >> row.time >> row.rho >> row.T >> row.e >>
+            row.success)) {
+        std::cout << "ERROR: malformed row in saved-state file: " << line
+                  << std::endl;
+        return false;
+      }
+      for (int n = 0; n < NumSpec; ++n) {
+        if (!(iss >> row.xn[n])) {
+          std::cout << "ERROR: missing species values in saved-state file row: "
+                    << line << std::endl;
+          return false;
+        }
+      }
+      if (!(iss >> row.trunc_valid >> row.trunc_err_T >> row.trunc_err_e)) {
+        std::cout << "ERROR: missing truncation fields in saved-state file row: "
+                  << line << std::endl;
+        return false;
+      }
+      for (int n = 0; n < NumSpec; ++n) {
+        if (!(iss >> row.trunc_err_xn[n])) {
+          std::cout << "ERROR: missing species truncation fields in saved-state "
+                       "file row: "
+                    << line << std::endl;
+          return false;
+        }
+      }
+
+      if (row.zone < 0 || row.zone >= n_zones) {
+        std::cout << "ERROR: zone index " << row.zone
+                  << " is out of bounds for n_zones = " << n_zones
+                  << std::endl;
+        return false;
+      }
+      row.present = true;
+      saved[row.zone] = row;
+      ++parsed_rows;
+    }
+
+    std::cout << "Loaded " << parsed_rows << " zone rows from "
+              << compare_final_state_file << std::endl;
+
+    int missing_rows = 0;
+    int zones_failed = 0;
+    int zones_passed = 0;
+    amrex::Real max_saved_err_units = 0.0_rt;
+    int max_saved_err_zone = -1;
+    std::string max_saved_err_field = "none";
+
+    for (int iz = 0; iz < n_zones; ++iz) {
+      if (!saved[iz].present) {
+        ++missing_rows;
+        ++zones_failed;
+        std::cout << "zone " << iz << " : FAIL (missing from saved file)"
+                  << std::endl;
+        continue;
+      }
+
+      const auto &ref = saved[iz];
+      std::vector<std::string> mismatches;
+
+      const bool cur_success =
+          compare_states[iz].success && compare_states[iz].e > 0.0_rt;
+      const bool ref_success = (ref.success != 0);
+      if (cur_success != ref_success) {
+        mismatches.push_back("success");
+      }
+
+      if (!within_tol(compare_times[iz], ref.time)) {
+        mismatches.push_back("time");
+      }
+      if (!within_tol(compare_states[iz].rho, ref.rho)) {
+        mismatches.push_back("rho");
+      }
+
+      auto within_saved_err = [&](amrex::Real cur, amrex::Real reference,
+                                  amrex::Real saved_err) {
+        const amrex::Real threshold = 2.0_rt * std::abs(saved_err);
+        return std::abs(cur - reference) <= threshold;
+      };
+      auto update_saved_err_units = [&](const std::string &field,
+                                        amrex::Real cur,
+                                        amrex::Real reference,
+                                        amrex::Real saved_err) {
+        const amrex::Real diff = std::abs(cur - reference);
+        amrex::Real units = 0.0_rt;
+        if (std::abs(saved_err) > 0.0_rt) {
+          units = diff / std::abs(saved_err);
+        } else if (diff > 0.0_rt) {
+          units = std::numeric_limits<amrex::Real>::infinity();
+        }
+        if (units > max_saved_err_units) {
+          max_saved_err_units = units;
+          max_saved_err_zone = iz;
+          max_saved_err_field = field;
+        }
+      };
+
+      if (ref.trunc_valid != 0) {
+        update_saved_err_units("T", compare_states[iz].T, ref.T,
+                               ref.trunc_err_T);
+        if (!within_saved_err(compare_states[iz].T, ref.T, ref.trunc_err_T)) {
+          mismatches.push_back("T");
+        }
+        update_saved_err_units("e", compare_states[iz].e, ref.e,
+                               ref.trunc_err_e);
+        if (!within_saved_err(compare_states[iz].e, ref.e, ref.trunc_err_e)) {
+          mismatches.push_back("e");
+        }
+        for (int n = 0; n < NumSpec; ++n) {
+          const std::string species_field =
+              "xn(" + std::string(short_spec_names_cxx[n]) + ")";
+          update_saved_err_units(species_field, compare_states[iz].xn[n],
+                                 ref.xn[n], ref.trunc_err_xn[n]);
+          if (!within_saved_err(compare_states[iz].xn[n], ref.xn[n],
+                                ref.trunc_err_xn[n])) {
+            mismatches.push_back(species_field);
+          }
+        }
+      } else {
+        if (!within_tol(compare_states[iz].T, ref.T)) {
+          mismatches.push_back("T");
+        }
+        if (!within_tol(compare_states[iz].e, ref.e)) {
+          mismatches.push_back("e");
+        }
+        for (int n = 0; n < NumSpec; ++n) {
+          if (!within_tol(compare_states[iz].xn[n], ref.xn[n])) {
+            mismatches.push_back("xn(" + std::string(short_spec_names_cxx[n]) +
+                                 ")");
+          }
+        }
+      }
+
+      if (mismatches.empty()) {
+        ++zones_passed;
+        std::cout << "zone " << iz << " : PASS" << std::endl;
+      } else {
+        ++zones_failed;
+        std::cout << "zone " << iz << " : FAIL [";
+        for (int i = 0; i < static_cast<int>(mismatches.size()); ++i) {
+          if (i > 0) {
+            std::cout << ", ";
+          }
+          std::cout << mismatches[i];
+        }
+        std::cout << "]" << std::endl;
+      }
+    }
+
+    std::cout << "Saved-state comparison summary: passed=" << zones_passed
+              << ", failed=" << zones_failed
+              << ", missing_rows=" << missing_rows << std::endl;
+    if (max_saved_err_zone >= 0) {
+      std::cout << "Largest saved-state difference in truncation-error units: "
+                << std::fixed << std::setprecision(3) << max_saved_err_units
+                << std::defaultfloat << " (zone " << max_saved_err_zone
+                << ", field " << max_saved_err_field << ")" << std::endl;
+    }
+    return (compare_backend_success && zones_failed == 0);
+  }
 
   auto report_richardson = [&](const std::string &label,
                                const std::vector<burn_t> &l0,
@@ -1086,12 +1303,6 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu) -> int {
       }
     }
   }
-
-  auto within_tol = [&](amrex::Real a, amrex::Real b) -> bool {
-    amrex::Real diff = std::abs(a - b);
-    amrex::Real scale = std::max(std::abs(a), std::abs(b));
-    return diff <= (abs_tol + rel_tol * scale);
-  };
 
   struct MismatchStats {
     int count = 0;

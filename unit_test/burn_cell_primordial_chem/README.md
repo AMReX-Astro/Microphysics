@@ -21,3 +21,29 @@
 # continuous integration
 
 The code is built with the `primordial_chem` network and run with `inputs_primordial_chem`.
+
+# reference and compare workflow
+
+Use this two-step workflow to split CPU reference generation from later
+comparison runs.
+
+1. Generate/update the saved CPU reference solution:
+
+   ```bash
+   ./main1d.gnu.ex inputs_primordial_chem
+   ```
+
+   This runs the normal Richardson-enabled path and writes
+   `burn_cell_final_state.txt`.
+
+2. Compare a future run against the saved reference:
+
+   ```bash
+   ./main1d.gnu.ex inputs_primordial_chem --compare-final-state burn_cell_final_state.txt
+   ```
+
+   In compare mode, the code does not run Richardson. It performs one batch
+   run on the active backend (GPU when enabled, otherwise CPU), compares each
+   zone against the saved reference, and reports per-zone `PASS`/`FAIL`.
+   For `T`, `e`, and each species number density, the comparison threshold is
+   `2 * |saved truncation error|` from the reference file.

@@ -67,7 +67,7 @@ integrator.X_reject_buffer = 1e100
 # Set which jacobian to use
 # 1 = analytic jacobian
 # 2 = numerical jacobian
-integrator.jacobian = 2
+integrator.jacobian = 1
 
 # do you want to normalize abundances within VODE? (you don't!)
 integrator.renormalize_abundances = 0

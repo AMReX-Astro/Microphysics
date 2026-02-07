@@ -31,7 +31,7 @@ NETWORK_DIR := primordial_chem
 
 CONDUCTIVITY_DIR := stellar
 
-INTEGRATOR_DIR =  BackwardEuler
+INTEGRATOR_DIR =  VODE
 
 EXTERN_SEARCH += .
 
