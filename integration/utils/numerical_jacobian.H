@@ -61,7 +61,7 @@ void numerical_jac(const BurnT& state, const jac_info_t& jac_info, JacNetArray2D
 
     // default -- plus convert the dY/dt into dX/dt
 
-    actual_rhs(state, ydotm);
+    actual_rhs(state_delp, ydotm);
 
     for (int q = 1; q <= NumSpec; q++) {
         ydotm(q) *= aion[q-1];
