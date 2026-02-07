@@ -1,5 +1,5 @@
-unit_test.n_zones = 1
-#unit_test.n_zones = 32**3
+#unit_test.n_zones = 1
+unit_test.n_zones = 16**3
 integrator.burner_verbose = 0
 
 ## unit_test runtime parameters
