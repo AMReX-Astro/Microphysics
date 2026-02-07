@@ -40,6 +40,14 @@ Blocs   := .
 
 include $(MICROPHYSICS_HOME)/unit_test/Make.unit_test
 
+ifeq ($(USE_CUDA),TRUE)
+ifeq ($(shell uname -s),Linux)
+ifeq ($(shell uname -m),aarch64)
+override XTRALIBS += -latomic
+endif
+endif
+endif
+
 ifeq ($(shell uname),Darwin)
 AMREX_LINKER := ./post_link_install_name.sh $(AMREX_LINKER)
 endif
