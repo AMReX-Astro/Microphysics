@@ -768,6 +768,89 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu) -> int {
                       level_results[1].cpu.states, level_results[2].cpu.states);
   }
 
+  struct ZoneTruncationEstimate {
+    bool valid = false;
+    amrex::Real temp_err = 0.0_rt;
+    amrex::Real energy_err = 0.0_rt;
+    std::array<amrex::Real, NumSpec> species_err{};
+  };
+
+  std::vector<ZoneTruncationEstimate> cpu_zone_truncation;
+  if (do_richardson && n_tol_levels == 3) {
+    cpu_zone_truncation.resize(n_zones);
+    const auto &cpu_l0 = level_results[0].cpu.states;
+    const auto &cpu_l1 = level_results[1].cpu.states;
+    const auto &cpu_l2 = level_results[2].cpu.states;
+
+    for (int iz = 0; iz < n_zones; ++iz) {
+      auto &est = cpu_zone_truncation[iz];
+      const bool ok0 = cpu_l0[iz].success && cpu_l0[iz].e > 0.0_rt;
+      const bool ok1 = cpu_l1[iz].success && cpu_l1[iz].e > 0.0_rt;
+      const bool ok2 = cpu_l2[iz].success && cpu_l2[iz].e > 0.0_rt;
+      if (!(ok0 && ok1 && ok2)) {
+        continue;
+      }
+
+      est.valid = true;
+      est.temp_err =
+          estimate_richardson(cpu_l0[iz].T, cpu_l1[iz].T, cpu_l2[iz].T).err;
+      est.energy_err =
+          estimate_richardson(cpu_l0[iz].e, cpu_l1[iz].e, cpu_l2[iz].e).err;
+      for (int n = 0; n < NumSpec; ++n) {
+        est.species_err[n] =
+            estimate_richardson(cpu_l0[iz].xn[n], cpu_l1[iz].xn[n],
+                                cpu_l2[iz].xn[n])
+                .err;
+      }
+    }
+  }
+
+  {
+    const std::string output_file = "burn_cell_final_state.txt";
+    std::ofstream ofs(output_file);
+    if (!ofs) {
+      std::cout << "WARNING: unable to open " << output_file
+                << " for writing final state output" << std::endl;
+    } else {
+      ofs << std::scientific << std::setprecision(16);
+      ofs << "# burn_cell_primordial_chem final state (CPU, tolerance level 1)\n";
+      ofs << "# columns: zone time rho T e success";
+      for (int n = 0; n < NumSpec; ++n) {
+        ofs << " xn_" << short_spec_names_cxx[n];
+      }
+      ofs << " truncation_valid truncation_err_T truncation_err_e";
+      for (int n = 0; n < NumSpec; ++n) {
+        ofs << " truncation_err_xn_" << short_spec_names_cxx[n];
+      }
+      ofs << "\n";
+
+      for (int iz = 0; iz < n_zones; ++iz) {
+        ofs << iz << " " << cpu_times[iz] << " " << cpu_states[iz].rho << " "
+            << cpu_states[iz].T << " " << cpu_states[iz].e << " "
+            << (cpu_states[iz].success ? 1 : 0);
+        for (int n = 0; n < NumSpec; ++n) {
+          ofs << " " << cpu_states[iz].xn[n];
+        }
+
+        if (!cpu_zone_truncation.empty() && cpu_zone_truncation[iz].valid) {
+          ofs << " 1 " << cpu_zone_truncation[iz].temp_err << " "
+              << cpu_zone_truncation[iz].energy_err;
+          for (int n = 0; n < NumSpec; ++n) {
+            ofs << " " << cpu_zone_truncation[iz].species_err[n];
+          }
+        } else {
+          ofs << " 0 0.0 0.0";
+          for (int n = 0; n < NumSpec; ++n) {
+            ofs << " 0.0";
+          }
+        }
+        ofs << "\n";
+      }
+      std::cout << "Wrote final state and truncation estimates to "
+                << output_file << std::endl;
+    }
+  }
+
   const bool use_richardson_gpu_failure =
       enable_gpu && do_richardson && (n_tol_levels == 3);
 

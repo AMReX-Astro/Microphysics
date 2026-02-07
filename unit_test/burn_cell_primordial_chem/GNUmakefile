@@ -31,7 +31,7 @@ NETWORK_DIR := primordial_chem
 
 CONDUCTIVITY_DIR := stellar
 
-INTEGRATOR_DIR =  VODE
+INTEGRATOR_DIR =  BackwardEuler
 
 EXTERN_SEARCH += .
 
@@ -40,4 +40,6 @@ Blocs   := .
 
 include $(MICROPHYSICS_HOME)/unit_test/Make.unit_test
 
-
+ifeq ($(shell uname),Darwin)
+AMREX_LINKER := ./post_link_install_name.sh $(AMREX_LINKER)
+endif
