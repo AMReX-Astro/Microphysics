@@ -5,6 +5,7 @@
 #include <array>
 #include <cmath>
 #include <chrono>
+#include <complex>
 #include <fstream>
 #include <functional>
 #include <iomanip>
@@ -20,12 +21,173 @@
 #include <burner.H>
 #include <eos.H>
 #include <extern_parameters.H>
+#include <actual_rhs.H>
+#include <integrator_data.H>
 #include <network.H>
 #include <actual_network.H>
 
 amrex::Real grav_constant = 6.674e-8;
 
 namespace {
+
+using Complex = std::complex<amrex::Real>;
+using ComplexMatrix = std::vector<std::vector<Complex>>;
+
+AMREX_INLINE
+auto identity_complex_matrix(int n) -> ComplexMatrix {
+  ComplexMatrix I(n, std::vector<Complex>(n, Complex(0.0_rt, 0.0_rt)));
+  for (int i = 0; i < n; ++i) {
+    I[i][i] = Complex(1.0_rt, 0.0_rt);
+  }
+  return I;
+}
+
+AMREX_INLINE
+auto matmul(const ComplexMatrix &A, const ComplexMatrix &B) -> ComplexMatrix {
+  const int n = static_cast<int>(A.size());
+  ComplexMatrix C(n, std::vector<Complex>(n, Complex(0.0_rt, 0.0_rt)));
+  for (int i = 0; i < n; ++i) {
+    for (int k = 0; k < n; ++k) {
+      const Complex aik = A[i][k];
+      if (std::abs(aik) == 0.0_rt) {
+        continue;
+      }
+      for (int j = 0; j < n; ++j) {
+        C[i][j] += aik * B[k][j];
+      }
+    }
+  }
+  return C;
+}
+
+AMREX_INLINE
+void qr_decompose_mgs(const ComplexMatrix &A, ComplexMatrix &Q,
+                      ComplexMatrix &R) {
+  const int n = static_cast<int>(A.size());
+  Q.assign(n, std::vector<Complex>(n, Complex(0.0_rt, 0.0_rt)));
+  R.assign(n, std::vector<Complex>(n, Complex(0.0_rt, 0.0_rt)));
+
+  std::vector<Complex> v(n);
+
+  for (int j = 0; j < n; ++j) {
+    for (int i = 0; i < n; ++i) {
+      v[i] = A[i][j];
+    }
+
+    for (int i = 0; i < j; ++i) {
+      Complex rij(0.0_rt, 0.0_rt);
+      for (int k = 0; k < n; ++k) {
+        rij += std::conj(Q[k][i]) * v[k];
+      }
+      R[i][j] = rij;
+      for (int k = 0; k < n; ++k) {
+        v[k] -= rij * Q[k][i];
+      }
+    }
+
+    amrex::Real vnorm2 = 0.0_rt;
+    for (int k = 0; k < n; ++k) {
+      vnorm2 += std::norm(v[k]);
+    }
+    const amrex::Real vnorm = std::sqrt(vnorm2);
+    R[j][j] = Complex(vnorm, 0.0_rt);
+
+    if (vnorm > 0.0_rt) {
+      for (int k = 0; k < n; ++k) {
+        Q[k][j] = v[k] / vnorm;
+      }
+    } else {
+      Q[j][j] = Complex(1.0_rt, 0.0_rt);
+    }
+  }
+}
+
+AMREX_INLINE
+auto jacobian_eigenvalues_qr(const RArray2D &jac) -> std::vector<Complex> {
+  constexpr int n = INT_NEQS;
+  ComplexMatrix A(n, std::vector<Complex>(n, Complex(0.0_rt, 0.0_rt)));
+  for (int i = 0; i < n; ++i) {
+    for (int j = 0; j < n; ++j) {
+      A[i][j] = Complex(static_cast<amrex::Real>(jac(i + 1, j + 1)), 0.0_rt);
+    }
+  }
+
+  ComplexMatrix Q;
+  ComplexMatrix R;
+  const auto I = identity_complex_matrix(n);
+
+  constexpr int max_iter = 256;
+  constexpr amrex::Real offdiag_tol = 1.0e-12_rt;
+
+  for (int iter = 0; iter < max_iter; ++iter) {
+    amrex::Real offdiag_norm = 0.0_rt;
+    for (int i = 1; i < n; ++i) {
+      for (int j = 0; j < i; ++j) {
+        offdiag_norm += std::norm(A[i][j]);
+      }
+    }
+    offdiag_norm = std::sqrt(offdiag_norm);
+    if (offdiag_norm < offdiag_tol) {
+      break;
+    }
+
+    const Complex mu = A[n - 1][n - 1];
+    ComplexMatrix shifted = A;
+    for (int i = 0; i < n; ++i) {
+      shifted[i][i] -= mu * I[i][i];
+    }
+
+    qr_decompose_mgs(shifted, Q, R);
+    A = matmul(R, Q);
+    for (int i = 0; i < n; ++i) {
+      A[i][i] += mu * I[i][i];
+    }
+  }
+
+  std::vector<Complex> eigvals(n, Complex(0.0_rt, 0.0_rt));
+  for (int i = 0; i < n; ++i) {
+    eigvals[i] = A[i][i];
+  }
+  return eigvals;
+}
+
+struct JacobianStiffness {
+  amrex::Real max_abs_real = 0.0_rt;
+  amrex::Real min_abs_real = std::numeric_limits<amrex::Real>::infinity();
+  amrex::Real ratio = std::numeric_limits<amrex::Real>::infinity();
+  bool valid = false;
+};
+
+AMREX_INLINE
+auto compute_jacobian_stiffness(const burn_t &state_in) -> JacobianStiffness {
+  burn_t state = state_in;
+  RArray2D jac;
+  actual_jac(state, jac);
+
+  const auto eigvals = jacobian_eigenvalues_qr(jac);
+  constexpr amrex::Real tiny = 1.0e-300_rt;
+
+  JacobianStiffness result;
+  for (const auto &lam : eigvals) {
+    const amrex::Real ar = std::abs(lam.real());
+    if (!std::isfinite(ar)) {
+      continue;
+    }
+    result.max_abs_real = std::max(result.max_abs_real, ar);
+    if (ar > tiny) {
+      result.min_abs_real = std::min(result.min_abs_real, ar);
+    }
+  }
+
+  if (result.max_abs_real > tiny &&
+      std::isfinite(result.min_abs_real) &&
+      result.min_abs_real > tiny) {
+    result.ratio = result.max_abs_real / result.min_abs_real;
+    result.valid = true;
+  }
+
+  return result;
+}
 
 AMREX_INLINE
 void init_burn_state(burn_t &state, amrex::Real density_scale,
@@ -192,6 +354,9 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu) -> int {
     int retries = 0;
     amrex::Real t_min = std::numeric_limits<amrex::Real>::max();
     amrex::Real t_max = -std::numeric_limits<amrex::Real>::max();
+    amrex::Real stiffness_ratio_min = std::numeric_limits<amrex::Real>::max();
+    amrex::Real stiffness_ratio_max = 0.0_rt;
+    int stiffness_samples = 0;
     bool any_success = false;
   };
 
@@ -381,6 +546,14 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu) -> int {
 
         state.suppress_failure_output = false;
         enforce_post_burn_constraints(state);
+        const auto stiff = compute_jacobian_stiffness(state);
+        if (stiff.valid) {
+          summary.stiffness_ratio_min =
+              std::min(summary.stiffness_ratio_min, stiff.ratio);
+          summary.stiffness_ratio_max =
+              std::max(summary.stiffness_ratio_max, stiff.ratio);
+          ++summary.stiffness_samples;
+        }
         time_h[iz] += dt_h[iz];
       }
     }
@@ -418,6 +591,15 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu) -> int {
                 << summary.t_min << ", " << summary.t_max << "]" << std::endl;
       std::cout << "  retries applied           : "
                 << summary.retries << std::endl;
+      if (summary.stiffness_samples > 0) {
+        std::cout << "  stiffness ratio range     : ["
+                  << std::scientific << summary.stiffness_ratio_min << ", "
+                  << summary.stiffness_ratio_max << "]"
+                  << std::defaultfloat << " (samples="
+                  << summary.stiffness_samples << ")" << std::endl;
+      } else {
+        std::cout << "  stiffness ratio range     : unavailable" << std::endl;
+      }
     } else {
       std::cout << "  status                    : no successful zones"
                 << std::endl;
