@@ -1,6 +1,6 @@
 unit_test.n_zones = 1
 #unit_test.n_zones = 32**3
-integrator.burner_verbose = 1
+integrator.burner_verbose = 0
 
 ## unit_test runtime parameters
 unit_test.run_prefix = "burn_cell_primordial_chem_"
@@ -11,6 +11,12 @@ unit_test.tff_reduc = 0.03
 
 # number of integration steps
 unit_test.nsteps = 1e4
+unit_test.richardson_enable = 1
+unit_test.richardson_tol_factor = 10.0
+# set to 1 to print per-zone Richardson estimates
+unit_test.richardson_print_per_zone = 0
+# non-trace threshold as fraction of most abundant species per zone
+unit_test.richardson_trace_species_cutoff = 1e-15
 
 # max total time
 unit_test.tmax = 7.e20

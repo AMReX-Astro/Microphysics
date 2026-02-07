@@ -17,6 +17,13 @@ tfirst        real       0.0
 # number of steps for the single zone burn
 nsteps        int        1000
 
+# estimate truncation error with three tolerance levels and Richardson extrapolation
+richardson_enable         bool       1
+richardson_tol_factor     real       10.0
+richardson_print_per_zone bool       0
+# non-trace threshold as a fraction of the most abundant species in each zone
+richardson_trace_species_cutoff real 0.0
+
 # initial temperature
 temperature   real       1e2
 

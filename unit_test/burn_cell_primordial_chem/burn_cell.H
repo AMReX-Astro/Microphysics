@@ -2,6 +2,7 @@
 #define BURN_CELL_H
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <chrono>
 #include <fstream>
@@ -406,52 +407,390 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu) -> int {
     return (summary.failures == 0);
   };
 
-  std::vector<burn_t> cpu_states;
-  std::vector<amrex::Real> cpu_times;
-  MultiZoneSummary cpu_summary;
-  auto cpu_start = std::chrono::steady_clock::now();
-  bool cpu_success = run_multi_zone(false, cpu_states, cpu_times, cpu_summary);
-  auto cpu_end = std::chrono::steady_clock::now();
-  std::chrono::duration<double> cpu_wall = cpu_end - cpu_start;
-
-  std::vector<burn_t> gpu_states;
-  std::vector<amrex::Real> gpu_times;
-  MultiZoneSummary gpu_summary;
-  bool gpu_success = true;
-  std::chrono::duration<double> gpu_wall(0.0);
-  if (enable_gpu) {
-    auto gpu_start = std::chrono::steady_clock::now();
-    gpu_success = run_multi_zone(true, gpu_states, gpu_times, gpu_summary);
-    auto gpu_end = std::chrono::steady_clock::now();
-    gpu_wall = gpu_end - gpu_start;
-  }
-
   auto print_summary = [&](const std::string &label,
                            const MultiZoneSummary &summary) {
-    std::cout << label << " multi-zone burn complete; zones failed = "
+    const std::string prefix = label + " multi-zone";
+    std::cout << prefix << " summary:" << std::endl;
+    std::cout << "  burn complete             : zones failed = "
               << summary.failures << std::endl;
     if (summary.any_success) {
-      std::cout << label << " multi-zone temperature range: ["
-                << summary.t_min << ", " << summary.t_max << "]"
-                << std::endl;
-      std::cout << label << " multi-zone retries applied: "
+      std::cout << "  temperature range         : ["
+                << summary.t_min << ", " << summary.t_max << "]" << std::endl;
+      std::cout << "  retries applied           : "
                 << summary.retries << std::endl;
     } else {
-      std::cout << label << " multi-zone burn had no successful zones"
+      std::cout << "  status                    : no successful zones"
                 << std::endl;
     }
   };
 
-  print_summary("CPU", cpu_summary);
-  std::cout << "CPU multi-zone burn walltime (s): " << cpu_wall.count()
-            << std::endl;
-  if (enable_gpu) {
-    print_summary("GPU", gpu_summary);
-    std::cout << "GPU multi-zone burn walltime (s): " << gpu_wall.count()
+  struct BackendRunResult {
+    std::vector<burn_t> states;
+    std::vector<amrex::Real> times;
+    MultiZoneSummary summary;
+    bool success = false;
+    std::chrono::duration<double> wall{0.0};
+  };
+
+  struct TolLevelResult {
+    amrex::Real scale = 1.0_rt;
+    BackendRunResult cpu;
+    BackendRunResult gpu;
+  };
+
+  const amrex::Real base_rtol_spec = integrator_rp::rtol_spec;
+  const amrex::Real base_atol_spec = integrator_rp::atol_spec;
+  const amrex::Real base_rtol_enuc = integrator_rp::rtol_enuc;
+  const amrex::Real base_atol_enuc = integrator_rp::atol_enuc;
+  const amrex::Real base_retry_rtol_spec = integrator_rp::retry_rtol_spec;
+  const amrex::Real base_retry_atol_spec = integrator_rp::retry_atol_spec;
+  const amrex::Real base_retry_rtol_enuc = integrator_rp::retry_rtol_enuc;
+  const amrex::Real base_retry_atol_enuc = integrator_rp::retry_atol_enuc;
+
+  const amrex::Real tol_factor =
+      amrex::max(unit_test_rp::richardson_tol_factor, 1.0_rt);
+  const bool do_richardson =
+      unit_test_rp::richardson_enable && (tol_factor > 1.0_rt);
+  const int n_tol_levels = do_richardson ? 3 : 1;
+
+  auto apply_tolerance_scale = [&](amrex::Real scale) {
+    integrator_rp::rtol_spec = base_rtol_spec / scale;
+    integrator_rp::atol_spec = base_atol_spec / scale;
+    integrator_rp::rtol_enuc = base_rtol_enuc / scale;
+    integrator_rp::atol_enuc = base_atol_enuc / scale;
+
+    if (base_retry_rtol_spec > 0.0_rt) {
+      integrator_rp::retry_rtol_spec = base_retry_rtol_spec / scale;
+    }
+    if (base_retry_atol_spec > 0.0_rt) {
+      integrator_rp::retry_atol_spec = base_retry_atol_spec / scale;
+    }
+    if (base_retry_rtol_enuc > 0.0_rt) {
+      integrator_rp::retry_rtol_enuc = base_retry_rtol_enuc / scale;
+    }
+    if (base_retry_atol_enuc > 0.0_rt) {
+      integrator_rp::retry_atol_enuc = base_retry_atol_enuc / scale;
+    }
+  };
+
+  auto restore_base_tolerances = [&]() {
+    integrator_rp::rtol_spec = base_rtol_spec;
+    integrator_rp::atol_spec = base_atol_spec;
+    integrator_rp::rtol_enuc = base_rtol_enuc;
+    integrator_rp::atol_enuc = base_atol_enuc;
+    integrator_rp::retry_rtol_spec = base_retry_rtol_spec;
+    integrator_rp::retry_atol_spec = base_retry_atol_spec;
+    integrator_rp::retry_rtol_enuc = base_retry_rtol_enuc;
+    integrator_rp::retry_atol_enuc = base_retry_atol_enuc;
+  };
+
+  std::vector<TolLevelResult> level_results(n_tol_levels);
+  bool cpu_success = true;
+  bool gpu_success = true;
+
+  for (int ilev = 0; ilev < n_tol_levels; ++ilev) {
+    amrex::Real scale = std::pow(tol_factor, static_cast<amrex::Real>(ilev));
+    level_results[ilev].scale = scale;
+    apply_tolerance_scale(scale);
+
+    auto cpu_start = std::chrono::steady_clock::now();
+    level_results[ilev].cpu.success =
+        run_multi_zone(false, level_results[ilev].cpu.states,
+                       level_results[ilev].cpu.times,
+                       level_results[ilev].cpu.summary);
+    auto cpu_end = std::chrono::steady_clock::now();
+    level_results[ilev].cpu.wall = cpu_end - cpu_start;
+    cpu_success = cpu_success && level_results[ilev].cpu.success;
+
+    std::ostringstream level_label;
+    if (do_richardson) {
+      level_label << " (tol level " << (ilev + 1) << ", scale=" << scale
+                  << ")";
+    }
+    const std::string cpu_label = "CPU" + level_label.str();
+    print_summary(cpu_label, level_results[ilev].cpu.summary);
+    std::cout << "  burn walltime (s)         : "
+              << level_results[ilev].cpu.wall.count() << std::endl;
+
+    if (enable_gpu) {
+      auto gpu_start = std::chrono::steady_clock::now();
+      level_results[ilev].gpu.success =
+          run_multi_zone(true, level_results[ilev].gpu.states,
+                         level_results[ilev].gpu.times,
+                         level_results[ilev].gpu.summary);
+      auto gpu_end = std::chrono::steady_clock::now();
+      level_results[ilev].gpu.wall = gpu_end - gpu_start;
+      gpu_success = gpu_success && level_results[ilev].gpu.success;
+
+      const std::string gpu_label = "GPU" + level_label.str();
+      print_summary(gpu_label, level_results[ilev].gpu.summary);
+      std::cout << "  burn walltime (s)         : "
+                << level_results[ilev].gpu.wall.count() << std::endl;
+    } else if (ilev == 0) {
+      std::cout << "GPU multi-zone burn skipped (no GPU backend)"
+                << std::endl;
+    }
+  }
+
+  restore_base_tolerances();
+
+  const auto &cpu_states = level_results.front().cpu.states;
+  const auto &cpu_times = level_results.front().cpu.times;
+  const auto &gpu_states = level_results.front().gpu.states;
+  const auto &gpu_times = level_results.front().gpu.times;
+
+  struct RichardsonEstimate {
+    bool valid = false;
+    amrex::Real p = 0.0_rt;
+    amrex::Real err = 0.0_rt;
+    amrex::Real delta01 = 0.0_rt;
+  };
+
+  auto estimate_richardson = [&](amrex::Real y0, amrex::Real y1,
+                                 amrex::Real y2) -> RichardsonEstimate {
+    RichardsonEstimate est;
+    const amrex::Real d01 = y0 - y1;
+    const amrex::Real d12 = y1 - y2;
+    est.delta01 = d01;
+
+    constexpr amrex::Real tiny = 1.0e-300_rt;
+    const amrex::Real abs_d01 = std::abs(d01);
+    const amrex::Real abs_d12 = std::abs(d12);
+
+    if (abs_d01 <= tiny && abs_d12 <= tiny) {
+      est.valid = true;
+      return est;
+    }
+
+    if (abs_d01 <= tiny || abs_d12 <= tiny) {
+      est.err = d01;
+      return est;
+    }
+
+    amrex::Real ratio = abs_d01 / abs_d12;
+    if (!(ratio > 0.0_rt) || !std::isfinite(ratio)) {
+      est.err = d01;
+      return est;
+    }
+
+    est.p = std::log(ratio) / std::log(tol_factor);
+    if (!std::isfinite(est.p)) {
+      est.err = d01;
+      return est;
+    }
+
+    amrex::Real denom = 1.0_rt - std::pow(tol_factor, -est.p);
+    if (std::abs(denom) <= tiny || !std::isfinite(denom)) {
+      est.err = d01;
+      return est;
+    }
+
+    est.err = d01 / denom;
+    est.valid = true;
+    return est;
+  };
+
+  auto report_richardson = [&](const std::string &label,
+                               const std::vector<burn_t> &l0,
+                               const std::vector<burn_t> &l1,
+                               const std::vector<burn_t> &l2) {
+    if (!do_richardson) {
+      return;
+    }
+    if (l0.size() != l1.size() || l0.size() != l2.size()) {
+      std::cout << label
+                << " Richardson estimate skipped (inconsistent level sizes)"
+                << std::endl;
+      return;
+    }
+
+    int valid_zones = 0;
+    int valid_temp_estimates = 0;
+    amrex::Real max_abs_temp_err = 0.0_rt;
+    amrex::Real max_abs_energy_err = 0.0_rt;
+    amrex::Real max_abs_species_err = 0.0_rt;
+    amrex::Real max_rel_temp_err = 0.0_rt;
+    amrex::Real max_rel_energy_err = 0.0_rt;
+    amrex::Real max_rel_species_err = 0.0_rt;
+    int species_rel_count = 0;
+    std::vector<int> species_rel_hit_count(NumSpec, 0);
+
+    const amrex::Real trace_rel_cutoff =
+        amrex::max(unit_test_rp::richardson_trace_species_cutoff, 0.0_rt);
+
+    auto rel_error = [](amrex::Real err, amrex::Real ref) {
+      constexpr amrex::Real tiny = 1.0e-300_rt;
+      return std::abs(err) / amrex::max(std::abs(ref), tiny);
+    };
+
+    std::cout << label << " Richardson truncation estimate:" << std::endl;
+    std::cout << "  levels with scales         : [1, " << tol_factor << ", "
+              << (tol_factor * tol_factor) << "]" << std::endl;
+
+    for (int iz = 0; iz < n_zones; ++iz) {
+      const bool ok0 = l0[iz].success && l0[iz].e > 0.0_rt;
+      const bool ok1 = l1[iz].success && l1[iz].e > 0.0_rt;
+      const bool ok2 = l2[iz].success && l2[iz].e > 0.0_rt;
+      if (!(ok0 && ok1 && ok2)) {
+        continue;
+      }
+
+      ++valid_zones;
+
+      const RichardsonEstimate t_est =
+          estimate_richardson(l0[iz].T, l1[iz].T, l2[iz].T);
+      const RichardsonEstimate e_est =
+          estimate_richardson(l0[iz].e, l1[iz].e, l2[iz].e);
+
+      if (t_est.valid) {
+        ++valid_temp_estimates;
+      }
+      max_abs_temp_err = std::max(max_abs_temp_err, std::abs(t_est.err));
+      max_abs_energy_err = std::max(max_abs_energy_err, std::abs(e_est.err));
+      max_rel_temp_err = std::max(max_rel_temp_err, rel_error(t_est.err, l2[iz].T));
+      max_rel_energy_err =
+          std::max(max_rel_energy_err, rel_error(e_est.err, l2[iz].e));
+
+      amrex::Real zone_species_linf = 0.0_rt;
+      amrex::Real zone_rel_species_linf = 0.0_rt;
+      std::ostringstream zone_species_list;
+      bool zone_first_species = true;
+      amrex::Real zone_max_xn = 0.0_rt;
+      for (int n = 0; n < NumSpec; ++n) {
+        zone_max_xn = std::max(zone_max_xn, std::abs(l2[iz].xn[n]));
+      }
+      const amrex::Real zone_trace_cutoff = trace_rel_cutoff * zone_max_xn;
+      for (int n = 0; n < NumSpec; ++n) {
+        const RichardsonEstimate xn_est =
+            estimate_richardson(l0[iz].xn[n], l1[iz].xn[n], l2[iz].xn[n]);
+        zone_species_linf = std::max(zone_species_linf, std::abs(xn_est.err));
+        if (std::abs(l2[iz].xn[n]) >= zone_trace_cutoff) {
+          zone_rel_species_linf = std::max(
+              zone_rel_species_linf, rel_error(xn_est.err, l2[iz].xn[n]));
+          ++species_rel_count;
+          ++species_rel_hit_count[n];
+          if (!zone_first_species) {
+            zone_species_list << ", ";
+          }
+          zone_species_list << short_spec_names_cxx[n];
+          zone_first_species = false;
+        }
+      }
+      max_abs_species_err = std::max(max_abs_species_err, zone_species_linf);
+      max_rel_species_err =
+          std::max(max_rel_species_err, zone_rel_species_linf);
+
+      if (unit_test_rp::richardson_print_per_zone) {
+        std::cout << label << " zone " << iz << ": |E_T|=" << std::abs(t_est.err)
+                  << ", rel(E_T)=" << rel_error(t_est.err, l2[iz].T)
+                  << ", p_T=" << t_est.p << ", |E_e|=" << std::abs(e_est.err)
+                  << ", rel(E_e)=" << rel_error(e_est.err, l2[iz].e)
+                  << ", p_e=" << e_est.p << ", |E_xn|_inf=" << zone_species_linf
+                  << ", rel(E_xn)_inf(non-trace)=" << zone_rel_species_linf
+                  << ", non-trace species: ["
+                  << (zone_first_species ? "none" : zone_species_list.str())
+                  << "]"
+                  << std::endl;
+      }
+    }
+
+    std::cout << label << " Richardson summary:" << std::endl;
+    std::cout << "  valid zones                : " << valid_zones << "/"
+              << n_zones << std::endl;
+    std::cout << "  valid temperature estimates: " << valid_temp_estimates
               << std::endl;
-  } else {
-    std::cout << "GPU multi-zone burn skipped (no GPU backend)"
+    std::cout << "  max |E_T|                  : " << max_abs_temp_err
               << std::endl;
+    std::cout << "  max |E_e|                  : " << max_abs_energy_err
+              << std::endl;
+    std::cout << "  max |E_xn|_inf             : " << max_abs_species_err
+              << std::endl;
+    std::cout << "  max rel(E_T)               : " << max_rel_temp_err
+              << std::endl;
+    std::cout << "  max rel(E_e)               : " << max_rel_energy_err
+              << std::endl;
+    std::cout << "  max rel(E_xn)_inf(non-trace): " << max_rel_species_err
+              << std::endl;
+    std::cout << "  trace rel cutoff           : " << trace_rel_cutoff
+              << std::endl;
+    std::cout << "  species count (relative)   : " << species_rel_count
+              << std::endl;
+
+    std::ostringstream considered_species;
+    bool first_species = true;
+    for (int n = 0; n < NumSpec; ++n) {
+      if (species_rel_hit_count[n] > 0) {
+        if (!first_species) {
+          considered_species << ", ";
+        }
+        considered_species << short_spec_names_cxx[n];
+        first_species = false;
+      }
+    }
+    std::cout << label << " non-trace species used in relative metric:"
+              << std::endl;
+    std::cout << "  species                    : ["
+              << (first_species ? "none" : considered_species.str()) << "]"
+              << std::endl;
+  };
+
+  if (do_richardson && n_tol_levels == 3) {
+    report_richardson("CPU", level_results[0].cpu.states,
+                      level_results[1].cpu.states, level_results[2].cpu.states);
+  }
+
+  const bool use_richardson_gpu_failure =
+      enable_gpu && do_richardson && (n_tol_levels == 3);
+
+  struct ZoneRichardsonThresholds {
+    bool valid = false;
+    amrex::Real temp_err = 0.0_rt;
+    amrex::Real energy_err = 0.0_rt;
+    std::array<amrex::Real, NumSpec> species_err{};
+    std::array<int, NumSpec> species_non_trace{};
+  };
+
+  std::vector<ZoneRichardsonThresholds> cpu_zone_thresholds;
+  if (use_richardson_gpu_failure) {
+    cpu_zone_thresholds.resize(n_zones);
+    const auto &cpu_l0 = level_results[0].cpu.states;
+    const auto &cpu_l1 = level_results[1].cpu.states;
+    const auto &cpu_l2 = level_results[2].cpu.states;
+    const amrex::Real trace_rel_cutoff =
+        amrex::max(unit_test_rp::richardson_trace_species_cutoff, 0.0_rt);
+
+    for (int iz = 0; iz < n_zones; ++iz) {
+      auto &thr = cpu_zone_thresholds[iz];
+      const bool ok0 = cpu_l0[iz].success && cpu_l0[iz].e > 0.0_rt;
+      const bool ok1 = cpu_l1[iz].success && cpu_l1[iz].e > 0.0_rt;
+      const bool ok2 = cpu_l2[iz].success && cpu_l2[iz].e > 0.0_rt;
+      if (!(ok0 && ok1 && ok2)) {
+        continue;
+      }
+
+      thr.valid = true;
+      thr.temp_err =
+          std::abs(estimate_richardson(cpu_l0[iz].T, cpu_l1[iz].T, cpu_l2[iz].T)
+                       .err);
+      thr.energy_err =
+          std::abs(estimate_richardson(cpu_l0[iz].e, cpu_l1[iz].e, cpu_l2[iz].e)
+                       .err);
+
+      amrex::Real zone_max_xn = 0.0_rt;
+      for (int n = 0; n < NumSpec; ++n) {
+        zone_max_xn = std::max(zone_max_xn, std::abs(cpu_l2[iz].xn[n]));
+      }
+      const amrex::Real zone_trace_cutoff = trace_rel_cutoff * zone_max_xn;
+
+      for (int n = 0; n < NumSpec; ++n) {
+        thr.species_err[n] = std::abs(estimate_richardson(
+                                          cpu_l0[iz].xn[n], cpu_l1[iz].xn[n],
+                                          cpu_l2[iz].xn[n])
+                                          .err);
+        thr.species_non_trace[n] =
+            (std::abs(cpu_l2[iz].xn[n]) >= zone_trace_cutoff) ? 1 : 0;
+      }
+    }
   }
 
   auto within_tol = [&](amrex::Real a, amrex::Real b) -> bool {
@@ -468,7 +807,17 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu) -> int {
     amrex::Real gpu_value_at_max = 0.0_rt;
   };
 
+  struct GpuFailureSummary {
+    int zones_failed = 0;
+    int temp_failures = 0;
+    int energy_failures = 0;
+    int species_failures = 0;
+    int missing_richardson = 0;
+  };
+
   std::map<std::string, MismatchStats> mismatch_summary;
+  bool gpu_failure_detected = false;
+  GpuFailureSummary gpu_failure_summary;
 
   struct NormAccumulator {
     amrex::Real diff_l1 = 0.0_rt;
@@ -526,6 +875,10 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu) -> int {
         record_difference("success_flag",
                           cpu_zone_success ? 1.0_rt : 0.0_rt,
                           gpu_zone_success ? 1.0_rt : 0.0_rt, false);
+        if (use_richardson_gpu_failure) {
+          gpu_failure_detected = true;
+          ++gpu_failure_summary.zones_failed;
+        }
         continue;
       }
       if (!cpu_zone_success) {
@@ -541,26 +894,74 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu) -> int {
         record_mismatch(iz, "rho", cpu_states[iz].rho, gpu_states[iz].rho);
       }
       record_difference("rho", cpu_states[iz].rho, gpu_states[iz].rho, false);
-      if (!within_tol(cpu_states[iz].T, gpu_states[iz].T)) {
-        record_mismatch(iz, "T", cpu_states[iz].T, gpu_states[iz].T);
+
+      bool zone_failed_by_richardson = false;
+      if (use_richardson_gpu_failure) {
+        const auto &thr = cpu_zone_thresholds[iz];
+        if (!thr.valid) {
+          record_mismatch(iz, "richardson_unavailable", 1.0_rt, 0.0_rt);
+          zone_failed_by_richardson = true;
+          ++gpu_failure_summary.missing_richardson;
+        } else {
+          if (std::abs(cpu_states[iz].T - gpu_states[iz].T) >
+              2.0_rt * thr.temp_err) {
+            record_mismatch(iz, "T_richardson_fail", cpu_states[iz].T,
+                            gpu_states[iz].T);
+            zone_failed_by_richardson = true;
+            ++gpu_failure_summary.temp_failures;
+          }
+          if (std::abs(cpu_states[iz].e - gpu_states[iz].e) >
+              2.0_rt * thr.energy_err) {
+            record_mismatch(iz, "e_richardson_fail", cpu_states[iz].e,
+                            gpu_states[iz].e);
+            zone_failed_by_richardson = true;
+            ++gpu_failure_summary.energy_failures;
+          }
+          for (int n = 0; n < NumSpec; ++n) {
+            if (thr.species_non_trace[n] == 0) {
+              continue;
+            }
+            if (std::abs(cpu_states[iz].xn[n] - gpu_states[iz].xn[n]) >
+                2.0_rt * thr.species_err[n]) {
+              std::string label = "xn_richardson_fail(" +
+                                  std::string(short_spec_names_cxx[n]) + ")";
+              record_mismatch(iz, label, cpu_states[iz].xn[n],
+                              gpu_states[iz].xn[n]);
+              zone_failed_by_richardson = true;
+              ++gpu_failure_summary.species_failures;
+            }
+          }
+        }
+      } else {
+        if (!within_tol(cpu_states[iz].T, gpu_states[iz].T)) {
+          record_mismatch(iz, "T", cpu_states[iz].T, gpu_states[iz].T);
+        }
+        if (!within_tol(cpu_states[iz].e, gpu_states[iz].e)) {
+          record_mismatch(iz, "e", cpu_states[iz].e, gpu_states[iz].e);
+        }
+        for (int n = 0; n < NumSpec; ++n) {
+          if (!within_tol(cpu_states[iz].xn[n], gpu_states[iz].xn[n])) {
+            std::string label =
+                "xn(" + std::string(short_spec_names_cxx[n]) + ")";
+            record_mismatch(iz, label, cpu_states[iz].xn[n],
+                            gpu_states[iz].xn[n]);
+          }
+        }
       }
+
       record_difference("temperature", cpu_states[iz].T, gpu_states[iz].T,
                         true);
-      if (!within_tol(cpu_states[iz].e, gpu_states[iz].e)) {
-        record_mismatch(iz, "e", cpu_states[iz].e, gpu_states[iz].e);
-      }
       record_difference("e", cpu_states[iz].e, gpu_states[iz].e, false);
       for (int n = 0; n < NumSpec; ++n) {
-        if (!within_tol(cpu_states[iz].xn[n], gpu_states[iz].xn[n])) {
-          std::string label =
-              "xn(" + std::string(short_spec_names_cxx[n]) + ")";
-          record_mismatch(iz, label, cpu_states[iz].xn[n],
-                          gpu_states[iz].xn[n]);
-        }
         std::string norm_label =
             "number_density(" + std::string(short_spec_names_cxx[n]) + ")";
         record_difference(norm_label, cpu_states[iz].xn[n],
                           gpu_states[iz].xn[n], true);
+      }
+
+      if (use_richardson_gpu_failure && zone_failed_by_richardson) {
+        gpu_failure_detected = true;
+        ++gpu_failure_summary.zones_failed;
       }
     }
   }
@@ -602,8 +1003,14 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu) -> int {
   }
 
   if (mismatch_summary.empty() && enable_gpu) {
-    std::cout << "CPU/GPU multi-zone states agree within tolerances"
-              << std::endl;
+    if (use_richardson_gpu_failure) {
+      std::cout << "CPU/GPU multi-zone states pass Richardson-based GPU "
+                   "failure criterion"
+                << std::endl;
+    } else {
+      std::cout << "CPU/GPU multi-zone states agree within tolerances"
+                << std::endl;
+    }
   } else if (enable_gpu) {
     std::cout << "CPU/GPU mismatches detected:" << std::endl;
     for (const auto &entry : mismatch_summary) {
@@ -618,10 +1025,22 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu) -> int {
       }
       std::cout << std::endl;
     }
+    if (use_richardson_gpu_failure) {
+      std::cout << "GPU failure summary (|CPU-GPU| > 2*|Richardson error|): "
+                << "zones_failed=" << gpu_failure_summary.zones_failed
+                << ", temp_failures=" << gpu_failure_summary.temp_failures
+                << ", energy_failures=" << gpu_failure_summary.energy_failures
+                << ", species_failures=" << gpu_failure_summary.species_failures
+                << ", missing_richardson="
+                << gpu_failure_summary.missing_richardson << std::endl;
+    }
   }
 
   if (!enable_gpu) {
     return cpu_success;
+  }
+  if (use_richardson_gpu_failure) {
+    return (cpu_success && gpu_success && !gpu_failure_detected);
   }
   return (cpu_success && gpu_success && mismatch_summary.empty());
 }
