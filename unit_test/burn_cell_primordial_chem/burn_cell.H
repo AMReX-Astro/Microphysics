@@ -33,6 +33,23 @@ namespace {
 using Complex = std::complex<amrex::Real>;
 using ComplexMatrix = std::vector<std::vector<Complex>>;
 
+struct BurnZoneKernel {
+  burn_t *states_ptr;
+  const amrex::Real *dt_ptr;
+
+  AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+  void operator()(int iz) const noexcept {
+    amrex::Real dt = dt_ptr[iz];
+    if (dt <= 0.0_rt) {
+      return;
+    }
+    burn_t &state = states_ptr[iz];
+    state.time = 0.0_rt;
+    state.suppress_failure_output = true;
+    burner(state, dt);
+  }
+};
+
 AMREX_INLINE
 auto identity_complex_matrix(int n) -> ComplexMatrix {
   ComplexMatrix I(n, std::vector<Complex>(n, Complex(0.0_rt, 0.0_rt)));
@@ -513,15 +530,8 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu,
         amrex::Gpu::streamSynchronize();
       } else {
         burn_t *states_ptr = states_h.data();
-        amrex::Real *dt_ptr = dt_h.data();
-        amrex::ParallelForOMP(
-            n_zones, [states_ptr, dt_ptr, &burn_backend](int iz) noexcept {
-              amrex::Real dt = dt_ptr[iz];
-              if (dt <= 0.0_rt) {
-                return;
-              }
-              burn_backend(states_ptr[iz], dt);
-            });
+        const amrex::Real *dt_ptr = dt_h.data();
+        amrex::ParallelForOMP(n_zones, BurnZoneKernel{states_ptr, dt_ptr});
       }
 
       for (int iz = 0; iz < n_zones; ++iz) {
