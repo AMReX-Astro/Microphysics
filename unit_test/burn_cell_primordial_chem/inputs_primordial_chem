@@ -7,7 +7,7 @@ unit_test.run_prefix = "burn_cell_primordial_chem_"
 
 unit_test.small_temp = 10.
 unit_test.small_dens = 1.0e-60
-unit_test.tff_reduc = 0.025
+unit_test.tff_reduc = 0.03
 
 # number of integration steps
 unit_test.nsteps = 1e4
