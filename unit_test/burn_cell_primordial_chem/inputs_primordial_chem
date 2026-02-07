@@ -76,6 +76,9 @@ integrator.renormalize_abundances = 0
 integrator.rtol_spec = 1.0e-4
 integrator.atol_spec = 1.0e-4
 
+# max substeps
+integrator.ode_max_steps = 3000000
+
 #assumed redshift for Pop III star formation
 network.redshift = 30.0
 
