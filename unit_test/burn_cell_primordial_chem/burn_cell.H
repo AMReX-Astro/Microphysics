@@ -735,6 +735,11 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu,
       !compare_against_saved && unit_test_rp::richardson_enable &&
       (tol_factor > 1.0_rt);
   const int n_tol_levels = do_richardson ? 3 : 1;
+  const std::array<amrex::Real, 3> richardson_scales = {
+      1.0_rt, 1.0_rt / tol_factor, tol_factor};
+  constexpr int richardson_base_level = 0;
+  constexpr int richardson_loose_level = 1;
+  constexpr int richardson_tight_level = 2;
   const bool compare_backend_is_gpu = compare_against_saved && enable_gpu;
   const bool run_gpu_backend =
       compare_against_saved ? compare_backend_is_gpu : enable_gpu;
@@ -781,7 +786,7 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu,
   bool gpu_success = true;
 
   for (int ilev = 0; ilev < n_tol_levels; ++ilev) {
-    amrex::Real scale = std::pow(tol_factor, static_cast<amrex::Real>(ilev));
+    amrex::Real scale = do_richardson ? richardson_scales[ilev] : 1.0_rt;
     level_results[ilev].scale = scale;
     apply_tolerance_scale(scale);
 
@@ -871,11 +876,11 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu,
     amrex::Real delta01 = 0.0_rt;
   };
 
-  auto estimate_richardson = [&](amrex::Real y0, amrex::Real y1,
-                                 amrex::Real y2) -> RichardsonEstimate {
+  auto estimate_richardson = [&](amrex::Real y_loose, amrex::Real y_base,
+                                 amrex::Real y_tight) -> RichardsonEstimate {
     RichardsonEstimate est;
-    const amrex::Real d01 = y0 - y1;
-    const amrex::Real d12 = y1 - y2;
+    const amrex::Real d01 = y_loose - y_base;
+    const amrex::Real d12 = y_base - y_tight;
     est.delta01 = d01;
 
     constexpr amrex::Real tiny = 1.0e-300_rt;
@@ -904,7 +909,7 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu,
       return est;
     }
 
-    amrex::Real denom = 1.0_rt - std::pow(tol_factor, -est.p);
+    amrex::Real denom = std::pow(tol_factor, est.p) - 1.0_rt;
     if (std::abs(denom) <= tiny || !std::isfinite(denom)) {
       est.err = d01;
       return est;
@@ -1149,8 +1154,11 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu,
     };
 
     std::cout << label << " Richardson truncation estimate:" << std::endl;
-    std::cout << "  levels with scales         : [1, " << tol_factor << ", "
-              << (tol_factor * tol_factor) << "]" << std::endl;
+    std::cout << "  levels with scales         : ["
+              << richardson_scales[richardson_loose_level] << ", "
+              << richardson_scales[richardson_base_level] << ", "
+              << richardson_scales[richardson_tight_level] << "]"
+              << std::endl;
 
     for (int iz = 0; iz < n_zones; ++iz) {
       const bool ok0 = l0[iz].success && l0[iz].e > 0.0_rt;
@@ -1172,9 +1180,10 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu,
       }
       max_abs_temp_err = std::max(max_abs_temp_err, std::abs(t_est.err));
       max_abs_energy_err = std::max(max_abs_energy_err, std::abs(e_est.err));
-      max_rel_temp_err = std::max(max_rel_temp_err, rel_error(t_est.err, l2[iz].T));
+      max_rel_temp_err =
+          std::max(max_rel_temp_err, rel_error(t_est.err, l1[iz].T));
       max_rel_energy_err =
-          std::max(max_rel_energy_err, rel_error(e_est.err, l2[iz].e));
+          std::max(max_rel_energy_err, rel_error(e_est.err, l1[iz].e));
 
       amrex::Real zone_species_linf = 0.0_rt;
       amrex::Real zone_rel_species_linf = 0.0_rt;
@@ -1182,16 +1191,16 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu,
       bool zone_first_species = true;
       amrex::Real zone_max_xn = 0.0_rt;
       for (int n = 0; n < NumSpec; ++n) {
-        zone_max_xn = std::max(zone_max_xn, std::abs(l2[iz].xn[n]));
+        zone_max_xn = std::max(zone_max_xn, std::abs(l1[iz].xn[n]));
       }
       const amrex::Real zone_trace_cutoff = trace_rel_cutoff * zone_max_xn;
       for (int n = 0; n < NumSpec; ++n) {
         const RichardsonEstimate xn_est =
             estimate_richardson(l0[iz].xn[n], l1[iz].xn[n], l2[iz].xn[n]);
         zone_species_linf = std::max(zone_species_linf, std::abs(xn_est.err));
-        if (std::abs(l2[iz].xn[n]) >= zone_trace_cutoff) {
+        if (std::abs(l1[iz].xn[n]) >= zone_trace_cutoff) {
           zone_rel_species_linf = std::max(
-              zone_rel_species_linf, rel_error(xn_est.err, l2[iz].xn[n]));
+              zone_rel_species_linf, rel_error(xn_est.err, l1[iz].xn[n]));
           ++species_rel_count;
           ++species_rel_hit_count[n];
           if (!zone_first_species) {
@@ -1260,8 +1269,9 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu,
   };
 
   if (do_richardson && n_tol_levels == 3) {
-    report_richardson("CPU", level_results[0].cpu.states,
-                      level_results[1].cpu.states, level_results[2].cpu.states);
+    report_richardson("CPU", level_results[richardson_loose_level].cpu.states,
+                      level_results[richardson_base_level].cpu.states,
+                      level_results[richardson_tight_level].cpu.states);
   }
 
   struct ZoneTruncationEstimate {
@@ -1274,9 +1284,9 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu,
   std::vector<ZoneTruncationEstimate> cpu_zone_truncation;
   if (do_richardson && n_tol_levels == 3) {
     cpu_zone_truncation.resize(n_zones);
-    const auto &cpu_l0 = level_results[0].cpu.states;
-    const auto &cpu_l1 = level_results[1].cpu.states;
-    const auto &cpu_l2 = level_results[2].cpu.states;
+    const auto &cpu_l0 = level_results[richardson_loose_level].cpu.states;
+    const auto &cpu_l1 = level_results[richardson_base_level].cpu.states;
+    const auto &cpu_l2 = level_results[richardson_tight_level].cpu.states;
 
     for (int iz = 0; iz < n_zones; ++iz) {
       auto &est = cpu_zone_truncation[iz];
@@ -1361,9 +1371,9 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu,
   std::vector<ZoneRichardsonThresholds> cpu_zone_thresholds;
   if (use_richardson_gpu_failure) {
     cpu_zone_thresholds.resize(n_zones);
-    const auto &cpu_l0 = level_results[0].cpu.states;
-    const auto &cpu_l1 = level_results[1].cpu.states;
-    const auto &cpu_l2 = level_results[2].cpu.states;
+    const auto &cpu_l0 = level_results[richardson_loose_level].cpu.states;
+    const auto &cpu_l1 = level_results[richardson_base_level].cpu.states;
+    const auto &cpu_l2 = level_results[richardson_tight_level].cpu.states;
     const amrex::Real trace_rel_cutoff =
         amrex::max(unit_test_rp::richardson_trace_species_cutoff, 0.0_rt);
 
@@ -1386,7 +1396,7 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu,
 
       amrex::Real zone_max_xn = 0.0_rt;
       for (int n = 0; n < NumSpec; ++n) {
-        zone_max_xn = std::max(zone_max_xn, std::abs(cpu_l2[iz].xn[n]));
+        zone_max_xn = std::max(zone_max_xn, std::abs(cpu_l1[iz].xn[n]));
       }
       const amrex::Real zone_trace_cutoff = trace_rel_cutoff * zone_max_xn;
 
@@ -1396,7 +1406,7 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu,
                                           cpu_l2[iz].xn[n])
                                           .err);
         thr.species_non_trace[n] =
-            (std::abs(cpu_l2[iz].xn[n]) >= zone_trace_cutoff) ? 1 : 0;
+            (std::abs(cpu_l1[iz].xn[n]) >= zone_trace_cutoff) ? 1 : 0;
       }
     }
   }
