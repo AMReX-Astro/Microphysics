@@ -728,18 +728,18 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu,
   const amrex::Real base_retry_rtol_enuc = integrator_rp::retry_rtol_enuc;
   const amrex::Real base_retry_atol_enuc = integrator_rp::retry_atol_enuc;
 
-  const amrex::Real tol_factor =
-      amrex::max(unit_test_rp::richardson_tol_factor, 1.0_rt);
   const bool compare_against_saved = !compare_final_state_file.empty();
   const bool do_richardson =
-      !compare_against_saved && unit_test_rp::richardson_enable &&
-      (tol_factor > 1.0_rt);
+      !compare_against_saved && unit_test_rp::richardson_enable;
   const int n_tol_levels = do_richardson ? 3 : 1;
   const std::array<amrex::Real, 3> richardson_scales = {
-      1.0_rt, 1.0_rt / tol_factor, tol_factor};
-  constexpr int richardson_base_level = 0;
-  constexpr int richardson_loose_level = 1;
+      0.5_rt, 1.0_rt, 2.0_rt};
+  constexpr int richardson_loose_level = 0;
+  constexpr int richardson_base_level = 1;
   constexpr int richardson_tight_level = 2;
+  const amrex::Real richardson_ratio =
+      richardson_scales[richardson_tight_level] /
+      richardson_scales[richardson_base_level];
   const bool compare_backend_is_gpu = compare_against_saved && enable_gpu;
   const bool run_gpu_backend =
       compare_against_saved ? compare_backend_is_gpu : enable_gpu;
@@ -903,13 +903,13 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu,
       return est;
     }
 
-    est.p = std::log(ratio) / std::log(tol_factor);
+    est.p = std::log(ratio) / std::log(richardson_ratio);
     if (!std::isfinite(est.p)) {
       est.err = d01;
       return est;
     }
 
-    amrex::Real denom = std::pow(tol_factor, est.p) - 1.0_rt;
+    amrex::Real denom = std::pow(richardson_ratio, est.p) - 1.0_rt;
     if (std::abs(denom) <= tiny || !std::isfinite(denom)) {
       est.err = d01;
       return est;
