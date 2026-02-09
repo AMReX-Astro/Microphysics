@@ -462,6 +462,45 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu,
       return status;
     };
 
+    auto precompute_total_steps = [&]() -> int {
+      auto dd_pc = dd_h;
+      auto active_pc = active_h;
+      int steps = 0;
+
+      for (int step = 0; step < unit_test_rp::nsteps; ++step) {
+        bool any_active = false;
+
+        for (int iz = 0; iz < n_zones; ++iz) {
+          if (active_pc[iz] == 0) {
+            continue;
+          }
+
+          amrex::Real dd1 = dd_pc[iz];
+          amrex::Real tff =
+              std::sqrt(M_PI * 3.0_rt / (32.0_rt * dd1 * grav_constant));
+          amrex::Real dt = unit_test_rp::tff_reduc * tff;
+          amrex::Real dd_new = dd1 + dt * (dd1 / tff);
+
+          if (dt < 10.0_rt || dd_new > 2.0e-6_rt) {
+            active_pc[iz] = 0;
+            continue;
+          }
+
+          dd_pc[iz] = dd_new;
+          any_active = true;
+        }
+
+        if (!any_active) {
+          break;
+        }
+        ++steps;
+      }
+
+      return steps;
+    };
+
+    const int total_steps = precompute_total_steps();
+
     for (int step = 0; step < unit_test_rp::nsteps; ++step) {
       bool any_active = false;
 
@@ -472,12 +511,8 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu,
         }
 
         amrex::Real dd1 = dd_h[iz];
-        amrex::Real rhotmp = 0.0_rt;
-        for (int nn = 0; nn < NumSpec; ++nn) {
-          rhotmp += states_h[iz].xn[nn] * spmasses[nn];
-        }
         amrex::Real tff =
-            std::sqrt(M_PI * 3.0_rt / (32.0_rt * rhotmp * grav_constant));
+            std::sqrt(M_PI * 3.0_rt / (32.0_rt * dd1 * grav_constant));
         amrex::Real dt = unit_test_rp::tff_reduc * tff;
         amrex::Real dd_new = dd1 + dt * (dd1 / tff);
 
@@ -503,6 +538,12 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu,
 
       if (!any_active) {
         break;
+      }
+
+      if (unit_test_rp::burn_progress_interval > 0 &&
+          (step + 1) % unit_test_rp::burn_progress_interval == 0) {
+        std::cout << "Burn progress: timestep " << (step + 1) << " / "
+                  << total_steps << std::endl;
       }
 
       if (use_gpu) {

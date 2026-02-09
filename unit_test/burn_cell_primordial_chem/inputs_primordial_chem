@@ -1,5 +1,6 @@
 unit_test.n_zones = 1
 #unit_test.n_zones = 32**3
+
 integrator.burner_verbose = 0
 
 ## unit_test runtime parameters
@@ -11,6 +12,8 @@ unit_test.tff_reduc = 0.03
 
 # number of integration steps
 unit_test.nsteps = 1e4
+unit_test.burn_progress_interval = 10
+
 unit_test.richardson_enable = 1
 unit_test.richardson_tol_factor = 10.0
 # set to 1 to print per-zone Richardson estimates

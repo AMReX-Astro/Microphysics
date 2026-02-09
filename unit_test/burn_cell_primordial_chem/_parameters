@@ -16,6 +16,8 @@ tfirst        real       0.0
 
 # number of steps for the single zone burn
 nsteps        int        1000
+# print multi-zone burn progress every N timesteps (<= 0 disables)
+burn_progress_interval int 100
 
 # estimate truncation error with three tolerance levels and Richardson extrapolation
 richardson_enable         bool       1
