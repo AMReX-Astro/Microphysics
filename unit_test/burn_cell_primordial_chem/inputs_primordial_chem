@@ -19,6 +19,8 @@ unit_test.richardson_tol_factor = 10.0
 unit_test.richardson_print_per_zone = 0
 # non-trace threshold as fraction of most abundant species per zone
 unit_test.richardson_trace_species_cutoff = 1e-15
+# set to 1 to compute per-zone Jacobian stiffness diagnostics (expensive)
+unit_test.compute_stiffness_diagnostics = 0
 
 # max total time
 unit_test.tmax = 7.e20

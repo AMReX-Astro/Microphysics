@@ -371,6 +371,7 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu,
   struct MultiZoneSummary {
     int failures = 0;
     int retries = 0;
+    bool stiffness_enabled = false;
     amrex::Real t_min = std::numeric_limits<amrex::Real>::max();
     amrex::Real t_max = -std::numeric_limits<amrex::Real>::max();
     amrex::Real stiffness_ratio_min = std::numeric_limits<amrex::Real>::max();
@@ -390,6 +391,7 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu,
     std::vector<int> active_h(n_zones, 1);
 
     summary = MultiZoneSummary{};
+    summary.stiffness_enabled = unit_test_rp::compute_stiffness_diagnostics;
     int retry_total = 0;
 
     for (int iz = 0; iz < n_zones; ++iz) {
@@ -468,8 +470,10 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu,
       int steps = 0;
 
       for (int step = 0; step < unit_test_rp::nsteps; ++step) {
-        bool any_active = false;
-
+        int any_active_int = 0;
+#ifdef AMREX_USE_OMP
+#pragma omp parallel for schedule(dynamic, 64) reduction(max : any_active_int)
+#endif
         for (int iz = 0; iz < n_zones; ++iz) {
           if (active_pc[iz] == 0) {
             continue;
@@ -487,9 +491,10 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu,
           }
 
           dd_pc[iz] = dd_new;
-          any_active = true;
+          any_active_int = 1;
         }
 
+        const bool any_active = (any_active_int != 0);
         if (!any_active) {
           break;
         }
@@ -502,8 +507,10 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu,
     const int total_steps = precompute_total_steps();
 
     for (int step = 0; step < unit_test_rp::nsteps; ++step) {
-      bool any_active = false;
-
+      int any_active_int = 0;
+#ifdef AMREX_USE_OMP
+#pragma omp parallel for schedule(dynamic, 64) reduction(max : any_active_int)
+#endif
       for (int iz = 0; iz < n_zones; ++iz) {
         if (active_h[iz] == 0) {
           dt_h[iz] = 0.0_rt;
@@ -533,9 +540,10 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu,
 
         dd_h[iz] = dd_new;
         dt_h[iz] = dt;
-        any_active = true;
+        any_active_int = 1;
       }
 
+      const bool any_active = (any_active_int != 0);
       if (!any_active) {
         break;
       }
@@ -572,9 +580,32 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu,
       } else {
         burn_t *states_ptr = states_h.data();
         const amrex::Real *dt_ptr = dt_h.data();
-        amrex::ParallelForOMP(n_zones, BurnZoneKernel{states_ptr, dt_ptr});
+#ifdef AMREX_USE_OMP
+#pragma omp parallel for schedule(dynamic, 32)
+#endif
+        for (int iz = 0; iz < n_zones; ++iz) {
+          amrex::Real dt = dt_ptr[iz];
+          if (dt <= 0.0_rt) {
+            continue;
+          }
+          burn_t &state = states_ptr[iz];
+          state.time = 0.0_rt;
+          state.suppress_failure_output = true;
+          burner(state, dt);
+        }
       }
 
+      int retry_total_step = 0;
+      amrex::Real stiffness_ratio_min_step =
+          std::numeric_limits<amrex::Real>::max();
+      amrex::Real stiffness_ratio_max_step = 0.0_rt;
+      int stiffness_samples_step = 0;
+
+#ifdef AMREX_USE_OMP
+#pragma omp parallel for schedule(dynamic, 32) \
+    reduction(+ : retry_total_step, stiffness_samples_step) \
+    reduction(min : stiffness_ratio_min_step) reduction(max : stiffness_ratio_max_step)
+#endif
       for (int iz = 0; iz < n_zones; ++iz) {
         if (dt_h[iz] <= 0.0_rt) {
           continue;
@@ -585,7 +616,7 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu,
         if (!state.success || state.e <= 0.0_rt) {
           burn_t retry_state = states_before[iz];
           retry_state.suppress_failure_output = false;
-          ++retry_total;
+          ++retry_total_step;
           if (integrate_with_retries(retry_state, dt_h[iz], 0)) {
             state = retry_state;
           } else {
@@ -599,15 +630,26 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu,
 
         state.suppress_failure_output = false;
         enforce_post_burn_constraints(state);
-        const auto stiff = compute_jacobian_stiffness(state);
-        if (stiff.valid) {
-          summary.stiffness_ratio_min =
-              std::min(summary.stiffness_ratio_min, stiff.ratio);
-          summary.stiffness_ratio_max =
-              std::max(summary.stiffness_ratio_max, stiff.ratio);
-          ++summary.stiffness_samples;
+        if (summary.stiffness_enabled) {
+          const auto stiff = compute_jacobian_stiffness(state);
+          if (stiff.valid) {
+            stiffness_ratio_min_step =
+                std::min(stiffness_ratio_min_step, stiff.ratio);
+            stiffness_ratio_max_step =
+                std::max(stiffness_ratio_max_step, stiff.ratio);
+            ++stiffness_samples_step;
+          }
         }
         time_h[iz] += dt_h[iz];
+      }
+
+      retry_total += retry_total_step;
+      if (summary.stiffness_enabled && stiffness_samples_step > 0) {
+        summary.stiffness_ratio_min =
+            std::min(summary.stiffness_ratio_min, stiffness_ratio_min_step);
+        summary.stiffness_ratio_max =
+            std::max(summary.stiffness_ratio_max, stiffness_ratio_max_step);
+        summary.stiffness_samples += stiffness_samples_step;
       }
     }
 
@@ -644,14 +686,18 @@ auto burn_cell_multi_c(int n_zones, bool enable_gpu,
                 << summary.t_min << ", " << summary.t_max << "]" << std::endl;
       std::cout << "  retries applied           : "
                 << summary.retries << std::endl;
-      if (summary.stiffness_samples > 0) {
-        std::cout << "  stiffness ratio range     : ["
-                  << std::scientific << summary.stiffness_ratio_min << ", "
-                  << summary.stiffness_ratio_max << "]"
-                  << std::defaultfloat << " (samples="
-                  << summary.stiffness_samples << ")" << std::endl;
+      if (summary.stiffness_enabled) {
+        if (summary.stiffness_samples > 0) {
+          std::cout << "  stiffness ratio range     : ["
+                    << std::scientific << summary.stiffness_ratio_min << ", "
+                    << summary.stiffness_ratio_max << "]"
+                    << std::defaultfloat << " (samples="
+                    << summary.stiffness_samples << ")" << std::endl;
+        } else {
+          std::cout << "  stiffness ratio range     : unavailable" << std::endl;
+        }
       } else {
-        std::cout << "  stiffness ratio range     : unavailable" << std::endl;
+        std::cout << "  stiffness diagnostics     : disabled" << std::endl;
       }
     } else {
       std::cout << "  status                    : no successful zones"
