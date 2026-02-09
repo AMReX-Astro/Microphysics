@@ -10,7 +10,7 @@ COMP       = gnu
 EXTRACXXFLAGS += -Wno-psabi
 
 USE_MPI    = FALSE
-USE_OMP    = FALSE
+USE_OMP    = TRUE
 #set USE_CUDA to TRUE to compile and run on GPUs
 USE_CUDA   = FALSE
 USE_REACT = TRUE

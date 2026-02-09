@@ -38,7 +38,7 @@ fi
 
 target_root="/opt/zerobrew/prefix/lib/gcc/current"
 
-for lib in libgfortran.5.dylib libquadmath.0.dylib libstdc++.6.dylib; do
+for lib in libgfortran.5.dylib libquadmath.0.dylib libstdc++.6.dylib libgomp.1.dylib; do
     new_path="${target_root}/${lib}"
     if [ ! -e "$new_path" ]; then
         continue
