@@ -396,6 +396,49 @@ namespace Rates
         NumRates = k_Ni57_to_n_Ni56_removed
     };
 
+    enum ScreenPairs :
+    std::uint8_t
+    {
+        k_p_C12 = 1,
+        k_He4_C12 = 2,
+        k_He4_O16 = 3,
+        k_He4_Ne20 = 4,
+        k_p_Na23 = 5,
+        k_He4_Mg24 = 6,
+        k_p_Al27 = 7,
+        k_He4_Si28 = 8,
+        k_p_P31 = 9,
+        k_He4_Cr48 = 10,
+        k_p_nse_Mn51 = 11,
+        k_He4_Mn51 = 12,
+        k_He4_Fe52 = 13,
+        k_p_nse_Co55 = 14,
+        k_C12_C12 = 15,
+        k_He4_N13 = 16,
+        k_C12_O16 = 17,
+        k_O16_O16 = 18,
+        k_He4_He4 = 19,
+        k_He4_Be8 = 20,
+        k_He4_N14 = 21,
+        k_p_O16 = 22,
+        k_p_nse_Fe54 = 23,
+        k_He4_Fe54 = 24,
+        k_p_nse_Fe56 = 25,
+        k_p_nse_Co57 = 26,
+        k_He4_Co55 = 27,
+        k_p_nse_Co56 = 28,
+        k_p_nse_Ni58 = 29,
+        k_He4_S32 = 30,
+        k_p_Cl35 = 31,
+        k_He4_Ar36 = 32,
+        k_p_K39 = 33,
+        k_He4_Ca40 = 34,
+        k_p_Sc43 = 35,
+        k_He4_Ti44 = 36,
+        k_p_V47 = 37,
+        NumScreenPairs = k_p_V47
+    };
+
     // rate names -- note: the rates are 1-based, not zero-based, so we pad
     // this vector with rate_names[0] = "" so the indices line up with the
     // NetworkRates enum
