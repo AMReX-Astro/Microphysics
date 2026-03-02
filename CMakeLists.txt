@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 
 project(Microphysics
     VERSION 1.0.0
-    DESCRIPTION "building primordial_chemistry or metal_chemistry networks in Microphysics with CMake"
+    DESCRIPTION "building primordial_chemistry or metal_chemistry or photoionization networks in Microphysics with CMake"
     LANGUAGES CXX C)
 
 #----------------------------------------------------------------------------------------------------------------------
@@ -93,6 +93,106 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
     set(primordial_chem_sources ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/eos_data.cpp
                                 ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/network_initialization.cpp
                                 ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/primordial_chem/actual_network_data.cpp
+                                ${output_dir}/extern_parameters.cpp PARENT_SCOPE)
+
+
+    #below for NAUX
+    execute_process(COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${PYTHONPATH}:${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null" python3 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/get_naux.py" --net "${networkdir}" --microphysics_path "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/" WORKING_DIRECTORY ${output_dir}/)
+    execute_process(COMMAND python3 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/write_network.py" --header_template "${networkheadertemplatefile}" --header_output "${networkpropfile}" -s "${networkfile}" WORKING_DIRECTORY ${output_dir}/)
+
+  elseif (${network_name} STREQUAL "H_ionization_TInd")
+    #need these to write extern_parameters.H
+    set(paramfile "${CMAKE_CURRENT_LIST_DIR}/_parameters")
+    # TODO(#1)(james471): See how to do eosparamfile correctly
+    set(EOSparamfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/photoionization/_parameters")
+    set(networkpcparamfile "${CMAKE_SOURCE_DIR}/src/networks/H_ionization_TInd/_parameters")
+
+    #similarly, we want network_properties.H
+    set(networkpropfile "${output_dir}/network_properties.H")
+    # set(networkfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/primordial_chem/pynucastro.net")
+    set(networkdir "${CMAKE_SOURCE_DIR}/src/networks/H_ionization_TInd/")
+    set(networkheadertemplatefile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/network_header.template")
+
+    #DO NOT change the order of the directories below!
+    set (photoionization_dirs ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util/gcem/include
+                             ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/integration/VODE ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/integration/utils
+                             ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/integration ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces
+                             ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/photoionization
+                             ${CMAKE_SOURCE_DIR}/src/networks/H_ionization_TInd ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks 
+                             ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/constants
+                             PARENT_SCOPE)
+
+    #we need to have extern_parameters.cpp be available at configure time
+    #the script write_probin.py writes this .cpp file so we call it here
+    #note, execute_process only works on 'cmake' and not 'make'
+    #so, if any of the _parameter files are changed, one needs to re-run 'cmake'
+    #to generate updated header files
+
+    if(BUILD_UNIT_TEST_PC)
+      message(STATUS "In BUILD_UNIT_TEST_PC")
+      execute_process(COMMAND python3 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util/build_scripts/write_probin.py" --pa "${paramfile} ${EOSparamfile}
+                      ${networkpcparamfile} ${networkparamfile} ${VODEparamfile} ${integrationparamfile} ${unittestparamfile}" --use_namespace WORKING_DIRECTORY ${output_dir}/)
+    else()
+      message(STATUS "Not in BUILD_UNIT_TEST_PC")
+      #do not need paramfile and unittestparamfile
+      execute_process(COMMAND python3 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util/build_scripts/write_probin.py" --pa "${EOSparamfile} ${networkpcparamfile}
+                      ${networkparamfile} ${VODEparamfile} ${integrationparamfile} " --use_namespace WORKING_DIRECTORY ${output_dir}/)
+    endif()
+
+    set(photoionization_sources ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/eos_data.cpp
+                                ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/network_initialization.cpp
+                                ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/photoionization/actual_eos_data.cpp
+                                ${CMAKE_SOURCE_DIR}/src/networks/H_ionization_TInd/actual_network_data.cpp
+                                ${output_dir}/extern_parameters.cpp PARENT_SCOPE)
+
+
+    #below for NAUX
+    execute_process(COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${PYTHONPATH}:${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null" python3 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/get_naux.py" --net "${networkdir}" --microphysics_path "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/" WORKING_DIRECTORY ${output_dir}/)
+    execute_process(COMMAND python3 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/write_network.py" --header_template "${networkheadertemplatefile}" --header_output "${networkpropfile}" -s "${networkfile}" WORKING_DIRECTORY ${output_dir}/)
+
+  elseif (${network_name} STREQUAL "photoionization")
+    #need these to write extern_parameters.H
+    set(paramfile "${CMAKE_CURRENT_LIST_DIR}/_parameters")
+    # TODO(#1)(james471): See how to do eosparamfile correctly
+    set(EOSparamfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/photoionization/_parameters")
+    set(networkpcparamfile "${CMAKE_SOURCE_DIR}/src/networks/photoionization/_parameters")
+
+    #similarly, we want network_properties.H
+    set(networkpropfile "${output_dir}/network_properties.H")
+    # set(networkfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/primordial_chem/pynucastro.net")
+    set(networkdir "${CMAKE_SOURCE_DIR}/src/networks/photoionization/")
+    set(networkheadertemplatefile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/network_header.template")
+
+    #DO NOT change the order of the directories below!
+    set (photoionization_dirs ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util/gcem/include
+                             ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/integration/VODE ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/integration/utils
+                             ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/integration ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces
+                             ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/photoionization
+                             ${CMAKE_SOURCE_DIR}/src/networks/photoionization ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks 
+                             ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/constants
+                             PARENT_SCOPE)
+
+    #we need to have extern_parameters.cpp be available at configure time
+    #the script write_probin.py writes this .cpp file so we call it here
+    #note, execute_process only works on 'cmake' and not 'make'
+    #so, if any of the _parameter files are changed, one needs to re-run 'cmake'
+    #to generate updated header files
+
+    if(BUILD_UNIT_TEST_PC)
+      message(STATUS "In BUILD_UNIT_TEST_PC")
+      execute_process(COMMAND python3 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util/build_scripts/write_probin.py" --pa "${paramfile} ${EOSparamfile}
+                      ${networkpcparamfile} ${networkparamfile} ${VODEparamfile} ${integrationparamfile} ${unittestparamfile}" --use_namespace WORKING_DIRECTORY ${output_dir}/)
+    else()
+      message(STATUS "Not in BUILD_UNIT_TEST_PC")
+      #do not need paramfile and unittestparamfile
+      execute_process(COMMAND python3 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util/build_scripts/write_probin.py" --pa "${EOSparamfile} ${networkpcparamfile}
+                      ${networkparamfile} ${VODEparamfile} ${integrationparamfile} " --use_namespace WORKING_DIRECTORY ${output_dir}/)
+    endif()
+
+    set(photoionization_sources ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/eos_data.cpp
+                                ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/network_initialization.cpp
+                                ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/photoionization/actual_eos_data.cpp
+                                ${CMAKE_SOURCE_DIR}/src/networks/photoionization/actual_network_data.cpp
                                 ${output_dir}/extern_parameters.cpp PARENT_SCOPE)
 
 
