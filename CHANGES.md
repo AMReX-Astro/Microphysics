@@ -1,5 +1,11 @@
 # Changelog
 
+## 26.03
+
+   * allow screening to output log(screening) (#1939)
+
+   * move EOS data to be inline (#1937)
+
 ## 26.02
 
   * update the NSE check for the self-consistent solver.  The rate
