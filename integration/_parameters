@@ -34,6 +34,18 @@ atol_spec                real      1.e-8
 # absolute tolerance for energy
 atol_enuc                real      1.e-6
 
+# relative tolerance for radiation density
+rtol_rad_num             real      1.e-12
+
+# relative teolerance for radiation flux
+rtol_rad_flux            real      1.e-6
+
+# absolute tolerance for radiation density
+atol_rad_num             real      1.e-8
+
+# absolute tolerance for radiation flux
+atol_rad_flux            real      1.e-6
+
 # Whether to renormalize the mass fractions at each step in the evolution
 # so that they sum to unity.
 renormalize_abundances   bool   0
@@ -89,6 +101,18 @@ retry_atol_spec                real      -1
 # absolute tolerance for energy on retry
 retry_atol_enuc                real      -1
 
+# relative tolerance for radiation density on retry
+retry_rtol_rad_num             real      -1
+
+# relative tolerance for radiation flux on retry
+retry_rtol_rad_flux            real      -1
+
+# absolute tolerance for radiation density on retry
+retry_atol_rad_num             real      -1
+
+# absolute tolerance for radiation flux on retry
+retry_atol_rad_flux            real      -1
+
 # in the clean_state process, do we clip the species such that they
 # are in [0, 1]?
 do_species_clip              bool         0
@@ -123,3 +147,6 @@ linalg_do_pivoting         bool        1
 # -failure_tolerance <= X <= 1.0 + failure_tolerance).
 species_failure_tolerance  real       1.e-2_rt
 
+# We will use this parameter to determine if a radiation group
+# number density is unreasonably small
+radiation_failure_tolerance real      1.e-2_rt

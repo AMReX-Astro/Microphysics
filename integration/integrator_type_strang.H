@@ -18,6 +18,12 @@ void integrator_to_burn (const I& int_state, BurnT& state)
 
     state.e = int_state.y(net_ienuc);
 
+#ifdef PHOTOCHEMISTRY
+    for (int n = 1; n <= NumRadEqs; ++n) {
+        state.rn[n-1] = int_state.y(net_ienuc + n);
+    }
+#endif
+
     if (integrator_rp::scale_system) {
         state.e *= state.e_scale;
     }
@@ -37,6 +43,12 @@ void burn_to_integrator (const BurnT& state, I& int_state)
     }
 
     int_state.y(net_ienuc) = state.e;
+
+#ifdef PHOTOCHEMISTRY
+    for (int n = 1; n <= NumRadEqs; ++n) {
+        int_state.y(net_ienuc + n) = state.rn[n-1];
+    }
+#endif
 
     if (integrator_rp::scale_system) {
         int_state.y(net_ienuc) /= state.e_scale;

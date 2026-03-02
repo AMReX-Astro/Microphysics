@@ -1,6 +1,7 @@
 #ifndef EOS_H
 #define EOS_H
 
+#include <iostream>
 #include <network_properties.H>
 #include <eos_data.H>
 #include <eos_type.H>
@@ -72,8 +73,9 @@ void eos_reset (T& state, bool& has_been_reset)
 {
   state.T = amrex::min(EOSData::maxtemp, amrex::max(EOSData::mintemp, state.T));
   state.rho = amrex::min(EOSData::maxdens, amrex::max(EOSData::mindens, state.rho));
-
+  // std::cout << "eos_reset()--> Calling actual_eos" << std::endl;
   actual_eos(eos_input_rt, state);
+  // std::cout << "eos_reset()--> Finished actual_eos" << std::endl;
 
   has_been_reset = true;
 }
@@ -424,9 +426,11 @@ void eos (const I input, T& state)
   eos_override(state);
 
   // Call the EOS.
-
+  // std::cout << "state.xn[1] in eos.h: " << state.xn[1] << std::endl;
   if (!has_been_reset) {
+    // std::cout << "eos()--> Calling actual_eos" << std::endl;
     actual_eos(input, state);
+    // std::cout << "eos()--> Finished actual_eos" << std::endl;
   }
 }
 

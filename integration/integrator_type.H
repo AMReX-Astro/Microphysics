@@ -34,6 +34,7 @@ template <typename BurnT, typename I>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void update_thermodynamics (BurnT& state, const I& int_state)
 {
+    // TODO(#3)(james471): Add radiation check for aux thermo
 #ifdef AUX_THERMO
     // we are handling the thermodynamics via the aux quantities, which
     // are stored in the burn_t here, so we need to update those based on
@@ -58,6 +59,11 @@ void update_thermodynamics (BurnT& state, const I& int_state)
         state.xn[n-1] = int_state.y(n);
     }
     state.e = int_state.y(net_ienuc);
+#ifdef PHOTOCHEMISTRY
+    for (int n = 1; n <= NumRadEqs; ++n) {
+        state.rn[n-1] = int_state.y(net_ienuc + n);
+    }
+#endif
 
     if (integrator_rp::scale_system) {
         state.e *= state.e_scale;
