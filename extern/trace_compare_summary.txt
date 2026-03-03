@@ -1,0 +1,53 @@
+EVENT ACCEPT: CVODE=2215 DVODE=4032 compared=2215
+  t: max_abs_diff=3.644695e+10 first_abs_diff=0.000000e+00
+  hu: max_abs_diff=1.007849e+09 first_abs_diff=0.000000e+00
+  nq: max_abs_diff=4.000000e+00 first_abs_diff=0.000000e+00
+EVENT ACCEPT_DEBUG: CVODE=0 DVODE=1 compared=0
+EVENT ACCEPT_POST: CVODE=2719 DVODE=2392 compared=2392
+  TQ5: max_abs_diff=3.536412e+03 first_abs_diff=0.000000e+00
+  CONP: max_abs_diff=2.731179e+02 first_abs_diff=0.000000e+00
+  NQWAIT: max_abs_diff=9.000000e+00 first_abs_diff=0.000000e+00
+  L: max_abs_diff=4.000000e+00 first_abs_diff=0.000000e+00
+EVENT IPVT: CVODE=0 DVODE=1 compared=0
+EVENT LU: CVODE=0 DVODE=1 compared=0
+EVENT ORDER_APPLY: CVODE=2090 DVODE=1921 compared=1921
+  ETA: max_abs_diff=1.907779e+02 first_abs_diff=0.000000e+00
+  NEWQ: max_abs_diff=4.000000e+00 first_abs_diff=0.000000e+00
+EVENT ORDER_DECIDE: CVODE=458 DVODE=327 compared=327
+  ETAQ_eff: max_abs_diff=1.690775e+02 first_abs_diff=1.690775e+02
+  DSM: max_abs_diff=9.598372e-01 first_abs_diff=4.302811e-09
+EVENT P: CVODE=0 DVODE=1 compared=0
+EVENT POST: CVODE=2347 DVODE=2111 compared=2111
+  ACNRM: max_abs_diff=8.788300e+01 first_abs_diff=8.008836e-17
+  DSM: max_abs_diff=9.500760e+00 first_abs_diff=4.004418e-17
+EVENT PRE: CVODE=9388 DVODE=14777 compared=9388
+  tn: max_abs_diff=3.543898e+10 first_abs_diff=0.000000e+00
+  H: max_abs_diff=1.007847e+09 first_abs_diff=0.000000e+00
+  HSCAL: max_abs_diff=1.007847e+09 first_abs_diff=5.892603e-08
+  TAU: max_abs_diff=1.007847e+09 first_abs_diff=0.000000e+00
+  ETAMAX: max_abs_diff=9.990000e+03 first_abs_diff=9.000000e+00
+  NFE: max_abs_diff=1.612000e+03 first_abs_diff=1.000000e+00
+  NST: max_abs_diff=1.170000e+03 first_abs_diff=1.000000e+00
+  NSLP: max_abs_diff=1.169000e+03 first_abs_diff=1.000000e+00
+EVENT REJECT: CVODE=128 DVODE=95 compared=95
+  ETA: max_abs_diff=2.145092e+02 first_abs_diff=2.145092e+02
+  DSM: max_abs_diff=8.449511e+00 first_abs_diff=1.357683e+00
+EVENT REJECT_APPLY: CVODE=0 DVODE=95 compared=0
+EVENT RHS: CVODE=0 DVODE=1 compared=0
+EVENT SOL: CVODE=0 DVODE=1 compared=0
+EVENT YH(:,1): CVODE=0 DVODE=1 compared=0
+EVENT dvnlsd: CVODE=0 DVODE=2496 compared=0
+EVENT dvnlsd:: CVODE=8586 DVODE=7488 compared=7488
+  RHS_DEL: max_abs_diff=2.674724e+07 first_abs_diff=8.008836e-17
+  DCON: max_abs_diff=9.500833e+01 first_abs_diff=4.004418e-16
+  DEL: max_abs_diff=8.723692e+01 first_abs_diff=8.008836e-17
+  M: max_abs_diff=1.000000e+00 first_abs_diff=0.000000e+00
+  CRATE: max_abs_diff=9.730000e-01 first_abs_diff=0.000000e+00
+SUMMARY core_event_counts:
+  PRE: CVODE=9388 DVODE=14777
+  POST: CVODE=2347 DVODE=2111
+  REJECT: CVODE=128 DVODE=95
+  ACCEPT: CVODE=2215 DVODE=4032
+  ORDER_APPLY: CVODE=2090 DVODE=1921
+  ORDER_DECIDE: CVODE=458 DVODE=327
+  dvnlsd:: CVODE=8586 DVODE=7488
