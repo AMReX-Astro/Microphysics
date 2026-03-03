@@ -2,7 +2,8 @@
 #define JACOBIAN_UTILITIES_H
 
 #ifndef AMREX_USE_GPU
-#include <format>
+#include <iomanip>
+#include <iostream>
 #endif
 
 #include <burn_type.H>
@@ -31,20 +32,20 @@ print_jacobian (const T& jac) {
 
     constexpr int int_neqs = integrator_neqs<BurnT>();
 
-    std::cout << std::format("{:9} ", "*");
+    std::cout << std::setw(9) << "*" << " ";
     for (int i = 1; i <= NumSpec; ++i) {
-        std::cout << std::format("{:9} ", short_spec_names_cxx[i-1]);
+        std::cout << std::setw(9) << short_spec_names_cxx[i-1] << " ";
     }
-    std::cout << std::format("{:9} ", "e") << std::endl;
+    std::cout << std::setw(9) << "e" << std::endl;
 
     for (int j = 1; j <= int_neqs; ++j) {
         if (j < int_neqs) {
-            std::cout << std::format("{:5} ", short_spec_names_cxx[j-1]);
+            std::cout << std::setw(5) << short_spec_names_cxx[j-1] << " ";
         } else {
-            std::cout << std::format("{:5} ", "e");
+            std::cout << std::setw(5) << "e" << " ";
         }
         for (int i = 1; i <= int_neqs; ++i) {
-            std::cout << std::format("{:9.3g} ", jac.get(i, j));
+            std::cout << std::setw(9) << std::setprecision(3) << jac.get(i, j) << " ";
         }
         std::cout << std::endl;
     }

@@ -170,14 +170,18 @@ int dvode (BurnT& state, DvodeT& vstate)
 
            if (vstate.n_step == 0) {
 #ifndef AMREX_USE_GPU
+           if (!state.suppress_failure_output) {
                std::cout << amrex::Font::Bold << amrex::FGColor::Red << "DVODE: too much accuracy requested at start of integration" << amrex::ResetDisplay << std::endl;
+           }
 #endif
                return IERR_TOO_MUCH_ACCURACY_REQUESTED;
            }
 
            // Too much accuracy requested for machine precision.
 #ifndef AMREX_USE_GPU
-           std::cout << "DVODE: too much accuracy requested" << std::endl;
+           if (!state.suppress_failure_output) {
+               std::cout << "DVODE: too much accuracy requested" << std::endl;
+           }
 #endif
            for (int i = 1; i <= int_neqs; ++i) {
                vstate.y(i) = vstate.yh(i,1);
@@ -197,7 +201,9 @@ int dvode (BurnT& state, DvodeT& vstate)
        if (kflag == -1) {
            // Error test failed repeatedly or with ABS(H) = HMIN.
 #ifndef AMREX_USE_GPU
-           std::cout << amrex::Font::Bold << amrex::FGColor::Red << "DVODE: error test failed repeatedly or with abs(H) = HMIN" << amrex::ResetDisplay << std::endl;
+           if (!state.suppress_failure_output) {
+               std::cout << amrex::Font::Bold << amrex::FGColor::Red << "DVODE: error test failed repeatedly or with abs(H) = HMIN" << amrex::ResetDisplay << std::endl;
+           }
 #endif
            // Set Y array, T, and optional output.
            for (int i = 1; i <= int_neqs; ++i) {
@@ -211,7 +217,9 @@ int dvode (BurnT& state, DvodeT& vstate)
        else if (kflag == -2) {
            // Convergence failed repeatedly or with ABS(H) = HMIN.
 #ifndef AMREX_USE_GPU
-           std::cout << amrex::Font::Bold << amrex::FGColor::Red << "DVODE: corrector convergence failed repeatedly or with abs(H) = HMIN" << amrex::ResetDisplay << std::endl;
+           if (!state.suppress_failure_output) {
+               std::cout << amrex::Font::Bold << amrex::FGColor::Red << "DVODE: corrector convergence failed repeatedly or with abs(H) = HMIN" << amrex::ResetDisplay << std::endl;
+           }
 #endif
            // Set Y array, T, and optional output.
            for (int i = 1; i <= int_neqs; ++i) {

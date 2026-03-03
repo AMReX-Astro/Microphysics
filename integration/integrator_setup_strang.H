@@ -181,7 +181,7 @@ void integrator_cleanup (IntegratorT& int_state, BurnT& state,
 
     // If we failed, print out the current state of the integration.
 
-    if (! state.success) {
+    if (! state.success && !state.suppress_failure_output) {
 #ifndef AMREX_USE_GPU
         std::cout << amrex::Font::Bold << amrex::FGColor::Red << "[ERROR] integration failed in net" << amrex::ResetDisplay << std::endl;
         std::cout << "istate = " << istate << std::endl;
