@@ -33,7 +33,9 @@ void dvjac (int& IERPJ, BurnT& state, DvodeT& vstate)
 
     int evaluate_jacobian = 1;
 
-    if (integrator_rp::use_jacobian_caching) {
+    const int use_jacobian_caching = integrator_rp::use_jacobian_caching;
+
+    if (use_jacobian_caching) {
         evaluate_jacobian = 0;
 
         // Now evaluate the cases where we're caching the Jacobian but aren't
@@ -81,7 +83,7 @@ void dvjac (int& IERPJ, BurnT& state, DvodeT& vstate)
 
 #ifdef ALLOW_JACOBIAN_CACHING
             // Store the Jacobian if we're caching.
-            if (integrator_rp::use_jacobian_caching == 1) {
+            if (use_jacobian_caching == 1) {
                 vstate.jac_save = vstate.jac;
             }
 #endif
@@ -132,7 +134,7 @@ void dvjac (int& IERPJ, BurnT& state, DvodeT& vstate)
 
 #ifdef ALLOW_JACOBIAN_CACHING
             // Store the Jacobian if we're caching.
-            if (integrator_rp::use_jacobian_caching == 1) {
+            if (use_jacobian_caching == 1) {
                 vstate.jac_save = vstate.jac;
             }
 #endif

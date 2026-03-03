@@ -16,10 +16,12 @@ void integrator_to_burn (const I& int_state, BurnT& state)
         state.xn[n-1] = int_state.y(n);
     }
 
-    state.e = int_state.y(net_ienuc);
+    if constexpr (integrator_neqs<BurnT>() > NumSpec) {
+        state.e = int_state.y(net_ienuc);
 
-    if (integrator_rp::scale_system) {
-        state.e *= state.e_scale;
+        if (integrator_rp::scale_system) {
+            state.e *= state.e_scale;
+        }
     }
 
     state.time = int_state.t;
@@ -36,10 +38,12 @@ void burn_to_integrator (const BurnT& state, I& int_state)
         int_state.y(n) = state.xn[n-1];
     }
 
-    int_state.y(net_ienuc) = state.e;
+    if constexpr (integrator_neqs<BurnT>() > NumSpec) {
+        int_state.y(net_ienuc) = state.e;
 
-    if (integrator_rp::scale_system) {
-        int_state.y(net_ienuc) /= state.e_scale;
+        if (integrator_rp::scale_system) {
+            int_state.y(net_ienuc) /= state.e_scale;
+        }
     }
 }
 

@@ -5,9 +5,14 @@
 
 #include <burn_type.H>
 
-// Define the size of the ODE system that VODE will integrate
+#ifdef MICROPHYSICS_STRANG_SPECIES_ONLY
+constexpr bool STRANG_SPECIES_ONLY_ODE = true;
+#else
+constexpr bool STRANG_SPECIES_ONLY_ODE = false;
+#endif
 
-constexpr int INT_NEQS = NumSpec + 1;
+// Define the default array size used for integrator work arrays.
+constexpr int INT_NEQS = STRANG_SPECIES_ONLY_ODE ? NumSpec : (NumSpec + 1);
 
 // We will use this parameter to determine if a given species
 // abundance is unreasonably small or large (each X must satisfy
@@ -47,7 +52,7 @@ constexpr int integrator_neqs ()
         int_neqs += NumSpec;
     }
 
-    if constexpr (has_energy<BurnT>) {
+    if constexpr (has_energy<BurnT> && !STRANG_SPECIES_ONLY_ODE) {
         int_neqs += 1;
     }
 #else

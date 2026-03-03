@@ -24,6 +24,7 @@ template <typename BurnT, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void rhs (const amrex::Real time, BurnT& state, T& int_state, RArray1D& ydot, [[maybe_unused]] const bool in_jacobian=false)
 {
+    constexpr int int_neqs = integrator_neqs<BurnT>();
 
     // We are integrating a system of
     //
@@ -51,7 +52,7 @@ void rhs (const amrex::Real time, BurnT& state, T& int_state, RArray1D& ydot, [[
 
     if (state.T <= EOSData::mintemp || state.T >= integrator_rp::MAX_TEMP) {
 
-        for (int n = 1; n <= INT_NEQS; ++n) {
+        for (int n = 1; n <= int_neqs; ++n) {
             ydot(n) = 0.0_rt;
         }
 
@@ -87,20 +88,24 @@ void rhs (const amrex::Real time, BurnT& state, T& int_state, RArray1D& ydot, [[
     }
 
     // scale the energy
-    if (integrator_rp::scale_system) {
-        ydot(net_ienuc) /= state.e_scale;
+    if constexpr (int_neqs > NumSpec) {
+        if (integrator_rp::scale_system) {
+            ydot(net_ienuc) /= state.e_scale;
+        }
     }
 
     // Allow energy integration to be disabled.
 
-    if (! integrator_rp::integrate_energy) {
-        ydot(net_ienuc) = 0.0_rt;
+    if constexpr (int_neqs > NumSpec) {
+        if (! integrator_rp::integrate_energy) {
+            ydot(net_ienuc) = 0.0_rt;
+        }
     }
 
     // apply fudge factor:
 
     if (integrator_rp::react_boost > 0.0_rt) {
-        for (int n = 1; n <= INT_NEQS; ++n) {
+        for (int n = 1; n <= int_neqs; ++n) {
             ydot(n) *= integrator_rp::react_boost;
         }
     }
@@ -114,6 +119,7 @@ template<typename BurnT, typename T, class MatrixType>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void jac ([[maybe_unused]] const amrex::Real time, BurnT& state, T& int_state, MatrixType& pd)
 {
+    constexpr int int_neqs = integrator_neqs<BurnT>();
 
     // Only do the burn if the incoming temperature is within the temperature
     // bounds. Otherwise set the Jacobian to zero and return.
@@ -137,7 +143,7 @@ void jac ([[maybe_unused]] const amrex::Real time, BurnT& state, T& int_state, M
     // turn it off for primordial chem
     if (! integrator_rp::use_number_densities) {
         for (int j = 1; j <= NumSpec; ++j) {
-            for (int i = 1; i <= INT_NEQS; ++i) {
+            for (int i = 1; i <= int_neqs; ++i) {
                 pd.mul(j, i, aion[j-1]);
                 pd.mul(i, j, aion_inv[j-1]);
             }
@@ -146,15 +152,17 @@ void jac ([[maybe_unused]] const amrex::Real time, BurnT& state, T& int_state, M
 
     // scale the energy derivatives
 
-    if (integrator_rp::scale_system) {
-        // first the row de/dX
-        for (int j = 1; j <= INT_NEQS; ++j) {
-            pd(net_ienuc,j) /= state.e_scale;
-        }
+    if constexpr (int_neqs > NumSpec) {
+        if (integrator_rp::scale_system) {
+            // first the row de/dX
+            for (int j = 1; j <= int_neqs; ++j) {
+                pd(net_ienuc,j) /= state.e_scale;
+            }
 
-        // now the column dX/de
-        for (int i = 1; i <= INT_NEQS; ++i) {
-            pd(i,net_ienuc) *= state.e_scale;
+            // now the column dX/de
+            for (int i = 1; i <= int_neqs; ++i) {
+                pd(i,net_ienuc) *= state.e_scale;
+            }
         }
     }
 
@@ -165,9 +173,11 @@ void jac ([[maybe_unused]] const amrex::Real time, BurnT& state, T& int_state, M
 
     // Allow temperature and energy integration to be disabled.
 
-    if (! integrator_rp::integrate_energy) {
-        for (int j = 1; j <= INT_NEQS; ++j) {
-            pd(net_ienuc,j) = 0.0_rt;
+    if constexpr (int_neqs > NumSpec) {
+        if (! integrator_rp::integrate_energy) {
+            for (int j = 1; j <= int_neqs; ++j) {
+                pd(net_ienuc,j) = 0.0_rt;
+            }
         }
     }
 

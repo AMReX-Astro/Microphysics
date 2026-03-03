@@ -10,6 +10,13 @@
 #include <iomanip>
 #include <react_util.H>
 
+#ifdef UNIT_TEST_ENABLE_VODE_CONTINUATION
+#include <integrator_setup_strang.H>
+#include <integrator_type_strang.H>
+#include <vode_type.H>
+#include <vode_dvode.H>
+#endif
+
 AMREX_INLINE
 void burn_cell_c()
 {
@@ -151,48 +158,95 @@ void burn_cell_c()
 
     int nstep_int = 0;
 
-    for (int n = 0; n < unit_test_rp::nsteps; n++){
+#ifdef UNIT_TEST_ENABLE_VODE_CONTINUATION
+    if (unit_test_rp::vode_continuation_mode) {
 
-        // compute the time we wish to integrate to
+        constexpr int int_neqs = integrator_neqs<burn_t>();
+        auto vode_state = integrator_setup<burn_t, dvode_t<int_neqs>>(burn_state, unit_test_rp::tmax, false);
+        bool do_full_init = true;
 
-        amrex::Real tend = std::pow(10.0_rt, std::log10(unit_test_rp::tfirst) + dlogt * n);
-        amrex::Real dt = tend - t;
+        for (int n = 0; n < unit_test_rp::nsteps; n++) {
 
-        burner(burn_state, dt);
+            // compute the time we wish to integrate to
 
-        if (! burn_state.success) {
-            amrex::Error("integration failed");
+            amrex::Real tend = std::pow(10.0_rt, std::log10(unit_test_rp::tfirst) + dlogt * n);
+            vode_state.tout = tend;
+
+            int istate = dvode(burn_state, vode_state, do_full_init);
+            do_full_init = false;
+
+            if (istate != IERR_SUCCESS) {
+                amrex::Error("integration failed");
+            }
+
+            // map the interpolated DVODE state back to burn_state for output
+            integrator_to_burn(vode_state, burn_state);
+
+            if (integrator_rp::call_eos_in_rhs) {
+                eos(eos_input_re, burn_state);
+            }
+
+            t = tend;
+
+            composition(burn_state);
+
+            state_over_time << std::setw(25) << t;
+            state_over_time << std::setw(25) << burn_state.T;
+            state_over_time << std::setw(25) << burn_state.e;
+            state_over_time << std::setw(25) << burn_state.y_e;
+            for (double X : burn_state.xn) {
+                state_over_time << std::setw(25) << X;
+            }
+            state_over_time << std::endl;
         }
 
-        nstep_int += burn_state.n_step;
+        nstep_int = vode_state.n_step;
+    } else
+#endif
+    {
+        for (int n = 0; n < unit_test_rp::nsteps; n++){
 
-        // state.e represents the change in energy over the burn (for
-        // just this sybcycle), so turn it back into a physical energy
+            // compute the time we wish to integrate to
 
-        burn_state.e += energy_initial;
+            amrex::Real tend = std::pow(10.0_rt, std::log10(unit_test_rp::tfirst) + dlogt * n);
+            amrex::Real dt = tend - t;
 
-        // reset the initial energy for the next subcycle
+            burner(burn_state, dt);
 
-        energy_initial = burn_state.e;
+            if (! burn_state.success) {
+                amrex::Error("integration failed");
+            }
 
-        // get the updated T
+            nstep_int += burn_state.n_step;
 
-        if (integrator_rp::call_eos_in_rhs) {
-            eos(eos_input_re, burn_state);
+            // state.e represents the change in energy over the burn (for
+            // just this sybcycle), so turn it back into a physical energy
+
+            burn_state.e += energy_initial;
+
+            // reset the initial energy for the next subcycle
+
+            energy_initial = burn_state.e;
+
+            // get the updated T
+
+            if (integrator_rp::call_eos_in_rhs) {
+                eos(eos_input_re, burn_state);
+            }
+
+            t += dt;
+
+            composition(burn_state);
+
+            state_over_time << std::setw(25) << t;
+            state_over_time << std::setw(25) << burn_state.T;
+            state_over_time << std::setw(25) << burn_state.e;
+            state_over_time << std::setw(25) << burn_state.y_e;
+            for (double X : burn_state.xn) {
+                state_over_time << std::setw(25) << X;
+            }
+            state_over_time << std::endl;
         }
-
-        t += dt;
-
-        composition(burn_state);
-
-        state_over_time << std::setw(25) << t;
-        state_over_time << std::setw(25) << burn_state.T;
-        state_over_time << std::setw(25) << burn_state.e;
-        state_over_time << std::setw(25) << burn_state.y_e;
-        for (double X : burn_state.xn) {
-             state_over_time << std::setw(25) << X;
-        }
-        state_over_time << std::endl;
     }
     state_over_time.close();
 

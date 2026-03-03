@@ -2,6 +2,7 @@
 #define INTEGRATOR_TYPE_H
 
 #include <eos.H>
+#include <integrator_data.H>
 
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
@@ -57,10 +58,13 @@ void update_thermodynamics (BurnT& state, const I& int_state)
     for (int n = 1; n <= NumSpec; ++n) {
         state.xn[n-1] = int_state.y(n);
     }
-    state.e = int_state.y(net_ienuc);
 
-    if (integrator_rp::scale_system) {
-        state.e *= state.e_scale;
+    if constexpr (integrator_neqs<BurnT>() > NumSpec) {
+        state.e = int_state.y(net_ienuc);
+
+        if (integrator_rp::scale_system) {
+            state.e *= state.e_scale;
+        }
     }
 
     // Get T from e (also updates composition quantities).

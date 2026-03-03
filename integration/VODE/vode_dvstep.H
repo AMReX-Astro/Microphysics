@@ -5,6 +5,8 @@
 #include <vode_dvset.H>
 #include <vode_dvjust.H>
 #include <vode_dvnlsd.H>
+#include <iomanip>
+#include <iostream>
 
 template <typename BurnT, typename DvodeT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
@@ -168,12 +170,48 @@ int dvstep (BurnT& state, DvodeT& vstate)
         vstate.RC *= (vstate.RL1 / vstate.PRL1);
         vstate.PRL1 = vstate.RL1;
 
+#ifndef AMREX_USE_GPU
+        std::cout << std::setprecision(17)
+                  << "[CVODE] PRE tn=" << vstate.tn
+                  << " H=" << vstate.H
+                  << " NQ=" << vstate.NQ
+                  << " L=" << vstate.L << std::endl;
+        std::cout << "[CVODE] PRE RL1=" << vstate.RL1
+                  << " RC=" << vstate.RC
+                  << " NQWAIT=" << vstate.NQWAIT
+                  << " ETA=" << vstate.ETA
+                  << " TQ2=" << vstate.tq(2) << std::endl;
+        std::cout << "[CVODE_CTL] PRE ETAMAX=" << vstate.ETAMAX
+                  << " HSCAL=" << vstate.HSCAL
+                  << " PRL1=" << vstate.PRL1
+                  << " CONP=" << vstate.CONP
+                  << " HMXI=" << vstate.HMXI
+                  << " NEWQ=" << vstate.NEWQ
+                  << " NEWH=" << vstate.NEWH
+                  << " IPUP=" << vstate.IPUP
+                  << " NSLJ=" << vstate.NSLJ
+                  << " NSLP=" << vstate.NSLP
+                  << " NST=" << vstate.n_step
+                  << " NFE=" << vstate.n_rhs
+                  << " NJE=" << vstate.n_jac << std::endl;
+        std::cout << "[CVODE_CTL] PRE EL="
+                  << vstate.el(1) << " " << vstate.el(2) << " " << vstate.el(3)
+                  << " " << vstate.el(4) << " " << vstate.el(5) << " " << vstate.el(6)
+                  << " TAU=" << vstate.tau(1) << " " << vstate.tau(2) << " " << vstate.tau(3)
+                  << " " << vstate.tau(4) << " " << vstate.tau(5) << " " << vstate.tau(6)
+                  << " TQ=" << vstate.tq(1) << " " << vstate.tq(2) << " " << vstate.tq(3)
+                  << " " << vstate.tq(4) << " " << vstate.tq(5) << std::endl;
+#endif
 
         // Call the nonlinear system solver.
 
         const amrex::Real ACNRM = dvnlsd(NFLAG, state, vstate);
 
         if (NFLAG != 0) {
+#ifndef AMREX_USE_GPU
+            std::cout << std::setprecision(17)
+                      << "[CVODE] CORR_FAIL ACNRM~" << ACNRM << std::endl;
+#endif
 
             // The VNLS routine failed to achieve convergence (NFLAG != 0).
             // The yh array is retracted to its values before prediction.
@@ -220,6 +258,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
         // we treat it the same way we will treat an error test failure (below).
 
         bool valid_update = true;
+        const bool use_reference_parity = integrator_rp::vode_reference_parity;
 
 #ifdef SDC
         if (vstate.y(SEINT+1) < 0.0_rt) {
@@ -236,6 +275,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
         for (int i = 1; i <= NumSpec; ++i) {
 
 #ifdef STRANG
+            if (!use_reference_parity) {
             // Constrain abundances such that they don't change by more than a certain
             // factor in a given step (as long as their initial abundance was large enough
             // for us to worry about).
@@ -268,10 +308,12 @@ int dvstep (BurnT& state, DvodeT& vstate)
                     break;
                 }
             }
+            }
 
 #endif
 
 #ifdef SDC
+            if (!use_reference_parity) {
 
             // these are basically the same checks as with Strang
             // above, except now we are evolving rhoX instead of X.
@@ -302,6 +344,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
                 valid_update = false;
                 break;
             }
+            }
 
 #endif
 
@@ -311,6 +354,16 @@ int dvstep (BurnT& state, DvodeT& vstate)
         // made and control passes to statement 500 if it fails.
 
         DSM = ACNRM / vstate.tq(2);
+#ifndef AMREX_USE_GPU
+        std::cout << std::setprecision(17)
+                  << "[CVODE] POST ACNRM=" << ACNRM
+                  << " DSM=" << DSM
+                  << " tq2=" << vstate.tq(2)
+                  << " JCUR=" << vstate.JCUR
+                  << " ICF=" << vstate.ICF
+                  << " CRATE=" << vstate.CRATE
+                  << " RC=" << vstate.RC << std::endl;
+#endif
         if (DSM <= 1.0_rt && valid_update) {
 
             // After a successful step, update the yh and TAU arrays and decrement
@@ -320,6 +373,12 @@ int dvstep (BurnT& state, DvodeT& vstate)
 
             kflag = 0;
             vstate.n_step += 1;
+#ifndef AMREX_USE_GPU
+            std::cout << std::setprecision(17)
+                      << "[CVODE] ACCEPT t=" << vstate.tn
+                      << " hu=" << vstate.H
+                      << " nq=" << vstate.NQ << std::endl;
+#endif
             for (int iback = 1; iback <= vstate.NQ; ++iback) {
                 const int i = vstate.L - iback;
                 vstate.tau(i+1) = vstate.tau(i);
@@ -333,11 +392,23 @@ int dvstep (BurnT& state, DvodeT& vstate)
             }
 
             vstate.NQWAIT -= 1;
+#ifndef AMREX_USE_GPU
+            std::cout << std::setprecision(17)
+                      << "[CVODE] ACCEPT_POST NQWAIT=" << vstate.NQWAIT
+                      << " L=" << vstate.L
+                      << " TQ5=" << vstate.tq(5)
+                      << " (pre-CONP update)" << std::endl;
+#endif
             if ((vstate.L != VODE_LMAX) && (vstate.NQWAIT == 1)) {
                 for (int i = 1; i <= int_neqs; ++i) {
                     vstate.yh(i,VODE_LMAX) = vstate.acor(i);
                 }
                 vstate.CONP = vstate.tq(5);
+#ifndef AMREX_USE_GPU
+                std::cout << std::setprecision(17)
+                          << "[CVODE] ACCEPT_POST set CONP=TQ5, CONP="
+                          << vstate.CONP << std::endl;
+#endif
             }
 
             if (vstate.ETAMAX != 1.0_rt) {
@@ -394,6 +465,13 @@ int dvstep (BurnT& state, DvodeT& vstate)
             if ((kflag <= -2) && (vstate.ETA > ETAMXF)) {
                 vstate.ETA = ETAMXF;
             }
+#ifndef AMREX_USE_GPU
+            std::cout << std::setprecision(17)
+                      << "[CVODE] REJECT DSM=" << DSM
+                      << " ETA=" << vstate.ETA
+                      << " NQWAIT=" << vstate.NQWAIT
+                      << " NEWQ=" << vstate.NEWQ << std::endl;
+#endif
 
             // Rescale the history array for a change in H by a factor of ETA.
             amrex::Real R = 1.0_rt;
@@ -507,6 +585,13 @@ int dvstep (BurnT& state, DvodeT& vstate)
             }
             DUP = std::sqrt(DUP / int_neqs) / vstate.tq(3);
             ETAQP1 = 1.0_rt / (std::pow(BIAS3 * DUP, 1.0_rt / (FLOTL + 1.0_rt)) + ADDON);
+#ifndef AMREX_USE_GPU
+            std::cout << std::setprecision(17)
+                      << "[CVODE] ORDER_DECIDE DSM=" << DSM
+                      << " ETAQ_eff=" << ETAQ
+                      << " ETAQM1=" << ETAQM1
+                      << " ETAQP1=" << ETAQP1 << std::endl;
+#endif
         }
 
         if (ETAQ < ETAQP1) {
@@ -550,6 +635,11 @@ int dvstep (BurnT& state, DvodeT& vstate)
         for (int i = 1; i <= int_neqs; ++i) {
             vstate.acor(i) *= R;
         }
+#ifndef AMREX_USE_GPU
+        std::cout << std::setprecision(17)
+                  << "[CVODE] ORDER_APPLY ETA=" << vstate.ETA
+                  << " NEWQ=" << vstate.NEWQ << std::endl;
+#endif
         return kflag;
     }
 
@@ -564,6 +654,11 @@ int dvstep (BurnT& state, DvodeT& vstate)
     for (int i = 1; i <= int_neqs; ++i) {
         vstate.acor(i) *= R;
     }
+#ifndef AMREX_USE_GPU
+    std::cout << std::setprecision(17)
+              << "[CVODE] ORDER_APPLY ETA=" << vstate.ETA
+              << " NEWQ=" << vstate.NEWQ << std::endl;
+#endif
 
     return kflag;
 }

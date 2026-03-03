@@ -21,7 +21,7 @@
 
 template <typename BurnT, typename DvodeT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-int dvode (BurnT& state, DvodeT& vstate)
+int dvode (BurnT& state, DvodeT& vstate, bool do_full_init=true)
 {
     constexpr int int_neqs = integrator_neqs<BurnT>();
 
@@ -33,9 +33,14 @@ int dvode (BurnT& state, DvodeT& vstate)
 
     int istate = IERR_SUCCESS;
 
-    // set the (inverse of the)_ timestep limiter
-
-    vstate.HMXI = 1.0_rt / integrator_rp::ode_max_dt;
+    // Set the inverse timestep limiter.
+    // The default sentinel ode_max_dt = 1.e30 means "no limit" here,
+    // matching the reference DVODE behavior (HMXI = 0).
+    if (integrator_rp::ode_max_dt >= 1.0e30_rt || integrator_rp::ode_max_dt <= 0.0_rt) {
+        vstate.HMXI = 0.0_rt;
+    } else {
+        vstate.HMXI = 1.0_rt / integrator_rp::ode_max_dt;
+    }
 
     // Return if the final time matches the starting time.
 
@@ -46,60 +51,63 @@ int dvode (BurnT& state, DvodeT& vstate)
     // All remaining initializations, the initial call to F,
     // and the calculation of the initial step size.
     // The error weights in ewt are inverted after being loaded.
+    if (do_full_init) {
 
-    vstate.tn = vstate.t;
+        vstate.tn = vstate.t;
 
-    vstate.n_step = 0;
-    vstate.n_jac = 0;
-    vstate.NSLJ = 0;
+        vstate.n_step = 0;
+        vstate.n_jac = 0;
+        vstate.NSLJ = 0;
 
     // Initial call to the RHS.
 
-    amrex::Array1D<amrex::Real, 1, int_neqs> f_init;
+        amrex::Array1D<amrex::Real, 1, int_neqs> f_init;
 
-    rhs(vstate.t, state, vstate, f_init);
+        rhs(vstate.t, state, vstate, f_init);
 
-    for (int i = 1; i <= int_neqs; ++i) {
-        vstate.yh(i,2) = f_init(i);
-    }
+        for (int i = 1; i <= int_neqs; ++i) {
+            vstate.yh(i,2) = f_init(i);
+        }
 
-    vstate.n_rhs = 1;
+        vstate.n_rhs = 1;
 
     // Load the initial value array in yh.
 
-    for (int i = 1; i <= int_neqs; ++i) {
-        vstate.yh(i,1) = vstate.y(i);
-    }
+        for (int i = 1; i <= int_neqs; ++i) {
+            vstate.yh(i,1) = vstate.y(i);
+        }
 
     // Load and invert the ewt array. (H is temporarily set to 1.0.)
-    vstate.NQ = 1;
-    vstate.H = 1.0_rt;
+        vstate.NQ = 1;
+        vstate.H = 1.0_rt;
 
-    for (int i = 1; i <= NumSpec; ++i) {
-        vstate.ewt(i) = vstate.rtol_spec * std::abs(vstate.yh(i,1)) + vstate.atol_spec;
-        vstate.ewt(i) = 1.0_rt / vstate.ewt(i);
-    }
-    vstate.ewt(NumSpec+1) = vstate.rtol_enuc * std::abs(vstate.yh(NumSpec+1,1)) + vstate.atol_enuc;
-    vstate.ewt(NumSpec+1) = 1.0_rt / vstate.ewt(NumSpec+1);
+        for (int i = 1; i <= NumSpec; ++i) {
+            vstate.ewt(i) = vstate.rtol_spec * std::abs(vstate.yh(i,1)) + vstate.atol_spec;
+            vstate.ewt(i) = 1.0_rt / vstate.ewt(i);
+        }
+        if constexpr (int_neqs > NumSpec) {
+            vstate.ewt(NumSpec+1) = vstate.rtol_enuc * std::abs(vstate.yh(NumSpec+1,1)) + vstate.atol_enuc;
+            vstate.ewt(NumSpec+1) = 1.0_rt / vstate.ewt(NumSpec+1);
+        }
 
     // Call DVHIN to set initial step size H0 to be attempted.
-    H0 = 0.0_rt;
-    dvhin(state, vstate, H0, NITER, IER);
-    vstate.n_rhs += NITER;
+        H0 = 0.0_rt;
+        dvhin(state, vstate, H0, NITER, IER);
+        vstate.n_rhs += NITER;
 
-    if (IER != 0) {
+        if (IER != 0) {
 #ifndef AMREX_USE_GPU
-        std::cout << "DVODE: TOUT too close to T to start integration" << std::endl;
+            std::cout << "DVODE: TOUT too close to T to start integration" << std::endl;
 #endif
-        istate = -3;
-        return istate;
-    }
+            istate = -3;
+            return istate;
+        }
 
     // Load H with H0 and scale yh(:,2) by H0.
-    vstate.H = H0;
-    for (int i = 1; i <= int_neqs; ++i) {
-        vstate.yh(i,2) *= H0;
-    }
+        vstate.H = H0;
+        for (int i = 1; i <= int_neqs; ++i) {
+            vstate.yh(i,2) *= H0;
+        }
 
     // Start with the order set to 1, and initialize other variables.
     // ETAMAX is the maximum ratio by which H can be increased
@@ -108,20 +116,21 @@ int dvode (BurnT& state, DvodeT& vstate)
     // occurs (in corrector convergence or error test), ETAMAX is set to 1
     // for the next increase.
 
-    vstate.NQ = 1;
-    vstate.NEWQ = 1;
-    vstate.L = 2;
-    vstate.tau(1) = vstate.H;
-    vstate.PRL1 = 1.0_rt;
-    vstate.RC = 0.0_rt;
-    vstate.ETAMAX = 1.0e4_rt;
-    vstate.NQWAIT = 2;
-    vstate.HSCAL = vstate.H;
-    vstate.NEWH = 0;
-    vstate.NSLP = 0;
-    vstate.IPUP = 1;
+        vstate.NQ = 1;
+        vstate.NEWQ = 1;
+        vstate.L = 2;
+        vstate.tau(1) = vstate.H;
+        vstate.PRL1 = 1.0_rt;
+        vstate.RC = 0.0_rt;
+        vstate.ETAMAX = 1.0e4_rt;
+        vstate.NQWAIT = 2;
+        vstate.HSCAL = vstate.H;
+        vstate.NEWH = 0;
+        vstate.NSLP = 0;
+        vstate.IPUP = 1;
+    }
 
-    bool skip_loop_start = true;
+    bool skip_loop_start = do_full_init;
 
     // Now do the actual integration as a loop over dvstep.
 
@@ -152,8 +161,10 @@ int dvode (BurnT& state, DvodeT& vstate)
                vstate.ewt(i) = vstate.rtol_spec * std::abs(vstate.yh(i,1)) + vstate.atol_spec;
                vstate.ewt(i) = 1.0_rt / vstate.ewt(i);
            }
-           vstate.ewt(NumSpec+1) = vstate.rtol_enuc * std::abs(vstate.yh(NumSpec+1,1)) + vstate.atol_enuc;
-           vstate.ewt(NumSpec+1) = 1.0_rt / vstate.ewt(NumSpec+1);
+           if constexpr (int_neqs > NumSpec) {
+               vstate.ewt(NumSpec+1) = vstate.rtol_enuc * std::abs(vstate.yh(NumSpec+1,1)) + vstate.atol_enuc;
+               vstate.ewt(NumSpec+1) = 1.0_rt / vstate.ewt(NumSpec+1);
+           }
 
        }
        else {
