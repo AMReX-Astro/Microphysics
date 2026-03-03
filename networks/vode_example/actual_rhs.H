@@ -13,8 +13,9 @@ void actual_rhs_init () {
 }
 
 
+template <int n_rhs_eqs>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void actual_rhs (burn_t& state, amrex::Array1D<amrex::Real, 1, neqs>& ydot)
+void actual_rhs (burn_t& state, amrex::Array1D<amrex::Real, 1, n_rhs_eqs>& ydot)
 {
     using namespace Species;
 
@@ -26,7 +27,9 @@ void actual_rhs (burn_t& state, amrex::Array1D<amrex::Real, 1, neqs>& ydot)
 
     // this network has no energy generation
 
-    ydot(net_ienuc) = 0.0_rt;
+    if constexpr (n_rhs_eqs >= net_ienuc) {
+        ydot(net_ienuc) = 0.0_rt;
+    }
 
 }
 

@@ -258,6 +258,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
         // we treat it the same way we will treat an error test failure (below).
 
         bool valid_update = true;
+        const bool use_reference_parity = integrator_rp::vode_reference_parity;
 
 #ifdef SDC
         if (vstate.y(SEINT+1) < 0.0_rt) {
@@ -274,6 +275,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
         for (int i = 1; i <= NumSpec; ++i) {
 
 #ifdef STRANG
+            if (!use_reference_parity) {
             // Constrain abundances such that they don't change by more than a certain
             // factor in a given step (as long as their initial abundance was large enough
             // for us to worry about).
@@ -306,10 +308,12 @@ int dvstep (BurnT& state, DvodeT& vstate)
                     break;
                 }
             }
+            }
 
 #endif
 
 #ifdef SDC
+            if (!use_reference_parity) {
 
             // these are basically the same checks as with Strang
             // above, except now we are evolving rhoX instead of X.
@@ -339,6 +343,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
             if (vstate.y(SFS+i) > (1.0_rt + species_failure_tolerance) * rho_current) {
                 valid_update = false;
                 break;
+            }
             }
 
 #endif

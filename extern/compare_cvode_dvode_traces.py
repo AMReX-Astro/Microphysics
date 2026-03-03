@@ -23,6 +23,10 @@ def parse(path, tags):
             if not body:
                 continue
             event = body.split()[0]
+            # Keep control-channel events distinct so they do not
+            # inflate counts for core integration events.
+            if tag.endswith("_CTL] "):
+                event = f"CTL:{event}"
             kvs = {k: float(v) for k, v in KV.findall(sline)}
             out[event].append(kvs)
     return out
@@ -52,6 +56,10 @@ def summarize(lhs, rhs, name_lhs, name_rhs):
     return report
 
 
+def canonical_count(events, event, required_keys):
+    return sum(1 for kv in events.get(event, []) if all(k in kv for k in required_keys))
+
+
 def main():
     if len(sys.argv) != 3:
         print("usage: compare_cvode_dvode_traces.py <cvode_log> <dvode_log>")
@@ -72,6 +80,25 @@ def main():
     print("SUMMARY core_event_counts:")
     for ev in core:
         print(f"  {ev}: CVODE={len(cv.get(ev, []))} DVODE={len(dv.get(ev, []))}")
+
+    # Canonical counts filter duplicate log variants that share the same event token.
+    # Example: PRE appears in multiple lines; only the line with tn/H is the step PRE event.
+    canonical_keys = {
+        "PRE": ("tn", "H"),
+        "POST": ("ACNRM", "DSM"),
+        "REJECT": ("DSM", "ETA"),
+        "ACCEPT": ("t", "hu", "nq"),
+        "ORDER_APPLY": ("ETA", "NEWQ"),
+        "ORDER_DECIDE": ("DSM",),
+        # Count one nonlinear-iteration event per iteration using the DCON line.
+        "dvnlsd:": ("DCON",),
+    }
+    print("SUMMARY canonical_core_event_counts:")
+    for ev in core:
+        keys = canonical_keys.get(ev, ())
+        ncv = canonical_count(cv, ev, keys)
+        ndv = canonical_count(dv, ev, keys)
+        print(f"  {ev}: CVODE={ncv} DVODE={ndv}")
 
     return 0
 
