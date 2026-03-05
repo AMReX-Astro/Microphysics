@@ -510,13 +510,15 @@ int rockcore (BurnT& state, RockT& rstate)
             rstate.h = hnew;
             nrho++;
             int rho_cycle = integrator_rp::rock_order == 2 ? 25 : 10;
-            nrho = nrho+1 % rho_cycle;
+            nrho = (nrho + 1) % rho_cycle;
             if (last) {
                 return IERR_SUCCESS;
             } else {
                 for (int i = 1; i <= INT_NEQS; ++i) {
                     rstate.yn(i) = rstate.y(i);
-                    rstate.fn(i) = rstate.fnt(i);
+                    if (integrator_rp::rock_order == 4) {
+                        rstate.fn(i) = rstate.fnt(i);
+                    }
                 }
             }
             rstate.n_rhs++;
