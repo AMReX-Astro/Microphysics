@@ -62,6 +62,12 @@ ifeq ($(USE_NSE_TABLE), TRUE)
 
 endif
 
+ifeq ($(USE_NSE_NET),TRUE)
+  ifneq ($(PYNUCASTRO_NETWORK),TRUE)
+    $(error USE_NSE_NET can only be used with pynucastro generated networks)
+  endif
+endif
+
 ifeq ($(USE_NEUTRINOS), TRUE)
 
   NEUTRINO_PATH := $(MICROPHYSICS_HOME)/neutrinos

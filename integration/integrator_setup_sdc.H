@@ -186,11 +186,11 @@ void integrator_cleanup (IntegratorT& int_state, BurnT& state,
     }
 
     for (int n = 0; n < NumSpec; ++n) {
-        if (state.y[SFS+n] / state.rho < -species_failure_tolerance) {
+        if (state.y[SFS+n] < -state.rho * species_failure_tolerance) {
             state.success = false;
         }
 
-        if (state.y[SFS+n] / state.rho > 1.0_rt + species_failure_tolerance) {
+        if (state.y[SFS+n] > state.rho * (1.0_rt + species_failure_tolerance)) {
             state.success = false;
         }
     }
@@ -219,47 +219,47 @@ void integrator_cleanup (IntegratorT& int_state, BurnT& state,
             }
             std::cout << "zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
             std::cout << "time = " << state.time << std::endl;
-            std::cout << "dt = " << std::setprecision(16) << dt << std::endl;
-            std::cout << "dens start = " << std::setprecision(16) << state.rho_orig << std::endl;
-            std::cout << "temp start = " << std::setprecision(16) << state_save.T_in << std::endl;
-            std::cout << "rhoe start = " << std::setprecision(16) << state_save.rhoe_in << std::endl;
+            std::cout << "dt = " << std::setprecision(OUTDIGITS) << dt << std::endl;
+            std::cout << "dens start = " << std::setprecision(OUTDIGITS) << state.rho_orig << std::endl;
+            std::cout << "temp start = " << std::setprecision(OUTDIGITS) << state_save.T_in << std::endl;
+            std::cout << "rhoe start = " << std::setprecision(OUTDIGITS) << state_save.rhoe_in << std::endl;
             std::cout << "xn start = ";
             for (const auto X : state_save.xn_in) {
-                std::cout << std::setprecision(16) << X << " ";
+                std::cout << std::setprecision(OUTDIGITS) << X << " ";
             }
             std::cout << std::endl;
 #ifdef AUX_THERMO
             std::cout << "aux start = ";
             for (const auto aux : state_save.aux_in) {
-                std::cout << std::setprecision(16) << aux << " ";
+                std::cout << std::setprecision(OUTDIGITS) << aux << " ";
             }
             std::cout << std::endl;
 #endif
-            std::cout << "dens current = " << std::setprecision(16) << state.rho << std::endl;
-            std::cout << "temp current = " << std::setprecision(16) << state.T << std::endl;
+            std::cout << "dens current = " << std::setprecision(OUTDIGITS) << state.rho << std::endl;
+            std::cout << "temp current = " << std::setprecision(OUTDIGITS) << state.T << std::endl;
             std::cout << "xn current = ";
             for (int n = 0; n < NumSpec; ++n) {
-                std::cout << std::setprecision(16) << state.xn[n] << " ";
+                std::cout << std::setprecision(OUTDIGITS) << state.xn[n] << " ";
             }
             std::cout << std::endl;
 #ifdef AUX_THERMO
             std::cout << "aux current = ";
             for (int n = 0; n < NumAux; ++n) {
-                std::cout << std::setprecision(16) << state.aux[n] << " ";
+                std::cout << std::setprecision(OUTDIGITS) << state.aux[n] << " ";
             }
             std::cout << std::endl;
 #endif
-            std::cout << "A(rho) = " << std::setprecision(16) << state.ydot_a[SRHO] << std::endl;
-            std::cout << "A(rho e) = " << std::setprecision(16) << state.ydot_a[SEINT] << std::endl;
+            std::cout << "A(rho) = " << std::setprecision(OUTDIGITS) << state.ydot_a[SRHO] << std::endl;
+            std::cout << "A(rho e) = " << std::setprecision(OUTDIGITS) << state.ydot_a[SEINT] << std::endl;
             std::cout << "A(rho X_k) = ";
             for (int n = 0; n < NumSpec; n++) {
-                std::cout << std::setprecision(16) << state.ydot_a[SFS+n] << " ";
+                std::cout << std::setprecision(OUTDIGITS) << state.ydot_a[SFS+n] << " ";
             }
             std::cout << std::endl;
 #ifdef AUX_THERMO
             std::cout << "A(rho aux_k) = ";
             for (int n = 0; n < NumAux; n++) {
-                std::cout << std::setprecision(16) << state.ydot_a[SFX+n] << " ";
+                std::cout << std::setprecision(OUTDIGITS) << state.ydot_a[SFX+n] << " ";
             }
             std::cout << std::endl;
 #endif

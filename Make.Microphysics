@@ -32,8 +32,8 @@ ifeq ($(USE_MICROPHYSICS_DEBUG),TRUE)
   DEFINES += -DMICROPHYSICS_DEBUG
 endif
 
-# Require C++17
-CXXSTD := c++17
+# Require C++20
+CXXSTD := c++20
 
 ifeq ($(USE_GPU_PRINTF),TRUE)
   DEFINES += -DALLOW_GPU_PRINTF

@@ -155,34 +155,26 @@ namespace Rates
     enum NetworkRates :
     std::uint8_t
     {
-        k_Ne20_to_He4_O16 = 1,
-        k_He4_O16_to_Ne20 = 2,
-        k_He4_Ne20_to_Mg24 = 3,
-        k_He4_Mg24_to_Si28 = 4,
-        k_p_Al27_to_Si28 = 5,
-        k_He4_Al27_to_P31 = 6,
-        k_He4_Si28_to_S32 = 7,
-        k_p_P31_to_S32 = 8,
-        k_O16_O16_to_p_P31 = 9,
-        k_O16_O16_to_He4_Si28 = 10,
-        k_He4_Mg24_to_p_Al27 = 11,
-        k_p_Al27_to_He4_Mg24 = 12,
-        k_He4_Si28_to_p_P31 = 13,
-        k_p_P31_to_He4_Si28 = 14,
-        k_F20_to_Ne20 = 15,
-        k_F20_to_O20 = 16,
-        k_Ne20_to_F20 = 17,
-        k_O20_to_F20 = 18,
-        NumRates = k_O20_to_F20
+        k_Ne20_to_He4_O16_reaclib = 1,
+        k_He4_O16_to_Ne20_reaclib = 2,
+        k_He4_Ne20_to_Mg24_reaclib = 3,
+        k_He4_Mg24_to_Si28_reaclib = 4,
+        k_p_Al27_to_Si28_reaclib = 5,
+        k_He4_Al27_to_P31_reaclib = 6,
+        k_He4_Si28_to_S32_reaclib = 7,
+        k_p_P31_to_S32_reaclib = 8,
+        k_O16_O16_to_p_P31_reaclib = 9,
+        k_O16_O16_to_He4_Si28_reaclib = 10,
+        k_He4_Mg24_to_p_Al27_reaclib = 11,
+        k_p_Al27_to_He4_Mg24_reaclib = 12,
+        k_He4_Si28_to_p_P31_reaclib = 13,
+        k_p_P31_to_He4_Si28_reaclib = 14,
+        k_F20_to_Ne20_weaktab = 15,
+        k_F20_to_O20_weaktab = 16,
+        k_Ne20_to_F20_weaktab = 17,
+        k_O20_to_F20_weaktab = 18,
+        NumRates = k_O20_to_F20_weaktab
     };
-
-    // number of reaclib rates
-
-    const int NrateReaclib = 14;
-
-    // number of tabular rates
-
-    const int NrateTabular = 4;
 
     // rate names -- note: the rates are 1-based, not zero-based, so we pad
     // this vector with rate_names[0] = "" so the indices line up with the
@@ -190,24 +182,24 @@ namespace Rates
 
     static const std::vector<std::string> rate_names = {
         "",   // 0
-        "Ne20_to_He4_O16",  // 1,
-        "He4_O16_to_Ne20",  // 2,
-        "He4_Ne20_to_Mg24",  // 3,
-        "He4_Mg24_to_Si28",  // 4,
-        "p_Al27_to_Si28",  // 5,
-        "He4_Al27_to_P31",  // 6,
-        "He4_Si28_to_S32",  // 7,
-        "p_P31_to_S32",  // 8,
-        "O16_O16_to_p_P31",  // 9,
-        "O16_O16_to_He4_Si28",  // 10,
-        "He4_Mg24_to_p_Al27",  // 11,
-        "p_Al27_to_He4_Mg24",  // 12,
-        "He4_Si28_to_p_P31",  // 13,
-        "p_P31_to_He4_Si28",  // 14,
-        "F20_to_Ne20",  // 15,
-        "F20_to_O20",  // 16,
-        "Ne20_to_F20",  // 17,
-        "O20_to_F20"  // 18,
+        "Ne20_to_He4_O16_reaclib",  // 1,
+        "He4_O16_to_Ne20_reaclib",  // 2,
+        "He4_Ne20_to_Mg24_reaclib",  // 3,
+        "He4_Mg24_to_Si28_reaclib",  // 4,
+        "p_Al27_to_Si28_reaclib",  // 5,
+        "He4_Al27_to_P31_reaclib",  // 6,
+        "He4_Si28_to_S32_reaclib",  // 7,
+        "p_P31_to_S32_reaclib",  // 8,
+        "O16_O16_to_p_P31_reaclib",  // 9,
+        "O16_O16_to_He4_Si28_reaclib",  // 10,
+        "He4_Mg24_to_p_Al27_reaclib",  // 11,
+        "p_Al27_to_He4_Mg24_reaclib",  // 12,
+        "He4_Si28_to_p_P31_reaclib",  // 13,
+        "p_P31_to_He4_Si28_reaclib",  // 14,
+        "F20_to_Ne20_weaktab",  // 15,
+        "F20_to_O20_weaktab",  // 16,
+        "Ne20_to_F20_weaktab",  // 17,
+        "O20_to_F20_weaktab"  // 18,
     };
 
 }
@@ -215,15 +207,29 @@ namespace Rates
 #ifdef NSE_NET
 namespace NSE_INDEX
 {
-    constexpr int H1_index = 0;
+    // A RatePair data table, 2D array of shape (NumNSERatePairs, 10).
+    // Each row corresponds to a RatePair returned by _get_nse_rate_pairs().
+    // Use enum names following NetworkSpecies and NetworkRates.
+
+    //  - Columns 1–3: 1-based index of reactant nuclei (forward rate)
+    //  - Columns 4–6: 1-based index of product nuclei (forward rate)
+    //  - Columns 7-8: 1-based index of non (n, H1, He4) nuclei.
+    //  - Column  9:   1-based index of the forward rate
+    //  - Column  10:  1-based index of the reverse rate
+
+    using namespace Species;
+    using namespace Rates;
+
+    constexpr int H1_index = 1;
     constexpr int N_index = -1;
-    constexpr int He4_index = 1;
+    constexpr int He4_index = 2;
+    constexpr int NumNSERatePairs = 3;
 
-    // Each row corresponds to the rate in NetworkRates enum
-    // First 3 row indices for reactants, followed by 3 product indices
-    // last index is the corresponding reverse rate index.
-
-    extern AMREX_GPU_MANAGED amrex::Array2D<int, 1, Rates::NumRates, 1, 7, amrex::Order::C> rate_indices;
+    inline AMREX_GPU_MANAGED amrex::Array2D<std::int8_t, 1, NumNSERatePairs, 1, 10, amrex::Order::C> rate_pair_data {
+        He4, O16, -1, Ne20, -1, -1, O16, Ne20, k_He4_O16_to_Ne20_reaclib, k_Ne20_to_He4_O16_reaclib,
+        H1, Al27, -1, He4, Mg24, -1, Al27, Mg24, k_p_Al27_to_He4_Mg24_reaclib, k_He4_Mg24_to_p_Al27_reaclib,
+        H1, P31, -1, He4, Si28, -1, P31, Si28, k_p_P31_to_He4_Si28_reaclib, k_He4_Si28_to_p_P31_reaclib
+    };
 }
 #endif
 

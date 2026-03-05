@@ -1,12 +1,17 @@
 #ifndef PARTITION_FUNCTIONS_H
 #define PARTITION_FUNCTIONS_H
 
+#include <numbers>
+
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>
+#include <AMReX_Math.H>
+#include <AMReX_ConstexprFor.H>
 
 #include <tfactors.H>
 #include <fundamental_constants.H>
 #include <network_properties.H>
+#include <interp_tools.H>
 
 using namespace amrex::literals;
 using namespace Species;
@@ -14,51 +19,18 @@ using namespace Species;
 namespace part_fun {
 
 
-
-    // index locator
-
-    template <typename T>
-    AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    int
-    index_pf(const amrex::Real t9, const T& temp_array) {
-
-        int left = temp_array.lo();
-        int right = temp_array.hi();
-
-        int idx = -1;
-
-        if (t9 >= temp_array(left) && t9 < temp_array(right)) {
-
-            // find the largest temperature element <= t9 using a
-            // binary search
-
-            while (left < right) {
-                int mid = (left + right) / 2;
-                if (temp_array(mid) > t9) {
-                    right = mid;
-                } else {
-                    left = mid + 1;
-                }
-            }
-
-            idx = right - 1;
-        }
-
-        return idx;
-    }
-
     // interpolation routine
 
     template <typename T>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
     void interpolate_pf(const amrex::Real t9, int idx,
                         const T& temp_array, const T& pf_array,
-                        amrex::Real& pf, amrex::Real& dpf_dT) {
+                        amrex::Real& logpf, amrex::Real& dlogpf_dT9) {
 
         // if the index is -1, we are either outside of the bounds or
         // we never computed it.  try recomputing here
         if (idx == -1) {
-            idx = index_pf(t9, temp_array);
+            idx = interp_net::find_index(t9, temp_array);
         }
 
         // if the index is still -1, then we are out-of-bounds, so
@@ -70,40 +42,39 @@ namespace part_fun {
             // temp_array[idx] <= t9 < temp_array[idx+1]
             AMREX_ASSERT(t9 >= temp_array(idx) && t9 < temp_array(idx+1));
 
-            // construct the slope -- this is
-            // (log10(pf_{i+1}) - log10(pf_i)) / (T_{i+1} - T_i)
+            // find the derivative: dlog(pf)/dT9 -- this is
+            // (log(pf_{i+1}) - log(pf_i)) / (T_{i+1} - T_i)
 
-            amrex::Real slope = (pf_array(idx+1) - pf_array(idx)) /
-                                (temp_array(idx+1) - temp_array(idx));
+            dlogpf_dT9 = (pf_array(idx+1) - pf_array(idx)) /
+                           (temp_array(idx+1) - temp_array(idx));
 
-            // find the PF
+            // find log(PF)
 
-            amrex::Real log10_pf = pf_array(idx) + slope * (t9 - temp_array(idx));
-            pf = std::pow(10.0_rt, log10_pf);
-
-            // find the derivative (with respect to T, not T9)
-
-            amrex::Real dpf_dT9 = pf * M_LN10 * slope;
-            dpf_dT = dpf_dT9 * 1.e-9_rt;
+            logpf = pf_array(idx) + dlogpf_dT9 * (t9 - temp_array(idx));
 
         } else {
 
             // T < the smallest T or >= the largest T in the partition function table
-            pf = 1.0;
-            dpf_dT = 0.0;
+            logpf = 0.0;
+            dlogpf_dT9 = 0.0;
 
         }
 
     }
 
-
-
     struct pf_cache_t {
         // Store the coefficient and derivative adjacent in memory, as they're
         // always accessed at the same time.
-        // The entries will be default-initialized to zero, which is fine since
-        // log10(x) is never zero.
-        amrex::Array2D<amrex::Real, 1, NumSpecTotal, 1, 2, amrex::Order::C> data{};
+        amrex::Array2D<amrex::Real, 1, NumSpecTotal, 1, 2, amrex::Order::C> data;
+        AMREX_GPU_HOST_DEVICE AMREX_INLINE
+        pf_cache_t() {
+            // The entries will be default-initialized to -900,
+            // log(partition_function) should never be -900.
+            for (int i = 1; i <= NumSpecTotal; ++i) {
+                    data(i, 1) = -900.0_rt;
+                    data(i, 2) = -900.0_rt;
+            }
+        }
     };
 
 }
@@ -113,12 +84,12 @@ namespace part_fun {
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void get_partition_function(const int inuc,
-                            [[maybe_unused]] const tf_t& tfactors,
-                            part_fun::pf_cache_t& pf_cache,
-                            amrex::Real& pf, amrex::Real& dpf_dT) {
+                            [[maybe_unused]] const amrex::Real T9,
+                            const part_fun::pf_cache_t& pf_cache,
+                            amrex::Real& logpf, amrex::Real& dlogpf_dT9) {
 
-    pf = 1.0_rt;
-    dpf_dT = 0.0_rt;
+    logpf = 0.0_rt;
+    dlogpf_dT9 = 0.0_rt;
 
     // inuc is the 1-based index for the species
 
@@ -127,16 +98,17 @@ void get_partition_function(const int inuc,
 
     default:
 
-        pf = 1.0_rt;
-        dpf_dT = 0.0_rt;
+        logpf = 0.0_rt;
+        dlogpf_dT9 = 0.0_rt;
 
     }
 
 }
 
 
-// a version of get_parition_function where we have not cached the
-// index into the arrays
+// a version of get_partition_function where we have not cached the
+// index into the arrays. Uses tfactors instead of T9 as argument,
+// and returns pf and dpf_dT instead of logpf and dlogpf_dT9
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void get_partition_function(const int inuc,
@@ -149,233 +121,174 @@ void get_partition_function(const int inuc,
 
     part_fun::pf_cache_t pf_cache;
 
-    get_partition_function(inuc, tfactors, pf_cache, pf, dpf_dT);
+    amrex::Real logpf, dlogpf_dT9;
+    get_partition_function(inuc, tfactors.T9, pf_cache, logpf, dlogpf_dT9);
+
+    // Convert logpf to pf and dlogpf_dT9 to dpf_dT
+    pf = std::exp(logpf);
+    dpf_dT = pf * dlogpf_dT9 * 1.e-9_rt;
 }
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void get_partition_function_cached(const int inuc, const tf_t& tfactors,
+void get_partition_function_cached(const int inuc, const amrex::Real T9,
                                    part_fun::pf_cache_t& pf_cache,
-                                   amrex::Real& pf, amrex::Real& dpf_dT) {
-    if (pf_cache.data(inuc, 1) != 0.0_rt) {
+                                   amrex::Real& logpf, amrex::Real& dlogpf_dT9) {
+    if (pf_cache.data(inuc, 1) != -900.0_rt) {
         // present in cache
-        amrex::ignore_unused(tfactors);
-        pf = pf_cache.data(inuc, 1);
-        dpf_dT = pf_cache.data(inuc, 2);
+        amrex::ignore_unused(T9);
+        logpf = pf_cache.data(inuc, 1);
+        dlogpf_dT9 = pf_cache.data(inuc, 2);
     } else {
-        get_partition_function(inuc, tfactors, pf_cache, pf, dpf_dT);
-        pf_cache.data(inuc, 1) = pf;
-        pf_cache.data(inuc, 2) = dpf_dT;
+        get_partition_function(inuc, T9, pf_cache, logpf, dlogpf_dT9);
+        pf_cache.data(inuc, 1) = logpf;
+        pf_cache.data(inuc, 2) = dlogpf_dT9;
     }
 }
 
-// spins
 
+template <int spec>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-constexpr amrex::Real get_spin_state(const int inuc) {
+constexpr amrex::Real get_spin_state() {
 
-    amrex::Real spin = -1.0;
+    static_assert(spec >= 1 && spec <= NumSpec);
 
-    switch (inuc) {  // NOLINT(bugprone-switch-missing-default-case)
+    // Set the spin states (2J + 1) of the element
 
-    case He4:
-    case C12:
-    case C14:
-    case O14:
-    case O16:
-    case O18:
-    case Ne18:
-    case Ne20:
-    case Ne22:
-    case Mg24:
-    case Mg26:
-    case Si28:
-    case Si30:
-    case Si32:
-    case S32:
-    case S34:
-    case S36:
-    case Cl34:
-    case Ar36:
-    case Ar38:
-    case Ar40:
-    case Ca40:
-    case Ca42:
-    case Ca44:
-    case Ca46:
-    case Ca48:
-    case Ti44:
-    case Ti46:
-    case Ti48:
-    case Ti50:
-    case V46:
-    case Cr48:
-    case Cr50:
-    case Cr52:
-    case Cr54:
-    case Mn50:
-    case Fe52:
-    case Fe54:
-    case Fe56:
-    case Fe58:
-    case Co54:
-    case Ni56:
-    case Ni58:
-    case Ni60:
-    case Ni62:
-    case Ni64:
-    case Zn60:
-    case Zn62:
-    case Zn64:
-    case Zn66:
-    case Ga62:
-    case Ga64:
-    case Ge64:
-        spin = 1;
-        break;
-
-    case N:
-    case H1:
-    case He3:
-    case C13:
-    case N13:
-    case N15:
-    case O15:
-    case F19:
-    case Ne19:
-    case Si29:
-    case P29:
-    case P31:
-    case P33:
-    case Fe57:
-    case Ni63:
-        spin = 2;
-        break;
-
-    case H2:
-    case Li6:
-    case N14:
-    case F18:
-    case P30:
-    case P32:
-    case Cu58:
-    case Cu62:
-    case Cu64:
-        spin = 3;
-        break;
-
-    case Li7:
-    case Be7:
-    case Be9:
-    case B11:
-    case Ne21:
-    case Na21:
-    case Na23:
-    case Mg23:
-    case Si31:
-    case S33:
-    case S35:
-    case Cl33:
-    case Cl35:
-    case Cl37:
-    case Ar37:
-    case K37:
-    case K39:
-    case K41:
-    case Ti51:
-    case V47:
-    case Cr53:
-    case Fe55:
-    case Ni57:
-    case Ni59:
-    case Ni61:
-    case Cu57:
-    case Cu59:
-    case Cu61:
-    case Cu63:
-    case Cu65:
-    case Zn59:
-    case Zn61:
-    case Zn63:
-    case Ga63:
-    case Ge63:
-        spin = 4;
-        break;
-
-    case B8:
-    case Cl36:
-    case Sc44:
-    case Co58:
-    case Cu60:
-        spin = 5;
-        break;
-
-    case O17:
-    case F17:
-    case Mg25:
-    case Al25:
-    case Al27:
-    case Ti47:
-    case Cr49:
-    case Mn51:
-    case Mn55:
-    case Zn65:
-        spin = 6;
-        break;
-
-    case B10:
-    case Na22:
-    case K38:
-    case V52:
-    case Mn54:
-        spin = 7;
-        break;
-
-    case Ar39:
-    case Ca41:
-    case Ca43:
-    case Ca45:
-    case Ca47:
-    case Sc43:
-    case Sc45:
-    case Sc47:
-    case Sc49:
-    case Ti45:
-    case Ti49:
-    case V49:
-    case V51:
-    case Cr51:
-    case Mn53:
-    case Fe53:
-    case Co53:
-    case Co55:
-    case Co57:
-    case Co59:
-        spin = 8;
-        break;
-
-    case K40:
-    case Sc46:
-    case V48:
-    case Co56:
-        spin = 9;
-        break;
-
-    case Al26:
-        spin = 11;
-        break;
-
-    case Sc48:
-    case V50:
-    case Mn52:
-        spin = 13;
-        break;
-
-
+    if constexpr (
+        spec == He4 || spec == C12 || spec == C14 ||
+        spec == O14 || spec == O16 || spec == O18 ||
+        spec == Ne18 || spec == Ne20 || spec == Ne22 ||
+        spec == Mg24 || spec == Mg26 || spec == Si28 ||
+        spec == Si30 || spec == Si32 || spec == S32 ||
+        spec == S34 || spec == S36 || spec == Cl34 ||
+        spec == Ar36 || spec == Ar38 || spec == Ar40 ||
+        spec == Ca40 || spec == Ca42 || spec == Ca44 ||
+        spec == Ca46 || spec == Ca48 || spec == Ti44 ||
+        spec == Ti46 || spec == Ti48 || spec == Ti50 ||
+        spec == V46 || spec == Cr48 || spec == Cr50 ||
+        spec == Cr52 || spec == Cr54 || spec == Mn50 ||
+        spec == Fe52 || spec == Fe54 || spec == Fe56 ||
+        spec == Fe58 || spec == Co54 || spec == Ni56 ||
+        spec == Ni58 || spec == Ni60 || spec == Ni62 ||
+        spec == Ni64 || spec == Zn60 || spec == Zn62 ||
+        spec == Zn64 || spec == Zn66 || spec == Ga62 ||
+        spec == Ga64 || spec == Ge64
+                  )
+    {
+        return 1.0_rt;
+    }
+    else if constexpr (
+        spec == N || spec == H1 || spec == He3 ||
+        spec == C13 || spec == N13 || spec == N15 ||
+        spec == O15 || spec == F19 || spec == Ne19 ||
+        spec == Si29 || spec == P29 || spec == P31 ||
+        spec == P33 || spec == Fe57 || spec == Ni63
+                       )
+    {
+        return 2.0_rt;
+    }
+    else if constexpr (
+        spec == H2 || spec == Li6 || spec == N14 ||
+        spec == F18 || spec == P30 || spec == P32 ||
+        spec == Cu58 || spec == Cu62 || spec == Cu64
+                       )
+    {
+        return 3.0_rt;
+    }
+    else if constexpr (
+        spec == Li7 || spec == Be7 || spec == Be9 ||
+        spec == B11 || spec == Ne21 || spec == Na21 ||
+        spec == Na23 || spec == Mg23 || spec == Si31 ||
+        spec == S33 || spec == S35 || spec == Cl33 ||
+        spec == Cl35 || spec == Cl37 || spec == Ar37 ||
+        spec == K37 || spec == K39 || spec == K41 ||
+        spec == Ti51 || spec == V47 || spec == Cr53 ||
+        spec == Fe55 || spec == Ni57 || spec == Ni59 ||
+        spec == Ni61 || spec == Cu57 || spec == Cu59 ||
+        spec == Cu61 || spec == Cu63 || spec == Cu65 ||
+        spec == Zn59 || spec == Zn61 || spec == Zn63 ||
+        spec == Ga63 || spec == Ge63
+                       )
+    {
+        return 4.0_rt;
+    }
+    else if constexpr (
+        spec == B8 || spec == Cl36 || spec == Sc44 ||
+        spec == Co58 || spec == Cu60
+                       )
+    {
+        return 5.0_rt;
+    }
+    else if constexpr (
+        spec == O17 || spec == F17 || spec == Mg25 ||
+        spec == Al25 || spec == Al27 || spec == Ti47 ||
+        spec == Cr49 || spec == Mn51 || spec == Mn55 ||
+        spec == Zn65
+                       )
+    {
+        return 6.0_rt;
+    }
+    else if constexpr (
+        spec == B10 || spec == Na22 || spec == K38 ||
+        spec == V52 || spec == Mn54
+                       )
+    {
+        return 7.0_rt;
+    }
+    else if constexpr (
+        spec == Ar39 || spec == Ca41 || spec == Ca43 ||
+        spec == Ca45 || spec == Ca47 || spec == Sc43 ||
+        spec == Sc45 || spec == Sc47 || spec == Sc49 ||
+        spec == Ti45 || spec == Ti49 || spec == V49 ||
+        spec == V51 || spec == Cr51 || spec == Mn53 ||
+        spec == Fe53 || spec == Co53 || spec == Co55 ||
+        spec == Co57 || spec == Co59
+                       )
+    {
+        return 8.0_rt;
+    }
+    else if constexpr (
+        spec == K40 || spec == Sc46 || spec == V48 ||
+        spec == Co56
+                       )
+    {
+        return 9.0_rt;
+    }
+    else if constexpr (
+        spec == Al26
+                       )
+    {
+        return 11.0_rt;
+    }
+    else if constexpr (
+        spec == Sc48 || spec == V50 || spec == Mn52
+                       )
+    {
+        return 13.0_rt;
     }
 
-    return spin;
+    // Return -1 if we don't recognize the species.
+    return -1.0_rt;
+}
 
+
+// Legacy (non-templated) interface
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+amrex::Real get_spin_state (int spec) {
+
+    amrex::Real s = -1.0_rt;
+
+    // Set the spin states (2J + 1) of the element
+
+    amrex::constexpr_for<1, NumSpec+1>([&] (auto n) {
+        if (n == spec) {
+            s = get_spin_state<n>();
+        }
+    });
+
+    return s;
 }
 
 

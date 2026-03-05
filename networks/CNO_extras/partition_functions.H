@@ -1,12 +1,17 @@
 #ifndef PARTITION_FUNCTIONS_H
 #define PARTITION_FUNCTIONS_H
 
+#include <numbers>
+
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>
+#include <AMReX_Math.H>
+#include <AMReX_ConstexprFor.H>
 
 #include <tfactors.H>
 #include <fundamental_constants.H>
 #include <network_properties.H>
+#include <interp_tools.H>
 
 using namespace amrex::literals;
 using namespace Species;
@@ -17,106 +22,337 @@ namespace part_fun {
 
     // this is T9
 
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> temp_array_1;
+    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> temp_array_1 = {
+        0.01, 0.15, 0.2, 0.3, 0.4,
+        0.5, 0.6, 0.7, 0.8, 0.9,
+        1.0, 1.5, 2.0, 2.5, 3.0,
+        3.5, 4.0, 4.5, 5.0, 6.0,
+        7.0, 8.0, 9.0, 10.0, 12.0,
+        14.0, 16.0, 18.0, 20.0, 22.0,
+        24.0, 26.0, 28.0, 30.0, 35.0,
+        40.0, 45.0, 50.0, 55.0, 60.0,
+        65.0, 70.0, 75.0, 80.0, 85.0,
+        90.0, 95.0, 100.0, 105.0, 110.0,
+        115.0, 120.0, 125.0, 130.0, 135.0,
+        140.0, 145.0, 150.0, 155.0, 160.0,
+        165.0, 170.0, 175.0, 180.0, 190.0,
+        200.0, 210.0, 220.0, 230.0, 240.0,
+        250.0, 275.0,
+    };
 
-    // this is log10(partition function)
 
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> O14_pf_array;
+    // O14
+
+    // this is log(partition function)
+
+    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> O14_pf_array = {
+        0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.04879016416943205,
+        0.10436001532424286, 0.1823215567939546, 0.27763173659827955, 0.3852624007906449, 0.5007752879124892,
+        0.6097655716208943, 0.712949807856125, 0.8153648132841944, 0.9082585601768908, 1.1085626195212777,
+        1.269760544863939, 1.3937663759585917, 1.4906543764441336, 1.5644405465033646, 1.6193882432872684,
+        1.6582280766035324, 1.6845453849209058, 1.6974487897568136, 1.7029282555214393, 1.6974487897568136,
+        1.6845453849209058, 1.665818245870208, 1.6409365794934714, 1.6094379124341003, 1.5748464676644813,
+        1.534714366238164, 1.4883995840570443, 1.4422019930581866, 1.3887912413184778, 1.33500106673234,
+        1.2781522025001875, 1.2178757094949273, 1.1568811967920856, 1.091923300517313, 1.0260415958332743,
+        0.9555114450274363, 0.8878912573524571, 0.8153648132841944, 0.7419373447293773, 0.5933268452777344,
+        0.4382549309311553, 0.28517894223366247, 0.12221763272424911, -0.040821994520255166, -0.2045671657412744,
+        -0.3696154552144672, -0.7874578600311866,
+    };
+
     constexpr amrex::Real O14_pf_threshold_T9 = 10.0;
 
-    // this is log10(partition function)
+    // O15
 
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> O15_pf_array;
+    // this is log(partition function)
+
+    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> O15_pf_array = {
+        0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.04879016416943205,
+        0.10436001532424286, 0.1906203596086497, 0.3148107398400336, 0.47000362924573563, 0.6418538861723947,
+        0.8329091229351039, 1.0296194171811581, 1.2325602611778486, 1.43746264769429, 1.9572739077056285,
+        2.4849066497880004, 3.0155349008501706, 3.55820113047182, 4.109233174715851, 4.672828834461906,
+        5.241747015059643, 5.814130531825066, 6.391917113392602, 6.966024187106113, 7.549609165154532,
+        8.125630988477065, 8.702842538302868, 9.277999020449997, 9.852194258148577, 10.42821608147111,
+        11.00043178410354, 11.571194373094205, 12.144197241812087, 12.7098736543592, 13.279367126213993,
+        13.845069360205818, 14.414347059052979, 14.975531474761027, 15.541842221869874, 16.105010411409665,
+        16.666217059468007, 17.22995316637645, 17.793321303930423, 18.35560874720865, 19.47847103810022,
+        20.602227508569356, 21.723897717254317, 22.846724264043022, 23.969756828847586, 25.09397871172002,
+        26.22043406223961, 29.03956608598326,
+    };
+
     constexpr amrex::Real O15_pf_threshold_T9 = 10.0;
 
-    // this is log10(partition function)
+    // O16
 
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> O16_pf_array;
+    // this is log(partition function)
+
+    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> O16_pf_array = {
+        0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.02955880224154443,
+        0.08617769624105241, 0.16551443847757333, 0.27763173659827955, 0.4252677354043441, 0.6043159668533296,
+        0.7975071958841882, 1.007957920399979, 1.2296405510745139, 1.4609379041156563, 2.0681277817795625,
+        2.70805020110221, 3.3775875160230218, 4.062165663857866, 4.7535901911063645, 5.4510384535657,
+        6.142037405587356, 6.828712071641684, 7.512071245835466, 8.185907481482324, 8.85366542803745,
+        9.517825071724143, 10.177324218165856, 10.831706855275558, 11.48246625748552, 12.128111104060462,
+        12.774223335915433, 13.41652441595382, 14.054527458434775, 14.690979295318174, 15.324022551808413,
+        15.956752500549557, 16.588099280204055, 17.216707939626428, 17.842646370492925, 18.469470908121796,
+        19.09362521719479, 19.715407911546766, 20.337603356134426, 20.954377557909798, 22.19802884605391,
+        23.43796058076729, 24.670655986211848, 25.905049387238495, 27.136724794113768, 28.368185181905268,
+        29.602320498988682, 32.68726692127686,
+    };
+
     constexpr amrex::Real O16_pf_threshold_T9 = 10.0;
 
-    // this is log10(partition function)
+    // O17
 
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> O17_pf_array;
+    // this is log(partition function)
+
+    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> O17_pf_array = {
+        0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.009950330853168092, 0.009950330853168092,
+        0.01980262729617973, 0.02955880224154443, 0.03922071315328133, 0.03922071315328133, 0.058268908123975824,
+        0.0769610411361284, 0.09531017980432493, 0.12221763272424911, 0.13976194237515863, 0.2151113796169455,
+        0.30010459245033816, 0.4054651081081644, 0.5364933705145685, 0.6830968447064438, 0.8458682675776092,
+        1.0260415958332743, 1.2178757094949273, 1.4182774069729414, 1.631199404215613, 2.1972245773362196,
+        2.803360380906535, 3.4339872044851463, 4.07753744390572, 4.727387818712341, 5.3706380281276624,
+        6.018593214496234, 6.660575149839686, 7.299797366758161, 7.937374696163295, 8.573573524852344,
+        9.20833836930551, 9.84161214881804, 10.474467099121865, 11.107960231903714, 11.744037185933616,
+        12.375815420117268, 13.008074231002201, 13.641157170819497, 14.27293540500315, 14.907433858481587,
+        15.541842221869874, 16.176364559082295, 16.811242831518264, 17.445170652418238, 18.081003376382203,
+        18.713350357915186, 19.35284482498281, 19.98721115537519, 20.6234455016642, 21.895747974180978,
+        23.17427093505873, 24.448959264183063, 25.72721214289187, 27.01298140785541, 28.298850488504204,
+        29.585466167433697, 32.8184069217693,
+    };
+
     constexpr amrex::Real O17_pf_threshold_T9 = 2.0;
 
-    // this is log10(partition function)
+    // O18
 
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> O18_pf_array;
+    // this is log(partition function)
+
+    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> O18_pf_array = {
+        0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.0,
+        0.009950330853168092, 0.01980262729617973, 0.02955880224154443, 0.04879016416943205, 0.11332868530700327,
+        0.19885085874516517, 0.3074846997479607, 0.4252677354043441, 0.5481214085096876, 0.883767540168595,
+        1.1786549963416462, 1.4586150226995167, 1.7209792871670078, 1.965712776351493, 2.1972245773362196,
+        2.424802725718295, 2.6390573296152584, 2.8622008809294686, 3.0819099697950434, 3.66612246699132,
+        4.302712827954156, 4.983606621708336, 5.700443573390687, 6.428105272684596, 7.162397497355718,
+        7.893572073504902, 8.623353387244627, 9.350102314351341, 10.069001991013701, 10.783114300038692,
+        11.496796083040344, 12.206072645530174, 12.91410843858387, 13.619495674038317, 14.322328160332725,
+        15.02447090380125, 15.72357048288849, 16.41820024340866, 17.118727531266227, 17.81371125963347,
+        18.50685844019342, 19.200005620753362, 19.895443753059865, 20.586299981873253, 21.27715095017285,
+        21.96742043090518, 22.659125650148223, 23.34793442910957, 24.037451841618935, 25.414613719175556,
+        26.794003564948902, 28.17334540675391, 29.552345789511246, 30.930554843814203, 32.31315234305277,
+        33.697129206032294, 37.163444987073845,
+    };
+
     constexpr amrex::Real O18_pf_threshold_T9 = 3.0;
 
-    // this is log10(partition function)
+    // F17
 
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> F17_pf_array;
+    // this is log(partition function)
+
+    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> F17_pf_array = {
+        0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.009950330853168092, 0.01980262729617973, 0.02955880224154443, 0.04879016416943205,
+        0.058268908123975824, 0.0769610411361284, 0.08617769624105241, 0.09531017980432493, 0.12221763272424911,
+        0.13976194237515863, 0.1570037488096647, 0.17395330712343798, 0.19885085874516517, 0.26236426446749106,
+        0.3293037471426003, 0.41871033485818504, 0.5247285289349821, 0.6471032420585384, 0.7884573603642703,
+        0.9400072584914712, 1.1019400787607843, 1.2781522025001875, 1.4678743481123135, 1.9810014688665833,
+        2.5416019934645457, 3.1441522786722644, 3.7612001156935624, 4.388257184424518, 5.0238805208462765,
+        5.655991810819852, 6.2878585601617845, 6.917705609835305, 7.549609165154532, 8.183118079394745,
+        8.814330422638774, 9.441452092939569, 10.077440859659566, 10.707728780601661, 11.33857207782545,
+        11.970350312009105, 12.601487417784837, 13.233904752137237, 13.864300722133706, 14.498607402670718,
+        15.131918791619999, 15.765697263786848, 16.3957273875566, 17.034386382832476, 17.667783558986645,
+        18.301897207962398, 18.939474537367534, 19.571252771551187, 20.207427671356875, 21.479387816667746,
+        22.755353682242777, 24.033808850340435, 25.311289864099532, 26.592562750080187, 27.877881193860073,
+        29.165735482166713, 32.393195050726305,
+    };
+
     constexpr amrex::Real F17_pf_threshold_T9 = 1.0;
 
-    // this is log10(partition function)
+    // F18
 
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> F18_pf_array;
+    // this is log(partition function)
+
+    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> F18_pf_array = {
+        0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.01980262729617973, 0.058268908123975824, 0.11332868530700327,
+        0.19885085874516517, 0.28517894223366247, 0.3852624007906449, 0.4762341789963717, 0.6523251860396901,
+        0.8064758658669485, 0.9360933591703348, 1.0438040521731147, 1.1378330018213911, 1.5303947050936475,
+        1.742219023667919, 1.9387416595767009, 2.125847914493992, 2.312535423847214, 2.4932054526026954,
+        2.681021528714291, 2.8791984572980396, 3.0819099697950434, 3.292126286607793, 3.856510295497887,
+        4.468204330914934, 5.111987788356544, 5.768320995793772, 6.431331081933479, 7.098375638590786,
+        7.757906208351747, 8.420682291035394, 9.080231686629162, 9.740968623038354, 10.395130356885344,
+        11.052476048529304, 11.711776323715394, 12.367340793126296, 13.025852477023484, 13.68426227135432,
+        14.346138809026444, 15.003353980360327, 15.665538935316304, 16.325109820342647, 16.98938901690174,
+        17.654962870557586, 18.319754825362406, 18.985994553002424, 19.650321295026878, 20.316800228504665,
+        20.985630101413904, 21.65148513968584, 22.32265341352701, 22.991259485170836, 24.334183749590636,
+        25.679092894547672, 27.02771463936839, 28.377709063416525, 29.735155270198756, 31.093627125719348,
+        32.45933485323085, 35.88424876151032,
+    };
+
     constexpr amrex::Real F18_pf_threshold_T9 = 1.5;
 
-    // this is log10(partition function)
+    // F19
 
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> F19_pf_array;
+    // this is log(partition function)
+
+    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> F19_pf_array = {
+        0.0, 0.0, 0.0, 0.01980262729617973, 0.04879016416943205,
+        0.10436001532424286, 0.1823215567939546, 0.25464221837358075, 0.3293037471426003, 0.4054651081081644,
+        0.4762341789963717, 0.7514160886839212, 0.9282193027394288, 1.0473189942805592, 1.1378330018213911,
+        1.208960345836975, 1.2725655957915476, 1.3270750014599193, 1.3762440252663892, 1.4701758451005926,
+        1.5518087995974639, 1.62924053973028, 1.6974487897568136, 1.763017000362401, 1.9643112344262046,
+        2.131796772013764, 2.302585092994046, 2.4849066497880004, 2.667228206581955, 2.8622008809294686,
+        3.068052935133617, 3.2846635654062037, 3.5115454388310208, 3.7471483622379123, 4.387014176184921,
+        5.075173815233827, 5.7899601708972535, 6.519147287940395, 7.251344983372214, 7.986164860332727,
+        8.719317375506371, 9.449357272446683, 10.177324218165856, 10.902279505922026, 11.626254150277232,
+        12.35017298950393, 13.077366011473593, 13.800396920154226, 14.52354635101797, 15.250595083253597,
+        15.974225280538619, 16.70031127081098, 17.423722109010754, 18.148872020656874, 18.87175636331258,
+        19.599335740294013, 20.322788270349285, 21.045349336115525, 21.774087461778173, 22.49991166836442,
+        23.22470178868562, 23.954070232679886, 24.678348331835004, 25.40539706407063, 26.860992891032645,
+        28.319155754664948, 29.7781213060822, 31.23923266697503, 32.70619493116237, 34.17205111511845,
+        35.644033226297466, 39.33456694050743,
+    };
+
     constexpr amrex::Real F19_pf_threshold_T9 = 0.2;
 
-    // this is log10(partition function)
+    // Ne18
 
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Ne18_pf_array;
+    // this is log(partition function)
+
+    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Ne18_pf_array = {
+        0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 1.9999980000601777e-06, 8.799612822723034e-05, 0.0007846920486507036, 0.003394233068015617,
+        0.009695843028343863, 0.021405263956352772, 0.039816689370323774, 0.0656987852707393, 0.14054163833325026,
+        0.24360948798384327, 0.3686787096052648, 0.5081895523807597, 0.655120234583008, 0.9516578757114463,
+        1.2296405510745139, 1.4861396960896067, 1.7209792871670078, 1.9387416595767009, 2.1447610078004784,
+        2.341805806147327, 2.5416019934645457, 2.747270914255491, 2.954910279033736, 3.5234150143864045,
+        4.151039905898646, 4.8283137373023015, 5.541263545158426, 6.263398262591624, 6.993932975223189,
+        7.7142311448490855, 8.438149984075784, 9.156939595249067, 9.87302834505142, 10.584055950889214,
+        11.292278793854607, 12.0015054797889, 12.70381302974751, 13.407542319637992, 14.108180171927094,
+        14.808762330974558, 15.505606373415828, 16.204273347199372, 16.897420527759316, 17.595144375346674,
+        18.28943245734241, 18.980296531887788, 19.67629678143014, 20.369443961990086, 21.059738073567623,
+        21.75288525412757, 22.44424512411342, 23.13917961524746, 23.827852515412484, 25.208525726261946,
+        26.589733893879707, 27.974610820318624, 29.357352779834148, 30.74453642513892, 32.12971905740612,
+        33.51712514737871, 36.9983652367144,
+    };
+
     constexpr amrex::Real Ne18_pf_threshold_T9 = 1.0;
 
-    // this is log10(partition function)
+    // Ne19
 
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Ne19_pf_array;
+    // this is log(partition function)
+
+    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Ne19_pf_array = {
+        0.0, 0.0, 2.9999954999842446e-06, 0.0003219481691259959, 0.003318487723826479,
+        0.013481711943087782, 0.03417917980009353, 0.06595532949044476, 0.10712645546785465, 0.15502315625184526,
+        0.20693855676966694, 0.4661192196858503, 0.6710247746567657, 0.8227626032729527, 0.9386027570158706,
+        1.0315639539149817, 1.109845294891226, 1.1784257392950268, 1.240344462774468, 1.3511613618686162,
+        1.4511432247212575, 1.5447922922282955, 1.6347833850357212, 1.722819810610988, 1.8976198599275322,
+        2.0719132752590443, 2.2512917986064953, 2.4336133554004498, 2.624668592163159, 2.8273136219290276,
+        3.039749158970765, 3.261935314328648, 3.493472657771326, 3.735285826928092, 4.384523514872469,
+        5.075173815233827, 5.796057750765372, 6.523562306149512, 7.251344983372214, 7.986164860332727,
+        8.712759974960212, 9.433483923290392, 10.16199824768763, 10.881813675329736, 11.59910316121128,
+        12.323855681186558, 13.043320170063875, 13.763164077592064, 14.48333993053993, 15.204301799282751,
+        15.924510901885654, 16.64872390202049, 17.367997387172654, 18.08939503401845, 18.81272283172839,
+        19.535822334571687, 20.256457098597195, 20.977908055319993, 21.701591959740018, 22.42619409246785,
+        23.148068562664704, 23.876001859310065, 24.60069739760494, 25.325431513914204, 26.777705183215783,
+        28.229857617017252, 29.68770567048577, 31.148518953286864, 32.607754858349125, 34.07515237262899,
+        35.54307800410756, 39.23012427713983,
+    };
+
     constexpr amrex::Real Ne19_pf_threshold_T9 = 0.15;
 
-    // this is log10(partition function)
+    // Ne20
 
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Ne20_pf_array;
+    // this is log(partition function)
+
+    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Ne20_pf_array = {
+        0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 1.5999872001381317e-05, 0.00038192705657577196, 0.0025407695097516073, 0.008962714607884434,
+        0.02196890666877481, 0.04281712292730049, 0.07155385603147618, 0.10734115290026017, 0.19485435877707374,
+        0.2952416765065437, 0.4013680599901673, 0.5094424676464369, 0.6178722970606984, 0.8329091229351039,
+        1.0508216248317612, 1.269760544863939, 1.4929040961781488, 1.7191887763932197, 1.9530276168241774,
+        2.194999882314108, 2.451005098112319, 2.714694743820879, 3.0007198150650303, 3.784189633918261,
+        4.6443908991413725, 5.54907608489522, 6.46302945692067, 7.371489295214277, 8.266164436612492,
+        9.148464968258095, 10.021270588192511, 10.881813675329736, 11.736069016284437, 12.584509081250419,
+        13.425426551894413, 14.26019637922572, 15.096444403426338, 15.926935145497161, 16.75467248002987,
+        17.579033555073977, 18.40149792453559, 19.222682329424394, 20.040068987239636, 20.854294099352817,
+        21.671055235879937, 22.481123754498785, 23.295878067153517, 24.100853352969434, 24.909885675277682,
+        25.720478110710527, 26.525384212323473, 27.329916023144627, 28.131796403841037, 29.741234316275136,
+        31.347029237430736, 32.94914110977277, 34.548726725763856, 36.15618247699396, 37.76164424104842,
+        39.36709013221299, 43.378053085496035,
+    };
+
     constexpr amrex::Real Ne20_pf_threshold_T9 = 1.0;
 
-    // this is log10(partition function)
+    // Mg22
 
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Mg22_pf_array;
+    // this is log(partition function)
+
+    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Mg22_pf_array = {
+        0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0, 9.999994999180668e-07,
+        2.9999954999842446e-06, 0.0003249471989398286, 0.003610474386196274, 0.015246184025410463, 0.03952355190838091,
+        0.07731468230142326, 0.12672427669154504, 0.18467711362365635, 0.24812256191314633, 0.3824093551318533,
+        0.5179327085022278, 0.6505105196948874, 0.7794780760745641, 0.9054222836802179, 1.1505720275988207,
+        1.3962446919730587, 1.6428726885203377, 1.8991179875485542, 2.169053700369523, 2.4595888418037104,
+        2.766319109226186, 3.091042453358316, 3.4339872044851463, 3.7954891891721947, 4.736198448394496,
+        5.707110264748875, 6.674561391814426, 7.630461261783627, 8.573573524852344, 9.503009985939002,
+        10.425253116340453, 11.336188286470174, 12.240474072247506, 13.142166004700508, 14.038654109278484,
+        14.933925473928564, 15.823724590355742, 16.711422496236054, 17.599700191882537, 18.48833939242618,
+        19.36847014288589, 20.250057076751727, 21.128730945054574, 22.00973986278409, 22.8888850748673,
+        23.767788274669833, 24.643257012023735, 25.519056382543152, 26.396589104117904, 27.270051247706935,
+        28.143844742357214, 29.019812357247027, 29.893825338910748, 30.766515331857697, 32.51382303851492,
+        34.26302289332418, 36.01124845227163, 37.76164424104842, 39.51551013733126, 41.26860046540016,
+        43.02551037884221, 47.42541743879394,
+    };
+
     constexpr amrex::Real Mg22_pf_threshold_T9 = 0.8;
 
-    // this is log10(partition function)
+    // Mg24
 
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Mg24_pf_array;
+    // this is log(partition function)
+
+    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Mg24_pf_array = {
+        0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.0,
+        9.999994999180668e-07, 0.0001259920626667995, 0.0017764212290928272, 0.008665347199341391, 0.02478529122240376,
+        0.05209612203517594, 0.09017063128626053, 0.13704782771330884, 0.19024508258946665, 0.30679917070896673,
+        0.42717245621910793, 0.5457138884802113, 0.660894613389287, 0.773014180490088, 0.9932517730102834,
+        1.2119409739751128, 1.4398351280479205, 1.682688374173693, 1.9487632180377197, 2.244955980157409,
+        2.5726122302071057, 2.9338568698359038, 3.3214324131932926, 3.7376696182833684, 4.844187086458591,
+        5.983936280687191, 7.114769448366463, 8.237479288613633, 9.332558004700433, 10.413312675968536,
+        11.477298287327077, 12.528156144699286, 13.573438996764546, 14.608503073493935, 15.638445644660779,
+        16.660419941783683, 17.68044195585857, 18.698312480550644, 19.707154769790044, 20.71321550109291,
+        21.716517609956693, 22.717966150171158, 23.7189981105004, 24.712249883510687, 25.706872458654747,
+        26.69707544881567, 27.689290024052525, 28.674825168101663, 29.66048428780214, 30.646556016778717,
+        31.629221817597745, 32.607754858349125, 33.592026455551824, 34.56833519715223, 36.53211523753711,
+        38.48809518508253, 40.44413824296525, 42.39818954960427, 44.3534327337402, 46.31406612434841,
+        48.268729064513316, 53.166471308247374,
+    };
+
     constexpr amrex::Real Mg24_pf_threshold_T9 = 0.9;
 
-
-
-    // index locator
-
-    template <typename T>
-    AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    int
-    index_pf(const amrex::Real t9, const T& temp_array) {
-
-        int left = temp_array.lo();
-        int right = temp_array.hi();
-
-        int idx = -1;
-
-        if (t9 >= temp_array(left) && t9 < temp_array(right)) {
-
-            // find the largest temperature element <= t9 using a
-            // binary search
-
-            while (left < right) {
-                int mid = (left + right) / 2;
-                if (temp_array(mid) > t9) {
-                    right = mid;
-                } else {
-                    left = mid + 1;
-                }
-            }
-
-            idx = right - 1;
-        }
-
-        return idx;
-    }
 
     // interpolation routine
 
@@ -124,12 +360,12 @@ namespace part_fun {
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
     void interpolate_pf(const amrex::Real t9, int idx,
                         const T& temp_array, const T& pf_array,
-                        amrex::Real& pf, amrex::Real& dpf_dT) {
+                        amrex::Real& logpf, amrex::Real& dlogpf_dT9) {
 
         // if the index is -1, we are either outside of the bounds or
         // we never computed it.  try recomputing here
         if (idx == -1) {
-            idx = index_pf(t9, temp_array);
+            idx = interp_net::find_index(t9, temp_array);
         }
 
         // if the index is still -1, then we are out-of-bounds, so
@@ -141,42 +377,41 @@ namespace part_fun {
             // temp_array[idx] <= t9 < temp_array[idx+1]
             AMREX_ASSERT(t9 >= temp_array(idx) && t9 < temp_array(idx+1));
 
-            // construct the slope -- this is
-            // (log10(pf_{i+1}) - log10(pf_i)) / (T_{i+1} - T_i)
+            // find the derivative: dlog(pf)/dT9 -- this is
+            // (log(pf_{i+1}) - log(pf_i)) / (T_{i+1} - T_i)
 
-            amrex::Real slope = (pf_array(idx+1) - pf_array(idx)) /
-                                (temp_array(idx+1) - temp_array(idx));
+            dlogpf_dT9 = (pf_array(idx+1) - pf_array(idx)) /
+                           (temp_array(idx+1) - temp_array(idx));
 
-            // find the PF
+            // find log(PF)
 
-            amrex::Real log10_pf = pf_array(idx) + slope * (t9 - temp_array(idx));
-            pf = std::pow(10.0_rt, log10_pf);
-
-            // find the derivative (with respect to T, not T9)
-
-            amrex::Real dpf_dT9 = pf * M_LN10 * slope;
-            dpf_dT = dpf_dT9 * 1.e-9_rt;
+            logpf = pf_array(idx) + dlogpf_dT9 * (t9 - temp_array(idx));
 
         } else {
 
             // T < the smallest T or >= the largest T in the partition function table
-            pf = 1.0;
-            dpf_dT = 0.0;
+            logpf = 0.0;
+            dlogpf_dT9 = 0.0;
 
         }
 
     }
 
-
-
     struct pf_cache_t {
         // Store the coefficient and derivative adjacent in memory, as they're
         // always accessed at the same time.
-        // The entries will be default-initialized to zero, which is fine since
-        // log10(x) is never zero.
-        amrex::Array2D<amrex::Real, 1, NumSpecTotal, 1, 2, amrex::Order::C> data{};
+        amrex::Array2D<amrex::Real, 1, NumSpecTotal, 1, 2, amrex::Order::C> data;
         int index_temp_array_1{-1};
 
+        AMREX_GPU_HOST_DEVICE AMREX_INLINE
+        pf_cache_t() {
+            // The entries will be default-initialized to -900,
+            // log(partition_function) should never be -900.
+            for (int i = 1; i <= NumSpecTotal; ++i) {
+                    data(i, 1) = -900.0_rt;
+                    data(i, 2) = -900.0_rt;
+            }
+        }
     };
 
 }
@@ -186,108 +421,109 @@ namespace part_fun {
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void get_partition_function(const int inuc,
-                            [[maybe_unused]] const tf_t& tfactors,
-                            part_fun::pf_cache_t& pf_cache,
-                            amrex::Real& pf, amrex::Real& dpf_dT) {
+                            [[maybe_unused]] const amrex::Real T9,
+                            const part_fun::pf_cache_t& pf_cache,
+                            amrex::Real& logpf, amrex::Real& dlogpf_dT9) {
 
-    pf = 1.0_rt;
-    dpf_dT = 0.0_rt;
+    logpf = 0.0_rt;
+    dlogpf_dT9 = 0.0_rt;
 
     // inuc is the 1-based index for the species
 
     switch (inuc) {
 
     case O14:
-        if (tfactors.T9 > part_fun::O14_pf_threshold_T9) {
-            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::O14_pf_array, pf, dpf_dT);
+        if (T9 > part_fun::O14_pf_threshold_T9) {
+            part_fun::interpolate_pf(T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::O14_pf_array, logpf, dlogpf_dT9);
         }
         break;
 
     case O15:
-        if (tfactors.T9 > part_fun::O15_pf_threshold_T9) {
-            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::O15_pf_array, pf, dpf_dT);
+        if (T9 > part_fun::O15_pf_threshold_T9) {
+            part_fun::interpolate_pf(T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::O15_pf_array, logpf, dlogpf_dT9);
         }
         break;
 
     case O16:
-        if (tfactors.T9 > part_fun::O16_pf_threshold_T9) {
-            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::O16_pf_array, pf, dpf_dT);
+        if (T9 > part_fun::O16_pf_threshold_T9) {
+            part_fun::interpolate_pf(T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::O16_pf_array, logpf, dlogpf_dT9);
         }
         break;
 
     case O17:
-        if (tfactors.T9 > part_fun::O17_pf_threshold_T9) {
-            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::O17_pf_array, pf, dpf_dT);
+        if (T9 > part_fun::O17_pf_threshold_T9) {
+            part_fun::interpolate_pf(T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::O17_pf_array, logpf, dlogpf_dT9);
         }
         break;
 
     case O18:
-        if (tfactors.T9 > part_fun::O18_pf_threshold_T9) {
-            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::O18_pf_array, pf, dpf_dT);
+        if (T9 > part_fun::O18_pf_threshold_T9) {
+            part_fun::interpolate_pf(T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::O18_pf_array, logpf, dlogpf_dT9);
         }
         break;
 
     case F17:
-        if (tfactors.T9 > part_fun::F17_pf_threshold_T9) {
-            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::F17_pf_array, pf, dpf_dT);
+        if (T9 > part_fun::F17_pf_threshold_T9) {
+            part_fun::interpolate_pf(T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::F17_pf_array, logpf, dlogpf_dT9);
         }
         break;
 
     case F18:
-        if (tfactors.T9 > part_fun::F18_pf_threshold_T9) {
-            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::F18_pf_array, pf, dpf_dT);
+        if (T9 > part_fun::F18_pf_threshold_T9) {
+            part_fun::interpolate_pf(T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::F18_pf_array, logpf, dlogpf_dT9);
         }
         break;
 
     case F19:
-        if (tfactors.T9 > part_fun::F19_pf_threshold_T9) {
-            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::F19_pf_array, pf, dpf_dT);
+        if (T9 > part_fun::F19_pf_threshold_T9) {
+            part_fun::interpolate_pf(T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::F19_pf_array, logpf, dlogpf_dT9);
         }
         break;
 
     case Ne18:
-        if (tfactors.T9 > part_fun::Ne18_pf_threshold_T9) {
-            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Ne18_pf_array, pf, dpf_dT);
+        if (T9 > part_fun::Ne18_pf_threshold_T9) {
+            part_fun::interpolate_pf(T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Ne18_pf_array, logpf, dlogpf_dT9);
         }
         break;
 
     case Ne19:
-        if (tfactors.T9 > part_fun::Ne19_pf_threshold_T9) {
-            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Ne19_pf_array, pf, dpf_dT);
+        if (T9 > part_fun::Ne19_pf_threshold_T9) {
+            part_fun::interpolate_pf(T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Ne19_pf_array, logpf, dlogpf_dT9);
         }
         break;
 
     case Ne20:
-        if (tfactors.T9 > part_fun::Ne20_pf_threshold_T9) {
-            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Ne20_pf_array, pf, dpf_dT);
+        if (T9 > part_fun::Ne20_pf_threshold_T9) {
+            part_fun::interpolate_pf(T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Ne20_pf_array, logpf, dlogpf_dT9);
         }
         break;
 
     case Mg22:
-        if (tfactors.T9 > part_fun::Mg22_pf_threshold_T9) {
-            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Mg22_pf_array, pf, dpf_dT);
+        if (T9 > part_fun::Mg22_pf_threshold_T9) {
+            part_fun::interpolate_pf(T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Mg22_pf_array, logpf, dlogpf_dT9);
         }
         break;
 
     case Mg24:
-        if (tfactors.T9 > part_fun::Mg24_pf_threshold_T9) {
-            part_fun::interpolate_pf(tfactors.T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Mg24_pf_array, pf, dpf_dT);
+        if (T9 > part_fun::Mg24_pf_threshold_T9) {
+            part_fun::interpolate_pf(T9, pf_cache.index_temp_array_1, part_fun::temp_array_1, part_fun::Mg24_pf_array, logpf, dlogpf_dT9);
         }
         break;
 
 
     default:
 
-        pf = 1.0_rt;
-        dpf_dT = 0.0_rt;
+        logpf = 0.0_rt;
+        dlogpf_dT9 = 0.0_rt;
 
     }
 
 }
 
 
-// a version of get_parition_function where we have not cached the
-// index into the arrays
+// a version of get_partition_function where we have not cached the
+// index into the arrays. Uses tfactors instead of T9 as argument,
+// and returns pf and dpf_dT instead of logpf and dlogpf_dT9
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void get_partition_function(const int inuc,
@@ -300,73 +536,91 @@ void get_partition_function(const int inuc,
 
     part_fun::pf_cache_t pf_cache;
 
-    get_partition_function(inuc, tfactors, pf_cache, pf, dpf_dT);
+    amrex::Real logpf, dlogpf_dT9;
+    get_partition_function(inuc, tfactors.T9, pf_cache, logpf, dlogpf_dT9);
+
+    // Convert logpf to pf and dlogpf_dT9 to dpf_dT
+    pf = std::exp(logpf);
+    dpf_dT = pf * dlogpf_dT9 * 1.e-9_rt;
 }
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void get_partition_function_cached(const int inuc, const tf_t& tfactors,
+void get_partition_function_cached(const int inuc, const amrex::Real T9,
                                    part_fun::pf_cache_t& pf_cache,
-                                   amrex::Real& pf, amrex::Real& dpf_dT) {
-    if (pf_cache.data(inuc, 1) != 0.0_rt) {
+                                   amrex::Real& logpf, amrex::Real& dlogpf_dT9) {
+    if (pf_cache.data(inuc, 1) != -900.0_rt) {
         // present in cache
-        amrex::ignore_unused(tfactors);
-        pf = pf_cache.data(inuc, 1);
-        dpf_dT = pf_cache.data(inuc, 2);
+        amrex::ignore_unused(T9);
+        logpf = pf_cache.data(inuc, 1);
+        dlogpf_dT9 = pf_cache.data(inuc, 2);
     } else {
-        get_partition_function(inuc, tfactors, pf_cache, pf, dpf_dT);
-        pf_cache.data(inuc, 1) = pf;
-        pf_cache.data(inuc, 2) = dpf_dT;
+        get_partition_function(inuc, T9, pf_cache, logpf, dlogpf_dT9);
+        pf_cache.data(inuc, 1) = logpf;
+        pf_cache.data(inuc, 2) = dlogpf_dT9;
     }
 }
 
-// spins
 
+template <int spec>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-constexpr amrex::Real get_spin_state(const int inuc) {
+constexpr amrex::Real get_spin_state() {
 
-    amrex::Real spin = -1.0;
+    static_assert(spec >= 1 && spec <= NumSpec);
 
-    switch (inuc) {  // NOLINT(bugprone-switch-missing-default-case)
+    // Set the spin states (2J + 1) of the element
 
-    case He4:
-    case C12:
-    case O14:
-    case O16:
-    case O18:
-    case Ne18:
-    case Ne20:
-    case Mg22:
-    case Mg24:
-    case Fe56:
-        spin = 1;
-        break;
-
-    case H1:
-    case C13:
-    case N13:
-    case N15:
-    case O15:
-    case F19:
-    case Ne19:
-        spin = 2;
-        break;
-
-    case N14:
-    case F18:
-        spin = 3;
-        break;
-
-    case O17:
-    case F17:
-        spin = 6;
-        break;
-
-
+    if constexpr (
+        spec == He4 || spec == C12 || spec == O14 ||
+        spec == O16 || spec == O18 || spec == Ne18 ||
+        spec == Ne20 || spec == Mg22 || spec == Mg24 ||
+        spec == Fe56
+                  )
+    {
+        return 1.0_rt;
+    }
+    else if constexpr (
+        spec == H1 || spec == C13 || spec == N13 ||
+        spec == N15 || spec == O15 || spec == F19 ||
+        spec == Ne19
+                       )
+    {
+        return 2.0_rt;
+    }
+    else if constexpr (
+        spec == N14 || spec == F18
+                       )
+    {
+        return 3.0_rt;
+    }
+    else if constexpr (
+        spec == O17 || spec == F17
+                       )
+    {
+        return 6.0_rt;
     }
 
-    return spin;
+    // Return -1 if we don't recognize the species.
+    return -1.0_rt;
+}
 
+
+// Legacy (non-templated) interface
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+amrex::Real get_spin_state (int spec) {
+
+    amrex::Real s = -1.0_rt;
+
+    // Set the spin states (2J + 1) of the element
+
+    amrex::constexpr_for<1, NumSpec+1>([&] (auto n) {
+        if (n == spec) {
+            s = get_spin_state<n>();
+        }
+    });
+
+    return s;
 }
 
 

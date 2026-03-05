@@ -13,11 +13,6 @@
 #include <microphysics_sort.H>
 #include <nse_solver.H>
 
-// Currently doesn't support aprox networks, only networks produced by pynucastro
-
-#ifndef NEW_NETWORK_IMPLEMENTATION
-
-// First check to see if we're in the ballpark of nse state
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void check_nse_molar(const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
@@ -26,64 +21,43 @@ void check_nse_molar(const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
 
     // This function gives the first estimate whether we're in the nse or not
     // it checks whether the molar fractions of n,p,a are approximately in NSE
-
-    amrex::Real r = 1.0_rt;
-    amrex::Real r_nse = 1.0_rt;
+    // The idea is to consider a net reaction of the form: 2n + 2 H1 ⇄ He4
+    //
+    // The equilibrium condition enforces this reaction rate to take condition:
+    // Y_{He4} / (Y_{n}^2 * Y_{H1}^2) = Y_{He4,NSE} / (Y_{n,NSE}^2 * Y_{H1,NSE}^2)
+    // See Eq. 14 from Kushnir & Katz, 2019.
+    //
+    // If ratio check failed, then do an overall molar fraction check
 
     nse_check = false;
 
-    // raise error if no proton or helium-4 in the network.
-
-    if (NSE_INDEX::H1_index == -1 || NSE_INDEX::He4_index == -1) {
-        amrex::Error("Need proton and helium-4 in the network for NSE_NET to work");
+    if constexpr (NSE_INDEX::He4_index == -1) {
+        amrex::Error("NSE Check requires at least He4 to be in the network.");
     }
 
-    // If there are proton, or helium in the network
+    if constexpr (NSE_INDEX::N_index != -1 && NSE_INDEX::H1_index != -1) {
 
-    // Check if n,p,a are in equilibrium
-    // these two ratios are defined in the ASE paper to determine whether network is in equilibrium
+        // Molar fraction check from Eq. 14 in Kushnir & Katz, 2019.
+        constexpr auto n = NSE_INDEX::N_index;
+        constexpr auto p = NSE_INDEX::H1_index;
+        constexpr auto a = NSE_INDEX::He4_index;
 
-    for (int n = 0; n < NumSpec; ++n) {
+        if (Y(n) != 0.0_rt && Y(p) != 0.0_rt) {
+            amrex::Real r = Y(a) / (Y(p) * Y(p) * Y(n) * Y(n));
+            amrex::Real r_nse = Y_nse(a) / (Y_nse(p) * Y_nse(p) * Y_nse(n) * Y_nse(n));
 
-        if (Y(n+1) == 0.0_rt || Y_nse(n+1) == 0.0_rt) {
-            continue;
+            if (std::abs(r - r_nse) < 0.5_rt * r_nse) {
+                nse_check = true;
+                return;
+            }
         }
 
-        if (n == NSE_INDEX::H1_index || n == NSE_INDEX::N_index) {
-            r /= Y(n+1) * Y(n+1);
-            r_nse /= Y_nse(n+1) * Y_nse(n+1);
-        }
-
-        else if (n == NSE_INDEX::He4_index) {
-            r *= Y(n+1);
-            r_nse *= Y_nse(n+1);
-        }
     }
 
-    // equilibrium condition: if pass proceed with ase if not proceed with regular eos integration
-    // Eq. 14 in Kushnir paper
+    // Do overall molar fraction check if the ratio check failed.
 
-    // if there is neutron in the network
-
-    if ((std::abs(r - r_nse) < 0.5_rt * r_nse)
-        && (NSE_INDEX::N_index != -1)) {
-        nse_check = true;
-        return;
-    }
-
-    // if there is no neutron in the network
-
-    if ((std::abs(r - r_nse) < 0.25_rt * r_nse)
-        && (NSE_INDEX::N_index == -1)) {
-        nse_check = true;
-        return;
-    }
-
-    // Overall molar fraction check
-
-    for (int n = 0; n < NumSpec; ++n) {
-        amrex::Real abs_diff = std::abs(Y(n+1) - Y_nse(n+1));
-        if (abs_diff > nse_abs_tol && abs_diff > nse_rel_tol * Y(n+1)) {
+    for (int n = 1; n <= NumSpec; ++n) {
+        if (std::abs(Y(n) - Y_nse(n)) > nse_rel_tol * Y_nse(n)) {
             return;
         }
     }
@@ -91,236 +65,135 @@ void check_nse_molar(const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
 }
 
 
-// After all preliminary checks are successful, lets do nse grouping.
-
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-int get_root_index(const int nuc_ind,
-                   const amrex::Array1D<int, 1, NumSpec>& group_ind) {
+int get_root_index(const int nuc_idx, amrex::Array1D<int, 1, NumSpec>& group_idx) {
+    // Returns the root index of the nuclei given the nuclei index [1, NumSpec]
+    // Also updates all parent indices to point to the root index in group_idx
+    //
 
-    // This function returns the root index of the nuclei
-    // by providing the nuclei index [0, NumSpec-1], and group indices, group_ind
+    int scratch = nuc_idx;
+    int root = scratch;
 
-    int root_index;
-    int scratch_ind = nuc_ind;
-
-    while(true) {
-        root_index = group_ind(scratch_ind + 1);
-
-        if (root_index != scratch_ind + 1) {
-            scratch_ind = root_index - 1;
-        }
-
-        else {
-            return root_index;
-        }
+    // Find the root index.
+    // Keep looping until the index of the current element
+    // is the same as the value stored -- i.e. root element.
+    while (group_idx(root) != root) {
+        root = group_idx(root);
     }
 
+    // Path compression.
+    // Updates the group_idx so that all the parent nodes
+    // will store the value that points directly to root.
+    // This can make future get_root_index() faster.
+    while (scratch != root) {
+        int parent = group_idx(scratch);
+        group_idx(scratch) = root;
+        scratch = parent;
+    }
+
+    return root;
 }
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void nse_union(const int nuc_ind_a, const int nuc_ind_b, amrex::Array1D<int, 1, NumSpec>& group_ind) {
+void nse_union(const int nuc_idx_a, const int nuc_idx_b,
+               amrex::Array1D<int, 1, NumSpec>& group_idx,
+               amrex::Array1D<int, 1, NumSpec>& group_size) {
+    // Joins two group represented by two nuclei index: nuc_idx_a and nuc_idx_b
+    // Note that the smaller group is merged to the larger group.
+    // group_size of the larger group is updated.
 
-    // This function joins the two group of the two nuc indices:nuc_ind_a and nuc_ind_b
-    // The smaller group is joined to the larger group.
+    int root_idx_a = get_root_index(nuc_idx_a, group_idx);
+    int root_idx_b = get_root_index(nuc_idx_b, group_idx);
 
-    int root_index_a = get_root_index(nuc_ind_a, group_ind);
-    int root_index_b = get_root_index(nuc_ind_b, group_ind);
-
-    if (root_index_a == root_index_b) {
+    // Return if they're the same group
+    if (root_idx_a == root_idx_b) {
         return;
     }
 
-    // find size of the two groups containing a and b
-
-    int group_a_size = 0;
-    int group_b_size = 0;
-
-    for (int n = 0; n < NumSpec; ++n) {
-
-        if (get_root_index(n, group_ind) == root_index_a) {
-            ++group_a_size;
-        }
-        else if (get_root_index(n, group_ind) == root_index_b) {
-            ++group_b_size;
-        }
-    }
-
-    // merge group with less isotopes to group with larger isotope
-
-    if (group_a_size >= group_b_size) {
-        group_ind(root_index_b) = group_ind(root_index_a);
-    }
-    else {
-        group_ind(root_index_a) = group_ind(root_index_b);
+    // Merge smaller group to the larger group.
+    // Do the union and update group size of the larger group.
+    // Set group_size of the merged group to be 0
+    if (group_size(root_idx_a) >= group_size(root_idx_b)) {
+        group_idx(root_idx_b) = root_idx_a;
+        group_size(root_idx_a) += group_size(root_idx_b);
+        group_size(root_idx_b) = 0;
+    } else {
+        group_idx(root_idx_a) = root_idx_b;
+        group_size(root_idx_b) += group_size(root_idx_a);
+        group_size(root_idx_a) = 0;
     }
 }
 
+
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-bool in_single_group(const amrex::Array1D<int, 1, NumSpec>& group_ind) {
+bool in_single_group(amrex::Array1D<int, 1, NumSpec>& group_idx) {
 
     // This function checks whether all isotopes are either in the LIG group
     // or in another single group.
 
-    int LIG_root_index = get_root_index(NSE_INDEX::He4_index, group_ind);
+    const auto LIG_root_idx = get_root_index(NSE_INDEX::He4_index, group_idx);
 
-    int nonLIG_index = -1;
+    // Consider NSE when all nuclei belongs to the same group
 
-    int oddN_group = -1;
-    int evenN_group = -1;
-
-    bool in_single_group = true;
-
-    // Consider NSE when there is a single group with an optional LIG group
-
-    for (int n = 0; n < NumSpec; ++n) {
-        if (get_root_index(n, group_ind) == LIG_root_index) {
-            continue;
-        }
-
-        if (nonLIG_index == -1) {
-            nonLIG_index = get_root_index(n, group_ind);
-            continue;
-        }
-
-        if (get_root_index(n, group_ind) != nonLIG_index) {
-            in_single_group = false;
-            break;
-        }
-
-    }
-
-    // If there no neutrons are in the network and original condition failed
-    // Consider a looser condition by looking at nuclei heavier than Si28
-    // There seems to be two big groups after Si28 in NSE:
-    // 1) isotopes with even N
-    // 2) isotopes with odd N
-
-    if (NSE_INDEX::N_index == -1 && !in_single_group) {
-
-        in_single_group = true;
-
-        for (int n = 0; n < NumSpec; ++n) {
-
-            if (zion[n] >= 14) {
-
-                // Get even N group index
-                if (evenN_group == -1 && std::fmod(aion[n] - zion[n], 2) == 0.0_rt) {
-                    evenN_group = get_root_index(n, group_ind);
-                    continue;
-                }
-
-                // Get odd N group index
-                if (oddN_group == -1 && std::fmod(aion[n] - zion[n], 2) == 1.0_rt) {
-                    oddN_group = get_root_index(n, group_ind);
-                    continue;
-                }
-
-                if ((std::fmod(aion[n] - zion[n], 2) == 0.0_rt && evenN_group != get_root_index(n, group_ind)) ||
-                    (std::fmod(aion[n] - zion[n], 2) == 1.0_rt && oddN_group != get_root_index(n, group_ind))) {
-                    in_single_group = false;
-                    break;
-                }
-            }
-
+    for (int n = 1; n <= NumSpec; ++n) {
+        if (get_root_index(n, group_idx) != LIG_root_idx) {
+            return false;
         }
     }
-
-    return in_single_group;
+    return true;
 }
 
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void fill_reaction_timescale(amrex::Array1D<T, 1, Rates::NumRates>& reaction_timescales,
-                             const int current_rate_index, const amrex::Real rho,
+void fill_reaction_timescale(amrex::Array1D<T, 1, NSE_INDEX::NumNSERatePairs>& reaction_timescales,
+                             const int current_rate_pair, const amrex::Real rho,
                              const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
                              const amrex::Array1D<amrex::Real, 1, Rates::NumRates>& screened_rates,
                              const amrex::Real t_s) {
-    // This function fills in the timescale of the reaction for the rates that
-    // are compatible for NSE.
+    // This function fills in the reaction timescale of the reaction for the RatePairs
+    // where the forward and reverse are close, i.e. in equilibrium.
 
-    // Default to the largest possible timescale
+    // Calculate the forward and reverse rates of the current rate pair.
 
-    constexpr amrex::Real max_timescale = std::numeric_limits<amrex::Real>::max();
-    reaction_timescales(current_rate_index) = max_timescale;
+    constexpr amrex::Real inv6 = 1.0_rt / 6.0_rt;
+    const auto r1_idx      = NSE_INDEX::rate_pair_data(current_rate_pair, 1);
+    const auto r2_idx      = NSE_INDEX::rate_pair_data(current_rate_pair, 2);
+    const auto r3_idx      = NSE_INDEX::rate_pair_data(current_rate_pair, 3);
+    const auto p1_idx      = NSE_INDEX::rate_pair_data(current_rate_pair, 4);
+    const auto p2_idx      = NSE_INDEX::rate_pair_data(current_rate_pair, 5);
+    const auto p3_idx      = NSE_INDEX::rate_pair_data(current_rate_pair, 6);
+    const auto nonNHA1_idx = NSE_INDEX::rate_pair_data(current_rate_pair, 7);
+    const auto nonNHA2_idx = NSE_INDEX::rate_pair_data(current_rate_pair, 8);
+    const auto forward_idx = NSE_INDEX::rate_pair_data(current_rate_pair, 9);
+    const auto reverse_idx = NSE_INDEX::rate_pair_data(current_rate_pair, 10);
 
-    //
-    // Few conditions to check:
-    // 1) skip if there is no reverse rate involved.
-    // 2) skip when reaction has more than 3 reactants or products involved
-    // If these conditions are met, we don't consider them for NSE
-    // so we assume they have the largest (slowest) timescale
-    //
+    amrex::Real b_f = screened_rates(forward_idx) * Y(r1_idx);
+    amrex::Real b_r = screened_rates(reverse_idx) * Y(p1_idx);
 
-    int reverse_rate_index = NSE_INDEX::rate_indices(current_rate_index, 7);
-    if ( (reverse_rate_index == -1)
-         || (NSE_INDEX::rate_indices(current_rate_index, 1) != -1)
-         || (NSE_INDEX::rate_indices(current_rate_index, 4) != -1)
-        ) {
-        return;
+    b_f *= (r2_idx != -1) ? (Y(r2_idx) * rho) : 1.0_rt;
+    b_f *= (r3_idx != -1) ? (Y(r3_idx) * rho) : 1.0_rt;
+
+    b_r *= (p2_idx != -1) ? (Y(p2_idx) * rho) : 1.0_rt;
+    b_r *= (p3_idx != -1) ? (Y(p3_idx) * rho) : 1.0_rt;
+
+    // Four possible case for multiplicity after sorting: ABC, AAB, ABB, AAA
+
+    if (r1_idx == r2_idx && r2_idx == r3_idx) {
+        // Case AAA
+        b_f *= inv6;
+    } else if (r1_idx == r2_idx || (r3_idx != -1 && r2_idx == r3_idx)) {
+        // Case AAB or ABB. Need to make sure r3_idx is not -1
+        b_f *= 0.5_rt;
     }
 
-    //
-    // 3) If there are more than 2 non Neutron, Proton, or Helium-4 in the rate
-    //
-
-    amrex::Array1D<int, 1, 2> non_NHA_ind = {-1, -1};
-    int non_NHA_counts = 0;
-    for (int k = 2; k <= 6; ++k) {
-        if (NSE_INDEX::rate_indices(current_rate_index, k) == -1) {
-            continue;
-        }
-
-        int is_neutron_in_network = (NSE_INDEX::N_index != -1);
-        int is_valid_index = (NSE_INDEX::rate_indices(current_rate_index, k) != NSE_INDEX::H1_index &&
-                              NSE_INDEX::rate_indices(current_rate_index, k) != NSE_INDEX::He4_index);
-
-        if ((!is_neutron_in_network && is_valid_index) ||
-            (is_neutron_in_network && is_valid_index &&
-             NSE_INDEX::rate_indices(current_rate_index, k) != NSE_INDEX::N_index)) {
-
-            ++non_NHA_counts;
-
-            // Check if count exceeds 2
-
-            if (non_NHA_counts > 2) {
-                return;
-            }
-
-            // Store the index where we have non Neutron, Proton, or Helium-4
-
-            non_NHA_ind(non_NHA_counts) = k;
-        }
-    }
-
-    //
-    // 4) If the rate only involves Neutron, Proton or Helium-4
-    //
-    if (non_NHA_ind(1) == -1) {
-        return;
-    }
-
-    // Calculate the forward and reverse rates of the current rate index
-
-    amrex::Real b_f;
-    amrex::Real b_r;
-
-    b_f = screened_rates(current_rate_index) * Y(NSE_INDEX::rate_indices(current_rate_index, 3) + 1);
-    b_r = screened_rates(reverse_rate_index) * Y(NSE_INDEX::rate_indices(current_rate_index, 6) + 1);
-
-    if (NSE_INDEX::rate_indices(current_rate_index, 2) != -1) {
-        if (NSE_INDEX::rate_indices(current_rate_index, 2) == NSE_INDEX::rate_indices(current_rate_index, 3)) {
-            b_f *= 0.5_rt;
-        }
-        b_f *= Y(NSE_INDEX::rate_indices(current_rate_index, 2) + 1) * rho;
-    }
-
-    if (NSE_INDEX::rate_indices(current_rate_index, 5) != -1) {
-        if (NSE_INDEX::rate_indices(current_rate_index, 5) == NSE_INDEX::rate_indices(current_rate_index, 6)) {
-            b_r *= 0.5_rt;
-        }
-        b_r *= Y(NSE_INDEX::rate_indices(current_rate_index, 5) + 1) * rho;
+    if (p1_idx == p2_idx && p2_idx == p3_idx) {
+        // Case AAA
+        b_r *= inv6;
+    } else if (p1_idx == p2_idx || (p3_idx != -1 && p2_idx == p3_idx)) {
+        // Case AAB or ABB. Need to make sure p3_idx is not -1
+        b_r *= 0.5_rt;
     }
 
     // Find the timescale of the rate, See Equation 11 in Kushnir
@@ -334,14 +207,23 @@ void fill_reaction_timescale(amrex::Array1D<T, 1, Rates::NumRates>& reaction_tim
     // isotopes into groups, so we need to do calculations iteratively.
     //
 
-    amrex::Real t_i = std::numeric_limits<amrex::Real>::max();
     amrex::Real b_min = amrex::min(b_f, b_r);
-    if (b_min != 0.0_rt) {
-        t_i = Y(NSE_INDEX::rate_indices(current_rate_index, non_NHA_ind(1))+1) / b_min;
-        if (non_NHA_ind(2) != -1) {
-            t_i = amrex::min(t_i, Y(NSE_INDEX::rate_indices(current_rate_index, non_NHA_ind(2))+1) / b_min);
-        }
+
+    // If one of the rate is zero, abort early.
+    // We already set the reaction_timescales to be MAX_TIMESCALE
+    // b_min should not be zero past this point.
+
+    if (b_min == 0.0_rt) {
+        return;
     }
+
+    // Pre-filtered RatePair will at least have 1 nuclei not in (n, H1, He4)
+
+    amrex::Real Y_min = Y(nonNHA1_idx);
+    if (nonNHA2_idx != -1) {
+        Y_min = amrex::min(Y_min, Y(nonNHA2_idx));
+    }
+    amrex::Real t_i = Y_min / b_min;
 
     //
     // Condition for checking if forward and reverse rates are in equilibrium
@@ -349,190 +231,147 @@ void fill_reaction_timescale(amrex::Array1D<T, 1, Rates::NumRates>& reaction_tim
     // See Equation 17 in Kushnir Paper
     //
 
-    if ((2.0_rt * std::abs(b_f - b_r) < ase_tol * (b_f + b_r)) &&
+    if ((std::abs(b_f - b_r) < 0.5_rt * ase_tol * (b_f + b_r)) &&
         (t_i < ase_tol * t_s)) {
-        reaction_timescales(current_rate_index) = t_i;
+        reaction_timescales(current_rate_pair) = t_i;
     }
 }
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
-                        const int current_rate_index,
-                        const amrex::Array1D<int, 1, NumSpec>& group_ind) {
-    // This function determines the merge indices for the current rate index
+void fill_merge_indices(int& merge_idx1, int& merge_idx2,
+                        const int current_rate_pair,
+                        amrex::Array1D<int, 1, NumSpec>& group_idx) {
+    // Determines the merge indices for the current rate pair.
+    // We consider three cases for each rate pair:
+    //
+    // 1. There are exactly three distinct groups: LIG and TWO other nuclei
+    //    from TWO different groups. In this case, merge those two nuclei
+    //    into the same group.
+    //
+    // 2. There are exactly TWO distinct groups: LIG and ONE or TWO other nuclei
+    //    but belong to a SINGLE groups. In this case, merge those two groups
+    //    into the same group.
+    //
+    // 3. There is exactly ONE distinct group: LIG -- all nuclei merged.
+    //    Abort in this case.
 
-    // First determine the non neutron, proton, helium-4 indices of the rate
+    const auto nonNHA1_idx = NSE_INDEX::rate_pair_data(current_rate_pair, 7);
+    const auto nonNHA2_idx = NSE_INDEX::rate_pair_data(current_rate_pair, 8);
 
-    amrex::Array1D<int, 1, 2> non_NHA_ind = {-1, -1};
-    int non_NHA_counts = 0;
+    // We know that each RatePair will only have 1 or 2 non NHA nuclei.
+    // First check if these nuclei are already merged into LIG.
 
-    merge_indices(1) = -1;
-    merge_indices(2) = -1;
+    const auto LIG_root_idx = get_root_index(NSE_INDEX::He4_index, group_idx);
+    const auto nonNHA1_root_idx = get_root_index(nonNHA1_idx, group_idx);
 
-    for (int k = 2; k <= 6; ++k) {
-        if (NSE_INDEX::rate_indices(current_rate_index, k) == -1) {
-            continue;
-        }
+    // Use the first non NHA nuclei as the candidate for merging
+    // Currently it has two possibilities: its in LIG or non in LIG
+    // 1. First non NHA nuclei already in LIG
+    // 2. First non NHA nuclei not in LIG, then set 2nd merge index to be LIG
 
-        int is_neutron_in_network = (NSE_INDEX::N_index != -1);
-        int is_valid_index = (NSE_INDEX::rate_indices(current_rate_index, k) != NSE_INDEX::H1_index &&
-                              NSE_INDEX::rate_indices(current_rate_index, k) != NSE_INDEX::He4_index);
-
-        if ((!is_neutron_in_network && is_valid_index) ||
-            (is_neutron_in_network && is_valid_index &&
-             NSE_INDEX::rate_indices(current_rate_index, k) != NSE_INDEX::N_index)) {
-
-            ++non_NHA_counts;
-
-            if (non_NHA_counts > 2) {
-                return;
-            }
-
-            // Store the index where we have non Neutron, Proton, or Helium-4
-
-            non_NHA_ind(non_NHA_counts) = k;
-        }
+    merge_idx1 = nonNHA1_root_idx;
+    if (nonNHA1_root_idx != LIG_root_idx) {
+        merge_idx2 = LIG_root_idx;
     }
 
-    // Check whether isotopes are already merged
+    // If there is a second non NHA nuclei,
+    // check if it is in the same group as the first non NHA nuclei.
+    // If not, use this as the second merge index.
 
-    int num_nonLIG = 0;
-    int nonLIG_root = -1;
-
-    for (int k = 2; k <= 6; ++k) {
-        if (NSE_INDEX::rate_indices(current_rate_index, k) == -1) {
-            continue;
-        }
-
-        int root_index = get_root_index(NSE_INDEX::rate_indices(current_rate_index, k),
-                                        group_ind);
-
-        // Determine number of nonLIG isotopes
-        // also check whether nonLIG isotopes are already merged
-
-        if (root_index != get_root_index(NSE_INDEX::He4_index, group_ind)) {
-
-            ++num_nonLIG;
-
-            //
-            // return if nonLIG_root index is repeated, i.e. isotopes already merged
-            // Initialize nonLIG_root = -1.
-            // Update nonLIG_root during first encounter nonLIG
-            // If nonLIG_root is repeated during second encounter, then abort
-            //
-
-            if (root_index == nonLIG_root) {
-                return;
-            }
-
-            // Update the nonLIG_root during first encounter
-
-            nonLIG_root = root_index;
-        }
-    }
-
-    // skip if number of LIG is greater than 2 or equal to 0
-
-    if (num_nonLIG == 0 || num_nonLIG > 2) {
-        return;
-    }
-
-    for (int n = 1; n <= 2; ++n) {
-
-        // If non_NHA index is -1, meaning null, then use LIG index
-
-        if (non_NHA_ind(n) == -1) {
-            merge_indices(n) = get_root_index(NSE_INDEX::He4_index, group_ind);
-        }
-        else {
-            merge_indices(n) = NSE_INDEX::rate_indices(current_rate_index, non_NHA_ind(n));
+    if (nonNHA2_idx != -1) {
+        const auto nonNHA2_root_idx = get_root_index(nonNHA2_idx, group_idx);
+        if (nonNHA2_root_idx != nonNHA1_root_idx) {
+            merge_idx2 = nonNHA2_root_idx;
         }
     }
 }
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const amrex::Real rho,
+void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_idx, const amrex::Real rho,
                   const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
                   const amrex::Array1D<amrex::Real, 1, Rates::NumRates>& screened_rates,
                   const amrex::Real t_s) {
+    // Groups all the nuclei using group_idx which contains the node number
 
-    // This function groups all the nuclei using group_ind
-    // which contains the node #
+    // Create a 1D array to keep track of the group size.
+    // We want to merge smaller group to larger group during nse_union.
 
-    // fill in initial group_ind, group_ind go from 1 to NumSpec
+    amrex::Array1D<int, 1, NumSpec> group_size;
 
-    for (int i = 1; i <= NumSpec; ++i) {
-        group_ind(i) = i;
+    // Initialize group_idx with 1-based indexing.
+    // Also, initially all nuclei form their own group -- size = 1.
 
-        // let n,p,a form the same group (LIG) initially, let 1 be index of LIG
-
-        if (i == NSE_INDEX::H1_index + 1 || i == NSE_INDEX::N_index + 1
-            || i == NSE_INDEX::He4_index + 1) {
-
-            // group_ind(i) = NSE_INDEX::He4_index;
-
-            group_ind(i) = 1;
-        }
+    for (int n = 1; n <= NumSpec; ++n) {
+        group_idx(n) = n;
+        group_size(n) = 1;
     }
 
-    // Let's first create an array for reaction_timescales and reaction_indices
-    // Then fill in the reaction timescale and index for each rate.
+    // let n,p,a form the same group (LIG) initially
+    // Since we require He4 to be in the net, merge n and H1 with He4
 
-    amrex::Array1D<amrex::Real, 1, Rates::NumRates> reaction_timescales;
-    amrex::Array1D<int, 1, Rates::NumRates> rate_indices;
+    if constexpr (NSE_INDEX::N_index != -1) {
+        nse_union(NSE_INDEX::N_index, NSE_INDEX::He4_index, group_idx, group_size);
+    }
+    if constexpr (NSE_INDEX::H1_index != -1) {
+        nse_union(NSE_INDEX::H1_index, NSE_INDEX::He4_index, group_idx, group_size);
+    }
 
-    for (int n = 1; n <= Rates::NumRates; ++n) {
+    // Create a 1D array to hold reaction_timescales and RatePair indices
+    // If forward and reverse rate are close, then store the reaction timescale,
+    // otherwise set timescale to MAX_TIMESCALE -- slowest.
+    // RatePair indices will hold index to the corresponding RatePair.
+
+    constexpr amrex::Real MAX_TIMESCALE = std::numeric_limits<amrex::Real>::max();
+    amrex::Array1D<int, 1, NSE_INDEX::NumNSERatePairs> rate_pair_idxs;
+    amrex::Array1D<amrex::Real, 1, NSE_INDEX::NumNSERatePairs> reaction_timescales;
+
+    for (int n = 1; n <= NSE_INDEX::NumNSERatePairs; ++n) {
+        rate_pair_idxs(n) = n;
+        reaction_timescales(n) = MAX_TIMESCALE;
         fill_reaction_timescale(reaction_timescales, n, rho, Y,
                                 screened_rates, t_s);
-        rate_indices(n) = n;
     }
 
-    //
-    // Sort rate_indices using reaction_timescales.
-    // The sorted rate_indices should correspond to reactions
+    // Sort rate_pair_idx using reaction_timescales.
+    // The sorted rate_pair_idx should correspond to RatePairs
     // from smallest (fastest) to largest (slowest) timescale
-    //
 
-    quickSort_Array1D(rate_indices, reaction_timescales);
+    quickSort_Array1D(rate_pair_idxs, reaction_timescales);
 
-    // After the rate indices are sorted based on reaction timescales.
-    // Now do the grouping based on the timescale.
+    // After rate_pair_idx are sorted based on reaction timescales.
+    // Do grouping based on timescale -- starting from the fastest timescale.
 
-    amrex::Array1D<int, 1, 2> merge_indices;
-    constexpr amrex::Real max_timescale = std::numeric_limits<amrex::Real>::max();
+    for (int n = 1; n <= NSE_INDEX::NumNSERatePairs; ++n) {
 
-    for (int n = 1; n <= Rates::NumRates; ++n) {
+        auto rate_pair_idx = rate_pair_idxs(n);
 
-        int current_rate_index = rate_indices(n);
+        // Check if the timescale is at max,
+        // meaning reached the end of the valid RatePair -- break
 
-        //
-        // Check if the timescale is at max, which means this reaction rate is
-        // not valid for considering merging.
-        //
-
-        if (reaction_timescales(n) == max_timescale) {
+        if (reaction_timescales(n) == MAX_TIMESCALE) {
             break;
         }
 
-        // Fill in the merge index
+        // Fill in the nuclei indices for merging
 
-        fill_merge_indices(merge_indices, current_rate_index, group_ind);
+        int merge_idx1 = -1;
+        int merge_idx2 = -1;
+        fill_merge_indices(merge_idx1, merge_idx2, rate_pair_idx, group_idx);
 
         // Check if merge indices are -1, which means nothing to merge
 
-        if (merge_indices(1) == -1 || merge_indices(2) == -1) {
+        if (merge_idx1 == -1 || merge_idx2 == -1) {
             continue;
         }
 
-        // union the isotopes into the same group
+        // Merge nuclei into the same group
 
-        nse_union(merge_indices(1), merge_indices(2), group_ind);
+        nse_union(merge_idx1, merge_idx2, group_idx, group_size);
     }
 
 }
-#endif
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -540,8 +379,6 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
 
     // This function returns the boolean that tells whether we're in nse or not
     // Note that it only works with pynucastro network for now.
-
-#ifndef NEW_NETWORK_IMPLEMENTATION
 
     current_state.nse = false;
 
@@ -573,9 +410,10 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
 
     amrex::Array1D<amrex::Real, 1, NumSpec> Y;
     amrex::Array1D<amrex::Real, 1, NumSpec> Y_nse;
+    const amrex::Real rho_inv = 1.0_rt / current_state.rho;
 
     for (int n = 0; n < NumSpec; ++n) {
-        Y(n+1) = current_state.y[SFS+n] * aion_inv[n] / current_state.rho;
+        Y(n+1) = current_state.y[SFS+n] * aion_inv[n] * rho_inv;
         Y_nse(n+1) = nse_state.xn[n] * aion_inv[n];
     }
 
@@ -617,9 +455,13 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
         state.xn[n] = Y(n+1) * aion[n];
     }
 
+    // Evaluate the rates.
+    // Note that only some rates are needed, so perhaps we can optimize here
+    // Or can we cache it from RHS calls during the integrator?
+
     rate_t rate_eval;
     constexpr int do_T_derivatives = 0;
-    evaluate_rates<do_T_derivatives, rate_t>(state, rate_eval);
+    evaluate_rates<do_T_derivatives, rate_t>(state, Y, rate_eval);
 
     // need eos_state for speed of sound
 
@@ -627,20 +469,20 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
 
     // Initialize t_s, sound crossing timescale for a single zone to be max
 
-    amrex::Real t_s = std::numeric_limits<amrex::Real>::max();
+    constexpr amrex::Real MAX_TIMESCALE = std::numeric_limits<amrex::Real>::max();
+    amrex::Real t_s = MAX_TIMESCALE;
 
-    // If we care about checking the timescale of the rate to be smaller than t_s, then:
+    // If we care about checking the reaction timescale to be smaller than t_s,
 
     if (!nse_dx_independent) {
         burn_to_eos(state, eos_state);
         eos(eos_input_rt, eos_state);
-
-        // a parameter to characterize whether a rate is fast enough
-
         t_s = state.dx / eos_state.cs;
     }
 
-    amrex::Array1D<int, 1, NumSpec> group_ind;
+    // Create 1D array to hold the group node index
+
+    amrex::Array1D<int, 1, NumSpec> group_idx;
 
     //
     // In Kushnir paper, we also need to perform a check
@@ -652,18 +494,12 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
 
     // Now do nse grouping
 
-    nse_grouping(group_ind, state.rho, Y, rate_eval.screened_rates, t_s);
+    nse_grouping(group_idx, state.rho, Y, rate_eval.screened_rates, t_s);
 
     // Check if we result in a single group after grouping
 
-    current_state.nse = in_single_group(group_ind);
+    current_state.nse = in_single_group(group_idx);
     return current_state.nse;
-
-#else
-    amrex::Error("in_nse() is currently not supported for aprox networks!");
-    return false;
-#endif
-
 }
 
 #endif

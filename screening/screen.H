@@ -150,7 +150,7 @@ fill_plasma_state(plasma_state_t<number_t>& state, const number_t& temp,
 
     // precomputed part of Gamma_e, from Chugunov 2009 eq. 6
     constexpr amrex::Real gamma_e_constants =
-        C::q_e*C::q_e/C::k_B * gcem::pow(4.0_rt/3.0_rt*M_PI, 1.0_rt/3.0_rt);
+        C::q_e * C::q_e * gcem::pow(4.0_rt * M_PI / 3.0_rt, 1.0_rt / 3.0_rt) / C::k_B;
     state.gamma_e_fac = gamma_e_constants * std::cbrt(state.n_e);
 }
 
@@ -175,17 +175,15 @@ number_t debye_huckel (const plasma_state_t<number_t>& state,
     // eq. A1
     number_t h_DH = z1z2 * admath::sqrt(3 * admath::powi<3>(Gamma_e) * z_ratio);
 
-    // machine limit the output
-    constexpr amrex::Real h_max = 300.e0_rt;
-    number_t h = admath::min(h_DH, h_max);
-    return admath::exp(h);
+    // assume h >= 0.0
+    return admath::max(h_DH, 0.0_rt);
 }
 
 #if SCREEN_METHOD == SCREEN_METHOD_screen5
 template <typename number_t>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 number_t actual_screen5 (const plasma_state_t<number_t>& state,
-                       const scrn::screen_factors_t& scn_fac)
+                         const scrn::screen_factors_t& scn_fac)
 {
     // this subroutine calculates screening factors and their derivatives
     // for nuclear reaction rates in the weak, intermediate and strong regimes.
@@ -200,17 +198,17 @@ number_t actual_screen5 (const plasma_state_t<number_t>& state,
 
 
     // fact = 2^(1/3)
-    const amrex::Real fact    = 1.25992104989487e0_rt;
-    const amrex::Real gamefx  = 0.3e0_rt;          // lower gamma limit for intermediate screening
-    const amrex::Real gamefs  = 0.8e0_rt;          // upper gamma limit for intermediate screening
-    const amrex::Real h12_max = 300.e0_rt;
+    constexpr amrex::Real fact    = 1.25992104989487e0_rt;
+    constexpr amrex::Real gamefx  = 0.3e0_rt;          // lower gamma limit for intermediate screening
+    constexpr amrex::Real gamefs  = 0.8e0_rt;          // upper gamma limit for intermediate screening
+    constexpr amrex::Real inv_dg = 1.0_rt / (gamefs - gamefx);
 
     // Get the ion data based on the input index
-    amrex::Real z1 = scn_fac.z1;
-    amrex::Real z2 = scn_fac.z2;
+    const amrex::Real z1 = scn_fac.z1;
+    const amrex::Real z2 = scn_fac.z2;
 
     // calculate individual screening factors
-    amrex::Real bb = z1 * z2;
+    const amrex::Real bb = z1 * z2;
     number_t gamp = state.aa;
 
     // In Eq.4 in Itoh:1979, this term is 2*Z_1*Z_2/(Z_1^(1/3) + Z_2^(1/3))
@@ -252,7 +250,7 @@ number_t actual_screen5 (const plasma_state_t<number_t>& state,
     // Full version of Eq. 19 in Graboske:1973 by considering weak regime
     // and Wallace:1982 Eq. A14. Here the degeneracy factor is assumed to be 1.
 
-    number_t h12w = bb * state.qlam0z;
+    const number_t h12w = bb * state.qlam0z;
 
     number_t h12 = h12w;
 
@@ -260,34 +258,33 @@ number_t actual_screen5 (const plasma_state_t<number_t>& state,
 
     if (gamef > gamefx) {
 
-      // gamma_ij^(1/4)
-
-        number_t gamp14 = admath::pow(gamp, 0.25_rt);
+        // gamma_ij^(1/4)
+        const number_t gamp14 = admath::sqrt(admath::sqrt(gamp));
 
         // Here we follow Eq. A9 in Wallace:1982
         // See Eq. 25 Alastuey:1978, Eq. 16 and 17 in Jancovici:1977 for reference
-        number_t cc = 0.896434e0_rt * gamp * scn_fac.zhat
+        const number_t cc = 0.896434e0_rt * gamp * scn_fac.zhat
             - 3.44740e0_rt * gamp14 * scn_fac.zhat2
             - 0.5551e0_rt * (admath::log(gamp) + scn_fac.lzav)
             - 2.996e0_rt;
 
         // (3gamma_ij/tau_ij)^3
-        number_t a3 = alph12 * alph12 * alph12;
+        const number_t a3 = alph12 * alph12 * alph12;
 
         // Part of Eq. 28 in Alastuey:1978
-        number_t rr = (5.0_rt/32.0_rt) - alph12*(0.014e0_rt + 0.0128e0_rt*alph12);
+        const number_t rr = (5.0_rt/32.0_rt) - alph12*(0.014e0_rt + 0.0128e0_rt*alph12);
 
         // Part of Eq. 28 in Alastuey:1978
-        number_t ss = tau12*rr;
+        const number_t ss = tau12*rr;
 
         // Part of Eq. 31 in Alastuey:1978
-        number_t tt = -0.0098e0_rt + 0.0048e0_rt*alph12;
+        const number_t tt = -0.0098e0_rt + 0.0048e0_rt*alph12;
 
         // Part of Eq. 31 in Alastuey:1978
-        number_t uu = 0.0055e0_rt + alph12*tt;
+        const number_t uu = 0.0055e0_rt + alph12*tt;
 
         // Part of Eq. 31 in Alastuey:1978
-        number_t vv = gamef * alph12 * uu;
+        const number_t vv = gamef * alph12 * uu;
 
         // Exponent of Eq. 32 in Alastuey:1978, which uses Eq.28 and Eq.31
         // Strong screening factor
@@ -295,43 +292,29 @@ number_t actual_screen5 (const plasma_state_t<number_t>& state,
 
         // See conclusion and Eq. 34 in Alastuey:1978
         // This is an extra factor to account for quantum effects
-        rr = 1.0_rt - 0.0562e0_rt*a3;
+        // In extreme case, limit to 0.77, see conclusion in Alastuey:1978
 
-        number_t xlgfac;
-
-        // In extreme case, rr is 0.77, see conclusion in Alastuey:1978
-        if (rr >= 0.77e0_rt) {
-            xlgfac = rr;
-        } else {
-            xlgfac = 0.77e0_rt;
-        }
+        const number_t xlgfac = admath::max(1.0_rt - 0.0562e0_rt*a3, 0.77_rt);
 
         // Include the extra factor that accounts for quantum effects
-        h12 = admath::log(xlgfac) + h12;
+        h12 += admath::log(xlgfac);
 
         // If gamma_ij < upper limit of intermediate regime
         // then it is in the intermediate regime, else strong screening.
         if (gamef <= gamefs) {
-            amrex::Real dgamma = 1.0e0_rt/(gamefs - gamefx);
-
-            rr =  dgamma*(gamefs - gamef);
-
-            ss = dgamma*(gamef - gamefx);
-
-            vv = h12;
+            const number_t weight1 =  inv_dg * (gamefs - gamef);
+            const number_t weight2 = inv_dg * (gamef - gamefx);
 
             // Then the screening factor is a combination
             // of the strong and weak screening factor.
-            h12 = h12w*rr + vv*ss;
+            h12 = h12w * weight1 + h12 * weight2;
         }
 
         // end of intermediate and strong screening
     }
 
-    // machine limit the output
     // further limit to avoid the pycnonuclear regime
-    h12 = admath::max(admath::min(h12, h12_max), 0.0_rt);
-    return admath::exp(h12);
+    return admath::max(h12, 0.0_rt);
 }
 
 #elif SCREEN_METHOD == SCREEN_METHOD_chugunov2007
@@ -451,10 +434,8 @@ number_t chugunov2007 (const plasma_state_t<number_t>& state,
     number_t inner = A1 * term1 + A3 * term2;
     number_t h = admath::pow(gamtilde, 1.5_rt) * inner + B1 * term3 + B3 * term4;
 
-    // machine limit the output
-    constexpr amrex::Real h_max = 300.e0_rt;
-    h = admath::min(h, h_max);
-    return admath::exp(h);
+    // assume h >= 0.0
+    return admath::max(h, 0.0_rt);
 }
 
 #elif SCREEN_METHOD == SCREEN_METHOD_chugunov2009
@@ -543,10 +524,8 @@ number_t chugunov2009 (const plasma_state_t<number_t>& state,
     number_t Gamma_12_2 = Gamma_12 * Gamma_12;
     number_t h12 = (corr_C + Gamma_12_2) / (1.0_rt + Gamma_12_2) * h_fit;
 
-    // machine limit the output
-    constexpr amrex::Real h12_max = 300.e0_rt;
-    h12 = admath::min(h12, h12_max);
-    return admath::exp(h12);
+    // assume h >= 0.0
+    return admath::max(h12, 0.0_rt);
 }
 
 #elif SCREEN_METHOD == SCREEN_METHOD_chabrier1998
@@ -559,14 +538,16 @@ number_t chabrier1998_helmholtz_F(const number_t& gamma) {
 
     constexpr amrex::Real A_1 = -0.9052_rt;
     constexpr amrex::Real A_2 = 0.6322_rt;
+    constexpr amrex::Real A_2i = 1.0_rt / A_2;
     constexpr amrex::Real sqrt_A2 = gcem::sqrt(A_2);
-    constexpr amrex::Real A_3 = -0.5_rt * gcem::sqrt(3.0_rt) - A_1 / sqrt_A2;
+    constexpr amrex::Real sqrt_A2i = 1.0_rt / sqrt_A2;
+    constexpr amrex::Real A_3 = -0.5_rt * gcem::sqrt(3.0_rt) - A_1 * sqrt_A2i;
 
     // Compute the square root terms individually, for simpler code
     const number_t sqrt_gamma = admath::sqrt(gamma);
-    const number_t term3 = admath::sqrt(1.0_rt + gamma / A_2);
+    const number_t term3 = admath::sqrt(1.0_rt + gamma * A_2i);
     const number_t term1 = sqrt_gamma * sqrt_A2 * term3;
-    const number_t term2 = sqrt_gamma / sqrt_A2;
+    const number_t term2 = sqrt_gamma * sqrt_A2i;
 
     return A_1 * (term1 - A_2 * admath::log(term2 + term3)) +
            2.0_rt * A_3 * (sqrt_gamma - admath::fast_atan(sqrt_gamma));
@@ -575,7 +556,7 @@ number_t chabrier1998_helmholtz_F(const number_t& gamma) {
 template <typename number_t>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 number_t chabrier1998 (const plasma_state_t<number_t>& state,
-                     const scrn::screen_factors_t& scn_fac)
+                       const scrn::screen_factors_t& scn_fac)
 {
     // Calculates screening factors based on Chabrier & Potekhin 1998,
     // Calder2007 and partly screen5 routine mentioned in Alastuey 1978.
@@ -637,42 +618,74 @@ number_t chabrier1998 (const plasma_state_t<number_t>& state,
 
     number_t h12 = f1 + f2 - f12 + quantum_corr_1 + quantum_corr_2;
 
-    constexpr amrex::Real h12_max = 300.0_rt;
-    h12 = admath::min(h12_max, h12);
-
-    return admath::exp(h12);
+    // assume h >= 0.0
+    return admath::max(h12, 0.0_rt);
 }
 #endif
 
 template <typename number_t>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-number_t actual_screen(const plasma_state_t<number_t>& state,
-                     const scrn::screen_factors_t& scn_fac)
+number_t actual_log_screen(const plasma_state_t<number_t>& state,
+                           const scrn::screen_factors_t& scn_fac)
 {
-    number_t scor = 1.0_rt;
+    number_t log_scor = 0.0_rt;
 #if SCREEN_METHOD == SCREEN_METHOD_null
     // null screening
     amrex::ignore_unused(state, scn_fac);
-    return scor;
+    return log_scor;
 #endif
     if (screening_rp::enable_debye_huckel_skip) {
-        scor = debye_huckel(state, scn_fac);
-        if (scor <= screening_rp::debye_huckel_skip_threshold) {
-            return scor;
+        log_scor = debye_huckel(state, scn_fac);
+        if (log_scor <= screening_rp::debye_huckel_skip_threshold) {
+            return log_scor;
         }
     }
 #if SCREEN_METHOD == SCREEN_METHOD_debye_huckel
-    scor = debye_huckel(state, scn_fac);
+    log_scor = debye_huckel(state, scn_fac);
 #elif SCREEN_METHOD == SCREEN_METHOD_screen5
-    scor = actual_screen5(state, scn_fac);
+    log_scor = actual_screen5(state, scn_fac);
 #elif SCREEN_METHOD == SCREEN_METHOD_chugunov2007
-    scor = chugunov2007(state, scn_fac);
+    log_scor = chugunov2007(state, scn_fac);
 #elif SCREEN_METHOD == SCREEN_METHOD_chugunov2009
-    scor = chugunov2009(state, scn_fac);
+    log_scor = chugunov2009(state, scn_fac);
 #elif SCREEN_METHOD == SCREEN_METHOD_chabrier1998
-    scor = chabrier1998(state, scn_fac);
+    log_scor = chabrier1998(state, scn_fac);
 #endif
-    return scor;
+    return log_scor;
+}
+
+template <typename number_t>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void actual_log_screen(const plasma_state_t<number_t>& state,
+                       const scrn::screen_factors_t& scn_fac,
+                       amrex::Real& log_scor, amrex::Real& log_scordt)
+{
+    number_t log_scor_dual;
+    log_scor_dual = actual_log_screen(state, scn_fac);
+    if constexpr (autodiff::detail::isDual<number_t>) {
+        log_scor = autodiff::val(log_scor_dual);
+        log_scordt = autodiff::derivative(log_scor_dual);
+    } else {
+        log_scor = log_scor_dual;
+        log_scordt = std::numeric_limits<amrex::Real>::quiet_NaN();
+    }
+}
+
+template <typename number_t>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+number_t actual_screen(const plasma_state_t<number_t>& state,
+                       const scrn::screen_factors_t& scn_fac)
+{
+    number_t log_scor = actual_log_screen(state, scn_fac);
+    if (log_scor <= 0.0) {
+        return 1.0_rt;
+    }
+
+    // Machine limit output
+    constexpr amrex::Real log_scor_max = 300.0_rt;
+    log_scor = admath::min(log_scor, log_scor_max);
+
+    return admath::exp(log_scor);
 }
 
 template <typename number_t>
