@@ -86,7 +86,7 @@ void mdegre4(RockT& rstate)
 
 template <typename BurnT, typename RockT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-Real r2step (BurnT& state, RockT& rstate)
+amrex::Real r2step (BurnT& state, RockT& rstate)
 {
 
     // Solut. at t+h by an explicit (mdeg+2)-stages formula.
@@ -96,12 +96,12 @@ Real r2step (BurnT& state, RockT& rstate)
 
     // First stage
 
-    Real temp1 = rstate.h * rock2_coeffs::recf(mr);
-    Real ci1 = rstate.t + temp1;
-    Real ci2 = rstate.t + temp1;
-    Real ci3 = rstate.t;
+    amrex::Real temp1 = rstate.h * rock2_coeffs::recf(mr);
+    amrex::Real ci1 = rstate.t + temp1;
+    amrex::Real ci2 = rstate.t + temp1;
+    amrex::Real ci3 = rstate.t;
 
-    Real temp2, temp3;
+    amrex::Real temp2, temp3;
 
     for (int i = 1; i <= INT_NEQS; ++i) {
         rstate.yjm2(i) = rstate.yn(i);
@@ -161,12 +161,12 @@ Real r2step (BurnT& state, RockT& rstate)
         rstate.y(i) = rstate.y_backup(i);
     }
 
-    Real err{};
+    amrex::Real err{};
 
     for (int j = 1; j <= INT_NEQS; ++j) {
         temp3 = temp2 * (rstate.y(j) - rstate.yjm2(j));
         rstate.y(j) = rstate.yjm1(j) + temp1 * rstate.y(j) + temp3;
-        Real wt{};
+        amrex::Real wt{};
         if (j <= NumSpec) {
             wt = rstate.rtol_spec * std::abs(rstate.y(j)) + rstate.atol_spec;
         } else {
@@ -176,14 +176,14 @@ Real r2step (BurnT& state, RockT& rstate)
         err += amrex::Math::powi<2>(temp3 / wt);
     }
 
-    err = std::sqrt(err / static_cast<Real>(INT_NEQS));
+    err = std::sqrt(err / static_cast<amrex::Real>(INT_NEQS));
 
     return err;
 }
 
 template <typename BurnT, typename RockT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-Real r4step (BurnT& state, RockT& rstate)
+amrex::Real r4step (BurnT& state, RockT& rstate)
 {
 
     // Solut. at t+h by an explicit (mdeg+4)-stages formula.
@@ -193,12 +193,12 @@ Real r4step (BurnT& state, RockT& rstate)
 
     // First stage
 
-    Real temp1 = rstate.h * rock4_coeffs::recf(mr);
-    Real ci1 = rstate.t + temp1;
-    Real ci2 = rstate.t + temp1;
-    Real ci3 = rstate.t;
+    amrex::Real temp1 = rstate.h * rock4_coeffs::recf(mr);
+    amrex::Real ci1 = rstate.t + temp1;
+    amrex::Real ci2 = rstate.t + temp1;
+    amrex::Real ci3 = rstate.t;
 
-    Real temp2, temp3, temp4, temp5;
+    amrex::Real temp2, temp3, temp4, temp5;
 
     for (int i = 1; i <= INT_NEQS; ++i) {
         rstate.yjm2(i) = rstate.yn(i);
@@ -318,10 +318,10 @@ Real r4step (BurnT& state, RockT& rstate)
     rhs(rstate.t + rstate.h, state, rstate, rstate.fnt);
 
 
-    Real err{};
+    amrex::Real err{};
 
     for (int j = 1; j <= INT_NEQS; ++j) {
-        Real wt{};
+        amrex::Real wt{};
         if (j <= NumSpec) {
             wt = rstate.rtol_spec * std::abs(rstate.y(j)) + rstate.atol_spec;
         } else {
@@ -335,7 +335,7 @@ Real r4step (BurnT& state, RockT& rstate)
                                      temp5 * rstate.fnt(j)) / wt);
     }
 
-    err = std::sqrt(err / static_cast<Real>(INT_NEQS));
+    err = std::sqrt(err / static_cast<amrex::Real>(INT_NEQS));
 
     return err;
 }
@@ -359,15 +359,15 @@ int rockcore (BurnT& state, RockT& rstate)
     rstate.max_rho = 0;
     rstate.min_rho = std::numeric_limits<decltype(rstate.min_rho)>::max();
 
-    Real facmax{5.0_rt};
-    Real told{0.0_rt};
-    Real err{0.0_rt};
+    amrex::Real facmax{5.0_rt};
+    amrex::Real told{0.0_rt};
+    amrex::Real err{0.0_rt};
 
     int nrej{0};
     int nrho{0};
     int mdego{0};
 
-    Real hp{rstate.h};
+    amrex::Real hp{rstate.h};
 
     bool last{false};
     bool reject{false};
@@ -380,8 +380,8 @@ int rockcore (BurnT& state, RockT& rstate)
     rhs(rstate.t, state, rstate, rstate.fn);   // TODO: I think this can be removed -- we already filled for finding rstate.h
 
     rstate.n_rhs++;
-    Real errp = err;
-    Real eigmax{};
+    amrex::Real errp = err;
+    amrex::Real eigmax{};
 
     while (rstate.n_step < integrator_rp::ode_max_steps) {
 
@@ -468,12 +468,12 @@ int rockcore (BurnT& state, RockT& rstate)
 
         // Error control procedure.
 
-        Real fac;
+        amrex::Real fac;
         if (integrator_rp::rock_order == 2) {
             fac = std::sqrt(1.0_rt / err);
 
             if (errp != 0.0_rt && ! reject) {
-                Real facp = std::sqrt(errp) * fac * fac * (rstate.h / hp);
+                amrex::Real facp = std::sqrt(errp) * fac * fac * (rstate.h / hp);
                 fac = std::min(fac, facp);
             }
 
@@ -481,7 +481,7 @@ int rockcore (BurnT& state, RockT& rstate)
             fac = std::pow(1.0_rt / err, 0.25_rt);
 
             if (errp != 0.0_rt && ! reject) {
-                Real facp = std::pow(errp, 0.25_rt) * fac * fac * (rstate.h / hp);
+                amrex::Real facp = std::pow(errp, 0.25_rt) * fac * fac * (rstate.h / hp);
                 fac = std::min(fac, facp);
             }
         }
@@ -491,7 +491,7 @@ int rockcore (BurnT& state, RockT& rstate)
         }
 
         fac = std::min(facmax, std::max(0.1_rt, 0.8_rt * fac));
-        Real hnew = rstate.h * fac;
+        amrex::Real hnew = rstate.h * fac;
 
         // Accepted step.
         if (err < 1.0_rt) {
@@ -559,8 +559,8 @@ int rock (BurnT& state, RockT& rstate)
 
     using namespace integrator_rp;
 
-    const Real rmax = 0.1_rt;
-    const Real rmin = 10.0_rt * UROUND;
+    const amrex::Real rmax = 0.1_rt;
+    const amrex::Real rmin = 10.0_rt * UROUND;
 
     // initializations
 
@@ -571,7 +571,7 @@ int rock (BurnT& state, RockT& rstate)
 
     rhs(rstate.t, state, rstate, rstate.fn);
 
-    Real sprad{};
+    amrex::Real sprad{};
     if (integrator_rp::use_circle_theorem) {
         circle_theorem_sprad(rstate.t, state, rstate, sprad);
     } else {

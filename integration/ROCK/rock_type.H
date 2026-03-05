@@ -24,7 +24,7 @@ struct rock_t {
    amrex::Real tout;
 
     // Integration array
-    Array1D<Real, 1, int_neqs> y;
+    amrex::Array1D<amrex::Real, 1, int_neqs> y;
 
     // Tolerances
     amrex::Real rtol_spec, atol_spec;
@@ -52,23 +52,23 @@ struct rock_t {
 
     amrex::Real hmax;
 
-    Array1D<Real, 1, int_neqs> yn;
-    Array1D<Real, 1, int_neqs> fn;
-    Array1D<Real, 1, int_neqs> yjm1;
-    Array1D<Real, 1, int_neqs> yjm2;
+    amrex::Array1D<amrex::Real, 1, int_neqs> yn;
+    amrex::Array1D<amrex::Real, 1, int_neqs> fn;
+    amrex::Array1D<amrex::Real, 1, int_neqs> yjm1;
+    amrex::Array1D<amrex::Real, 1, int_neqs> yjm2;
 
     // these 3 arrays are only needed for ROCK4
-    Array1D<Real, 1, int_neqs> fnt;
-    Array1D<Real, 1, int_neqs> yjm3;
-    Array1D<Real, 1, int_neqs> yjm4;
+    amrex::Array1D<amrex::Real, 1, int_neqs> fnt;
+    amrex::Array1D<amrex::Real, 1, int_neqs> yjm3;
+    amrex::Array1D<amrex::Real, 1, int_neqs> yjm4;
 
     // this is used by the spectral radius power method
-    Array1D<Real, 1, int_neqs> sprad;
+    amrex::Array1D<amrex::Real, 1, int_neqs> sprad;
 
     // because our rhs wrapper requires that rock_t rstate.y() hold the state
     // that is used for evaluating the RHS, we need to create an additional
     // temporary to backup the contents of y
-    Array1D<Real, 1, int_neqs> y_backup;
+    amrex::Array1D<amrex::Real, 1, int_neqs> y_backup;
 
     int mdeg;
 
