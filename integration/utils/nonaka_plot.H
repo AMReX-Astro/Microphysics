@@ -96,6 +96,11 @@ void nonaka_rhs(const amrex::Real time, const BurnT& state, const YdotNetArray1D
         for (int n = 0; n < NumSpec; ++n) {
             nf << std::setw(FIELD_WIDTH) << state.xn[n] << " ";
         }
+#ifdef PHOTOCHEMISTRY
+        for (int n = 0; n < NumRadEqs; ++n) {
+            nf << std::setw(FIELD_WIDTH) << state.rn[n] << " ";
+        }
+#endif
 
         // Convert molar fraction rhs to mass fraction rhs dX/dt
 

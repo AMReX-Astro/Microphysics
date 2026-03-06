@@ -92,6 +92,7 @@ struct burn_t
 #endif
 #ifdef PHOTOCHEMISTRY
   amrex::Real rn[NumRadEqs]{};
+  amrex::Real c_hat;
 #endif
 
   // scaling used to make e we integrate dimensionless
@@ -254,6 +255,7 @@ void eos_to_burn (const T& eos_state, BurnT& burn_state)
     for (int n = 0; n < NumRadEqs; ++n) {
         burn_state.rn[n] = eos_state.rn[n];
     }
+    burn_state.c_hat = eos_state.c_hat;
 #endif
 
     burn_state.cv   = eos_state.cv;
@@ -297,6 +299,7 @@ void burn_to_eos (const BurnT& burn_state, T& eos_state)
     for (int n = 0; n < NumRadEqs; ++n) {
         eos_state.rn[n] = burn_state.rn[n];
     }
+    eos_state.c_hat = burn_state.c_hat;
 #endif
 
     eos_state.cv   = burn_state.cv;

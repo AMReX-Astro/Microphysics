@@ -41,7 +41,7 @@ rtol_rad_num             real      1.e-12
 rtol_rad_flux            real      1.e-6
 
 # absolute tolerance for radiation density
-atol_rad_num             real      1.e-8
+atol_rad_num             real      1.e-12
 
 # absolute tolerance for radiation flux
 atol_rad_flux            real      1.e-6

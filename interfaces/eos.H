@@ -218,6 +218,13 @@ void print_state (T& state) {
     std::cout << state.xn[n] << " ";
   }
   std::cout << std::endl;
+#ifdef PHOTOCHEMISTRY
+  std::cout << "RAD = ";
+  for (int n = 0; n < NumRadEqs; n ++) {
+    std::cout << state.rn[n] << " ";
+  }
+  std::cout << std::endl;
+#endif
 
   std::cout << "Y_E = " << state.y_e;
 }

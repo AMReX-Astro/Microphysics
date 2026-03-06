@@ -22,6 +22,7 @@ void integrator_to_burn (const I& int_state, BurnT& state)
     for (int n = 1; n <= NumRadEqs; ++n) {
         state.rn[n-1] = int_state.y(net_ienuc + n);
     }
+    state.c_hat = int_state.c_hat;
 #endif
 
     if (integrator_rp::scale_system) {
@@ -48,6 +49,7 @@ void burn_to_integrator (const BurnT& state, I& int_state)
     for (int n = 1; n <= NumRadEqs; ++n) {
         int_state.y(net_ienuc + n) = state.rn[n-1];
     }
+    int_state.c_hat = state.c_hat;
 #endif
 
     if (integrator_rp::scale_system) {
@@ -77,6 +79,11 @@ void clean_state (const amrex::Real time, BurnT& state, I& int_state)
             int_state.y(n) = amrex::max(int_state.y(n), integrator_rp::SMALL_X_SAFE);
         }
     }
+#ifdef PHOTOCHEMISTRY
+    for (int n = net_ienuc+1; n <= net_ienuc+NumRadEqs; n += MicrophysicsNumRadVarsPerGroup) {
+        int_state.y(n) = amrex::max(int_state.y(n), integrator_rp::SMALL_X_SAFE);
+    }
+#endif
 
     // Renormalize the abundances as necessary.
 
