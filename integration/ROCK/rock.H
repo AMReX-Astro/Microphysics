@@ -167,10 +167,11 @@ amrex::Real r2step (BurnT& state, RockT& rstate)
         temp3 = temp2 * (rstate.y(j) - rstate.yjm2(j));
         rstate.y(j) = rstate.yjm1(j) + temp1 * rstate.y(j) + temp3;
         amrex::Real wt{};
+        amrex::Real ymag = std::max(std::abs(rstate.y(j)), std::abs(rstate.yn(j)));
         if (j <= NumSpec) {
-            wt = rstate.rtol_spec * std::abs(rstate.y(j)) + rstate.atol_spec;
+            wt = rstate.rtol_spec * ymag + rstate.atol_spec;
         } else {
-            wt = rstate.rtol_enuc * std::abs(rstate.y(j)) + rstate.atol_enuc;
+            wt = rstate.rtol_enuc * ymag + rstate.atol_enuc;
         }
 
         err += amrex::Math::powi<2>(temp3 / wt);
@@ -387,7 +388,9 @@ int rockcore (BurnT& state, RockT& rstate)
 
         // Step-size is adjusted.
 
-        if (1.01_rt * rstate.h >= std::abs(rstate.tout - rstate.t)) {
+        amrex::Real tfac = (integrator_rp::rock_order == 4) ? 1.01_rt : 1.1_rt;
+
+        if (tfac * rstate.h >= std::abs(rstate.tout - rstate.t)) {
             rstate.h = std::abs(rstate.tout - rstate.t);
             last = true;
         }
@@ -518,6 +521,9 @@ int rockcore (BurnT& state, RockT& rstate)
                     rstate.yn(i) = rstate.y(i);
                     if (integrator_rp::rock_order == 4) {
                         rstate.fn(i) = rstate.fnt(i);
+                    } else {
+                        // ROCK2 recomputed fn at the start of the loop
+                        rhs(rstate.t, state, rstate, rstate.fn);
                     }
                 }
             }
