@@ -274,7 +274,7 @@ int rkclow (BurnT& state, RkcT& rstate)
         rstate.naccpt++;
         rstate.t += h;
         jacatt = false;
-        nstsig = nstsig+1 % 25;
+        nstsig = (nstsig+1) % 25;
         newspc = false;
         if (nstsig == 0) {
             newspc = ! jacatt;
