@@ -3,3 +3,8 @@
 # for the step rejection logic on mass fractions, we only consider
 # species that are > X_reject_buffer * atol_spec
 X_reject_buffer              real         1.0
+
+# set the max integration order for VODE
+# For the backward differentiation formula (BDF) integration
+# the maximum order should be no greater than 5.
+VODE_MAXORD                  int          5
