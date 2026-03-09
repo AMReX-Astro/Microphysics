@@ -27,7 +27,7 @@ int dvode (BurnT& state, DvodeT& vstate)
 
     // Local variables
     amrex::Real H0{}, S{};
-    int IER{}, NITER{};
+    int NITER{};
 
     // Flag determining if we were successful.
 
@@ -84,7 +84,7 @@ int dvode (BurnT& state, DvodeT& vstate)
 
     // Call DVHIN to set initial step size H0 to be attempted.
     H0 = 0.0_rt;
-    dvhin(state, vstate, H0, NITER, IER);
+    auto IER = dvhin(state, vstate, H0, NITER);
     vstate.n_rhs += NITER;
 
     if (IER != 0) {
@@ -189,7 +189,7 @@ int dvode (BurnT& state, DvodeT& vstate)
 
        }
 
-       int kflag = dvstep(state, vstate);
+       const int kflag = dvstep(state, vstate);
 
 
        // Branch on KFLAG. KFLAG can be 0, -1, or -2.
