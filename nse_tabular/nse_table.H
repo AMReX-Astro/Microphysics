@@ -25,7 +25,9 @@ using namespace network_rp;
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 int nse_idx(const int ir, const int it, const int ic) {
     // this uses a 1-based indexing
-    return (ir-1) * nse_table_size::ntemp * nse_table_size::nye + (it-1) * nse_table_size::nye + ic;
+    int idx = (ir-1) * nse_table_size::ntemp * nse_table_size::nye + (it-1) * nse_table_size::nye + ic;
+    AMREX_ASSERT(idx >= 1 && idx <= nse_table::npts);
+    return idx;
 }
 
 AMREX_INLINE
