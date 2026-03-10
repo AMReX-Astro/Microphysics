@@ -25,7 +25,7 @@ constexpr int maxfev = 1000;
 // interval (.1,100.). 100. is a generally recommended value.
 constexpr amrex::Real factor = 100.0_rt;
 
-template<int neqs>
+template<int neqs, typename MatrixType>
 struct hybrj_t {
 
     static_assert(neqs > 0);
@@ -42,7 +42,7 @@ struct hybrj_t {
     // fjac is an output n by n array which contains the
     // orthogonal matrix q produced by the qr factorization
     // of the final approximate jacobian.
-    amrex::Array2D<amrex::Real, 1, neqs, 1, neqs> fjac;
+    MatrixType fjac;
 
     // xtol is a nonnegative input variable. termination
     // occurs when the relative error between two consecutive
