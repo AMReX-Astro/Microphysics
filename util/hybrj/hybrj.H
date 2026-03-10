@@ -31,8 +31,21 @@ void hybrj(hybrj_t<neqs, MatrixType>& hj,
     // fcn jcn are the names of the user-supplied subroutine which
     // calculates the functions and the jacobian.
     //
-    // void fcn(Array1D<Real, 1, neqs>& x, Array1D<Real, 1, neqs>& fvec, int& iflag)
-    // void jcn(Array1D<Real, 1, neqs>& x, Array2D<Real, 1, neqs, 1, neqs> fjac, int& iflag)
+    // void fcn(Array1D<Real, 1, neqs>& x,
+    //          Array1D<Real, 1, neqs>& fvec,
+    //          const T& data,
+    //          int& iflag)
+    //
+    // where x is the solution vector, fvec is the function we want
+    // to zero, data is an optional type that can be passed in, and
+    // flag is used for the status.
+    //
+    // void jcn(Array1D<Real, 1, neqs>& x,
+    //          Array2D<Real, 1, neqs, 1, neqs>& fjac,
+    //          const T& data,
+    //          int& iflag)
+    //
+    // where fjac is the Jacobian.
     //
     // the value of iflag should not be changed by fcn unless
     // the user wants to terminate execution of hybrj.
