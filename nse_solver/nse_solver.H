@@ -36,9 +36,9 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void nse_hybrid_solver(nse_solver_data<T>& state_data,
                        amrex::Real eps=1.0e-10_rt) {
 
-    using jac_t = amrex::Array2D<amrex::Real, 1, neqs, 1, neqs>;
+    using jac_powell_t = amrex::Array2D<amrex::Real, 1, neqs, 1, neqs>;
 
-    hybrj_t<neqs, jac_t> hj;
+    hybrj_t<neqs, jac_powell_t> hj;
 
     // Set relative error between two iterations
     hj.xtol = eps;
