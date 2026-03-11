@@ -15,17 +15,9 @@ def create_network():
                   "f17", "f18", "f19",
                   "ne18", "ne19", "ne20", "ne21"]
 
-    nova_library = rl.linking_nuclei(all_nuclei, with_reverse=True)
-
-    tl = pyna.TabularLibrary(ordering=["ffn", "oda", "langanke"])
-    weak_library = tl.linking_nuclei(all_nuclei)
-
-    # remove duplicates
-    all_lib = nova_library + weak_library
-
-    all_lib.eliminate_duplicates(rate_type_preference="tabular")
-
-    net = AmrexAstroCxxNetwork(libraries=[all_lib])
+    net = pyna.network_helper(all_nuclei,
+                              tabular_ordering=["ffn", "langanke", "oda"],
+                              network_type="amrex")
 
     # now remove unimportant rates
 
