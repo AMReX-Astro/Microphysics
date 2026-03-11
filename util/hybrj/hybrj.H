@@ -11,15 +11,15 @@
 #include <hybrj_r1updt.H>
 #include <AMReX_GpuUtility.H>
 
-template<int neqs, typename T>
+template<int neqs, typename T, typename MatrixType>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void hybrj(hybrj_t<neqs>& hj,
+void hybrj(hybrj_t<neqs, MatrixType>& hj,
            const T& data,
            void (*fcn)(amrex::Array1D<amrex::Real, 1, neqs>&,
                        amrex::Array1D<amrex::Real, 1, neqs>&,
                        const T&, int&),
            void (*jcn)(amrex::Array1D<amrex::Real, 1, neqs>&,
-                       amrex::Array2D<amrex::Real, 1, neqs, 1, neqs>&,
+                       MatrixType&,
                        const T&, int&)
            ) {
 

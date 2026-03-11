@@ -13,9 +13,9 @@
 // changes:
 // originally, this routine supported an mxn matrix, but we assume m=n
 
-template<int neqs>
+template<int neqs, typename MatrixType>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void qform(amrex::Array2D<amrex::Real, 1, neqs, 1, neqs>& q,
+void qform(MatrixType& q,
            amrex::Array1D<amrex::Real, 1, neqs>& wa) {
 
     // q is an n by n array. on input the full lower trapezoid in
