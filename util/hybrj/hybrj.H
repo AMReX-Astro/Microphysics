@@ -207,7 +207,7 @@ void hybrj(hybrj_t<neqs, MatrixType>& hj,
 
             bool invalid = false;
 
-            for (int i = 1; i < neqs; ++i) {
+            for (int i = 1; i <= neqs; ++i) {
               if ( amrex::isinf(hj.wa1(i)) || amrex::isnan(hj.wa1(i)) ){
                 invalid = true;
               }
