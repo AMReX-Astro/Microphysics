@@ -117,37 +117,6 @@ void rate_O15_to_N15_reaclib(const tf_t& tfactors, amrex::Real& rate, amrex::Rea
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_F17_to_O17_reaclib(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // F17 --> O17
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -4.53318;
-    amrex::ignore_unused(tfactors);
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void rate_B8_to_He4_He4_reaclib(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // B8 --> He4 + He4
@@ -179,7 +148,7 @@ void rate_B8_to_He4_He4_reaclib(const tf_t& tfactors, amrex::Real& rate, amrex::
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_p_p_to_d_reaclib_bet_pos(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
+void rate_p_p_to_d_reaclib_beta_pos(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // p + p --> d
 
@@ -1599,22 +1568,16 @@ fill_reaclib_rates(const tf_t& tfactors, T& rate_eval)
         rate_eval.dscreened_rates_dT(k_O15_to_N15_reaclib) = drate_dT;
 
     }
-    rate_F17_to_O17_reaclib<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_F17_to_O17_reaclib) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_F17_to_O17_reaclib) = drate_dT;
-
-    }
     rate_B8_to_He4_He4_reaclib<do_T_derivatives>(tfactors, rate, drate_dT);
     rate_eval.screened_rates(k_B8_to_He4_He4_reaclib) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         rate_eval.dscreened_rates_dT(k_B8_to_He4_He4_reaclib) = drate_dT;
 
     }
-    rate_p_p_to_d_reaclib_bet_pos<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_p_p_to_d_reaclib_bet_pos) = rate;
+    rate_p_p_to_d_reaclib_beta_pos<do_T_derivatives>(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_p_p_to_d_reaclib_beta_pos) = rate;
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_p_p_to_d_reaclib_bet_pos) = drate_dT;
+        rate_eval.dscreened_rates_dT(k_p_p_to_d_reaclib_beta_pos) = drate_dT;
 
     }
     rate_p_p_to_d_reaclib_electron_capture<do_T_derivatives>(tfactors, rate, drate_dT);
