@@ -2,6 +2,7 @@
 #define BE_INTEGRATOR_H
 
 #include <AMReX_Algorithm.H>
+#include <limits>
 
 #include <be_type.H>
 #include <network.H>
@@ -11,7 +12,6 @@
 #endif
 #include <burn_type.H>
 #include <linpack.H>
-#include <numerical_jacobian.H>
 #ifdef STRANG
 #include <integrator_rhs_strang.H>
 #endif
@@ -31,6 +31,7 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 int single_step (BurnT& state, BeT& be, const amrex::Real dt)
 {
     constexpr int int_neqs = integrator_neqs<BurnT>();
+    constexpr amrex::Real uround = std::numeric_limits<amrex::Real>::epsilon();
 
     int ierr = IERR_SUCCESS;
     bool converged = false;
@@ -88,10 +89,41 @@ int single_step (BurnT& state, BeT& be, const amrex::Real dt)
         if (be.jacobian_type == 1) {
             jac(be.t, state, be, be.jac);
         } else {
-            jac_info_t jac_info;
-            jac_info.h = dt;
-            numerical_jac(state, jac_info, be.jac);
-            be.n_rhs += (NumSpec+1);
+            // Build a numerical Jacobian by differencing the wrapped RHS.
+            // This keeps the Jacobian consistent with whatever variables
+            // the integrator is actually evolving (X or number densities).
+            amrex::Real fac = 0.0_rt;
+            for (int i = 1; i <= int_neqs; ++i) {
+                const amrex::Real wt = (i <= NumSpec) ?
+                    (integrator_rp::rtol_spec * std::abs(be.y(i)) + integrator_rp::atol_spec) :
+                    (integrator_rp::rtol_enuc * std::abs(be.y(i)) + integrator_rp::atol_enuc);
+                fac += (ydot(i) / wt) * (ydot(i) / wt);
+            }
+            fac = std::sqrt(fac / int_neqs);
+
+            amrex::Real r0 = 1000.0_rt * std::abs(dt) * uround * int_neqs * fac;
+            if (r0 == 0.0_rt) {
+                r0 = 1.0_rt;
+            }
+
+            constexpr bool in_jacobian = true;
+            amrex::Array1D<amrex::Real, 1, int_neqs> ydot_pert;
+            for (int j = 1; j <= int_neqs; ++j) {
+                const amrex::Real yj = be.y(j);
+                const amrex::Real wt = (j <= NumSpec) ?
+                    (integrator_rp::rtol_spec * std::abs(yj) + integrator_rp::atol_spec) :
+                    (integrator_rp::rtol_enuc * std::abs(yj) + integrator_rp::atol_enuc);
+                const amrex::Real r = amrex::max(std::sqrt(uround) * std::abs(yj), r0 * wt);
+
+                be.y(j) += r;
+                rhs(be.t, state, be, ydot_pert, in_jacobian);
+                for (int i = 1; i <= int_neqs; ++i) {
+                    be.jac(i, j) = (ydot_pert(i) - ydot(i)) / r;
+                }
+                be.y(j) = yj;
+            }
+
+            be.n_rhs += int_neqs;
         }
 
         be.n_jac++;

@@ -59,12 +59,16 @@ void numerical_jac(const BurnT& state, const jac_info_t& jac_info, JacNetArray2D
 
     BurnT state_delp = state;
 
-    // default -- plus convert the dY/dt into dX/dt
+    // default state RHS
 
-    actual_rhs(state, ydotm);
+    actual_rhs(state_delp, ydotm);
 
-    for (int q = 1; q <= NumSpec; q++) {
-        ydotm(q) *= aion[q-1];
+    // We integrate X, not Y, except for primordial chemistry where
+    // we integrate number densities directly.
+    if (! integrator_rp::use_number_densities) {
+        for (int q = 1; q <= NumSpec; q++) {
+            ydotm(q) *= aion[q-1];
+        }
     }
 
     // start by computing |f|, which is the norm of the RHS / weight
@@ -112,10 +116,12 @@ void numerical_jac(const BurnT& state, const jac_info_t& jac_info, JacNetArray2D
 
         actual_rhs(state_delp, ydotp);
 
-        // We integrate X, so convert from the Y we got back from the RHS
-
-        for (int q = 1; q <= NumSpec; q++) {
-            ydotp(q) *= aion[q-1];
+        // We integrate X, not Y, except for primordial chemistry where
+        // we integrate number densities directly.
+        if (! integrator_rp::use_number_densities) {
+            for (int q = 1; q <= NumSpec; q++) {
+                ydotp(q) *= aion[q-1];
+            }
         }
 
         // now fill in all of the rows for this column X_n
@@ -150,8 +156,10 @@ void numerical_jac(const BurnT& state, const jac_info_t& jac_info, JacNetArray2D
 
     actual_rhs(state_delp, ydotp);
 
-    for (int q = 1; q <= NumSpec; q++) {
-        ydotp(q) *= aion[q-1];
+    if (! integrator_rp::use_number_densities) {
+        for (int q = 1; q <= NumSpec; q++) {
+            ydotp(q) *= aion[q-1];
+        }
     }
 
     // first fill just the last column with dy/dT

@@ -148,7 +148,7 @@ amrex::Real dvnlsd (int& NFLAG, BurnT& state, DvodeT& vstate)
             // sometime VODE goes way off tangent.  If these mass fractions
             // are really bad, then let's just bail now
 
-            if (integrator_rp::do_corrector_validation && !integrator_rp::use_number_densities) {
+            if (integrator_rp::do_corrector_validation) {
 #ifdef SDC
                 const amrex::Real rho_current = state.rho_orig + vstate.tn * state.ydot_a[SRHO];
                 const amrex::Real thresh = species_failure_tolerance * rho_current;

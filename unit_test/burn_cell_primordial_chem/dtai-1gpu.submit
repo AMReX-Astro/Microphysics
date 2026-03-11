@@ -1,0 +1,14 @@
+#!/bin/bash
+#SBATCH --mem=64G
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --ntasks-per-socket=1
+#SBATCH --cpus-per-task=64
+#SBATCH --partition=ghx4
+#SBATCH --time=00:10:00
+#SBATCH --job-name=quokka-1gpu
+#SBATCH --account=cvz-dtai-gh
+#SBATCH --gpus-per-node=1
+#SBATCH --gpu-bind=verbose,closest
+
+srun ./main1d.gnu.CUDA.ex inputs_primordial_chem --compare-final-state burn_cell_final_state.txt

@@ -1,15 +1,32 @@
+unit_test.n_zones = 16**3
+integrator.burner_verbose = 0
+
+## unit_test runtime parameters
 unit_test.run_prefix = "burn_cell_primordial_chem_"
 
-# unit_test runtime parameters
-unit_test.small_temp = 1.e1
-unit_test.small_dens = 1.e-60
-unit_test.tff_reduc = 1.e-1
+unit_test.small_temp = 10.
+unit_test.small_dens = 1.0e-60
+unit_test.tff_reduc = 0.03
+
 # number of integration steps
-unit_test.nsteps = 1000
+unit_test.nsteps = 1e4
+unit_test.burn_progress_interval = 10
+
+unit_test.richardson_enable = 1
+unit_test.richardson_tol_factor = 10.0
+# set to 1 to print per-zone Richardson estimates
+unit_test.richardson_print_per_zone = 0
+# non-trace threshold as fraction of most abundant species per zone
+unit_test.richardson_trace_species_cutoff = 1e-15
+# set to 1 to compute per-zone Jacobian stiffness diagnostics (expensive)
+unit_test.compute_stiffness_diagnostics = 0
+
 # max total time
 unit_test.tmax = 7.e20
+
 # initial temperature
 unit_test.temperature = 1e2
+
 # initial number densities
 unit_test.primary_species_1 = 1e-4
 unit_test.primary_species_2 = 1e-4
@@ -26,29 +43,44 @@ unit_test.primary_species_12 = 1e-40
 unit_test.primary_species_13 = 1e-40
 unit_test.primary_species_14 = 0.0775e0
 
-# integrator runtime parameters
+## integrator runtime parameters
+
 # are we using primordial chemistry? then we use number densities
 integrator.use_number_densities = 1
+
 # we do not want to subtract the internal energy
 integrator.subtract_internal_energy = 0
+
 # we do not want to clip species between 0 and 1
 integrator.do_species_clip = 0
+
+# in the corrector loop, do we check if the predicted state is
+# valid (X > 0) before calling the RHS?
+integrator.do_corrector_validation = 1
+
 # minimum positive value of number densities 
 integrator.SMALL_X_SAFE = 1e-100
-integrator.burner_verbose = 0
+
 # do you want to use the jacobian calculated in a previous step?
 integrator.use_jacobian_caching = 0
+
 # integration will fail if the number density > X_reject_buffer*atol
 integrator.X_reject_buffer = 1e100
+
 # Set which jacobian to use
 # 1 = analytic jacobian
 # 2 = numerical jacobian
-integrator.jacobian = 1
+integrator.jacobian = 2
+
 # do you want to normalize abundances within VODE? (you don't!)
 integrator.renormalize_abundances = 0
+
 # tolerances
 integrator.rtol_spec = 1.0e-4
 integrator.atol_spec = 1.0e-4
+
+# max substeps
+integrator.ode_max_steps = 3000000
 
 #assumed redshift for Pop III star formation
 network.redshift = 30.0
@@ -57,4 +89,3 @@ network.redshift = 30.0
 # these params help debug the code
 #amrex.throw_exception = 1
 #amrex.signal_handling = 0
-
