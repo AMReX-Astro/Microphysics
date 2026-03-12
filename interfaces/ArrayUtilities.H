@@ -84,6 +84,29 @@ namespace ArrayUtil
             }
         }
 
+       AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+        void mul_add_identity (const amrex::Real x) noexcept {
+            constexpr int nx = XHI - XLO + 1;
+            constexpr int ny = YHI - YLO + 1;
+            constexpr int ncell = nx * ny;
+
+            static_assert(nx == ny,
+                          "mul_add_identity assumes a square array");
+            static_assert(XLO == YLO && XHI == YHI,
+                          "mul_add_identity assumes matching i/j index bounds");
+
+            int diag_idx = 0;
+
+            for (int idx = 0; idx < ncell; ++idx) {
+                arr[idx] *= x;
+
+                if (idx == diag_idx) {
+                    arr[idx] += 1.0_rt;
+                    diag_idx += nx + 1;
+                }
+            }
+        }
+
         AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
         const T& operator() (int i, int j) const noexcept {
             AMREX_ASSERT(i >= XLO && i <= XHI && j >= YLO && j <= YHI);

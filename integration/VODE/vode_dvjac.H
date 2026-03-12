@@ -158,8 +158,7 @@ void dvjac (int& IERPJ, BurnT& state, DvodeT& vstate)
     const amrex::Real hrl1 = vstate.H * vstate.RL1;
     const amrex::Real con = -hrl1;
 
-    vstate.jac.mul(con);
-    vstate.jac.add_identity();
+    vstate.jac.mul_add_identity(con);
 
     int IER{};
 
