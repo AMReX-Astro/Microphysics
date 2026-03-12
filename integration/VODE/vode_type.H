@@ -12,7 +12,7 @@
 constexpr amrex::Real UROUND = std::numeric_limits<amrex::Real>::epsilon();
 
 // CCMXJ  = Threshold on DRC for updating the Jacobian
-constexpr amrex::Real CCMXJ = 0.2e0_rt;
+constexpr amrex::Real CCMXJ = 0.3e0_rt;
 
 constexpr amrex::Real HMIN = 0.0_rt;
 

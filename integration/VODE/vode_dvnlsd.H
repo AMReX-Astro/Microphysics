@@ -6,6 +6,8 @@
 #include <linpack.H>
 #endif
 #include <vode_dvjac.H>
+#include <iomanip>
+#include <iostream>
 
 template <typename BurnT, typename DvodeT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
@@ -112,6 +114,16 @@ amrex::Real dvnlsd (int& NFLAG, BurnT& state, DvodeT& vstate)
                               (vstate.RL1 * vstate.yh(i,2) + vstate.acor(i));
             }
 
+#ifndef AMREX_USE_GPU
+            amrex::Real rhs_del = 0.0_rt;
+            for (int i = 1; i <= int_neqs; ++i) {
+                rhs_del += (vstate.y(i) * vstate.ewt(i)) * (vstate.y(i) * vstate.ewt(i));
+            }
+            rhs_del = std::sqrt(rhs_del / int_neqs);
+            std::cout << std::setprecision(17)
+                      << "[CVODE] dvnlsd: RHS_DEL=" << rhs_del << std::endl;
+#endif
+
 #ifdef NEW_NETWORK_IMPLEMENTATION
             RHS::dgesl(vstate.jac, vstate.y);
 #else
@@ -136,6 +148,11 @@ amrex::Real dvnlsd (int& NFLAG, BurnT& state, DvodeT& vstate)
                 DEL += (vstate.y(i) * vstate.ewt(i)) * (vstate.y(i) * vstate.ewt(i));
             }
             DEL = std::sqrt(DEL / int_neqs);
+#ifndef AMREX_USE_GPU
+            std::cout << std::setprecision(17)
+                      << "[CVODE] dvnlsd: M=" << M
+                      << " DEL=" << DEL << std::endl;
+#endif
 
             for (int i = 1; i <= int_neqs; ++i) {
                 vstate.acor(i) += vstate.y(i);
@@ -148,7 +165,9 @@ amrex::Real dvnlsd (int& NFLAG, BurnT& state, DvodeT& vstate)
             // sometime VODE goes way off tangent.  If these mass fractions
             // are really bad, then let's just bail now
 
-            if (integrator_rp::do_corrector_validation && !integrator_rp::use_number_densities) {
+            if (!integrator_rp::vode_reference_parity &&
+                integrator_rp::do_corrector_validation &&
+                !integrator_rp::use_number_densities) {
 #ifdef SDC
                 const amrex::Real rho_current = state.rho_orig + vstate.tn * state.ydot_a[SRHO];
                 const amrex::Real thresh = species_failure_tolerance * rho_current;
@@ -183,6 +202,13 @@ amrex::Real dvnlsd (int& NFLAG, BurnT& state, DvodeT& vstate)
             }
 
             const amrex::Real DCON = DEL * amrex::min(1.0_rt, vstate.CRATE) / vstate.tq(4);
+#ifndef AMREX_USE_GPU
+            std::cout << std::setprecision(17)
+                      << "[CVODE] dvnlsd: DCON=" << DCON
+                      << " CRATE=" << vstate.CRATE
+                      << " RL1=" << vstate.RL1
+                      << " H=" << vstate.H << std::endl;
+#endif
             if (DCON <= 1.0_rt) {
                 // we converged, exit the outer loop
                 converged = true;

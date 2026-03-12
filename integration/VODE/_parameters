@@ -3,3 +3,8 @@
 # for the step rejection logic on mass fractions, we only consider
 # species that are > X_reject_buffer * atol_spec
 X_reject_buffer              real         1.0
+
+# use settings intended to match the reference DVODE control path:
+# disable VODE-specific species rejection checks, corrector validation,
+# and Jacobian caching behavior.
+vode_reference_parity        bool         0
