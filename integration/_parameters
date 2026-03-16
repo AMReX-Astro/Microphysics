@@ -73,6 +73,9 @@ use_burn_retry            bool    0
 # a retry?
 retry_swap_jacobian       bool    1
 
+# when we retry, do we clip the species (or if we were, stop clipping)
+retry_swap_clipping       bool    0
+
 # Tolerances for the solver (relative and absolute), for the
 # species and energy equations.  If set to < 0, then the same
 # value as the first attempt is used.

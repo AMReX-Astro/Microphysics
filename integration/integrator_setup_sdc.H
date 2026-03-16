@@ -50,6 +50,13 @@ IntegratorT integrator_setup (BurnT& state, amrex::Real dt, bool is_retry)
         int_state.jacobian_type = integrator_rp::jacobian;
     }
 
+    // set whether we clip species
+    if (is_retry && integrator_rp::retry_swap_clipping) {
+        int_state.clip_species = (integrator_rp::do_species_clip) ? false : true;
+    } else {
+        int_state.clip_species = integrator_rp::do_species_clip;
+    }
+
     // Fill in the initial integration state.
 
     burn_to_int(state, int_state);

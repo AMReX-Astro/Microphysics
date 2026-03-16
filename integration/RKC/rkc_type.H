@@ -98,6 +98,9 @@ struct rkc_t {
     // not used here, but needed for compatibility with other integrators
     short jacobian_type;
 
+    // do we clip the species before evaluating the rates
+    bool clip_species;
+
 };
 
 #ifdef SDC

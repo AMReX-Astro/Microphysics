@@ -51,6 +51,8 @@ struct be_t {
     ArrayUtil::MathArray2D<jac_t, 1, int_neqs, 1, int_neqs> jac;
 
     short jacobian_type;
+    bool clip_species;
+
 };
 
 #endif
