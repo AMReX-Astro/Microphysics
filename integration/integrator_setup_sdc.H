@@ -19,9 +19,9 @@ struct state_backup_t {
     amrex::Real T_in{};
     amrex::Real rhoe_in{};
 #ifndef AMREX_USE_GPU
-    amrex::Real xn_in[NumSpec]{};
+    amrex::Real rhoxn_in[NumSpec]{};
 #ifdef AUX_THERMO
-    amrex::Real aux_in[NumAux]{};
+    amrex::Real rhoaux_in[NumAux]{};
 #endif
 #endif
 };
@@ -115,11 +115,11 @@ state_backup_t integrator_backup (const BurnT& state) {
 
 #ifndef AMREX_USE_GPU
     for (int n = 0; n < NumSpec; ++n) {
-        state_save.xn_in[n] = state.y[SFS+n] / state.y[SRHO];
+        state_save.rhoxn_in[n] = state.y[SFS+n];
     }
 #ifdef AUX_THERMO
     for (int n = 0; n < NumAux; ++n) {
-        state_save.aux_in[n] = state.y[SFX+n] / state.y[SRHO];
+        state_save.rhoaux_in[n] = state.y[SFX+n];
     }
 #endif
 #endif
@@ -223,14 +223,14 @@ void integrator_cleanup (IntegratorT& int_state, BurnT& state,
             std::cout << "dens start = " << std::setprecision(OUTDIGITS) << state.rho_orig << std::endl;
             std::cout << "temp start = " << std::setprecision(OUTDIGITS) << state_save.T_in << std::endl;
             std::cout << "rhoe start = " << std::setprecision(OUTDIGITS) << state_save.rhoe_in << std::endl;
-            std::cout << "xn start = ";
-            for (const auto X : state_save.xn_in) {
+            std::cout << "rho xn start = ";
+            for (const auto X : state_save.rhoxn_in) {
                 std::cout << std::setprecision(OUTDIGITS) << X << " ";
             }
             std::cout << std::endl;
 #ifdef AUX_THERMO
-            std::cout << "aux start = ";
-            for (const auto aux : state_save.aux_in) {
+            std::cout << "rho aux start = ";
+            for (const auto aux : state_save.rhoaux_in) {
                 std::cout << std::setprecision(OUTDIGITS) << aux << " ";
             }
             std::cout << std::endl;
