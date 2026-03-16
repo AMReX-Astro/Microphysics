@@ -145,6 +145,36 @@ amrex::Real dvnlsd (int& NFLAG, BurnT& state, DvodeT& vstate)
                 vstate.y(i) = vstate.yh(i,1) + vstate.acor(i);
             }
 
+            // sometime VODE goes way off tangent.  If these mass fractions
+            // are really bad, then let's just bail now
+
+            if (integrator_rp::do_corrector_validation && !integrator_rp::use_number_densities) {
+#ifdef SDC
+                const amrex::Real rho_current = state.rho_orig + vstate.tn * state.ydot_a[SRHO];
+                const amrex::Real thresh = species_failure_tolerance * rho_current;
+#else
+                const amrex::Real thresh = species_failure_tolerance;
+#endif
+                bool fail{};
+                for (int i = 1; i <= NumSpec; ++i) {
+                    if (vstate.y(i) < -thresh) {
+                        fail = true;
+                        break;
+                    }
+                }
+
+                // this resets the flags in the same fashion as is done above
+                // for a singular matrix.  ICF = 2 means "unrecoverable error",
+                // IPUP = 1 forces a Jacobian reevaluation.  The return value,
+                // ACNRM is ignored in this case (since NFLAG != 0)
+                if (fail) {
+                    NFLAG = -1;
+                    vstate.ICF = 2;
+                    vstate.IPUP = 1;
+                    return ACNRM;
+                }
+            }
+
             // Test for convergence. If M > 0, an estimate of the convergence
             // rate constant is stored in CRATE, and this is used in the test.
 

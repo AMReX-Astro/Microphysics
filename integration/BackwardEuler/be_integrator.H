@@ -57,6 +57,27 @@ int single_step (BurnT& state, BeT& be, const amrex::Real dt)
 
         // work with the current guess
 
+        if (integrator_rp::do_corrector_validation) {
+#ifdef SDC
+            const amrex::Real rho_current = state.rho_orig + be.t * state.ydot_a[SRHO];
+            const amrex::Real thresh = species_failure_tolerance * rho_current;
+#else
+            const amrex::Real thresh = species_failure_tolerance;
+#endif
+            bool fail{};
+            for (int i = 1; i <= NumSpec; ++i) {
+                if (be.y(i) < -thresh) {
+                    fail = true;
+                    break;
+                }
+            }
+
+            if (fail) {
+                ierr = IERR_BAD_STATE_IN_CORRECTOR;
+                break;
+            }
+        }
+
         // get the ydots for our current guess of y
 
         rhs(be.t, state, be, ydot);
