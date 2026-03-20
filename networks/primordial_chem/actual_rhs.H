@@ -1,3 +1,6 @@
+//Last updated March 2026
+//Author: Piyush Sharda (sharda@strw.leidenuniv.nl)
+
 #ifndef actual_rhs_H
 #define actual_rhs_H
 
