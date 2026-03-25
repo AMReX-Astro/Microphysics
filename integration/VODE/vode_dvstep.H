@@ -278,15 +278,19 @@ int dvstep (BurnT& state, DvodeT& vstate)
             // Also, we only consider the reactive portion of the
             // update
 
-            amrex::Real X_current = (vstate.y(SFS+i) - vstate.H * state.ydot_a[SFS-1+i]) / rho_current;
+            amrex::Real rhoX_current = (vstate.y(SFS+i) - vstate.H * state.ydot_a[SFS-1+i]);
+
+            // note: vstate.atol_spec here is density-weighted
 
             if (std::abs(y_save(SFS+i)) > integrator_rp::X_reject_buffer * vstate.atol_spec &&
-                std::abs(X_current) > integrator_rp::X_reject_buffer * vstate.atol_spec &&
-                (std::abs(X_current) > vode_increase_change_factor * std::abs(y_save(SFS+i)) ||
-                 std::abs(X_current) < vode_decrease_change_factor * std::abs(y_save(SFS+i)))) {
+                std::abs(rhoX_current) > integrator_rp::X_reject_buffer * vstate.atol_spec &&
+                (std::abs(rhoX_current) > vode_increase_change_factor * std::abs(y_save(SFS+i)) ||
+                 std::abs(rhoX_current) < vode_decrease_change_factor * std::abs(y_save(SFS+i)))) {
 #ifdef MICROPHYSICS_DEBUG
 #ifndef AMREX_USE_GPU
-                std::cout << "rejecting step based on species " << i << " from " << y_save(SFS+i) << " to " << X_current << std::endl;
+                std::cout << "rejecting step based on species " << i
+                          << " from " << y_save(SFS+i)
+                          << " to " << rhoX_current << std::endl;
 #endif
 #endif
                 valid_update = false;
