@@ -141,20 +141,9 @@ int dvstep (BurnT& state, DvodeT& vstate)
     // constraints were violated in the update.
 
     amrex::Array1D<amrex::Real, 1, int_neqs> y_save;
-#ifdef STRANG
     for (int i = 1; i <= int_neqs; ++i) {
         y_save(i) = vstate.y(i);
     }
-#endif
-#ifdef SDC
-    amrex::Real rho_old = state.rho_orig + TOLD * state.ydot_a[SRHO];
-    for (int i = 1; i <= int_neqs; ++i) {
-        y_save(i) = vstate.y(i);
-    }
-    for (int i = 1; i <= NumSpec; ++i) {
-        y_save(SFS+i) /= rho_old;
-    }
-#endif
 
     while (true) {
 
