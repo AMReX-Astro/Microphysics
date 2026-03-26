@@ -244,7 +244,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
 
             // Constrain abundances such that they are not negative (within a tolerance)
             // or greater than one (within a tolerance).
-            if (vstate.y(i) < -species_failure_tolerance) {
+            if (vstate.y(i) < -integrator_rp::species_failure_tolerance) {
                 valid_update = false;
                 break;
             }
@@ -252,7 +252,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
             // Don't enforce the condition below if
             // vstate.y contains number densities
             if (! integrator_rp::use_number_densities) {
-                if (vstate.y(i) > 1.0_rt + species_failure_tolerance) {
+                if (vstate.y(i) > 1.0_rt + integrator_rp::species_failure_tolerance) {
                     valid_update = false;
                     break;
                 }
@@ -286,12 +286,12 @@ int dvstep (BurnT& state, DvodeT& vstate)
                 break;
             }
 
-            if (vstate.y(SFS+i) < -species_failure_tolerance * rho_current) {
+            if (vstate.y(SFS+i) < -integrator_rp::species_failure_tolerance * rho_current) {
                 valid_update = false;
                 break;
             }
 
-            if (vstate.y(SFS+i) > (1.0_rt + species_failure_tolerance) * rho_current) {
+            if (vstate.y(SFS+i) > (1.0_rt + integrator_rp::species_failure_tolerance) * rho_current) {
                 valid_update = false;
                 break;
             }
