@@ -55,6 +55,8 @@ There are a few common reasons why the integrator might encounter trouble:
 Making the integration robust
 =============================
 
+.. index:: integrator.atol_spec, integrator.species_failure_tolerance, integrator.use_jacobian_caching, integrator.do_corrector_validation, integrator.use_burn_retry
+
 Some tips for helping the integrator:
 
 * Use a tight absolute tolerance for the species
@@ -110,8 +112,13 @@ Some tips for helping the integrator:
 
 * Use the corrector validation (``integrator.do_corrector_validation``).
 
+  This checks to make sure the state is valid inside of the corrector
+  loop, and if not, it bails out of the corrector, forcing the
+  integrator to retry the entire step.
 
 Things we no longer recommend:
+
+.. index:: integrator.do_species_clip, integrator.renormalize_abundances
 
 * Clipping the species (``integrator.do_species_clip``) can lead to
   instabilities.  This changes the integration state directly in the
