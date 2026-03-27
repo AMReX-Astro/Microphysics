@@ -9,32 +9,19 @@ Error codes
 ===========
 
 The error code that is output when the integrator fails can be
-interpreted from the ``enum`` in ``integrator_data.H``:
+interpreted from the ``enum`` in ``integrator_data.H``.  See
+:ref:`sec:error_codes` for a list of the possible codes.
 
-* ``-1`` : bad inputs -- this indicates that the integrator was setup incorrectly.
-  At the moment, this is mainly a check on the tolerances.
+The most common errors are ``-2`` (timestep underflow) and ``-4`` (too
+many steps required).  A timestep underflow usually means that
+something has gone really wrong in the integration and the integrator
+keeps trying to cut the timestep to be able to advance.  Too many
+steps means that the integrator hit the cap imposed by
+``integrator.ode_max_steps``.  This should never be made too
+large---usually if you need more than a few 1000 steps, then the some
+of the solutions discussed below can help.
 
-* ``-2`` : the timestep underflowed.  This can happen if the integrator
-  needs to repeatedly cut the timestep to try to make the specified
-  tolerances.
 
-* ``-3`` :  for the RKC integrator, this means that the power method used
-  to estimate the spectral radius failed to converge.
-
-* ``-4`` : too many steps were needed (the limit is controled by
-  ``integrator.ode_max_steps``
-
-* ``-5`` : too much accuracy was requested (this indicates a problem with
-  the tolerances).
-
-* ``-6`` : the nonlinear corrector used to solve the implicit update failed
-  to converge.
-
-* ``-7`` : the LU decomposition of the Jacobian failed.
-
-* ``-8`` : the solution in the corrector violates positivity checks.
-
-The most common errors are ``-2`` (timestep underflow) and ``-4`` (too many steps required).
 
 Why does the integrator struggle?
 =================================
@@ -47,10 +34,14 @@ There are a few common reasons why the integrator might encounter trouble:
   Note: they should ensure that the mass fractions sum to 1 as long as
   $\sum_i \dot{\omega}_k = 0$ in the righthand side function.
 
+  This is a place where adjusting ``integrator.atol_spec`` can help.
+
 * The state wants to enter nuclear statistical equilibrium.  As we
   approach equilibrium, the integrator will see large, oppositely
   signed flows from one step to the next, which should cancel, but
   numerically, the cancellation is not perfect.
+
+  For some networks, the solution here is to use the NSE solver.
 
 * The Jacobian is not good enough to allow the nonlinear solver to
   converge.
@@ -70,6 +61,11 @@ Some tips for helping the integrator:
   (``integrator.atol_spec``).  This ensures that even small species
   are tracked well, and helps prevent generating negative mass
   fractions.
+
+  In general, ``atol_spec`` should be picked to be the magnitude of
+  the smallest mass fraction you care about.  You should never set
+  it to be larger that ``rtol_spec``.  See :ref:`sec:tolerances`
+  for some discussion.
 
 * Reduce ``integrator.species_failure_tolerance``.  This is used to
   determine whether a step should be rejected.  If any of the mass
@@ -92,11 +88,28 @@ Some tips for helping the integrator:
   ``integrator.retry_swap_jacobian``.  The tolerances can also be
   changed on retry.
 
+  See :ref:`sec:retry` for the full list of options.
+
 * Use the right integrator.  In general, VODE is the best choice.
   But if the network is only mildly stiff, then RKC can work well
   (typically, it works when the temperatures are below $10^9~\mathrm{K}$.
 
-* If you are near NSE, then use the NSE solver.
+* If you are near NSE, then use the NSE solver.  This is described
+  in :ref:`self_consistent_nse`.
+
+  Note: not every network is compatible with the self-consistent
+  NSE solver.
+
+* Use Jacobian-caching.  If you build on GPUs, this is disabled by
+  default.  You can re-enable it by building with
+  ``USE_JACOBIAN_CACHING=TRUE``.  Also make sure that
+  ``integrator.use_jacobian_caching=1`` (this is the default).
+
+  By reducing the number of times the Jacobian is evaluated, we also
+  reduce the possibility of trying to evaluate it with a bad state.
+
+* Use the corrector validation (``integrator.do_corrector_validation``).
+
 
 Things we no longer recommend:
 
@@ -107,12 +120,17 @@ Things we no longer recommend:
   way to deal with keeping the species in $[0, 1]$ is through the
   absolute tolerance.
 
-  See the SUNDIALS docs -- in particular, they say the modifying the
-  state in the RHS function is bad.  This means don't use
-  _species_clip.
+  The `SUNDIALS CVODE documentation <https://sundials.readthedocs.io/en/latest/cvode/Usage/index.html#advice-on-controlling-unphysical-negative-values>`_ has
+  a good discussion on this numerical instability.
+
+* Renormalizing the species during the integration / righthand side call
+  (``integrator.renormalize_abundances``).  Like clipping, this can
+  cause numerical instabilities.
 
 Debugging a burn failure
 ========================
 
-
-parse script
+When a burn fails, the entire ``burn_t`` state will be output to
+stdout (CPU runs only).  This state can then be used with
+``burn_cell_sdc`` to reproduce the burn failure outside of a
+simulation.  For SDC, see the discussion at :ref:`sec:redo_burn_fail`.
