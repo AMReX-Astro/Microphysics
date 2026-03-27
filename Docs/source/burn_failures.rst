@@ -55,7 +55,7 @@ There are a few common reasons why the integrator might encounter trouble:
 Making the integration robust
 =============================
 
-.. index:: integrator.atol_spec, integrator.species_failure_tolerance, integrator.use_jacobian_caching, integrator.do_corrector_validation, integrator.use_burn_retry
+.. index:: integrator.atol_spec, integrator.species_failure_tolerance, integrator.use_jacobian_caching, integrator.do_corrector_validation, integrator.use_burn_retry, integrator.X_reject_buffer
 
 Some tips for helping the integrator:
 
@@ -69,17 +69,33 @@ Some tips for helping the integrator:
   it to be larger that ``rtol_spec``.  See :ref:`sec:tolerances`
   for some discussion.
 
-* Reduce ``integrator.species_failure_tolerance``.  This is used to
-  determine whether a step should be rejected.  If any of the mass
-  fractions are more than ``integrator.species_failure_tolerance``
-  outside of $[0, 1]$, then the integrator will reject the step and
-  try again (this is implemented in ``VODE`` and ``BackwardEuler``).
+* Adjust the step-rejection logic in the integrator.  This is a
+  check on the state after the step that rejects the advance
+  if we find unphysical species.  Not every integrator supports
+  all of these options.
 
-  If the value is too large (like ``0.01``), then this could allow the
-  mass fractions to grow too much outside of $[0, 1]$, and then a
-  single step rejection is not enough to recover.  Setting this value to
-  be close to the typical scale of a mass fraction that we care about
-  (closer to ``integrator.atol_spec``) can help.
+  * Reduce ``integrator.species_failure_tolerance``.  This is used to
+    determine whether a step should be rejected.  If any of the mass
+    fractions are more than ``integrator.species_failure_tolerance``
+    outside of $[0, 1]$, then the integrator will reject the step and
+    try again (this is implemented in ``VODE`` and ``BackwardEuler``).
+
+    If the value is too large (like ``0.01``), then this could allow the
+    mass fractions to grow too much outside of $[0, 1]$, and then a
+    single step rejection is not enough to recover.  Setting this value to
+    be close to the typical scale of a mass fraction that we care about
+    (closer to ``integrator.atol_spec``) can help.
+
+  * Increase ``integrator.X_reject_buffer``.  This is used in the
+    check on how much the species changed from one step to the next
+    (inside of the integrator).  We limit the change to a factor of 4
+    per step.  We only check the species that are larger than
+    ``X_reject_buffer * atol_spec``, so if trace species are causing
+    problems, ``X_reject_buffer`` can be used to ignore them.
+
+* Try the numerical Jacobian (``integrator.jacobian=2``).  The
+  analytic Jacobian is faster to evaluate, but it approximates some
+  terms.  The numerical Jacobian sometimes works better.
 
 * Use the burn retry logic.  By setting
   ``integrator.use_burn_retry=1``, the burn will immediately be
