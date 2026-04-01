@@ -92,6 +92,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="nse.html">NSE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
+<li class="toctree-l1"><a class="reference internal" href="burn_failures.html">Dealing with Burn Failures</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Util / external libraries</span></p>
 <ul>
@@ -244,7 +245,7 @@ of memory when run on GPUs.</p>
 </div>
 </section>
 <section id="integration-errors">
-<h2>Integration errors<a class="headerlink" href="#integration-errors" title="Link to this heading"></a></h2>
+<span id="sec-error-codes"></span><h2>Integration errors<a class="headerlink" href="#integration-errors" title="Link to this heading"></a></h2>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
 <p>The integrator will not abort if it encounters trouble.  Instead it will
@@ -291,12 +292,17 @@ used to interpret the failure.  The current codes are:</p>
 </table>
 </section>
 <section id="tolerances">
-<h2>Tolerances<a class="headerlink" href="#tolerances" title="Link to this heading"></a></h2>
+<span id="sec-tolerances"></span><h2>Tolerances<a class="headerlink" href="#tolerances" title="Link to this heading"></a></h2>
 <p>Tolerances dictate how accurate the ODE solver must be while solving
 equations during a simulation.  Typically, the smaller the tolerance
 is, the more accurate the results will be.  However, if the tolerance
 is too small, the code may run for too long, the ODE solver will
 never converge, or it might require at timestep that underflows.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>The <a class="reference external" href="https://sundials.readthedocs.io/en/latest/cvode/Usage/index.html#general-advice-on-choice-of-tolerances">SUNDIALS CVODE documentation on tolerances</a>
+provides a good discussion on tolerances that apply here.</p>
+</div>
 <p id="index-6">There are separate tolerances for the mass fractions and the energy,
 and there are both relative and absolute tolerances which act together.
 The tolerances are:</p>
@@ -393,7 +399,7 @@ implemented for every integrator.</p></li>
 </ul>
 </section>
 <section id="retry-mechanism">
-<h2>Retry Mechanism<a class="headerlink" href="#retry-mechanism" title="Link to this heading"></a></h2>
+<span id="sec-retry"></span><h2>Retry Mechanism<a class="headerlink" href="#retry-mechanism" title="Link to this heading"></a></h2>
 <p id="index-9">Integration can fail for a number of reasons.  Some of the errors you may see are:</p>
 <ol class="arabic simple">
 <li><p>Not enough steps allowed (<code class="docutils literal notranslate"><span class="pre">integrator.ode_max_steps</span></code>)</p></li>

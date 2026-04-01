@@ -83,6 +83,7 @@
 <li class="toctree-l1"><a class="reference internal" href="ode_integrators.html">ODE Integrators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="nse.html">NSE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
+<li class="toctree-l1"><a class="reference internal" href="burn_failures.html">Dealing with Burn Failures</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Util / external libraries</span></p>
 <ul>
@@ -225,7 +226,7 @@ can be set via the usual Microphysics runtime parameters, e.g.
 <code class="docutils literal notranslate"><span class="pre">integrator.atol_spec</span></code>.</p>
 </section>
 <section id="rerunning-a-burn-fail">
-<h3>Rerunning a burn fail<a class="headerlink" href="#rerunning-a-burn-fail" title="Link to this heading"></a></h3>
+<span id="sec-redo-burn-fail"></span><h3>Rerunning a burn fail<a class="headerlink" href="#rerunning-a-burn-fail" title="Link to this heading"></a></h3>
 <p id="index-1">When a network integration encounters a failure, it will output the
 entire burn state to <code class="docutils literal notranslate"><span class="pre">stdout</span></code> (for GPU builds, this needs to be
 enabled explicitly by building with <code class="docutils literal notranslate"><span class="pre">USE_GPU_PRINTF</span></code>).</p>

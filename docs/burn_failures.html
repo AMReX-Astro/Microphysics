@@ -1,0 +1,311 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dealing with Burn Failures &mdash; Microphysics  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="_static/theme_overrides.css?v=2e394b92" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=eaa7b67c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["\\(", "\\)"]], "processEscapes": true, "displayMath": [["\\[", "\\]"]], "macros": {"rhozero": "{\\rho_0}", "pizero": "{\\pi_0}", "pizeroone": "{\\pi_0^{(1)}}", "pizerotwo": "{\\pi_0^{(2)}}", "gammabar": "{\\overline{\\Gamma}_1}", "ptl": "{{\\partial}}", "eb": "{{\\bf e}}", "fb": "{{\\bf f}}", "ib": "{{\\bf i}}", "Ub": "{{\\bf U}}", "Vb": "{{\\bf V}}", "xb": "{{\\bf x}}", "ut": "{\\tilde{u}}", "vt": "{\\tilde{v}}", "wt": "{\\tilde{w}}", "Ubt": "{\\widetilde{\\Ub}}", "edge": "{\\rm EDGE}", "mac": "{\\rm MAC}", "trans": "{\\rm TRANS}", "nablab": "{\\mathbf{\\nabla}}", "cdotb": "{\\mathbf{\\cdot}}", "half": "{\\frac{1}{2}}", "myhalf": "{\\frac{1}{2}}", "nph": "{{n + \\myhalf}}", "nmh": "{{n - \\myhalf}}", "Hext": "{{H_{\\rm ext}}}", "Hnuc": "{{H_{\\rm nuc}}}", "kth": "{k_{\\rm th}}", "pred": "{{\\rm pred}}", "Sbar": "{\\overline{S}}", "inp": "{\\mathrm{in}}", "initp": "{\\mathrm{init}}", "outp": "{\\mathrm{out}}", "uadv": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvone": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV},\\star}}", "uadvonedag": "{\\Ubt^{\\mathrm{ADV},\\dagger,\\star}}", "uadvtwo": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvtwodag": "{\\Ubt^{\\mathrm{ADV},\\dagger}}", "uadvsdcstar": "{\\mathbf{U}^{\\mathrm{ADV},\\star}}", "uadvsdcpred": "{\\mathbf{U}^{\\mathrm{ADV},\\mathrm{pred}}}", "uadvsdc": "{\\mathbf{U}^{\\mathrm{ADV}}}", "dt": "{\\Delta t}", "dr": "{\\Delta r}", "etarho": "{\\eta_{\\rho}}", "etarhoec": "{\\etarho^{\\rm ec}}", "etarhocc": "{\\etarho^{\\rm cc}}", "etarhoflux": "{\\etarho^{\\rm flux}}", "divetarho": "{\\nabla\\cdot(\\etarho\\eb_r)}", "ow": "{\\overline{w}_0}", "dw": "{\\delta w_0}", "thalf": "{\\sfrac{3}{2}}", "rhop": "{{\\rho^{\\prime}}}", "omegadot": "{\\dot{\\omega}}", "er": "{\\mathbf{e}_r}", "ex": "{\\mathbf{e}_x}", "ey": "{\\mathbf{e}_y}", "ez": "{\\mathbf{e}_z}", "Omegab": "{{\\bf \\Omega}}", "rb": "{{\\bf r}}", "isotm": ["{{}^{#2}\\mathrm{#1}}", 2], "edot": "{{{\\dot{e}_\\mathrm{nuc}}}}", "enuc": "{{{{e}_\\mathrm{nuc}}}}", "edotnu": "{{{\\dot{e}_\\nu}}}", "rt": "{\\tilde{r}_0}", "rhob": "{\\ensuremath{\\rho_\\mathrm{base}}}", "Tb": "{\\ensuremath{T_\\mathrm{base}}}", "gcc": "{\\mathrm{g~cm^{-3} }}", "pb": "{p_\\mathrm{base}}", "qburn": "{q_\\mathrm{burn}}", "Uc": "{{\\boldsymbol{\\mathcal{U}}}}", "Fb": "{\\mathbf{F}}", "Sc": "{\\mathbf{S}}", "Shydro": "{{{\\bf S}^{\\mathrm{hydro}}}}", "Rb": "{{\\bf R}}", "Rbs": ["{{\\bf R} \\left ( #1 \\right )}", 1], "Rq": "{{\\bf R}}", "Adv": ["{{\\left [\\boldsymbol{\\mathcal{A}} \\left(#1\\right)\\right]}}", 1], "Advs": ["{{\\boldsymbol{\\mathcal{A}} \\left(#1\\right)}}", 1], "Sdot": "{\\dot{S}}"}}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Helper Functions and Libraries" href="util.html" />
+    <link rel="prev" title="Spectral Deferred Corrections" href="sdc.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Microphysics
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    <div class="branch">
+        Branch: <a href="./burn_failures.html">main</a> | <a href="./dev/burn_failures.html">development</a>
+    </div>
+
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Microphysics overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design.html">Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_system.html">Build System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fundamental_constants.html">Fundamental Constants</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="eos.html">Equations of State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eos_implementations.html">Available Equations of State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reaction networks</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="networks-overview.html">Overview of Reaction Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networks.html">Available Reaction Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="templated_networks.html">Templated Network Righthand Sides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="screening.html">Screening of Reaction Rates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="neutrinos.html">Neutrino Losses</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ODE integrators</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="integrators.html">Reaction ODE System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ode_integrators.html">ODE Integrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nse.html">NSE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Dealing with Burn Failures</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#error-codes">Error codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#why-does-the-integrator-struggle">Why does the integrator struggle?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#making-the-integration-robust">Making the integration robust</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#debugging-a-burn-failure">Debugging a burn failure</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Util / external libraries</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="util.html">Helper Functions and Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autodiff.html">Automatic Differentiation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Unit tests</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Overview of Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unit_test_runtime_parameters.html">Unit Test Common Runtime Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="comprehensive_tests.html">Comprehensive Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="one_zone_tests.html">One Zone Tests</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">References</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="citing.html">Citing Microphysics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changes.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zreferences.html">References</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Index</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="genindex.html">Index</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Microphysics</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Dealing with Burn Failures</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/burn_failures.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="dealing-with-burn-failures">
+<h1>Dealing with Burn Failures<a class="headerlink" href="#dealing-with-burn-failures" title="Link to this heading"></a></h1>
+<p>Sometimes the ODE integration of a reaction network will fail.  Here
+we summarize some wisdom on how to avoid integrator failures.</p>
+<section id="error-codes">
+<h2>Error codes<a class="headerlink" href="#error-codes" title="Link to this heading"></a></h2>
+<p>The error code that is output when the integrator fails can be
+interpreted from the <code class="docutils literal notranslate"><span class="pre">enum</span></code> in <code class="docutils literal notranslate"><span class="pre">integrator_data.H</span></code>.  See
+<a class="reference internal" href="ode_integrators.html#sec-error-codes"><span class="std std-ref">Integration errors</span></a> for a list of the possible codes.</p>
+<p>The most common errors are <code class="docutils literal notranslate"><span class="pre">-2</span></code> (timestep underflow) and <code class="docutils literal notranslate"><span class="pre">-4</span></code> (too
+many steps required).  A timestep underflow usually means that
+something has gone really wrong in the integration and the integrator
+keeps trying to cut the timestep to be able to advance.  Too many
+steps means that the integrator hit the cap imposed by
+<code class="docutils literal notranslate"><span class="pre">integrator.ode_max_steps</span></code>.  This should never be made too
+large—usually if you need more than a few 1000 steps, then the some
+of the solutions discussed below can help.</p>
+</section>
+<section id="why-does-the-integrator-struggle">
+<h2>Why does the integrator struggle?<a class="headerlink" href="#why-does-the-integrator-struggle" title="Link to this heading"></a></h2>
+<p>There are a few common reasons why the integrator might encounter trouble:</p>
+<ul>
+<li><p>The integrators don’t know that the mass fractions should stay in
+<span class="math notranslate nohighlight">\([0, 1]\)</span>.</p>
+<p>Note: they should ensure that the mass fractions sum to 1 as long as
+<span class="math notranslate nohighlight">\(\sum_i \dot{\omega}_k = 0\)</span> in the righthand side function.</p>
+<p>This is a place where adjusting <code class="docutils literal notranslate"><span class="pre">integrator.atol_spec</span></code> can help.</p>
+</li>
+<li><p>The state wants to enter nuclear statistical equilibrium.  As we
+approach equilibrium, the integrator will see large, oppositely
+signed flows from one step to the next, which should cancel, but
+numerically, the cancellation is not perfect.</p>
+<p>For some networks, the solution here is to use the NSE solver.</p>
+</li>
+<li><p>The Jacobian is not good enough to allow the nonlinear solver to
+converge.</p>
+<p>The Jacobians used in our networks are approximate (even the
+analytic one).  For example, the analytic Jacobian neglects the
+composition dependence in the screening functions.  In the analytic we
+neglect the composition influence in screening.</p>
+</li>
+</ul>
+</section>
+<section id="making-the-integration-robust">
+<h2>Making the integration robust<a class="headerlink" href="#making-the-integration-robust" title="Link to this heading"></a></h2>
+<p id="index-0">Some tips for helping the integrator:</p>
+<ul>
+<li><p>Use a tight absolute tolerance for the species
+(<code class="docutils literal notranslate"><span class="pre">integrator.atol_spec</span></code>).  This ensures that even small species
+are tracked well, and helps prevent generating negative mass
+fractions.</p>
+<p>In general, <code class="docutils literal notranslate"><span class="pre">atol_spec</span></code> should be picked to be the magnitude of
+the smallest mass fraction you care about.  You should never set
+it to be larger that <code class="docutils literal notranslate"><span class="pre">rtol_spec</span></code>.  See <a class="reference internal" href="ode_integrators.html#sec-tolerances"><span class="std std-ref">Tolerances</span></a>
+for some discussion.</p>
+</li>
+<li><p>Adjust the step-rejection logic in the integrator.  This is a
+check on the state after the step that rejects the advance
+if we find unphysical species.  Not every integrator supports
+all of these options.</p>
+<ul>
+<li><p>Reduce <code class="docutils literal notranslate"><span class="pre">integrator.species_failure_tolerance</span></code>.  This is used to
+determine whether a step should be rejected.  If any of the mass
+fractions are more than <code class="docutils literal notranslate"><span class="pre">integrator.species_failure_tolerance</span></code>
+outside of <span class="math notranslate nohighlight">\([0, 1]\)</span>, then the integrator will reject the step and
+try again (this is implemented in <code class="docutils literal notranslate"><span class="pre">VODE</span></code> and <code class="docutils literal notranslate"><span class="pre">BackwardEuler</span></code>).</p>
+<p>If the value is too large (like <code class="docutils literal notranslate"><span class="pre">0.01</span></code>), then this could allow the
+mass fractions to grow too much outside of <span class="math notranslate nohighlight">\([0, 1]\)</span>, and then a
+single step rejection is not enough to recover.  Setting this value to
+be close to the typical scale of a mass fraction that we care about
+(closer to <code class="docutils literal notranslate"><span class="pre">integrator.atol_spec</span></code>) can help.</p>
+</li>
+<li><p>Increase <code class="docutils literal notranslate"><span class="pre">integrator.X_reject_buffer</span></code>.  This is used in the
+check on how much the species changed from one step to the next
+(inside of the integrator).  We limit the change to a factor of 4
+per step.  We only check the species that are larger than
+<code class="docutils literal notranslate"><span class="pre">X_reject_buffer</span> <span class="pre">*</span> <span class="pre">atol_spec</span></code>, so if trace species are causing
+problems, <code class="docutils literal notranslate"><span class="pre">X_reject_buffer</span></code> can be used to ignore them.</p></li>
+</ul>
+</li>
+<li><p>Try the numerical Jacobian (<code class="docutils literal notranslate"><span class="pre">integrator.jacobian=2</span></code>).  The
+analytic Jacobian is faster to evaluate, but it approximates some
+terms.  The numerical Jacobian sometimes works better.</p></li>
+<li><p>Use the burn retry logic.  By setting
+<code class="docutils literal notranslate"><span class="pre">integrator.use_burn_retry=1</span></code>, the burn will immediately be
+retried if it fails, with a slightly different configuration.</p>
+<p>By default the type of Jacobian is swapped (if we were analytic,
+then do numerical, and vice vera).  This is controlled by
+<code class="docutils literal notranslate"><span class="pre">integrator.retry_swap_jacobian</span></code>.  The tolerances can also be
+changed on retry.</p>
+<p>See <a class="reference internal" href="ode_integrators.html#sec-retry"><span class="std std-ref">Retry Mechanism</span></a> for the full list of options.</p>
+</li>
+<li><p>Use the right integrator.  In general, VODE is the best choice.
+But if the network is only mildly stiff, then RKC can work well
+(typically, it works when the temperatures are below <span class="math notranslate nohighlight">\(10^9~\mathrm{K}\)</span>.</p></li>
+<li><p>If you are near NSE, then use the NSE solver.  This is described
+in <a class="reference internal" href="nse_net.html#self-consistent-nse"><span class="std std-ref">Self-consistent NSE</span></a>.</p>
+<p>Note: not every network is compatible with the self-consistent
+NSE solver.</p>
+</li>
+<li><p>Use Jacobian-caching.  If you build on GPUs, this is disabled by
+default.  You can re-enable it by building with
+<code class="docutils literal notranslate"><span class="pre">USE_JACOBIAN_CACHING=TRUE</span></code>.  Also make sure that
+<code class="docutils literal notranslate"><span class="pre">integrator.use_jacobian_caching=1</span></code> (this is the default).</p>
+<p>By reducing the number of times the Jacobian is evaluated, we also
+reduce the possibility of trying to evaluate it with a bad state.</p>
+</li>
+<li><p>Use the corrector validation (<code class="docutils literal notranslate"><span class="pre">integrator.do_corrector_validation</span></code>).</p>
+<p>This checks to make sure the state is valid inside of the corrector
+loop, and if not, it bails out of the corrector, forcing the
+integrator to retry the entire step.</p>
+</li>
+</ul>
+<p>Things we no longer recommend:</p>
+<ul id="index-1">
+<li><p>Clipping the species (<code class="docutils literal notranslate"><span class="pre">integrator.do_species_clip</span></code>) can lead to
+instabilities.  This changes the integration state directly in the
+righthand side function, outside of the control of the integrator.
+While it sometimes may work, it often leads to problems.  A better
+way to deal with keeping the species in <span class="math notranslate nohighlight">\([0, 1]\)</span> is through the
+absolute tolerance.</p>
+<p>The <a class="reference external" href="https://sundials.readthedocs.io/en/latest/cvode/Usage/index.html#advice-on-controlling-unphysical-negative-values">SUNDIALS CVODE documentation</a> has
+a good discussion on this numerical instability.</p>
+</li>
+<li><p>Renormalizing the species during the integration / righthand side call
+(<code class="docutils literal notranslate"><span class="pre">integrator.renormalize_abundances</span></code>).  Like clipping, this can
+cause numerical instabilities.</p></li>
+</ul>
+</section>
+<section id="debugging-a-burn-failure">
+<h2>Debugging a burn failure<a class="headerlink" href="#debugging-a-burn-failure" title="Link to this heading"></a></h2>
+<p>When a burn fails, the entire <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> state will be output to
+stdout (CPU runs only).  This state can then be used with
+<code class="docutils literal notranslate"><span class="pre">burn_cell_sdc</span></code> to reproduce the burn failure outside of a
+simulation.  For SDC, see the discussion at <a class="reference internal" href="burn_cell_sdc.html#sec-redo-burn-fail"><span class="std std-ref">Rerunning a burn fail</span></a>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="sdc.html" class="btn btn-neutral float-left" title="Spectral Deferred Corrections" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="util.html" class="btn btn-neutral float-right" title="Helper Functions and Libraries" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Microphysics Development Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+
+</body>
+</html>

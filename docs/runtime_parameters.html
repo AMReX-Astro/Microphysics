@@ -100,6 +100,7 @@
 <li class="toctree-l1"><a class="reference internal" href="ode_integrators.html">ODE Integrators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="nse.html">NSE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
+<li class="toctree-l1"><a class="reference internal" href="burn_failures.html">Dealing with Burn Failures</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Util / external libraries</span></p>
 <ul>
@@ -1234,6 +1235,13 @@ losses?</p></td>
 <td><p>for the linear algebra, do we allow pivoting?</p></td>
 <td><p>1</p></td>
 </tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">species_failure_tolerance</span></code></p></td>
+<td><p>We will use this parameter to determine if a given
+species abundance is unreasonably small or large (each
+X must satisfy -failure_tolerance &lt;= X &lt;= 1.0 +
+failure_tolerance).</p></td>
+<td><p>1.e-2_rt</p></td>
+</tr>
 </tbody>
 </table>
 <p><strong>INTEGRATOR_DIR=BackwardEuler:</strong></p>
@@ -1436,58 +1444,58 @@ compatibility</p></td>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rho_nse</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_x</span></code></p></td>
+<td><p>cutoff for species mass fractions</p></td>
+<td><p>1.e-30</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">use_tables</span></code></p></td>
+<td><p>Should we use rate tables if they are present in the
+network?</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">use_c12ag_deboer17</span></code></p></td>
+<td><p>Should we use Deboer + 2017 rate for c12(a,g)o16?</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rho_nse</span></code></p></td>
 <td><p>density above which to assume we are in NSE</p></td>
 <td><p>3.e8</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">T_nse</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">T_nse</span></code></p></td>
 <td><p>temperature above which to assume we are in NSE</p></td>
 <td><p>3.e9</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">C_nse</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">C_nse</span></code></p></td>
 <td><p>upper-limit for C + N mass fraction required for NSE</p></td>
 <td><p>0.01</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">O_nse</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">O_nse</span></code></p></td>
 <td><p>upper-limit for O mass fraction required for NSE</p></td>
 <td><p>0.01</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Si_nse</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Si_nse</span></code></p></td>
 <td><p>upper-limit for Si mass fraction required for NSE</p></td>
 <td><p>0.01</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">He_Fe_nse</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">He_Fe_nse</span></code></p></td>
 <td><p>lower-limit for the He + iron-group mass fraction
 required for NSE</p></td>
 <td><p>0.88</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">T_always_nse</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">T_always_nse</span></code></p></td>
 <td><p>temperature above which we always assume NSE,
 regardless of composition note: rho_nse is still
 considered.</p></td>
 <td><p>9.e9</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nse_relax_factor</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nse_relax_factor</span></code></p></td>
 <td><p>factor (&lt; 1) by which to relax the criteria for
 entering NSE. This is only applied after a failed burn.</p></td>
 <td><p>1.0</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nse_table_interp_linear</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nse_table_interp_linear</span></code></p></td>
 <td><p>do we do tri-linear or tri-cubic interpolation on the
 table?</p></td>
-<td><p>0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_x</span></code></p></td>
-<td><p>cutoff for species mass fractions</p></td>
-<td><p>1.e-30</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">use_tables</span></code></p></td>
-<td><p>Should we use rate tables if they are present in the
-network?</p></td>
-<td><p>0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">use_c12ag_deboer17</span></code></p></td>
-<td><p>Should we use Deboer + 2017 rate for c12(a,g)o16?</p></td>
 <td><p>0</p></td>
 </tr>
 </tbody>
