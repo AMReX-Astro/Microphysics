@@ -1,5 +1,26 @@
 # Changelog
 
+## 26.04
+
+  * add documentation on recovering from burn failures (#1971)
+
+  * fix the step-rejection logic for increase in X over a step in VODE
+    for SDC (#1968)
+
+  * make `species_failure_tolerance` a runtime parameter (#1969)
+
+  * update the JOSS paper (#1967)
+
+  * hybrid Powell solver updates: fix a NaN loop check (#1959),
+    template on the Jacobian type (#1958), fix comments (#1957), fix
+    the logic for refreshing the spectral radius (#1955)
+
+  * add an assert on the NSE table index (#1951)
+
+  * fix RKC compilation with NSE (#1956)
+
+  * CI action updates (#1942)
+
 ## 26.03
 
    * allow screening to output log(screening) (#1939)
