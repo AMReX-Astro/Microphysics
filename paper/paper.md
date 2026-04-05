@@ -122,8 +122,18 @@ created to minimize developer effort across these codes and coordinate
 the approach to exascale compute architectures, in particular, GPU
 support for astrophysical simulation codes.
 
+# State of the field
 
-# Design
+Individual reaction networks and equations of state have been made
+available by authors for decades, including [@cococubed].  Flash
+[@flash] comes with a set of reaction networks and equations of state
+as well.  The closest compilation to ours is the recent
+singularity-EOS library [@singularity], which provides various
+equations of state.  Microphysics predates this library, going back to
+at least 2013.  Further, our design targets codes that use the AMReX
+library directly, and encompasses a wider set of physics.
+
+# Software design
 
 The Microphysics project started in 2013 as a way to centralize the
 reaction networks and equations of state used by Castro and MAESTRO
@@ -169,12 +179,12 @@ permits the simulation state data to be allocated directly in GPU
 memory and left there for the entire simulation, with all physics run
 directly on the GPU.  Since each zone in a simulation usually will
 have a different thermodynamic state, the integration of reaction
-networks can lead to thread divergence issues.  To help mitigate this issue, we can
-cap the number of integration steps and either retry an integration on
-a zone-by-zone basis with different tolerances or Jacobian
-approximations or pass the failure back to the application code to
-deal with.  This strategy has been successful for many large scale
-simulations [@Zingale_2025].
+networks can lead to thread divergence issues.  To help mitigate this
+issue, we can cap the number of integration steps and either retry an
+integration on a zone-by-zone basis with different tolerances or
+Jacobian approximations or pass the failure back to the application
+code to deal with.  This strategy has been successful for many large
+scale simulations [@Zingale_2025].
 
 
 Another key design feature is the separation of the reaction network
@@ -183,7 +193,9 @@ different integration methods (such as the RKC integrator) and also
 support different modes of coupling reactions to a simulation code,
 including operator splitting and spectral deferred corrections (SDC)
 (see, e.g., @castro_simple_sdc).  The latter is especially important
-for explosive astrophysical flows.  Tight integration with pynucastro [@pynucastro; @pynucastro2], allows for the generation of custom reaction networks for a science problem.
+for explosive astrophysical flows.  Tight integration with pynucastro
+[@pynucastro; @pynucastro2], allows for the generation of custom
+reaction networks for a science problem.
 
 There are two ways to use Microphysics: in a standalone fashion (via
 the unit tests) for simple investigations or as part of an
@@ -195,7 +207,7 @@ Microphysics to provide the number of species as a `constexpr` value
 (which many application codes need), and greatly reduces the
 compilation time (due to the templating used throughout the library).
 
-# Research Impact Statement
+# Research impact statement
 
 Microphysics has been used for simulations of convective Urca
 [@Boyd_2025] and X-ray bursts [@Guichandut_2024] with MAESTROeX; and
@@ -205,7 +217,7 @@ stars [@Zingale_2024] with Castro. This Microphysics library has also
 enabled recent work in astrophysical machine learning to train deep
 neural networks modeling nuclear reactions [@nn_astro_2022; @dnn_astro_2025].
 
-# AI Usage Disclosure
+# AI usage disclosure
 
 No generative AI/LLM was used for producing code or documentation in
 the git repository or for this paper.  We have experimented with using

@@ -60,9 +60,9 @@ int single_step (BurnT& state, BeT& be, const amrex::Real dt)
         if (integrator_rp::do_corrector_validation) {
 #ifdef SDC
             const amrex::Real rho_current = state.rho_orig + be.t * state.ydot_a[SRHO];
-            const amrex::Real thresh = species_failure_tolerance * rho_current;
+            const amrex::Real thresh = integrator_rp::species_failure_tolerance * rho_current;
 #else
-            const amrex::Real thresh = species_failure_tolerance;
+            const amrex::Real thresh = integrator_rp::species_failure_tolerance;
 #endif
             bool fail{};
             for (int i = 1; i <= NumSpec; ++i) {

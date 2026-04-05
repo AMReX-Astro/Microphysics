@@ -41,8 +41,7 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
     execute_process(COMMAND python3 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util/build_scripts/write_probin.py" --pa "${EOSparamfile} ${networkparamfile}
                     ${VODEparamfile} ${integrationparamfile}" --use_namespace WORKING_DIRECTORY ${output_dir}/)
 
-    set(gamma_law_sources ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/eos_data.cpp
-                          ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/network_initialization.cpp
+    set(gamma_law_sources ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/network_initialization.cpp
                           ${output_dir}/extern_parameters.cpp PARENT_SCOPE)
     execute_process(COMMAND python3 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/write_network.py" --header_template "${networkheadertemplatefile}" --header_output "${networkpropfile}" -s "${networkfile}" WORKING_DIRECTORY ${output_dir}/)
 
@@ -82,9 +81,7 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
                       ${networkparamfile} ${VODEparamfile} ${integrationparamfile} " --use_namespace WORKING_DIRECTORY ${output_dir}/)
     endif()
 
-    set(primordial_chem_sources ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/eos_data.cpp
-                                ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/network_initialization.cpp
-                                ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/primordial_chem/actual_eos_data.cpp
+    set(primordial_chem_sources ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/network_initialization.cpp
                                 ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/primordial_chem/actual_network_data.cpp
                                 ${output_dir}/extern_parameters.cpp PARENT_SCOPE)
 
@@ -130,11 +127,9 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
     endif()
 
     #unlike primordial chem, we also include actual_network_data.cpp here because it is in there that we read in the Semenov opacity table
-    set(metal_chem_sources ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/eos_data.cpp
-                                ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/network_initialization.cpp
-                                ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/metal_chem/actual_eos_data.cpp
-                                ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/metal_chem/actual_network_data.cpp
-                                ${output_dir}/extern_parameters.cpp PARENT_SCOPE)
+    set(metal_chem_sources ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/network_initialization.cpp
+                           ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/metal_chem/actual_network_data.cpp
+                           ${output_dir}/extern_parameters.cpp PARENT_SCOPE)
 
 
     #below for NAUX
