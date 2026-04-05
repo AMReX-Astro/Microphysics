@@ -123,17 +123,6 @@ namespace network
     }
 }
 
-#ifdef NSE_NET
-namespace NSE_INDEX
-{
-    // P_index is for photoionization proton
-    constexpr int P_index= -1;
-    constexpr int H1_index = -1;
-    constexpr int N_index = -1;
-    constexpr int He4_index = 0;
-}
-#endif
-
 namespace Rates {
     enum NetworkRates: std::uint8_t {
         He4_He4_He4_to_C12 = 1,

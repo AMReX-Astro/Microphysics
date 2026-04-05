@@ -13,8 +13,8 @@ namespace helmholtz
 
     using namespace amrex::literals;
 
-    extern AMREX_GPU_MANAGED int do_coulomb;
-    extern AMREX_GPU_MANAGED int input_is_constant;
+    inline AMREX_GPU_MANAGED int do_coulomb;
+    inline AMREX_GPU_MANAGED int input_is_constant;
 
     // for the tables
 
@@ -47,34 +47,34 @@ namespace helmholtz
     constexpr amrex::Real dstpi = 1.0e0_rt / dstp;
 #endif
 
-    extern AMREX_GPU_MANAGED amrex::Real d[imax];
-    extern AMREX_GPU_MANAGED amrex::Real t[jmax];
+    inline AMREX_GPU_MANAGED amrex::Real d[imax];
+    inline AMREX_GPU_MANAGED amrex::Real t[jmax];
 
-    extern AMREX_GPU_MANAGED amrex::Real ttol;
-    extern AMREX_GPU_MANAGED amrex::Real dtol;
+    inline AMREX_GPU_MANAGED amrex::Real ttol;
+    inline AMREX_GPU_MANAGED amrex::Real dtol;
 
     // for the helmholtz free energy tables
-    extern AMREX_GPU_MANAGED amrex::Real f[jmax][imax][9];
+    inline AMREX_GPU_MANAGED amrex::Real f[jmax][imax][9];
 
     // for the pressure derivative with density tables
-    extern AMREX_GPU_MANAGED amrex::Real dpdf[jmax][imax][4];
+    inline AMREX_GPU_MANAGED amrex::Real dpdf[jmax][imax][4];
 
     // for chemical potential tables
-    extern AMREX_GPU_MANAGED amrex::Real ef[jmax][imax][4];
+    inline AMREX_GPU_MANAGED amrex::Real ef[jmax][imax][4];
 
     // for the number density tables
-    extern AMREX_GPU_MANAGED amrex::Real xf[jmax][imax][4];
+    inline AMREX_GPU_MANAGED amrex::Real xf[jmax][imax][4];
 
     // for storing the differences
-    extern AMREX_GPU_MANAGED amrex::Real dt_sav[jmax];
-    extern AMREX_GPU_MANAGED amrex::Real dt2_sav[jmax];
-    extern AMREX_GPU_MANAGED amrex::Real dti_sav[jmax];
-    extern AMREX_GPU_MANAGED amrex::Real dt2i_sav[jmax];
+    inline AMREX_GPU_MANAGED amrex::Real dt_sav[jmax];
+    inline AMREX_GPU_MANAGED amrex::Real dt2_sav[jmax];
+    inline AMREX_GPU_MANAGED amrex::Real dti_sav[jmax];
+    inline AMREX_GPU_MANAGED amrex::Real dt2i_sav[jmax];
 
-    extern AMREX_GPU_MANAGED amrex::Real dd_sav[imax];
-    extern AMREX_GPU_MANAGED amrex::Real dd2_sav[imax];
-    extern AMREX_GPU_MANAGED amrex::Real ddi_sav[imax];
-    extern AMREX_GPU_MANAGED amrex::Real dd2i_sav[imax];
+    inline AMREX_GPU_MANAGED amrex::Real dd_sav[imax];
+    inline AMREX_GPU_MANAGED amrex::Real dd2_sav[imax];
+    inline AMREX_GPU_MANAGED amrex::Real ddi_sav[imax];
+    inline AMREX_GPU_MANAGED amrex::Real dd2i_sav[imax];
 
 #if defined(USE_NEW_HELMHOLTZ_TABLE)
     constexpr amrex::Real h = C::hplanck;

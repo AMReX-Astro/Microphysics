@@ -1328,15 +1328,15 @@ void actual_eos_init ()
 #else
         t[j] = std::pow(10.0e0_rt, tsav);
 #endif
-
-        for (int i = 0; i < imax; ++i) {
-            amrex::Real dsav = dlo + i * dstp;
+    }
+  
+    for (int i = 0; i < imax; ++i) {
+        amrex::Real dsav = dlo + i * dstp;
 #if defined(USE_NEW_HELMHOLTZ_TABLE)
-            d[i] = mp::fastpow2(dsav);
+        d[i] = mp::fastpow2(dsav);
 #else
-            d[i] = std::pow(10.0e0_rt, dsav);
+        d[i] = std::pow(10.0e0_rt, dsav);
 #endif
-        }
     }
 
     // it does not work on all machines (for GPUs) broadcast to other

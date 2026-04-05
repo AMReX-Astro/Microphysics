@@ -103,6 +103,8 @@ can be set via the usual Microphysics runtime parameters, e.g.
 ``integrator.atol_spec``.
 
 
+.. _sec:redo_burn_fail:
+
 Rerunning a burn fail
 ---------------------
 

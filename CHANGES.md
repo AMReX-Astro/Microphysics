@@ -1,5 +1,87 @@
 # Changelog
 
+## 26.04
+
+  * add documentation on recovering from burn failures (#1971)
+
+  * fix the step-rejection logic for increase in X over a step in VODE
+    for SDC (#1968)
+
+  * make `species_failure_tolerance` a runtime parameter (#1969)
+
+  * update the JOSS paper (#1967)
+
+  * hybrid Powell solver updates: fix a NaN loop check (#1959),
+    template on the Jacobian type (#1958), fix comments (#1957), fix
+    the logic for refreshing the spectral radius (#1955)
+
+  * add an assert on the NSE table index (#1951)
+
+  * fix RKC compilation with NSE (#1956)
+
+  * CI action updates (#1942)
+
+## 26.03
+
+   * allow screening to output log(screening) (#1939)
+
+   * move EOS data to be inline (#1937)
+
+## 26.02
+
+  * update the NSE check for the self-consistent solver.  The rate
+    filtering is now handled by the network.  The single_group check
+    was also simplified. (#1932)
+
+  * CI updates (#1933, #1934)
+
+  * regenerate pynucastro networks to inline tabular rate and
+    partition function data (#1931) and new derived rate formulations
+    (#1906)
+
+  * work around ROCm bugs in `nse_solver` (#1936)
+
+  * NSE solver optimizations (#1928)
+
+  * add a `print_jacobian` function for debugging (#1929)
+
+  * remove NSE solver support for non-pynucastro nets (#1927)
+
+  * update the JOSS paper (#1926)
+
+  * optimize Chabrier screening (#1925)
+
+  * fix extra work in Helmholtz EOS init (#1924)
+
+  * add state validation to the corrector loop in `BackwardEuler`
+    (#1922)
+
+  * small optimization of SDC integration (#1923)
+
+  * disable `do_species_clip` in the integrators by default and add
+    some robustness to the VODE nonlinear solve (#1921)
+
+  * fix Apple Clang C++20 build (#1920)
+
+  * add an NSE integration test for CI (#1916)
+
+  * cppcheck fixes (#1915)
+
+  * enabled C++20 support (#1876, #1914)
+
+  * optimization of the Helmholtz EOS via templating out some
+    calculations (#1910, #1912)
+
+  * some optimizations of the EOS composition (#1913)
+
+  * increase precision of output for burn failures (#1909)
+
+  * optimizations of `screen5` (#1899)
+
+  * scope some variables in VODE (#1907)
+
+  * new unit test for cubic interpolation in pynucastro nets (#1891)
+
 ## 26.01
 
   * eliminate an exp at the low end of screening (#1893)
@@ -24,7 +106,7 @@
 
   * update python doc package requirements (#1892)
 
-## 25,12
+## 25.12
 
   * update CI actions (#1885)
 

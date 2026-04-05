@@ -7,12 +7,11 @@
 #include <string>
 
 #include <AMReX_Array.H>
-
+#include <AMReX_Math.H>
 #include <interp_tools.H>
 
 using namespace amrex::literals;
 
-void init_tabular();
 
 // Table is expected to be in terms of dens*ye and temp (logarithmic, cgs units)
 // Table energy units are expected in terms of ergs
@@ -26,12 +25,9 @@ const int num_tables = 1;
 
 enum TableVars : std::uint8_t
 {
-    jtab_mu      = 1,
-    jtab_dq      = 2,
-    jtab_vs      = 3,
-    jtab_rate    = 4,
-    jtab_nuloss  = 5,
-    jtab_gamma   = 6,
+    jtab_rate    = 1,
+    jtab_nuloss  = 2,
+    jtab_gamma   = 3,
     num_vars = jtab_gamma
 };
 
@@ -44,67 +40,62 @@ struct table_t
     int nheader;
 };
 
-// we add a 7th index, k_index_dlogr_dlogt used for computing the derivative
-// of Log(rate) with respect of Log(temperature) by using the table
-// values. It isn't an index into the table but into the 'entries'
-// array. Is important to mention that although we compute dlogr/dlogT as
-// the computed quantity in 'entries', we pursue ultimately
-// dr/dt as the final desired quantity to be computed for this index.
+// we add an additional index, k_index_dlogr_dlogt used for computing
+// the derivative of Log(rate) with respect of Log(temperature) by
+// using the table values. It isn't an index into the table but into
+// the 'entries' array. Is important to mention that although we
+// compute dlogr/dlogT as the computed quantity in 'entries', we
+// pursue ultimately dr/dt as the final desired quantity to be
+// computed for this index.
 
-const int  k_index_dlogr_dlogt  = 7;
+constexpr int k_index_dlogr_dlogt = num_vars + 1;
 constexpr int add_vars = 1;  // 1 Additional Var in entries
 
 
 namespace rate_tables
 {
-    extern AMREX_GPU_MANAGED table_t j_n_p_meta;
-    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, 6> j_n_p_data;
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_n_p_rhoy;
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 13> j_n_p_temp;
+    // n --> p
+    inline AMREX_GPU_MANAGED table_t j_n_p_meta{.ntemp=13, .nrhoy=11, .nvars=3, .nheader=5};
+    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_n_p_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
+    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 13> j_n_p_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121, 11.0};
+    // Array3D is column-major (Fortran-ordering).  T varies fastest, then rho Ye, then the component
+    inline AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 13, 1, 11, 1, num_vars>
+         j_n_p_data{
+-2.959,          -2.959,          -2.959,          -2.959,       -2.958959,       -2.957841,       -2.941107,       -2.874417,       -2.540055,       -1.720786,        -0.41411,        1.802004,           4.347,  // RATE
+-2.959,          -2.959,          -2.959,          -2.959,       -2.958984,       -2.957898,       -2.941192,       -2.874417,       -2.540055,       -1.720786,        -0.41411,        1.802004,           4.347,
+-2.959,          -2.959,          -2.959,          -2.959,       -2.958998,       -2.958314,       -2.941776,       -2.874975,       -2.540055,       -1.721736,        -0.41411,        1.802004,           4.347,
+-2.961,          -2.961,          -2.961,          -2.961,           -2.96,       -2.959896,       -2.947722,       -2.881381,       -2.544233,       -1.721736,        -0.41411,        1.802004,           4.347,
+-2.98,          -2.979,          -2.979,          -2.978,          -2.975,        -2.97299,       -2.967462,       -2.925218,       -2.577269,       -1.729383,       -0.415108,        1.802004,           4.347,
+-3.14,           -3.14,          -3.138,          -3.131,          -3.116,       -3.097999,       -3.069766,       -3.041782,       -2.813017,       -1.806664,       -0.423096,        1.801004,           4.347,
+-5.499,          -5.442,          -5.306,          -4.989,          -4.592,          -4.297,       -3.954978,       -3.726186,       -3.408689,       -2.366458,       -0.508967,        1.798004,           4.347,
+-99.69797,          -65.57,         -35.616,         -20.209,         -13.299,         -10.394,       -8.019984,       -6.772438,       -5.436532,       -3.791028,       -1.150873,        1.768005,           4.346,
+-99.69797,       -99.69797,       -99.69797,         -54.663,           -33.0,         -24.198,      -17.245984,       -13.71544,      -10.109646,       -6.677964,       -2.765936,        1.478006,           4.338,
+-99.69797,       -99.69797,       -99.69797,       -99.69797,         -75.759,         -54.136,      -37.214984,       -28.70344,      -20.122703,      -12.726964,       -5.885901,         0.27701,           4.255,
+-99.69797,       -99.69797,       -99.69797,       -99.69797,       -99.69797,       -99.69797,      -80.281984,       -61.00844,      -41.669646,      -25.673964,      -12.403901,        -2.04999,           3.625,
+-9.07229,        -9.07229,        -9.07229,        -9.07229,        -9.07229,        -9.06729,        -8.99729,        -8.76529,        -8.08629,        -7.02729,        -5.49029,        -2.85229,       0.1987104,  // NU
+-9.07229,        -9.07229,        -9.07229,        -9.07229,        -9.07229,        -9.06729,        -8.99729,        -8.76529,        -8.08629,        -7.02729,        -5.49029,        -2.85229,       0.1987104,
+-9.07229,        -9.07229,        -9.07229,        -9.07229,        -9.07229,        -9.06929,        -9.00029,        -8.76729,        -8.08729,        -7.02729,        -5.49029,        -2.85229,       0.1987104,
+-9.07629,        -9.07529,        -9.07529,        -9.07529,        -9.07429,        -9.07329,        -9.02029,        -8.78329,        -8.09129,        -7.02829,        -5.49129,        -2.85229,       0.1987104,
+-9.10529,        -9.10429,        -9.10329,        -9.10029,        -9.09629,        -9.09229,        -9.07629,        -8.90629,        -8.13929,        -7.03629,        -5.49129,        -2.85229,       0.1987104,
+-9.34529,        -9.34329,        -9.34029,        -9.32529,        -9.29529,        -9.26229,        -9.21529,        -9.15329,        -8.51229,        -7.11629,        -5.50029,        -2.85229,       0.1987104,
+-12.57129,       -12.46129,       -12.21829,       -11.70729,       -11.12229,       -10.71129,       -10.25629,        -9.96229,        -9.42029,        -7.71429,        -5.58729,        -2.85529,       0.1987104,
+-105.7943,       -72.95929,       -42.71029,       -27.01829,       -19.88929,       -16.85929,       -14.36829,       -13.05429,       -11.53729,        -9.20529,        -6.23429,        -2.88629,       0.1977104,
+-105.7943,       -105.7943,       -105.7943,       -61.47129,       -39.59029,       -30.66429,       -23.59429,       -19.99829,       -16.21129,       -12.09729,        -7.85229,        -3.17929,       0.1897104,
+-105.7943,       -105.7943,       -105.7943,       -105.7943,       -82.34929,       -60.60229,       -43.56329,       -34.98629,       -26.22429,       -18.14629,       -10.97129,        -4.38329,       0.1057104,
+-105.7943,       -105.7943,       -105.7943,       -105.7943,       -105.7943,       -105.7943,       -86.63029,       -67.29129,       -47.77129,       -31.09329,       -17.48929,        -6.71029,      -0.5272896,
+-100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,  // GAMMA
+-100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,
+-100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,
+-100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,
+-100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,
+-100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,
+-100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,
+-100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,
+-100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,
+-100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,
+-100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,          -100.0,
+         };
 
-}
-
-template <typename R, typename T, typename D>
-void init_tab_info(const table_t& tf, const std::string& file, R& log_rhoy_table, T& log_temp_table, D& data)
-{
-    // This function initializes the selected tabular-rate tables. From the tables we are interested
-    // on the rate, neutrino-energy-loss and the gamma-energy entries.
-
-    std::ifstream table;
-    table.open(file);
-
-    if (!table.is_open()) {
-        // the table was not present or we could not open it; abort
-        amrex::Error("table could not be opened");
-    }
-
-    std::string line;
-
-    // read and skip over the header
-
-    for (int i = 0; i < tf.nheader; ++i) {
-        std::getline(table, line);
-    }
-
-    // now the data -- there are 2 extra columns, for log_temp and log_rhoy
-
-    for (int j = 1; j <= tf.nrhoy; ++j) {
-        for (int i = 1; i <= tf.ntemp; ++i) {
-            std::getline(table, line);
-            if (line.empty()) {
-                amrex::Error("Error reading table data");
-            }
-
-            std::istringstream sdata(line);
-
-            sdata >> log_rhoy_table(j) >> log_temp_table(i);
-
-            for (int n = 1; n <= tf.nvars; ++n) {
-                sdata >> data(i, j, n);
-            }
-        }
-    }
-    table.close();
 }
 
 
@@ -378,10 +369,10 @@ tabular_evaluate(const table_t& table_meta,
     // Fill outputs: rate, d(rate)/d(temperature), and
     // (negative) neutrino loss contribution to energy generation
 
-    rate       = std::pow(10.0_rt, entries(jtab_rate));
+    rate       = amrex::Math::exp10(entries(jtab_rate));
     drate_dt   = rate * entries(k_index_dlogr_dlogt) / temp;
-    edot_nu    = -std::pow(10.0_rt, entries(jtab_nuloss));
-    edot_gamma = std::pow(10.0_rt, entries(jtab_gamma));
+    edot_nu    = -amrex::Math::exp10(entries(jtab_nuloss));
+    edot_gamma = amrex::Math::exp10(entries(jtab_gamma));
 }
 
 #endif
