@@ -23,28 +23,28 @@ burner_verbose           bool     0
 # species and energy equations.
 
 # relative tolerance for species
-rtol_spec                real      1.e-12
+rtol_spec                real      1.e-10
 
 # relative tolerance for energy
-rtol_enuc                real      1.e-6
+rtol_enuc                real      1.e-10
 
 # absolute tolerance for species
-atol_spec                real      1.e-8
+atol_spec                real      1.e-10
 
 # absolute tolerance for energy
-atol_enuc                real      1.e-6
+atol_enuc                real      1.e-25
 
-# relative tolerance for radiation density
-rtol_rad_num             real      1.e-12
+# relative tolerance for radiation number density
+rtol_rad_num             real      1.e-10
 
-# relative teolerance for radiation flux
-rtol_rad_flux            real      1.e-6
+# relative tolerance for radiation flux
+rtol_rad_flux            real      1.e-10
 
-# absolute tolerance for radiation density
-atol_rad_num             real      1.e-12
+# absolute tolerance for radiation number density
+atol_rad_num             real      1.e-10
 
 # absolute tolerance for radiation flux
-atol_rad_flux            real      1.e-6
+atol_rad_flux            real      1.e-10
 
 # Whether to renormalize the mass fractions at each step in the evolution
 # so that they sum to unity.

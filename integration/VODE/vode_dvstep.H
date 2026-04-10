@@ -301,6 +301,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
 
         }
 
+#ifdef PHOTOCHEMISTRY
         for (int i = net_ienuc + 1; i <= int_neqs; i+=MicrophysicsNumRadVarsPerGroup) {
 
 #ifdef STRANG
@@ -340,6 +341,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
                 valid_update = false;
                 break;
             }
+#endif
 #endif
 
 #ifdef SDC
