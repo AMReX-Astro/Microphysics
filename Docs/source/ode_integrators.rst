@@ -130,6 +130,8 @@ of equations.  Pivoting can be disabled by setting ``integrator.linalg_do_pivoti
 
 
 
+.. _sec:error_codes:
+
 Integration errors
 ==================
 
@@ -164,6 +166,8 @@ used to interpret the failure.  The current codes are:
 | -100  | entered NSE                                              |
 +-------+----------------------------------------------------------+
 
+.. _sec:tolerances:
+
 Tolerances
 ==========
 
@@ -172,6 +176,12 @@ equations during a simulation.  Typically, the smaller the tolerance
 is, the more accurate the results will be.  However, if the tolerance
 is too small, the code may run for too long, the ODE solver will
 never converge, or it might require at timestep that underflows.
+
+.. tip::
+
+   The `SUNDIALS CVODE documentation on tolerances
+   <https://sundials.readthedocs.io/en/latest/cvode/Usage/index.html#general-advice-on-choice-of-tolerances>`_
+   provides a good discussion on tolerances that apply here.
 
 .. index:: integrator.rtol_spec, integrator.rtol_enuc, integrator.atol_spec, integrator.atol_enuc
 
@@ -288,6 +298,7 @@ constraint on the intermediate states during the integration.
   ``integrator.do_species_clip`` is disabled.  Note: this is not
   implemented for every integrator.
 
+.. _sec:retry:
 
 Retry Mechanism
 ===============
