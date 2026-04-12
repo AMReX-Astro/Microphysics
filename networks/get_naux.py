@@ -39,9 +39,11 @@ def main():
     micro_path = args.microphysics_path
     net = args.net
 
-    if args.net_custom_path is None:
-        base_path = Path(micro_path) / "networks" / "net"
+    if len(args.net_custom_path.strip()) == 0:
+        # our network lives in Microphysics/networks
+        base_path = Path(micro_path) / "networks" / f"{net}"
     else:
+        # our network is standalone (outside of Microphysics/)
         base_path = Path(args.net_custom_path)
 
     net_file = base_path / "pynucastro.net"
