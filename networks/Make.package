@@ -90,13 +90,18 @@ AUTO_BUILD_SOURCES += $(NETWORK_OUTPUT_PATH)/network_properties.H
 net_prop_debug: $(NETWORK_OUTPUT_PATH)/network_properties.H
 
 ifneq ($(NETWORK_DIR), general_null)
-  NAUX := $(shell PYTHONPATH=$(MICROPHYSICS_HOME)/networks/general_null $(MICROPHYSICS_HOME)/networks/get_naux.py --microphysics_path "$(MICROPHYSICS_HOME)" --defines "$(DEFINES)" --net "$(NETWORK_DIR)")
+  NAUX := $(shell PYTHONPATH=$(MICROPHYSICS_HOME)/networks/general_null $(MICROPHYSICS_HOME)/networks/get_naux.py \
+                 --microphysics_path "$(MICROPHYSICS_HOME)" \
+                 --defines "$(DEFINES)" \
+                 --net "$(NETWORK_DIR)" \
+                 --net-custom-path "$(NETWORK_CUSTOM_PATH)")
   DEFINES += "-DNAUX_NET=$(NAUX)"
 
 $(NETWORK_OUTPUT_PATH)/network_properties.H:
 	PYTHONPATH=$(MICROPHYSICS_HOME)/networks/general_null $(MICROPHYSICS_HOME)/networks/update_headers.py \
            --microphysics_path $(MICROPHYSICS_HOME) \
-           --net $(NETWORK_DIR) \
+           --net "$(NETWORK_DIR)" \
+           --net-custom-path "$(NETWORK_CUSTOM_PATH)" \
            --odir $(NETWORK_OUTPUT_PATH) \
            --defines "$(DEFINES)"
 

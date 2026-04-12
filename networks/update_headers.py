@@ -2,6 +2,7 @@
 
 import os
 import argparse
+from pathlib import Path
 
 from general_null import write_network
 
@@ -13,6 +14,8 @@ def main():
                         help="path to Microphysics/")
     parser.add_argument("--net", type=str, default="",
                         help="name of the network")
+    parser.add_argument("--net-custom-path", type=str, default="",
+                        help="full path to the network if it lives outside of Microphysics")
     parser.add_argument("--odir", type=str, default="",
                         help="output directory")
     parser.add_argument("--defines", type=str, default="",
@@ -23,9 +26,15 @@ def main():
     micro_path = args.microphysics_path
     net = args.net
 
-    net_file = os.path.join(micro_path, "networks", net, f"{net}.net")
-    if not os.path.isfile(net_file):
-        net_file = os.path.join(micro_path, "networks", net, "pynucastro.net")
+
+    if args.net_custom_path is None:
+        base_path = Path(micro_path) / "networks" / "net"
+    else:
+        base_path = Path(args.net_custom_path)
+
+    net_file = base_path / "pynucastro.net"
+    if not net_file.exists() and len(net) > 0:
+        net_file = base_path / f"{net}.net"
 
     cxx_template = os.path.join(micro_path, "networks",
                                 "general_null/network_header.template")
@@ -36,6 +45,7 @@ def main():
     except FileExistsError:
         pass
 
+    print(f"calling with {cxx_template}, {net_file}")
     write_network.write_network(cxx_template,
                                 net_file,
                                 cxx_name, args.defines)
