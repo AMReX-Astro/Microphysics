@@ -215,7 +215,7 @@ controlled by a number of make variables.</p>
 <p>The following control whether certain physics modules are included in
 the build process.  Note: an EOS and network are always required.
 These can be set to <code class="docutils literal notranslate"><span class="pre">TRUE</span></code> to enable and <code class="docutils literal notranslate"><span class="pre">FALSE</span></code> to disable specific features.</p>
-<ul class="simple">
+<ul class="simple" id="index-3">
 <li><p><code class="docutils literal notranslate"><span class="pre">USE_CONDUCTIVITY</span></code> : determines whether a conductivity routine
 should be included in the list of build packages.  If enabled, this
 also defines the <code class="docutils literal notranslate"><span class="pre">CONDUCTIVITY</span></code> preprocessor variable.  Default:
@@ -224,7 +224,7 @@ also defines the <code class="docutils literal notranslate"><span class="pre">CO
 should be applied in the reaction network energy generation
 equation.  See <a class="reference internal" href="neutrinos.html#neutrino-loss"><span class="std std-ref">Neutrino Losses</span></a>.  The default is set by each
 individual network.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">USE_NET_NET</span></code> : determines whether the self-consistent NSE
+<li><p><code class="docutils literal notranslate"><span class="pre">USE_NSE_NET</span></code> : determines whether the self-consistent NSE
 infrastructure is included in the build.  See
 <a class="reference internal" href="nse_net.html#self-consistent-nse"><span class="std std-ref">Self-consistent NSE</span></a>.  No default is set.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">USE_NSE_TABLE</span></code> : determines whether the tabular NSE
@@ -249,7 +249,7 @@ the same effect (see <a class="reference internal" href="screening.html#sec-scre
 each individual network.</p></li>
 </ul>
 <p>The following control the choice of implementation for the different physics modules:</p>
-<ul class="simple">
+<ul id="index-4">
 <li><p><code class="docutils literal notranslate"><span class="pre">CONDUCTIVITY_DIR</span></code> : the name of the conductivity implementation to use,
 relative to <code class="docutils literal notranslate"><span class="pre">Microphysics/conductivity/</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">EOS_DIR</span></code> : the name of the EOS to use, relative to <code class="docutils literal notranslate"><span class="pre">Microphysics/EOS/</span></code>.</p></li>
@@ -257,7 +257,15 @@ relative to <code class="docutils literal notranslate"><span class="pre">Microph
 <code class="docutils literal notranslate"><span class="pre">Microphysics/integration/</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">NETWORK_DIR</span></code> : the name of the network to use, relative to <code class="docutils literal notranslate"><span class="pre">Microphysics/networks/</span></code>.
 If <code class="docutils literal notranslate"><span class="pre">general_null</span></code> is chosen, then the inputs file is determined by
-either <code class="docutils literal notranslate"><span class="pre">GENERAL_NET_INPUTS</span></code> or <code class="docutils literal notranslate"><span class="pre">NETWORK_INPUTS</span></code> (see <a class="reference internal" href="networks.html#sec-networks-general-null"><span class="std std-ref">general_null</span></a>).</p></li>
+either <code class="docutils literal notranslate"><span class="pre">GENERAL_NET_INPUTS</span></code> or <code class="docutils literal notranslate"><span class="pre">NETWORK_INPUTS</span></code> (see <a class="reference internal" href="networks.html#sec-networks-general-null"><span class="std std-ref">general_null</span></a>).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Alternately, you can set <code class="docutils literal notranslate"><span class="pre">NETWORK_CUSTOM_DIR</span></code> to the full path of
+the location of the network directory.  This is used for the case where
+a network is created outside of <code class="docutils literal notranslate"><span class="pre">Microphysics/</span></code> (e.g. via pynucastro)
+but we still want to build a simple driver to test it.</p>
+</div>
+</li>
 <li><p><code class="docutils literal notranslate"><span class="pre">OPACITY_DIR</span></code> : the name of the opacity implementation to use, relative
 to <code class="docutils literal notranslate"><span class="pre">Microphysics/opacity/</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">SCREEN_METHOD</span></code> : the name of the screening implementation to use.  The choices
@@ -265,7 +273,7 @@ are listed in <a class="reference internal" href="screening.html#sec-screening">
 </ul>
 <p>The following control the time-integration method used by the reaction
 network integration:</p>
-<ul class="simple">
+<ul class="simple" id="index-5">
 <li><p><code class="docutils literal notranslate"><span class="pre">USE_SIMPLIFIED_SDC</span></code> : enable the simplified-SDC coupling of hydro and reactions.
 See <a class="reference internal" href="sdc.html#sec-simplified-sdc"><span class="std std-ref">Simplified SDC</span></a>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">USE_TRUE_SDC</span></code> : enable the true-SDC coupling of hydro and reactions.
