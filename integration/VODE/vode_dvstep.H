@@ -342,7 +342,6 @@ int dvstep (BurnT& state, DvodeT& vstate)
                 break;
             }
 #endif
-#endif
 
 #ifdef SDC
             // Abort the program. This is unimplemented
@@ -350,6 +349,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
 #endif
 
         }
+#endif
 
         // The corrector has converged (NFLAG = 0). The local error test is
         // made and control passes to statement 500 if it fails.

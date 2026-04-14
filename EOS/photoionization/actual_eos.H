@@ -7,13 +7,11 @@
 
 #include "eos_type.H"
 #include <AMReX.H>
-#include <iostream>
 #include <network.H>
 #include <fundamental_constants.H>
 #include <extern_parameters.H>
 #include <cmath>
 #include <actual_eos_data.H>
-#include <ostream>
 
 const std::string eos_name = "multigamma";
 
@@ -68,27 +66,20 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void actual_eos (I input, T& state)
 {
     static_assert(std::is_same_v<I, eos_input_t>, "input must be either eos_input_rt or eos_input_re");
-    const amrex::Real gasconstant = C::n_A * C::k_B;
-    const amrex::Real protonmass = C::m_p;
-    // Special gamma factors
+    constexpr amrex::Real protonmass = C::m_p;
+
     amrex::Real sum_Abarinv = 0.0_rt;
-    amrex::Real sum_gammasinv = 0.0_rt;
+    amrex::Real sum_ni_fi_over_2 = 0.0_rt;
     amrex::Real rhotot = 0.0_rt;
 
     for (int n = 0; n < NumSpec; ++n) {
-        rhotot += state.xn[n]*spmasses[n];
-        // std::cout << "actual_eos()--> xn[" << n << "]: " << state.xn[n] << ", spmasses[" << n << "]: " << spmasses[n] << std::endl;
-    }
-    // std::cout << "Density in EOS: " << rhotot << std::endl;
-
-    for (int n = 0; n < NumSpec; ++n) {
+        rhotot += state.xn[n] * spmasses[n];
+        sum_ni_fi_over_2 += state.xn[n] / (gammas[n] - 1.0);
         sum_Abarinv += state.xn[n];
-        sum_gammasinv += (state.xn[n]*protonmass/rhotot) * (1.0/(gammas[n]-1.0));
     }
-    // std::cout << "actual_eos()--> rhotot: " << rhotot << ", state.xn[0]: " << state.xn[0] << ", state.xn[1]: " << state.xn[1] << ", state.xn[2]: " << state.xn[2] << std::endl;
+    sum_ni_fi_over_2 /= sum_Abarinv;
     sum_Abarinv *= protonmass/rhotot;
     state.mu = 1.0 / sum_Abarinv;
-    sum_gammasinv /= sum_Abarinv;
 
     //-------------------------------------------------------------------------
     // For all EOS input modes EXCEPT eos_input_rt, first compute dens
@@ -98,7 +89,6 @@ void actual_eos (I input, T& state)
     amrex::Real temp = NAN;
     amrex::Real dens = NAN;
     amrex::Real eint = NAN;
-    // std::cout << "Eos was called" << std::endl;
     switch (input) {
 
     case eos_input_rt:
@@ -107,8 +97,7 @@ void actual_eos (I input, T& state)
         // We don't need to do anything here
         temp = state.T;
         dens = state.rho;
-        eint = sum_gammasinv * sum_Abarinv * gasconstant * state.T;
-        // std::cout << "actual_eos() --> eos_input_rt: temp: " << temp << ", dens: " << dens << ", eint: " << eint << ", sum_gammasinv: " << sum_gammasinv << ", sum_Abarinv: " << sum_Abarinv << std::endl;
+        eint = sum_ni_fi_over_2 * C::k_B * temp / rhotot;
         break;
 
     case eos_input_re:
@@ -121,9 +110,8 @@ void actual_eos (I input, T& state)
 
             // stop the integration if the internal energy < 0
             AMREX_ASSERT(state.e > 0.);
-            temp = state.e /( sum_gammasinv * gasconstant * sum_Abarinv);
+            temp = state.e * rhotot / (sum_ni_fi_over_2 * C::k_B);
             eint = state.e;
-            // std::cout << "actual_eos() --> eos_input_re: temp: " << temp << ", dens: " << dens << ", eint: " << eint << ", sum_gammasinv: " << sum_gammasinv << ", sum_Abarinv: " << sum_Abarinv << std::endl;
         }
 
         break;
@@ -151,8 +139,8 @@ void actual_eos (I input, T& state)
 
             // stop the integration if the pressure < 0
             AMREX_ASSERT(state.p > 0.);
-            eint = state.p * sum_gammasinv / dens;
-            temp = eint / (sum_gammasinv * gasconstant * sum_Abarinv);
+            eint = state.p * sum_ni_fi_over_2 / dens;
+            temp = eint * rhotot / (sum_ni_fi_over_2 * C::k_B);
         }
         break;
 
@@ -203,18 +191,18 @@ void actual_eos (I input, T& state)
     }
 
     if constexpr (has_pressure<T>::value) {
-        amrex::Real pressure = state.rho * eint / sum_gammasinv;
+        amrex::Real pressure = state.rho * eint / sum_ni_fi_over_2;
         state.p = pressure;
 
         state.dpdT = pressure / temp;
         state.dpdr = pressure / dens;
-        state.cs = std::sqrt((1.0 + 1.0/sum_gammasinv) * state.p /state.rho);
+        state.cs = std::sqrt((1.0 + 1.0/sum_ni_fi_over_2) * state.p /state.rho);
         if constexpr (has_G<T>::value) {
-            state.G = 0.5 * (1.0 + (1.0 + 1.0/sum_gammasinv));
+            state.G = 0.5 * (1.0 + (1.0 + 1.0/sum_ni_fi_over_2));
         }
     }
 
-    amrex::Real dedT = sum_gammasinv * sum_Abarinv * gasconstant;
+    amrex::Real dedT = sum_ni_fi_over_2 * C::k_B / rhotot;
     amrex::Real dedr = 0.0_rt;
     if constexpr (has_energy<T>::value) {
         state.dedT = dedT;

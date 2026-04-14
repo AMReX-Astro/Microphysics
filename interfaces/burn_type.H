@@ -176,7 +176,6 @@ struct burn_t
 
 };
 
-// TODO(james471): Add radiation variables to the printout
 inline
 std::ostream& operator<< (std::ostream& o, burn_t const& burn_state)
 {
@@ -187,6 +186,12 @@ std::ostream& operator<< (std::ostream& o, burn_t const& burn_state)
   for (double X : burn_state.xn) {
     o << X << " ";
   }
+#ifdef PHOTOCHEMISTRY
+  o << "rn = ";
+  for (double Rn : burn_state.rn) {
+    o << Rn << " ";
+  }
+#endif
   o << std::endl;
   o << "(i, j, k) = " << burn_state.i << " " << burn_state.j << " " << burn_state.k << std::endl;
 #if NAUX_NET > 0

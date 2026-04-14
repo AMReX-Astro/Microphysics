@@ -45,7 +45,6 @@ void dvhin (BurnT& state, DvodeT& vstate, amrex::Real& H0, int& NITER, int& IER)
     amrex::Real HUB = PT1 * TDIST;
 
     for (int i = 1; i <= int_neqs; ++i) {
-        // TODO(#3)(james471): This can probably be optimized to reduce branching
         amrex::Real atol{};
 #if defined (PHOTOCHEMISTRY)
         if (i <= NumSpec) {

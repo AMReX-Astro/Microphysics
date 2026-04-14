@@ -29,7 +29,7 @@
 /// difference in terms of X and T and then convert the Jacobian
 /// elements to be in terms of X and e
 
-// TODO(#2)(james471): This needs fixes for radiation
+// TODO(james471): This needs fixes for radiation
 
 struct jac_info_t {
     amrex::Real h;
