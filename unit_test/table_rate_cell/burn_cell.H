@@ -17,7 +17,11 @@ AMREX_INLINE
 void burn_cell_c()
 {
 
-    amrex::Real massfractions[NumSpec] = {1.0_rt / NumSpec};
+    amrex::Real massfractions[NumSpec]{};
+    for (int n = 0; n < NumSpec; ++n) {
+        massfractions[n] = 1.0_rt / NumSpec;
+    }
+
 
 
     std::cout << std::endl;
@@ -29,6 +33,9 @@ void burn_cell_c()
     for (int i = 0; i < NumSpec; ++i) {
         ye += zion[i] * massfractions[i] / aion[i];
     }
+
+    std::cout << "Ye = " << ye << std::endl;
+    std::cout << std::endl;
 
     auto rhoy = unit_test_rp::density * ye;
     auto T = unit_test_rp::temperature;
