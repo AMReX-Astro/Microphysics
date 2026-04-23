@@ -165,6 +165,11 @@ One-zone tests
 
   exercise the partition function interpolation for a few select nuclei.
 
+* ``table_rate_cell``
+
+  evaluate a tabular weak rate from a pynucastro network.  This is meant to be
+  used for a direct comparison to pynucastro to make sure the interpolation is
+  working.
 
 Infrastructure tests
 ====================
