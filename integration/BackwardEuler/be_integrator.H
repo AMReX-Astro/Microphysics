@@ -196,6 +196,153 @@ int single_step (BurnT& state, BeT& be, const amrex::Real time_start,
 
 }
 
+/// YASS single step: one Newton iteration with Y^0 as the initial guess.
+/// This solves (I - dt*J^0)(Y^n - Y^0) = dt*F^0
+/// The matrix is column-scaled before LU decomposition so that all
+/// diagonal entries are 1. Column scaling preserves the conservation
+/// structure C^T * A = C^T (unlike row scaling), while still improving
+/// the conditioning of the elimination.
+template <typename BurnT, typename BeT>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+int yass_single_step (BurnT& state, BeT& be, const amrex::Real time_start,
+                      const amrex::Real dt)
+{
+    constexpr int int_neqs = integrator_neqs<BurnT>();
+
+    int ierr = IERR_SUCCESS;
+    const amrex::Real time_save = be.t;
+
+    const bool do_clean_state = ! integrator_rp::use_number_densities;
+
+    amrex::Array1D<amrex::Real, 1, int_neqs> y_old;
+    for (int n = 1; n <= int_neqs; n++) {
+        y_old(n) = be.y(n);
+    }
+
+    // YASS: evaluate F(Y^0) and J(Y^0) at the start of the step.
+    // The initial guess for the Newton iteration is Y^0 itself,
+    // NOT the forward Euler prediction Y^0 + dt*F^0.
+
+    amrex::Array1D<amrex::Real, 1, int_neqs> ydot;
+
+    be.t = time_start;
+    rhs(time_start, state, be, ydot, false, do_clean_state);
+    be.n_rhs += 1;
+
+    if (be.jacobian_type == 1) {
+        jac(time_start, state, be, be.jac, do_clean_state);
+    } else {
+        jac_info_t jac_info;
+        jac_info.h = dt;
+        numerical_jac(state, jac_info, be.jac);
+        be.n_rhs += (NumSpec+1);
+    }
+    be.n_jac++;
+
+    // construct the matrix (I - dt*J^0)
+
+    for (int n = 1; n <= int_neqs; n++) {
+        for (int m = 1; m <= int_neqs; m++) {
+            be.jac(m, n) *= -dt;
+            if (m == n) {
+                be.jac(m, n) = 1.0_rt + be.jac(m, n);
+            }
+        }
+    }
+
+    // construct the RHS of the linear system
+    // b = y_old - be.y + dt*ydot
+    // Since be.y still holds Y^0: b = Y^0 - Y^0 + dt*F^0 = dt*F^0
+
+    amrex::Array1D<amrex::Real, 1, int_neqs> b;
+    for (int n = 1; n <= int_neqs; n++) {
+        b(n) = y_old(n) - be.y(n) + dt * ydot(n);
+    }
+
+    // Column scaling: A * D^{-1} * z = b, where z = D * x
+    // This scales each column j of A by 1/A(j,j), making the
+    // diagonal entries 1. Column scaling preserves the
+    // conservation structure: C^T * (A * D^{-1}) = (C^T * A) * D^{-1}
+    // and since C^T * A = C^T, we get C^T * (A * D^{-1}) = C^T * D^{-1},
+    // which still yields sum(z_i / A(i,i)) = sum(b_i * (C^T * D^{-1})_i)
+    // in a way that the rounding is better conditioned.
+    //
+    // After solving for z, we recover x = D^{-1} * z.
+
+    amrex::Array1D<amrex::Real, 1, int_neqs> d_inv;
+    for (int n = 1; n <= int_neqs; n++) {
+        if (be.jac(n, n) == 0.0_rt) {
+            ierr = IERR_LU_DECOMPOSITION_ERROR;
+            break;
+        }
+        d_inv(n) = 1.0_rt / be.jac(n, n);
+    }
+
+    if (ierr != IERR_SUCCESS) {
+        for (int n = 1; n <= int_neqs; n++) {
+            be.y(n) = y_old(n);
+        }
+        be.t = time_save;
+        return ierr;
+    }
+
+    // Scale columns: A' = A * D^{-1}
+    for (int n = 1; n <= int_neqs; n++) {
+        for (int m = 1; m <= int_neqs; m++) {
+            be.jac(m, n) *= d_inv(n);
+        }
+    }
+
+    // LU decompose the column-scaled matrix with partial pivoting
+
+    int ierr_linpack;
+    IArray1D pivot;
+
+    if (integrator_rp::linalg_do_pivoting == 1) {
+        constexpr bool allow_pivot{true};
+        dgefa<int_neqs, allow_pivot>(be.jac, pivot, ierr_linpack);
+    } else {
+        constexpr bool allow_pivot{false};
+        dgefa<int_neqs, allow_pivot>(be.jac, pivot, ierr_linpack);
+    }
+
+    if (ierr_linpack != 0) {
+        ierr = IERR_LU_DECOMPOSITION_ERROR;
+        for (int n = 1; n <= int_neqs; n++) {
+            be.y(n) = y_old(n);
+        }
+        be.t = time_save;
+        return ierr;
+    }
+
+    // Solve A' * z = b
+
+    if (integrator_rp::linalg_do_pivoting == 1) {
+        constexpr bool allow_pivot{true};
+        dgesl<int_neqs, allow_pivot>(be.jac, pivot, b);
+    } else {
+        constexpr bool allow_pivot{false};
+        dgesl<int_neqs, allow_pivot>(be.jac, pivot, b);
+    }
+
+    // Recover x = D^{-1} * z (b now holds z)
+
+    for (int n = 1; n <= int_neqs; n++) {
+        b(n) *= d_inv(n);
+    }
+
+    // update: Y^n = Y^0 + dy
+
+    for (int n = 1; n <= int_neqs; n++) {
+        be.y(n) += b(n);
+    }
+
+    be.t = time_save;
+
+    return ierr;
+
+}
+
 template <typename BurnT, typename BeT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 int be_integrator (BurnT& state, BeT& be)
@@ -207,6 +354,10 @@ int be_integrator (BurnT& state, BeT& be)
     be.n_step = 0;
 
     int ierr;
+
+    if (integrator_rp::use_yass == 1) {
+        return be_integrator_yass(state, be);
+    }
 
     if (integrator_rp::do_single_step == 1) {
         // Do a single step to the final time
@@ -432,6 +583,202 @@ int be_integrator (BurnT& state, BeT& be)
 #ifndef AMREX_USE_GPU
     if (integrator_rp::burner_verbose) {
         std::cout << "[BE_SUMMARY] attempts=" << n_attempt
+                  << " accepts=" << be.n_step
+                  << " rejects=" << n_reject
+                  << std::endl;
+    }
+#endif
+
+    return ierr;
+
+}
+
+/// YASS integrator: single Newton iteration with Y^0 as initial guess,
+/// and YASS-style step size control based on |Y^n - Y^0| < eps * Y^0
+/// for all species with Y^0 > floor.
+template <typename BurnT, typename BeT>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+int be_integrator_yass (BurnT& state, BeT& be)
+{
+    constexpr int int_neqs = integrator_neqs<BurnT>();
+
+    be.n_rhs = 0;
+    be.n_jac = 0;
+    be.n_step = 0;
+
+    int ierr;
+
+    const amrex::Real yass_eps = integrator_rp::yass_eps;
+    const amrex::Real yass_floor = integrator_rp::yass_floor;
+
+    // estimate the initial timestep
+
+    amrex::Array1D<amrex::Real, 1, int_neqs> ydot;
+    rhs(be.t, state, be, ydot, false,
+        ! integrator_rp::use_number_densities);
+    be.n_rhs += 1;
+
+    amrex::Real dt_sub = initial_react_dt(state, be, ydot);
+    int n_attempt = 0;
+    int n_reject = 0;
+    int n_consecutive_reject = 0;
+    bool previous_step_rejected = false;
+
+    // main timestepping loop
+
+    while (be.t < (1.0_rt - timestep_safety_factor) * be.tout &&
+           be.n_step < integrator_rp::ode_max_steps) {
+
+        // store the current solution -- we'll revert to this if a step fails
+        amrex::Array1D<amrex::Real, 1, int_neqs> y_old;
+        for (int n = 1; n <= int_neqs; ++n) {
+            y_old(n) = be.y(n);
+        }
+
+        // don't go too far
+
+        if (be.t + dt_sub > be.tout) {
+            dt_sub = be.tout - be.t;
+        }
+
+        const amrex::Real dt_attempt = dt_sub;
+
+        ierr = yass_single_step(state, be, be.t, dt_sub);
+
+        // YASS step size control: check if |Y^n - Y^0| < eps * Y^0
+        // for all species with Y^0 > floor
+
+        amrex::Real max_rel_change = 0.0_rt;
+        int err_idx = -1;
+        bool step_success = false;
+
+        if (ierr == IERR_SUCCESS) {
+            step_success = true;
+            for (int n = 1; n <= NumSpec; n++) {
+                if (std::abs(y_old(n)) > yass_floor) {
+                    const amrex::Real rel_change = std::abs(be.y(n) - y_old(n)) / std::abs(y_old(n));
+                    if (rel_change > max_rel_change) {
+                        max_rel_change = rel_change;
+                        err_idx = n;
+                    }
+                    if (rel_change > yass_eps) {
+                        step_success = false;
+                    }
+                }
+            }
+
+            if (step_success && integrator_rp::use_number_densities) {
+                for (int n = 1; n <= NumSpec; ++n) {
+                    if (be.y(n) < -integrator_rp::species_failure_tolerance) {
+                        step_success = false;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (step_success) {
+
+            be.t += dt_sub;
+
+            // Adjust the timestep.  YASS controls the relative change
+            // per step, so the target is max_rel_change ~ yass_eps.
+            // Use a simple proportional controller.
+
+            constexpr amrex::Real SAFETY = 0.9_rt;
+            constexpr amrex::Real ETAMX = 5.0_rt;
+            constexpr amrex::Real ETAMIN = 0.2_rt;
+
+            amrex::Real dt_factor = 1.0_rt;
+            if (max_rel_change > 0.0_rt) {
+                dt_factor = SAFETY * yass_eps / max_rel_change;
+                dt_factor = amrex::Clamp(dt_factor, ETAMIN, ETAMX);
+            } else {
+                dt_factor = ETAMX;
+            }
+
+            if (!previous_step_rejected) {
+                dt_sub *= dt_factor;
+            }
+
+            previous_step_rejected = false;
+            n_consecutive_reject = 0;
+
+#ifndef AMREX_USE_GPU
+            if (integrator_rp::burner_verbose &&
+                (be.n_step < 40 || be.n_step % 1000 == 0)) {
+                std::cout << "[YASS_STEP] accept n=" << be.n_step
+                          << " t_new=" << be.t
+                          << " dt=" << dt_attempt
+                          << " max_rel_change=" << max_rel_change
+                          << " err_idx=" << err_idx
+                          << " dt_factor=" << dt_factor
+                          << " dt_next=" << dt_sub
+                          << " y=";
+                for (int n = 1; n <= NumSpec; ++n) {
+                    std::cout << be.y(n) << " ";
+                }
+                std::cout << std::endl;
+            }
+#endif
+
+            ++be.n_step;
+
+        } else {
+
+            // roll back the solution
+            for (int n = 1; n <= int_neqs; ++n) {
+                be.y(n) = y_old(n);
+            }
+
+            // Reduce the timestep
+            constexpr amrex::Real SAFETY = 0.9_rt;
+            constexpr amrex::Real ETAMIN = 0.1_rt;
+            constexpr amrex::Real ETAMXF = 0.2_rt;
+
+            amrex::Real dt_factor = ETAMIN;
+            if (ierr == IERR_SUCCESS && max_rel_change > 0.0_rt) {
+                dt_factor = SAFETY * yass_eps / max_rel_change;
+                dt_factor = amrex::max(dt_factor, ETAMIN);
+                if (n_consecutive_reject >= 1) {
+                    dt_factor = amrex::min(dt_factor, ETAMXF);
+                }
+            }
+
+            dt_sub *= dt_factor;
+            previous_step_rejected = true;
+            ++n_consecutive_reject;
+            ++n_reject;
+
+#ifndef AMREX_USE_GPU
+            if (integrator_rp::burner_verbose &&
+                (be.n_step < 40 || be.n_step % 1000 == 0)) {
+                std::cout << "[YASS_STEP] reject n=" << be.n_step
+                          << " t=" << be.t
+                          << " dt=" << dt_attempt
+                          << " dt_next=" << dt_sub
+                          << " ierr=" << ierr
+                          << " max_rel_change=" << max_rel_change
+                          << " err_idx=" << err_idx
+                          << " dt_factor=" << dt_factor
+                          << " consecutive_rejects=" << n_consecutive_reject
+                          << std::endl;
+            }
+#endif
+
+        }
+
+        ++n_attempt;
+
+    }
+
+    if (be.n_step >= integrator_rp::ode_max_steps) {
+        ierr = IERR_TOO_MANY_STEPS;
+    }
+
+#ifndef AMREX_USE_GPU
+    if (integrator_rp::burner_verbose) {
+        std::cout << "[YASS_SUMMARY] attempts=" << n_attempt
                   << " accepts=" << be.n_step
                   << " rejects=" << n_reject
                   << std::endl;
