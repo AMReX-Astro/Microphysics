@@ -28,12 +28,15 @@
 ///
 template <typename BurnT, typename BeT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-int single_step (BurnT& state, BeT& be, const amrex::Real dt)
+int single_step (BurnT& state, BeT& be, const amrex::Real time_start,
+                 const amrex::Real dt)
 {
     constexpr int int_neqs = integrator_neqs<BurnT>();
 
     int ierr = IERR_SUCCESS;
     bool converged = false;
+    const amrex::Real time_end = time_start + dt;
+    const amrex::Real time_save = be.t;
 
     // create our current guess for the solution -- just as a first
     // order explicit prediction
@@ -42,7 +45,8 @@ int single_step (BurnT& state, BeT& be, const amrex::Real dt)
 
     const bool do_clean_state = ! integrator_rp::use_number_densities;
 
-    rhs(be.t, state, be, ydot, false, do_clean_state);
+    be.t = time_start;
+    rhs(time_start, state, be, ydot, false, do_clean_state);
 
     be.n_rhs += 1;
 
@@ -61,7 +65,7 @@ int single_step (BurnT& state, BeT& be, const amrex::Real dt)
 
         if (integrator_rp::do_corrector_validation && !integrator_rp::use_number_densities) {
 #ifdef SDC
-            const amrex::Real rho_current = state.rho_orig + be.t * state.ydot_a[SRHO];
+            const amrex::Real rho_current = state.rho_orig + time_end * state.ydot_a[SRHO];
             const amrex::Real thresh = integrator_rp::species_failure_tolerance * rho_current;
 #else
             const amrex::Real thresh = integrator_rp::species_failure_tolerance;
@@ -82,13 +86,14 @@ int single_step (BurnT& state, BeT& be, const amrex::Real dt)
 
         // get the ydots for our current guess of y
 
-        rhs(be.t, state, be, ydot, false, do_clean_state);
+        be.t = time_end;
+        rhs(time_end, state, be, ydot, false, do_clean_state);
         be.n_rhs += 1;
 
         // construct the Jacobian
 
         if (be.jacobian_type == 1) {
-            jac(be.t, state, be, be.jac, do_clean_state);
+            jac(time_end, state, be, be.jac, do_clean_state);
         } else {
             jac_info_t jac_info;
             jac_info.h = dt;
@@ -185,6 +190,8 @@ int single_step (BurnT& state, BeT& be, const amrex::Real dt)
 
     }
 
+    be.t = time_save;
+
     return ierr;
 
 }
@@ -204,11 +211,11 @@ int be_integrator (BurnT& state, BeT& be)
     if (integrator_rp::do_single_step == 1) {
         // Do a single step to the final time
         const amrex::Real dt_single_step = be.tout - be.t;
-        ierr = single_step(state, be, dt_single_step);
+        ierr = single_step(state, be, be.t, dt_single_step);
         if (ierr == IERR_SUCCESS) {
             be.t = be.tout;
+            ++be.n_step;
         }
-        ++be.n_step;
         return ierr;
     }
 
@@ -221,6 +228,10 @@ int be_integrator (BurnT& state, BeT& be)
     be.n_rhs += 1;
 
     amrex::Real dt_sub = initial_react_dt(state, be, ydot);
+    int n_attempt = 0;
+    int n_reject = 0;
+    int n_consecutive_reject = 0;
+    bool previous_step_rejected = false;
 
     // main timestepping loop
 
@@ -239,54 +250,57 @@ int be_integrator (BurnT& state, BeT& be)
             dt_sub = be.tout - be.t;
         }
 
-        // our strategy is to take 2 steps at dt/2 and one at dt and
-        // to compute the error from those
+        const amrex::Real t_old = be.t;
 
-        // first do 2 (fine) dt/2 steps
+        // Estimate the local truncation error by comparing the backward
+        // Euler candidate against a forward Euler candidate over the same dt.
 
-        amrex::Array1D<amrex::Real, 1, int_neqs> y_fine;
+        amrex::Array1D<amrex::Real, 1, int_neqs> y_forward;
+        rhs(t_old, state, be, ydot, false,
+            ! integrator_rp::use_number_densities);
+        be.n_rhs += 1;
 
-        // keep track of whether we have a valid fine solution
-        // this means no errors from either half step
-        bool have_fine_solution = false;
-
-        ierr = single_step(state, be, dt_sub/2);
-        if (ierr == IERR_SUCCESS) {
-            ierr = single_step(state, be, dt_sub/2);
-
-            if (ierr == IERR_SUCCESS) {
-                // store the fine dt solution
-                for (int n = 1; n <= int_neqs; ++n) {
-                    y_fine(n) = be.y(n);
-                }
-                have_fine_solution = true;
-
-                // now do a single (coarse) dt step
-                // first reset the solution
-                for (int n = 1; n <= int_neqs; ++n) {
-                    be.y(n) = y_old(n);
-                }
-                ierr = single_step(state, be, dt_sub);
-            }
+        for (int n = 1; n <= int_neqs; ++n) {
+            y_forward(n) = y_old(n) + dt_sub * ydot(n);
         }
+
+        ierr = single_step(state, be, t_old, dt_sub);
 
         amrex::Real rel_error = 0.0_rt;
         bool step_success = false;
-        if (ierr == IERR_SUCCESS && have_fine_solution) {
+        int err_idx = -1;
+        const amrex::Real dt_attempt = dt_sub;
+        const bool have_error_estimate = ierr == IERR_SUCCESS;
+        if (have_error_estimate) {
             // define a weight for each variable to use in checking the error
 
             amrex::Array1D<amrex::Real, 1, int_neqs> w;
             for (int n = 1; n <= NumSpec; n++) {
-                w(n) = 1.0_rt / (be.rtol_spec * std::abs(y_fine(n)) + be.atol_spec);
+                w(n) = 1.0_rt / (be.rtol_spec * std::abs(be.y(n)) + be.atol_spec);
             }
-            w(net_ienuc) = 1.0_rt / (be.rtol_enuc * std::abs(y_fine(net_ienuc)) + be.atol_enuc);
+            w(net_ienuc) = 1.0_rt / (be.rtol_enuc * std::abs(be.y(net_ienuc)) + be.atol_enuc);
 
-            // now look for w |y_fine - y_coarse| < 1
+            // Now look for weighted |y_backward - y_forward| < 1.  Use the
+            // same RMS norm style as VODE for the controller, while keeping
+            // the maximum component around for diagnostics.
 
+            amrex::Real max_error = 0.0_rt;
             for (int n = 1; n <= NumSpec; n++) {
-                rel_error = amrex::max(rel_error, w(n) * std::abs(y_fine(n) - be.y(n)));
+                const amrex::Real component_error = w(n) * std::abs(be.y(n) - y_forward(n));
+                rel_error += component_error * component_error;
+                if (component_error > max_error) {
+                    max_error = component_error;
+                    err_idx = n;
+                }
             }
-            rel_error = amrex::max(rel_error, w(net_ienuc) * std::abs(y_fine(net_ienuc) - be.y(net_ienuc)));
+            const amrex::Real enuc_error = w(net_ienuc) * std::abs(be.y(net_ienuc) - y_forward(net_ienuc));
+            rel_error += enuc_error * enuc_error;
+            if (enuc_error > max_error) {
+                max_error = enuc_error;
+                err_idx = net_ienuc;
+            }
+            constexpr amrex::Real TQ_ORDER1 = 2.0_rt;
+            rel_error = std::sqrt(rel_error / int_neqs) / TQ_ORDER1;
 
             if (rel_error < 1.0_rt) {
                 step_success = true;
@@ -294,7 +308,7 @@ int be_integrator (BurnT& state, BeT& be)
 
             if (step_success && integrator_rp::use_number_densities) {
                 for (int n = 1; n <= NumSpec; ++n) {
-                    if (y_fine(n) < -integrator_rp::species_failure_tolerance) {
+                    if (be.y(n) < -integrator_rp::species_failure_tolerance) {
                         step_success = false;
                         break;
                     }
@@ -308,19 +322,49 @@ int be_integrator (BurnT& state, BeT& be)
             // (linear algebra, etc.) and we met our error
             // goals.
 
-            // y_fine has the current best solution
-
             be.t += dt_sub;
 
-            for (int n = 1; n <= int_neqs; ++n) {
-                be.y(n) = y_fine(n);
+            // Can we potentially increase the timestep?  Backward-Euler has
+            // a local truncation error of O(dt**2).  Use a VODE-like biased
+            // growth factor and threshold, but continue to estimate the error
+            // from the forward Euler / backward Euler comparison.
+
+            constexpr amrex::Real ADDON = 1.0e-6_rt;
+            constexpr amrex::Real BIAS2 = 2.0_rt;
+            constexpr amrex::Real ETAMX = 10.0_rt;
+            constexpr amrex::Real THRESH = 1.5_rt;
+            constexpr amrex::Real tiny_error = 1.0e-30_rt;
+
+            amrex::Real dt_factor = 1.0_rt;
+            const amrex::Real safe_error = amrex::max(rel_error, tiny_error);
+            const amrex::Real eta = 1.0_rt / (std::sqrt(BIAS2 * safe_error) + ADDON);
+
+            if (! previous_step_rejected && eta >= THRESH) {
+                dt_factor = amrex::min(eta, ETAMX);
             }
 
-            // can we potentially increase the timestep?
-            // backward-Euler has a local truncation error of dt**2
+            dt_sub *= dt_factor;
+            previous_step_rejected = false;
+            n_consecutive_reject = 0;
 
-            amrex::Real dt_new = dt_sub * std::sqrt(1.0_rt / rel_error);
-            dt_sub = amrex::Clamp(dt_new, dt_sub / 2.0, 2.0 * dt_sub);
+#ifndef AMREX_USE_GPU
+            if (integrator_rp::burner_verbose &&
+                (be.n_step < 40 || be.n_step % 1000 == 0)) {
+                std::cout << "[BE_STEP] accept n=" << be.n_step
+                          << " t_new=" << be.t
+                          << " dt=" << dt_attempt
+                          << " rel_error=" << rel_error
+                          << " err_idx=" << err_idx
+                          << " dt_next=" << dt_sub
+                          << " y=";
+                for (int n = 1; n <= NumSpec; ++n) {
+                    std::cout << be.y(n) << " ";
+                }
+                std::cout << std::endl;
+            }
+#endif
+
+            ++be.n_step;
 
         } else {
 
@@ -329,18 +373,64 @@ int be_integrator (BurnT& state, BeT& be)
                 be.y(n) = y_old(n);
             }
 
-            // adjust the timestep and try again
-            dt_sub /= 2;
+            // Adjust the timestep and try again.  This mirrors VODE's
+            // same-order error-failure step-size update for order 1, using
+            // the forward Euler / backward Euler error estimate.
+
+            constexpr amrex::Real ADDON = 1.0e-6_rt;
+            constexpr amrex::Real BIAS2 = 2.0_rt;
+            constexpr amrex::Real ETAMIN = 0.1_rt;
+            constexpr amrex::Real ETAMXF = 0.2_rt;
+            constexpr amrex::Real tiny_error = 1.0e-30_rt;
+
+            amrex::Real dt_factor = ETAMIN;
+            if (have_error_estimate) {
+                const amrex::Real safe_error = amrex::max(rel_error, tiny_error);
+                dt_factor = 1.0_rt / (std::sqrt(BIAS2 * safe_error) + ADDON);
+                dt_factor = amrex::max(dt_factor, ETAMIN);
+                if (n_consecutive_reject >= 1) {
+                    dt_factor = amrex::min(dt_factor, ETAMXF);
+                }
+            }
+
+            dt_sub *= dt_factor;
+            previous_step_rejected = true;
+            ++n_consecutive_reject;
+            ++n_reject;
+
+#ifndef AMREX_USE_GPU
+            if (integrator_rp::burner_verbose &&
+                (be.n_step < 40 || be.n_step % 1000 == 0)) {
+                std::cout << "[BE_STEP] reject n=" << be.n_step
+                          << " t=" << be.t
+                          << " dt=" << dt_attempt
+                          << " dt_next=" << dt_sub
+                          << " ierr=" << ierr
+                          << " have_error_estimate=" << have_error_estimate
+                          << " rel_error=" << rel_error
+                          << " err_idx=" << err_idx
+                          << std::endl;
+            }
+#endif
 
         }
 
-        ++be.n_step;
+        ++n_attempt;
 
     }
 
     if (be.n_step >= integrator_rp::ode_max_steps) {
         ierr = IERR_TOO_MANY_STEPS;
     }
+
+#ifndef AMREX_USE_GPU
+    if (integrator_rp::burner_verbose) {
+        std::cout << "[BE_SUMMARY] attempts=" << n_attempt
+                  << " accepts=" << be.n_step
+                  << " rejects=" << n_reject
+                  << std::endl;
+    }
+#endif
 
     return ierr;
 

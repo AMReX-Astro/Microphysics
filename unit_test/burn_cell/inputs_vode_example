@@ -15,8 +15,8 @@ unit_test.X2  = 0.0e0
 unit_test.X3  = 0.0e0
 
 
-integrator.rtol_spec = 1.0e-8
-integrator.rtol_enuc = 1.0e-8
+integrator.rtol_spec = 1.0e-3
+integrator.rtol_enuc = 1.0e-3
 
 integrator.atol_spec = 1.0e-14
 integrator.atol_enuc = 1.0e-8

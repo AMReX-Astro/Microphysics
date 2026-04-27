@@ -339,6 +339,25 @@ int dvstep (BurnT& state, DvodeT& vstate)
                 vstate.CONP = vstate.tq(5);
             }
 
+#ifndef AMREX_USE_GPU
+            if (integrator_rp::burner_verbose &&
+                (vstate.n_step <= 40 || vstate.n_step % 100 == 0)) {
+                std::cout << "[VODE_STEP] accept n=" << vstate.n_step
+                          << " tn=" << vstate.tn
+                          << " h=" << h_accepted
+                          << " nq=" << vstate.NQ
+                          << " dsm=" << DSM
+                          << " eta=" << vstate.ETA
+                          << " etamax=" << vstate.ETAMAX
+                          << " newq=" << vstate.NEWQ
+                          << " y=";
+                for (int n = 1; n <= NumSpec; ++n) {
+                    std::cout << vstate.y(n) << " ";
+                }
+                std::cout << std::endl;
+            }
+#endif
+
             if (vstate.ETAMAX != 1.0_rt) {
                 break;
             }
@@ -359,24 +378,6 @@ int dvstep (BurnT& state, DvodeT& vstate)
             for (int i = 1; i <= int_neqs; ++i) {
                 vstate.acor(i) *= R;
             }
-
-#ifndef AMREX_USE_GPU
-            if (integrator_rp::burner_verbose &&
-                (vstate.n_step <= 40 || vstate.n_step % 100 == 0)) {
-                std::cout << "[VODE_STEP] accept n=" << vstate.n_step
-                          << " tn=" << vstate.tn
-                          << " h=" << h_accepted
-                          << " nq=" << vstate.NQ
-                          << " dsm=" << DSM
-                          << " eta=" << vstate.ETA
-                          << " newq=" << vstate.NEWQ
-                          << " y=";
-                for (int n = 1; n <= NumSpec; ++n) {
-                    std::cout << vstate.y(n) << " ";
-                }
-                std::cout << std::endl;
-            }
-#endif
 
             return kflag;
 
