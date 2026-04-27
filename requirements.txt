@@ -6,7 +6,7 @@ numpydoc
 more_itertools
 nbsphinx
 jupyter>=1.0.0
-ipywidgets>=7.1.2
+ipywidgets>=8.1.8
 numpy>=1.13.3
 sphinx-prompt
 sphinx-math-dollar
