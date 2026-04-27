@@ -267,6 +267,7 @@ int be_integrator (BurnT& state, BeT& be)
         ierr = single_step(state, be, t_old, dt_sub);
 
         amrex::Real rel_error = 0.0_rt;
+        amrex::Real max_error = 0.0_rt;
         bool step_success = false;
         int err_idx = -1;
         const amrex::Real dt_attempt = dt_sub;
@@ -284,7 +285,6 @@ int be_integrator (BurnT& state, BeT& be)
             // same RMS norm style as VODE for the controller, while keeping
             // the maximum component around for diagnostics.
 
-            amrex::Real max_error = 0.0_rt;
             for (int n = 1; n <= NumSpec; n++) {
                 const amrex::Real component_error = w(n) * std::abs(be.y(n) - y_forward(n));
                 rel_error += component_error * component_error;
@@ -354,7 +354,10 @@ int be_integrator (BurnT& state, BeT& be)
                           << " t_new=" << be.t
                           << " dt=" << dt_attempt
                           << " rel_error=" << rel_error
+                          << " max_error=" << max_error
                           << " err_idx=" << err_idx
+                          << " eta=" << eta
+                          << " dt_factor=" << dt_factor
                           << " dt_next=" << dt_sub
                           << " y=";
                 for (int n = 1; n <= NumSpec; ++n) {
@@ -408,7 +411,10 @@ int be_integrator (BurnT& state, BeT& be)
                           << " ierr=" << ierr
                           << " have_error_estimate=" << have_error_estimate
                           << " rel_error=" << rel_error
+                          << " max_error=" << max_error
                           << " err_idx=" << err_idx
+                          << " dt_factor=" << dt_factor
+                          << " consecutive_rejects=" << n_consecutive_reject
                           << std::endl;
             }
 #endif
