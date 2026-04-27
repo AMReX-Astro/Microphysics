@@ -8,3 +8,12 @@ tol                                      real            1.e-10
 
 # toggle single-step BackwardEuler integration and ignoring error tolerance
 do_single_step                           int             0
+
+# use YASS (single Newton iteration with Y^0 as initial guess)
+use_yass                                 int             0
+
+# YASS step size control: maximum allowed relative change per step
+yass_eps                                 real            0.1
+
+# YASS step size control: minimum concentration for error checking
+yass_floor                               real            1.e-3
