@@ -24,7 +24,7 @@ constexpr amrex::Real vode_decrease_change_factor = 0.25_rt;
 
 // For the backward differentiation formula (BDF) integration
 // the maximum order should be no greater than 5.
-constexpr int VODE_MAXORD = 5;
+constexpr int VODE_MAXORD = 1;
 constexpr int VODE_LMAX = VODE_MAXORD + 1;
 
 // How many timesteps should pass before refreshing the Jacobian

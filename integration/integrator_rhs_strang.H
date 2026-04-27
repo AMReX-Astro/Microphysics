@@ -22,7 +22,8 @@
 
 template <typename BurnT, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void rhs (const amrex::Real time, BurnT& state, T& int_state, RArray1D& ydot, [[maybe_unused]] const bool in_jacobian=false)
+void rhs (const amrex::Real time, BurnT& state, T& int_state, RArray1D& ydot,
+          [[maybe_unused]] const bool in_jacobian=false, const bool do_clean_state=true)
 {
 
     // We are integrating a system of
@@ -38,7 +39,9 @@ void rhs (const amrex::Real time, BurnT& state, T& int_state, RArray1D& ydot, [[
     // Fix the state as necessary -- this ensures that the mass
     // fractions that enter are valid (and optionally normalized)
 
-    clean_state(time, state, int_state);
+    if (do_clean_state) {
+        clean_state(time, state, int_state);
+    }
 
     // Update the thermodynamics as necessary -- this primarily takes
     // the information in int_state (X and e), copies it to the
@@ -112,7 +115,8 @@ void rhs (const amrex::Real time, BurnT& state, T& int_state, RArray1D& ydot, [[
 // Analytical Jacobian
 template<typename BurnT, typename T, class MatrixType>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void jac ([[maybe_unused]] const amrex::Real time, BurnT& state, T& int_state, MatrixType& pd)
+void jac ([[maybe_unused]] const amrex::Real time, BurnT& state, T& int_state, MatrixType& pd,
+          [[maybe_unused]] const bool do_clean_state=true)
 {
 
     // Only do the burn if the incoming temperature is within the temperature

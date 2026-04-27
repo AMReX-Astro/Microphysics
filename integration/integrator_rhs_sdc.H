@@ -23,7 +23,7 @@
 template <typename BurnT, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void rhs(const amrex::Real time, BurnT& state, T& int_state, RArray1D& ydot,
-         [[maybe_unused]] const bool in_jacobian=false)
+         [[maybe_unused]] const bool in_jacobian=false, const bool do_clean_state=true)
 {
 
     // update rho
@@ -33,7 +33,9 @@ void rhs(const amrex::Real time, BurnT& state, T& int_state, RArray1D& ydot,
     // ensure that the mass fractions are valid -- only int_state is
     // updated here
 
-    clean_state(time, state, int_state);
+    if (do_clean_state) {
+        clean_state(time, state, int_state);
+    }
 
     // convert to the burn_t -- this does an EOS call to get T
     // and populates the (burn_t) state
@@ -86,7 +88,8 @@ void rhs(const amrex::Real time, BurnT& state, T& int_state, RArray1D& ydot,
 
 template<typename BurnT, typename T, class MatrixType>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void jac (const amrex::Real time, BurnT& state, T& int_state, MatrixType& pd)
+void jac (const amrex::Real time, BurnT& state, T& int_state, MatrixType& pd,
+          const bool do_clean_state=true)
 {
 
     // update rho, rho*u, ... in the burn_t state
@@ -96,7 +99,9 @@ void jac (const amrex::Real time, BurnT& state, T& int_state, MatrixType& pd)
     // ensure that the mass fractions are valid -- only int_state is
     // updated here
 
-    clean_state(time, state, int_state);
+    if (do_clean_state) {
+        clean_state(time, state, int_state);
+    }
 
     // convert to the burn_t -- this does an EOS call to get T
     // and populates the (burn_t) state

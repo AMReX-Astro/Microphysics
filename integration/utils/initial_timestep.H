@@ -62,7 +62,8 @@ amrex::Real initial_react_dt (BurnT& burn_state, IntT& int_state,
 
        // Call the RHS, then estimate the finite difference.
 
-       rhs(int_state.t, burn_state, int_state, ydot_temp);
+       rhs(int_state.t, burn_state, int_state, ydot_temp, false,
+           ! integrator_rp::use_number_densities);
 
        for (int ii = 1; ii <= INT_NEQS; ii++) {
            ddydtt(ii) = (ydot_temp(ii) - ydot(ii)) / h;
@@ -89,7 +90,7 @@ amrex::Real initial_react_dt (BurnT& burn_state, IntT& int_state,
     // Save the final timestep, with a bias factor.
 
     amrex::Real dt = h / 2.0_rt;
-    dt = amrex::Clamp(h, hL, hU);
+    dt = amrex::Clamp(dt, hL, hU);
 
     dt = amrex::min(dt, integrator_rp::ode_max_dt);
 

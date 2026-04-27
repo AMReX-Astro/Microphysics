@@ -6,6 +6,8 @@
 #include <vode_dvjust.H>
 #include <vode_dvnlsd.H>
 
+#include <iostream>
+
 template <typename BurnT, typename DvodeT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void advance_nordsieck (BurnT& state, DvodeT& vstate)
@@ -306,6 +308,10 @@ int dvstep (BurnT& state, DvodeT& vstate)
         DSM = ACNRM / vstate.tq(2);
         if (DSM <= 1.0_rt && valid_update) {
 
+#ifndef AMREX_USE_GPU
+            const amrex::Real h_accepted = vstate.H;
+#endif
+
             // After a successful step, update the yh and TAU arrays and decrement
             // NQWAIT. If NQWAIT is then 1 and NQ .lt. MAXORD, then ACOR is saved
             // for use in a possible order increase on the next step.
@@ -354,6 +360,24 @@ int dvstep (BurnT& state, DvodeT& vstate)
                 vstate.acor(i) *= R;
             }
 
+#ifndef AMREX_USE_GPU
+            if (integrator_rp::burner_verbose &&
+                (vstate.n_step <= 40 || vstate.n_step % 100 == 0)) {
+                std::cout << "[VODE_STEP] accept n=" << vstate.n_step
+                          << " tn=" << vstate.tn
+                          << " h=" << h_accepted
+                          << " nq=" << vstate.NQ
+                          << " dsm=" << DSM
+                          << " eta=" << vstate.ETA
+                          << " newq=" << vstate.NEWQ
+                          << " y=";
+                for (int n = 1; n <= NumSpec; ++n) {
+                    std::cout << vstate.y(n) << " ";
+                }
+                std::cout << std::endl;
+            }
+#endif
+
             return kflag;
 
         }
@@ -370,6 +394,20 @@ int dvstep (BurnT& state, DvodeT& vstate)
         vstate.tn = TOLD;
 
         retract_nordsieck(state, vstate);
+
+#ifndef AMREX_USE_GPU
+        if (integrator_rp::burner_verbose &&
+            (vstate.n_step <= 40 || vstate.n_step % 100 == 0)) {
+            std::cout << "[VODE_STEP] reject n=" << vstate.n_step
+                      << " tn=" << vstate.tn
+                      << " h=" << vstate.H
+                      << " nq=" << vstate.NQ
+                      << " dsm=" << DSM
+                      << " valid_update=" << valid_update
+                      << " kflag=" << kflag
+                      << std::endl;
+        }
+#endif
 
         if (std::abs(vstate.H) <= HMIN * ONEPSM) {
             kflag = -1;

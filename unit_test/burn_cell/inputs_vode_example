@@ -21,3 +21,4 @@ integrator.rtol_enuc = 1.0e-8
 integrator.atol_spec = 1.0e-14
 integrator.atol_enuc = 1.0e-8
 
+integrator.use_number_densities = 1

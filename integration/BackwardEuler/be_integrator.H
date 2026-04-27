@@ -40,7 +40,9 @@ int single_step (BurnT& state, BeT& be, const amrex::Real dt)
 
     amrex::Array1D<amrex::Real, 1, int_neqs> ydot;
 
-    rhs(be.t, state, be, ydot);
+    const bool do_clean_state = ! integrator_rp::use_number_densities;
+
+    rhs(be.t, state, be, ydot, false, do_clean_state);
 
     be.n_rhs += 1;
 
@@ -57,7 +59,7 @@ int single_step (BurnT& state, BeT& be, const amrex::Real dt)
 
         // work with the current guess
 
-        if (integrator_rp::do_corrector_validation) {
+        if (integrator_rp::do_corrector_validation && !integrator_rp::use_number_densities) {
 #ifdef SDC
             const amrex::Real rho_current = state.rho_orig + be.t * state.ydot_a[SRHO];
             const amrex::Real thresh = integrator_rp::species_failure_tolerance * rho_current;
@@ -80,13 +82,13 @@ int single_step (BurnT& state, BeT& be, const amrex::Real dt)
 
         // get the ydots for our current guess of y
 
-        rhs(be.t, state, be, ydot);
+        rhs(be.t, state, be, ydot, false, do_clean_state);
         be.n_rhs += 1;
 
         // construct the Jacobian
 
         if (be.jacobian_type == 1) {
-            jac(be.t, state, be, be.jac);
+            jac(be.t, state, be, be.jac, do_clean_state);
         } else {
             jac_info_t jac_info;
             jac_info.h = dt;
@@ -213,7 +215,8 @@ int be_integrator (BurnT& state, BeT& be)
     // estimate the timestep
 
     amrex::Array1D<amrex::Real, 1, int_neqs> ydot;
-    rhs(be.t, state, be, ydot);
+    rhs(be.t, state, be, ydot, false,
+        ! integrator_rp::use_number_densities);
 
     be.n_rhs += 1;
 
@@ -288,6 +291,15 @@ int be_integrator (BurnT& state, BeT& be)
             if (rel_error < 1.0_rt) {
                 step_success = true;
             }
+
+            if (step_success && integrator_rp::use_number_densities) {
+                for (int n = 1; n <= NumSpec; ++n) {
+                    if (y_fine(n) < -integrator_rp::species_failure_tolerance) {
+                        step_success = false;
+                        break;
+                    }
+                }
+            }
         }
 
         if (ierr == IERR_SUCCESS && step_success) {
@@ -322,7 +334,6 @@ int be_integrator (BurnT& state, BeT& be)
 
         }
 
-        ++be.n_step;
         ++be.n_step;
 
     }
