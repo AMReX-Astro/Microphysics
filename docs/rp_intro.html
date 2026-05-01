@@ -163,10 +163,17 @@ like <code class="docutils literal notranslate"><span class="pre">integrator.par
 </div>
 <p>where “data-type” can be: <code class="docutils literal notranslate"><span class="pre">real</span></code>, <code class="docutils literal notranslate"><span class="pre">bool</span></code>, <code class="docutils literal notranslate"><span class="pre">int</span></code>, <code class="docutils literal notranslate"><span class="pre">string</span></code>.</p>
 <p>The “priority” is simply an integer that is used to determine
-what happens when two different <code class="docutils literal notranslate"><span class="pre">_paramerter</span></code> files define the same
+what happens when two different <code class="docutils literal notranslate"><span class="pre">_parameter</span></code> files define the same
 parameter but with different defaults.  In this case, the version of
 the parameter with the highest priority takes precedence. This allows
 specific implementations to override the general parameter defaults.</p>
+<div class="admonition note" id="index-0">
+<p class="admonition-title">Note</p>
+<p>You can set <code class="docutils literal notranslate"><span class="pre">CUSTOM_PARAMETERS</span></code> to the a filename with additional
+parameters.  This is used for standalone builds (when
+<code class="docutils literal notranslate"><span class="pre">NETWORK_CUSTOM_PATH</span></code> is set).  This parameter file will be
+added to the ones found via <code class="docutils literal notranslate"><span class="pre">findparams.py</span></code>.</p>
+</div>
 </section>
 <section id="known-parameters">
 <h2>Known Parameters<a class="headerlink" href="#known-parameters" title="Link to this heading"></a></h2>

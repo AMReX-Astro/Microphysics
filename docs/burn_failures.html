@@ -249,6 +249,8 @@ reduce the possibility of trying to evaluate it with a bad state.</p>
 <p>This checks to make sure the state is valid inside of the corrector
 loop, and if not, it bails out of the corrector, forcing the
 integrator to retry the entire step.</p>
+<p>This can sometimes make the integration harder, especially if used with
+<code class="docutils literal notranslate"><span class="pre">integrator.species_failure_tolerance</span></code>.</p>
 </li>
 </ul>
 <p>Things we no longer recommend:</p>
