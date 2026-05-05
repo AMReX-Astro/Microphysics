@@ -4,6 +4,6 @@
 #include <AMReX.H>
 #include <AMReX_REAL.H>
 
-inline AMREX_GPU_MANAGED amrex::Real gamma_const;
+extern AMREX_GPU_MANAGED amrex::Real gamma_const;
 
 #endif
