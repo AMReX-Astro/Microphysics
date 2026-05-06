@@ -231,7 +231,7 @@ Some suggestions when setting tolerances:
 * The VODE integrator has additional logic meant to ensure that
   species don't change too much per timestep.  This is controlled by
   ``integrator.X_reject_buffer``.  If a species $k$, has a mass
-  fraction $X_k > \mbox{X_reject_buffer} \cdot \mbox{atol_spec}$ then
+  fraction $X_k > \mathrm{X_reject_buffer} \cdot \mathrm{atol_spec}$ then
   we reject a VODE timestep if the mass fraction changes by more than
   a factor of 4 in a single VODE timestep and we try again.  This is
   all done internally to VODE.  Making ``X_reject_buffer`` larger will
