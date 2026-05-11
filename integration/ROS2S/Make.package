@@ -1,0 +1,7 @@
+CEXE_headers += ros2s_type.H
+CEXE_headers += ros2s_integrator.H
+ifeq ($(USE_ALL_SDC), TRUE)
+  CEXE_headers += actual_integrator_sdc.H
+else
+  CEXE_headers += actual_integrator.H
+endif
