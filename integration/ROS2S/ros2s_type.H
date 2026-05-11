@@ -18,7 +18,7 @@
 // When checking the integration time to see if we're done,
 // be careful with roundoff issues.
 
-const amrex::Real timestep_safety_factor = 1.0e-12_rt;
+const amrex::Real timestep_safety_factor = 1.0e-4_rt;
 
 template <int int_neqs>
 struct ros2s_t {
