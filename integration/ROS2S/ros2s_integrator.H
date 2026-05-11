@@ -18,7 +18,6 @@
 #endif
 
 #include <integrator_data.H>
-#include <initial_timestep.H>
 #include <ros2s_type.H>
 
 namespace ros2s {
@@ -200,7 +199,7 @@ int ros2s_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2s)
 
     rhs(ros2s.t, state, ros2s, ros2s.ak1);
     ros2s.n_rhs += 1;
-    ros2s.dt = initial_react_dt(state, ros2s, ros2s.ak1);
+    ros2s.dt = ros2s.tout - ros2s.t;
 
     const amrex::Real posneg = ros2s.tout >= ros2s.t ? 1.0_rt : -1.0_rt;
     const amrex::Real hmax = amrex::min(integrator_rp::ode_max_dt,
