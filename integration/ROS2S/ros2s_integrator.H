@@ -67,6 +67,27 @@ amrex::Real error_norm (const ros2s_t<int_neqs>& ros2s)
     return std::sqrt(err / static_cast<amrex::Real>(int_neqs));
 }
 
+template <int int_neqs>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+bool species_change_valid (const ros2s_t<int_neqs>& ros2s)
+{
+#ifdef STRANG
+    constexpr amrex::Real increase_change_factor = 4.0_rt;
+    constexpr amrex::Real decrease_change_factor = 0.25_rt;
+
+    for (int i = 1; i <= NumSpec; ++i) {
+        if (std::abs(ros2s.y(i)) > integrator_rp::X_reject_buffer * ros2s.atol_spec &&
+            std::abs(ros2s.ynew(i)) > integrator_rp::X_reject_buffer * ros2s.atol_spec &&
+            (std::abs(ros2s.ynew(i)) > increase_change_factor * std::abs(ros2s.y(i)) ||
+             std::abs(ros2s.ynew(i)) < decrease_change_factor * std::abs(ros2s.y(i)))) {
+            return false;
+        }
+    }
+#endif
+
+    return true;
+}
+
 template <typename BurnT, int int_neqs>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void evaluate_jacobian (BurnT& state, ros2s_t<int_neqs>& ros2s, const amrex::Real time)
@@ -296,6 +317,7 @@ int ros2s_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2s)
             ros2s.n_step += 1;
 
             const amrex::Real err = ros2s::error_norm(ros2s);
+            const bool valid_update = ros2s::species_change_valid(ros2s);
             const amrex::Real safe = 0.9_rt;
             const amrex::Real fac_min = 0.2_rt;
             const amrex::Real fac_max = 6.0_rt;
@@ -305,7 +327,7 @@ int ros2s_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2s)
             const amrex::Real fac_step = amrex::Clamp(raw_fac, lower_fac, upper_fac);
             amrex::Real hnew = h / fac_step;
 
-            if (err <= 1.0_rt) {
+            if (err <= 1.0_rt && valid_update) {
                 n_accept += 1;
                 if (n_accept > 1) {
                     const amrex::Real facgus = amrex::Clamp((hacc / h) *
@@ -335,7 +357,7 @@ int ros2s_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2s)
 
             reject = true;
             last = false;
-            h = hnew;
+            h = valid_update ? hnew : 0.25_rt * h;
         }
     }
 }
