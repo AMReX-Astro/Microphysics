@@ -117,147 +117,24 @@ void evaluate_jacobian (BurnT& state, ros2s_t<int_neqs>& ros2s, const amrex::Rea
     ros2s.n_jac += 1;
 }
 
-template <typename MatrixT>
-struct ShiftedNegatedJacobianAdapter {
-    struct Entry {
-        jac_t& value;
-        amrex::Real diagonal_shift;
-
-        AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-        Entry& operator= (const amrex::Real jacobian_value) noexcept
-        {
-            value = diagonal_shift - jacobian_value;
-            return *this;
-        }
-    };
-
-    MatrixT& matrix;
-    amrex::Real diagonal_shift;
-
-    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-    Entry operator() (const int row, const int col) noexcept
-    {
-        return {matrix(row, col), row == col ? diagonal_shift : 0.0_rt};
-    }
-};
-
-template <int int_neqs>
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-bool can_use_direct_shifted_jacobian (const ros2s_t<int_neqs>& ros2s)
-{
-#ifdef NONAKA_PLOT
-    return false;
-#else
-    return ros2s.jacobian_type == 1 &&
-        integrator_rp::use_number_densities &&
-        ! integrator_rp::do_species_clip &&
-        ! integrator_rp::renormalize_abundances &&
-        ! integrator_rp::scale_system &&
-        integrator_rp::react_boost <= 0.0_rt;
-#endif
-}
-
-template <typename BurnT, int int_neqs>
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void evaluate_shifted_negated_jacobian (BurnT& state, ros2s_t<int_neqs>& ros2s,
-                                        const amrex::Real time, const amrex::Real diagonal_shift)
-{
-    clean_state(time, state, ros2s);
-    update_thermodynamics(state, ros2s);
-
-    ros2s.jac.zero();
-    for (int n = 1; n <= int_neqs; ++n) {
-        ros2s.jac(n, n) = diagonal_shift;
-    }
-
-    if (state.T <= EOSData::mintemp || state.T >= integrator_rp::MAX_TEMP) {
-        ros2s.n_jac += 1;
-        return;
-    }
-
-    integrator_to_burn(ros2s, state);
-    ShiftedNegatedJacobianAdapter<decltype(ros2s.jac)> shifted_jac{ros2s.jac, diagonal_shift};
-
-#ifdef NEW_NETWORK_IMPLEMENTATION
-    RHS::jac(state, shifted_jac);
-#else
-    actual_jac(state, shifted_jac);
-#endif
-
-    ros2s.n_jac += 1;
-}
-
-template <typename BurnT, int int_neqs, typename YArray>
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void rhs_direct (const amrex::Real time, BurnT& state, const ros2s_t<int_neqs>& ros2s,
-                 const YArray& y, amrex::Array1D<amrex::Real, 1, int_neqs>& ydot)
-{
-    amrex::ignore_unused(ros2s);
-
-    for (int n = 1; n <= NumSpec; ++n) {
-        state.xn[n-1] = amrex::max(y(n), integrator_rp::SMALL_X_SAFE);
-    }
-    state.e = y(net_ienuc);
-
-    if (integrator_rp::call_eos_in_rhs) {
-        eos(eos_input_re, state);
-    }
-    if (state.T_fixed > 0.0_rt) {
-        state.T = state.T_fixed;
-    }
-
-    if (state.T <= EOSData::mintemp || state.T >= integrator_rp::MAX_TEMP) {
-        for (int n = 1; n <= int_neqs; ++n) {
-            ydot(n) = 0.0_rt;
-        }
-        return;
-    }
-
-    state.time = time;
-
-#ifdef NEW_NETWORK_IMPLEMENTATION
-    RHS::rhs(state, ydot);
-#else
-    actual_rhs(state, ydot);
-#endif
-
-    if (! integrator_rp::integrate_energy) {
-        ydot(net_ienuc) = 0.0_rt;
-    }
-}
-
 template <typename BurnT, int int_neqs>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void rhs_at (const amrex::Real time, BurnT& state, ros2s_t<int_neqs>& ros2s,
              const amrex::Array1D<amrex::Real, 1, int_neqs>& y,
              amrex::Array1D<amrex::Real, 1, int_neqs>& ydot)
 {
+    amrex::Array1D<amrex::Real, 1, int_neqs> ysave;
+
     for (int n = 1; n <= int_neqs; ++n) {
-        ros2s.ysave(n) = ros2s.y(n);
+        ysave(n) = ros2s.y(n);
         ros2s.y(n) = y(n);
     }
 
     rhs(time, state, ros2s, ydot);
 
     for (int n = 1; n <= int_neqs; ++n) {
-        ros2s.y(n) = ros2s.ysave(n);
+        ros2s.y(n) = ysave(n);
     }
-}
-
-template <int int_neqs>
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-int factorize (ros2s_t<int_neqs>& ros2s)
-{
-    int ierr_linpack = 0;
-    if (integrator_rp::linalg_do_pivoting == 1) {
-        constexpr bool allow_pivot{true};
-        dgefa<int_neqs, allow_pivot>(ros2s.jac, ros2s.pivot, ierr_linpack);
-    } else {
-        constexpr bool allow_pivot{false};
-        dgefa<int_neqs, allow_pivot>(ros2s.jac, ros2s.pivot, ierr_linpack);
-    }
-
-    return ierr_linpack;
 }
 
 template <int int_neqs>
@@ -271,7 +148,16 @@ int decompose (ros2s_t<int_neqs>& ros2s, const amrex::Real fac)
         ros2s.jac(j, j) += fac;
     }
 
-    return factorize(ros2s);
+    int ierr_linpack = 0;
+    if (integrator_rp::linalg_do_pivoting == 1) {
+        constexpr bool allow_pivot{true};
+        dgefa<int_neqs, allow_pivot>(ros2s.jac, ros2s.pivot, ierr_linpack);
+    } else {
+        constexpr bool allow_pivot{false};
+        dgefa<int_neqs, allow_pivot>(ros2s.jac, ros2s.pivot, ierr_linpack);
+    }
+
+    return ierr_linpack;
 }
 
 template <int int_neqs>
@@ -310,8 +196,6 @@ int ros2s_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2s)
     ros2s.n_rhs = 0;
     ros2s.n_jac = 0;
     ros2s.n_step = 0;
-    ros2s.n_accept = 0;
-    ros2s.n_reject = 0;
 
     ros2s.dt = ros2s.tout - ros2s.t;
 
@@ -326,10 +210,12 @@ int ros2s_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2s)
     bool reject = false;
     bool last = false;
     int nsing = 0;
+    int n_accept = 0;
     amrex::Real hacc = 0.0_rt;
     amrex::Real erracc = 1.0_rt;
     amrex::Real hopt = h;
     amrex::Real x = ros2s.t;
+    amrex::Array1D<amrex::Real, 1, int_neqs> rhs_tmp;
 
     while (true) {
         if (ros2s.n_step > integrator_rp::ode_max_steps) {
@@ -358,17 +244,10 @@ int ros2s_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2s)
 
         while (true) {
             ros2s.dt = h;
-            const bool direct_shifted_jacobian = ros2s::can_use_direct_shifted_jacobian(ros2s);
 
             const amrex::Real fac = 1.0_rt / (h * C::gamma);
-            int ierr_linpack = 0;
-            if (direct_shifted_jacobian) {
-                ros2s::evaluate_shifted_negated_jacobian(state, ros2s, x, fac);
-                ierr_linpack = ros2s::factorize(ros2s);
-            } else {
-                ros2s::evaluate_jacobian(state, ros2s, x);
-                ierr_linpack = ros2s::decompose(ros2s, fac);
-            }
+            ros2s::evaluate_jacobian(state, ros2s, x);
+            int ierr_linpack = ros2s::decompose(ros2s, fac);
 
             if (ierr_linpack != 0) {
                 nsing += 1;
@@ -383,24 +262,16 @@ int ros2s_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2s)
                 continue;
             }
 
-            if (direct_shifted_jacobian) {
-                ros2s::rhs_direct(x, state, ros2s, ros2s.y, ros2s.ak1);
-                ros2s.n_rhs += 1;
-            }
             ros2s::solve(ros2s, ros2s.ak1);
 
             for (int n = 1; n <= int_neqs; ++n) {
                 ros2s.ynew(n) = ros2s.y(n) + C::a21 * ros2s.ak1(n);
                 ros2s.ak2(n) = (C::c21 / h) * ros2s.ak1(n);
             }
-            if (direct_shifted_jacobian) {
-                ros2s::rhs_direct(x + C::ct2 * h, state, ros2s, ros2s.ynew, ros2s.rhs_tmp);
-            } else {
-                ros2s::rhs_at(x + C::ct2 * h, state, ros2s, ros2s.ynew, ros2s.rhs_tmp);
-            }
+            ros2s::rhs_at(x + C::ct2 * h, state, ros2s, ros2s.ynew, rhs_tmp);
             ros2s.n_rhs += 1;
             for (int n = 1; n <= int_neqs; ++n) {
-                ros2s.ak2(n) += ros2s.rhs_tmp(n);
+                ros2s.ak2(n) += rhs_tmp(n);
             }
             ros2s::solve(ros2s, ros2s.ak2);
 
@@ -408,14 +279,10 @@ int ros2s_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2s)
                 ros2s.ynew(n) = ros2s.y(n) + C::a31 * ros2s.ak1(n) + C::a32 * ros2s.ak2(n);
                 ros2s.work(n) = (C::c31 * ros2s.ak1(n) + C::c32 * ros2s.ak2(n)) / h;
             }
-            if (direct_shifted_jacobian) {
-                ros2s::rhs_direct(x + h, state, ros2s, ros2s.ynew, ros2s.rhs_tmp);
-            } else {
-                ros2s::rhs_at(x + h, state, ros2s, ros2s.ynew, ros2s.rhs_tmp);
-            }
+            ros2s::rhs_at(x + h, state, ros2s, ros2s.ynew, rhs_tmp);
             ros2s.n_rhs += 1;
             for (int n = 1; n <= int_neqs; ++n) {
-                ros2s.work(n) += ros2s.rhs_tmp(n);
+                ros2s.work(n) += rhs_tmp(n);
             }
             ros2s::solve(ros2s, ros2s.work);
 
@@ -439,8 +306,8 @@ int ros2s_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2s)
             amrex::Real hnew = h / fac_step;
 
             if (err <= 1.0_rt) {
-                ros2s.n_accept += 1;
-                if (ros2s.n_accept > 1) {
+                n_accept += 1;
+                if (n_accept > 1) {
                     const amrex::Real facgus = amrex::Clamp((hacc / h) *
                                                             std::cbrt((err * err) / erracc) /
                                                             safe,
@@ -469,9 +336,6 @@ int ros2s_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2s)
             reject = true;
             last = false;
             h = hnew;
-            if (ros2s.n_accept >= 1) {
-                ros2s.n_reject += 1;
-            }
         }
     }
 }

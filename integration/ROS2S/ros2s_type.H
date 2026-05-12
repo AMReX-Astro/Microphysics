@@ -31,9 +31,6 @@ struct ros2s_t {
     int n_rhs;
     int n_jac;
 
-    int n_accept;
-    int n_reject;
-
     amrex::Real atol_spec;
     amrex::Real rtol_spec;
 
@@ -45,8 +42,6 @@ struct ros2s_t {
     amrex::Array1D<amrex::Real, 1, int_neqs> ak1;
     amrex::Array1D<amrex::Real, 1, int_neqs> ak2;
     amrex::Array1D<amrex::Real, 1, int_neqs> work;
-    amrex::Array1D<amrex::Real, 1, int_neqs> rhs_tmp;
-    amrex::Array1D<amrex::Real, 1, int_neqs> ysave;
 
     ArrayUtil::MathArray2D<jac_t, 1, int_neqs, 1, int_neqs> jac;
     IArray1D pivot;
