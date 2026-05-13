@@ -88,6 +88,36 @@ bool species_change_valid (const ros2s_t<int_neqs>& ros2s)
     return true;
 }
 
+template <int int_neqs>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+bool valid_integrator_state (const amrex::Array1D<amrex::Real, 1, int_neqs>& y)
+{
+    for (int n = 1; n <= int_neqs; ++n) {
+        const amrex::Real yn = y(n);
+        if (yn != yn || std::abs(yn) == std::numeric_limits<amrex::Real>::infinity()) {
+            return false;
+        }
+    }
+
+#ifdef STRANG
+    for (int n = 1; n <= NumSpec; ++n) {
+        if (y(n) < 0.0_rt) {
+            return false;
+        }
+
+        if (! integrator_rp::use_number_densities && y(n) > 1.0_rt) {
+            return false;
+        }
+    }
+
+    if (y(net_ienuc) <= 0.0_rt) {
+        return false;
+    }
+#endif
+
+    return true;
+}
+
 template <typename BurnT, int int_neqs>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void evaluate_jacobian (BurnT& state, ros2s_t<int_neqs>& ros2s, const amrex::Real time)
@@ -266,6 +296,12 @@ int ros2s_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2s)
         while (true) {
             ros2s.dt = h;
 
+            if (0.1_rt * std::abs(h) <= std::abs(x) * std::numeric_limits<amrex::Real>::epsilon()) {
+                ros2s.t = x;
+                ros2s.dt = h;
+                return IERR_DT_UNDERFLOW;
+            }
+
             const amrex::Real fac = 1.0_rt / (h * C::gamma);
             ros2s::evaluate_jacobian(state, ros2s, x);
             int ierr_linpack = ros2s::decompose(ros2s, fac);
@@ -289,6 +325,12 @@ int ros2s_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2s)
                 ros2s.ynew(n) = ros2s.y(n) + C::a21 * ros2s.ak1(n);
                 ros2s.ak2(n) = (C::c21 / h) * ros2s.ak1(n);
             }
+            if (! ros2s::valid_integrator_state(ros2s.ynew)) {
+                h *= 0.25_rt;
+                reject = true;
+                last = false;
+                continue;
+            }
             ros2s::rhs_at(x + C::ct2 * h, state, ros2s, ros2s.ynew, rhs_tmp);
             ros2s.n_rhs += 1;
             for (int n = 1; n <= int_neqs; ++n) {
@@ -299,6 +341,12 @@ int ros2s_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2s)
             for (int n = 1; n <= int_neqs; ++n) {
                 ros2s.ynew(n) = ros2s.y(n) + C::a31 * ros2s.ak1(n) + C::a32 * ros2s.ak2(n);
                 ros2s.work(n) = (C::c31 * ros2s.ak1(n) + C::c32 * ros2s.ak2(n)) / h;
+            }
+            if (! ros2s::valid_integrator_state(ros2s.ynew)) {
+                h *= 0.25_rt;
+                reject = true;
+                last = false;
+                continue;
             }
             ros2s::rhs_at(x + h, state, ros2s, ros2s.ynew, rhs_tmp);
             ros2s.n_rhs += 1;
@@ -318,6 +366,7 @@ int ros2s_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2s)
 
             const amrex::Real err = ros2s::error_norm(ros2s);
             const bool valid_update = ros2s::species_change_valid(ros2s);
+            const bool valid_state = ros2s::valid_integrator_state(ros2s.ynew);
             const amrex::Real safe = 0.9_rt;
             const amrex::Real fac_min = 0.2_rt;
             const amrex::Real fac_max = 6.0_rt;
@@ -327,7 +376,7 @@ int ros2s_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2s)
             const amrex::Real fac_step = amrex::Clamp(raw_fac, lower_fac, upper_fac);
             amrex::Real hnew = h / fac_step;
 
-            if (err <= 1.0_rt && valid_update) {
+            if (err <= 1.0_rt && valid_update && valid_state) {
                 n_accept += 1;
                 if (n_accept > 1) {
                     const amrex::Real facgus = amrex::Clamp((hacc / h) *
@@ -357,7 +406,7 @@ int ros2s_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2s)
 
             reject = true;
             last = false;
-            h = valid_update ? hnew : 0.25_rt * h;
+            h = valid_update && valid_state ? hnew : 0.25_rt * h;
         }
     }
 }
