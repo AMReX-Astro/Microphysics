@@ -231,9 +231,9 @@ int ros2s_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2s)
     bool reject = false;
     bool last = false;
     int nsing = 0;
-    int n_accept = 0;
-    amrex::Real hacc = 0.0_rt;
-    amrex::Real erracc = 1.0_rt;
+    int n_reject = 0;
+    amrex::Real facold = 1.0_rt;
+    amrex::Real errold = 1.0_rt;
     amrex::Real hopt = h;
     amrex::Real x = ros2s.t;
     amrex::Array1D<amrex::Real, 1, int_neqs> rhs_tmp;
@@ -318,27 +318,20 @@ int ros2s_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2s)
 
             const amrex::Real err = ros2s::error_norm(ros2s);
             const bool valid_update = ros2s::species_change_valid(ros2s);
-            const amrex::Real safe = 0.9_rt;
-            const amrex::Real fac_min = 0.2_rt;
-            const amrex::Real fac_max = 6.0_rt;
-            const amrex::Real raw_fac = std::cbrt(err) / safe;
-            const amrex::Real lower_fac = 1.0_rt / fac_max;
-            const amrex::Real upper_fac = 1.0_rt / fac_min;
-            const amrex::Real fac_step = amrex::Clamp(raw_fac, lower_fac, upper_fac);
-            amrex::Real hnew = h / fac_step;
+            constexpr amrex::Real err_min = 1.e-10_rt;
+            const amrex::Real controller_fac = amrex::Clamp(
+                std::pow(1.0_rt / amrex::max(err, err_min),
+                         1.0_rt / (integrator_rp::h211b_b * integrator_rp::h211b_k)) *
+                std::pow(1.0_rt / amrex::max(errold, err_min),
+                         1.0_rt / (integrator_rp::h211b_b * integrator_rp::h211b_k)) *
+                std::pow(facold, -1.0_rt / integrator_rp::h211b_b),
+                integrator_rp::h211b_fac_min, integrator_rp::h211b_fac_max);
+            facold = controller_fac;
+            errold = err;
+
+            amrex::Real hnew = h * controller_fac;
 
             if (err <= 1.0_rt && valid_update) {
-                n_accept += 1;
-                if (n_accept > 1) {
-                    const amrex::Real facgus = amrex::Clamp((hacc / h) *
-                                                            std::cbrt((err * err) / erracc) /
-                                                            safe,
-                                                            lower_fac, upper_fac);
-                    hnew = h / amrex::max(fac_step, facgus);
-                }
-                hacc = h;
-                erracc = amrex::max(1.e-2_rt, err);
-
                 for (int n = 1; n <= int_neqs; ++n) {
                     ros2s.y(n) = ros2s.ynew(n);
                 }
@@ -351,12 +344,17 @@ int ros2s_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2s)
                     hnew = posneg * amrex::min(std::abs(hnew), std::abs(h));
                 }
                 reject = false;
+                n_reject = 0;
                 h = hnew;
                 break;
             }
 
             reject = true;
+            n_reject += 1;
             last = false;
+            if (n_reject >= 2) {
+                hnew *= integrator_rp::h211b_reduction_fac;
+            }
             h = valid_update ? hnew : 0.25_rt * h;
         }
     }
