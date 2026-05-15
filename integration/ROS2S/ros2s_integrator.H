@@ -22,22 +22,147 @@
 
 namespace ros2s {
 
-struct coefficients {
+struct ros2s_tableau {
+    static constexpr int stages = 3;
     static constexpr amrex::Real gamma = 0.292893218813452_rt;
-    static constexpr amrex::Real ct2 = 0.585786437626905_rt;
-    static constexpr amrex::Real a21 = 2.0000000000000036_rt;
-    static constexpr amrex::Real a31 = 6.828427124746214_rt;
-    static constexpr amrex::Real a32 = 3.4142135623731007_rt;
-    static constexpr amrex::Real c21 = -6.828427124746214_rt;
-    static constexpr amrex::Real c31 = -10.949747468305889_rt;
-    static constexpr amrex::Real c32 = -7.535533905932761_rt;
-    static constexpr amrex::Real b1 = 6.828427124746214_rt;
-    static constexpr amrex::Real b2 = 3.414213562373101_rt;
-    static constexpr amrex::Real b3 = 1.0_rt;
-    static constexpr amrex::Real e1 = -0.23570226039551292_rt;
-    static constexpr amrex::Real e2 = -0.23570226039551567_rt;
-    static constexpr amrex::Real e3 = -0.13807118745769906_rt;
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real ct (const int i) {
+        return i == 2 ? 0.585786437626905_rt : 1.0_rt;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real a (const int i, const int j) {
+        if (i == 2 && j == 1) {
+            return 2.0000000000000036_rt;
+        }
+        if (i == 3 && j == 1) {
+            return 6.828427124746214_rt;
+        }
+        if (i == 3 && j == 2) {
+            return 3.4142135623731007_rt;
+        }
+        return 0.0_rt;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real c (const int i, const int j) {
+        if (i == 2 && j == 1) {
+            return -6.828427124746214_rt;
+        }
+        if (i == 3 && j == 1) {
+            return -10.949747468305889_rt;
+        }
+        if (i == 3 && j == 2) {
+            return -7.535533905932761_rt;
+        }
+        return 0.0_rt;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real b (const int i) {
+        if (i == 1) {
+            return 6.828427124746214_rt;
+        }
+        if (i == 2) {
+            return 3.414213562373101_rt;
+        }
+        return 1.0_rt;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real e (const int i) {
+        if (i == 1) {
+            return -0.23570226039551292_rt;
+        }
+        if (i == 2) {
+            return -0.23570226039551567_rt;
+        }
+        return -0.13807118745769906_rt;
+    }
 };
+
+struct ros2_tableau {
+    static constexpr int stages = 2;
+    static constexpr amrex::Real gamma = 1.7071067811865475_rt;
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real ct (const int i) {
+        (void) i;
+        return 1.0_rt;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real a (const int i, const int j) {
+        if (i == 2 && j == 1) {
+            return 0.585786437626905_rt;
+        }
+        return 0.0_rt;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real c (const int i, const int j) {
+        if (i == 2 && j == 1) {
+            return -1.1715728752538102_rt;
+        }
+        return 0.0_rt;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real b (const int i) {
+        if (i == 1) {
+            return 0.8786796564403575_rt;
+        }
+        return 0.2928932188134525_rt;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real e (const int i) {
+        (void) i;
+        return 0.2928932188134525_rt;
+    }
+};
+
+using coefficients = ros2s_tableau;
+
+template <int int_neqs>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+amrex::Real& stage (ros2s_t<int_neqs>& ros2s, const int i, const int n)
+{
+    if (i == 1) {
+        return ros2s.ak1(n);
+    }
+    if (i == 2) {
+        return ros2s.ak2(n);
+    }
+    return ros2s.work(n);
+}
+
+template <int int_neqs>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+amrex::Real stage (const ros2s_t<int_neqs>& ros2s, const int i, const int n)
+{
+    if (i == 1) {
+        return ros2s.ak1(n);
+    }
+    if (i == 2) {
+        return ros2s.ak2(n);
+    }
+    return ros2s.work(n);
+}
+
+template <int int_neqs>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+RArray1D& stage_vector (ros2s_t<int_neqs>& ros2s, const int i)
+{
+    if (i == 1) {
+        return ros2s.ak1;
+    }
+    if (i == 2) {
+        return ros2s.ak2;
+    }
+    return ros2s.work;
+}
 
 template <typename Ros2sT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
@@ -196,11 +321,11 @@ void solve (ros2s_t<int_neqs>& ros2s, RArray1D& b)
 
 } // namespace ros2s
 
-template <typename BurnT>
+template <typename BurnT, typename Tableau>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-int ros2s_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2s)
+int rosenbrock_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2s)
 {
-    using C = ros2s::coefficients;
+    using C = Tableau;
     constexpr int int_neqs = integrator_neqs<BurnT>();
 
     if (ros2s.tout == ros2s.t) {
@@ -285,33 +410,40 @@ int ros2s_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2s)
 
             ros2s::solve(ros2s, ros2s.ak1);
 
-            for (int n = 1; n <= int_neqs; ++n) {
-                ros2s.ynew(n) = ros2s.y(n) + C::a21 * ros2s.ak1(n);
-                ros2s.ak2(n) = (C::c21 / h) * ros2s.ak1(n);
+            for (int istage = 2; istage <= C::stages; ++istage) {
+                for (int n = 1; n <= int_neqs; ++n) {
+                    ros2s.ynew(n) = ros2s.y(n);
+                    ros2s::stage(ros2s, istage, n) = 0.0_rt;
+
+                    for (int jstage = 1; jstage < istage; ++jstage) {
+                        const amrex::Real akj = ros2s::stage(ros2s, jstage, n);
+                        ros2s.ynew(n) += C::a(istage, jstage) * akj;
+                        ros2s::stage(ros2s, istage, n) +=
+                            (C::c(istage, jstage) / h) * akj;
+                    }
+                }
+
+                ros2s::rhs_at(x + C::ct(istage) * h, state, ros2s, ros2s.ynew, rhs_tmp);
+                ros2s.n_rhs += 1;
+
+                for (int n = 1; n <= int_neqs; ++n) {
+                    ros2s::stage(ros2s, istage, n) += rhs_tmp(n);
+                }
+                ros2s::solve(ros2s, ros2s::stage_vector(ros2s, istage));
             }
-            ros2s::rhs_at(x + C::ct2 * h, state, ros2s, ros2s.ynew, rhs_tmp);
-            ros2s.n_rhs += 1;
-            for (int n = 1; n <= int_neqs; ++n) {
-                ros2s.ak2(n) += rhs_tmp(n);
-            }
-            ros2s::solve(ros2s, ros2s.ak2);
 
             for (int n = 1; n <= int_neqs; ++n) {
-                ros2s.ynew(n) = ros2s.y(n) + C::a31 * ros2s.ak1(n) + C::a32 * ros2s.ak2(n);
-                ros2s.work(n) = (C::c31 * ros2s.ak1(n) + C::c32 * ros2s.ak2(n)) / h;
-            }
-            ros2s::rhs_at(x + h, state, ros2s, ros2s.ynew, rhs_tmp);
-            ros2s.n_rhs += 1;
-            for (int n = 1; n <= int_neqs; ++n) {
-                ros2s.work(n) += rhs_tmp(n);
-            }
-            ros2s::solve(ros2s, ros2s.work);
+                amrex::Real y_update = 0.0_rt;
+                amrex::Real err = 0.0_rt;
 
-            for (int n = 1; n <= int_neqs; ++n) {
-                const amrex::Real ak3 = ros2s.work(n);
-                ros2s.ynew(n) = ros2s.y(n) + C::b1 * ros2s.ak1(n) +
-                    C::b2 * ros2s.ak2(n) + C::b3 * ak3;
-                ros2s.work(n) = C::e1 * ros2s.ak1(n) + C::e2 * ros2s.ak2(n) + C::e3 * ak3;
+                for (int istage = 1; istage <= C::stages; ++istage) {
+                    const amrex::Real aki = ros2s::stage(ros2s, istage, n);
+                    y_update += C::b(istage) * aki;
+                    err += C::e(istage) * aki;
+                }
+
+                ros2s.ynew(n) = ros2s.y(n) + y_update;
+                ros2s.work(n) = err;
             }
 
             ros2s.n_step += 1;
@@ -358,6 +490,17 @@ int ros2s_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2s)
             h = valid_update ? hnew : 0.25_rt * h;
         }
     }
+}
+
+template <typename BurnT>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+int ros2s_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2s)
+{
+    if (integrator_rp::rosenbrock_tableau == 1) {
+        return rosenbrock_integrator<BurnT, ros2s::ros2_tableau>(state, ros2s);
+    }
+
+    return rosenbrock_integrator<BurnT, ros2s::ros2s_tableau>(state, ros2s);
 }
 
 #endif
