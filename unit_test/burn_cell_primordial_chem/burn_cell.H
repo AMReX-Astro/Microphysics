@@ -3,14 +3,12 @@
 
 #include <fstream>
 #include <iostream>
-#include <chrono>
 
 #include <burner.H>
 #include <eos.H>
 #include <extern_parameters.H>
 #include <network.H>
 #include <actual_network.H>
-#include <AMReX_ParmParse.H>
 
 amrex::Real grav_constant = 6.674e-8;
 
@@ -118,47 +116,38 @@ auto burn_cell_c() -> int {
   // call the EOS to set initial internal energy e
   eos(eos_input_rt, state);
 
-  bool dump_history = false;
-  amrex::ParmParse pp("unit_test");
-  pp.query("dump_history", dump_history);
+  // name of output file
+  std::ofstream state_over_time("state_over_time.txt");
 
   // save the initial state -- we'll use this to determine
   // how much things changed over the entire burn
   burn_t state_in = state;
 
-  std::ofstream state_over_time;
-  if (dump_history) {
-    state_over_time.open("state_over_time.txt");
-
-    // output the data in columns, one line per timestep
-    state_over_time << std::setw(10) << "# Time";
-    state_over_time << std::setw(15) << "Density";
-    state_over_time << std::setw(15) << "Temperature";
-    for (int x = 0; x < NumSpec; ++x) {
-      const std::string &element = short_spec_names_cxx[x];
-      state_over_time << std::setw(15) << element;
-    }
-    state_over_time << std::endl;
+  // output the data in columns, one line per timestep
+  state_over_time << std::setw(10) << "# Time";
+  state_over_time << std::setw(15) << "Density";
+  state_over_time << std::setw(15) << "Temperature";
+  for (int x = 0; x < NumSpec; ++x) {
+    const std::string &element = short_spec_names_cxx[x];
+    state_over_time << std::setw(15) << element;
   }
+  state_over_time << std::endl;
 
   amrex::Real t = 0.0;
 
-  if (dump_history) {
-    state_over_time << std::setw(10) << t;
-    state_over_time << std::setw(15) << state.rho;
-    state_over_time << std::setw(15) << state.T;
-    for (int x = 0; x < NumSpec; ++x) {
-      state_over_time << std::setw(15) << state.xn[x];
-    }
-    state_over_time << std::endl;
+  state_over_time << std::setw(10) << t;
+  state_over_time << std::setw(15) << state.rho;
+  state_over_time << std::setw(15) << state.T;
+  for (int x = 0; x < NumSpec; ++x) {
+    state_over_time << std::setw(15) << state.xn[x];
   }
+  state_over_time << std::endl;
 
   // loop over steps, burn, and output the current state
   // the loop below is similar to that used in krome and pynucastro
   amrex::Real dd = rhotot;
   amrex::Real dd1 = 0.0_rt;
 
-  const auto collapse_loop_start = std::chrono::steady_clock::now();
   for (int n = 0; n < unit_test_rp::nsteps; n++) {
 
     dd1 = dd;
@@ -190,9 +179,7 @@ auto burn_cell_c() -> int {
       break;
     }
 
-    if (dump_history) {
-      std::cout << "step " << n << " done" << std::endl;
-    }
+    std::cout << "step " << n << " done" << std::endl;
 
     // scale the number densities
     for (int nn = 0; nn < NumSpec; ++nn) {
@@ -242,25 +229,17 @@ auto burn_cell_c() -> int {
 
     t += dt;
 
-    if (dump_history) {
-      state_over_time << std::setw(10) << t;
-      state_over_time << std::setw(15) << state.rho;
-      state_over_time << std::setw(12) << state.T;
-      for (int x = 0; x < NumSpec; ++x) {
-        state_over_time << std::setw(15) << state.xn[x];
-      }
-      state_over_time << std::endl;
+    state_over_time << std::setw(10) << t;
+    state_over_time << std::setw(15) << state.rho;
+    state_over_time << std::setw(12) << state.T;
+    for (int x = 0; x < NumSpec; ++x) {
+      state_over_time << std::setw(15) << state.xn[x];
     }
+    state_over_time << std::endl;
   }
-  const auto collapse_loop_stop = std::chrono::steady_clock::now();
-  if (dump_history) {
-    state_over_time.close();
-  }
+  state_over_time.close();
 
   // output diagnostics to the terminal
-  std::cout << "collapse loop walltime: "
-            << std::chrono::duration<double>(collapse_loop_stop - collapse_loop_start).count()
-            << " s" << std::endl;
   std::cout << "------------------------------------" << std::endl;
   std::cout << "successful? " << state.success << std::endl;
 

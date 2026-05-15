@@ -5,7 +5,6 @@
 #include <eos.H>
 #include <network.H>
 #include <burner.H>
-#include <AMReX_ParallelDescriptor.H>
 #include <fstream>
 #include <iostream>
 #include <iomanip>
@@ -151,7 +150,6 @@ void burn_cell_c()
     // loop over steps, burn, and output the current state
 
     int nstep_int = 0;
-    amrex::Real burn_time = 0.0_rt;
 
     for (int n = 0; n < unit_test_rp::nsteps; n++){
 
@@ -160,9 +158,7 @@ void burn_cell_c()
         amrex::Real tend = std::pow(10.0_rt, std::log10(unit_test_rp::tfirst) + dlogt * n);
         amrex::Real dt = tend - t;
 
-        const amrex::Real burn_start = amrex::ParallelDescriptor::second();
         burner(burn_state, dt);
-        burn_time += amrex::ParallelDescriptor::second() - burn_start;
 
         if (! burn_state.success) {
             amrex::Error("integration failed");
@@ -229,11 +225,6 @@ void burn_cell_c()
     }
 
     std::cout << "number of steps taken: " << nstep_int << std::endl;
-    std::cout << "burner wall time (s): " << burn_time << std::endl;
-    if (nstep_int > 0) {
-        std::cout << "burner wall time / step (s): "
-                  << burn_time / static_cast<amrex::Real>(nstep_int) << std::endl;
-    }
 
 }
 #endif
