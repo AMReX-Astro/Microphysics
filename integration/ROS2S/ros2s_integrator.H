@@ -213,6 +213,36 @@ bool species_change_valid (const ros2s_t<int_neqs>& ros2s)
     return true;
 }
 
+template <int int_neqs>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+bool valid_integrator_state (const amrex::Array1D<amrex::Real, 1, int_neqs>& y)
+{
+    for (int n = 1; n <= int_neqs; ++n) {
+        const amrex::Real yn = y(n);
+        if (yn != yn || std::abs(yn) == std::numeric_limits<amrex::Real>::infinity()) {
+            return false;
+        }
+    }
+
+#ifdef STRANG
+    for (int n = 1; n <= NumSpec; ++n) {
+        if (y(n) < 0.0_rt) {
+            return false;
+        }
+
+        if (! integrator_rp::use_number_densities && y(n) > 1.0_rt) {
+            return false;
+        }
+    }
+
+    if (y(net_ienuc) <= 0.0_rt) {
+        return false;
+    }
+#endif
+
+    return true;
+}
+
 template <typename BurnT, int int_neqs>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void evaluate_jacobian (BurnT& state, ros2s_t<int_neqs>& ros2s, const amrex::Real time)
@@ -391,6 +421,12 @@ int rosenbrock_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2
         while (true) {
             ros2s.dt = h;
 
+            if (0.1_rt * std::abs(h) <= std::abs(x) * std::numeric_limits<amrex::Real>::epsilon()) {
+                ros2s.t = x;
+                ros2s.dt = h;
+                return IERR_DT_UNDERFLOW;
+            }
+
             const amrex::Real fac = 1.0_rt / (h * C::gamma);
             ros2s::evaluate_jacobian(state, ros2s, x);
             int ierr_linpack = ros2s::decompose(ros2s, fac);
@@ -410,6 +446,7 @@ int rosenbrock_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2
 
             ros2s::solve(ros2s, ros2s.ak1);
 
+            bool valid_stage_state = true;
             for (int istage = 2; istage <= C::stages; ++istage) {
                 for (int n = 1; n <= int_neqs; ++n) {
                     ros2s.ynew(n) = ros2s.y(n);
@@ -423,6 +460,15 @@ int rosenbrock_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2
                     }
                 }
 
+                if (! ros2s::valid_integrator_state(ros2s.ynew)) {
+                    h *= 0.25_rt;
+                    reject = true;
+                    n_reject += 1;
+                    last = false;
+                    valid_stage_state = false;
+                    break;
+                }
+
                 ros2s::rhs_at(x + C::ct(istage) * h, state, ros2s, ros2s.ynew, rhs_tmp);
                 ros2s.n_rhs += 1;
 
@@ -430,6 +476,10 @@ int rosenbrock_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2
                     ros2s::stage(ros2s, istage, n) += rhs_tmp(n);
                 }
                 ros2s::solve(ros2s, ros2s::stage_vector(ros2s, istage));
+            }
+
+            if (! valid_stage_state) {
+                continue;
             }
 
             for (int n = 1; n <= int_neqs; ++n) {
@@ -447,6 +497,15 @@ int rosenbrock_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2
             }
 
             ros2s.n_step += 1;
+
+            const bool valid_state = ros2s::valid_integrator_state(ros2s.ynew);
+            if (! valid_state) {
+                reject = true;
+                n_reject += 1;
+                last = false;
+                h *= 0.25_rt;
+                continue;
+            }
 
             const amrex::Real err = ros2s::error_norm(ros2s);
             const bool valid_update = ros2s::species_change_valid(ros2s);
