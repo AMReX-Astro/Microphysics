@@ -41,6 +41,8 @@ struct ros2s_t {
     amrex::Array1D<amrex::Real, 1, int_neqs> ynew;
     amrex::Array1D<amrex::Real, 1, int_neqs> ak1;
     amrex::Array1D<amrex::Real, 1, int_neqs> ak2;
+    amrex::Array1D<amrex::Real, 1, int_neqs> ak3;
+    amrex::Array1D<amrex::Real, 1, int_neqs> ak4;
     amrex::Array1D<amrex::Real, 1, int_neqs> work;
 
     ArrayUtil::MathArray2D<jac_t, 1, int_neqs, 1, int_neqs> jac;

@@ -123,6 +123,216 @@ struct ros2_tableau {
     }
 };
 
+struct sandu_a_tableau {
+    static constexpr int stages = 3;
+    static constexpr amrex::Real gamma = 0.7886751345948129_rt; // (3 + sqrt(3)) / 6
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real ct (const int i) {
+        return i == 1 ? 0.0_rt : 1.0_rt;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real a (const int i, const int j) {
+        if ((i == 2 || i == 3) && j == 1) {
+            return 1.2679491924311228_rt; // 3 - sqrt(3)
+        }
+        return 0.0_rt;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real c (const int i, const int j) {
+        if (i == 2 && j == 1) {
+            return 0.9282032302755092_rt; // -6 + 4 * sqrt(3)
+        }
+        if (i == 3 && (j == 1 || j == 2)) {
+            return -0.4641016151377544_rt; // 3 - 2 * sqrt(3)
+        }
+        return 0.0_rt;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real b (const int i) {
+        if (i == 1) {
+            return 1.2679491924311228_rt; // 3 - sqrt(3)
+        }
+        if (i == 3) {
+            return 1.0_rt;
+        }
+        return 0.0_rt;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real e (const int i) {
+        return i == 3 ? 1.0_rt : 0.0_rt;
+    }
+};
+
+struct sandu_b_tableau {
+    static constexpr int stages = 3;
+    static constexpr amrex::Real gamma = 0.7886751345948129_rt; // (3 + sqrt(3)) / 6
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real ct (const int i) {
+        return i == 1 ? 0.0_rt : 1.0_rt;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real a (const int i, const int j) {
+        if ((i == 2 || i == 3) && j == 1) {
+            return 1.2679491924311228_rt; // 3 - sqrt(3)
+        }
+        return 0.0_rt;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real c (const int i, const int j) {
+        if (i == 3 && j == 1) {
+            return -0.5358983848622456_rt; // -4 + 2 * sqrt(3)
+        }
+        if (i == 3 && j == 2) {
+            return -0.7320508075688772_rt; // 1 - sqrt(3)
+        }
+        return 0.0_rt;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real b (const int i) {
+        if (i == 1) {
+            return 1.2679491924311228_rt; // 3 - sqrt(3)
+        }
+        if (i == 3) {
+            return 1.0_rt;
+        }
+        return 0.0_rt;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real e (const int i) {
+        return i == 3 ? 1.0_rt : 0.0_rt;
+    }
+};
+
+struct sandu_c_tableau {
+    static constexpr int stages = 3;
+    static constexpr amrex::Real gamma = 0.78867513459481275_rt; // (3 + sqrt(3)) / 6
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real ct (const int i) {
+        if (i == 3) {
+            return 0.6666666666666666_rt;
+        }
+        return 0.0_rt;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real a (const int i, const int j) {
+        if (i == 3 && j == 1) {
+            return -0.4335531486700170_rt; // (1272 - 823 * sqrt(3)) / 354
+        }
+        if (i == 3 && j == 2) {
+            return 1.7222282832648295_rt; // 3 * (-51 + 49 * sqrt(3)) / 59
+        }
+        return 0.0_rt;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real c (const int i, const int j) {
+        if (i == 2 && j == 1) {
+            return -0.3264246859454366_rt; // -1 + 7 * sqrt(3) / 18
+        }
+        if (i == 3 && j == 1) {
+            return 0.4138899169340995_rt; // (25 - 13 * sqrt(3)) / 6
+        }
+        if (i == 3 && j == 2) {
+            return 1.6076951545867360_rt; // 12 - 6 * sqrt(3)
+        }
+        return 0.0_rt;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real b (const int i) {
+        if (i == 1) {
+            return -7.1285171234651825_rt; // (-12089 + 5037 * sqrt(3)) / 472
+        }
+        if (i == 2) {
+            return 8.4030361763035106_rt; // 9 * (344 - 135 * sqrt(3)) / 118
+        }
+        return 0.9509618943233421_rt; // 3 * (3 - sqrt(3)) / 4
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real e (const int i) {
+        if (i == 1) {
+            return -8.396466315896305_rt;
+        }
+        if (i == 2) {
+            return 8.4030361763035106_rt;
+        }
+        return 0.9509618943233421_rt;
+    }
+};
+
+struct sandu_d_tableau {
+    static constexpr int stages = 4;
+    static constexpr amrex::Real gamma = 0.5_rt;
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real ct (const int i) {
+        return i == 1 ? 0.0_rt : 1.0_rt;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real a (const int i, const int j) {
+        if (i > 1 && j == 1) {
+            return 2.0_rt;
+        }
+        return 0.0_rt;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real c (const int i, const int j) {
+        if (i == 2 && j == 1) {
+            return -1.3333333333333333_rt; // -4 / 3
+        }
+        if (i == 3 && j == 1) {
+            return -3.3333333333333333_rt; // -10 / 3
+        }
+        if (i == 3 && j == 2) {
+            return -2.0_rt;
+        }
+        if (i == 4 && j == 1) {
+            return -0.5_rt;
+        }
+        if (i == 4 && j == 3) {
+            return 1.5_rt;
+        }
+        return 0.0_rt;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real b (const int i) {
+        if (i == 1) {
+            return 2.0_rt;
+        }
+        if (i == 4) {
+            return 1.0_rt;
+        }
+        return 0.0_rt;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real e (const int i) {
+        if (i == 1) {
+            return -0.6666666666666666_rt; // 2 - 8 / 3
+        }
+        if (i == 2 || i == 3) {
+            return -1.0_rt;
+        }
+        return 1.3333333333333333_rt; // 1 - (-1 / 3)
+    }
+};
+
 using coefficients = ros2s_tableau;
 
 template <int int_neqs>
@@ -134,6 +344,12 @@ amrex::Real& stage (ros2s_t<int_neqs>& ros2s, const int i, const int n)
     }
     if (i == 2) {
         return ros2s.ak2(n);
+    }
+    if (i == 3) {
+        return ros2s.ak3(n);
+    }
+    if (i == 4) {
+        return ros2s.ak4(n);
     }
     return ros2s.work(n);
 }
@@ -148,6 +364,12 @@ amrex::Real stage (const ros2s_t<int_neqs>& ros2s, const int i, const int n)
     if (i == 2) {
         return ros2s.ak2(n);
     }
+    if (i == 3) {
+        return ros2s.ak3(n);
+    }
+    if (i == 4) {
+        return ros2s.ak4(n);
+    }
     return ros2s.work(n);
 }
 
@@ -160,6 +382,12 @@ RArray1D& stage_vector (ros2s_t<int_neqs>& ros2s, const int i)
     }
     if (i == 2) {
         return ros2s.ak2;
+    }
+    if (i == 3) {
+        return ros2s.ak3;
+    }
+    if (i == 4) {
+        return ros2s.ak4;
     }
     return ros2s.work;
 }
@@ -557,6 +785,18 @@ int ros2s_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2s)
 {
     if (integrator_rp::rosenbrock_tableau == 1) {
         return rosenbrock_integrator<BurnT, ros2s::ros2_tableau>(state, ros2s);
+    }
+    if (integrator_rp::rosenbrock_tableau == 2) {
+        return rosenbrock_integrator<BurnT, ros2s::sandu_a_tableau>(state, ros2s);
+    }
+    if (integrator_rp::rosenbrock_tableau == 3) {
+        return rosenbrock_integrator<BurnT, ros2s::sandu_b_tableau>(state, ros2s);
+    }
+    if (integrator_rp::rosenbrock_tableau == 4) {
+        return rosenbrock_integrator<BurnT, ros2s::sandu_c_tableau>(state, ros2s);
+    }
+    if (integrator_rp::rosenbrock_tableau == 5) {
+        return rosenbrock_integrator<BurnT, ros2s::sandu_d_tableau>(state, ros2s);
     }
 
     return rosenbrock_integrator<BurnT, ros2s::ros2s_tableau>(state, ros2s);
