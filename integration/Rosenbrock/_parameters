@@ -36,10 +36,10 @@ yass_fac_min                 real         0.2
 yass_fac_max                 real         6.0
 yass_reduction_fac           real         0.5
 
-# Optional diagnostic: during numerical-Jacobian ROS2S runs, also compute the
+# Optional diagnostic: during numerical-Jacobian Rosenbrock runs, also compute the
 # analytic Jacobian at selected Jacobian evaluations and write AD-vs-FD entry
 # differences. Disabled when interval <= 0.
 jacobian_compare_interval    int          0
 jacobian_compare_limit       int          20
 jacobian_compare_top_entries int          10
-jacobian_compare_file        string       "ros2s_ad_fd_jacobian_compare.csv"
+jacobian_compare_file        string       "rosenbrock_ad_fd_jacobian_compare.csv"

@@ -1,5 +1,5 @@
-#ifndef ROS2S_TYPE_H
-#define ROS2S_TYPE_H
+#ifndef ROSENBROCK_TYPE_H
+#define ROSENBROCK_TYPE_H
 
 #include <AMReX_Array.H>
 #include <AMReX_REAL.H>
@@ -21,7 +21,7 @@
 const amrex::Real timestep_safety_factor = 1.0e-4_rt;
 
 template <int int_neqs>
-struct ros2s_t {
+struct rosenbrock_t {
 
     amrex::Real t;      // the starting time
     amrex::Real tout;   // the stopping time

@@ -1,6 +1,6 @@
-CEXE_headers += ros2s_type.H
-CEXE_headers += ros2s_tableau.H
-CEXE_headers += ros2s_integrator.H
+CEXE_headers += rosenbrock_type.H
+CEXE_headers += rosenbrock_tableau.H
+CEXE_headers += rosenbrock_integrator.H
 ifeq ($(USE_ALL_SDC), TRUE)
   CEXE_headers += actual_integrator_sdc.H
 else

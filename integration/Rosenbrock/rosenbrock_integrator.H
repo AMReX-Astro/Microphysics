@@ -1,5 +1,5 @@
-#ifndef ROS2S_INTEGRATOR_H
-#define ROS2S_INTEGRATOR_H
+#ifndef ROSENBROCK_INTEGRATOR_H
+#define ROSENBROCK_INTEGRATOR_H
 
 #include <AMReX_Algorithm.H>
 #ifndef AMREX_USE_GPU
@@ -21,10 +21,10 @@
 #endif
 
 #include <integrator_data.H>
-#include <ros2s_type.H>
-#include <ros2s_tableau.H>
+#include <rosenbrock_type.H>
+#include <rosenbrock_tableau.H>
 
-namespace ros2s {
+namespace rosenbrock {
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 amrex::Real profile_second ()
@@ -38,84 +38,84 @@ amrex::Real profile_second ()
 
 template <int int_neqs>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-amrex::Real& stage (ros2s_t<int_neqs>& ros2s, const int i, const int n)
+amrex::Real& stage (rosenbrock_t<int_neqs>& rstate, const int i, const int n)
 {
     if (i == 1) {
-        return ros2s.ak1(n);
+        return rstate.ak1(n);
     }
     if (i == 2) {
-        return ros2s.ak2(n);
+        return rstate.ak2(n);
     }
     if (i == 3) {
-        return ros2s.ak3(n);
+        return rstate.ak3(n);
     }
     if (i == 4) {
-        return ros2s.ak4(n);
+        return rstate.ak4(n);
     }
-    return ros2s.work(n);
+    return rstate.work(n);
 }
 
 template <int int_neqs>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-amrex::Real stage (const ros2s_t<int_neqs>& ros2s, const int i, const int n)
+amrex::Real stage (const rosenbrock_t<int_neqs>& rstate, const int i, const int n)
 {
     if (i == 1) {
-        return ros2s.ak1(n);
+        return rstate.ak1(n);
     }
     if (i == 2) {
-        return ros2s.ak2(n);
+        return rstate.ak2(n);
     }
     if (i == 3) {
-        return ros2s.ak3(n);
+        return rstate.ak3(n);
     }
     if (i == 4) {
-        return ros2s.ak4(n);
+        return rstate.ak4(n);
     }
-    return ros2s.work(n);
+    return rstate.work(n);
 }
 
 template <int int_neqs>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-RArray1D& stage_vector (ros2s_t<int_neqs>& ros2s, const int i)
+RArray1D& stage_vector (rosenbrock_t<int_neqs>& rstate, const int i)
 {
     if (i == 1) {
-        return ros2s.ak1;
+        return rstate.ak1;
     }
     if (i == 2) {
-        return ros2s.ak2;
+        return rstate.ak2;
     }
     if (i == 3) {
-        return ros2s.ak3;
+        return rstate.ak3;
     }
     if (i == 4) {
-        return ros2s.ak4;
+        return rstate.ak4;
     }
-    return ros2s.work;
+    return rstate.work;
 }
 
-template <typename Ros2sT>
+template <typename RosenbrockT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-amrex::Real rtol_for (const Ros2sT& ros2s, const int n)
+amrex::Real rtol_for (const RosenbrockT& rstate, const int n)
 {
-    return n == net_ienuc ? ros2s.rtol_enuc : ros2s.rtol_spec;
+    return n == net_ienuc ? rstate.rtol_enuc : rstate.rtol_spec;
 }
 
-template <typename Ros2sT>
+template <typename RosenbrockT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-amrex::Real atol_for (const Ros2sT& ros2s, const int n)
+amrex::Real atol_for (const RosenbrockT& rstate, const int n)
 {
-    return n == net_ienuc ? ros2s.atol_enuc : ros2s.atol_spec;
+    return n == net_ienuc ? rstate.atol_enuc : rstate.atol_spec;
 }
 
 template <int int_neqs>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-amrex::Real error_norm (const ros2s_t<int_neqs>& ros2s)
+amrex::Real error_norm (const rosenbrock_t<int_neqs>& rstate)
 {
     amrex::Real err = 0.0_rt;
     for (int n = 1; n <= int_neqs; ++n) {
-        const amrex::Real sk = atol_for(ros2s, n) +
-            rtol_for(ros2s, n) * amrex::max(std::abs(ros2s.y(n)), std::abs(ros2s.ynew(n)));
-        const amrex::Real term = ros2s.work(n) / sk;
+        const amrex::Real sk = atol_for(rstate, n) +
+            rtol_for(rstate, n) * amrex::max(std::abs(rstate.y(n)), std::abs(rstate.ynew(n)));
+        const amrex::Real term = rstate.work(n) / sk;
         err += term * term;
     }
     return std::sqrt(err / static_cast<amrex::Real>(int_neqs));
@@ -123,17 +123,17 @@ amrex::Real error_norm (const ros2s_t<int_neqs>& ros2s)
 
 template <int int_neqs>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-bool species_change_valid (const ros2s_t<int_neqs>& ros2s)
+bool species_change_valid (const rosenbrock_t<int_neqs>& rstate)
 {
 #ifdef STRANG
     constexpr amrex::Real increase_change_factor = 4.0_rt;
     constexpr amrex::Real decrease_change_factor = 0.25_rt;
 
     for (int i = 1; i <= NumSpec; ++i) {
-        if (std::abs(ros2s.y(i)) > integrator_rp::X_reject_buffer * ros2s.atol_spec &&
-            std::abs(ros2s.ynew(i)) > integrator_rp::X_reject_buffer * ros2s.atol_spec &&
-            (std::abs(ros2s.ynew(i)) > increase_change_factor * std::abs(ros2s.y(i)) ||
-             std::abs(ros2s.ynew(i)) < decrease_change_factor * std::abs(ros2s.y(i)))) {
+        if (std::abs(rstate.y(i)) > integrator_rp::X_reject_buffer * rstate.atol_spec &&
+            std::abs(rstate.ynew(i)) > integrator_rp::X_reject_buffer * rstate.atol_spec &&
+            (std::abs(rstate.ynew(i)) > increase_change_factor * std::abs(rstate.y(i)) ||
+             std::abs(rstate.ynew(i)) < decrease_change_factor * std::abs(rstate.y(i)))) {
             return false;
         }
     }
@@ -144,21 +144,21 @@ bool species_change_valid (const ros2s_t<int_neqs>& ros2s)
 
 template <int int_neqs>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-amrex::Real yass_change_norm (const ros2s_t<int_neqs>& ros2s)
+amrex::Real yass_change_norm (const rosenbrock_t<int_neqs>& rstate)
 {
     amrex::Real max_change = 0.0_rt;
     amrex::Real max_species = 0.0_rt;
 
     for (int i = 1; i <= NumSpec && i <= int_neqs; ++i) {
-        max_species = amrex::max(max_species, std::abs(ros2s.y(i)));
+        max_species = amrex::max(max_species, std::abs(rstate.y(i)));
     }
 
     const amrex::Real active_floor = integrator_rp::yass_floor * max_species;
 
     for (int i = 1; i <= NumSpec && i <= int_neqs; ++i) {
-        const amrex::Real yi = std::abs(ros2s.y(i));
+        const amrex::Real yi = std::abs(rstate.y(i));
         if (yi > active_floor) {
-            max_change = amrex::max(max_change, std::abs(ros2s.ynew(i) - ros2s.y(i)) / yi);
+            max_change = amrex::max(max_change, std::abs(rstate.ynew(i) - rstate.y(i)) / yi);
         }
     }
 
@@ -197,20 +197,20 @@ bool valid_integrator_state (const amrex::Array1D<amrex::Real, 1, int_neqs>& y)
 
 template <typename BurnT, int int_neqs>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void evaluate_jacobian (BurnT& state, ros2s_t<int_neqs>& ros2s, const amrex::Real time)
+void evaluate_jacobian (BurnT& state, rosenbrock_t<int_neqs>& rstate, const amrex::Real time)
 {
     constexpr bool in_jacobian = true;
 
     amrex::Real profile_start = profile_second();
-    rhs(time, state, ros2s, ros2s.ak1, in_jacobian);
-    ros2s.rhs_walltime += profile_second() - profile_start;
-    ros2s.n_rhs += 1;
+    rhs(time, state, rstate, rstate.ak1, in_jacobian);
+    rstate.rhs_walltime += profile_second() - profile_start;
+    rstate.n_rhs += 1;
 
-    if (ros2s.jacobian_type == 1) {
+    if (rstate.jacobian_type == 1) {
         profile_start = profile_second();
-        jac(time, state, ros2s, ros2s.jac);
-        ros2s.jacobian_walltime += profile_second() - profile_start;
-        ros2s.n_jac += 1;
+        jac(time, state, rstate, rstate.jac);
+        rstate.jacobian_walltime += profile_second() - profile_start;
+        rstate.n_jac += 1;
         return;
     }
 
@@ -220,125 +220,125 @@ void evaluate_jacobian (BurnT& state, ros2s_t<int_neqs>& ros2s, const amrex::Rea
 
     amrex::Real fac = 0.0_rt;
     for (int i = 1; i <= int_neqs; ++i) {
-        ewt(i) = 1.0_rt / (rtol_for(ros2s, i) * std::abs(ros2s.y(i)) + atol_for(ros2s, i));
-        fac += (ros2s.ak1(i) * ewt(i)) * (ros2s.ak1(i) * ewt(i));
+        ewt(i) = 1.0_rt / (rtol_for(rstate, i) * std::abs(rstate.y(i)) + atol_for(rstate, i));
+        fac += (rstate.ak1(i) * ewt(i)) * (rstate.ak1(i) * ewt(i));
     }
     fac = std::sqrt(fac / static_cast<amrex::Real>(int_neqs));
 
-    amrex::Real R0 = 1000.0_rt * std::abs(ros2s.dt) *
+    amrex::Real R0 = 1000.0_rt * std::abs(rstate.dt) *
         UROUND * static_cast<amrex::Real>(int_neqs) * fac;
     if (R0 == 0.0_rt) {
         R0 = 1.0_rt;
     }
-    ros2s.jacobian_walltime += profile_second() - profile_start;
+    rstate.jacobian_walltime += profile_second() - profile_start;
 
     for (int j = 1; j <= int_neqs; ++j) {
         profile_start = profile_second();
-        const amrex::Real yj = ros2s.y(j);
+        const amrex::Real yj = rstate.y(j);
         const amrex::Real R = amrex::max(std::sqrt(UROUND) * std::abs(yj), R0 / ewt(j));
-        ros2s.y(j) += R;
-        ros2s.jacobian_walltime += profile_second() - profile_start;
+        rstate.y(j) += R;
+        rstate.jacobian_walltime += profile_second() - profile_start;
 
         const amrex::Real rhs_profile_start = profile_second();
-        rhs(time, state, ros2s, ros2s.work, in_jacobian);
-        ros2s.rhs_walltime += profile_second() - rhs_profile_start;
+        rhs(time, state, rstate, rstate.work, in_jacobian);
+        rstate.rhs_walltime += profile_second() - rhs_profile_start;
 
         profile_start = profile_second();
         fac = 1.0_rt / R;
         for (int i = 1; i <= int_neqs; ++i) {
-            ros2s.jac.set(i, j, (ros2s.work(i) - ros2s.ak1(i)) * fac);
+            rstate.jac.set(i, j, (rstate.work(i) - rstate.ak1(i)) * fac);
         }
 
-        ros2s.y(j) = yj;
-        ros2s.jacobian_walltime += profile_second() - profile_start;
+        rstate.y(j) = yj;
+        rstate.jacobian_walltime += profile_second() - profile_start;
     }
 
-    ros2s.n_rhs += int_neqs;
-    ros2s.n_jac += 1;
+    rstate.n_rhs += int_neqs;
+    rstate.n_jac += 1;
 }
 
 template <typename BurnT, int int_neqs>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void rhs_at (const amrex::Real time, BurnT& state, ros2s_t<int_neqs>& ros2s,
+void rhs_at (const amrex::Real time, BurnT& state, rosenbrock_t<int_neqs>& rstate,
              const amrex::Array1D<amrex::Real, 1, int_neqs>& y,
              amrex::Array1D<amrex::Real, 1, int_neqs>& ydot)
 {
     amrex::Array1D<amrex::Real, 1, int_neqs> ysave;
 
     for (int n = 1; n <= int_neqs; ++n) {
-        ysave(n) = ros2s.y(n);
-        ros2s.y(n) = y(n);
+        ysave(n) = rstate.y(n);
+        rstate.y(n) = y(n);
     }
 
     const amrex::Real profile_start = profile_second();
-    rhs(time, state, ros2s, ydot);
-    ros2s.rhs_walltime += profile_second() - profile_start;
+    rhs(time, state, rstate, ydot);
+    rstate.rhs_walltime += profile_second() - profile_start;
 
     for (int n = 1; n <= int_neqs; ++n) {
-        ros2s.y(n) = ysave(n);
+        rstate.y(n) = ysave(n);
     }
 }
 
 template <int int_neqs>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-int decompose (ros2s_t<int_neqs>& ros2s, const amrex::Real fac)
+int decompose (rosenbrock_t<int_neqs>& rstate, const amrex::Real fac)
 {
     const amrex::Real profile_start = profile_second();
 
     for (int j = 1; j <= int_neqs; ++j) {
         for (int i = 1; i <= int_neqs; ++i) {
-            ros2s.jac(i, j) = -ros2s.jac(i, j);
+            rstate.jac(i, j) = -rstate.jac(i, j);
         }
-        ros2s.jac(j, j) += fac;
+        rstate.jac(j, j) += fac;
     }
 
     int ierr_linpack = 0;
     if (integrator_rp::linalg_do_pivoting == 1) {
         constexpr bool allow_pivot{true};
-        dgefa<int_neqs, allow_pivot>(ros2s.jac, ros2s.pivot, ierr_linpack);
+        dgefa<int_neqs, allow_pivot>(rstate.jac, rstate.pivot, ierr_linpack);
     } else {
         constexpr bool allow_pivot{false};
-        dgefa<int_neqs, allow_pivot>(ros2s.jac, ros2s.pivot, ierr_linpack);
+        dgefa<int_neqs, allow_pivot>(rstate.jac, rstate.pivot, ierr_linpack);
     }
 
-    ros2s.lu_walltime += profile_second() - profile_start;
+    rstate.lu_walltime += profile_second() - profile_start;
 
     return ierr_linpack;
 }
 
 template <int int_neqs>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void solve (ros2s_t<int_neqs>& ros2s, RArray1D& b)
+void solve (rosenbrock_t<int_neqs>& rstate, RArray1D& b)
 {
     const amrex::Real profile_start = profile_second();
 
     if (integrator_rp::linalg_do_pivoting == 1) {
         constexpr bool allow_pivot{true};
-        dgesl<int_neqs, allow_pivot>(ros2s.jac, ros2s.pivot, b);
+        dgesl<int_neqs, allow_pivot>(rstate.jac, rstate.pivot, b);
     } else {
         constexpr bool allow_pivot{false};
-        dgesl<int_neqs, allow_pivot>(ros2s.jac, ros2s.pivot, b);
+        dgesl<int_neqs, allow_pivot>(rstate.jac, rstate.pivot, b);
     }
 
-    ros2s.linear_solve_walltime += profile_second() - profile_start;
+    rstate.linear_solve_walltime += profile_second() - profile_start;
 }
 
-} // namespace ros2s
+} // namespace rosenbrock
 
 template <typename BurnT, typename Tableau>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-int rosenbrock_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2s)
+int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>& rstate)
 {
     using C = Tableau;
     constexpr int int_neqs = integrator_neqs<BurnT>();
 
-    if (ros2s.tout == ros2s.t) {
+    if (rstate.tout == rstate.t) {
         return IERR_SUCCESS;
     }
 
     for (int n = 1; n <= int_neqs; ++n) {
-        if (ros2s::atol_for(ros2s, n) <= 0.0_rt ||
-            ros2s::rtol_for(ros2s, n) <= 10.0_rt * std::numeric_limits<amrex::Real>::epsilon()) {
+        if (rosenbrock::atol_for(rstate, n) <= 0.0_rt ||
+            rosenbrock::rtol_for(rstate, n) <= 10.0_rt * std::numeric_limits<amrex::Real>::epsilon()) {
             return IERR_TOO_MUCH_ACCURACY_REQUESTED;
         }
     }
@@ -352,20 +352,20 @@ int rosenbrock_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2
         return IERR_BAD_INPUTS;
     }
 
-    ros2s.n_rhs = 0;
-    ros2s.n_jac = 0;
-    ros2s.n_step = 0;
-    ros2s.rhs_walltime = 0.0_rt;
-    ros2s.jacobian_walltime = 0.0_rt;
-    ros2s.lu_walltime = 0.0_rt;
-    ros2s.linear_solve_walltime = 0.0_rt;
+    rstate.n_rhs = 0;
+    rstate.n_jac = 0;
+    rstate.n_step = 0;
+    rstate.rhs_walltime = 0.0_rt;
+    rstate.jacobian_walltime = 0.0_rt;
+    rstate.lu_walltime = 0.0_rt;
+    rstate.linear_solve_walltime = 0.0_rt;
 
-    ros2s.dt = ros2s.tout - ros2s.t;
+    rstate.dt = rstate.tout - rstate.t;
 
-    const amrex::Real posneg = ros2s.tout >= ros2s.t ? 1.0_rt : -1.0_rt;
+    const amrex::Real posneg = rstate.tout >= rstate.t ? 1.0_rt : -1.0_rt;
     const amrex::Real hmax = amrex::min(integrator_rp::ode_max_dt,
-                                        std::abs(ros2s.tout - ros2s.t));
-    amrex::Real h = amrex::min(std::abs(ros2s.dt), hmax) * posneg;
+                                        std::abs(rstate.tout - rstate.t));
+    amrex::Real h = amrex::min(std::abs(rstate.dt), hmax) * posneg;
     if (std::abs(h) <= 10.0_rt * std::numeric_limits<amrex::Real>::epsilon()) {
         h = 1.e-6_rt * posneg;
     }
@@ -377,52 +377,52 @@ int rosenbrock_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2
     amrex::Real facold = 1.0_rt;
     amrex::Real errold = 1.0_rt;
     amrex::Real hopt = h;
-    amrex::Real x = ros2s.t;
+    amrex::Real x = rstate.t;
     amrex::Array1D<amrex::Real, 1, int_neqs> rhs_tmp;
 
     while (true) {
-        if (ros2s.n_step > integrator_rp::ode_max_steps) {
-            ros2s.t = x;
-            ros2s.dt = h;
+        if (rstate.n_step > integrator_rp::ode_max_steps) {
+            rstate.t = x;
+            rstate.dt = h;
             return IERR_TOO_MANY_STEPS;
         }
 
         if (0.1_rt * std::abs(h) <= std::abs(x) * std::numeric_limits<amrex::Real>::epsilon()) {
-            ros2s.t = x;
-            ros2s.dt = h;
+            rstate.t = x;
+            rstate.dt = h;
             return IERR_DT_UNDERFLOW;
         }
 
         if (last) {
-            ros2s.t = x;
-            ros2s.dt = hopt;
+            rstate.t = x;
+            rstate.dt = hopt;
             return IERR_SUCCESS;
         }
 
         hopt = h;
-        if ((x + h * (1.0_rt + timestep_safety_factor) - ros2s.tout) * posneg >= 0.0_rt) {
-            h = ros2s.tout - x;
+        if ((x + h * (1.0_rt + timestep_safety_factor) - rstate.tout) * posneg >= 0.0_rt) {
+            h = rstate.tout - x;
             last = true;
         }
 
         while (true) {
-            ros2s.dt = h;
+            rstate.dt = h;
 
             if (0.1_rt * std::abs(h) <= std::abs(x) * std::numeric_limits<amrex::Real>::epsilon()) {
-                ros2s.t = x;
-                ros2s.dt = h;
+                rstate.t = x;
+                rstate.dt = h;
                 return IERR_DT_UNDERFLOW;
             }
 
             const amrex::Real fac = 1.0_rt / (h * C::gamma);
-            ros2s::evaluate_jacobian(state, ros2s, x);
-            int ierr_linpack = ros2s::decompose(ros2s, fac);
+            rosenbrock::evaluate_jacobian(state, rstate, x);
+            int ierr_linpack = rosenbrock::decompose(rstate, fac);
 
             if (ierr_linpack != 0) {
                 nsing += 1;
                 if (nsing >= 5) {
-                    ros2s.t = x;
-                    ros2s.dt = h;
+                    rstate.t = x;
+                    rstate.dt = h;
                     return IERR_LU_DECOMPOSITION_ERROR;
                 }
                 h *= 0.5_rt;
@@ -431,23 +431,23 @@ int rosenbrock_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2
                 continue;
             }
 
-            ros2s::solve(ros2s, ros2s.ak1);
+            rosenbrock::solve(rstate, rstate.ak1);
 
             bool valid_stage_state = true;
             for (int istage = 2; istage <= C::stages; ++istage) {
                 for (int n = 1; n <= int_neqs; ++n) {
-                    ros2s.ynew(n) = ros2s.y(n);
-                    ros2s::stage(ros2s, istage, n) = 0.0_rt;
+                    rstate.ynew(n) = rstate.y(n);
+                    rosenbrock::stage(rstate, istage, n) = 0.0_rt;
 
                     for (int jstage = 1; jstage < istage; ++jstage) {
-                        const amrex::Real akj = ros2s::stage(ros2s, jstage, n);
-                        ros2s.ynew(n) += C::a(istage, jstage) * akj;
-                        ros2s::stage(ros2s, istage, n) +=
+                        const amrex::Real akj = rosenbrock::stage(rstate, jstage, n);
+                        rstate.ynew(n) += C::a(istage, jstage) * akj;
+                        rosenbrock::stage(rstate, istage, n) +=
                             (C::c(istage, jstage) / h) * akj;
                     }
                 }
 
-                if (! ros2s::valid_integrator_state(ros2s.ynew)) {
+                if (! rosenbrock::valid_integrator_state(rstate.ynew)) {
                     h *= 0.25_rt;
                     reject = true;
                     n_reject += 1;
@@ -456,13 +456,13 @@ int rosenbrock_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2
                     break;
                 }
 
-                ros2s::rhs_at(x + C::ct(istage) * h, state, ros2s, ros2s.ynew, rhs_tmp);
-                ros2s.n_rhs += 1;
+                rosenbrock::rhs_at(x + C::ct(istage) * h, state, rstate, rstate.ynew, rhs_tmp);
+                rstate.n_rhs += 1;
 
                 for (int n = 1; n <= int_neqs; ++n) {
-                    ros2s::stage(ros2s, istage, n) += rhs_tmp(n);
+                    rosenbrock::stage(rstate, istage, n) += rhs_tmp(n);
                 }
-                ros2s::solve(ros2s, ros2s::stage_vector(ros2s, istage));
+                rosenbrock::solve(rstate, rosenbrock::stage_vector(rstate, istage));
             }
 
             if (! valid_stage_state) {
@@ -474,18 +474,18 @@ int rosenbrock_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2
                 amrex::Real err = 0.0_rt;
 
                 for (int istage = 1; istage <= C::stages; ++istage) {
-                    const amrex::Real aki = ros2s::stage(ros2s, istage, n);
+                    const amrex::Real aki = rosenbrock::stage(rstate, istage, n);
                     y_update += C::b(istage) * aki;
                     err += C::e(istage) * aki;
                 }
 
-                ros2s.ynew(n) = ros2s.y(n) + y_update;
-                ros2s.work(n) = err;
+                rstate.ynew(n) = rstate.y(n) + y_update;
+                rstate.work(n) = err;
             }
 
-            ros2s.n_step += 1;
+            rstate.n_step += 1;
 
-            const bool valid_state = ros2s::valid_integrator_state(ros2s.ynew);
+            const bool valid_state = rosenbrock::valid_integrator_state(rstate.ynew);
             if (! valid_state) {
                 reject = true;
                 n_reject += 1;
@@ -494,13 +494,13 @@ int rosenbrock_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2
                 continue;
             }
 
-            const bool valid_update = ros2s::species_change_valid(ros2s);
+            const bool valid_update = rosenbrock::species_change_valid(rstate);
             constexpr amrex::Real err_min = 1.e-10_rt;
-            amrex::Real err = ros2s::error_norm(ros2s);
+            amrex::Real err = rosenbrock::error_norm(rstate);
             amrex::Real controller_fac = 1.0_rt;
 
             if (integrator_rp::rosenbrock_timestep_controller == 1) {
-                err = ros2s::yass_change_norm(ros2s);
+                err = rosenbrock::yass_change_norm(rstate);
                 controller_fac = amrex::Clamp(1.0_rt / amrex::max(err, err_min),
                                               integrator_rp::yass_fac_min,
                                               integrator_rp::yass_fac_max);
@@ -520,7 +520,7 @@ int rosenbrock_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2
 
             if (err <= 1.0_rt && valid_update) {
                 for (int n = 1; n <= int_neqs; ++n) {
-                    ros2s.y(n) = ros2s.ynew(n);
+                    rstate.y(n) = rstate.ynew(n);
                 }
                 x += h;
 
@@ -550,28 +550,28 @@ int rosenbrock_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2
 
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-int ros2s_integrator (BurnT& state, ros2s_t<integrator_neqs<BurnT>()>& ros2s)
+int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>& rstate)
 {
     if (integrator_rp::rosenbrock_tableau == 1) {
-        return rosenbrock_integrator<BurnT, ros2s::ros2_tableau>(state, ros2s);
+        return rosenbrock_integrator<BurnT, rosenbrock::ros2_tableau>(state, rstate);
     }
     if (integrator_rp::rosenbrock_tableau == 2) {
-        return rosenbrock_integrator<BurnT, ros2s::sandu_a_tableau>(state, ros2s);
+        return rosenbrock_integrator<BurnT, rosenbrock::sandu_a_tableau>(state, rstate);
     }
     if (integrator_rp::rosenbrock_tableau == 3) {
-        return rosenbrock_integrator<BurnT, ros2s::sandu_b_tableau>(state, ros2s);
+        return rosenbrock_integrator<BurnT, rosenbrock::sandu_b_tableau>(state, rstate);
     }
     if (integrator_rp::rosenbrock_tableau == 4) {
-        return rosenbrock_integrator<BurnT, ros2s::sandu_c_tableau>(state, ros2s);
+        return rosenbrock_integrator<BurnT, rosenbrock::sandu_c_tableau>(state, rstate);
     }
     if (integrator_rp::rosenbrock_tableau == 5) {
-        return rosenbrock_integrator<BurnT, ros2s::sandu_d_tableau>(state, ros2s);
+        return rosenbrock_integrator<BurnT, rosenbrock::sandu_d_tableau>(state, rstate);
     }
     if (integrator_rp::rosenbrock_tableau == 6) {
-        return rosenbrock_integrator<BurnT, ros2s::rosenbrock_euler_tableau>(state, ros2s);
+        return rosenbrock_integrator<BurnT, rosenbrock::rosenbrock_euler_tableau>(state, rstate);
     }
 
-    return rosenbrock_integrator<BurnT, ros2s::ros2s_tableau>(state, ros2s);
+    return rosenbrock_integrator<BurnT, rosenbrock::ros2s_tableau>(state, rstate);
 }
 
 #endif

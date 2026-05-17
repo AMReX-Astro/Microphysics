@@ -1,10 +1,10 @@
-#ifndef ROS2S_TABLEAU_H
-#define ROS2S_TABLEAU_H
+#ifndef ROSENBROCK_TABLEAU_H
+#define ROSENBROCK_TABLEAU_H
 
 #include <AMReX_GpuQualifiers.H>
 #include <AMReX_REAL.H>
 
-namespace ros2s {
+namespace rosenbrock {
 
 struct ros2s_tableau {
     static constexpr int stages = 3;
