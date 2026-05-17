@@ -24,6 +24,7 @@ def parse_args() -> argparse.Namespace:
         "--title",
         default="VODE vs ROS2S tolerance sweep",
     )
+    parser.add_argument("--xlabel", default="rtol_spec")
     return parser.parse_args()
 
 
@@ -34,7 +35,7 @@ def read_rows(path: Path) -> list[dict[str, str]]:
             "integrator",
             "rtol_spec",
             "walltime_median_s",
-            "error_linf_rel",
+            "error_l1_rel",
             "pareto_global",
         }
         missing = required - set(reader.fieldnames or [])
@@ -75,7 +76,7 @@ def main() -> int:
 
     ax.set_xscale("log")
     ax.set_yscale("log")
-    ax.set_xlabel("rtol_spec")
+    ax.set_xlabel(args.xlabel)
     ax.set_ylabel("median walltime [s]")
     ax.set_title(args.title)
     ax.grid(True, which="both", linestyle=":", linewidth=0.7)
