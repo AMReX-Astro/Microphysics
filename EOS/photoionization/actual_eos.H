@@ -41,6 +41,12 @@ void actual_eos_init ()
     GET_SPECIES_PARAMS(3);
 
     #undef GET_SPECIES_PARAMS
+
+    // Electrons have actual electron mass, not proton mass
+    int const e_idx = network_spec_index("Electron");
+    if (e_idx >= 0) {
+        spmasses[e_idx] = C::m_e;
+    }
 }
 
 
@@ -77,7 +83,9 @@ void actual_eos (I input, T& state)
         sum_ni_fi_over_2 += state.xn[n] / (gammas[n] - 1.0);
         sum_Abarinv += state.xn[n];
     }
-    sum_ni_fi_over_2 /= sum_Abarinv;
+    // fi_over_2_avg is the per-particle average heat capacity (used for cs, G, pressure)
+    // sum_ni_fi_over_2 remains the total (unnormalized) heat capacity (used for e, T, dedT)
+    const amrex::Real fi_over_2_avg = sum_ni_fi_over_2 / sum_Abarinv;
     sum_Abarinv *= protonmass/rhotot;
     state.mu = 1.0 / sum_Abarinv;
 
@@ -139,7 +147,7 @@ void actual_eos (I input, T& state)
 
             // stop the integration if the pressure < 0
             AMREX_ASSERT(state.p > 0.);
-            eint = state.p * sum_ni_fi_over_2 / dens;
+            eint = state.p * fi_over_2_avg / dens;
             temp = eint * rhotot / (sum_ni_fi_over_2 * C::k_B);
         }
         break;
@@ -191,14 +199,14 @@ void actual_eos (I input, T& state)
     }
 
     if constexpr (has_pressure<T>::value) {
-        amrex::Real pressure = state.rho * eint / sum_ni_fi_over_2;
+        amrex::Real pressure = state.rho * eint / fi_over_2_avg;
         state.p = pressure;
 
         state.dpdT = pressure / temp;
         state.dpdr = pressure / dens;
-        state.cs = std::sqrt((1.0 + 1.0/sum_ni_fi_over_2) * state.p /state.rho);
+        state.cs = std::sqrt((1.0 + 1.0/fi_over_2_avg) * state.p /state.rho);
         if constexpr (has_G<T>::value) {
-            state.G = 0.5 * (1.0 + (1.0 + 1.0/sum_ni_fi_over_2));
+            state.G = 0.5 * (1.0 + (1.0 + 1.0/fi_over_2_avg));
         }
     }
 
