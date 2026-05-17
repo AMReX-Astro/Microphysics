@@ -23,11 +23,6 @@ void actual_integrator (BurnT& state, amrex::Real dt, bool is_retry=false)
     int istate = rosenbrock_integrator(state, rosenbrock_state);
 
     integrator_cleanup(rosenbrock_state, state, istate, state_save, dt);
-
-    state.rhs_walltime = rosenbrock_state.rhs_walltime;
-    state.jacobian_walltime = rosenbrock_state.jacobian_walltime;
-    state.lu_walltime = rosenbrock_state.lu_walltime;
-    state.linear_solve_walltime = rosenbrock_state.linear_solve_walltime;
 }
 
 #endif

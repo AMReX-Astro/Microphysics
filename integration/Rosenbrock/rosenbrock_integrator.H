@@ -2,9 +2,6 @@
 #define ROSENBROCK_INTEGRATOR_H
 
 #include <AMReX_Algorithm.H>
-#ifndef AMREX_USE_GPU
-#include <AMReX_ParallelDescriptor.H>
-#endif
 
 #include <cmath>
 #include <limits>
@@ -25,16 +22,6 @@
 #include <rosenbrock_tableau.H>
 
 namespace rosenbrock {
-
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-amrex::Real profile_second ()
-{
-#ifdef AMREX_USE_GPU
-    return 0.0_rt;
-#else
-    return amrex::ParallelDescriptor::second();
-#endif
-}
 
 template <int int_neqs>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
@@ -201,20 +188,15 @@ void evaluate_jacobian (BurnT& state, rosenbrock_t<int_neqs>& rstate, const amre
 {
     constexpr bool in_jacobian = true;
 
-    amrex::Real profile_start = profile_second();
     rhs(time, state, rstate, rstate.ak1, in_jacobian);
-    rstate.rhs_walltime += profile_second() - profile_start;
     rstate.n_rhs += 1;
 
     if (rstate.jacobian_type == 1) {
-        profile_start = profile_second();
         jac(time, state, rstate, rstate.jac);
-        rstate.jacobian_walltime += profile_second() - profile_start;
         rstate.n_jac += 1;
         return;
     }
 
-    profile_start = profile_second();
     constexpr amrex::Real UROUND = std::numeric_limits<amrex::Real>::epsilon();
     amrex::Array1D<amrex::Real, 1, int_neqs> ewt;
 
@@ -230,27 +212,20 @@ void evaluate_jacobian (BurnT& state, rosenbrock_t<int_neqs>& rstate, const amre
     if (R0 == 0.0_rt) {
         R0 = 1.0_rt;
     }
-    rstate.jacobian_walltime += profile_second() - profile_start;
 
     for (int j = 1; j <= int_neqs; ++j) {
-        profile_start = profile_second();
         const amrex::Real yj = rstate.y(j);
         const amrex::Real R = amrex::max(std::sqrt(UROUND) * std::abs(yj), R0 / ewt(j));
         rstate.y(j) += R;
-        rstate.jacobian_walltime += profile_second() - profile_start;
 
-        const amrex::Real rhs_profile_start = profile_second();
         rhs(time, state, rstate, rstate.work, in_jacobian);
-        rstate.rhs_walltime += profile_second() - rhs_profile_start;
 
-        profile_start = profile_second();
         fac = 1.0_rt / R;
         for (int i = 1; i <= int_neqs; ++i) {
             rstate.jac.set(i, j, (rstate.work(i) - rstate.ak1(i)) * fac);
         }
 
         rstate.y(j) = yj;
-        rstate.jacobian_walltime += profile_second() - profile_start;
     }
 
     rstate.n_rhs += int_neqs;
@@ -270,9 +245,7 @@ void rhs_at (const amrex::Real time, BurnT& state, rosenbrock_t<int_neqs>& rstat
         rstate.y(n) = y(n);
     }
 
-    const amrex::Real profile_start = profile_second();
     rhs(time, state, rstate, ydot);
-    rstate.rhs_walltime += profile_second() - profile_start;
 
     for (int n = 1; n <= int_neqs; ++n) {
         rstate.y(n) = ysave(n);
@@ -283,8 +256,6 @@ template <int int_neqs>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 int decompose (rosenbrock_t<int_neqs>& rstate, const amrex::Real fac)
 {
-    const amrex::Real profile_start = profile_second();
-
     for (int j = 1; j <= int_neqs; ++j) {
         for (int i = 1; i <= int_neqs; ++i) {
             rstate.jac(i, j) = -rstate.jac(i, j);
@@ -301,8 +272,6 @@ int decompose (rosenbrock_t<int_neqs>& rstate, const amrex::Real fac)
         dgefa<int_neqs, allow_pivot>(rstate.jac, rstate.pivot, ierr_linpack);
     }
 
-    rstate.lu_walltime += profile_second() - profile_start;
-
     return ierr_linpack;
 }
 
@@ -310,8 +279,6 @@ template <int int_neqs>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void solve (rosenbrock_t<int_neqs>& rstate, RArray1D& b)
 {
-    const amrex::Real profile_start = profile_second();
-
     if (integrator_rp::linalg_do_pivoting == 1) {
         constexpr bool allow_pivot{true};
         dgesl<int_neqs, allow_pivot>(rstate.jac, rstate.pivot, b);
@@ -319,8 +286,6 @@ void solve (rosenbrock_t<int_neqs>& rstate, RArray1D& b)
         constexpr bool allow_pivot{false};
         dgesl<int_neqs, allow_pivot>(rstate.jac, rstate.pivot, b);
     }
-
-    rstate.linear_solve_walltime += profile_second() - profile_start;
 }
 
 } // namespace rosenbrock
@@ -355,10 +320,6 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
     rstate.n_rhs = 0;
     rstate.n_jac = 0;
     rstate.n_step = 0;
-    rstate.rhs_walltime = 0.0_rt;
-    rstate.jacobian_walltime = 0.0_rt;
-    rstate.lu_walltime = 0.0_rt;
-    rstate.linear_solve_walltime = 0.0_rt;
 
     rstate.dt = rstate.tout - rstate.t;
 
