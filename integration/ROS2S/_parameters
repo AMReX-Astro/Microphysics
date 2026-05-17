@@ -11,7 +11,13 @@ X_reject_buffer              real         1.0
 #   3 = Sandu (2000) positivity-favoring method B
 #   4 = Sandu (2000) positivity-favoring method C
 #   5 = Sandu (2000) positivity-favoring method D
+#   6 = Rosenbrock-Euler 1-stage method
 rosenbrock_tableau           int          0
+
+# Timestep controller selector:
+#   0 = H211b error-history controller
+#   1 = Khokhlov/YASS concentration-change controller
+rosenbrock_timestep_controller int        0
 
 # H211b timestep controller parameters
 h211b_b                      real         4.0
@@ -19,3 +25,21 @@ h211b_k                      real         2.5
 h211b_fac_min                real         0.2
 h211b_fac_max                real         6.0
 h211b_reduction_fac          real         0.5
+
+# Khokhlov/YASS timestep controller parameters. This controller accepts a
+# step when each active species changes by no more than yass_epsilon
+# relative to its starting value. Species with concentration <= yass_floor
+# times the most abundant species do not constrain the step.
+yass_epsilon                 real         0.1
+yass_floor                   real         1.e-3
+yass_fac_min                 real         0.2
+yass_fac_max                 real         6.0
+yass_reduction_fac           real         0.5
+
+# Optional diagnostic: during numerical-Jacobian ROS2S runs, also compute the
+# analytic Jacobian at selected Jacobian evaluations and write AD-vs-FD entry
+# differences. Disabled when interval <= 0.
+jacobian_compare_interval    int          0
+jacobian_compare_limit       int          20
+jacobian_compare_top_entries int          10
+jacobian_compare_file        string       "ros2s_ad_fd_jacobian_compare.csv"

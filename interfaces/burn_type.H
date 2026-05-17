@@ -155,6 +155,7 @@ struct burn_t
 
   // diagnostics
   int n_rhs{}, n_jac{}, n_step{};
+  amrex::Real rhs_walltime{}, jacobian_walltime{}, lu_walltime{}, linear_solve_walltime{};
 
   // Was the burn successful?
   bool success{};

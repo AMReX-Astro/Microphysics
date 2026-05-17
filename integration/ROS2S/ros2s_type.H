@@ -31,6 +31,11 @@ struct ros2s_t {
     int n_rhs;
     int n_jac;
 
+    amrex::Real rhs_walltime;
+    amrex::Real jacobian_walltime;
+    amrex::Real lu_walltime;
+    amrex::Real linear_solve_walltime;
+
     amrex::Real atol_spec;
     amrex::Real rtol_spec;
 

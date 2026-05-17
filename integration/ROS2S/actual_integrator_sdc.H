@@ -23,6 +23,11 @@ void actual_integrator (BurnT& state, amrex::Real dt, bool is_retry=false)
     int istate = ros2s_integrator(state, ros2s_state);
 
     integrator_cleanup(ros2s_state, state, istate, state_save, dt);
+
+    state.rhs_walltime = ros2s_state.rhs_walltime;
+    state.jacobian_walltime = ros2s_state.jacobian_walltime;
+    state.lu_walltime = ros2s_state.lu_walltime;
+    state.linear_solve_walltime = ros2s_state.linear_solve_walltime;
 }
 
 #endif
