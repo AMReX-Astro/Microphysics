@@ -199,6 +199,12 @@ void evaluate_jacobian (BurnT& state, rosenbrock_t<int_neqs>& rstate, const amre
 
     constexpr amrex::Real UROUND = std::numeric_limits<amrex::Real>::epsilon();
     amrex::Array1D<amrex::Real, 1, int_neqs> ewt;
+    amrex::Array1D<amrex::Real, 1, int_neqs> ybase;
+
+    // rhs() may clean or renormalize all components of rstate.y.
+    for (int i = 1; i <= int_neqs; ++i) {
+        ybase(i) = rstate.y(i);
+    }
 
     amrex::Real fac = 0.0_rt;
     for (int i = 1; i <= int_neqs; ++i) {
@@ -214,8 +220,11 @@ void evaluate_jacobian (BurnT& state, rosenbrock_t<int_neqs>& rstate, const amre
     }
 
     for (int j = 1; j <= int_neqs; ++j) {
-        const amrex::Real yj = rstate.y(j);
+        const amrex::Real yj = ybase(j);
         const amrex::Real R = amrex::max(std::sqrt(UROUND) * std::abs(yj), R0 / ewt(j));
+        for (int n = 1; n <= int_neqs; ++n) {
+            rstate.y(n) = ybase(n);
+        }
         rstate.y(j) += R;
 
         rhs(time, state, rstate, rstate.work, in_jacobian);
@@ -225,7 +234,9 @@ void evaluate_jacobian (BurnT& state, rosenbrock_t<int_neqs>& rstate, const amre
             rstate.jac.set(i, j, (rstate.work(i) - rstate.ak1(i)) * fac);
         }
 
-        rstate.y(j) = yj;
+        for (int n = 1; n <= int_neqs; ++n) {
+            rstate.y(n) = ybase(n);
+        }
     }
 
     rstate.n_rhs += int_neqs;
