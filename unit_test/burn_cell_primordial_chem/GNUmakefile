@@ -2,11 +2,11 @@ PRECISION  = DOUBLE
 PROFILE    = FALSE
 
 # Set DEBUG to TRUE if debugging
-DEBUG      = FALSE
+DEBUG      = TRUE
 
 DIM        = 1
 
-COMP       = llvm
+COMP       = gnu
 
 USE_MPI    = FALSE
 USE_OMP    = FALSE
@@ -15,7 +15,7 @@ USE_CUDA   = FALSE
 USE_REACT = TRUE
 
 # Set USE_MICROPHYSICS_DEBUG to TRUE if debugging
-USE_MICROPHYSICS_DEBUG = FALSE
+USE_MICROPHYSICS_DEBUG = TRUE
 
 EBASE = main
 
@@ -30,8 +30,7 @@ NETWORK_DIR := primordial_chem
 
 CONDUCTIVITY_DIR := stellar
 
-INTEGRATOR_DIR = VODE
-USERSuffix := .$(INTEGRATOR_DIR)
+INTEGRATOR_DIR =  VODE
 
 EXTERN_SEARCH += .
 

@@ -9,7 +9,6 @@
 #include <extern_parameters.H>
 #include <network.H>
 #include <actual_network.H>
-#include <AMReX_ParallelDescriptor.H>
 
 amrex::Real grav_constant = 6.674e-8;
 
@@ -148,7 +147,6 @@ auto burn_cell_c() -> int {
   // the loop below is similar to that used in krome and pynucastro
   amrex::Real dd = rhotot;
   amrex::Real dd1 = 0.0_rt;
-  amrex::Real collapse_loop_walltime = amrex::ParallelDescriptor::second();
 
   for (int n = 0; n < unit_test_rp::nsteps; n++) {
 
@@ -238,14 +236,6 @@ auto burn_cell_c() -> int {
       state_over_time << std::setw(15) << state.xn[x];
     }
     state_over_time << std::endl;
-  }
-  collapse_loop_walltime =
-      amrex::ParallelDescriptor::second() - collapse_loop_walltime;
-  const int IOProc = amrex::ParallelDescriptor::IOProcessorNumber();
-  amrex::ParallelDescriptor::ReduceRealMax(collapse_loop_walltime, IOProc);
-  if (amrex::ParallelDescriptor::IOProcessor()) {
-    std::cout << "collapse loop walltime: " << collapse_loop_walltime << " s"
-              << std::endl;
   }
   state_over_time.close();
 

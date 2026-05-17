@@ -46,17 +46,9 @@ integrator.X_reject_buffer = 1e100
 integrator.jacobian = 1
 # do you want to normalize abundances within VODE? (you don't!)
 integrator.renormalize_abundances = 0
-
-# species tolerances
+# tolerances
 integrator.rtol_spec = 1.0e-4
-integrator.atol_spec = 1.0e-8
-
-# energy tolerances
-integrator.rtol_enuc = 1.0e-6
-integrator.atol_enuc = 1.0
-
-# tableau (0 = ROS2S, 1 = ROS2)
-integrator.rosenbrock_tableau = 1
+integrator.atol_spec = 1.0e-4
 
 #assumed redshift for Pop III star formation
 network.redshift = 30.0
