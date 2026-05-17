@@ -515,7 +515,14 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
                 hnew *= integrator_rp::rosenbrock_timestep_controller == 1 ?
                     integrator_rp::yass_reduction_fac : integrator_rp::h211b_reduction_fac;
             }
-            h = valid_update ? hnew : 0.25_rt * h;
+            if (valid_update) {
+                const amrex::Real reject_fac =
+                    integrator_rp::rosenbrock_timestep_controller == 1 ?
+                    integrator_rp::yass_reduction_fac : integrator_rp::h211b_reduction_fac;
+                h = posneg * amrex::min(std::abs(hnew), reject_fac * std::abs(h));
+            } else {
+                h *= 0.25_rt;
+            }
         }
     }
 }
