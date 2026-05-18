@@ -25,6 +25,11 @@ void actual_eos_init ()
         gammas[n] = eos_rp::eos_gamma_default;
         spmasses[n] = 1.67353251819e-24;
     }
+    // Electrons have actual electron mass, not proton mass
+    int const e_idx = network_spec_index("Electron");
+    if (e_idx >= 0) {
+        spmasses[e_idx] = C::m_e;
+    }
 
     int idx;
     // Set the gammas & masses for the species
@@ -42,11 +47,6 @@ void actual_eos_init ()
 
     #undef GET_SPECIES_PARAMS
 
-    // Electrons have actual electron mass, not proton mass
-    int const e_idx = network_spec_index("Electron");
-    if (e_idx >= 0) {
-        spmasses[e_idx] = C::m_e;
-    }
 }
 
 
