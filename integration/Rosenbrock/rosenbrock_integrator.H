@@ -39,6 +39,18 @@ amrex::Real& stage (rosenbrock_t<int_neqs>& rstate, const int i, const int n)
     if (i == 4) {
         return rstate.ak4(n);
     }
+    if (i == 5) {
+        return rstate.ak5(n);
+    }
+    if (i == 6) {
+        return rstate.ak6(n);
+    }
+    if (i == 7) {
+        return rstate.ak7(n);
+    }
+    if (i == 8) {
+        return rstate.ak8(n);
+    }
     return rstate.work(n);
 }
 
@@ -58,6 +70,18 @@ amrex::Real stage (const rosenbrock_t<int_neqs>& rstate, const int i, const int 
     if (i == 4) {
         return rstate.ak4(n);
     }
+    if (i == 5) {
+        return rstate.ak5(n);
+    }
+    if (i == 6) {
+        return rstate.ak6(n);
+    }
+    if (i == 7) {
+        return rstate.ak7(n);
+    }
+    if (i == 8) {
+        return rstate.ak8(n);
+    }
     return rstate.work(n);
 }
 
@@ -76,6 +100,18 @@ RArray1D& stage_vector (rosenbrock_t<int_neqs>& rstate, const int i)
     }
     if (i == 4) {
         return rstate.ak4;
+    }
+    if (i == 5) {
+        return rstate.ak5;
+    }
+    if (i == 6) {
+        return rstate.ak6;
+    }
+    if (i == 7) {
+        return rstate.ak7;
+    }
+    if (i == 8) {
+        return rstate.ak8;
     }
     return rstate.work;
 }
@@ -307,6 +343,7 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
 {
     using C = Tableau;
     constexpr int int_neqs = integrator_neqs<BurnT>();
+    static_assert(C::stages <= 8, "Rosenbrock integrator stores up to 8 stages");
 
     if (rstate.tout == rstate.t) {
         return IERR_SUCCESS;
@@ -548,6 +585,9 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
     }
     if (integrator_rp::rosenbrock_tableau == 6) {
         return rosenbrock_integrator<BurnT, rosenbrock::rosenbrock_euler_tableau>(state, rstate);
+    }
+    if (integrator_rp::rosenbrock_tableau == 7) {
+        return rosenbrock_integrator<BurnT, rosenbrock::rodas5p_tableau>(state, rstate);
     }
 
     return rosenbrock_integrator<BurnT, rosenbrock::ros2s_tableau>(state, rstate);

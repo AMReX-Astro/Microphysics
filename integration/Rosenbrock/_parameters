@@ -12,6 +12,7 @@ X_reject_buffer              real         1.0
 #   4 = Sandu (2000) positivity-favoring method C
 #   5 = Sandu (2000) positivity-favoring method D
 #   6 = Rosenbrock-Euler 1-stage method
+#   7 = Rodas5P 8-stage method from DifferentialEquations.jl
 rosenbrock_tableau           int          0
 
 # Timestep controller selector:

@@ -43,6 +43,10 @@ struct rosenbrock_t {
     amrex::Array1D<amrex::Real, 1, int_neqs> ak2;
     amrex::Array1D<amrex::Real, 1, int_neqs> ak3;
     amrex::Array1D<amrex::Real, 1, int_neqs> ak4;
+    amrex::Array1D<amrex::Real, 1, int_neqs> ak5;
+    amrex::Array1D<amrex::Real, 1, int_neqs> ak6;
+    amrex::Array1D<amrex::Real, 1, int_neqs> ak7;
+    amrex::Array1D<amrex::Real, 1, int_neqs> ak8;
     amrex::Array1D<amrex::Real, 1, int_neqs> work;
 
     ArrayUtil::MathArray2D<jac_t, 1, int_neqs, 1, int_neqs> jac;
