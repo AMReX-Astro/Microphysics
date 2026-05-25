@@ -1,5 +1,5 @@
-#ifndef actual_rhs_H
-#define actual_rhs_H
+#ifndef ACTUAL_RHS_H
+#define ACTUAL_RHS_H
 
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>
@@ -15,7 +15,10 @@
 #ifdef NEUTRINOS
 #include <neutrino.H>
 #endif
+#include <rate_type.H>
 #include <reaclib_rates.H>
+#include <approximate_rates.H>
+#include <modified_rates.H>
 #include <table_rates.H>
 #include <temperature_table_rates.H>
 #include <derived_rates.H>
@@ -27,7 +30,6 @@ using namespace Species;
 using namespace Rates;
 
 using namespace rate_tables;
-
 
 template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -49,6 +51,51 @@ void ener_gener_rate(T const& dydt, amrex::Real& enuc)
 }
 
 
+#ifdef SCREENING
+template <int do_T_derivatives, typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void evaluate_screening(const burn_t& state,
+                        const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
+                        T& rate_eval) {
+
+    // Evaluate screening terms
+
+    using number_t = std::conditional_t<do_T_derivatives, autodiff::dual, amrex::Real>;
+    number_t temp = state.T;
+    if constexpr (do_T_derivatives) {
+        // seed the dual number for temperature before calculating anything with it
+        autodiff::seed(temp);
+    }
+
+    plasma_state_t<number_t> pstate{};
+    fill_plasma_state(pstate, temp, state.rho, Y);
+
+    amrex::Real log_scor, dlog_scor_dT;
+
+    {
+        constexpr auto scn_fac = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 26.0_rt, 52.0_rt);
+        static_assert(scn_fac.z1 == 2.0_rt);
+        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        rate_eval.log_screen(k_He4_Fe52) = log_scor;
+        if constexpr (do_T_derivatives) {
+            rate_eval.dlog_screen_dT(k_He4_Fe52) = dlog_scor_dT;
+        }
+    }
+
+    {
+        constexpr auto scn_fac = scrn::calculate_screen_factor(1.0_rt, 1.0_rt, 27.0_rt, 55.0_rt);
+        static_assert(scn_fac.z1 == 1.0_rt);
+        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        rate_eval.log_screen(k_p_Co55) = log_scor;
+        if constexpr (do_T_derivatives) {
+            rate_eval.dlog_screen_dT(k_p_Co55) = dlog_scor_dT;
+        }
+    }
+
+}
+#endif
+
+
 template <int do_T_derivatives, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void evaluate_rates(const burn_t& state,
@@ -59,86 +106,37 @@ void evaluate_rates(const burn_t& state,
 
     [[maybe_unused]] amrex::Real rhoy = state.rho * state.y_e;
 
-    // Calculate Reaclib rates
+    const tf_t tfactors = evaluate_tfactors(state.T);
 
-    using number_t = std::conditional_t<do_T_derivatives, autodiff::dual, amrex::Real>;
-    number_t temp = state.T;
-    if constexpr (do_T_derivatives) {
-        // seed the dual number for temperature before calculating anything with it
-        autodiff::seed(temp);
-    }
+    // Precompute screening terms
 
 #ifdef SCREENING
-    plasma_state_t<number_t> pstate{};
-    fill_plasma_state(pstate, temp, state.rho, Y);
+    evaluate_screening<do_T_derivatives, T>(state, Y, rate_eval);
 #endif
 
-    const tf_t tfactors = evaluate_tfactors(state.T);
+    // Fill in different rates
 
     fill_reaclib_rates<do_T_derivatives, T>(tfactors, rate_eval);
 
     temp_tabular::fill_rates<do_T_derivatives, T>(tfactors, rate_eval);
 
-    // Calculate Derived Rates. This should go last but before approx rates.
+    // fill modified rates next -- these can have ReacLib or
+    // TemperatureTabular/StarLib rates as the original rate
+    modified_rates::fill_rates<do_T_derivatives, T>(tfactors, rate_eval);
+
+    // Calculate Derived Rates next. This should go last but before
+    // approx rates, since those may have ReacLibRate,
+    // TemperatureTabularRate / StarLibRate, or DerivedRate as the
+    // underlying rate.
+
     fill_derived_rates<do_T_derivatives, T>(tfactors, rate_eval);
 
-
-#ifdef SCREENING
-    // Evaluate screening factors
-
-    amrex::Real ratraw, dratraw_dT;
-    amrex::Real scor, dscor_dt;
-    [[maybe_unused]] amrex::Real scor2, dscor2_dt;
-
-
-    {
-        constexpr auto scn_fac = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 26.0_rt, 52.0_rt);
-        static_assert(scn_fac.z1 == 2.0_rt);
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
-    }
-
-    ratraw = rate_eval.screened_rates(k_He4_Fe52_to_Ni56_reaclib);
-    rate_eval.screened_rates(k_He4_Fe52_to_Ni56_reaclib) *= scor;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        dratraw_dT = rate_eval.dscreened_rates_dT(k_He4_Fe52_to_Ni56_reaclib);
-        rate_eval.dscreened_rates_dT(k_He4_Fe52_to_Ni56_reaclib) = ratraw * dscor_dt + dratraw_dT * scor;
-    }
-
-    ratraw = rate_eval.screened_rates(k_He4_Fe52_to_p_Co55_reaclib);
-    rate_eval.screened_rates(k_He4_Fe52_to_p_Co55_reaclib) *= scor;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        dratraw_dT = rate_eval.dscreened_rates_dT(k_He4_Fe52_to_p_Co55_reaclib);
-        rate_eval.dscreened_rates_dT(k_He4_Fe52_to_p_Co55_reaclib) = ratraw * dscor_dt + dratraw_dT * scor;
-    }
-
-
-    {
-        constexpr auto scn_fac = scrn::calculate_screen_factor(1.0_rt, 1.0_rt, 27.0_rt, 55.0_rt);
-        static_assert(scn_fac.z1 == 1.0_rt);
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
-    }
-
-    ratraw = rate_eval.screened_rates(k_p_Co55_to_Ni56_reaclib);
-    rate_eval.screened_rates(k_p_Co55_to_Ni56_reaclib) *= scor;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_Co55_to_Ni56_reaclib);
-        rate_eval.dscreened_rates_dT(k_p_Co55_to_Ni56_reaclib) = ratraw * dscor_dt + dratraw_dT * scor;
-    }
-
-    ratraw = rate_eval.screened_rates(k_p_Co55_to_He4_Fe52_derived);
-    rate_eval.screened_rates(k_p_Co55_to_He4_Fe52_derived) *= scor;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_Co55_to_He4_Fe52_derived);
-        rate_eval.dscreened_rates_dT(k_p_Co55_to_He4_Fe52_derived) = ratraw * dscor_dt + dratraw_dT * scor;
-    }
-
-#endif
 
     // Fill approximate rates
 
     fill_approx_rates<do_T_derivatives, T>(tfactors, state.rho, Y, rate_eval);
 
-    // Calculate tabular rates
+    // Calculate tabular weak rates
 
     [[maybe_unused]] amrex::Real rate, drate_dt, edot_nu, edot_gamma;
 

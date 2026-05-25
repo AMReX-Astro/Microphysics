@@ -1,18 +1,25 @@
 #ifndef actual_network_H
 #define actual_network_H
 
+#include <random>
 #include <string_view>
 
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>
 #include <AMReX_Loop.H>
 
+#include <extern_parameters.H>
 #include <fundamental_constants.H>
 #include <network_properties.H>
 
 using namespace amrex::literals;
 
-void actual_network_init();
+
+inline
+void actual_network_init() {
+
+
+}
 
 constexpr std::string_view network_name = "pynucastro-cxx";
 
@@ -246,7 +253,7 @@ namespace Rates
         k_B8_to_p_Be7_reaclib = 5,
         k_B8_to_He4_He4_reaclib = 6,
         k_F17_to_p_O16_reaclib = 7,
-        k_p_p_to_d_reaclib_bet_pos = 8,
+        k_p_p_to_d_reaclib_beta_pos = 8,
         k_p_p_to_d_reaclib_electron_capture = 9,
         k_p_d_to_He3_reaclib = 10,
         k_d_d_to_He4_reaclib = 11,
@@ -296,6 +303,48 @@ namespace Rates
         NumRates = k_Ne19_to_F19_weaktab
     };
 
+    enum ScreenPairs :
+    std::uint8_t
+    {
+        k_p_Li7 = 1,
+        k_p_F18 = 2,
+        k_p_C12 = 3,
+        k_He3_He3 = 4,
+        k_He4_O16 = 5,
+        k_He4_F17 = 6,
+        k_He4_N14 = 7,
+        k_He3_He4 = 8,
+        k_p_F19 = 9,
+        k_p_C13 = 10,
+        k_p_B11 = 11,
+        k_He3_Be7 = 12,
+        k_He4_Li7 = 13,
+        k_He4_F18 = 14,
+        k_He4_C12 = 15,
+        k_p_p = 16,
+        k_p_O17 = 17,
+        k_p_N15 = 18,
+        k_p_O18 = 19,
+        k_p_d = 20,
+        k_p_He3 = 21,
+        k_He4_O17 = 22,
+        k_d_d = 23,
+        k_He4_N15 = 24,
+        k_d_He3 = 25,
+        k_p_Be7 = 26,
+        k_d_Be7 = 27,
+        k_p_N13 = 28,
+        k_He4_O14 = 29,
+        k_He4_He4 = 30,
+        k_He4_Be8 = 31,
+        k_p_O16 = 32,
+        k_p_N14 = 33,
+        k_p_F17 = 34,
+        k_He4_O15 = 35,
+        k_He4_N13 = 36,
+        NumScreenPairs = k_He4_N13
+    };
+
     // rate names -- note: the rates are 1-based, not zero-based, so we pad
     // this vector with rate_names[0] = "" so the indices line up with the
     // NetworkRates enum
@@ -309,7 +358,7 @@ namespace Rates
         "B8_to_p_Be7_reaclib",  // 5,
         "B8_to_He4_He4_reaclib",  // 6,
         "F17_to_p_O16_reaclib",  // 7,
-        "p_p_to_d_reaclib_bet_pos",  // 8,
+        "p_p_to_d_reaclib_beta_pos",  // 8,
         "p_p_to_d_reaclib_electron_capture",  // 9,
         "p_d_to_He3_reaclib",  // 10,
         "d_d_to_He4_reaclib",  // 11,
@@ -357,6 +406,12 @@ namespace Rates
         "Ne18_to_F18_weaktab",  // 53,
         "Ne19_to_F19_weaktab"  // 54,
     };
+
+    template<std::uint8_t rate>
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    constexpr amrex::Real get_p_random() {
+        return 0.0_rt;
+    }
 
 }
 

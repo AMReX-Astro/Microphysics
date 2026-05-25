@@ -1,18 +1,25 @@
 #ifndef actual_network_H
 #define actual_network_H
 
+#include <random>
 #include <string_view>
 
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>
 #include <AMReX_Loop.H>
 
+#include <extern_parameters.H>
 #include <fundamental_constants.H>
 #include <network_properties.H>
 
 using namespace amrex::literals;
 
-void actual_network_init();
+
+inline
+void actual_network_init() {
+
+
+}
 
 constexpr std::string_view network_name = "pynucastro-cxx";
 
@@ -318,11 +325,11 @@ namespace Rates
         k_He4_Fe52_to_p_Co55_reaclib = 29,
         k_p_Cu59_to_He4_Ni56_reaclib = 30,
         k_He4_He4_He4_to_C12_reaclib = 31,
-        k_He4_N14_to_F18_removed = 32,
-        k_p_O16_to_F17_removed = 33,
-        k_C12_C12_to_n_Mg23_removed = 34,
-        k_O16_O16_to_n_S31_removed = 35,
-        k_C12_O16_to_n_Si27_removed = 36,
+        k_He4_N14_to_F18_reaclib = 32,
+        k_p_O16_to_F17_reaclib = 33,
+        k_C12_C12_to_n_Mg23_reaclib = 34,
+        k_O16_O16_to_n_S31_reaclib = 35,
+        k_C12_O16_to_n_Si27_reaclib = 36,
         k_p_Mn55_to_Fe56_reaclib = 37,
         k_n_Fe52_to_Fe53_reaclib = 38,
         k_n_Fe53_to_Fe54_reaclib = 39,
@@ -354,18 +361,18 @@ namespace Rates
         k_n_Ni58_to_He4_Fe55_reaclib = 65,
         k_n_Cu59_to_He4_Co56_reaclib = 66,
         k_n_Zn60_to_He4_Ni57_reaclib = 67,
-        k_He4_S32_to_Ar36_removed = 68,
-        k_p_Cl35_to_Ar36_removed = 69,
-        k_p_Cl35_to_He4_S32_removed = 70,
-        k_He4_Ar36_to_Ca40_removed = 71,
-        k_p_K39_to_Ca40_removed = 72,
-        k_p_K39_to_He4_Ar36_removed = 73,
-        k_He4_Ca40_to_Ti44_removed = 74,
-        k_p_Sc43_to_Ti44_removed = 75,
-        k_p_Sc43_to_He4_Ca40_removed = 76,
-        k_He4_Ti44_to_Cr48_removed = 77,
-        k_He4_Ti44_to_p_V47_removed = 78,
-        k_p_V47_to_Cr48_removed = 79,
+        k_He4_S32_to_Ar36_reaclib = 68,
+        k_p_Cl35_to_Ar36_reaclib = 69,
+        k_p_Cl35_to_He4_S32_reaclib = 70,
+        k_He4_Ar36_to_Ca40_reaclib = 71,
+        k_p_K39_to_Ca40_reaclib = 72,
+        k_p_K39_to_He4_Ar36_reaclib = 73,
+        k_He4_Ca40_to_Ti44_reaclib = 74,
+        k_p_Sc43_to_Ti44_reaclib = 75,
+        k_p_Sc43_to_He4_Ca40_reaclib = 76,
+        k_He4_Ti44_to_Cr48_reaclib = 77,
+        k_He4_Ti44_to_p_V47_reaclib = 78,
+        k_p_V47_to_Cr48_reaclib = 79,
         k_Co55_to_Fe55_weaktab = 80,
         k_Fe55_to_Co55_weaktab = 81,
         k_Fe55_to_Mn55_weaktab = 82,
@@ -447,19 +454,70 @@ namespace Rates
         k_p_Co57_to_n_Ni57_derived = 158,
         k_He4_Ni57_to_n_Zn60_derived = 159,
         k_p_Ni58_to_He4_Co55_derived = 160,
-        k_He4_S32_to_p_Cl35_removed = 161,
-        k_Ar36_to_He4_S32_removed = 162,
-        k_Ar36_to_p_Cl35_removed = 163,
-        k_He4_Ar36_to_p_K39_removed = 164,
-        k_Ca40_to_He4_Ar36_removed = 165,
-        k_Ca40_to_p_K39_removed = 166,
-        k_He4_Ca40_to_p_Sc43_removed = 167,
-        k_Ti44_to_He4_Ca40_removed = 168,
-        k_Ti44_to_p_Sc43_removed = 169,
-        k_Cr48_to_He4_Ti44_removed = 170,
-        k_Cr48_to_p_V47_removed = 171,
-        k_p_V47_to_He4_Ti44_removed = 172,
-        NumRates = k_p_V47_to_He4_Ti44_removed
+        k_He4_S32_to_p_Cl35_derived = 161,
+        k_Ar36_to_He4_S32_derived = 162,
+        k_Ar36_to_p_Cl35_derived = 163,
+        k_He4_Ar36_to_p_K39_derived = 164,
+        k_Ca40_to_He4_Ar36_derived = 165,
+        k_Ca40_to_p_K39_derived = 166,
+        k_He4_Ca40_to_p_Sc43_derived = 167,
+        k_Ti44_to_He4_Ca40_derived = 168,
+        k_Ti44_to_p_Sc43_derived = 169,
+        k_Cr48_to_He4_Ti44_derived = 170,
+        k_Cr48_to_p_V47_derived = 171,
+        k_p_V47_to_He4_Ti44_derived = 172,
+        NumRates = k_p_V47_to_He4_Ti44_derived
+    };
+
+    enum ScreenPairs :
+    std::uint8_t
+    {
+        k_p_C12 = 1,
+        k_He4_O16 = 2,
+        k_He4_N14 = 3,
+        k_p_Co57 = 4,
+        k_p_K39 = 5,
+        k_p_Fe55 = 6,
+        k_He4_Ca40 = 7,
+        k_He4_Ar36 = 8,
+        k_p_Sc43 = 9,
+        k_p_Fe56 = 10,
+        k_He4_C12 = 11,
+        k_He4_Ti44 = 12,
+        k_He4_Fe55 = 13,
+        k_p_Mn55 = 14,
+        k_He4_Mg24 = 15,
+        k_C12_O16 = 16,
+        k_p_V47 = 17,
+        k_He4_Cr48 = 18,
+        k_p_Co55 = 19,
+        k_C12_C12 = 20,
+        k_He4_Ne20 = 21,
+        k_p_Al27 = 22,
+        k_p_Mn51 = 23,
+        k_p_Na23 = 24,
+        k_p_Co56 = 25,
+        k_p_Fe54 = 26,
+        k_He4_Fe52 = 27,
+        k_p_Cu59 = 28,
+        k_He4_S32 = 29,
+        k_He4_Mn51 = 30,
+        k_He4_Co55 = 31,
+        k_He4_Ni56 = 32,
+        k_He4_Fe53 = 33,
+        k_p_P31 = 34,
+        k_He4_He4 = 35,
+        k_p_Ni58 = 36,
+        k_p_O16 = 37,
+        k_He4_Co56 = 38,
+        k_He4_Si28 = 39,
+        k_He4_Fe54 = 40,
+        k_He4_Ni57 = 41,
+        k_p_Cl35 = 42,
+        k_O16_O16 = 43,
+        k_He4_Be8 = 44,
+        k_He4_N13 = 45,
+        NumScreenPairs = k_He4_N13
     };
 
     // rate names -- note: the rates are 1-based, not zero-based, so we pad
@@ -499,11 +557,11 @@ namespace Rates
         "He4_Fe52_to_p_Co55_reaclib",  // 29,
         "p_Cu59_to_He4_Ni56_reaclib",  // 30,
         "He4_He4_He4_to_C12_reaclib",  // 31,
-        "He4_N14_to_F18_removed",  // 32,
-        "p_O16_to_F17_removed",  // 33,
-        "C12_C12_to_n_Mg23_removed",  // 34,
-        "O16_O16_to_n_S31_removed",  // 35,
-        "C12_O16_to_n_Si27_removed",  // 36,
+        "He4_N14_to_F18_reaclib",  // 32,
+        "p_O16_to_F17_reaclib",  // 33,
+        "C12_C12_to_n_Mg23_reaclib",  // 34,
+        "O16_O16_to_n_S31_reaclib",  // 35,
+        "C12_O16_to_n_Si27_reaclib",  // 36,
         "p_Mn55_to_Fe56_reaclib",  // 37,
         "n_Fe52_to_Fe53_reaclib",  // 38,
         "n_Fe53_to_Fe54_reaclib",  // 39,
@@ -535,18 +593,18 @@ namespace Rates
         "n_Ni58_to_He4_Fe55_reaclib",  // 65,
         "n_Cu59_to_He4_Co56_reaclib",  // 66,
         "n_Zn60_to_He4_Ni57_reaclib",  // 67,
-        "He4_S32_to_Ar36_removed",  // 68,
-        "p_Cl35_to_Ar36_removed",  // 69,
-        "p_Cl35_to_He4_S32_removed",  // 70,
-        "He4_Ar36_to_Ca40_removed",  // 71,
-        "p_K39_to_Ca40_removed",  // 72,
-        "p_K39_to_He4_Ar36_removed",  // 73,
-        "He4_Ca40_to_Ti44_removed",  // 74,
-        "p_Sc43_to_Ti44_removed",  // 75,
-        "p_Sc43_to_He4_Ca40_removed",  // 76,
-        "He4_Ti44_to_Cr48_removed",  // 77,
-        "He4_Ti44_to_p_V47_removed",  // 78,
-        "p_V47_to_Cr48_removed",  // 79,
+        "He4_S32_to_Ar36_reaclib",  // 68,
+        "p_Cl35_to_Ar36_reaclib",  // 69,
+        "p_Cl35_to_He4_S32_reaclib",  // 70,
+        "He4_Ar36_to_Ca40_reaclib",  // 71,
+        "p_K39_to_Ca40_reaclib",  // 72,
+        "p_K39_to_He4_Ar36_reaclib",  // 73,
+        "He4_Ca40_to_Ti44_reaclib",  // 74,
+        "p_Sc43_to_Ti44_reaclib",  // 75,
+        "p_Sc43_to_He4_Ca40_reaclib",  // 76,
+        "He4_Ti44_to_Cr48_reaclib",  // 77,
+        "He4_Ti44_to_p_V47_reaclib",  // 78,
+        "p_V47_to_Cr48_reaclib",  // 79,
         "Co55_to_Fe55_weaktab",  // 80,
         "Fe55_to_Co55_weaktab",  // 81,
         "Fe55_to_Mn55_weaktab",  // 82,
@@ -628,19 +686,25 @@ namespace Rates
         "p_Co57_to_n_Ni57_derived",  // 158,
         "He4_Ni57_to_n_Zn60_derived",  // 159,
         "p_Ni58_to_He4_Co55_derived",  // 160,
-        "He4_S32_to_p_Cl35_removed",  // 161,
-        "Ar36_to_He4_S32_removed",  // 162,
-        "Ar36_to_p_Cl35_removed",  // 163,
-        "He4_Ar36_to_p_K39_removed",  // 164,
-        "Ca40_to_He4_Ar36_removed",  // 165,
-        "Ca40_to_p_K39_removed",  // 166,
-        "He4_Ca40_to_p_Sc43_removed",  // 167,
-        "Ti44_to_He4_Ca40_removed",  // 168,
-        "Ti44_to_p_Sc43_removed",  // 169,
-        "Cr48_to_He4_Ti44_removed",  // 170,
-        "Cr48_to_p_V47_removed",  // 171,
-        "p_V47_to_He4_Ti44_removed"  // 172,
+        "He4_S32_to_p_Cl35_derived",  // 161,
+        "Ar36_to_He4_S32_derived",  // 162,
+        "Ar36_to_p_Cl35_derived",  // 163,
+        "He4_Ar36_to_p_K39_derived",  // 164,
+        "Ca40_to_He4_Ar36_derived",  // 165,
+        "Ca40_to_p_K39_derived",  // 166,
+        "He4_Ca40_to_p_Sc43_derived",  // 167,
+        "Ti44_to_He4_Ca40_derived",  // 168,
+        "Ti44_to_p_Sc43_derived",  // 169,
+        "Cr48_to_He4_Ti44_derived",  // 170,
+        "Cr48_to_p_V47_derived",  // 171,
+        "p_V47_to_He4_Ti44_derived"  // 172,
     };
+
+    template<std::uint8_t rate>
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    constexpr amrex::Real get_p_random() {
+        return 0.0_rt;
+    }
 
 }
 

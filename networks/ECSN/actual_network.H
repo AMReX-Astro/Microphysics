@@ -1,18 +1,25 @@
 #ifndef actual_network_H
 #define actual_network_H
 
+#include <random>
 #include <string_view>
 
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>
 #include <AMReX_Loop.H>
 
+#include <extern_parameters.H>
 #include <fundamental_constants.H>
 #include <network_properties.H>
 
 using namespace amrex::literals;
 
-void actual_network_init();
+
+inline
+void actual_network_init() {
+
+
+}
 
 constexpr std::string_view network_name = "pynucastro-cxx";
 
@@ -176,6 +183,20 @@ namespace Rates
         NumRates = k_O20_to_F20_weaktab
     };
 
+    enum ScreenPairs :
+    std::uint8_t
+    {
+        k_p_P31 = 1,
+        k_He4_O16 = 2,
+        k_He4_Ne20 = 3,
+        k_He4_Al27 = 4,
+        k_p_Al27 = 5,
+        k_He4_Mg24 = 6,
+        k_He4_Si28 = 7,
+        k_O16_O16 = 8,
+        NumScreenPairs = k_O16_O16
+    };
+
     // rate names -- note: the rates are 1-based, not zero-based, so we pad
     // this vector with rate_names[0] = "" so the indices line up with the
     // NetworkRates enum
@@ -201,6 +222,12 @@ namespace Rates
         "Ne20_to_F20_weaktab",  // 17,
         "O20_to_F20_weaktab"  // 18,
     };
+
+    template<std::uint8_t rate>
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    constexpr amrex::Real get_p_random() {
+        return 0.0_rt;
+    }
 
 }
 
