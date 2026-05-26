@@ -512,6 +512,138 @@ struct rodas5p_tableau {
     }
 };
 
+struct rodas4p_tableau {
+    static constexpr int stages = 6;
+    static constexpr amrex::Real gamma = 0.25_rt;
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real ct (const int i) {
+        if (i == 2) {
+            return 0.75_rt;
+        }
+        if (i == 3) {
+            return 0.21_rt;
+        }
+        if (i == 4) {
+            return 0.63_rt;
+        }
+        if (i >= 5) {
+            return 1.0_rt;
+        }
+        return 0.0_rt;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real a (const int i, const int j) {
+        if (i == 2 && j == 1) {
+            return 3.0_rt;
+        }
+        if (i == 3 && j == 1) {
+            return 1.831036793486759_rt;
+        }
+        if (i == 3 && j == 2) {
+            return 0.4955183967433795_rt;
+        }
+        if (i == 4 && j == 1) {
+            return 2.304376582692669_rt;
+        }
+        if (i == 4 && j == 2) {
+            return -0.05249275245743001_rt;
+        }
+        if (i == 4 && j == 3) {
+            return -1.176798761832782_rt;
+        }
+        if ((i == 5 || i == 6) && j == 1) {
+            return -7.170454962423024_rt;
+        }
+        if ((i == 5 || i == 6) && j == 2) {
+            return -4.741636671481785_rt;
+        }
+        if ((i == 5 || i == 6) && j == 3) {
+            return -16.31002631330971_rt;
+        }
+        if ((i == 5 || i == 6) && j == 4) {
+            return -1.062004044111401_rt;
+        }
+        if (i == 6 && j == 5) {
+            return 1.0_rt;
+        }
+        return 0.0_rt;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real c (const int i, const int j) {
+        if (i == 2 && j == 1) {
+            return -12.0_rt;
+        }
+        if (i == 3 && j == 1) {
+            return -8.791795173947035_rt;
+        }
+        if (i == 3 && j == 2) {
+            return -2.207865586973518_rt;
+        }
+        if (i == 4 && j == 1) {
+            return 10.81793056857153_rt;
+        }
+        if (i == 4 && j == 2) {
+            return 6.780270611428266_rt;
+        }
+        if (i == 4 && j == 3) {
+            return 19.5348594464241_rt;
+        }
+        if (i == 5 && j == 1) {
+            return 34.19095006749676_rt;
+        }
+        if (i == 5 && j == 2) {
+            return 15.49671153725963_rt;
+        }
+        if (i == 5 && j == 3) {
+            return 54.7476087596413_rt;
+        }
+        if (i == 5 && j == 4) {
+            return 14.16005392148534_rt;
+        }
+        if (i == 6 && j == 1) {
+            return 34.62605830930532_rt;
+        }
+        if (i == 6 && j == 2) {
+            return 15.30084976114473_rt;
+        }
+        if (i == 6 && j == 3) {
+            return 56.99955578662667_rt;
+        }
+        if (i == 6 && j == 4) {
+            return 18.40807009793095_rt;
+        }
+        if (i == 6 && j == 5) {
+            return -5.714285714285717_rt;
+        }
+        return 0.0_rt;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real b (const int i) {
+        if (i == 1) {
+            return -7.170454962423024_rt;
+        }
+        if (i == 2) {
+            return -4.741636671481785_rt;
+        }
+        if (i == 3) {
+            return -16.31002631330971_rt;
+        }
+        if (i == 4) {
+            return -1.062004044111401_rt;
+        }
+        return 1.0_rt;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real e (const int i) {
+        return i == 6 ? 1.0_rt : 0.0_rt;
+    }
+};
+
 struct rosenbrock_euler_tableau {
     static constexpr int stages = 1;
     static constexpr amrex::Real gamma = 1.0_rt;

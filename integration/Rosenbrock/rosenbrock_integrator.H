@@ -589,6 +589,9 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
     if (integrator_rp::rosenbrock_tableau == 7) {
         return rosenbrock_integrator<BurnT, rosenbrock::rodas5p_tableau>(state, rstate);
     }
+    if (integrator_rp::rosenbrock_tableau == 8) {
+        return rosenbrock_integrator<BurnT, rosenbrock::rodas4p_tableau>(state, rstate);
+    }
 
     return rosenbrock_integrator<BurnT, rosenbrock::ros2s_tableau>(state, rstate);
 }
