@@ -3,7 +3,6 @@
 
 #include <network.H>
 #include <actual_network.H>
-#include <eos_composition.H>
 #ifdef NEW_NETWORK_IMPLEMENTATION
 #include <rhs.H>
 #else
@@ -142,31 +141,6 @@ void jac ([[maybe_unused]] const amrex::Real time, BurnT& state, T& int_state, M
                 pd.mul(j, i, aion[j-1]);
                 pd.mul(i, j, aion_inv[j-1]);
             }
-        }
-    }
-
-    // The network Jacobian is evaluated at constant T, but the Strang
-    // integrators use e as the thermodynamic variable. Convert species
-    // columns to constant-e derivatives.
-
-    eos_re_extra_t eos_state;
-    eos_state.rho = state.rho;
-    eos_state.T = state.T;
-    eos_state.e = state.e;
-    for (int n = 0; n < NumSpec; n++) {
-        eos_state.xn[n] = state.xn[n];
-    }
-#ifdef AUX_THERMO
-    set_aux_comp_from_X(eos_state);
-#endif
-
-    eos(eos_input_re, eos_state);
-
-    eos_xderivs_t eos_xderivs = composition_derivatives(eos_state);
-
-    for (int j = 1; j <= NumSpec; ++j) {
-        for (int i = 1; i <= INT_NEQS; ++i) {
-            pd(i,j) -= eos_xderivs.dedX[j-1] * pd(i,net_ienuc);
         }
     }
 
