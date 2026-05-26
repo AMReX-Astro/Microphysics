@@ -107,6 +107,102 @@ struct ros2_tableau {
     }
 };
 
+struct rodas3p_tableau {
+    static constexpr int stages = 5;
+    static constexpr amrex::Real gamma = 1.0_rt / 3.0_rt;
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real ct (const int i) {
+        if (i == 2) {
+            return 4.0_rt / 9.0_rt;
+        }
+        if (i >= 4) {
+            return 1.0_rt;
+        }
+        return 0.0_rt;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real a (const int i, const int j) {
+        if (i == 2 && j == 1) {
+            return 4.0_rt / 3.0_rt;
+        }
+        if ((i == 4 || i == 5) && j == 1) {
+            return 2.90625_rt;
+        }
+        if ((i == 4 || i == 5) && j == 2) {
+            return 3.375_rt;
+        }
+        if ((i == 4 || i == 5) && j == 3) {
+            return 0.40625_rt;
+        }
+        return 0.0_rt;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real c (const int i, const int j) {
+        if (i == 2 && j == 1) {
+            return -4.0_rt;
+        }
+        if (i == 3 && j == 1) {
+            return 8.25_rt;
+        }
+        if (i == 3 && j == 2) {
+            return 6.75_rt;
+        }
+        if (i == 4 && j == 1) {
+            return 1.21875_rt;
+        }
+        if (i == 4 && j == 2) {
+            return -5.0625_rt;
+        }
+        if (i == 4 && j == 3) {
+            return -1.96875_rt;
+        }
+        if (i == 5 && j == 1) {
+            return 4.03125_rt;
+        }
+        if (i == 5 && j == 2) {
+            return -15.1875_rt;
+        }
+        if (i == 5 && j == 3) {
+            return -4.03125_rt;
+        }
+        if (i == 5 && j == 4) {
+            return 6.0_rt;
+        }
+        return 0.0_rt;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real b (const int i) {
+        if (i == 1) {
+            return 2.90625_rt;
+        }
+        if (i == 2) {
+            return 3.375_rt;
+        }
+        if (i == 3) {
+            return 0.40625_rt;
+        }
+        if (i == 5) {
+            return 1.0_rt;
+        }
+        return 0.0_rt;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real e (const int i) {
+        if (i == 4) {
+            return -1.0_rt;
+        }
+        if (i == 5) {
+            return 1.0_rt;
+        }
+        return 0.0_rt;
+    }
+};
+
 struct rodas5p_tableau {
     static constexpr int stages = 8;
     static constexpr amrex::Real gamma = 0.21193756319429014_rt;

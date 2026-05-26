@@ -10,6 +10,7 @@ X_reject_buffer              real         1.0
 #   2 = existing 3-stage ROS2S tableau
 #   3 = Verwer et al. (1999) 2-stage ROS2 tableau
 #   4 = Rosenbrock-Euler 1-stage method
+#   5 = Rodas3P 5-stage method from DifferentialEquations.jl
 rosenbrock_tableau           int          0
 
 # Timestep controller selector:
