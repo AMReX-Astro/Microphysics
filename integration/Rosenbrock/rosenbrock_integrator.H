@@ -201,7 +201,7 @@ bool valid_integrator_state (const amrex::Array1D<amrex::Real, 1, int_neqs>& y)
 
 #ifdef STRANG
     for (int n = 1; n <= NumSpec; ++n) {
-        if (y(n) < 0.0_rt) {
+        if (y(n) < -integrator_rp::atol_spec) {
             return false;
         }
 
