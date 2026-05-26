@@ -113,6 +113,25 @@ For the other networks (usually pynucastro networks), the implementation is
 provided in ``Microphysics/util/linpack.H`` and is templated on the number
 of equations.  Pivoting can be disabled by setting ``integrator.linalg_do_pivoting=0``.
 
+.. index:: USE_SINGLE_PRECISION_JACOBIAN
+
+.. tip::
+
+   The storage for the Jacobian can take up the most memory when
+   integrating the reaction system.  It is possible to store the
+   Jacobian as single-precision, by building with:
+
+   ::
+
+      USE_SINGLE_PRECISION_JACOBIAN=TRUE
+
+   This can speed up the integration prevent the code from running out
+   of memory when run on GPUs.
+
+
+
+.. _sec:error_codes:
+
 Integration errors
 ==================
 
@@ -147,6 +166,8 @@ used to interpret the failure.  The current codes are:
 | -100  | entered NSE                                              |
 +-------+----------------------------------------------------------+
 
+.. _sec:tolerances:
+
 Tolerances
 ==========
 
@@ -155,6 +176,12 @@ equations during a simulation.  Typically, the smaller the tolerance
 is, the more accurate the results will be.  However, if the tolerance
 is too small, the code may run for too long, the ODE solver will
 never converge, or it might require at timestep that underflows.
+
+.. tip::
+
+   The `SUNDIALS CVODE documentation on tolerances
+   <https://sundials.readthedocs.io/en/latest/cvode/Usage/index.html#general-advice-on-choice-of-tolerances>`_
+   provides a good discussion on tolerances that apply here.
 
 .. index:: integrator.rtol_spec, integrator.rtol_enuc, integrator.atol_spec, integrator.atol_enuc
 
@@ -204,7 +231,7 @@ Some suggestions when setting tolerances:
 * The VODE integrator has additional logic meant to ensure that
   species don't change too much per timestep.  This is controlled by
   ``integrator.X_reject_buffer``.  If a species $k$, has a mass
-  fraction $X_k > \mbox{X_reject_buffer} \cdot \mbox{atol_spec}$ then
+  fraction $X_k > \mathrm{X_reject_buffer} \cdot \mathrm{atol_spec}$ then
   we reject a VODE timestep if the mass fraction changes by more than
   a factor of 4 in a single VODE timestep and we try again.  This is
   all done internally to VODE.  Making ``X_reject_buffer`` larger will
@@ -231,7 +258,7 @@ fractions.  Looser than this can produce large errors.
 Controlling Species $\sum_k X_k = 1$
 ====================================
 
-.. index:: integrator.renormalize_abundances, integrator.SMALL_X_SAFE, integrator.do_species_clip
+.. index:: integrator.renormalize_abundances, integrator.SMALL_X_SAFE, integrator.do_species_clip, integrator.do_corrector_validation
 
 The ODE integrators don't know about the constraint that
 
@@ -258,11 +285,20 @@ constraint on the intermediate states during the integration.
   The default is ``1.e-30``.
 
 * ``integrator.do_species_clip`` : this enforces that the mass fractions
-  all in $[\mathtt{SMALL\_X\_SAFE}, 1.0]$.
+  all in $[\mathtt{SMALL\_X\_SAFE}, 1.0]$ before calling the network righthand
+  side function.
 
-  This is enabled by default.
+  This is off by default.  Turning this on can sometimes make the integrator
+  work a lot harder.
 
+* ``integrator.do_corrector_validation`` : in the nonlinear solve
+  corrector loop, when we get a corrected integration state, do we
+  check to make sure the mass fractions are valid before calling the
+  righthand function?  This is needed in some cases if
+  ``integrator.do_species_clip`` is disabled.  Note: this is not
+  implemented for every integrator.
 
+.. _sec:retry:
 
 Retry Mechanism
 ===============

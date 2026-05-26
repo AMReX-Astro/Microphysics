@@ -6,3 +6,6 @@ temp_min      real       1.e6
 temp_max      real       1.e15
 
 tmax          real       0.1e0
+
+mu_p          real       -6.0
+mu_n          real      -11.0

@@ -48,6 +48,9 @@ namespace C
     // boltzmann's constant
     constexpr amrex::Real k_B = {constants.value("Boltzmann constant") / constants.erg};  // erg/K
 
+    // Boltzmann constant in MeV/K
+    constexpr amrex::Real k_MeV = {constants.value("Boltzmann constant") / constants.e / constants.mega};  // MeV/K
+
     // planck's constant over 2pi
     constexpr amrex::Real hbar = {constants.value("Planck constant") / (2.0 * math.pi * constants.erg)};  // erg
 

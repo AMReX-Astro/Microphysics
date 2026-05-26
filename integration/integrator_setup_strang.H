@@ -155,14 +155,14 @@ void integrator_cleanup (IntegratorT& int_state, BurnT& state,
     }
 
     for (int n = 1; n <= NumSpec; ++n) {
-        if (int_state.y(n) < -species_failure_tolerance) {
+        if (int_state.y(n) < -integrator_rp::species_failure_tolerance) {
             state.success = false;
         }
 
         // Don't enforce a max if we are evolving number densities
 
         if (! integrator_rp::use_number_densities) {
-            if (int_state.y(n) > 1.0_rt + species_failure_tolerance) {
+            if (int_state.y(n) > 1.0_rt + integrator_rp::species_failure_tolerance) {
                 state.success = false;
             }
         }
@@ -190,18 +190,18 @@ void integrator_cleanup (IntegratorT& int_state, BurnT& state,
         }
         std::cout << "zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
         std::cout << "time = " << int_state.t << std::endl;
-        std::cout << "dt = " << std::setprecision(16) << dt << std::endl;
-        std::cout << "temp start = " << std::setprecision(16) << state_save.T_in << std::endl;
+        std::cout << "dt = " << std::setprecision(OUTDIGITS) << dt << std::endl;
+        std::cout << "temp start = " << std::setprecision(OUTDIGITS) << state_save.T_in << std::endl;
         std::cout << "xn start = ";
         for (const double X : state_save.xn_in) {
-            std::cout << std::scientific << std::setprecision(16) << X << " ";
+            std::cout << std::scientific << std::setprecision(OUTDIGITS) << X << " ";
         }
         std::cout << std::endl;
-        std::cout << "dens current = " << std::setprecision(16) << state.rho << std::endl;
-        std::cout << "temp current = " << std::setprecision(16) << state.T << std::endl;
+        std::cout << "dens current = " << std::setprecision(OUTDIGITS) << state.rho << std::endl;
+        std::cout << "temp current = " << std::setprecision(OUTDIGITS) << state.T << std::endl;
         std::cout << "xn current = ";
         for (const double X : state.xn) {
-            std::cout << std::scientific << std::setprecision(16) << X << " ";
+            std::cout << std::scientific << std::setprecision(OUTDIGITS) << X << " ";
         }
         std::cout << std::endl;
         std::cout << "energy generated = " << state.e << std::endl;

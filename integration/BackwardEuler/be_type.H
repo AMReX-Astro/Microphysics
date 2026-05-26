@@ -48,7 +48,7 @@ struct be_t {
     amrex::Real rtol_enuc;
 
     amrex::Array1D<amrex::Real, 1, int_neqs> y;
-    ArrayUtil::MathArray2D<1, int_neqs, 1, int_neqs> jac;
+    ArrayUtil::MathArray2D<jac_t, 1, int_neqs, 1, int_neqs> jac;
 
     short jacobian_type;
 };

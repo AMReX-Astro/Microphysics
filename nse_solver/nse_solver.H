@@ -11,9 +11,7 @@
 #include <cmath>
 #include <AMReX_Array.H>
 #include <actual_network.H>
-#ifndef NEW_NETWORK_IMPLEMENTATION
 #include <actual_rhs.H>
-#endif
 #include <eos_composition.H>
 #include <microphysics_sort.H>
 #include <hybrj.H>
@@ -33,21 +31,14 @@ enum nse_input_t : std::uint8_t {
     nse_input_rey
 };
 
-
-template <typename T>
-struct nse_solver_data
-{
-    T state;
-    amrex::Array1D<amrex::Real, 1, NumSpec> u_c;
-};
-
-
 template <int neqs, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void nse_hybrid_solver(nse_solver_data<T>& state_data,
                        amrex::Real eps=1.0e-10_rt) {
 
-    hybrj_t<neqs> hj;
+    using jac_powell_t = amrex::Array2D<amrex::Real, 1, neqs, 1, neqs>;
+
+    hybrj_t<neqs, jac_powell_t> hj;
 
     // Set relative error between two iterations
     hj.xtol = eps;
@@ -56,17 +47,9 @@ void nse_hybrid_solver(nse_solver_data<T>& state_data,
     // mode = 1: scales internally
     // mode = 2: scales based on user-supplied diag
 
-    if constexpr(neqs == 2){
-        hj.mode = 1;
-    } else {
-        hj.mode = 2;
-
-        // Scale variable, this is to work with hj.mode = 2
-
-        hj.diag(1) = 1.0_rt;
-        hj.diag(2) = 1.0_rt;
-        hj.diag(3) = 1e9_rt;
-    }
+    // Choose mode 1 for all.
+    // If T is unknown, we manually scale to work with T9
+    hj.mode = 1;
 
     // random flag number for evaluation in for loop;
 
@@ -85,7 +68,8 @@ void nse_hybrid_solver(nse_solver_data<T>& state_data,
     outer_x(1) = state_data.state.mu_p;
     outer_x(2) = state_data.state.mu_n;
     if constexpr (neqs == 3) {
-        outer_x(3) = state_data.state.T;
+        // For temperature, solve for T9.
+        outer_x(3) = state_data.state.T * 1.e-9_rt;
     }
 
     // fine tuning initial guesses
@@ -115,7 +99,7 @@ void nse_hybrid_solver(nse_solver_data<T>& state_data,
             bool converged = true;
 
             if constexpr (neqs == 3) {
-                if (hj.x(3) < 1.0e9_rt || hj.x(3) >= 2e10_rt) {
+                if (hj.x(3) < 1.0_rt || hj.x(3) >= 20.0_rt) {
                     // If temperature is too low or even negative.
                     // Or if the temperature is too high
                     // Then the solved Temperature is not correct.
@@ -134,7 +118,8 @@ void nse_hybrid_solver(nse_solver_data<T>& state_data,
                 state_data.state.mu_p = hj.x(1);
                 state_data.state.mu_n = hj.x(2);
                 if constexpr (neqs == 3) {
-                    state_data.state.T = hj.x(3);
+                    // Convert to T from T9
+                    state_data.state.T = hj.x(3) * 1.e9_rt;
                 }
                 return;
             }
@@ -302,11 +287,6 @@ void nse_solve(nse_solver_data<T>& state_data,
     else {
         bool singular_network = true;
         for (int n = 0; n < NumSpec; ++n) {
-#ifdef NEW_NETWORK_IMPLEMENTATION
-            if (n == NSE_INDEX::H1_index) {
-                continue;
-            }
-#endif
             if (zion[n] != aion[n] - zion[n]) {
                 singular_network = false;
             }
@@ -332,22 +312,17 @@ T get_nse_state_rty(T& state,
 
     // Initializes the initial state
 
-    nse_solver_data<T> state_data = {state, {0.0_rt}};
+    nse_solver_data<T> state_data = {state, {0.0_rt}, {0.0_rt}};
 
     // First get the temperature-independent part.
 
-    state_data.state =  get_T_independent_nonexponent_nse_state(state);
+    state_data.state = get_T_independent_nse_state(state);
 
     // Since Temperature is fixed in this mode,
-    // Get Temperature dependent pieces now
-
-    apply_T_dependent_nonexponent_nse_state(state_data.state);
-
-    // if use chabrier1998 screening, calculate the coulomb correction term
-
-#if SCREEN_METHOD == SCREEN_METHOD_chabrier1998
-    compute_coulomb_contribution(state_data.u_c, state);
-#endif
+    // Get Temperature dependent exponent pieces, including screening
+    // The values are stored in log_data
+    constexpr int do_T9_derivatives = 0;
+    get_T_dependent_nse_state<do_T9_derivatives>(state_data);
 
     // invoke newton-raphson or hybrj to solve chemical potential of proton and neutron
     // which are the exponent part of the nse mass fraction calculation
@@ -358,21 +333,21 @@ T get_nse_state_rty(T& state,
 
     nse_solve<nConstraintEqns, T>(state_data, eps);
 
-    // Apply exponent for calculating nse mass fractions
+    // Apply the log_data for calculating nse mass fractions
     // This updates y_e as well.
 
-    apply_nse_exponent(state_data.state, state_data.u_c);
-
-    // update mu_n and mu_p to input state
-
-    state.mu_p = state_data.state.mu_p;
-    state.mu_n = state_data.state.mu_n;
+    apply_nse_exponent<do_T9_derivatives>(state_data);
 
     // update rhoX in the output nse_state
 
     for (int n = 0; n < NumSpec; ++n) {
         state_data.state.y[SFS+n] = state.rho * state_data.state.xn[n];
     }
+
+    // update mu_n and mu_p to input state
+
+    state.mu_p = state_data.state.mu_p;
+    state.mu_n = state_data.state.mu_n;
 
     return state_data.state;
 }
@@ -590,11 +565,11 @@ T get_nse_state_rey(T& state,
 
     // Initializes the initial state
 
-    nse_solver_data<T> state_data = {state, {0.0_rt}};
+    nse_solver_data<T> state_data = {state, {0.0_rt}, {0.0_rt}};
 
     // First get the temperature-independent part.
 
-    state_data.state = get_T_independent_nonexponent_nse_state(state);
+    state_data.state = get_T_independent_nse_state(state);
 
     // invoke newton-raphson or hybrj to solve mu_p, mu_n and T.
     // For (rho, e, Ye) input, there are three constraint eqns.
@@ -607,19 +582,13 @@ T get_nse_state_rey(T& state,
     // Now that mu_p, mu_n and T are solved and stored in state_data.state.
     // Finish evaluating the NSE composition.
 
-    // Apply the temperature dependent piece
-
-    apply_T_dependent_nonexponent_nse_state(state_data.state);
-
-    // if use chabrier1998 screening, calculate the coulomb correction term
-
-#if SCREEN_METHOD == SCREEN_METHOD_chabrier1998
-    compute_coulomb_contribution(state_data.u_c, state_data.state);
-#endif
+    // Evaluate the temperature dependent piece, including screening
+    constexpr int do_T9_derivatives = 0;
+    get_T_dependent_nse_state<do_T9_derivatives>(state_data);
 
     // Apply exponent for calculating NSE mass fractions
 
-    apply_nse_exponent(state_data.state, state_data.u_c);
+    apply_nse_exponent<do_T9_derivatives>(state_data);
 
     // update rhoX in the output nse_state
 
@@ -710,6 +679,6 @@ T get_actual_nse_state(nse_input_t input,
         amrex::Abort("Unknown NSE input mode");
         return state;
     }
-
 }
+
 #endif

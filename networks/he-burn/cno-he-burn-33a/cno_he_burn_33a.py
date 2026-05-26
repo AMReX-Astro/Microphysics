@@ -20,7 +20,7 @@ def create_network():
                                           extra_nuclei=extra_reactants,
                                           do_detailed_balance=True)
 
-    net = AmrexAstroCxxNetwork(libraries=[subch], symmetric_screening=False)
+    net = AmrexAstroCxxNetwork(libraries=[subch])
 
     net.make_ap_pg_approx(intermediate_nuclei=["cl35", "k39", "sc43",
                                                "v47", "mn51", "co55"])

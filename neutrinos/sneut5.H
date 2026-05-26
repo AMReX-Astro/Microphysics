@@ -519,7 +519,7 @@ number_t nu_photo(const sneutf_t<number_t>& sf) {
 
     // equation 3.7
 
-    const auto [sin1, cos1] = admath::sincos(amrex::Real(nu_constants::fac1) * tau);
+    const auto [sin1, cos1] = admath::sincos(amrex::Real(nu_constants::fac1) * tau);  // NOLINT(misc-confusable-identifiers)
 
     const auto cos1_sq = eval(cos1 * cos1);
     const auto sin1_sq = eval(sin1 * sin1);

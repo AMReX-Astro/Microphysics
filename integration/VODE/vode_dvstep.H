@@ -82,14 +82,13 @@ int dvstep (BurnT& state, DvodeT& vstate)
     constexpr amrex::Real ONEPSM = 1.00001e0_rt;
     constexpr amrex::Real THRESH = 1.5e0_rt;
 
-    amrex::Real CNQUOT{}, DDN{}, DSM{}, DUP{}, TOLD{};
-    amrex::Real FLOTL{}, R{};
+    amrex::Real DSM{};
     int NCF{}, NFLAG{};
 
     constexpr int int_neqs = integrator_neqs<BurnT>();
 
     int kflag = 0;
-    TOLD = vstate.tn;
+    amrex::Real TOLD = vstate.tn;
     NCF = 0;
     vstate.JCUR = 0;
     NFLAG = 0;
@@ -117,7 +116,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
 
         // Rescale the history array for a change in H by a factor of ETA.
 
-        R = 1.0_rt;
+        amrex::Real R = 1.0_rt;
 
         for (int j = 2; j <= vstate.L; ++j) {
             R *= vstate.ETA;
@@ -142,20 +141,9 @@ int dvstep (BurnT& state, DvodeT& vstate)
     // constraints were violated in the update.
 
     amrex::Array1D<amrex::Real, 1, int_neqs> y_save;
-#ifdef STRANG
     for (int i = 1; i <= int_neqs; ++i) {
         y_save(i) = vstate.y(i);
     }
-#endif
-#ifdef SDC
-    amrex::Real rho_old = state.rho_orig + TOLD * state.ydot_a[SRHO];
-    for (int i = 1; i <= int_neqs; ++i) {
-        y_save(i) = vstate.y(i);
-    }
-    for (int i = 1; i <= NumSpec; ++i) {
-        y_save(SFS+i) /= rho_old;
-    }
-#endif
 
     while (true) {
 
@@ -201,7 +189,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
             vstate.ETA = amrex::max(vstate.ETA, HMIN / std::abs(vstate.H));
 
             // Rescale the history array for a change in H by a factor of ETA.
-            R = 1.0_rt;
+            amrex::Real R = 1.0_rt;
 
             for (int j = 2; j <= vstate.L; ++j) {
                 R *= vstate.ETA;
@@ -256,7 +244,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
 
             // Constrain abundances such that they are not negative (within a tolerance)
             // or greater than one (within a tolerance).
-            if (vstate.y(i) < -species_failure_tolerance) {
+            if (vstate.y(i) < -integrator_rp::species_failure_tolerance) {
                 valid_update = false;
                 break;
             }
@@ -264,7 +252,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
             // Don't enforce the condition below if
             // vstate.y contains number densities
             if (! integrator_rp::use_number_densities) {
-                if (vstate.y(i) > 1.0_rt + species_failure_tolerance) {
+                if (vstate.y(i) > 1.0_rt + integrator_rp::species_failure_tolerance) {
                     valid_update = false;
                     break;
                 }
@@ -279,27 +267,31 @@ int dvstep (BurnT& state, DvodeT& vstate)
             // Also, we only consider the reactive portion of the
             // update
 
-            amrex::Real X_current = (vstate.y(SFS+i) - vstate.H * state.ydot_a[SFS-1+i]) / rho_current;
+            amrex::Real rhoX_current = (vstate.y(SFS+i) - vstate.H * state.ydot_a[SFS-1+i]);
+
+            // note: vstate.atol_spec here is density-weighted
 
             if (std::abs(y_save(SFS+i)) > integrator_rp::X_reject_buffer * vstate.atol_spec &&
-                std::abs(X_current) > integrator_rp::X_reject_buffer * vstate.atol_spec &&
-                (std::abs(X_current) > vode_increase_change_factor * std::abs(y_save(SFS+i)) ||
-                 std::abs(X_current) < vode_decrease_change_factor * std::abs(y_save(SFS+i)))) {
+                std::abs(rhoX_current) > integrator_rp::X_reject_buffer * vstate.atol_spec &&
+                (std::abs(rhoX_current) > vode_increase_change_factor * std::abs(y_save(SFS+i)) ||
+                 std::abs(rhoX_current) < vode_decrease_change_factor * std::abs(y_save(SFS+i)))) {
 #ifdef MICROPHYSICS_DEBUG
 #ifndef AMREX_USE_GPU
-                std::cout << "rejecting step based on species " << i << " from " << y_save(SFS+i) << " to " << X_current << std::endl;
+                std::cout << "rejecting step based on species " << i
+                          << " from " << y_save(SFS+i)
+                          << " to " << rhoX_current << std::endl;
 #endif
 #endif
                 valid_update = false;
                 break;
             }
 
-            if (vstate.y(SFS+i) < -species_failure_tolerance * rho_current) {
+            if (vstate.y(SFS+i) < -integrator_rp::species_failure_tolerance * rho_current) {
                 valid_update = false;
                 break;
             }
 
-            if (vstate.y(SFS+i) > (1.0_rt + species_failure_tolerance) * rho_current) {
+            if (vstate.y(SFS+i) > (1.0_rt + integrator_rp::species_failure_tolerance) * rho_current) {
                 valid_update = false;
                 break;
             }
@@ -357,7 +349,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
                 vstate.ETAMAX = ETAMX2;
             }
 
-            R = 1.0_rt / vstate.tq(2);
+            amrex::Real R = 1.0_rt / vstate.tq(2);
             for (int i = 1; i <= int_neqs; ++i) {
                 vstate.acor(i) *= R;
             }
@@ -389,7 +381,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
         if (kflag > KFC) {
 
             // Compute ratio of new H to current H at the current order.
-            FLOTL = vstate.L;
+            amrex::Real FLOTL = vstate.L;
             vstate.ETA = 1.0_rt / (std::pow(BIAS2 * DSM, 1.0_rt / FLOTL) + ADDON);
             vstate.ETA = amrex::max(vstate.ETA, HMIN / std::abs(vstate.H), ETAMIN);
             if ((kflag <= -2) && (vstate.ETA > ETAMXF)) {
@@ -397,7 +389,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
             }
 
             // Rescale the history array for a change in H by a factor of ETA.
-            R = 1.0_rt;
+            amrex::Real R = 1.0_rt;
 
             for (int j = 2; j <= vstate.L; ++j) {
                 R *= vstate.ETA;
@@ -434,7 +426,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
             vstate.NQWAIT = vstate.L;
 
             // Rescale the history array for a change in H by a factor of ETA.
-            R = 1.0_rt;
+            amrex::Real R = 1.0_rt;
 
             for (int j = 2; j <= vstate.L; ++j) {
                 R *= vstate.ETA;
@@ -477,7 +469,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
     bool already_set_eta = false;
 
     // Compute ratio of new H to current H at the current order.
-    FLOTL = vstate.L;
+    amrex::Real FLOTL = vstate.L;
     const amrex::Real ETAQ = 1.0_rt / (std::pow(BIAS2 * DSM, 1.0_rt / FLOTL) + ADDON);
     if (vstate.NQWAIT == 0) {
         vstate.NQWAIT = 2;
@@ -486,7 +478,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
 
         if (vstate.NQ != 1) {
             // Compute ratio of new H to current H at the current order less one.
-            DDN = 0.0_rt;
+            amrex::Real DDN = 0.0_rt;
             for (int i = 1; i <= int_neqs; ++i) {
                 DDN += (vstate.yh(i,vstate.L) * vstate.ewt(i)) * (vstate.yh(i,vstate.L) * vstate.ewt(i));
             }
@@ -498,11 +490,11 @@ int dvstep (BurnT& state, DvodeT& vstate)
 
         if (vstate.L != VODE_LMAX) {
             // Compute ratio of new H to current H at current order plus one.
-            CNQUOT = (vstate.tq(5) / vstate.CONP) * std::pow(vstate.H / vstate.tau(2), vstate.L);
+            amrex::Real CNQUOT = (vstate.tq(5) / vstate.CONP) * std::pow(vstate.H / vstate.tau(2), vstate.L);
             for (int i = 1; i <= int_neqs; ++i) {
                 vstate.savf(i) = vstate.acor(i) - CNQUOT * vstate.yh(i,VODE_LMAX);
             }
-            DUP = 0.0_rt;
+            amrex::Real DUP = 0.0_rt;
             for (int i = 1; i <= int_neqs; ++i) {
                 DUP += (vstate.savf(i) * vstate.ewt(i)) * (vstate.savf(i) * vstate.ewt(i));
             }
@@ -547,7 +539,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
         if (vstate.n_step <= 10) {
             vstate.ETAMAX = ETAMX2;
         }
-        R = 1.0_rt / vstate.tq(2);
+        amrex::Real R = 1.0_rt / vstate.tq(2);
         for (int i = 1; i <= int_neqs; ++i) {
             vstate.acor(i) *= R;
         }
@@ -561,7 +553,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
     if (vstate.n_step <= 10) {
         vstate.ETAMAX = ETAMX2;
     }
-    R = 1.0_rt / vstate.tq(2);
+    amrex::Real R = 1.0_rt / vstate.tq(2);
     for (int i = 1; i <= int_neqs; ++i) {
         vstate.acor(i) *= R;
     }

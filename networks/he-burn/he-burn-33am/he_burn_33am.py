@@ -11,8 +11,7 @@ def create_network():
                                         include_low_ye=True,
                                         do_detailed_balance=True)
 
-    net = pyna.AmrexAstroCxxNetwork(libraries=[lib],
-                                    symmetric_screening=False)
+    net = pyna.AmrexAstroCxxNetwork(libraries=[lib])
 
     # now we approximate some (alpha, p)(p, gamma) links
 

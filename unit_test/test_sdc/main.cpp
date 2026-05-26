@@ -176,8 +176,9 @@ void main_main ()
     }
 
     // allocate a multifab for the number of RHS calls
+    // and whether we are in NSE
     // so we can manually do the reductions (for GPU)
-    iMultiFab integrator_n_rhs(ba, dm, 1, Nghost);
+    iMultiFab integrator_n_rhs(ba, dm, 2, Nghost);
 
     // What time is it now?  We'll use this to compute total react time.
     Real strt_time = ParallelDescriptor::second();
@@ -226,6 +227,10 @@ void main_main ()
     int n_rhs_max = integrator_n_rhs.max(0);
     long n_rhs_sum = integrator_n_rhs.sum(0, 0, true);
 
+#ifdef NSE
+    long n_nse_sum = integrator_n_rhs.sum(1, 0, true);
+#endif
+
     // get the name of the integrator from the build info functions
     // written at compile time.  We will append the name of the
     // integrator to the output file name
@@ -250,10 +255,16 @@ void main_main ()
     // Tell the I/O Processor to write out the "run time"
     amrex::Print() << "Run time = " << stop_time << std::endl;
 
+    long n_cell_cubed = static_cast<long>(n_cell) * n_cell * n_cell;
+
     // print statistics
     std::cout << "min number of rhs calls: " << n_rhs_min << std::endl;
     std::cout << "avg number of rhs calls: "
-              << static_cast<Real>(n_rhs_sum) / static_cast<Real>(n_cell*n_cell*n_cell) << std::endl;
+              << n_rhs_sum / n_cell_cubed << std::endl;
     std::cout << "max number of rhs calls: " << n_rhs_max << std::endl;
+    std::cout << std::endl;
+#ifdef NSE
+    std::cout << "fraction of zones in NSE: " << static_cast<amrex::Real>(n_nse_sum) / n_cell_cubed << std::endl;
+#endif
 
 }

@@ -5,7 +5,7 @@ jobs:
   burn_cell:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -107,6 +107,22 @@ jobs:
         run: |
           cd unit_test/burn_cell
           diff -I "^Initializing AMReX" -I "^AMReX" -I "^reading in reaclib rates" test.out ci-benchmarks/he-burn-19am_BE_unit_test.out
+
+      - name: Compile, burn_cell (BackwardEuler, vode_example)
+        run: |
+          cd unit_test/burn_cell
+          make realclean
+          make NETWORK_DIR=vode_example INTEGRATOR_DIR=BackwardEuler -j 4
+
+      - name: Run burn_cell (BackwardEuler, vode_example)
+        run: |
+          cd unit_test/burn_cell
+          ./main3d.gnu.ex inputs_vode_example amrex.fpe_trap_{invalid,zero,overflow}=1 > test.out
+
+      - name: Compare to stored output (BackwardEuler, vode_example)
+        run: |
+          cd unit_test/burn_cell
+          diff -I "^Initializing AMReX" -I "^AMReX" -I "^reading in reaclib rates" test.out ci-benchmarks/vode_example_BE_unit_test.out
 
       - name: Compile, burn_cell (QSS, aprox13)
         run: |

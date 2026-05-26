@@ -1,0 +1,24 @@
+n_cell = 16
+
+prefix = react_aprox19_sdc_
+
+unit_test.dens_min   = 1.e7
+unit_test.dens_max   = 5.e8
+unit_test.temp_min   = 1.e8
+unit_test.temp_max   = 6.e9
+
+unit_test.small_dens = 1.e3
+
+unit_test.tmax = 1.e-6
+
+unit_test.primary_species_1 = helium-4
+unit_test.primary_species_2 = nickel-56
+
+integrator.jacobian = 1
+
+nse.nse_molar_independent = 0
+nse.nse_dx_independent = 1
+nse.ase_tol = 0.1
+nse.nse_skip_molar = 0
+nse.solve_nse_e_mode = 1
+

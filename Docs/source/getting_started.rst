@@ -14,7 +14,7 @@ Microphysics requires
 
 optional dependencies are:
 
-* CUDA (≥ 11)
+* CUDA (≥ 12)
 * ROCm (≥ 6.3.1 --- earlier versions have register allocation bugs)
 
 Usage Modes

@@ -26,7 +26,7 @@
 
 using namespace amrex::literals;
 
-#if defined(NSE_TABLE)
+#ifdef NSE_TABLE
 
 ///
 /// this acts as an explicit Euler step for the system (rho e, rho aux)

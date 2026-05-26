@@ -28,7 +28,7 @@ def get_library():
     for r, mp in other_rates:
         _r = reaclib_lib.get_rate_by_name(r)
         forward_rate = pyna.ModifiedRate(_r, new_products=[mp])
-        derived_rate = pyna.DerivedRate(rate=forward_rate, compute_Q=True, use_pf=True)
+        derived_rate = pyna.DerivedRate(forward_rate, use_pf=True)
         subch += pyna.Library(rates=[forward_rate, derived_rate])
 
     # C12+Ne20 and reverse
@@ -59,7 +59,7 @@ def get_library():
             if fr:
                 print(f"modifying {r} from {fr}")
                 subch.remove_rate(r)
-                d = pyna.DerivedRate(rate=fr, compute_Q=True, use_pf=True)
+                d = pyna.DerivedRate(fr, use_pf=True)
                 subch.add_rate(d)
 
     return subch
@@ -74,7 +74,7 @@ def create_network():
     r1 = subch.get_rate_by_name("c12(p,g)n13")
     r2 = subch.get_rate_by_name("n13(he4,p)o16")
 
-    net = AmrexAstroCxxNetwork(libraries=[subch], symmetric_screening=False, disable_rate_params=[r1, r2])
+    net = AmrexAstroCxxNetwork(libraries=[subch], disable_rate_params=[r1, r2])
     net.make_ap_pg_approx(intermediate_nuclei=["cl35", "k39", "sc43", "v47", "mn51", "co55"])
     net.remove_nuclei(["cl35", "k39", "sc43", "v47", "mn51", "co55"])
 

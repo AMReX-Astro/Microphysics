@@ -84,7 +84,6 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
 
     set(primordial_chem_sources ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/eos_data.cpp
                                 ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/network_initialization.cpp
-                                ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/primordial_chem/actual_eos_data.cpp
                                 ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/primordial_chem/actual_network_data.cpp
                                 ${output_dir}/extern_parameters.cpp PARENT_SCOPE)
 
@@ -131,10 +130,9 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
 
     #unlike primordial chem, we also include actual_network_data.cpp here because it is in there that we read in the Semenov opacity table
     set(metal_chem_sources ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/eos_data.cpp
-                                ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/network_initialization.cpp
-                                ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/metal_chem/actual_eos_data.cpp
-                                ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/metal_chem/actual_network_data.cpp
-                                ${output_dir}/extern_parameters.cpp PARENT_SCOPE)
+                           ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/network_initialization.cpp
+                           ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/metal_chem/actual_network_data.cpp
+                           ${output_dir}/extern_parameters.cpp PARENT_SCOPE)
 
 
     #below for NAUX
@@ -182,6 +180,7 @@ set(BUILD_UNIT_TEST_PC false CACHE BOOL "Do you want to build the primordial che
 set(BUILD_UNIT_TEST_MC false CACHE BOOL "Do you want to build the metal chem unit test? (true/false)")
 
 add_compile_options(-Werror -Wall -Wextra)
+add_compile_definitions(NET_LOOP_UNROLL_LEN=1)
 
 #setting sourcefiles and directories needed to make the test here
 #so that they are accessible to codes using

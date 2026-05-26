@@ -126,13 +126,13 @@ void burn_cell_c()
 
         // See the result of constraint eq and jacobian using the solved input
 
-        amrex::Array1D<amrex::Real, 1, 3> x {nse_state.mu_p, nse_state.mu_n, nse_state.T};
+        amrex::Array1D<amrex::Real, 1, 3> x {nse_state.mu_p, nse_state.mu_n, nse_state.T * 1.e-9};
         amrex::Array1D<amrex::Real, 1, 3> f;
         amrex::Array2D<amrex::Real, 1, 3, 1, 3> jac;
         int flag = 0;
 
-        nse_solver_data<burn_t> state_data = {nse_state, {0.0_rt}};
-        state_data.state = get_T_independent_nonexponent_nse_state(nse_state);
+        nse_solver_data<burn_t> state_data = {nse_state, {0.0_rt}, {0.0_rt}};
+        state_data.state = get_T_independent_nse_state(nse_state);
 
         nse_fcn(x, f, state_data, flag);
         nse_jcn(x, jac, state_data, flag);

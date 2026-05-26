@@ -26,6 +26,9 @@ else
   CEXE_headers += integrator_setup_strang.H
 endif
 
+ifeq ($(USE_SINGLE_PRECISION_JACOBIAN), TRUE)
+  DEFINES += -DSINGLE_PRECISION_JACOBIAN
+endif
 
 ifeq ($(USE_ALL_NSE), TRUE)
   ifeq ($(USE_ALL_SDC), TRUE)

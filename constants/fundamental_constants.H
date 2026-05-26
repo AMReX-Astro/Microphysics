@@ -26,6 +26,9 @@ namespace C
     // boltzmann's constant
     constexpr amrex::Real k_B = 1.3806490000000002e-16;  // erg/K
 
+    // Boltzmann constant in MeV/K
+    constexpr amrex::Real k_MeV = 8.61733326214518e-11;  // MeV/K
+
     // planck's constant over 2pi
     constexpr amrex::Real hbar = 1.0545718176461563e-27;  // erg
 

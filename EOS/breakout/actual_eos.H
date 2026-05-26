@@ -67,14 +67,14 @@ void actual_eos (I input, T& state)
         // dens, temp and xmass are inputs
         amrex::Real cv = R / (state.mu * (gamma_const - 1.0_rt));
         amrex::Real e = cv * state.T;
-        if constexpr (has_energy<T>::value) {
+        if constexpr (has_energy<T>) {
             state.cv = cv;
             state.e = e;
         }
-        if constexpr (has_pressure<T>::value) {
+        if constexpr (has_pressure<T>) {
             state.p = (gamma_const - 1.0_rt) * state.rho * e;
         }
-        if constexpr (has_pressure<T>::value && has_energy<T>::value) {
+        if constexpr (has_pressure<T> && has_energy<T>) {
             state.gam1 = gamma_const;
         }
 
@@ -102,10 +102,10 @@ void actual_eos (I input, T& state)
     {
         // dens, pres, and xmass are inputs
 
-        if constexpr (has_pressure<T>::value) {
+        if constexpr (has_pressure<T>) {
             amrex::Real poverrho = state.p / state.rho;
             state.T = poverrho * state.mu * (1.0_rt / R);
-            if constexpr (has_energy<T>::value) {
+            if constexpr (has_energy<T>) {
                 state.e = poverrho * (1.0_rt / (gamma_const - 1.0_rt));
                 state.gam1 = gamma_const;
             }
@@ -117,11 +117,11 @@ void actual_eos (I input, T& state)
     {
         // dens, energy, and xmass are inputs
 
-        if constexpr (has_energy<T>::value) {
+        if constexpr (has_energy<T>) {
             amrex::Real poverrho = (gamma_const - 1.0_rt) * state.e;
             state.T = poverrho * state.mu * (1.0_rt / R);
 
-            if constexpr (has_pressure<T>::value) {
+            if constexpr (has_pressure<T>) {
                 state.p = poverrho * state.rho;
                 state.gam1 = gamma_const;
 
@@ -135,7 +135,7 @@ void actual_eos (I input, T& state)
 
         // Try to avoid the expensive log function.  Since we don't need entropy
         // in hydro solver, set it to an invalid but "nice" value for the plotfile.
-        if constexpr (has_entropy<T>::value) {
+        if constexpr (has_entropy<T>) {
             state.s = 1.0_rt;
         }
 

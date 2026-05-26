@@ -56,9 +56,15 @@ const int SVAR  = SEDEN+1;
 const int SVAR_EVOLVE = SFX;
 
 // this is the data type of the dense Jacobian that the network wants.
-// it is not the same size as the Jacobian that VODE cares about when
-// we are doing simplified-SDC
-using  JacNetArray2D = ArrayUtil::MathArray2D<1, neqs, 1, neqs>;
+
+// the Jacobian can have a different type that our system
+#ifdef SINGLE_PRECISION_JACOBIAN
+using jac_t = float;
+#else
+using jac_t = amrex::Real;
+#endif
+
+using  JacNetArray2D = ArrayUtil::MathArray2D<jac_t, 1, neqs, 1, neqs>;
 
 struct burn_t
 {
@@ -300,7 +306,8 @@ void normalize_abundances_sdc_burn (BurnT& state)
 
     amrex::Real rhoX_sum = 0.0_rt;
     for (int n = 0; n < NumSpec; n++) {
-        state.y[SFS+n] = amrex::max(amrex::min(state.y[SFS+n], state.y[SRHO]), 0.0_rt);
+        state.y[SFS+n] = amrex::max(amrex::min(state.y[SFS+n], state.y[SRHO]),
+                                    state.y[SRHO] * integrator_rp::SMALL_X_SAFE);
         rhoX_sum += state.y[SFS+n];
     }
     rhoX_sum /= state.y[SRHO];
