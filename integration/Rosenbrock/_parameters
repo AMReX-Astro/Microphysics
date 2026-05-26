@@ -5,15 +5,11 @@
 X_reject_buffer              real         1.0
 
 # Rosenbrock tableau selector:
-#   0 = existing 3-stage ROS2S tableau
-#   1 = Verwer et al. (1999) 2-stage ROS2 tableau
-#   2 = Sandu (2000) positivity-favoring method A
-#   3 = Sandu (2000) positivity-favoring method B
-#   4 = Sandu (2000) positivity-favoring method C
-#   5 = Sandu (2000) positivity-favoring method D
-#   6 = Rosenbrock-Euler 1-stage method
-#   7 = Rodas5P 8-stage method from DifferentialEquations.jl
-#   8 = Rodas4P 6-stage method from DifferentialEquations.jl
+#   0 = Rodas5P 8-stage method from DifferentialEquations.jl
+#   1 = Rodas4P 6-stage method from DifferentialEquations.jl
+#   2 = existing 3-stage ROS2S tableau
+#   3 = Verwer et al. (1999) 2-stage ROS2 tableau
+#   4 = Rosenbrock-Euler 1-stage method
 rosenbrock_tableau           int          0
 
 # Timestep controller selector:

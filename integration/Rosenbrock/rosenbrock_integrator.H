@@ -569,31 +569,19 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>& rstate)
 {
     if (integrator_rp::rosenbrock_tableau == 1) {
-        return rosenbrock_integrator<BurnT, rosenbrock::ros2_tableau>(state, rstate);
-    }
-    if (integrator_rp::rosenbrock_tableau == 2) {
-        return rosenbrock_integrator<BurnT, rosenbrock::sandu_a_tableau>(state, rstate);
-    }
-    if (integrator_rp::rosenbrock_tableau == 3) {
-        return rosenbrock_integrator<BurnT, rosenbrock::sandu_b_tableau>(state, rstate);
-    }
-    if (integrator_rp::rosenbrock_tableau == 4) {
-        return rosenbrock_integrator<BurnT, rosenbrock::sandu_c_tableau>(state, rstate);
-    }
-    if (integrator_rp::rosenbrock_tableau == 5) {
-        return rosenbrock_integrator<BurnT, rosenbrock::sandu_d_tableau>(state, rstate);
-    }
-    if (integrator_rp::rosenbrock_tableau == 6) {
-        return rosenbrock_integrator<BurnT, rosenbrock::rosenbrock_euler_tableau>(state, rstate);
-    }
-    if (integrator_rp::rosenbrock_tableau == 7) {
-        return rosenbrock_integrator<BurnT, rosenbrock::rodas5p_tableau>(state, rstate);
-    }
-    if (integrator_rp::rosenbrock_tableau == 8) {
         return rosenbrock_integrator<BurnT, rosenbrock::rodas4p_tableau>(state, rstate);
     }
+    if (integrator_rp::rosenbrock_tableau == 2) {
+        return rosenbrock_integrator<BurnT, rosenbrock::ros2s_tableau>(state, rstate);
+    }
+    if (integrator_rp::rosenbrock_tableau == 3) {
+        return rosenbrock_integrator<BurnT, rosenbrock::ros2_tableau>(state, rstate);
+    }
+    if (integrator_rp::rosenbrock_tableau == 4) {
+        return rosenbrock_integrator<BurnT, rosenbrock::rosenbrock_euler_tableau>(state, rstate);
+    }
 
-    return rosenbrock_integrator<BurnT, rosenbrock::ros2s_tableau>(state, rstate);
+    return rosenbrock_integrator<BurnT, rosenbrock::rodas5p_tableau>(state, rstate);
 }
 
 #endif
