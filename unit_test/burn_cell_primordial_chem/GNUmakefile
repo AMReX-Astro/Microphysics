@@ -2,20 +2,21 @@ PRECISION  = DOUBLE
 PROFILE    = FALSE
 
 # Set DEBUG to TRUE if debugging
-DEBUG      = TRUE
+DEBUG      = FALSE
 
 DIM        = 1
 
-COMP       = gnu
+COMP       = llvm
 
 USE_MPI    = FALSE
 USE_OMP    = FALSE
 #set USE_CUDA to TRUE to compile and run on GPUs
-USE_CUDA   = FALSE
+USE_CUDA   =TRUE
+CUDA_ARCH  =90
 USE_REACT = TRUE
 
 # Set USE_MICROPHYSICS_DEBUG to TRUE if debugging
-USE_MICROPHYSICS_DEBUG = TRUE
+USE_MICROPHYSICS_DEBUG = FALSE
 
 EBASE = main
 

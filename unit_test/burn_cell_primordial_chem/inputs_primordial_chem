@@ -6,6 +6,8 @@ unit_test.small_dens = 1.e-60
 unit_test.tff_reduc = 1.e-1
 # number of integration steps
 unit_test.nsteps = 1000
+# number of cells in each direction for the cubic grid
+unit_test.ncell = 1
 # max total time
 unit_test.tmax = 7.e20
 # initial temperature
@@ -57,4 +59,3 @@ network.redshift = 30.0
 # these params help debug the code
 #amrex.throw_exception = 1
 #amrex.signal_handling = 0
-

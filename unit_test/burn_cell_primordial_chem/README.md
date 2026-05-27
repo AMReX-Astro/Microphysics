@@ -2,9 +2,12 @@
 
 # burn_cell_primordial_chem
 
-`burn_cell_primordial_chem` integrates a primordial ISM chemistry network 
- for a single set of initial conditions.  The density, temperature, and composition 
- are set in the inputs file, as well as the maximum time to integrate.
+`burn_cell_primordial_chem` integrates a primordial ISM chemistry network
+ for a cubic grid of cells initialized from a single set of initial conditions.
+ The number of cells in each direction is set by `unit_test.ncell` in the inputs
+ file, or overridden on the command line.  The density, temperature, and
+ composition are set in the inputs file, as well as the maximum time to
+ integrate.
 
  Upon completion, the new state is printed to the screen.
 

@@ -17,6 +17,9 @@ tfirst        real       0.0
 # number of steps for the single zone burn
 nsteps        int        1000
 
+# number of cells in each direction for the cubic grid
+ncell         int        1
+
 # initial temperature
 temperature   real       1e2
 
