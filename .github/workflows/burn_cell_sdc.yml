@@ -74,6 +74,22 @@ jobs:
           cd unit_test/burn_cell_sdc
           diff state_over_time.txt ci-benchmarks/aprox19_RKC_state_over_time.txt
 
+      - name: Compile, burn_cell_sdc (Rosenbrock, aprox19)
+        run: |
+          cd unit_test/burn_cell_sdc
+          make realclean
+          make INTEGRATOR_DIR=Rosenbrock NETWORK_DIR=aprox19 -j 4
+
+      - name: Run burn_cell_sdc (Rosenbrock, aprox19)
+        run: |
+          cd unit_test/burn_cell_sdc
+          ./main3d.gnu.ex inputs_aprox19.ci amrex.fpe_trap_{invalid,zero,overflow}=1
+
+      - name: Compare to stored output (Rosenbrock, aprox19)
+        run: |
+          cd unit_test/burn_cell_sdc
+          diff state_over_time.txt ci-benchmarks/aprox19_Rosenbrock_state_over_time.txt
+
       - name: Print backtrace
         if: ${{ failure() && hashFiles('unit_test/burn_cell_sdc/Backtrace.0') != '' }}
         run: cat unit_test/burn_cell_sdc/Backtrace.0
