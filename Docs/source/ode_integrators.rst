@@ -54,6 +54,32 @@ Presently, allowed integrators are:
 
 .. index:: integrator.use_jacobian_caching
 
+* ``Rosenbrock``: this implements several different Rosenbrock implicit
+  methods for stiff ODEs.  Several different methods can be selected through
+  the runtime parameter ``integrator.rosenbrock_tableau``.  The
+  allowed values are:
+
+  * ``0`` : Rodas5P method (this is the default), based on the
+    Julia implementation in `DifferentialEquations.jl
+    <https://github.com/SciML/DifferentialEquations.jl>`_
+    :cite:`rodas5p`.
+
+  * ``1`` : Rodas4P method from ``DifferentialEquations.jl`` (they give :cite:`rodas4p` as a reference).
+
+  * ``2`` : Rodas3P method from ``DifferentialEquations.jl``  (see a `juliacon preprint <https://github.com/hbrs-cse/RosenbrockMethods/blob/main/paper/JuliaPaper.pdf>`_.
+
+  * ``3`` : ROS2S method, a 2nd order, stiff-accurate method :cite:`ros2s`.
+
+  * ``4`` : ROS2 method, a 2nd order, L-stable method :cite:`ros2`.
+
+  * ``5`` : a first-order method based on the YASS method (described in :cite:`YASS`).
+
+  Here the "P" suffix refers to methods developed to satisfy the stiff
+  accuracy conditions of :cite:`Prothero1974` (ROS2S also satisfies
+  these).
+
+  By default, the H211b error-history timestep controller from :cite:`h211b` (see Eq. 31) is used, but the YASS heuristic method can be used instead by setting ``integrator.rosenbrock_timestep_controller=1``.
+
 * ``VODE``: the VODE :cite:`vode` integration package.  We ported this
   integrator to C++ and removed the non-stiff integration code paths.
 
