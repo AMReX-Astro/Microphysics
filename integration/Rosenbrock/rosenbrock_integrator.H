@@ -429,13 +429,13 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
 
 #ifdef NSE
         // check if, during the course of integration, we hit NSE, and
-        // if so, bail out we rely on the state being consistent after
-        // the call to dvstep, even if the step failed.
+        // if so, bail out.
 
         // we only do this after MIN_NSE_BAILOUT_STEPS to prevent us
-        // from hitting this right at the start when VODE might do so
-        // wild exploration.  Also ensure we are not working > tmax,
-        // so we don't need to worry about extrapolating back in time.
+        // from hitting this right at the start when the integrator
+        // might do so wild exploration.  Also ensure we are not
+        // working > tmax, so we don't need to worry about
+        // extrapolating back in time.
 
         if (rstate.n_step > MIN_NSE_BAILOUT_STEPS && x <= rstate.tout) {
             // first we need to make the burn_t in sync
