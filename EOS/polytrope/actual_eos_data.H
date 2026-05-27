@@ -4,11 +4,11 @@
 #include <AMReX.H>
 #include <AMReX_REAL.H>
 
-extern AMREX_GPU_MANAGED amrex::Real gamma_const;
-extern AMREX_GPU_MANAGED amrex::Real K_const;
-extern AMREX_GPU_MANAGED amrex::Real mu_e;
-extern AMREX_GPU_MANAGED int  polytrope;
-extern AMREX_GPU_MANAGED amrex::Real gm1;
-extern AMREX_GPU_MANAGED amrex::Real polytrope_index;
+inline AMREX_GPU_MANAGED amrex::Real gamma_const;
+inline AMREX_GPU_MANAGED amrex::Real K_const;
+inline AMREX_GPU_MANAGED amrex::Real mu_e;
+inline AMREX_GPU_MANAGED int  polytrope;
+inline AMREX_GPU_MANAGED amrex::Real gm1;
+inline AMREX_GPU_MANAGED amrex::Real polytrope_index;
 
 #endif

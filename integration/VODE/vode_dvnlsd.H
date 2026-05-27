@@ -151,9 +151,9 @@ amrex::Real dvnlsd (int& NFLAG, BurnT& state, DvodeT& vstate)
             if (integrator_rp::do_corrector_validation && !integrator_rp::use_number_densities) {
 #ifdef SDC
                 const amrex::Real rho_current = state.rho_orig + vstate.tn * state.ydot_a[SRHO];
-                const amrex::Real thresh = species_failure_tolerance * rho_current;
+                const amrex::Real thresh = integrator_rp::species_failure_tolerance * rho_current;
 #else
-                const amrex::Real thresh = species_failure_tolerance;
+                const amrex::Real thresh = integrator_rp::species_failure_tolerance;
 #endif
                 bool fail{};
                 for (int i = 1; i <= NumSpec; ++i) {
