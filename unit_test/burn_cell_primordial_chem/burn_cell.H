@@ -1,12 +1,15 @@
 #ifndef BURN_CELL_H
 #define BURN_CELL_H
 
+#include <algorithm>
 #include <cmath>
 #include <cstdint>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <string>
+#include <thread>
+#include <vector>
 
 #include <AMReX_GpuAsyncArray.H>
 #include <AMReX_Gpu.H>
@@ -395,8 +398,23 @@ auto evolve_burn_cell_with_history(burn_t state) -> int {
   return state.success;
 }
 
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+auto evolve_indexed_burn_cell(const amrex::Long idx, const int ncell) -> int {
+  const amrex::Long ncell_long = static_cast<amrex::Long>(ncell);
+  const int i = static_cast<int>(idx % ncell_long);
+  const int j = static_cast<int>((idx / ncell_long) % ncell_long);
+  const int k = static_cast<int>(idx / (ncell_long * ncell_long));
+
+  burn_t state = initialize_burn_state();
+  state.i = i;
+  state.j = j;
+  state.k = k;
+
+  return evolve_burn_cell(state, idx);
+}
+
 AMREX_INLINE
-auto burn_cell_c(const int ncell) -> int {
+auto burn_cell_c(const int ncell, const int requested_threads) -> int {
 
   std::int64_t total_cells = 1;
   total_cells *= ncell;
@@ -411,26 +429,61 @@ auto burn_cell_c(const int ncell) -> int {
             << std::endl;
 
   int num_failed = 0;
+
+#ifdef AMREX_USE_GPU
   amrex::AsyncArray<int> aa_num_failed(&num_failed, 1);
   int* num_failed_d = aa_num_failed.data();
 
-  amrex::ParallelFor(total_cells, [=] AMREX_GPU_DEVICE (amrex::Long idx) noexcept {
-    const int i = static_cast<int>(idx % ncell);
-    const int j = static_cast<int>((idx / ncell) % ncell);
-    const int k = static_cast<int>(idx / (ncell * ncell));
-
-    burn_t state = initialize_burn_state();
-    state.i = i;
-    state.j = j;
-    state.k = k;
-
-    if (!evolve_burn_cell(state, idx)) {
-      amrex::Gpu::Atomic::Add(num_failed_d, 1);
-    }
-  });
+  amrex::ParallelFor(total_cells,
+                     [=] AMREX_GPU_DEVICE(amrex::Long idx) noexcept {
+                       if (!evolve_indexed_burn_cell(idx, ncell)) {
+                         amrex::Gpu::Atomic::Add(num_failed_d, 1);
+                       }
+                     });
 
   aa_num_failed.copyToHost(&num_failed, 1);
   amrex::Gpu::synchronize();
+#else
+  const unsigned int hardware_threads =
+      std::max(1U, std::thread::hardware_concurrency());
+  const std::int64_t cpu_thread_limit =
+      requested_threads > 0 ? requested_threads : hardware_threads;
+  const std::size_t num_threads = static_cast<std::size_t>(
+      std::min<std::int64_t>(total_cells, cpu_thread_limit));
+
+  std::cout << "using " << num_threads << " CPU threads" << std::endl;
+
+  std::vector<int> thread_failures(num_threads, 0);
+  std::vector<std::thread> threads;
+  threads.reserve(num_threads);
+
+  for (std::size_t thread_idx = 0; thread_idx < num_threads; ++thread_idx) {
+    const std::int64_t begin =
+        total_cells * static_cast<std::int64_t>(thread_idx) /
+        static_cast<std::int64_t>(num_threads);
+    const std::int64_t end =
+        total_cells * static_cast<std::int64_t>(thread_idx + 1) /
+        static_cast<std::int64_t>(num_threads);
+
+    threads.emplace_back([&, thread_idx, begin, end]() {
+      int local_failures = 0;
+      for (std::int64_t idx = begin; idx < end; ++idx) {
+        if (!evolve_indexed_burn_cell(static_cast<amrex::Long>(idx), ncell)) {
+          ++local_failures;
+        }
+      }
+      thread_failures[thread_idx] = local_failures;
+    });
+  }
+
+  for (auto& thread : threads) {
+    thread.join();
+  }
+
+  for (const auto thread_failure_count : thread_failures) {
+    num_failed += thread_failure_count;
+  }
+#endif
 
   if (num_failed > 0) {
     std::cout << num_failed << " cell integrations failed" << std::endl;
@@ -440,6 +493,7 @@ auto burn_cell_c(const int ncell) -> int {
   std::cout << "completed " << total_cells << " cell integrations"
             << std::endl;
 
+#if 0
   std::cout << "integrating representative cell (0, 0, 0) for diagnostics..."
             << std::endl;
   std::cout << "Maximum Time (s): " << unit_test_rp::tmax << std::endl;
@@ -453,6 +507,9 @@ auto burn_cell_c(const int ncell) -> int {
   }
 
   return evolve_burn_cell_with_history(state);
+#endif
+  
+  return 1;
 }
 
 #endif

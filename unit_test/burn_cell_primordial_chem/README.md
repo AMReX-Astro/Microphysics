@@ -5,7 +5,9 @@
 `burn_cell_primordial_chem` integrates a primordial ISM chemistry network
  for a cubic grid of cells initialized from a single set of initial conditions.
  The number of cells in each direction is set by `unit_test.ncell` in the inputs
- file, or overridden on the command line.  The density, temperature, and
+ file, or overridden on the command line.  For CPU builds, `unit_test.nthreads`
+ controls the number of worker threads; a value of 0 selects the hardware
+ concurrency.  The density, temperature, and
  composition are set in the inputs file, as well as the maximum time to
  integrate.
 

@@ -8,6 +8,7 @@ target_include_directories(test_burn_cell_primordial_chem PUBLIC ${CMAKE_CURRENT
 #below line will add NAUX_NET and STRANG compiler flags
 #these are needed for preprocessor variables
 target_compile_definitions(test_burn_cell_primordial_chem PUBLIC NAUX_NET STRANG)
+target_link_libraries(test_burn_cell_primordial_chem PRIVATE Threads::Threads)
 
 
 if(AMReX_GPU_BACKEND MATCHES "CUDA")

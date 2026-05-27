@@ -31,7 +31,7 @@ NETWORK_DIR := primordial_chem
 
 CONDUCTIVITY_DIR := stellar
 
-INTEGRATOR_DIR =  VODE
+INTEGRATOR_DIR = Rosenbrock
 
 EXTERN_SEARCH += .
 

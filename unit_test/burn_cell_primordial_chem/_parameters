@@ -20,6 +20,9 @@ nsteps        int        1000
 # number of cells in each direction for the cubic grid
 ncell         int        1
 
+# number of CPU threads to use; 0 means use hardware_concurrency()
+nthreads      int        0
+
 # initial temperature
 temperature   real       1e2
 

@@ -31,6 +31,11 @@ int main(int argc, char *argv[]) {
     AMREX_ALWAYS_ASSERT_WITH_MESSAGE(ncell > 0,
                                      "unit_test.ncell must be positive");
 
+    int nthreads = 0;
+    pp.query("nthreads", nthreads);
+    AMREX_ALWAYS_ASSERT_WITH_MESSAGE(
+        nthreads >= 0, "unit_test.nthreads must be non-negative");
+
     std::cout << "starting the cubic grid burn..." << std::endl;
 
     ParmParse ppa("amr");
@@ -44,7 +49,7 @@ int main(int argc, char *argv[]) {
     // C++ Network, RHS, screening, rates initialization
     network_init();
 
-    success = burn_cell_c(ncell);
+    success = burn_cell_c(ncell, nthreads);
   }
 
   amrex::Finalize();

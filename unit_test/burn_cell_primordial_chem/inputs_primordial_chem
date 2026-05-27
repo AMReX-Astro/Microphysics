@@ -8,6 +8,8 @@ unit_test.tff_reduc = 1.e-1
 unit_test.nsteps = 1000
 # number of cells in each direction for the cubic grid
 unit_test.ncell = 1
+# number of CPU threads to use; 0 selects hardware_concurrency()
+unit_test.nthreads = 0
 # max total time
 unit_test.tmax = 7.e20
 # initial temperature
