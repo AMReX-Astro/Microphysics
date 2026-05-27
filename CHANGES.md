@@ -1,5 +1,19 @@
 # Changelog
 
+## 26.05
+
+  * fix the `vode_example` network (#1984)
+
+  * add a unit test that just evaluates tabulated weak
+    rates from a pynucastro network (#1979)
+
+  * update the build system to support compiling a network
+    test outside of Microphysics/ (#1978)
+
+  * some fixes to `BackwardEuler` failure modes (#1977)
+
+  * update the burn failure documentation (#1974)
+
 ## 26.04
 
   * add documentation on recovering from burn failures (#1971)
