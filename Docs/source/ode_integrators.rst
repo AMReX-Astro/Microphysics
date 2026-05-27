@@ -66,7 +66,7 @@ Presently, allowed integrators are:
 
   * ``1`` : Rodas4P method from ``DifferentialEquations.jl`` (they give :cite:`rodas4p` as a reference).
 
-  * ``2`` : Rodas3P method from ``DifferentialEquations.jl``  (see a `juliacon preprint <https://github.com/hbrs-cse/RosenbrockMethods/blob/main/paper/JuliaPaper.pdf>`_.
+  * ``2`` : Rodas3P method from ``DifferentialEquations.jl``  (see a `juliacon preprint <https://github.com/hbrs-cse/RosenbrockMethods/blob/main/paper/JuliaPaper.pdf>`_).
 
   * ``3`` : ROS2S method, a 2nd order, stiff-accurate method :cite:`ros2s`.
 
