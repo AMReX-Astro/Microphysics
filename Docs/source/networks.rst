@@ -560,10 +560,8 @@ X_a / (A_a m_u)`, our rate equation is
 
 .. math::
 
-   \begin{align}
     \frac{dX_f}{dt} &= - \frac{r_0}{m_u} \rho X_f^2 \frac{1}{A_f} \left (\frac{T}{T_0}\right)^\nu \equiv \omegadot_f  \\
     \frac{dX_a}{dt} &= \frac{1}{2}\frac{r_0}{m_u} \rho X_f^2 \frac{A_a}{A_f^2} \left (\frac{T}{T_0}\right)^\nu = \frac{r_0}{m_u} \rho X_f^2 \frac{1}{A_f} \left (\frac{T}{T_0}\right)^\nu
-   \end{align}
 
 We define a new rate constant, :math:`\rt` with units of :math:`[\mathrm{s^{-1}}]` as
 
