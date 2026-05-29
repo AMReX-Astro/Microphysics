@@ -58,12 +58,10 @@ $k+1$ appears as:
 
 .. math::
 
-   \begin{align*}
     \Uc^{m+1,(k+1)} = \Uc^{m,(k+1)}
      &+ \delta t_m\left[\Advs{\Uc^{m,(k+1)}} - \Advs{\Uc^{m,(k)}}\right] \\
      &+ \delta t_m\left[\Rbs{\Uc^{m+1,(k+1)}} - \Rbs{\Uc^{m+1,(k)}}\right]\\
      &+ \int_{t^m}^{t^{m+1}}\Advs{\Uc^{(k)}} + \Rbs{\Uc^{(k)}}d\tau.
-   \end{align*}
 
 Solving this requires a nonlinear solve of:
 
@@ -76,11 +74,9 @@ define ${\bf C}$ for convenience as:
 
 .. math::
 
-   \begin{align}
    {\bf C} &= \left [ {\Advs{\Uc}}^{m,(k+1)} - {\Advs{\Uc}}^{m,(k)} \right ]
                   -  {\Rbs{\Uc}}^{{m+1},(k)}  \nonumber \\
-               &+ \frac{1}{\delta t_m} \int_{t^m}^{t^{m+1}} \left  ( {\Advs{\Uc}}^{(k)} + {\Rbs{\Uc}}^{(k)}\right ) d\tau
-   \end{align}
+           &+ \frac{1}{\delta t_m} \int_{t^m}^{t^{m+1}} \left  ( {\Advs{\Uc}}^{(k)} + {\Rbs{\Uc}}^{(k)}\right ) d\tau
 
 This can be cast as an ODE system as:
 

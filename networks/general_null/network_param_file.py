@@ -76,7 +76,7 @@ def parse(species, extra_species, aux_vars, net_file, defines):
     try:
         f = open(net_file)
     except OSError:
-        sys.exit(f"write_network.py: ERROR: file {net_file} does not exist")
+        sys.exit(f"network_param_file.py: ERROR: file {net_file} does not exist")
 
     line = get_next_line(f)
 

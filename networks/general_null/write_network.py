@@ -62,7 +62,7 @@ def write_network(header_template,
         try:
             template = open(tmp)
         except OSError:
-            sys.exit(f"write_network.py: ERROR: file {tmp} does not exist")
+            sys.exit(f"write_network.py: ERROR: template file {tmp} does not exist")
         else:
             template_lines = template.readlines()
             template.close()

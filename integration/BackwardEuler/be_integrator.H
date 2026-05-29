@@ -60,9 +60,9 @@ int single_step (BurnT& state, BeT& be, const amrex::Real dt)
         if (integrator_rp::do_corrector_validation) {
 #ifdef SDC
             const amrex::Real rho_current = state.rho_orig + be.t * state.ydot_a[SRHO];
-            const amrex::Real thresh = species_failure_tolerance * rho_current;
+            const amrex::Real thresh = integrator_rp::species_failure_tolerance * rho_current;
 #else
-            const amrex::Real thresh = species_failure_tolerance;
+            const amrex::Real thresh = integrator_rp::species_failure_tolerance;
 #endif
             bool fail{};
             for (int i = 1; i <= NumSpec; ++i) {
@@ -171,17 +171,14 @@ int single_step (BurnT& state, BeT& be, const amrex::Real dt)
     if (! converged) {
 
         if (ierr == IERR_SUCCESS) {
-
             // if we didn't set another error, then we probably ran
             // out of iterations, so set nonconvergence
-
             ierr = IERR_CORRECTOR_CONVERGENCE;
+        }
 
-            // reset the solution to the original
-            for (int n = 1; n <= int_neqs; n++) {
-                be.y(n) = y_old(n);
-            }
-
+        // reset the solution to the original on any failure
+        for (int n = 1; n <= int_neqs; n++) {
+            be.y(n) = y_old(n);
         }
 
     }
@@ -206,7 +203,9 @@ int be_integrator (BurnT& state, BeT& be)
         // Do a single step to the final time
         const amrex::Real dt_single_step = be.tout - be.t;
         ierr = single_step(state, be, dt_single_step);
-        be.t = be.tout;
+        if (ierr == IERR_SUCCESS) {
+            be.t = be.tout;
+        }
         ++be.n_step;
         return ierr;
     }
@@ -240,50 +239,55 @@ int be_integrator (BurnT& state, BeT& be)
         // our strategy is to take 2 steps at dt/2 and one at dt and
         // to compute the error from those
 
-
-        // try to take a step dt
-
         // first do 2 (fine) dt/2 steps
 
         amrex::Array1D<amrex::Real, 1, int_neqs> y_fine;
+
+        // keep track of whether we have a valid fine solution
+        // this means no errors from either half step
+        bool have_fine_solution = false;
 
         ierr = single_step(state, be, dt_sub/2);
         if (ierr == IERR_SUCCESS) {
             ierr = single_step(state, be, dt_sub/2);
 
-            // store the fine dt solution
+            if (ierr == IERR_SUCCESS) {
+                // store the fine dt solution
+                for (int n = 1; n <= int_neqs; ++n) {
+                    y_fine(n) = be.y(n);
+                }
+                have_fine_solution = true;
 
-            for (int n = 1; n <= int_neqs; ++n) {
-                y_fine(n) = be.y(n);
+                // now do a single (coarse) dt step
+                // first reset the solution
+                for (int n = 1; n <= int_neqs; ++n) {
+                    be.y(n) = y_old(n);
+                }
+                ierr = single_step(state, be, dt_sub);
             }
-
-            // now that single (coarse) dt step
-            // first reset the solution
-            for (int n = 1; n <= int_neqs; ++n) {
-                be.y(n) = y_old(n);
-            }
-            ierr = single_step(state, be, dt_sub);
         }
-
-        // define a weight for each variable to use in checking the error
-
-        amrex::Array1D<amrex::Real, 1, int_neqs> w;
-        for (int n = 1; n <= NumSpec; n++) {
-            w(n) = 1.0_rt / (be.rtol_spec * std::abs(y_fine(n)) + be.atol_spec);
-        }
-        w(net_ienuc) = 1.0_rt / (be.rtol_enuc * std::abs(y_fine(net_ienuc)) + be.atol_enuc);
-
-        // now look for w |y_fine - y_coarse| < 1
 
         amrex::Real rel_error = 0.0_rt;
-        for (int n = 1; n <= NumSpec; n++) {
-            rel_error = amrex::max(rel_error, w(n) * std::abs(y_fine(n) - be.y(n)));
-        }
-        rel_error = amrex::max(rel_error, w(net_ienuc) * std::abs(y_fine(net_ienuc) - be.y(net_ienuc)));
-
         bool step_success = false;
-        if (rel_error < 1.0_rt) {
-            step_success = true;
+        if (ierr == IERR_SUCCESS && have_fine_solution) {
+            // define a weight for each variable to use in checking the error
+
+            amrex::Array1D<amrex::Real, 1, int_neqs> w;
+            for (int n = 1; n <= NumSpec; n++) {
+                w(n) = 1.0_rt / (be.rtol_spec * std::abs(y_fine(n)) + be.atol_spec);
+            }
+            w(net_ienuc) = 1.0_rt / (be.rtol_enuc * std::abs(y_fine(net_ienuc)) + be.atol_enuc);
+
+            // now look for w |y_fine - y_coarse| < 1
+
+            for (int n = 1; n <= NumSpec; n++) {
+                rel_error = amrex::max(rel_error, w(n) * std::abs(y_fine(n) - be.y(n)));
+            }
+            rel_error = amrex::max(rel_error, w(net_ienuc) * std::abs(y_fine(net_ienuc) - be.y(net_ienuc)));
+
+            if (rel_error < 1.0_rt) {
+                step_success = true;
+            }
         }
 
         if (ierr == IERR_SUCCESS && step_success) {

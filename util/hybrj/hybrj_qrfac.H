@@ -48,9 +48,9 @@
 // argonne national laboratory. minpack project. march 1980.
 // burton s. garbow, kenneth e. hillstrom, jorge j. more
 
-template<int neqs>
+template<int neqs, typename MatrixType>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void qrfac(amrex::Array2D<amrex::Real, 1, neqs, 1, neqs>& a,
+void qrfac(MatrixType& a,
            amrex::Array1D<amrex::Real, 1, neqs>& rdiag,
            amrex::Array1D<amrex::Real, 1, neqs>& acnorm,
            amrex::Array1D<amrex::Real, 1, neqs>& wa) {

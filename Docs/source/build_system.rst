@@ -102,6 +102,8 @@ The following control whether certain physics modules are included in
 the build process.  Note: an EOS and network are always required.
 These can be set to ``TRUE`` to enable and ``FALSE`` to disable specific features.
 
+.. index:: USE_CONDUCTIVITY, USE_NEUTRINOS, USE_NSE_NET, USE_NSE_TABLE, USE_RATES, USE_REACT, USE_SCREENING
+
 * ``USE_CONDUCTIVITY`` : determines whether a conductivity routine
   should be included in the list of build packages.  If enabled, this
   also defines the ``CONDUCTIVITY`` preprocessor variable.  Default:
@@ -112,7 +114,7 @@ These can be set to ``TRUE`` to enable and ``FALSE`` to disable specific feature
   equation.  See :ref:`neutrino_loss`.  The default is set by each
   individual network.
 
-* ``USE_NET_NET`` : determines whether the self-consistent NSE
+* ``USE_NSE_NET`` : determines whether the self-consistent NSE
   infrastructure is included in the build.  See
   :ref:`self_consistent_nse`.  No default is set.
 
@@ -143,6 +145,7 @@ These can be set to ``TRUE`` to enable and ``FALSE`` to disable specific feature
 
 The following control the choice of implementation for the different physics modules:
 
+.. index:: CONDUCTIVITY_DIR, EOS_DIR, INTEGRATOR_DIR, NETWORK_DIR, GENERAL_NET_INPUTS, NETWORK_INPUTS, NETWORK_CUSTOM_DIR, OPACITY_DIR, SCREEN_METHOD
 
 * ``CONDUCTIVITY_DIR`` : the name of the conductivity implementation to use,
   relative to ``Microphysics/conductivity/``.
@@ -156,6 +159,13 @@ The following control the choice of implementation for the different physics mod
   If ``general_null`` is chosen, then the inputs file is determined by
   either ``GENERAL_NET_INPUTS`` or ``NETWORK_INPUTS`` (see :ref:`sec:networks:general_null`).
 
+  .. note::
+
+     Alternately, you can set ``NETWORK_CUSTOM_DIR`` to the full path of
+     the location of the network directory.  This is used for the case where
+     a network is created outside of ``Microphysics/`` (e.g. via pynucastro)
+     but we still want to build a simple driver to test it.
+
 * ``OPACITY_DIR`` : the name of the opacity implementation to use, relative
   to ``Microphysics/opacity/``.
 
@@ -165,6 +175,8 @@ The following control the choice of implementation for the different physics mod
 
 The following control the time-integration method used by the reaction
 network integration:
+
+.. index:: USE_SIMPLIFIED_SDC, USE_TRUE_SDC
 
 * ``USE_SIMPLIFIED_SDC`` : enable the simplified-SDC coupling of hydro and reactions.
   See :ref:`sec:simplified_sdc`.
