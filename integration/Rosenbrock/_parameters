@@ -18,6 +18,11 @@ rosenbrock_tableau           int          0
 #   1 = Khokhlov/YASS concentration-change controller
 rosenbrock_timestep_controller int        0
 
+# Enable the warp-coupled Rosenbrock implementation on GPUs. This solves the
+# active lanes in a warp as one block-diagonal coupled ODE system, using a
+# single adaptive timestep and rejection decision across the warp.
+rosenbrock_warp_coupled      bool         0
+
 # H211b timestep controller parameters
 h211b_b                      real         4.0
 h211b_k                      real         2.5

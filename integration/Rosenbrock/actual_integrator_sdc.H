@@ -20,7 +20,9 @@ void actual_integrator (BurnT& state, amrex::Real dt, bool is_retry=false)
     auto rosenbrock_state = integrator_setup<BurnT, rosenbrock_t<int_neqs>>(state, dt, is_retry);
     auto state_save = integrator_backup(state);
 
-    int istate = rosenbrock_integrator(state, rosenbrock_state);
+    int istate = integrator_rp::rosenbrock_warp_coupled ?
+        rosenbrock_integrator_warp_coupled(state, rosenbrock_state) :
+        rosenbrock_integrator(state, rosenbrock_state);
 
     integrator_cleanup(rosenbrock_state, state, istate, state_save, dt);
 }

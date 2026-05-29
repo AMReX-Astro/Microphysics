@@ -2,6 +2,9 @@
 
 ## 26.05
 
+  * add an opt-in warp-coupled Rosenbrock integrator for GPU
+    reaction solves
+
   * fix the `vode_example` network (#1984)
 
   * add a unit test that just evaluates tabulated weak
