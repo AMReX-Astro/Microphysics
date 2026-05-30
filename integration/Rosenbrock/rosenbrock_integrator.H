@@ -5,6 +5,7 @@
 
 #include <cmath>
 #include <limits>
+#include <iostream>
 
 #include <network.H>
 #include <burn_type.H>
@@ -190,6 +191,118 @@ amrex::Real yass_change_norm (const rosenbrock_t<int_neqs>& rstate)
 
 template <int int_neqs>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+int first_invalid_integrator_state (const amrex::Array1D<amrex::Real, 1, int_neqs>& y)
+{
+    for (int n = 1; n <= int_neqs; ++n) {
+        const amrex::Real yn = y(n);
+        if (yn != yn || std::abs(yn) == std::numeric_limits<amrex::Real>::infinity()) {
+            return n;
+        }
+    }
+
+#ifdef STRANG
+    for (int n = 1; n <= NumSpec; ++n) {
+        if (y(n) < -integrator_rp::atol_spec) {
+            return n;
+        }
+
+        if (! integrator_rp::use_number_densities && y(n) > 1.0_rt) {
+            return n;
+        }
+    }
+
+    if (y(net_ienuc) <= 0.0_rt) {
+        return net_ienuc;
+    }
+#endif
+
+    return 0;
+}
+
+template <int int_neqs>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+int first_species_change_invalid (const rosenbrock_t<int_neqs>& rstate)
+{
+#ifdef STRANG
+    constexpr amrex::Real increase_change_factor = 4.0_rt;
+    constexpr amrex::Real decrease_change_factor = 0.25_rt;
+
+    for (int i = 1; i <= NumSpec; ++i) {
+        if (std::abs(rstate.y(i)) > integrator_rp::X_reject_buffer * rstate.atol_spec &&
+            std::abs(rstate.ynew(i)) > integrator_rp::X_reject_buffer * rstate.atol_spec &&
+            (std::abs(rstate.ynew(i)) > increase_change_factor * std::abs(rstate.y(i)) ||
+             std::abs(rstate.ynew(i)) < decrease_change_factor * std::abs(rstate.y(i)))) {
+            return i;
+        }
+    }
+#endif
+
+    return 0;
+}
+
+template <int int_neqs>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+int max_error_component (const rosenbrock_t<int_neqs>& rstate)
+{
+    int max_comp = 1;
+    amrex::Real max_term = -1.0_rt;
+    for (int n = 1; n <= int_neqs; ++n) {
+        const amrex::Real sk = atol_for(rstate, n) +
+            rtol_for(rstate, n) * amrex::max(std::abs(rstate.y(n)), std::abs(rstate.ynew(n)));
+        const amrex::Real term = std::abs(rstate.work(n) / sk);
+        if (term > max_term) {
+            max_term = term;
+            max_comp = n;
+        }
+    }
+    return max_comp;
+}
+
+template <int int_neqs>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+amrex::Real error_component_term (const rosenbrock_t<int_neqs>& rstate, const int n)
+{
+    const amrex::Real sk = atol_for(rstate, n) +
+        rtol_for(rstate, n) * amrex::max(std::abs(rstate.y(n)), std::abs(rstate.ynew(n)));
+    return rstate.work(n) / sk;
+}
+
+template <int int_neqs>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+int first_nonfinite_vector (const amrex::Array1D<amrex::Real, 1, int_neqs>& y)
+{
+    for (int n = 1; n <= int_neqs; ++n) {
+        const amrex::Real yn = y(n);
+        if (yn != yn || std::abs(yn) == std::numeric_limits<amrex::Real>::infinity()) {
+            return n;
+        }
+    }
+
+    return 0;
+}
+
+template <typename MatrixType, int int_neqs>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+int first_nonfinite_matrix (const MatrixType& matrix, int& row, int& column)
+{
+    for (int j = 1; j <= int_neqs; ++j) {
+        for (int i = 1; i <= int_neqs; ++i) {
+            const amrex::Real value = matrix(i, j);
+            if (value != value || std::abs(value) == std::numeric_limits<amrex::Real>::infinity()) {
+                row = i;
+                column = j;
+                return i;
+            }
+        }
+    }
+
+    row = 0;
+    column = 0;
+    return 0;
+}
+
+template <int int_neqs>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 bool valid_integrator_state (const amrex::Array1D<amrex::Real, 1, int_neqs>& y)
 {
     for (int n = 1; n <= int_neqs; ++n) {
@@ -220,31 +333,18 @@ bool valid_integrator_state (const amrex::Array1D<amrex::Real, 1, int_neqs>& y)
 
 template <typename BurnT, int int_neqs>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void evaluate_jacobian (BurnT& state, rosenbrock_t<int_neqs>& rstate, const amrex::Real time)
+void evaluate_numerical_jacobian (BurnT& state, rosenbrock_t<int_neqs>& rstate,
+                                  const amrex::Real time,
+                                  const amrex::Array1D<amrex::Real, 1, int_neqs>& ybase)
 {
     constexpr bool in_jacobian = true;
-
-    rhs(time, state, rstate, rstate.ak1, in_jacobian);
-    rstate.n_rhs += 1;
-
-    if (rstate.jacobian_type == 1) {
-        jac(time, state, rstate, rstate.jac);
-        rstate.n_jac += 1;
-        return;
-    }
-
     constexpr amrex::Real UROUND = std::numeric_limits<amrex::Real>::epsilon();
-    amrex::Array1D<amrex::Real, 1, int_neqs> ewt;
-    amrex::Array1D<amrex::Real, 1, int_neqs> ybase;
 
-    // rhs() may clean or renormalize all components of rstate.y.
-    for (int i = 1; i <= int_neqs; ++i) {
-        ybase(i) = rstate.y(i);
-    }
+    amrex::Array1D<amrex::Real, 1, int_neqs> ewt;
 
     amrex::Real fac = 0.0_rt;
     for (int i = 1; i <= int_neqs; ++i) {
-        ewt(i) = 1.0_rt / (rtol_for(rstate, i) * std::abs(rstate.y(i)) + atol_for(rstate, i));
+        ewt(i) = 1.0_rt / (rtol_for(rstate, i) * std::abs(ybase(i)) + atol_for(rstate, i));
         fac += (rstate.ak1(i) * ewt(i)) * (rstate.ak1(i) * ewt(i));
     }
     fac = std::sqrt(fac / static_cast<amrex::Real>(int_neqs));
@@ -269,14 +369,47 @@ void evaluate_jacobian (BurnT& state, rosenbrock_t<int_neqs>& rstate, const amre
         for (int i = 1; i <= int_neqs; ++i) {
             rstate.jac.set(i, j, (rstate.work(i) - rstate.ak1(i)) * fac);
         }
+    }
 
-        for (int n = 1; n <= int_neqs; ++n) {
-            rstate.y(n) = ybase(n);
-        }
+    for (int n = 1; n <= int_neqs; ++n) {
+        rstate.y(n) = ybase(n);
     }
 
     rstate.n_rhs += int_neqs;
     rstate.n_jac += 1;
+}
+
+template <typename BurnT, int int_neqs>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void evaluate_jacobian (BurnT& state, rosenbrock_t<int_neqs>& rstate, const amrex::Real time)
+{
+    constexpr bool in_jacobian = true;
+
+    rhs(time, state, rstate, rstate.ak1, in_jacobian);
+    rstate.n_rhs += 1;
+
+    amrex::Array1D<amrex::Real, 1, int_neqs> ybase;
+
+    // rhs() may clean or renormalize all components of rstate.y.
+    for (int i = 1; i <= int_neqs; ++i) {
+        ybase(i) = rstate.y(i);
+    }
+
+    if (rstate.jacobian_type == 1) {
+        jac(time, state, rstate, rstate.jac);
+        rstate.n_jac += 1;
+
+        int jac_bad_row = 0;
+        int jac_bad_column = 0;
+        if (first_nonfinite_matrix<decltype(rstate.jac), int_neqs>(rstate.jac, jac_bad_row, jac_bad_column) == 0) {
+            return;
+        }
+
+        evaluate_numerical_jacobian<BurnT, int_neqs>(state, rstate, time, ybase);
+        return;
+    }
+
+    evaluate_numerical_jacobian<BurnT, int_neqs>(state, rstate, time, ybase);
 }
 
 template <typename BurnT, int int_neqs>
@@ -397,6 +530,14 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
         }
 
         if (0.1_rt * std::abs(h) <= std::abs(x) * std::numeric_limits<amrex::Real>::epsilon()) {
+            AMREX_IF_ON_HOST((
+                if (state.debug_replay && state.debug_replay_log_count < state.debug_replay_max_logs) {
+                    ++state.debug_replay_log_count;
+                    std::cout << "	>> Rosenbrock CPU replay cut: reason=dt_underflow, x=" << x << ", h=" << h
+                              << ", threshold=" << std::abs(x) * std::numeric_limits<amrex::Real>::epsilon()
+                              << ", n_step=" << rstate.n_step << ", n_reject=" << n_reject << std::endl;
+                }
+            ))
             rstate.t = x;
             rstate.dt = h;
             return IERR_DT_UNDERFLOW;
@@ -418,6 +559,14 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
             rstate.dt = h;
 
             if (0.1_rt * std::abs(h) <= std::abs(x) * std::numeric_limits<amrex::Real>::epsilon()) {
+                AMREX_IF_ON_HOST((
+                    if (state.debug_replay && state.debug_replay_log_count < state.debug_replay_max_logs) {
+                        ++state.debug_replay_log_count;
+                        std::cout << "	>> Rosenbrock CPU replay cut: reason=dt_underflow_inner, x=" << x << ", h=" << h
+                                  << ", threshold=" << std::abs(x) * std::numeric_limits<amrex::Real>::epsilon()
+                                  << ", n_step=" << rstate.n_step << ", n_reject=" << n_reject << std::endl;
+                    }
+                ))
                 rstate.t = x;
                 rstate.dt = h;
                 return IERR_DT_UNDERFLOW;
@@ -425,9 +574,67 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
 
             const amrex::Real fac = 1.0_rt / (h * C::gamma);
             rosenbrock::evaluate_jacobian(state, rstate, x);
+
+            amrex::Array1D<amrex::Real, 1, int_neqs> rhs_before_solve;
+            for (int n = 1; n <= int_neqs; ++n) {
+                rhs_before_solve(n) = rstate.ak1(n);
+            }
+
+            const int rhs_bad_component = rosenbrock::first_nonfinite_vector(rstate.ak1);
+            int jac_bad_row = 0;
+            int jac_bad_column = 0;
+            const int jac_bad_component =
+                rosenbrock::first_nonfinite_matrix<decltype(rstate.jac), int_neqs>(rstate.jac, jac_bad_row, jac_bad_column);
+            AMREX_IF_ON_HOST((
+                if (state.debug_replay && ! state.debug_replay_first_stage_diagnostics_printed &&
+                    (rhs_bad_component != 0 || jac_bad_component != 0)) {
+                    state.debug_replay_first_stage_diagnostics_printed = true;
+                    std::cout << "\t>> Rosenbrock CPU replay first-stage diagnostic: location=after_evaluate_jacobian"
+                              << ", x=" << x << ", h=" << h << ", fac=" << fac
+                              << ", n_rhs=" << rstate.n_rhs << ", n_jac=" << rstate.n_jac;
+                    if (rhs_bad_component != 0) {
+                        std::cout << ", rhs_bad_component=" << rhs_bad_component;
+                        if (rhs_bad_component <= NumSpec) {
+                            std::cout << ", rhs_bad_species_index=" << rhs_bad_component - 1;
+                        } else if (rhs_bad_component == net_ienuc) {
+                            std::cout << ", rhs_bad_component_name=e";
+                        }
+                        std::cout << ", rhs_value=" << rstate.ak1(rhs_bad_component)
+                                  << ", y=" << rstate.y(rhs_bad_component);
+                    }
+                    if (jac_bad_component != 0) {
+                        std::cout << ", jac_bad_row=" << jac_bad_row << ", jac_bad_column=" << jac_bad_column
+                                  << ", jac_value=" << rstate.jac(jac_bad_row, jac_bad_column);
+                    }
+                    std::cout << std::endl;
+                }
+            ))
+
             int ierr_linpack = rosenbrock::decompose(rstate, fac);
 
+            int decomp_bad_row = 0;
+            int decomp_bad_column = 0;
+            const int decomp_bad_component =
+                rosenbrock::first_nonfinite_matrix<decltype(rstate.jac), int_neqs>(rstate.jac, decomp_bad_row, decomp_bad_column);
+            AMREX_IF_ON_HOST((
+                if (state.debug_replay && ! state.debug_replay_first_stage_diagnostics_printed && decomp_bad_component != 0) {
+                    state.debug_replay_first_stage_diagnostics_printed = true;
+                    std::cout << "\t>> Rosenbrock CPU replay first-stage diagnostic: location=after_decompose"
+                              << ", x=" << x << ", h=" << h << ", fac=" << fac << ", ierr=" << ierr_linpack
+                              << ", matrix_bad_row=" << decomp_bad_row << ", matrix_bad_column=" << decomp_bad_column
+                              << ", matrix_value=" << rstate.jac(decomp_bad_row, decomp_bad_column)
+                              << ", rhs_component_value=" << rhs_before_solve(decomp_bad_row) << std::endl;
+                }
+            ))
+
             if (ierr_linpack != 0) {
+                AMREX_IF_ON_HOST((
+                    if (state.debug_replay && state.debug_replay_log_count < state.debug_replay_max_logs) {
+                        ++state.debug_replay_log_count;
+                        std::cout << "	>> Rosenbrock CPU replay cut: reason=lu_decomposition, ierr=" << ierr_linpack << ", nsing=" << nsing + 1
+                                  << ", x=" << x << ", h=" << h << ", fac=" << fac << std::endl;
+                    }
+                ))
                 nsing += 1;
                 if (nsing >= 5) {
                     rstate.t = x;
@@ -441,6 +648,30 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
             }
 
             rosenbrock::solve(rstate, rstate.ak1);
+
+            const int solve_bad_component = rosenbrock::first_nonfinite_vector(rstate.ak1);
+            AMREX_IF_ON_HOST((
+                if (state.debug_replay && ! state.debug_replay_first_stage_diagnostics_printed && solve_bad_component != 0) {
+                    state.debug_replay_first_stage_diagnostics_printed = true;
+                    std::cout << "\t>> Rosenbrock CPU replay first-stage diagnostic: location=after_first_stage_solve"
+                              << ", x=" << x << ", h=" << h << ", fac=" << fac
+                              << ", component=" << solve_bad_component;
+                    if (solve_bad_component <= NumSpec) {
+                        std::cout << ", species_index=" << solve_bad_component - 1;
+                    } else if (solve_bad_component == net_ienuc) {
+                        std::cout << ", component_name=e";
+                    }
+                    std::cout << ", y=" << rstate.y(solve_bad_component)
+                              << ", rhs_before_solve=" << rhs_before_solve(solve_bad_component)
+                              << ", ak1_after_solve=" << rstate.ak1(solve_bad_component)
+                              << ", matrix_diag_after_decompose=" << rstate.jac(solve_bad_component, solve_bad_component);
+                    if (C::stages >= 2) {
+                        std::cout << ", stage2_a21=" << C::a(2, 1)
+                                  << ", stage2_candidate=" << rstate.y(solve_bad_component) + C::a(2, 1) * rstate.ak1(solve_bad_component);
+                    }
+                    std::cout << std::endl;
+                }
+            ))
 
             bool valid_stage_state = true;
             for (int istage = 2; istage <= C::stages; ++istage) {
@@ -457,6 +688,18 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
                 }
 
                 if (! rosenbrock::valid_integrator_state(rstate.ynew)) {
+                    const int bad_component = rosenbrock::first_invalid_integrator_state(rstate.ynew);
+                    AMREX_IF_ON_HOST((
+                        if (state.debug_replay && state.debug_replay_log_count < state.debug_replay_max_logs) {
+                            ++state.debug_replay_log_count;
+                            std::cout << "	>> Rosenbrock CPU replay cut: reason=invalid_stage_state, stage=" << istage
+                                      << ", component=" << bad_component << ", x=" << x << ", h=" << h;
+                            if (bad_component > 0) {
+                                std::cout << ", ynew=" << rstate.ynew(bad_component);
+                            }
+                            std::cout << std::endl;
+                        }
+                    ))
                     h *= 0.25_rt;
                     reject = true;
                     n_reject += 1;
@@ -496,6 +739,18 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
 
             const bool valid_state = rosenbrock::valid_integrator_state(rstate.ynew);
             if (! valid_state) {
+                const int bad_component = rosenbrock::first_invalid_integrator_state(rstate.ynew);
+                AMREX_IF_ON_HOST((
+                    if (state.debug_replay && state.debug_replay_log_count < state.debug_replay_max_logs) {
+                        ++state.debug_replay_log_count;
+                        std::cout << "	>> Rosenbrock CPU replay cut: reason=invalid_final_state, component=" << bad_component << ", x=" << x
+                                  << ", h=" << h;
+                        if (bad_component > 0) {
+                            std::cout << ", ynew=" << rstate.ynew(bad_component);
+                        }
+                        std::cout << std::endl;
+                    }
+                ))
                 reject = true;
                 n_reject += 1;
                 last = false;
@@ -545,6 +800,28 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
                 break;
             }
 
+            AMREX_IF_ON_HOST((
+                if (state.debug_replay && state.debug_replay_log_count < state.debug_replay_max_logs) {
+                    ++state.debug_replay_log_count;
+                    if (valid_update) {
+                        const int component = rosenbrock::max_error_component(rstate);
+                        std::cout << "	>> Rosenbrock CPU replay cut: reason=error_norm, err=" << err << ", component=" << component
+                                  << ", component_error_term=" << rosenbrock::error_component_term(rstate, component)
+                                  << ", x=" << x << ", h=" << h << ", hnew=" << hnew << ", controller_fac=" << controller_fac
+                                  << ", y=" << rstate.y(component) << ", ynew=" << rstate.ynew(component)
+                                  << ", error_estimate=" << rstate.work(component) << std::endl;
+                    } else {
+                        const int component = rosenbrock::first_species_change_invalid(rstate);
+                        std::cout << "	>> Rosenbrock CPU replay cut: reason=species_change, err=" << err << ", component=" << component
+                                  << ", x=" << x << ", h=" << h << ", hnew=" << hnew << ", controller_fac=" << controller_fac;
+                        if (component > 0) {
+                            std::cout << ", y=" << rstate.y(component) << ", ynew=" << rstate.ynew(component)
+                                      << ", ratio=" << std::abs(rstate.ynew(component)) / std::abs(rstate.y(component));
+                        }
+                        std::cout << std::endl;
+                    }
+                }
+            ))
             reject = true;
             n_reject += 1;
             last = false;

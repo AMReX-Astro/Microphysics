@@ -162,6 +162,12 @@ struct burn_t
   // integrator error code
   short error_code{};
 
+  // host-only diagnostics for scalar burn replay
+  bool debug_replay{};
+  bool debug_replay_first_stage_diagnostics_printed{};
+  int debug_replay_log_count{};
+  int debug_replay_max_logs{200};
+
 };
 
 
