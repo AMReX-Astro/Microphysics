@@ -201,7 +201,7 @@ bool matrix_is_finite (const MatrixType& matrix)
     for (int j = 1; j <= int_neqs; ++j) {
         for (int i = 1; i <= int_neqs; ++i) {
             const amrex::Real value = matrix(i, j);
-            if (value != value || std::abs(value) == std::numeric_limits<amrex::Real>::infinity()) {
+            if (std::isnan(value) || std::isinf(value)) {
                 return false;
             }
         }
@@ -216,7 +216,7 @@ bool valid_integrator_state (const amrex::Array1D<amrex::Real, 1, int_neqs>& y)
 {
     for (int n = 1; n <= int_neqs; ++n) {
         const amrex::Real yn = y(n);
-        if (yn != yn || std::abs(yn) == std::numeric_limits<amrex::Real>::infinity()) {
+	if (std::isnan(yn) || std::isinf(yn)) {
             return false;
         }
     }
