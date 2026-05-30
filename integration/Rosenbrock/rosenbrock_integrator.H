@@ -196,22 +196,18 @@ amrex::Real yass_change_norm (const rosenbrock_t<int_neqs>& rstate)
 
 template <typename MatrixType, int int_neqs>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-int first_nonfinite_matrix (const MatrixType& matrix, int& row, int& column)
+bool matrix_is_finite (const MatrixType& matrix)
 {
     for (int j = 1; j <= int_neqs; ++j) {
         for (int i = 1; i <= int_neqs; ++i) {
             const amrex::Real value = matrix(i, j);
             if (value != value || std::abs(value) == std::numeric_limits<amrex::Real>::infinity()) {
-                row = i;
-                column = j;
-                return i;
+                return false;
             }
         }
     }
 
-    row = 0;
-    column = 0;
-    return 0;
+    return true;
 }
 
 template <int int_neqs>
@@ -246,18 +242,34 @@ bool valid_integrator_state (const amrex::Array1D<amrex::Real, 1, int_neqs>& y)
 
 template <typename BurnT, int int_neqs>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void evaluate_numerical_jacobian (BurnT& state, rosenbrock_t<int_neqs>& rstate,
-                                  const amrex::Real time,
-                                  const amrex::Array1D<amrex::Real, 1, int_neqs>& ybase)
+void evaluate_jacobian (BurnT& state, rosenbrock_t<int_neqs>& rstate, const amrex::Real time)
 {
     constexpr bool in_jacobian = true;
-    constexpr amrex::Real UROUND = std::numeric_limits<amrex::Real>::epsilon();
 
+    rhs(time, state, rstate, rstate.ak1, in_jacobian);
+    rstate.n_rhs += 1;
+
+    if (rstate.jacobian_type == 1) {
+        jac(time, state, rstate, rstate.jac);
+        rstate.n_jac += 1;
+
+        if (matrix_is_finite<decltype(rstate.jac), int_neqs>(rstate.jac)) {
+            return;
+        }
+    }
+
+    constexpr amrex::Real UROUND = std::numeric_limits<amrex::Real>::epsilon();
     amrex::Array1D<amrex::Real, 1, int_neqs> ewt;
+    amrex::Array1D<amrex::Real, 1, int_neqs> ybase;
+
+    // rhs() may clean or renormalize all components of rstate.y.
+    for (int i = 1; i <= int_neqs; ++i) {
+        ybase(i) = rstate.y(i);
+    }
 
     amrex::Real fac = 0.0_rt;
     for (int i = 1; i <= int_neqs; ++i) {
-        ewt(i) = 1.0_rt / (rtol_for(rstate, i) * std::abs(ybase(i)) + atol_for(rstate, i));
+        ewt(i) = 1.0_rt / (rtol_for(rstate, i) * std::abs(rstate.y(i)) + atol_for(rstate, i));
         fac += (rstate.ak1(i) * ewt(i)) * (rstate.ak1(i) * ewt(i));
     }
     fac = std::sqrt(fac / static_cast<amrex::Real>(int_neqs));
@@ -282,47 +294,14 @@ void evaluate_numerical_jacobian (BurnT& state, rosenbrock_t<int_neqs>& rstate,
         for (int i = 1; i <= int_neqs; ++i) {
             rstate.jac.set(i, j, (rstate.work(i) - rstate.ak1(i)) * fac);
         }
-    }
 
-    for (int n = 1; n <= int_neqs; ++n) {
-        rstate.y(n) = ybase(n);
+        for (int n = 1; n <= int_neqs; ++n) {
+            rstate.y(n) = ybase(n);
+        }
     }
 
     rstate.n_rhs += int_neqs;
     rstate.n_jac += 1;
-}
-
-template <typename BurnT, int int_neqs>
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void evaluate_jacobian (BurnT& state, rosenbrock_t<int_neqs>& rstate, const amrex::Real time)
-{
-    constexpr bool in_jacobian = true;
-
-    rhs(time, state, rstate, rstate.ak1, in_jacobian);
-    rstate.n_rhs += 1;
-
-    amrex::Array1D<amrex::Real, 1, int_neqs> ybase;
-
-    // rhs() may clean or renormalize all components of rstate.y.
-    for (int i = 1; i <= int_neqs; ++i) {
-        ybase(i) = rstate.y(i);
-    }
-
-    if (rstate.jacobian_type == 1) {
-        jac(time, state, rstate, rstate.jac);
-        rstate.n_jac += 1;
-
-        int jac_bad_row = 0;
-        int jac_bad_column = 0;
-        if (first_nonfinite_matrix<decltype(rstate.jac), int_neqs>(rstate.jac, jac_bad_row, jac_bad_column) == 0) {
-            return;
-        }
-
-        evaluate_numerical_jacobian<BurnT, int_neqs>(state, rstate, time, ybase);
-        return;
-    }
-
-    evaluate_numerical_jacobian<BurnT, int_neqs>(state, rstate, time, ybase);
 }
 
 template <typename BurnT, int int_neqs>
@@ -504,7 +483,6 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
 
             const amrex::Real fac = 1.0_rt / (h * C::gamma);
             rosenbrock::evaluate_jacobian(state, rstate, x);
-
             int ierr_linpack = rosenbrock::decompose(rstate, fac);
 
             if (ierr_linpack != 0) {
