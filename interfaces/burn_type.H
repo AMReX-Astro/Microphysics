@@ -92,7 +92,7 @@ struct burn_t
 #endif
 #ifdef PHOTOCHEMISTRY
   amrex::Real rn[NumRadEqs]{};
-  amrex::Real c_hat;
+  amrex::Real c_hat{};
 #endif
 
   // scaling used to make e we integrate dimensionless
