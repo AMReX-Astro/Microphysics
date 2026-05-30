@@ -16,7 +16,7 @@ constexpr amrex::Real CCMXJ = 0.2e0_rt;
 
 constexpr amrex::Real HMIN = 0.0_rt;
 
-// For each species or radiation quantity whose value is above a certain threshold, 
+// For each species or radiation quantity whose value is above a certain threshold,
 // we do not allow its mass fraction to change by more than a certain amount
 // in any integration step.
 constexpr amrex::Real vode_increase_change_factor = 4.0_rt;
