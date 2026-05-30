@@ -337,7 +337,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
 
             // Constrain abundances such that they are not negative (within a tolerance)
             // or greater than one (within a tolerance).
-            if (vstate.y(i) < -radiation_failure_tolerance) {
+            if (vstate.y(i) < -integrator_rp::radiation_failure_tolerance) {
                 valid_update = false;
                 break;
             }

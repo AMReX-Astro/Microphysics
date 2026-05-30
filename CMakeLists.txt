@@ -129,12 +129,12 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
     if(BUILD_UNIT_TEST_PC)
       message(STATUS "In BUILD_UNIT_TEST_PC")
       execute_process(COMMAND python3 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util/build_scripts/write_probin.py" --pa "${paramfile} ${EOSparamfile}
-                      ${networkpcparamfile} ${networkparamfile} ${VODEparamfile} ${integrationparamfile} ${unittestparamfile}" --use_namespace WORKING_DIRECTORY ${output_dir}/)
+                      ${networkpcparamfile} ${networkparamfile} ${integratorparamfile} ${integrationparamfile} ${unittestparamfile}" --use_namespace WORKING_DIRECTORY ${output_dir}/)
     else()
       message(STATUS "Not in BUILD_UNIT_TEST_PC")
       #do not need paramfile and unittestparamfile
       execute_process(COMMAND python3 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util/build_scripts/write_probin.py" --pa "${EOSparamfile} ${networkpcparamfile}
-                      ${networkparamfile} ${VODEparamfile} ${integrationparamfile} " --use_namespace WORKING_DIRECTORY ${output_dir}/)
+                      ${networkparamfile} ${integratorparamfile} ${integrationparamfile} " --use_namespace WORKING_DIRECTORY ${output_dir}/)
     endif()
 
     set(photoionization_sources ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/eos_data.cpp
