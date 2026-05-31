@@ -216,7 +216,7 @@ bool valid_integrator_state (const amrex::Array1D<amrex::Real, 1, int_neqs>& y)
 {
     for (int n = 1; n <= int_neqs; ++n) {
         const amrex::Real yn = y(n);
-	if (std::isnan(yn) || std::isinf(yn)) {
+        if (std::isnan(yn) || std::isinf(yn)) {
             return false;
         }
     }
