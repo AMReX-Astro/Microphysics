@@ -143,8 +143,10 @@ struct dvode_t
     // Local time and integration end time
     amrex::Real t, tout;
 
+#ifdef PHOTOCHEMISTRY
     // Reduced speed of light
     amrex::Real c_hat;
+#endif
 
     // Integration array
     amrex::Array1D<amrex::Real, 1, int_neqs> y;
