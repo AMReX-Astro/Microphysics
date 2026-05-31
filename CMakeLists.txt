@@ -187,6 +187,8 @@ set(BUILD_UNIT_TEST_PC false CACHE BOOL "Do you want to build the primordial che
 
 set(BUILD_UNIT_TEST_MC false CACHE BOOL "Do you want to build the metal chem unit test? (true/false)")
 
+set(MICROPHYSICS_INTEGRATOR "VODE" CACHE STRING "Microphysics integrator directory to use for CMake unit-test builds")
+
 add_compile_options(-Werror -Wall -Wextra)
 add_compile_definitions(NET_LOOP_UNROLL_LEN=1)
 
@@ -205,7 +207,7 @@ endif()
 
 if(BUILD_UNIT_TEST_PC)
   #Build primordial chem unit test
-  setup_target_for_microphysics_compilation("primordial_chem" ${CMAKE_BINARY_DIR})
+  setup_target_for_microphysics_compilation("primordial_chem" ${CMAKE_BINARY_DIR} ${MICROPHYSICS_INTEGRATOR})
   include_directories(${primordial_chem_dirs})
 
   #adding unit_tests as subdirectories
@@ -213,7 +215,7 @@ if(BUILD_UNIT_TEST_PC)
 
 elseif(BUILD_UNIT_TEST_MC)
   #Build metal chem unit test
-  setup_target_for_microphysics_compilation("metal_chem" ${CMAKE_BINARY_DIR})
+  setup_target_for_microphysics_compilation("metal_chem" ${CMAKE_BINARY_DIR} ${MICROPHYSICS_INTEGRATOR})
   include_directories(${metal_chem_dirs})
 
   #adding unit_tests as subdirectories
