@@ -1,5 +1,55 @@
 # Changelog
 
+## 26.06
+
+  * add a 5th order stiffly-accurate Rosenbrock integrator (#1994,
+    #2001, #2002, #2004, #2008)
+
+  * update CMake to allow selection of the integrator (#2005)
+
+  * add a utility to find xrb ignition condition (#1911)
+
+  * fix function signature of ``primordial_chem`` (#1986)
+
+  * reverse ``inline`` changes to EOS for HIP (#1991)
+
+  * fix some math rendering in docs (#1992)
+
+## 26.05
+
+  * fix the `vode_example` network (#1984)
+
+  * add a unit test that just evaluates tabulated weak
+    rates from a pynucastro network (#1979)
+
+  * update the build system to support compiling a network
+    test outside of Microphysics/ (#1978)
+
+  * some fixes to `BackwardEuler` failure modes (#1977)
+
+  * update the burn failure documentation (#1974)
+
+## 26.04
+
+  * add documentation on recovering from burn failures (#1971)
+
+  * fix the step-rejection logic for increase in X over a step in VODE
+    for SDC (#1968)
+
+  * make `species_failure_tolerance` a runtime parameter (#1969)
+
+  * update the JOSS paper (#1967)
+
+  * hybrid Powell solver updates: fix a NaN loop check (#1959),
+    template on the Jacobian type (#1958), fix comments (#1957), fix
+    the logic for refreshing the spectral radius (#1955)
+
+  * add an assert on the NSE table index (#1951)
+
+  * fix RKC compilation with NSE (#1956)
+
+  * CI action updates (#1942)
+
 ## 26.03
 
    * allow screening to output log(screening) (#1939)

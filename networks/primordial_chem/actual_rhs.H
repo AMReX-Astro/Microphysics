@@ -1334,7 +1334,7 @@ Real rhs_eint(const burn_t& state,
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
+void actual_rhs (const burn_t& state, Array1D<Real, 1, neqs>& ydot)
 {
     Real z = redshift;
 

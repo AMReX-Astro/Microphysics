@@ -79,6 +79,7 @@ system.
    ode_integrators
    nse
    sdc
+   burn_failures
 
 .. toctree::
    :maxdepth: 1

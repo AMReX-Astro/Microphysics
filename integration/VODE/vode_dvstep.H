@@ -141,20 +141,9 @@ int dvstep (BurnT& state, DvodeT& vstate)
     // constraints were violated in the update.
 
     amrex::Array1D<amrex::Real, 1, int_neqs> y_save;
-#ifdef STRANG
     for (int i = 1; i <= int_neqs; ++i) {
         y_save(i) = vstate.y(i);
     }
-#endif
-#ifdef SDC
-    amrex::Real rho_old = state.rho_orig + TOLD * state.ydot_a[SRHO];
-    for (int i = 1; i <= int_neqs; ++i) {
-        y_save(i) = vstate.y(i);
-    }
-    for (int i = 1; i <= NumSpec; ++i) {
-        y_save(SFS+i) /= rho_old;
-    }
-#endif
 
     while (true) {
 
@@ -255,7 +244,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
 
             // Constrain abundances such that they are not negative (within a tolerance)
             // or greater than one (within a tolerance).
-            if (vstate.y(i) < -species_failure_tolerance) {
+            if (vstate.y(i) < -integrator_rp::species_failure_tolerance) {
                 valid_update = false;
                 break;
             }
@@ -263,7 +252,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
             // Don't enforce the condition below if
             // vstate.y contains number densities
             if (! integrator_rp::use_number_densities) {
-                if (vstate.y(i) > 1.0_rt + species_failure_tolerance) {
+                if (vstate.y(i) > 1.0_rt + integrator_rp::species_failure_tolerance) {
                     valid_update = false;
                     break;
                 }
@@ -278,27 +267,31 @@ int dvstep (BurnT& state, DvodeT& vstate)
             // Also, we only consider the reactive portion of the
             // update
 
-            amrex::Real X_current = (vstate.y(SFS+i) - vstate.H * state.ydot_a[SFS-1+i]) / rho_current;
+            amrex::Real rhoX_current = (vstate.y(SFS+i) - vstate.H * state.ydot_a[SFS-1+i]);
+
+            // note: vstate.atol_spec here is density-weighted
 
             if (std::abs(y_save(SFS+i)) > integrator_rp::X_reject_buffer * vstate.atol_spec &&
-                std::abs(X_current) > integrator_rp::X_reject_buffer * vstate.atol_spec &&
-                (std::abs(X_current) > vode_increase_change_factor * std::abs(y_save(SFS+i)) ||
-                 std::abs(X_current) < vode_decrease_change_factor * std::abs(y_save(SFS+i)))) {
+                std::abs(rhoX_current) > integrator_rp::X_reject_buffer * vstate.atol_spec &&
+                (std::abs(rhoX_current) > vode_increase_change_factor * std::abs(y_save(SFS+i)) ||
+                 std::abs(rhoX_current) < vode_decrease_change_factor * std::abs(y_save(SFS+i)))) {
 #ifdef MICROPHYSICS_DEBUG
 #ifndef AMREX_USE_GPU
-                std::cout << "rejecting step based on species " << i << " from " << y_save(SFS+i) << " to " << X_current << std::endl;
+                std::cout << "rejecting step based on species " << i
+                          << " from " << y_save(SFS+i)
+                          << " to " << rhoX_current << std::endl;
 #endif
 #endif
                 valid_update = false;
                 break;
             }
 
-            if (vstate.y(SFS+i) < -species_failure_tolerance * rho_current) {
+            if (vstate.y(SFS+i) < -integrator_rp::species_failure_tolerance * rho_current) {
                 valid_update = false;
                 break;
             }
 
-            if (vstate.y(SFS+i) > (1.0_rt + species_failure_tolerance) * rho_current) {
+            if (vstate.y(SFS+i) > (1.0_rt + integrator_rp::species_failure_tolerance) * rho_current) {
                 valid_update = false;
                 break;
             }
