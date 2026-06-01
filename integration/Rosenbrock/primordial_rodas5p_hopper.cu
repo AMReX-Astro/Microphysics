@@ -11,7 +11,9 @@
 #include <actual_rhs.H>
 #include <burner.H>
 #include <integrator_data.H>
+#include <linpack.H>
 #include <primordial_rodas5p_hopper_generated.H>
+#include <rosenbrock_tableau.H>
 
 namespace primordial_rodas5p_hopper {
 
@@ -66,6 +68,133 @@ bool generated_network_matches_scalar (const burn_t& state,
     return true;
 }
 
+AMREX_GPU_DEVICE AMREX_FORCE_INLINE
+amrex::Real& shared_matrix (amrex::Real* matrix, const int i, const int j, const int local_zone)
+{
+    return matrix[((i - 1) * neq + (j - 1)) * zones_per_block + local_zone];
+}
+
+AMREX_GPU_DEVICE AMREX_FORCE_INLINE
+amrex::Real shared_matrix_value (const amrex::Real* matrix, const int i, const int j, const int local_zone)
+{
+    return matrix[((i - 1) * neq + (j - 1)) * zones_per_block + local_zone];
+}
+
+AMREX_GPU_DEVICE AMREX_FORCE_INLINE
+void build_rodas5p_matrix (amrex::Real* matrix, const amrex::Real h, const int local_zone)
+{
+    const amrex::Real fac = 1.0_rt / (h * rosenbrock::rodas5p_tableau::gamma);
+
+    for (int j = 1; j <= neq; ++j) {
+        for (int i = 1; i <= neq; ++i) {
+            amrex::Real value = -shared_matrix_value(matrix, i, j, local_zone);
+            if (i == j) {
+                value += fac;
+            }
+            shared_matrix(matrix, i, j, local_zone) = value;
+        }
+    }
+}
+
+AMREX_GPU_DEVICE AMREX_FORCE_INLINE
+bool rodas5p_matrix_matches_scalar (const burn_t& state,
+                                    const amrex::Real* matrix,
+                                    const amrex::Real h,
+                                    const int local_zone)
+{
+    RArray2D scalar_jac{};
+    actual_jac(state, scalar_jac);
+
+    const amrex::Real fac = 1.0_rt / (h * rosenbrock::rodas5p_tableau::gamma);
+    for (int j = 1; j <= neq; ++j) {
+        for (int i = 1; i <= neq; ++i) {
+            amrex::Real expected = -scalar_jac(i, j);
+            if (i == j) {
+                expected += fac;
+            }
+
+            if (! close_enough(expected, shared_matrix_value(matrix, i, j, local_zone))) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+template <bool allow_pivot>
+AMREX_GPU_DEVICE AMREX_FORCE_INLINE
+bool first_stage_solve_matches_scalar_impl (const burn_t& state,
+                                            const amrex::Real* rhs_tmp,
+                                            const amrex::Real* matrix,
+                                            const amrex::Real h,
+                                            const int local_zone)
+{
+    RArray1D generated_rhs{};
+    RArray2D generated_matrix{};
+    IArray1D generated_pivot{};
+
+    RArray1D scalar_rhs{};
+    RArray2D scalar_matrix{};
+    IArray1D scalar_pivot{};
+
+    actual_rhs(state, scalar_rhs);
+    actual_jac(state, scalar_matrix);
+
+    const amrex::Real fac = 1.0_rt / (h * rosenbrock::rodas5p_tableau::gamma);
+
+    for (int n = 1; n <= neq; ++n) {
+        generated_rhs(n) = rhs_tmp[(n - 1) * zones_per_block + local_zone];
+    }
+
+    for (int j = 1; j <= neq; ++j) {
+        for (int i = 1; i <= neq; ++i) {
+            generated_matrix(i, j) = shared_matrix_value(matrix, i, j, local_zone);
+
+            scalar_matrix(i, j) = -scalar_matrix(i, j);
+            if (i == j) {
+                scalar_matrix(i, j) += fac;
+            }
+        }
+    }
+
+    int generated_info = 0;
+    int scalar_info = 0;
+    dgefa<neq, allow_pivot>(generated_matrix, generated_pivot, generated_info);
+    dgefa<neq, allow_pivot>(scalar_matrix, scalar_pivot, scalar_info);
+
+    if (generated_info != scalar_info) {
+        return false;
+    }
+    if (generated_info != 0) {
+        return true;
+    }
+
+    dgesl<neq, allow_pivot>(generated_matrix, generated_pivot, generated_rhs);
+    dgesl<neq, allow_pivot>(scalar_matrix, scalar_pivot, scalar_rhs);
+
+    for (int n = 1; n <= neq; ++n) {
+        if (! close_enough(scalar_rhs(n), generated_rhs(n))) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+AMREX_GPU_DEVICE AMREX_FORCE_INLINE
+bool first_stage_solve_matches_scalar (const burn_t& state,
+                                       const amrex::Real* rhs_tmp,
+                                       const amrex::Real* matrix,
+                                       const amrex::Real h,
+                                       const int local_zone)
+{
+    if (integrator_rp::linalg_do_pivoting == 1) {
+        return first_stage_solve_matches_scalar_impl<true>(state, rhs_tmp, matrix, h, local_zone);
+    }
+    return first_stage_solve_matches_scalar_impl<false>(state, rhs_tmp, matrix, h, local_zone);
+}
+
 __global__
 void burn_kernel (burn_t* states, const amrex::Real dt, const int nstates)
 {
@@ -114,9 +243,19 @@ void burn_kernel (burn_t* states, const amrex::Real dt, const int nstates)
                                                                     rhs_tmp,
                                                                     jac,
                                                                     local_zone);
-        status[local_zone] = generated_ok ? 1 : 0;
+        build_rodas5p_matrix(jac, dt, local_zone);
+        const bool matrix_ok = rodas5p_matrix_matches_scalar(states[zone],
+                                                             jac,
+                                                             dt,
+                                                             local_zone);
+        const bool solve_ok = first_stage_solve_matches_scalar(states[zone],
+                                                               rhs_tmp,
+                                                               jac,
+                                                               dt,
+                                                               local_zone);
+        status[local_zone] = (generated_ok && matrix_ok && solve_ok) ? 1 : 0;
         burner(states[zone], dt);
-        if (! generated_ok) {
+        if (! generated_ok || ! matrix_ok || ! solve_ok) {
             states[zone].success = false;
             states[zone].error_code = IERR_BAD_INPUTS;
         }
