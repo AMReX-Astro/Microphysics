@@ -45,4 +45,4 @@ jobs:
         run: |
           export PATH=/usr/local/nvidia/bin:/usr/local/cuda/bin:${PATH}
           cd unit_test/test_sdc
-          make USE_CUDA=TRUE COMP=gnu USE_MPI=FALSE -j 4
+          make USE_CUDA=TRUE COMP=gnu USE_MPI=FALSE NETWORK_DIR=ase USE_NSE_NET=TRUE SCREEN_METHOD=chabrier1998 -j 4
