@@ -226,7 +226,8 @@ man_pages = [
 linkcheck_retries = 3
 linkcheck_timeout = 100
 linkcheck_allow_unauthorized = True
-linkcheck_ignore = [r"https://doi.org/10.1103/[Pp]hys[Rr]ev*"]
+linkcheck_ignore = [r"https://doi.org/10.1103/[Pp]hys[Rr]ev*",
+                    "https://www.sciencedirect.com/science/article/pii/S016892741200133X"]
 user_agent = "Mozilla/5.0 (X11; Linux x86_64; rv:25.0) Gecko/20100101 Firefox/25.0"
 
 
