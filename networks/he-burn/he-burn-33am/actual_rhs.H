@@ -723,16 +723,18 @@ void get_ydot_weak(const burn_t& state,
     // Compute all weak rates and get ydot_weak
 
 #ifdef SCREENING
-    plasma_state_t<amrex::Real> pstate{};
-    fill_plasma_state(pstate, state.T, state.rho, Y);
-    amrex::Real log_scor, dlog_scor_dT;
     {
-        constexpr auto scn_fac = scrn::calculate_screen_factor(1.0_rt, 1.0_rt, 8.0_rt, 16.0_rt);
-        static_assert(scn_fac.z1 == 1.0_rt);
-        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
-        rate_eval.log_screen(k_p_O16) = log_scor;
-    }
+        plasma_state_t<amrex::Real> pstate{};
+        fill_plasma_state(pstate, state.T, state.rho, Y);
+        amrex::Real log_scor, dlog_scor_dT;
+        {
+            constexpr auto scn_fac = scrn::calculate_screen_factor(1.0_rt, 1.0_rt, 8.0_rt, 16.0_rt);
+            static_assert(scn_fac.z1 == 1.0_rt);
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+            rate_eval.log_screen(k_p_O16) = log_scor;
+        }
 
+    }
 #endif
 
     const tf_t tfactors = evaluate_tfactors(state.T);
