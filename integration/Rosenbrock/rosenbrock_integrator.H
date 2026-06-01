@@ -16,6 +16,12 @@
 #ifdef SDC
 #include <integrator_rhs_sdc.H>
 #endif
+#ifdef NSE_TABLE
+#include <nse_table_check.H>
+#endif
+#ifdef NSE_NET
+#include <nse_check.H>
+#endif
 
 #include <integrator_data.H>
 #include <rosenbrock_type.H>
@@ -188,13 +194,29 @@ amrex::Real yass_change_norm (const rosenbrock_t<int_neqs>& rstate)
     return max_change / integrator_rp::yass_epsilon;
 }
 
+template <typename MatrixType, int int_neqs>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+bool matrix_is_finite (const MatrixType& matrix)
+{
+    for (int j = 1; j <= int_neqs; ++j) {
+        for (int i = 1; i <= int_neqs; ++i) {
+            const amrex::Real value = matrix(i, j);
+            if (std::isnan(value) || std::isinf(value)) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
 template <int int_neqs>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 bool valid_integrator_state (const amrex::Array1D<amrex::Real, 1, int_neqs>& y)
 {
     for (int n = 1; n <= int_neqs; ++n) {
         const amrex::Real yn = y(n);
-        if (yn != yn || std::abs(yn) == std::numeric_limits<amrex::Real>::infinity()) {
+        if (std::isnan(yn) || std::isinf(yn)) {
             return false;
         }
     }
@@ -230,7 +252,10 @@ void evaluate_jacobian (BurnT& state, rosenbrock_t<int_neqs>& rstate, const amre
     if (rstate.jacobian_type == 1) {
         jac(time, state, rstate, rstate.jac);
         rstate.n_jac += 1;
-        return;
+
+        if (matrix_is_finite<decltype(rstate.jac), int_neqs>(rstate.jac)) {
+            return;
+        }
     }
 
     constexpr amrex::Real UROUND = std::numeric_limits<amrex::Real>::epsilon();
@@ -389,7 +414,14 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
     amrex::Real x = rstate.t;
     amrex::Array1D<amrex::Real, 1, int_neqs> rhs_tmp;
 
+    // main evolution loop
+
+    // within this loop, x will be the current time and h will be the
+    // step size we are attempting.  The solution at the current time
+    // is rstate.y().
+
     while (true) {
+
         if (rstate.n_step > integrator_rp::ode_max_steps) {
             rstate.t = x;
             rstate.dt = h;
@@ -413,6 +445,32 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
             h = rstate.tout - x;
             last = true;
         }
+
+#ifdef NSE
+        // check if, during the course of integration, we hit NSE, and
+        // if so, bail out.
+
+        // we only do this after MIN_NSE_BAILOUT_STEPS to prevent us
+        // from hitting this right at the start when the integrator
+        // might do so wild exploration.  Also ensure we are not
+        // working > tmax, so we don't need to worry about
+        // extrapolating back in time.
+
+        if (rstate.n_step > MIN_NSE_BAILOUT_STEPS && x <= rstate.tout) {
+            // first we need to make the burn_t in sync
+
+            int_to_burn(x, rstate, state);
+
+            if (in_nse(state)) {
+                rstate.t = x;
+                return IERR_ENTERED_NSE;
+            }
+        }
+#endif
+
+
+        // take a step -- this loop will keep trying until a step is
+        // successful or a catastrophic error is encountered.
 
         while (true) {
             rstate.dt = h;
@@ -527,6 +585,9 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
 
             amrex::Real hnew = h * controller_fac;
 
+            // update the starting time and state for the next step
+            // and predict the next timestep
+
             if (err <= 1.0_rt && valid_update) {
                 for (int n = 1; n <= int_neqs; ++n) {
                     rstate.y(n) = rstate.ynew(n);
@@ -544,6 +605,9 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
                 h = hnew;
                 break;
             }
+
+            // if we made it here, then we've failed
+            // cut the timestep in prep for trying again
 
             reject = true;
             n_reject += 1;
