@@ -1,0 +1,5 @@
+unit_test.X = 0.71
+unit_test.Z = 0.01
+unit_test.mdot = 0.1
+unit_test.Fb = 150.0
+unit_test.COMPRESS = 0
