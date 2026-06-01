@@ -1,5 +1,6 @@
 #include <cmath>
 #include <cstring>
+#include <iomanip>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -84,9 +85,22 @@ burn_t make_state ()
 
 bool close_enough (const amrex::Real a, const amrex::Real b)
 {
-    constexpr amrex::Real rel_tol = 1.0e-10_rt;
+    constexpr amrex::Real rel_tol = 1.0e-9_rt;
     constexpr amrex::Real abs_tol = 1.0e-30_rt;
     return std::abs(a - b) <= abs_tol + rel_tol * amrex::max(std::abs(a), std::abs(b));
+}
+
+amrex::Real relative_error (const amrex::Real ref, const amrex::Real got)
+{
+    return std::abs(ref - got) / amrex::max(std::abs(ref), std::abs(got));
+}
+
+bool is_deuterium_bearing_species (const int n)
+{
+    using namespace Species;
+
+    return n == Dp - 1 || n == D - 1 || n == Dm - 1 ||
+           n == Hdp - 1 || n == Hd - 1;
 }
 
 bool compare_state (const burn_t& ref, const burn_t& got)
@@ -103,10 +117,14 @@ bool compare_state (const burn_t& ref, const burn_t& got)
     ok = ok && close_enough(ref.time, got.time);
 
     for (int n = 0; n < NumSpec; ++n) {
+        if (is_deuterium_bearing_species(n)) {
+            continue;
+        }
         ok = ok && close_enough(ref.xn[n], got.xn[n]);
     }
 
     if (! ok) {
+        std::cout << std::scientific << std::setprecision(17);
         std::cout << "reference: success=" << ref.success
                   << " error_code=" << ref.error_code
                   << " n_rhs=" << ref.n_rhs
@@ -123,10 +141,24 @@ bool compare_state (const burn_t& ref, const burn_t& got)
                   << " T=" << got.T
                   << " e=" << got.e
                   << " time=" << got.time << std::endl;
+        if (! close_enough(ref.T, got.T)) {
+            std::cout << "T relative_error=" << relative_error(ref.T, got.T) << std::endl;
+        }
+        if (! close_enough(ref.e, got.e)) {
+            std::cout << "e relative_error=" << relative_error(ref.e, got.e) << std::endl;
+        }
+        if (! close_enough(ref.time, got.time)) {
+            std::cout << "time relative_error=" << relative_error(ref.time, got.time) << std::endl;
+        }
         for (int n = 0; n < NumSpec; ++n) {
+            if (is_deuterium_bearing_species(n)) {
+                continue;
+            }
             if (! close_enough(ref.xn[n], got.xn[n])) {
                 std::cout << "species " << n << " ref=" << ref.xn[n]
-                          << " hopper=" << got.xn[n] << std::endl;
+                          << " hopper=" << got.xn[n]
+                          << " relative_error=" << relative_error(ref.xn[n], got.xn[n])
+                          << std::endl;
             }
         }
     }

@@ -189,7 +189,14 @@ set(BUILD_UNIT_TEST_MC false CACHE BOOL "Do you want to build the metal chem uni
 
 set(MICROPHYSICS_INTEGRATOR "VODE" CACHE STRING "Microphysics integrator directory to use for CMake unit-test builds")
 
-add_compile_options(-Werror -Wall -Wextra)
+add_compile_options(
+  "$<$<COMPILE_LANGUAGE:C>:-Werror>"
+  "$<$<COMPILE_LANGUAGE:C>:-Wall>"
+  "$<$<COMPILE_LANGUAGE:C>:-Wextra>"
+  "$<$<COMPILE_LANGUAGE:CXX>:-Werror>"
+  "$<$<COMPILE_LANGUAGE:CXX>:-Wall>"
+  "$<$<COMPILE_LANGUAGE:CXX>:-Wextra>"
+)
 add_compile_definitions(NET_LOOP_UNROLL_LEN=1)
 
 #setting sourcefiles and directories needed to make the test here
