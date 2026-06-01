@@ -3602,6 +3602,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     [[maybe_unused]] amrex::Real drate_dT;
 
     {
+        // p_C12_to_N13_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3618,6 +3620,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // He4_C12_to_O16_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3634,6 +3638,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // He4_O16_to_Ne20_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3650,6 +3656,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // He4_Ne20_to_Mg24_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3666,6 +3674,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // p_Na23_to_Mg24_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3682,6 +3692,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // He4_Mg24_to_Si28_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3698,6 +3710,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // p_Al27_to_Si28_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3714,6 +3728,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // He4_Si28_to_S32_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3730,6 +3746,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // p_P31_to_S32_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3746,6 +3764,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // He4_Cr48_to_Fe52_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3762,6 +3782,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // p_Mn51_to_Fe52_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3778,6 +3800,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // He4_Mn51_to_Co55_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3794,6 +3818,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // He4_Fe52_to_Ni56_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3810,6 +3836,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // p_Co55_to_Ni56_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3826,6 +3854,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // He4_Co55_to_Cu59_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3842,6 +3872,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // He4_Ni56_to_Zn60_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3858,6 +3890,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // p_Cu59_to_Zn60_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3874,6 +3908,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // C12_C12_to_p_Na23_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3890,6 +3926,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // C12_C12_to_He4_Ne20_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3906,6 +3944,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // He4_N13_to_p_O16_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3922,6 +3962,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // C12_O16_to_p_Al27_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3938,6 +3980,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // C12_O16_to_He4_Mg24_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3954,6 +3998,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // O16_O16_to_p_P31_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3970,6 +4016,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // O16_O16_to_He4_Si28_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3986,6 +4034,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // p_Na23_to_He4_Ne20_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4002,6 +4052,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // p_Al27_to_He4_Mg24_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4018,6 +4070,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // p_P31_to_He4_Si28_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4034,6 +4088,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // He4_Cr48_to_p_Mn51_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4050,6 +4106,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // He4_Fe52_to_p_Co55_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4066,6 +4124,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // p_Cu59_to_He4_Ni56_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4082,6 +4142,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // He4_He4_He4_to_C12_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4098,6 +4160,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // He4_N14_to_F18_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4114,6 +4178,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // p_O16_to_F17_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4130,6 +4196,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // C12_C12_to_n_Mg23_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4146,6 +4214,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // O16_O16_to_n_S31_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4162,6 +4232,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // C12_O16_to_n_Si27_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4178,6 +4250,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // p_Mn55_to_Fe56_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4194,6 +4268,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // n_Fe52_to_Fe53_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_n_Fe52_to_Fe53_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
@@ -4204,6 +4280,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // n_Fe53_to_Fe54_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_n_Fe53_to_Fe54_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
@@ -4214,6 +4292,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // He4_Fe53_to_Ni57_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4230,6 +4310,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // n_Fe54_to_Fe55_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_n_Fe54_to_Fe55_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
@@ -4240,6 +4322,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // p_Fe54_to_Co55_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4256,6 +4340,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // He4_Fe54_to_Ni58_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4272,6 +4358,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // n_Fe55_to_Fe56_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_n_Fe55_to_Fe56_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
@@ -4282,6 +4370,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // p_Fe55_to_Co56_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4298,6 +4388,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // p_Fe56_to_Co57_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4314,6 +4406,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // n_Co55_to_Co56_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_n_Co55_to_Co56_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
@@ -4324,6 +4418,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // n_Co56_to_Co57_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_n_Co56_to_Co57_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
@@ -4334,6 +4430,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // p_Co56_to_Ni57_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4350,6 +4448,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // p_Co57_to_Ni58_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4366,6 +4466,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // n_Ni56_to_Ni57_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_n_Ni56_to_Ni57_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
@@ -4376,6 +4478,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // n_Ni57_to_Ni58_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_n_Ni57_to_Ni58_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
@@ -4386,6 +4490,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // p_Ni58_to_Cu59_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4402,6 +4508,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // He4_Mn51_to_p_Fe54_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4418,6 +4526,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // He4_Fe53_to_p_Co56_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4434,6 +4544,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // n_Fe55_to_p_Mn55_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_n_Fe55_to_p_Mn55_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
@@ -4444,6 +4556,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // n_Co55_to_p_Fe55_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_n_Co55_to_p_Fe55_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
@@ -4454,6 +4568,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // He4_Co55_to_p_Ni58_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4470,6 +4586,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // n_Co56_to_p_Fe56_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_n_Co56_to_p_Fe56_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
@@ -4480,6 +4598,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // p_Co57_to_He4_Fe54_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4496,6 +4616,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // n_Ni56_to_p_Co56_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_n_Ni56_to_p_Co56_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
@@ -4506,6 +4628,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // n_Ni56_to_He4_Fe53_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_n_Ni56_to_He4_Fe53_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
@@ -4516,6 +4640,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // n_Ni57_to_p_Co57_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_n_Ni57_to_p_Co57_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
@@ -4526,6 +4652,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // n_Ni57_to_He4_Fe54_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_n_Ni57_to_He4_Fe54_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
@@ -4536,6 +4664,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // n_Ni58_to_He4_Fe55_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_n_Ni58_to_He4_Fe55_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
@@ -4546,6 +4676,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // n_Cu59_to_He4_Co56_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_n_Cu59_to_He4_Co56_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
@@ -4556,6 +4688,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // n_Zn60_to_He4_Ni57_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_n_Zn60_to_He4_Ni57_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
@@ -4566,6 +4700,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // He4_S32_to_Ar36_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4582,6 +4718,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // p_Cl35_to_Ar36_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4598,6 +4736,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // p_Cl35_to_He4_S32_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4614,6 +4754,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // He4_Ar36_to_Ca40_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4630,6 +4772,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // p_K39_to_Ca40_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4646,6 +4790,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // p_K39_to_He4_Ar36_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4662,6 +4808,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // He4_Ca40_to_Ti44_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4678,6 +4826,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // p_Sc43_to_Ti44_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4694,6 +4844,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // p_Sc43_to_He4_Ca40_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4710,6 +4862,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // He4_Ti44_to_Cr48_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4726,6 +4880,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // He4_Ti44_to_p_V47_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4742,6 +4898,8 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
     }
 
     {
+        // p_V47_to_Cr48_reaclib
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING

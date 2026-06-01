@@ -2966,6 +2966,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     pf_cache.index_temp_array_1 = interp_net::find_index(tfactors.T9, part_fun::temp_array_1);
 
     {
+        // N13_to_p_C12_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_N13_to_p_C12_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -2976,6 +2978,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // N14_to_p_C13_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_N14_to_p_C13_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -2986,6 +2990,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // O14_to_p_N13_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_O14_to_p_N13_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -2996,6 +3002,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // O15_to_p_N14_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_O15_to_p_N14_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -3006,6 +3014,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // O16_to_p_N15_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_O16_to_p_N15_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -3016,6 +3026,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // O16_to_He4_C12_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_O16_to_He4_C12_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -3026,6 +3038,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // F17_to_p_O16_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_F17_to_p_O16_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -3036,6 +3050,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // F18_to_p_O17_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_F18_to_p_O17_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -3046,6 +3062,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // F18_to_He4_N14_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_F18_to_He4_N14_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -3056,6 +3074,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // F19_to_p_O18_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_F19_to_p_O18_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -3066,6 +3086,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // F19_to_He4_N15_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_F19_to_He4_N15_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -3076,6 +3098,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Ne18_to_p_F17_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Ne18_to_p_F17_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -3086,6 +3110,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Ne18_to_He4_O14_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Ne18_to_He4_O14_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -3096,6 +3122,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Ne19_to_p_F18_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Ne19_to_p_F18_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -3106,6 +3134,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Ne19_to_He4_O15_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Ne19_to_He4_O15_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -3116,6 +3146,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Ne20_to_p_F19_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Ne20_to_p_F19_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -3126,6 +3158,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Ne20_to_He4_O16_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Ne20_to_He4_O16_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -3136,6 +3170,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Mg22_to_He4_Ne18_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Mg22_to_He4_Ne18_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -3146,6 +3182,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Mg24_to_He4_Ne20_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Mg24_to_He4_Ne20_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -3156,6 +3194,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // C12_to_He4_He4_He4_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_C12_to_He4_He4_He4_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -3166,6 +3206,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // He4_C12_to_p_N15_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3182,6 +3224,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // He4_N14_to_p_O17_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3198,6 +3242,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // He4_N15_to_p_O18_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3214,6 +3260,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // He4_O15_to_p_F18_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3230,6 +3278,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // p_O16_to_He4_N13_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3246,6 +3296,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // He4_O16_to_p_F19_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3262,6 +3314,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // p_F17_to_He4_O14_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3278,6 +3332,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // He4_F17_to_p_Ne20_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3294,6 +3350,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // He4_Ne20_to_C12_C12_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3310,6 +3368,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // He4_Mg24_to_C12_O16_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING

@@ -540,15 +540,17 @@ void evaluate_rates(const burn_t& state,
 #ifdef NSE_NET
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void get_ydot_weak(const burn_t& state,
-             amrex::Array1D<amrex::Real, 1, neqs>& ydot_nuc,
-             amrex::Real& enuc_weak,
-             [[maybe_unused]] const amrex::Array1D<amrex::Real, 1, NumSpec>& Y) {
+                   amrex::Array1D<amrex::Real, 1, neqs>& ydot_nuc,
+                   amrex::Real& enuc_weak,
+                   [[maybe_unused]] const amrex::Array1D<amrex::Real, 1, NumSpec>& Y) {
     ///
     /// Calculate Ydots contribute only from weak reactions.
     /// This is used to calculate dyedt and energy generation from
     /// weak reactions for self-consistent NSE
     ///
 
+    using namespace modified_rates;
+    using namespace temp_tabular;
 
     // initialize ydot_nuc to 0
 
@@ -558,35 +560,140 @@ void get_ydot_weak(const burn_t& state,
 
     rate_t rate_eval;
 
-    [[maybe_unused]] amrex::Real rate, drate_dt, edot_nu, edot_gamma;
+    constexpr int do_T_derivatives = 0;
+    [[maybe_unused]] amrex::Real rate, drate_dT, edot_nu, edot_gamma;
     [[maybe_unused]] amrex::Real rhoy = state.rho * state.y_e;
 
     rate_eval.enuc_weak = 0.0_rt;
 
-    // Calculate tabular rates and get ydot_weak
+    // Compute all weak rates and get ydot_weak
+
+#ifdef SCREENING
+    plasma_state_t<amrex::Real> pstate{};
+    fill_plasma_state(pstate, state.T, state.rho, Y);
+    amrex::Real log_scor, dlog_scor_dT;
+    {
+        constexpr auto scn_fac = scrn::calculate_screen_factor(1.0_rt, 1.0_rt, 2.0_rt, 3.0_rt);
+        static_assert(scn_fac.z1 == 1.0_rt);
+        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        rate_eval.log_screen(k_p_He3) = log_scor;
+    }
+
+    {
+        constexpr auto scn_fac = scrn::calculate_screen_factor(1.0_rt, 1.0_rt, 1.0_rt, 1.0_rt);
+        static_assert(scn_fac.z1 == 1.0_rt);
+        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        rate_eval.log_screen(k_p_p) = log_scor;
+    }
+
+#endif
+
+    const tf_t tfactors = evaluate_tfactors(state.T);
+
+    {
+        // Be7_to_Li7_reaclib
+
+        amrex::Real log_scor {0.0_rt};
+        amrex::Real dlog_scor_dT {0.0_rt};
+        rate_Be7_to_Li7_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
+        rate_eval.screened_rates(k_Be7_to_Li7_reaclib) = rate;
+    }
+
+    {
+        // N13_to_C13_reaclib
+
+        amrex::Real log_scor {0.0_rt};
+        amrex::Real dlog_scor_dT {0.0_rt};
+        rate_N13_to_C13_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
+        rate_eval.screened_rates(k_N13_to_C13_reaclib) = rate;
+    }
+
+    {
+        // O14_to_N14_reaclib
+
+        amrex::Real log_scor {0.0_rt};
+        amrex::Real dlog_scor_dT {0.0_rt};
+        rate_O14_to_N14_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
+        rate_eval.screened_rates(k_O14_to_N14_reaclib) = rate;
+    }
+
+    {
+        // O15_to_N15_reaclib
+
+        amrex::Real log_scor {0.0_rt};
+        amrex::Real dlog_scor_dT {0.0_rt};
+        rate_O15_to_N15_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
+        rate_eval.screened_rates(k_O15_to_N15_reaclib) = rate;
+    }
+
+    {
+        // B8_to_He4_He4_reaclib
+
+        amrex::Real log_scor {0.0_rt};
+        amrex::Real dlog_scor_dT {0.0_rt};
+        rate_B8_to_He4_He4_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
+        rate_eval.screened_rates(k_B8_to_He4_He4_reaclib) = rate;
+    }
+
+    {
+        // p_p_to_d_reaclib_beta_pos
+
+        amrex::Real log_scor {0.0_rt};
+        amrex::Real dlog_scor_dT {0.0_rt};
+#ifdef SCREENING
+        log_scor = rate_eval.log_screen(k_p_p);
+#endif
+        rate_p_p_to_d_reaclib_beta_pos<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
+        rate_eval.screened_rates(k_p_p_to_d_reaclib_beta_pos) = rate;
+    }
+
+    {
+        // p_p_to_d_reaclib_electron_capture
+
+        amrex::Real log_scor {0.0_rt};
+        amrex::Real dlog_scor_dT {0.0_rt};
+#ifdef SCREENING
+        log_scor = rate_eval.log_screen(k_p_p);
+#endif
+        rate_p_p_to_d_reaclib_electron_capture<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
+        rate_eval.screened_rates(k_p_p_to_d_reaclib_electron_capture) = rate;
+    }
+
+    {
+        // p_He3_to_He4_reaclib
+
+        amrex::Real log_scor {0.0_rt};
+        amrex::Real dlog_scor_dT {0.0_rt};
+#ifdef SCREENING
+        log_scor = rate_eval.log_screen(k_p_He3);
+#endif
+        rate_p_He3_to_He4_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
+        rate_eval.screened_rates(k_p_He3_to_He4_reaclib) = rate;
+    }
 
     amrex::Real log_temp = std::log10(state.T);
     amrex::Real log_rhoy = std::log10(rhoy);
 
     tabular_evaluate(j_F17_O17_meta, j_F17_O17_rhoy, j_F17_O17_temp, j_F17_O17_data,
-                     log_rhoy, log_temp, state.T, rate, drate_dt, edot_nu, edot_gamma);
+                     log_rhoy, log_temp, state.T, rate, drate_dT, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_F17_to_O17_weaktab) = rate;
     rate_eval.enuc_weak += C::n_A * Y(F17) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_F18_O18_meta, j_F18_O18_rhoy, j_F18_O18_temp, j_F18_O18_data,
-                     log_rhoy, log_temp, state.T, rate, drate_dt, edot_nu, edot_gamma);
+                     log_rhoy, log_temp, state.T, rate, drate_dT, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_F18_to_O18_weaktab) = rate;
     rate_eval.enuc_weak += C::n_A * Y(F18) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_Ne18_F18_meta, j_Ne18_F18_rhoy, j_Ne18_F18_temp, j_Ne18_F18_data,
-                     log_rhoy, log_temp, state.T, rate, drate_dt, edot_nu, edot_gamma);
+                     log_rhoy, log_temp, state.T, rate, drate_dT, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_Ne18_to_F18_weaktab) = rate;
     rate_eval.enuc_weak += C::n_A * Y(Ne18) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_Ne19_F19_meta, j_Ne19_F19_rhoy, j_Ne19_F19_temp, j_Ne19_F19_data,
-                     log_rhoy, log_temp, state.T, rate, drate_dt, edot_nu, edot_gamma);
+                     log_rhoy, log_temp, state.T, rate, drate_dT, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_Ne19_to_F19_weaktab) = rate;
     rate_eval.enuc_weak += C::n_A * Y(Ne19) * (edot_nu + edot_gamma);
+
 
     const auto& screened_rates = rate_eval.screened_rates;
 

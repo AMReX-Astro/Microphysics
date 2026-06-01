@@ -457,15 +457,17 @@ void evaluate_rates(const burn_t& state,
 #ifdef NSE_NET
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void get_ydot_weak(const burn_t& state,
-             amrex::Array1D<amrex::Real, 1, neqs>& ydot_nuc,
-             amrex::Real& enuc_weak,
-             [[maybe_unused]] const amrex::Array1D<amrex::Real, 1, NumSpec>& Y) {
+                   amrex::Array1D<amrex::Real, 1, neqs>& ydot_nuc,
+                   amrex::Real& enuc_weak,
+                   [[maybe_unused]] const amrex::Array1D<amrex::Real, 1, NumSpec>& Y) {
     ///
     /// Calculate Ydots contribute only from weak reactions.
     /// This is used to calculate dyedt and energy generation from
     /// weak reactions for self-consistent NSE
     ///
 
+    using namespace modified_rates;
+    using namespace temp_tabular;
 
     // initialize ydot_nuc to 0
 
@@ -475,13 +477,43 @@ void get_ydot_weak(const burn_t& state,
 
     rate_t rate_eval;
 
-    [[maybe_unused]] amrex::Real rate, drate_dt, edot_nu, edot_gamma;
+    constexpr int do_T_derivatives = 0;
+    [[maybe_unused]] amrex::Real rate, drate_dT, edot_nu, edot_gamma;
     [[maybe_unused]] amrex::Real rhoy = state.rho * state.y_e;
 
     rate_eval.enuc_weak = 0.0_rt;
 
-    // Calculate tabular rates and get ydot_weak
+    // Compute all weak rates and get ydot_weak
 
+#ifdef SCREENING
+    plasma_state_t<amrex::Real> pstate{};
+    fill_plasma_state(pstate, state.T, state.rho, Y);
+    amrex::Real log_scor, dlog_scor_dT;
+    {
+        constexpr auto scn_fac = scrn::calculate_screen_factor(1.0_rt, 1.0_rt, 8.0_rt, 16.0_rt);
+        static_assert(scn_fac.z1 == 1.0_rt);
+        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        rate_eval.log_screen(k_p_O16) = log_scor;
+    }
+
+#endif
+
+    const tf_t tfactors = evaluate_tfactors(state.T);
+
+    {
+        // p_O16_to_N14_He4_modified
+
+        amrex::Real log_scor {0.0_rt};
+        amrex::Real dlog_scor_dT {0.0_rt};
+#ifdef SCREENING
+        log_scor = rate_eval.log_screen(k_p_O16);
+#endif
+        rate_p_O16_to_N14_He4_modified<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
+        rate_eval.screened_rates(k_p_O16_to_N14_He4_modified) = rate;
+    }
+
+
+    const auto& screened_rates = rate_eval.screened_rates;
 
     ydot_nuc(H1) =
         -2.0*screened_rates(k_p_O16_to_N14_He4_modified)*Y(O16)*Y(H1)*state.rho;

@@ -71,6 +71,8 @@ namespace modified_rates {
         [[maybe_unused]] amrex::Real drate_dT;
 
         {
+            // C12_C12_to_Mg24_modified
+
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -87,6 +89,8 @@ namespace modified_rates {
         }
 
         {
+            // O16_O16_to_S32_modified
+
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -103,6 +107,8 @@ namespace modified_rates {
         }
 
         {
+            // C12_O16_to_Si28_modified
+
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -119,6 +125,8 @@ namespace modified_rates {
         }
 
         {
+            // He4_Na22_to_Si28_modified
+
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -135,6 +143,8 @@ namespace modified_rates {
         }
 
         {
+            // p_Mg24_to_Na22_He4_modified
+
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
