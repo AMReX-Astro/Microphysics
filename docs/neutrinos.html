@@ -136,7 +136,7 @@
 <span id="neutrino-loss"></span><h1>Neutrino Losses<a class="headerlink" href="#neutrino-losses" title="Link to this heading"></a></h1>
 <p id="index-0">We model thermal neutrino losses (plasma, photo-, pair-,
 recombination, and Bremsstrahlung) using the method described in
-<span id="id1">[<a class="reference internal" href="zreferences.html#id49" title="Naoki Itoh, Hiroshi Hayashi, Akinori Nishikawa, and Yasuharu Kohyama. Neutrino Energy Loss in Stellar Interiors. VII. Pair, Photo-, Plasma, Bremsstrahlung, and Recombination Neutrino Processes. ApJS, 102:411, February 1996. doi:10.1086/192264.">40</a>]</span>.  This neutrino loss term is included in all of the
+<span class="bibtex-citation" id="id1">[<a class="reference internal" href="zreferences.html#id49" title="Naoki Itoh, Hiroshi Hayashi, Akinori Nishikawa, and Yasuharu Kohyama. Neutrino Energy Loss in Stellar Interiors. VII. Pair, Photo-, Plasma, Bremsstrahlung, and Recombination Neutrino Processes. ApJS, 102:411, February 1996. doi:10.1086/192264.">40</a>]</span>.  This neutrino loss term is included in all of the
 reaction networks by default, and modifies the energy equation to have
 the form (for Strang splitting):</p>
 <div class="math notranslate nohighlight">
@@ -170,7 +170,7 @@ is used.  The output is</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">plas</span></code> : contribution from plasma neutrino loss in erg/g/s</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">brem</span></code> : contribution from Bremsstrahlung neutrino loss in erg/g/s</p></li>
 </ul>
-<p>Additionally, a second method is provided to compute the neutrino losses based on the simplified approximations in <span id="id2">[<a class="reference internal" href="zreferences.html#id60" title="R. Kippenhahn and A. Weigert. Stellar Structure and Evolution. Springer-Verlag, Berlin, Heidelberg, 1990.">41</a>]</span>.</p>
+<p>Additionally, a second method is provided to compute the neutrino losses based on the simplified approximations in <span class="bibtex-citation" id="id2">[<a class="reference internal" href="zreferences.html#id60" title="R. Kippenhahn and A. Weigert. Stellar Structure and Evolution. Springer-Verlag, Berlin, Heidelberg, 1990.">41</a>]</span>.</p>
 <p>The interface for the Kippenhahn neutrino loss function is:</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="kt">int</span><span class="w"> </span><span class="n">do_derivatives</span><span class="o">&gt;</span>
 <span class="n">AMREX_GPU_HOST_DEVICE</span><span class="w"> </span><span class="n">AMREX_INLINE</span>
