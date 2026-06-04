@@ -14,7 +14,7 @@
 #include <nse_solver.H>
 
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void check_nse_molar(const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
                      const amrex::Array1D<amrex::Real, 1, NumSpec>& Y_nse,
                      bool& nse_check) {
@@ -65,7 +65,7 @@ void check_nse_molar(const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
 }
 
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 int get_root_index(const int nuc_idx, amrex::Array1D<int, 1, NumSpec>& group_idx) {
     // Returns the root index of the nuclei given the nuclei index [1, NumSpec]
     // Also updates all parent indices to point to the root index in group_idx
@@ -95,7 +95,7 @@ int get_root_index(const int nuc_idx, amrex::Array1D<int, 1, NumSpec>& group_idx
 }
 
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void nse_union(const int nuc_idx_a, const int nuc_idx_b,
                amrex::Array1D<int, 1, NumSpec>& group_idx,
                amrex::Array1D<int, 1, NumSpec>& group_size) {
@@ -126,7 +126,7 @@ void nse_union(const int nuc_idx_a, const int nuc_idx_b,
 }
 
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 bool in_single_group(amrex::Array1D<int, 1, NumSpec>& group_idx) {
 
     // This function checks whether all isotopes are either in the LIG group
@@ -146,7 +146,7 @@ bool in_single_group(amrex::Array1D<int, 1, NumSpec>& group_idx) {
 
 
 template <typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void fill_reaction_timescale(amrex::Array1D<T, 1, NSE_INDEX::NumNSERatePairs>& reaction_timescales,
                              const int current_rate_pair, const amrex::Real rho,
                              const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
@@ -238,7 +238,7 @@ void fill_reaction_timescale(amrex::Array1D<T, 1, NSE_INDEX::NumNSERatePairs>& r
 }
 
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void fill_merge_indices(int& merge_idx1, int& merge_idx2,
                         const int current_rate_pair,
                         amrex::Array1D<int, 1, NumSpec>& group_idx) {
@@ -288,7 +288,7 @@ void fill_merge_indices(int& merge_idx1, int& merge_idx2,
 }
 
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_idx, const amrex::Real rho,
                   const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
                   const amrex::Array1D<amrex::Real, 1, Rates::NumRates>& screened_rates,
@@ -374,7 +374,7 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_idx, const amrex::Real 
 }
 
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
 
     // This function returns the boolean that tells whether we're in nse or not
