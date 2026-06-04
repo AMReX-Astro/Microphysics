@@ -29,8 +29,6 @@
 /// difference in terms of X and T and then convert the Jacobian
 /// elements to be in terms of X and e
 
-// TODO(james471): This needs fixes for radiation
-
 struct jac_info_t {
     amrex::Real h;
 };
@@ -78,16 +76,6 @@ void numerical_jac(const BurnT& state, const jac_info_t& jac_info, JacNetArray2D
         w = 1.0_rt / (integrator_rp::rtol_spec * std::abs(state.xn[i-1]) + integrator_rp::atol_spec);
         fac += (ydotm(i) * w) * (ydotm(i) * w);
     }
-#ifdef PHOTOCHEMISTRY
-    for (int i = net_ienuc + 1; i <= net_ienuc + NumRadEqs; i += MicrophysicsNumRadVarsPerGroup) {
-        w = 1.0_rt / (integrator_rp::rtol_rad_num * std::abs(state.rn[i - net_ienuc - 1]) + integrator_rp::atol_rad_num);
-        fac += (ydotm(i) * w) * (ydotm(i) * w);
-        for (int j = i + 1; j <= i + MicrophysicsNumRadVarsPerGroup - 1; j++) {
-            w = 1.0_rt / (integrator_rp::rtol_rad_flux * std::abs(state.rn[j - net_ienuc - 1]) + integrator_rp::atol_rad_flux);
-            fac += (ydotm(j) * w) * (ydotm(j) * w);
-        }
-    }
-#endif
 
     // even though we difference wrt T below, for |f|, we want to use
     // energy to get the units correct
