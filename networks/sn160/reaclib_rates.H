@@ -12,7 +12,7 @@ using namespace Rates;
 using namespace Species;
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Be7_to_Li7_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Be7 --> Li7
@@ -48,7 +48,7 @@ void rate_Be7_to_Li7_reaclib(const tf_t& tfactors, const amrex::Real log_scor, c
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_C14_to_N14_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // C14 --> N14
@@ -83,7 +83,7 @@ void rate_C14_to_N14_reaclib(const tf_t& tfactors, const amrex::Real log_scor, c
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_N13_to_C13_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // N13 --> C13
@@ -118,7 +118,7 @@ void rate_N13_to_C13_reaclib(const tf_t& tfactors, const amrex::Real log_scor, c
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_O14_to_N14_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O14 --> N14
@@ -153,7 +153,7 @@ void rate_O14_to_N14_reaclib(const tf_t& tfactors, const amrex::Real log_scor, c
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_O15_to_N15_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O15 --> N15
@@ -188,7 +188,7 @@ void rate_O15_to_N15_reaclib(const tf_t& tfactors, const amrex::Real log_scor, c
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_F17_to_O17_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // F17 --> O17
@@ -223,7 +223,7 @@ void rate_F17_to_O17_reaclib(const tf_t& tfactors, const amrex::Real log_scor, c
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_F18_to_O18_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // F18 --> O18
@@ -258,7 +258,7 @@ void rate_F18_to_O18_reaclib(const tf_t& tfactors, const amrex::Real log_scor, c
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ne18_to_F18_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne18 --> F18
@@ -293,7 +293,7 @@ void rate_Ne18_to_F18_reaclib(const tf_t& tfactors, const amrex::Real log_scor, 
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ne19_to_F19_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne19 --> F19
@@ -328,7 +328,7 @@ void rate_Ne19_to_F19_reaclib(const tf_t& tfactors, const amrex::Real log_scor, 
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Zn59_to_Cu59_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn59 --> Cu59
@@ -363,7 +363,7 @@ void rate_Zn59_to_Cu59_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ge63_to_Ga63_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ge63 --> Ga63
@@ -398,7 +398,7 @@ void rate_Ge63_to_Ga63_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_d_to_n_p_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // d --> n + p
@@ -476,7 +476,7 @@ void rate_d_to_n_p_reaclib(const tf_t& tfactors, const amrex::Real log_scor, con
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He3_to_p_d_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // He3 --> p + d
@@ -533,7 +533,7 @@ void rate_He3_to_p_d_reaclib(const tf_t& tfactors, const amrex::Real log_scor, c
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_to_n_He3_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // He4 --> n + He3
@@ -590,7 +590,7 @@ void rate_He4_to_n_He3_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_to_d_d_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // He4 --> d + d
@@ -626,7 +626,7 @@ void rate_He4_to_d_d_reaclib(const tf_t& tfactors, const amrex::Real log_scor, c
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Li6_to_He4_d_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Li6 --> He4 + d
@@ -681,7 +681,7 @@ void rate_Li6_to_He4_d_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Li7_to_n_Li6_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Li7 --> n + Li6
@@ -717,7 +717,7 @@ void rate_Li7_to_n_Li6_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Be7_to_p_Li6_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Be7 --> p + Li6
@@ -753,7 +753,7 @@ void rate_Be7_to_p_Li6_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Be7_to_He4_He3_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Be7 --> He4 + He3
@@ -810,7 +810,7 @@ void rate_Be7_to_He4_He3_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_B8_to_p_Be7_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // B8 --> p + Be7
@@ -865,7 +865,7 @@ void rate_B8_to_p_Be7_reaclib(const tf_t& tfactors, const amrex::Real log_scor, 
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_B8_to_He4_He4_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // B8 --> He4 + He4
@@ -900,7 +900,7 @@ void rate_B8_to_He4_He4_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_B10_to_p_Be9_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // B10 --> p + Be9
@@ -974,7 +974,7 @@ void rate_B10_to_p_Be9_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_B10_to_He4_Li6_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // B10 --> He4 + Li6
@@ -1031,7 +1031,7 @@ void rate_B10_to_He4_Li6_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_B11_to_n_B10_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // B11 --> n + B10
@@ -1067,7 +1067,7 @@ void rate_B11_to_n_B10_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_B11_to_He4_Li7_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // B11 --> He4 + Li7
@@ -1143,7 +1143,7 @@ void rate_B11_to_He4_Li7_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_C12_to_p_B11_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // C12 --> p + B11
@@ -1219,7 +1219,7 @@ void rate_C12_to_p_B11_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_C13_to_n_C12_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // C13 --> n + C12
@@ -1255,7 +1255,7 @@ void rate_C13_to_n_C12_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_C14_to_n_C13_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // C14 --> n + C13
@@ -1291,7 +1291,7 @@ void rate_C14_to_n_C13_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_N13_to_p_C12_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // N13 --> p + C12
@@ -1348,7 +1348,7 @@ void rate_N13_to_p_C12_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_N14_to_n_N13_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // N14 --> n + N13
@@ -1405,7 +1405,7 @@ void rate_N14_to_n_N13_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_N14_to_p_C13_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // N14 --> p + C13
@@ -1481,7 +1481,7 @@ void rate_N14_to_p_C13_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_N15_to_n_N14_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // N15 --> n + N14
@@ -1517,7 +1517,7 @@ void rate_N15_to_n_N14_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_N15_to_p_C14_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // N15 --> p + C14
@@ -1574,7 +1574,7 @@ void rate_N15_to_p_C14_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_O14_to_p_N13_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O14 --> p + N13
@@ -1629,7 +1629,7 @@ void rate_O14_to_p_N13_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_O15_to_n_O14_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O15 --> n + O14
@@ -1665,7 +1665,7 @@ void rate_O15_to_n_O14_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_O15_to_p_N14_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O15 --> p + N14
@@ -1762,7 +1762,7 @@ void rate_O15_to_p_N14_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_O16_to_n_O15_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O16 --> n + O15
@@ -1798,7 +1798,7 @@ void rate_O16_to_n_O15_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_O16_to_p_N15_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O16 --> p + N15
@@ -1874,7 +1874,7 @@ void rate_O16_to_p_N15_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_O16_to_He4_C12_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O16 --> He4 + C12
@@ -1931,7 +1931,7 @@ void rate_O16_to_He4_C12_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_O17_to_n_O16_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O17 --> n + O16
@@ -1967,7 +1967,7 @@ void rate_O17_to_n_O16_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_O18_to_n_O17_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O18 --> n + O17
@@ -2024,7 +2024,7 @@ void rate_O18_to_n_O17_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_O18_to_He4_C14_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O18 --> He4 + C14
@@ -2100,7 +2100,7 @@ void rate_O18_to_He4_C14_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_F17_to_p_O16_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // F17 --> p + O16
@@ -2136,7 +2136,7 @@ void rate_F17_to_p_O16_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_F18_to_n_F17_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // F18 --> n + F17
@@ -2172,7 +2172,7 @@ void rate_F18_to_n_F17_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_F18_to_p_O17_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // F18 --> p + O17
@@ -2248,7 +2248,7 @@ void rate_F18_to_p_O17_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_F18_to_He4_N14_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // F18 --> He4 + N14
@@ -2322,7 +2322,7 @@ void rate_F18_to_He4_N14_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_F19_to_n_F18_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // F19 --> n + F18
@@ -2358,7 +2358,7 @@ void rate_F19_to_n_F18_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_F19_to_p_O18_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // F19 --> p + O18
@@ -2453,7 +2453,7 @@ void rate_F19_to_p_O18_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_F19_to_He4_N15_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // F19 --> He4 + N15
@@ -2548,7 +2548,7 @@ void rate_F19_to_He4_N15_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ne18_to_p_F17_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne18 --> p + F17
@@ -2605,7 +2605,7 @@ void rate_Ne18_to_p_F17_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ne18_to_He4_O14_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne18 --> He4 + O14
@@ -2700,7 +2700,7 @@ void rate_Ne18_to_He4_O14_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ne19_to_n_Ne18_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne19 --> n + Ne18
@@ -2736,7 +2736,7 @@ void rate_Ne19_to_n_Ne18_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ne19_to_p_F18_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne19 --> p + F18
@@ -2814,7 +2814,7 @@ void rate_Ne19_to_p_F18_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ne19_to_He4_O15_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne19 --> He4 + O15
@@ -2890,7 +2890,7 @@ void rate_Ne19_to_He4_O15_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ne20_to_n_Ne19_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne20 --> n + Ne19
@@ -2926,7 +2926,7 @@ void rate_Ne20_to_n_Ne19_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ne20_to_p_F19_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne20 --> p + F19
@@ -3004,7 +3004,7 @@ void rate_Ne20_to_p_F19_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ne20_to_He4_O16_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne20 --> He4 + O16
@@ -3080,7 +3080,7 @@ void rate_Ne20_to_He4_O16_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ne21_to_n_Ne20_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne21 --> n + Ne20
@@ -3135,7 +3135,7 @@ void rate_Ne21_to_n_Ne20_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ne21_to_He4_O17_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne21 --> He4 + O17
@@ -3213,7 +3213,7 @@ void rate_Ne21_to_He4_O17_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ne22_to_n_Ne21_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne22 --> n + Ne21
@@ -3249,7 +3249,7 @@ void rate_Ne22_to_n_Ne21_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ne22_to_He4_O18_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne22 --> He4 + O18
@@ -3342,7 +3342,7 @@ void rate_Ne22_to_He4_O18_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Na21_to_p_Ne20_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Na21 --> p + Ne20
@@ -3441,7 +3441,7 @@ void rate_Na21_to_p_Ne20_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Na21_to_He4_F17_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Na21 --> He4 + F17
@@ -3477,7 +3477,7 @@ void rate_Na21_to_He4_F17_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Na22_to_n_Na21_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Na22 --> n + Na21
@@ -3513,7 +3513,7 @@ void rate_Na22_to_n_Na21_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Na22_to_p_Ne21_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Na22 --> p + Ne21
@@ -3608,7 +3608,7 @@ void rate_Na22_to_p_Ne21_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Na22_to_He4_F18_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Na22 --> He4 + F18
@@ -3644,7 +3644,7 @@ void rate_Na22_to_He4_F18_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Na23_to_n_Na22_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Na23 --> n + Na22
@@ -3680,7 +3680,7 @@ void rate_Na23_to_n_Na22_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Na23_to_p_Ne22_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Na23 --> p + Ne22
@@ -3821,7 +3821,7 @@ void rate_Na23_to_p_Ne22_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Na23_to_He4_F19_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Na23 --> He4 + F19
@@ -3857,7 +3857,7 @@ void rate_Na23_to_He4_F19_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Mg23_to_p_Na22_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mg23 --> p + Na22
@@ -3931,7 +3931,7 @@ void rate_Mg23_to_p_Na22_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Mg23_to_He4_Ne19_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mg23 --> He4 + Ne19
@@ -3967,7 +3967,7 @@ void rate_Mg23_to_He4_Ne19_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Mg24_to_n_Mg23_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mg24 --> n + Mg23
@@ -4003,7 +4003,7 @@ void rate_Mg24_to_n_Mg23_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Mg24_to_p_Na23_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mg24 --> p + Na23
@@ -4079,7 +4079,7 @@ void rate_Mg24_to_p_Na23_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Mg24_to_He4_Ne20_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mg24 --> He4 + Ne20
@@ -4174,7 +4174,7 @@ void rate_Mg24_to_He4_Ne20_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Mg25_to_n_Mg24_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mg25 --> n + Mg24
@@ -4210,7 +4210,7 @@ void rate_Mg25_to_n_Mg24_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Mg25_to_He4_Ne21_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mg25 --> He4 + Ne21
@@ -4267,7 +4267,7 @@ void rate_Mg25_to_He4_Ne21_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Mg26_to_n_Mg25_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mg26 --> n + Mg25
@@ -4303,7 +4303,7 @@ void rate_Mg26_to_n_Mg25_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Mg26_to_He4_Ne22_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mg26 --> He4 + Ne22
@@ -4417,7 +4417,7 @@ void rate_Mg26_to_He4_Ne22_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Al25_to_p_Mg24_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Al25 --> p + Mg24
@@ -4474,7 +4474,7 @@ void rate_Al25_to_p_Mg24_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Al25_to_He4_Na21_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Al25 --> He4 + Na21
@@ -4510,7 +4510,7 @@ void rate_Al25_to_He4_Na21_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Al26_to_n_Al25_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Al26 --> n + Al25
@@ -4546,7 +4546,7 @@ void rate_Al26_to_n_Al25_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Al26_to_p_Mg25_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Al26 --> p + Mg25
@@ -4622,7 +4622,7 @@ void rate_Al26_to_p_Mg25_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Al26_to_He4_Na22_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Al26 --> He4 + Na22
@@ -4658,7 +4658,7 @@ void rate_Al26_to_He4_Na22_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Al27_to_n_Al26_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Al27 --> n + Al26
@@ -4694,7 +4694,7 @@ void rate_Al27_to_n_Al26_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Al27_to_p_Mg26_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Al27 --> p + Mg26
@@ -4772,7 +4772,7 @@ void rate_Al27_to_p_Mg26_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Al27_to_He4_Na23_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Al27 --> He4 + Na23
@@ -4808,7 +4808,7 @@ void rate_Al27_to_He4_Na23_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Si28_to_p_Al27_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Si28 --> p + Al27
@@ -4886,7 +4886,7 @@ void rate_Si28_to_p_Al27_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Si28_to_He4_Mg24_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Si28 --> He4 + Mg24
@@ -4941,7 +4941,7 @@ void rate_Si28_to_He4_Mg24_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Si29_to_n_Si28_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Si29 --> n + Si28
@@ -4998,7 +4998,7 @@ void rate_Si29_to_n_Si28_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Si29_to_He4_Mg25_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Si29 --> He4 + Mg25
@@ -5034,7 +5034,7 @@ void rate_Si29_to_He4_Mg25_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Si30_to_n_Si29_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Si30 --> n + Si29
@@ -5091,7 +5091,7 @@ void rate_Si30_to_n_Si29_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Si30_to_He4_Mg26_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Si30 --> He4 + Mg26
@@ -5148,7 +5148,7 @@ void rate_Si30_to_He4_Mg26_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Si31_to_n_Si30_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Si31 --> n + Si30
@@ -5184,7 +5184,7 @@ void rate_Si31_to_n_Si30_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Si32_to_n_Si31_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Si32 --> n + Si31
@@ -5220,7 +5220,7 @@ void rate_Si32_to_n_Si31_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_P29_to_p_Si28_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P29 --> p + Si28
@@ -5275,7 +5275,7 @@ void rate_P29_to_p_Si28_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_P29_to_He4_Al25_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P29 --> He4 + Al25
@@ -5311,7 +5311,7 @@ void rate_P29_to_He4_Al25_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_P30_to_n_P29_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P30 --> n + P29
@@ -5347,7 +5347,7 @@ void rate_P30_to_n_P29_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_P30_to_p_Si29_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P30 --> p + Si29
@@ -5423,7 +5423,7 @@ void rate_P30_to_p_Si29_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_P30_to_He4_Al26_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P30 --> He4 + Al26
@@ -5459,7 +5459,7 @@ void rate_P30_to_He4_Al26_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_P31_to_n_P30_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P31 --> n + P30
@@ -5495,7 +5495,7 @@ void rate_P31_to_n_P30_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_P31_to_p_Si30_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P31 --> p + Si30
@@ -5678,7 +5678,7 @@ void rate_P31_to_p_Si30_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_P31_to_He4_Al27_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P31 --> He4 + Al27
@@ -5714,7 +5714,7 @@ void rate_P31_to_He4_Al27_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_P32_to_n_P31_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P32 --> n + P31
@@ -5769,7 +5769,7 @@ void rate_P32_to_n_P31_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_P32_to_p_Si31_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P32 --> p + Si31
@@ -5805,7 +5805,7 @@ void rate_P32_to_p_Si31_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_P33_to_n_P32_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P33 --> n + P32
@@ -5841,7 +5841,7 @@ void rate_P33_to_n_P32_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_P33_to_p_Si32_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P33 --> p + Si32
@@ -5877,7 +5877,7 @@ void rate_P33_to_p_Si32_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_S32_to_p_P31_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S32 --> p + P31
@@ -5953,7 +5953,7 @@ void rate_S32_to_p_P31_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_S32_to_He4_Si28_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S32 --> He4 + Si28
@@ -5989,7 +5989,7 @@ void rate_S32_to_He4_Si28_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_S33_to_n_S32_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S33 --> n + S32
@@ -6025,7 +6025,7 @@ void rate_S33_to_n_S32_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_S33_to_p_P32_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S33 --> p + P32
@@ -6061,7 +6061,7 @@ void rate_S33_to_p_P32_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_S33_to_He4_Si29_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S33 --> He4 + Si29
@@ -6097,7 +6097,7 @@ void rate_S33_to_He4_Si29_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_S34_to_n_S33_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S34 --> n + S33
@@ -6133,7 +6133,7 @@ void rate_S34_to_n_S33_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_S34_to_p_P33_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S34 --> p + P33
@@ -6169,7 +6169,7 @@ void rate_S34_to_p_P33_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_S34_to_He4_Si30_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S34 --> He4 + Si30
@@ -6205,7 +6205,7 @@ void rate_S34_to_He4_Si30_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_S35_to_n_S34_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S35 --> n + S34
@@ -6241,7 +6241,7 @@ void rate_S35_to_n_S34_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_S35_to_He4_Si31_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S35 --> He4 + Si31
@@ -6277,7 +6277,7 @@ void rate_S35_to_He4_Si31_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_S36_to_n_S35_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S36 --> n + S35
@@ -6313,7 +6313,7 @@ void rate_S36_to_n_S35_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_S36_to_He4_Si32_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S36 --> He4 + Si32
@@ -6349,7 +6349,7 @@ void rate_S36_to_He4_Si32_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cl33_to_p_S32_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl33 --> p + S32
@@ -6425,7 +6425,7 @@ void rate_Cl33_to_p_S32_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cl33_to_He4_P29_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl33 --> He4 + P29
@@ -6461,7 +6461,7 @@ void rate_Cl33_to_He4_P29_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cl34_to_n_Cl33_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl34 --> n + Cl33
@@ -6497,7 +6497,7 @@ void rate_Cl34_to_n_Cl33_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cl34_to_p_S33_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl34 --> p + S33
@@ -6533,7 +6533,7 @@ void rate_Cl34_to_p_S33_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cl34_to_He4_P30_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl34 --> He4 + P30
@@ -6569,7 +6569,7 @@ void rate_Cl34_to_He4_P30_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cl35_to_n_Cl34_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl35 --> n + Cl34
@@ -6605,7 +6605,7 @@ void rate_Cl35_to_n_Cl34_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cl35_to_p_S34_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl35 --> p + S34
@@ -6774,7 +6774,7 @@ void rate_Cl35_to_p_S34_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cl35_to_He4_P31_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl35 --> He4 + P31
@@ -6810,7 +6810,7 @@ void rate_Cl35_to_He4_P31_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cl36_to_n_Cl35_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl36 --> n + Cl35
@@ -6846,7 +6846,7 @@ void rate_Cl36_to_n_Cl35_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cl36_to_p_S35_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl36 --> p + S35
@@ -6882,7 +6882,7 @@ void rate_Cl36_to_p_S35_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cl36_to_He4_P32_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl36 --> He4 + P32
@@ -6918,7 +6918,7 @@ void rate_Cl36_to_He4_P32_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cl37_to_n_Cl36_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl37 --> n + Cl36
@@ -6954,7 +6954,7 @@ void rate_Cl37_to_n_Cl36_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cl37_to_p_S36_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl37 --> p + S36
@@ -6990,7 +6990,7 @@ void rate_Cl37_to_p_S36_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cl37_to_He4_P33_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl37 --> He4 + P33
@@ -7026,7 +7026,7 @@ void rate_Cl37_to_He4_P33_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ar36_to_p_Cl35_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar36 --> p + Cl35
@@ -7121,7 +7121,7 @@ void rate_Ar36_to_p_Cl35_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ar36_to_He4_S32_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar36 --> He4 + S32
@@ -7157,7 +7157,7 @@ void rate_Ar36_to_He4_S32_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ar37_to_n_Ar36_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar37 --> n + Ar36
@@ -7193,7 +7193,7 @@ void rate_Ar37_to_n_Ar36_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ar37_to_p_Cl36_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar37 --> p + Cl36
@@ -7229,7 +7229,7 @@ void rate_Ar37_to_p_Cl36_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ar37_to_He4_S33_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar37 --> He4 + S33
@@ -7265,7 +7265,7 @@ void rate_Ar37_to_He4_S33_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ar38_to_n_Ar37_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar38 --> n + Ar37
@@ -7301,7 +7301,7 @@ void rate_Ar38_to_n_Ar37_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ar38_to_p_Cl37_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar38 --> p + Cl37
@@ -7337,7 +7337,7 @@ void rate_Ar38_to_p_Cl37_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ar38_to_He4_S34_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar38 --> He4 + S34
@@ -7373,7 +7373,7 @@ void rate_Ar38_to_He4_S34_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ar39_to_n_Ar38_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar39 --> n + Ar38
@@ -7409,7 +7409,7 @@ void rate_Ar39_to_n_Ar38_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ar39_to_He4_S35_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar39 --> He4 + S35
@@ -7445,7 +7445,7 @@ void rate_Ar39_to_He4_S35_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ar40_to_n_Ar39_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar40 --> n + Ar39
@@ -7481,7 +7481,7 @@ void rate_Ar40_to_n_Ar39_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ar40_to_He4_S36_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar40 --> He4 + S36
@@ -7517,7 +7517,7 @@ void rate_Ar40_to_He4_S36_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_K37_to_p_Ar36_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K37 --> p + Ar36
@@ -7593,7 +7593,7 @@ void rate_K37_to_p_Ar36_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_K37_to_He4_Cl33_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K37 --> He4 + Cl33
@@ -7629,7 +7629,7 @@ void rate_K37_to_He4_Cl33_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_K38_to_n_K37_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K38 --> n + K37
@@ -7665,7 +7665,7 @@ void rate_K38_to_n_K37_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_K38_to_p_Ar37_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K38 --> p + Ar37
@@ -7701,7 +7701,7 @@ void rate_K38_to_p_Ar37_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_K38_to_He4_Cl34_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K38 --> He4 + Cl34
@@ -7737,7 +7737,7 @@ void rate_K38_to_He4_Cl34_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_K39_to_n_K38_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K39 --> n + K38
@@ -7773,7 +7773,7 @@ void rate_K39_to_n_K38_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_K39_to_p_Ar38_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K39 --> p + Ar38
@@ -7809,7 +7809,7 @@ void rate_K39_to_p_Ar38_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_K39_to_He4_Cl35_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K39 --> He4 + Cl35
@@ -7845,7 +7845,7 @@ void rate_K39_to_He4_Cl35_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_K40_to_n_K39_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K40 --> n + K39
@@ -7881,7 +7881,7 @@ void rate_K40_to_n_K39_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_K40_to_p_Ar39_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K40 --> p + Ar39
@@ -7917,7 +7917,7 @@ void rate_K40_to_p_Ar39_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_K40_to_He4_Cl36_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K40 --> He4 + Cl36
@@ -7953,7 +7953,7 @@ void rate_K40_to_He4_Cl36_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_K41_to_n_K40_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K41 --> n + K40
@@ -7989,7 +7989,7 @@ void rate_K41_to_n_K40_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_K41_to_p_Ar40_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K41 --> p + Ar40
@@ -8025,7 +8025,7 @@ void rate_K41_to_p_Ar40_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_K41_to_He4_Cl37_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K41 --> He4 + Cl37
@@ -8061,7 +8061,7 @@ void rate_K41_to_He4_Cl37_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ca40_to_p_K39_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca40 --> p + K39
@@ -8139,7 +8139,7 @@ void rate_Ca40_to_p_K39_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ca40_to_He4_Ar36_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca40 --> He4 + Ar36
@@ -8175,7 +8175,7 @@ void rate_Ca40_to_He4_Ar36_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ca41_to_n_Ca40_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca41 --> n + Ca40
@@ -8211,7 +8211,7 @@ void rate_Ca41_to_n_Ca40_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ca41_to_p_K40_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca41 --> p + K40
@@ -8247,7 +8247,7 @@ void rate_Ca41_to_p_K40_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ca41_to_He4_Ar37_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca41 --> He4 + Ar37
@@ -8283,7 +8283,7 @@ void rate_Ca41_to_He4_Ar37_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ca42_to_n_Ca41_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca42 --> n + Ca41
@@ -8319,7 +8319,7 @@ void rate_Ca42_to_n_Ca41_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ca42_to_p_K41_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca42 --> p + K41
@@ -8376,7 +8376,7 @@ void rate_Ca42_to_p_K41_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ca42_to_He4_Ar38_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca42 --> He4 + Ar38
@@ -8412,7 +8412,7 @@ void rate_Ca42_to_He4_Ar38_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ca43_to_n_Ca42_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca43 --> n + Ca42
@@ -8448,7 +8448,7 @@ void rate_Ca43_to_n_Ca42_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ca43_to_He4_Ar39_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca43 --> He4 + Ar39
@@ -8484,7 +8484,7 @@ void rate_Ca43_to_He4_Ar39_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ca44_to_n_Ca43_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca44 --> n + Ca43
@@ -8520,7 +8520,7 @@ void rate_Ca44_to_n_Ca43_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ca44_to_He4_Ar40_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca44 --> He4 + Ar40
@@ -8556,7 +8556,7 @@ void rate_Ca44_to_He4_Ar40_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ca45_to_n_Ca44_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca45 --> n + Ca44
@@ -8592,7 +8592,7 @@ void rate_Ca45_to_n_Ca44_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ca46_to_n_Ca45_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca46 --> n + Ca45
@@ -8628,7 +8628,7 @@ void rate_Ca46_to_n_Ca45_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ca47_to_n_Ca46_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca47 --> n + Ca46
@@ -8664,7 +8664,7 @@ void rate_Ca47_to_n_Ca46_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ca48_to_n_Ca47_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca48 --> n + Ca47
@@ -8700,7 +8700,7 @@ void rate_Ca48_to_n_Ca47_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Sc43_to_p_Ca42_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc43 --> p + Ca42
@@ -8736,7 +8736,7 @@ void rate_Sc43_to_p_Ca42_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Sc43_to_He4_K39_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc43 --> He4 + K39
@@ -8772,7 +8772,7 @@ void rate_Sc43_to_He4_K39_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Sc44_to_n_Sc43_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc44 --> n + Sc43
@@ -8808,7 +8808,7 @@ void rate_Sc44_to_n_Sc43_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Sc44_to_p_Ca43_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc44 --> p + Ca43
@@ -8844,7 +8844,7 @@ void rate_Sc44_to_p_Ca43_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Sc44_to_He4_K40_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc44 --> He4 + K40
@@ -8880,7 +8880,7 @@ void rate_Sc44_to_He4_K40_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Sc45_to_n_Sc44_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc45 --> n + Sc44
@@ -8916,7 +8916,7 @@ void rate_Sc45_to_n_Sc44_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Sc45_to_p_Ca44_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc45 --> p + Ca44
@@ -8952,7 +8952,7 @@ void rate_Sc45_to_p_Ca44_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Sc45_to_He4_K41_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc45 --> He4 + K41
@@ -8988,7 +8988,7 @@ void rate_Sc45_to_He4_K41_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Sc46_to_n_Sc45_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc46 --> n + Sc45
@@ -9024,7 +9024,7 @@ void rate_Sc46_to_n_Sc45_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Sc46_to_p_Ca45_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc46 --> p + Ca45
@@ -9060,7 +9060,7 @@ void rate_Sc46_to_p_Ca45_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Sc47_to_n_Sc46_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc47 --> n + Sc46
@@ -9096,7 +9096,7 @@ void rate_Sc47_to_n_Sc46_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Sc47_to_p_Ca46_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc47 --> p + Ca46
@@ -9132,7 +9132,7 @@ void rate_Sc47_to_p_Ca46_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Sc48_to_n_Sc47_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc48 --> n + Sc47
@@ -9168,7 +9168,7 @@ void rate_Sc48_to_n_Sc47_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Sc48_to_p_Ca47_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc48 --> p + Ca47
@@ -9204,7 +9204,7 @@ void rate_Sc48_to_p_Ca47_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Sc49_to_n_Sc48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc49 --> n + Sc48
@@ -9240,7 +9240,7 @@ void rate_Sc49_to_n_Sc48_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Sc49_to_p_Ca48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc49 --> p + Ca48
@@ -9276,7 +9276,7 @@ void rate_Sc49_to_p_Ca48_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ti44_to_p_Sc43_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti44 --> p + Sc43
@@ -9312,7 +9312,7 @@ void rate_Ti44_to_p_Sc43_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ti44_to_He4_Ca40_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti44 --> He4 + Ca40
@@ -9348,7 +9348,7 @@ void rate_Ti44_to_He4_Ca40_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ti45_to_n_Ti44_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti45 --> n + Ti44
@@ -9384,7 +9384,7 @@ void rate_Ti45_to_n_Ti44_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ti45_to_p_Sc44_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti45 --> p + Sc44
@@ -9420,7 +9420,7 @@ void rate_Ti45_to_p_Sc44_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ti45_to_He4_Ca41_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti45 --> He4 + Ca41
@@ -9456,7 +9456,7 @@ void rate_Ti45_to_He4_Ca41_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ti46_to_n_Ti45_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti46 --> n + Ti45
@@ -9492,7 +9492,7 @@ void rate_Ti46_to_n_Ti45_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ti46_to_p_Sc45_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti46 --> p + Sc45
@@ -9528,7 +9528,7 @@ void rate_Ti46_to_p_Sc45_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ti46_to_He4_Ca42_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti46 --> He4 + Ca42
@@ -9564,7 +9564,7 @@ void rate_Ti46_to_He4_Ca42_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ti47_to_n_Ti46_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti47 --> n + Ti46
@@ -9600,7 +9600,7 @@ void rate_Ti47_to_n_Ti46_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ti47_to_p_Sc46_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti47 --> p + Sc46
@@ -9636,7 +9636,7 @@ void rate_Ti47_to_p_Sc46_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ti47_to_He4_Ca43_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti47 --> He4 + Ca43
@@ -9672,7 +9672,7 @@ void rate_Ti47_to_He4_Ca43_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ti48_to_n_Ti47_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti48 --> n + Ti47
@@ -9708,7 +9708,7 @@ void rate_Ti48_to_n_Ti47_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ti48_to_p_Sc47_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti48 --> p + Sc47
@@ -9744,7 +9744,7 @@ void rate_Ti48_to_p_Sc47_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ti48_to_He4_Ca44_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti48 --> He4 + Ca44
@@ -9780,7 +9780,7 @@ void rate_Ti48_to_He4_Ca44_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ti49_to_n_Ti48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti49 --> n + Ti48
@@ -9816,7 +9816,7 @@ void rate_Ti49_to_n_Ti48_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ti49_to_p_Sc48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti49 --> p + Sc48
@@ -9852,7 +9852,7 @@ void rate_Ti49_to_p_Sc48_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ti49_to_He4_Ca45_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti49 --> He4 + Ca45
@@ -9888,7 +9888,7 @@ void rate_Ti49_to_He4_Ca45_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ti50_to_n_Ti49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti50 --> n + Ti49
@@ -9924,7 +9924,7 @@ void rate_Ti50_to_n_Ti49_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ti50_to_p_Sc49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti50 --> p + Sc49
@@ -9960,7 +9960,7 @@ void rate_Ti50_to_p_Sc49_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ti50_to_He4_Ca46_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti50 --> He4 + Ca46
@@ -9996,7 +9996,7 @@ void rate_Ti50_to_He4_Ca46_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ti51_to_n_Ti50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti51 --> n + Ti50
@@ -10032,7 +10032,7 @@ void rate_Ti51_to_n_Ti50_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ti51_to_He4_Ca47_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti51 --> He4 + Ca47
@@ -10068,7 +10068,7 @@ void rate_Ti51_to_He4_Ca47_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_V46_to_p_Ti45_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V46 --> p + Ti45
@@ -10104,7 +10104,7 @@ void rate_V46_to_p_Ti45_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_V47_to_n_V46_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V47 --> n + V46
@@ -10140,7 +10140,7 @@ void rate_V47_to_n_V46_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_V47_to_p_Ti46_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V47 --> p + Ti46
@@ -10176,7 +10176,7 @@ void rate_V47_to_p_Ti46_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_V47_to_He4_Sc43_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V47 --> He4 + Sc43
@@ -10212,7 +10212,7 @@ void rate_V47_to_He4_Sc43_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_V48_to_n_V47_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V48 --> n + V47
@@ -10248,7 +10248,7 @@ void rate_V48_to_n_V47_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_V48_to_p_Ti47_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V48 --> p + Ti47
@@ -10284,7 +10284,7 @@ void rate_V48_to_p_Ti47_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_V48_to_He4_Sc44_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V48 --> He4 + Sc44
@@ -10320,7 +10320,7 @@ void rate_V48_to_He4_Sc44_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_V49_to_n_V48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V49 --> n + V48
@@ -10356,7 +10356,7 @@ void rate_V49_to_n_V48_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_V49_to_p_Ti48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V49 --> p + Ti48
@@ -10392,7 +10392,7 @@ void rate_V49_to_p_Ti48_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_V49_to_He4_Sc45_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V49 --> He4 + Sc45
@@ -10428,7 +10428,7 @@ void rate_V49_to_He4_Sc45_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_V50_to_n_V49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V50 --> n + V49
@@ -10464,7 +10464,7 @@ void rate_V50_to_n_V49_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_V50_to_p_Ti49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V50 --> p + Ti49
@@ -10500,7 +10500,7 @@ void rate_V50_to_p_Ti49_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_V50_to_He4_Sc46_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V50 --> He4 + Sc46
@@ -10536,7 +10536,7 @@ void rate_V50_to_He4_Sc46_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_V51_to_n_V50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V51 --> n + V50
@@ -10572,7 +10572,7 @@ void rate_V51_to_n_V50_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_V51_to_p_Ti50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V51 --> p + Ti50
@@ -10608,7 +10608,7 @@ void rate_V51_to_p_Ti50_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_V51_to_He4_Sc47_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V51 --> He4 + Sc47
@@ -10644,7 +10644,7 @@ void rate_V51_to_He4_Sc47_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_V52_to_n_V51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V52 --> n + V51
@@ -10680,7 +10680,7 @@ void rate_V52_to_n_V51_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_V52_to_p_Ti51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V52 --> p + Ti51
@@ -10716,7 +10716,7 @@ void rate_V52_to_p_Ti51_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_V52_to_He4_Sc48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V52 --> He4 + Sc48
@@ -10752,7 +10752,7 @@ void rate_V52_to_He4_Sc48_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cr48_to_p_V47_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr48 --> p + V47
@@ -10851,7 +10851,7 @@ void rate_Cr48_to_p_V47_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cr48_to_He4_Ti44_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr48 --> He4 + Ti44
@@ -10887,7 +10887,7 @@ void rate_Cr48_to_He4_Ti44_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cr49_to_n_Cr48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr49 --> n + Cr48
@@ -10923,7 +10923,7 @@ void rate_Cr49_to_n_Cr48_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cr49_to_p_V48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr49 --> p + V48
@@ -10959,7 +10959,7 @@ void rate_Cr49_to_p_V48_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cr49_to_He4_Ti45_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr49 --> He4 + Ti45
@@ -10995,7 +10995,7 @@ void rate_Cr49_to_He4_Ti45_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cr50_to_n_Cr49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr50 --> n + Cr49
@@ -11031,7 +11031,7 @@ void rate_Cr50_to_n_Cr49_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cr50_to_p_V49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr50 --> p + V49
@@ -11067,7 +11067,7 @@ void rate_Cr50_to_p_V49_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cr50_to_He4_Ti46_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr50 --> He4 + Ti46
@@ -11103,7 +11103,7 @@ void rate_Cr50_to_He4_Ti46_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cr51_to_n_Cr50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr51 --> n + Cr50
@@ -11139,7 +11139,7 @@ void rate_Cr51_to_n_Cr50_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cr51_to_p_V50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr51 --> p + V50
@@ -11175,7 +11175,7 @@ void rate_Cr51_to_p_V50_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cr51_to_He4_Ti47_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr51 --> He4 + Ti47
@@ -11211,7 +11211,7 @@ void rate_Cr51_to_He4_Ti47_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cr52_to_n_Cr51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr52 --> n + Cr51
@@ -11247,7 +11247,7 @@ void rate_Cr52_to_n_Cr51_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cr52_to_p_V51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr52 --> p + V51
@@ -11283,7 +11283,7 @@ void rate_Cr52_to_p_V51_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cr52_to_He4_Ti48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr52 --> He4 + Ti48
@@ -11319,7 +11319,7 @@ void rate_Cr52_to_He4_Ti48_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cr53_to_n_Cr52_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr53 --> n + Cr52
@@ -11355,7 +11355,7 @@ void rate_Cr53_to_n_Cr52_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cr53_to_p_V52_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr53 --> p + V52
@@ -11391,7 +11391,7 @@ void rate_Cr53_to_p_V52_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cr53_to_He4_Ti49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr53 --> He4 + Ti49
@@ -11427,7 +11427,7 @@ void rate_Cr53_to_He4_Ti49_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cr54_to_n_Cr53_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr54 --> n + Cr53
@@ -11463,7 +11463,7 @@ void rate_Cr54_to_n_Cr53_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cr54_to_He4_Ti50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr54 --> He4 + Ti50
@@ -11499,7 +11499,7 @@ void rate_Cr54_to_He4_Ti50_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Mn50_to_p_Cr49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn50 --> p + Cr49
@@ -11535,7 +11535,7 @@ void rate_Mn50_to_p_Cr49_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Mn50_to_He4_V46_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn50 --> He4 + V46
@@ -11571,7 +11571,7 @@ void rate_Mn50_to_He4_V46_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Mn51_to_n_Mn50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn51 --> n + Mn50
@@ -11607,7 +11607,7 @@ void rate_Mn51_to_n_Mn50_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Mn51_to_p_Cr50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn51 --> p + Cr50
@@ -11643,7 +11643,7 @@ void rate_Mn51_to_p_Cr50_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Mn51_to_He4_V47_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn51 --> He4 + V47
@@ -11679,7 +11679,7 @@ void rate_Mn51_to_He4_V47_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Mn52_to_n_Mn51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn52 --> n + Mn51
@@ -11715,7 +11715,7 @@ void rate_Mn52_to_n_Mn51_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Mn52_to_p_Cr51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn52 --> p + Cr51
@@ -11751,7 +11751,7 @@ void rate_Mn52_to_p_Cr51_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Mn52_to_He4_V48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn52 --> He4 + V48
@@ -11787,7 +11787,7 @@ void rate_Mn52_to_He4_V48_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Mn53_to_n_Mn52_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn53 --> n + Mn52
@@ -11823,7 +11823,7 @@ void rate_Mn53_to_n_Mn52_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Mn53_to_p_Cr52_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn53 --> p + Cr52
@@ -11859,7 +11859,7 @@ void rate_Mn53_to_p_Cr52_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Mn53_to_He4_V49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn53 --> He4 + V49
@@ -11895,7 +11895,7 @@ void rate_Mn53_to_He4_V49_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Mn54_to_n_Mn53_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn54 --> n + Mn53
@@ -11931,7 +11931,7 @@ void rate_Mn54_to_n_Mn53_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Mn54_to_p_Cr53_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn54 --> p + Cr53
@@ -11967,7 +11967,7 @@ void rate_Mn54_to_p_Cr53_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Mn54_to_He4_V50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn54 --> He4 + V50
@@ -12003,7 +12003,7 @@ void rate_Mn54_to_He4_V50_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Mn55_to_n_Mn54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn55 --> n + Mn54
@@ -12039,7 +12039,7 @@ void rate_Mn55_to_n_Mn54_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Mn55_to_p_Cr54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn55 --> p + Cr54
@@ -12075,7 +12075,7 @@ void rate_Mn55_to_p_Cr54_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Mn55_to_He4_V51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn55 --> He4 + V51
@@ -12111,7 +12111,7 @@ void rate_Mn55_to_He4_V51_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Fe52_to_p_Mn51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe52 --> p + Mn51
@@ -12147,7 +12147,7 @@ void rate_Fe52_to_p_Mn51_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Fe52_to_He4_Cr48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe52 --> He4 + Cr48
@@ -12183,7 +12183,7 @@ void rate_Fe52_to_He4_Cr48_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Fe53_to_n_Fe52_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe53 --> n + Fe52
@@ -12219,7 +12219,7 @@ void rate_Fe53_to_n_Fe52_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Fe53_to_p_Mn52_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe53 --> p + Mn52
@@ -12255,7 +12255,7 @@ void rate_Fe53_to_p_Mn52_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Fe53_to_He4_Cr49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe53 --> He4 + Cr49
@@ -12291,7 +12291,7 @@ void rate_Fe53_to_He4_Cr49_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Fe54_to_n_Fe53_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe54 --> n + Fe53
@@ -12327,7 +12327,7 @@ void rate_Fe54_to_n_Fe53_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Fe54_to_p_Mn53_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe54 --> p + Mn53
@@ -12363,7 +12363,7 @@ void rate_Fe54_to_p_Mn53_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Fe54_to_He4_Cr50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe54 --> He4 + Cr50
@@ -12399,7 +12399,7 @@ void rate_Fe54_to_He4_Cr50_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Fe55_to_n_Fe54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe55 --> n + Fe54
@@ -12435,7 +12435,7 @@ void rate_Fe55_to_n_Fe54_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Fe55_to_p_Mn54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe55 --> p + Mn54
@@ -12471,7 +12471,7 @@ void rate_Fe55_to_p_Mn54_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Fe55_to_He4_Cr51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe55 --> He4 + Cr51
@@ -12507,7 +12507,7 @@ void rate_Fe55_to_He4_Cr51_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Fe56_to_n_Fe55_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe56 --> n + Fe55
@@ -12543,7 +12543,7 @@ void rate_Fe56_to_n_Fe55_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Fe56_to_p_Mn55_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe56 --> p + Mn55
@@ -12579,7 +12579,7 @@ void rate_Fe56_to_p_Mn55_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Fe56_to_He4_Cr52_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe56 --> He4 + Cr52
@@ -12615,7 +12615,7 @@ void rate_Fe56_to_He4_Cr52_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Fe57_to_n_Fe56_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe57 --> n + Fe56
@@ -12651,7 +12651,7 @@ void rate_Fe57_to_n_Fe56_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Fe57_to_He4_Cr53_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe57 --> He4 + Cr53
@@ -12687,7 +12687,7 @@ void rate_Fe57_to_He4_Cr53_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Fe58_to_n_Fe57_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe58 --> n + Fe57
@@ -12723,7 +12723,7 @@ void rate_Fe58_to_n_Fe57_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Fe58_to_He4_Cr54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe58 --> He4 + Cr54
@@ -12759,7 +12759,7 @@ void rate_Fe58_to_He4_Cr54_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Co53_to_p_Fe52_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co53 --> p + Fe52
@@ -12795,7 +12795,7 @@ void rate_Co53_to_p_Fe52_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Co54_to_n_Co53_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co54 --> n + Co53
@@ -12831,7 +12831,7 @@ void rate_Co54_to_n_Co53_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Co54_to_p_Fe53_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co54 --> p + Fe53
@@ -12867,7 +12867,7 @@ void rate_Co54_to_p_Fe53_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Co54_to_He4_Mn50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co54 --> He4 + Mn50
@@ -12903,7 +12903,7 @@ void rate_Co54_to_He4_Mn50_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Co55_to_n_Co54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co55 --> n + Co54
@@ -12939,7 +12939,7 @@ void rate_Co55_to_n_Co54_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Co55_to_p_Fe54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co55 --> p + Fe54
@@ -12975,7 +12975,7 @@ void rate_Co55_to_p_Fe54_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Co55_to_He4_Mn51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co55 --> He4 + Mn51
@@ -13011,7 +13011,7 @@ void rate_Co55_to_He4_Mn51_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Co56_to_n_Co55_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co56 --> n + Co55
@@ -13047,7 +13047,7 @@ void rate_Co56_to_n_Co55_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Co56_to_p_Fe55_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co56 --> p + Fe55
@@ -13083,7 +13083,7 @@ void rate_Co56_to_p_Fe55_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Co56_to_He4_Mn52_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co56 --> He4 + Mn52
@@ -13119,7 +13119,7 @@ void rate_Co56_to_He4_Mn52_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Co57_to_n_Co56_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co57 --> n + Co56
@@ -13155,7 +13155,7 @@ void rate_Co57_to_n_Co56_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Co57_to_p_Fe56_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co57 --> p + Fe56
@@ -13191,7 +13191,7 @@ void rate_Co57_to_p_Fe56_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Co57_to_He4_Mn53_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co57 --> He4 + Mn53
@@ -13227,7 +13227,7 @@ void rate_Co57_to_He4_Mn53_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Co58_to_n_Co57_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co58 --> n + Co57
@@ -13263,7 +13263,7 @@ void rate_Co58_to_n_Co57_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Co58_to_p_Fe57_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co58 --> p + Fe57
@@ -13299,7 +13299,7 @@ void rate_Co58_to_p_Fe57_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Co58_to_He4_Mn54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co58 --> He4 + Mn54
@@ -13335,7 +13335,7 @@ void rate_Co58_to_He4_Mn54_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Co59_to_n_Co58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co59 --> n + Co58
@@ -13371,7 +13371,7 @@ void rate_Co59_to_n_Co58_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Co59_to_p_Fe58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co59 --> p + Fe58
@@ -13407,7 +13407,7 @@ void rate_Co59_to_p_Fe58_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Co59_to_He4_Mn55_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co59 --> He4 + Mn55
@@ -13443,7 +13443,7 @@ void rate_Co59_to_He4_Mn55_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ni56_to_p_Co55_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni56 --> p + Co55
@@ -13479,7 +13479,7 @@ void rate_Ni56_to_p_Co55_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ni56_to_He4_Fe52_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni56 --> He4 + Fe52
@@ -13515,7 +13515,7 @@ void rate_Ni56_to_He4_Fe52_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ni57_to_n_Ni56_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni57 --> n + Ni56
@@ -13551,7 +13551,7 @@ void rate_Ni57_to_n_Ni56_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ni57_to_p_Co56_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni57 --> p + Co56
@@ -13587,7 +13587,7 @@ void rate_Ni57_to_p_Co56_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ni57_to_He4_Fe53_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni57 --> He4 + Fe53
@@ -13623,7 +13623,7 @@ void rate_Ni57_to_He4_Fe53_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ni58_to_n_Ni57_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni58 --> n + Ni57
@@ -13659,7 +13659,7 @@ void rate_Ni58_to_n_Ni57_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ni58_to_p_Co57_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni58 --> p + Co57
@@ -13695,7 +13695,7 @@ void rate_Ni58_to_p_Co57_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ni58_to_He4_Fe54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni58 --> He4 + Fe54
@@ -13731,7 +13731,7 @@ void rate_Ni58_to_He4_Fe54_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ni59_to_n_Ni58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni59 --> n + Ni58
@@ -13767,7 +13767,7 @@ void rate_Ni59_to_n_Ni58_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ni59_to_p_Co58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni59 --> p + Co58
@@ -13803,7 +13803,7 @@ void rate_Ni59_to_p_Co58_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ni59_to_He4_Fe55_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni59 --> He4 + Fe55
@@ -13839,7 +13839,7 @@ void rate_Ni59_to_He4_Fe55_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ni60_to_n_Ni59_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni60 --> n + Ni59
@@ -13875,7 +13875,7 @@ void rate_Ni60_to_n_Ni59_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ni60_to_p_Co59_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni60 --> p + Co59
@@ -13911,7 +13911,7 @@ void rate_Ni60_to_p_Co59_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ni60_to_He4_Fe56_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni60 --> He4 + Fe56
@@ -13947,7 +13947,7 @@ void rate_Ni60_to_He4_Fe56_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ni61_to_n_Ni60_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni61 --> n + Ni60
@@ -13983,7 +13983,7 @@ void rate_Ni61_to_n_Ni60_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ni61_to_He4_Fe57_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni61 --> He4 + Fe57
@@ -14019,7 +14019,7 @@ void rate_Ni61_to_He4_Fe57_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ni62_to_n_Ni61_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni62 --> n + Ni61
@@ -14055,7 +14055,7 @@ void rate_Ni62_to_n_Ni61_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ni62_to_He4_Fe58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni62 --> He4 + Fe58
@@ -14091,7 +14091,7 @@ void rate_Ni62_to_He4_Fe58_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ni63_to_n_Ni62_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni63 --> n + Ni62
@@ -14127,7 +14127,7 @@ void rate_Ni63_to_n_Ni62_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ni64_to_n_Ni63_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni64 --> n + Ni63
@@ -14163,7 +14163,7 @@ void rate_Ni64_to_n_Ni63_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cu57_to_p_Ni56_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu57 --> p + Ni56
@@ -14283,7 +14283,7 @@ void rate_Cu57_to_p_Ni56_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cu57_to_He4_Co53_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu57 --> He4 + Co53
@@ -14319,7 +14319,7 @@ void rate_Cu57_to_He4_Co53_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cu58_to_n_Cu57_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu58 --> n + Cu57
@@ -14355,7 +14355,7 @@ void rate_Cu58_to_n_Cu57_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cu58_to_p_Ni57_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu58 --> p + Ni57
@@ -14391,7 +14391,7 @@ void rate_Cu58_to_p_Ni57_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cu58_to_He4_Co54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu58 --> He4 + Co54
@@ -14427,7 +14427,7 @@ void rate_Cu58_to_He4_Co54_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cu59_to_n_Cu58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu59 --> n + Cu58
@@ -14463,7 +14463,7 @@ void rate_Cu59_to_n_Cu58_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cu59_to_p_Ni58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu59 --> p + Ni58
@@ -14499,7 +14499,7 @@ void rate_Cu59_to_p_Ni58_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cu59_to_He4_Co55_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu59 --> He4 + Co55
@@ -14535,7 +14535,7 @@ void rate_Cu59_to_He4_Co55_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cu60_to_n_Cu59_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu60 --> n + Cu59
@@ -14571,7 +14571,7 @@ void rate_Cu60_to_n_Cu59_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cu60_to_p_Ni59_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu60 --> p + Ni59
@@ -14607,7 +14607,7 @@ void rate_Cu60_to_p_Ni59_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cu60_to_He4_Co56_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu60 --> He4 + Co56
@@ -14643,7 +14643,7 @@ void rate_Cu60_to_He4_Co56_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cu61_to_n_Cu60_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu61 --> n + Cu60
@@ -14679,7 +14679,7 @@ void rate_Cu61_to_n_Cu60_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cu61_to_p_Ni60_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu61 --> p + Ni60
@@ -14715,7 +14715,7 @@ void rate_Cu61_to_p_Ni60_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cu61_to_He4_Co57_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu61 --> He4 + Co57
@@ -14751,7 +14751,7 @@ void rate_Cu61_to_He4_Co57_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cu62_to_n_Cu61_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu62 --> n + Cu61
@@ -14787,7 +14787,7 @@ void rate_Cu62_to_n_Cu61_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cu62_to_p_Ni61_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu62 --> p + Ni61
@@ -14823,7 +14823,7 @@ void rate_Cu62_to_p_Ni61_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cu62_to_He4_Co58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu62 --> He4 + Co58
@@ -14859,7 +14859,7 @@ void rate_Cu62_to_He4_Co58_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cu63_to_n_Cu62_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu63 --> n + Cu62
@@ -14895,7 +14895,7 @@ void rate_Cu63_to_n_Cu62_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cu63_to_p_Ni62_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu63 --> p + Ni62
@@ -14931,7 +14931,7 @@ void rate_Cu63_to_p_Ni62_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cu63_to_He4_Co59_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu63 --> He4 + Co59
@@ -14967,7 +14967,7 @@ void rate_Cu63_to_He4_Co59_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cu64_to_n_Cu63_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu64 --> n + Cu63
@@ -15003,7 +15003,7 @@ void rate_Cu64_to_n_Cu63_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cu64_to_p_Ni63_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu64 --> p + Ni63
@@ -15039,7 +15039,7 @@ void rate_Cu64_to_p_Ni63_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cu65_to_n_Cu64_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu65 --> n + Cu64
@@ -15075,7 +15075,7 @@ void rate_Cu65_to_n_Cu64_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cu65_to_p_Ni64_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu65 --> p + Ni64
@@ -15111,7 +15111,7 @@ void rate_Cu65_to_p_Ni64_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Zn59_to_p_Cu58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn59 --> p + Cu58
@@ -15189,7 +15189,7 @@ void rate_Zn59_to_p_Cu58_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Zn59_to_p_Ni58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn59 --> p + Ni58
@@ -15224,7 +15224,7 @@ void rate_Zn59_to_p_Ni58_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Zn60_to_n_Zn59_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn60 --> n + Zn59
@@ -15260,7 +15260,7 @@ void rate_Zn60_to_n_Zn59_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Zn60_to_p_Cu59_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn60 --> p + Cu59
@@ -15296,7 +15296,7 @@ void rate_Zn60_to_p_Cu59_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Zn60_to_He4_Ni56_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn60 --> He4 + Ni56
@@ -15332,7 +15332,7 @@ void rate_Zn60_to_He4_Ni56_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Zn61_to_n_Zn60_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn61 --> n + Zn60
@@ -15368,7 +15368,7 @@ void rate_Zn61_to_n_Zn60_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Zn61_to_p_Cu60_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn61 --> p + Cu60
@@ -15404,7 +15404,7 @@ void rate_Zn61_to_p_Cu60_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Zn61_to_He4_Ni57_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn61 --> He4 + Ni57
@@ -15440,7 +15440,7 @@ void rate_Zn61_to_He4_Ni57_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Zn62_to_n_Zn61_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn62 --> n + Zn61
@@ -15476,7 +15476,7 @@ void rate_Zn62_to_n_Zn61_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Zn62_to_p_Cu61_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn62 --> p + Cu61
@@ -15512,7 +15512,7 @@ void rate_Zn62_to_p_Cu61_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Zn62_to_He4_Ni58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn62 --> He4 + Ni58
@@ -15548,7 +15548,7 @@ void rate_Zn62_to_He4_Ni58_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Zn63_to_n_Zn62_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn63 --> n + Zn62
@@ -15584,7 +15584,7 @@ void rate_Zn63_to_n_Zn62_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Zn63_to_p_Cu62_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn63 --> p + Cu62
@@ -15620,7 +15620,7 @@ void rate_Zn63_to_p_Cu62_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Zn63_to_He4_Ni59_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn63 --> He4 + Ni59
@@ -15656,7 +15656,7 @@ void rate_Zn63_to_He4_Ni59_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Zn64_to_n_Zn63_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn64 --> n + Zn63
@@ -15692,7 +15692,7 @@ void rate_Zn64_to_n_Zn63_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Zn64_to_p_Cu63_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn64 --> p + Cu63
@@ -15728,7 +15728,7 @@ void rate_Zn64_to_p_Cu63_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Zn64_to_He4_Ni60_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn64 --> He4 + Ni60
@@ -15764,7 +15764,7 @@ void rate_Zn64_to_He4_Ni60_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Zn65_to_n_Zn64_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn65 --> n + Zn64
@@ -15800,7 +15800,7 @@ void rate_Zn65_to_n_Zn64_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Zn65_to_p_Cu64_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn65 --> p + Cu64
@@ -15836,7 +15836,7 @@ void rate_Zn65_to_p_Cu64_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Zn65_to_He4_Ni61_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn65 --> He4 + Ni61
@@ -15872,7 +15872,7 @@ void rate_Zn65_to_He4_Ni61_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Zn66_to_n_Zn65_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn66 --> n + Zn65
@@ -15908,7 +15908,7 @@ void rate_Zn66_to_n_Zn65_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Zn66_to_p_Cu65_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn66 --> p + Cu65
@@ -15944,7 +15944,7 @@ void rate_Zn66_to_p_Cu65_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Zn66_to_He4_Ni62_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn66 --> He4 + Ni62
@@ -15980,7 +15980,7 @@ void rate_Zn66_to_He4_Ni62_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ga62_to_p_Zn61_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ga62 --> p + Zn61
@@ -16058,7 +16058,7 @@ void rate_Ga62_to_p_Zn61_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ga62_to_He4_Cu58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ga62 --> He4 + Cu58
@@ -16094,7 +16094,7 @@ void rate_Ga62_to_He4_Cu58_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ga63_to_n_Ga62_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ga63 --> n + Ga62
@@ -16130,7 +16130,7 @@ void rate_Ga63_to_n_Ga62_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ga63_to_p_Zn62_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ga63 --> p + Zn62
@@ -16229,7 +16229,7 @@ void rate_Ga63_to_p_Zn62_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ga63_to_He4_Cu59_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ga63 --> He4 + Cu59
@@ -16265,7 +16265,7 @@ void rate_Ga63_to_He4_Cu59_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ga64_to_n_Ga63_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ga64 --> n + Ga63
@@ -16301,7 +16301,7 @@ void rate_Ga64_to_n_Ga63_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ga64_to_p_Zn63_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ga64 --> p + Zn63
@@ -16337,7 +16337,7 @@ void rate_Ga64_to_p_Zn63_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ga64_to_He4_Cu60_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ga64 --> He4 + Cu60
@@ -16373,7 +16373,7 @@ void rate_Ga64_to_He4_Cu60_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ge63_to_p_Ga62_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ge63 --> p + Ga62
@@ -16493,7 +16493,7 @@ void rate_Ge63_to_p_Ga62_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ge63_to_He4_Zn59_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ge63 --> He4 + Zn59
@@ -16529,7 +16529,7 @@ void rate_Ge63_to_He4_Zn59_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ge64_to_n_Ge63_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ge64 --> n + Ge63
@@ -16565,7 +16565,7 @@ void rate_Ge64_to_n_Ge63_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ge64_to_p_Ga63_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ge64 --> p + Ga63
@@ -16601,7 +16601,7 @@ void rate_Ge64_to_p_Ga63_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ge64_to_He4_Zn60_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ge64 --> He4 + Zn60
@@ -16637,7 +16637,7 @@ void rate_Ge64_to_He4_Zn60_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Li6_to_n_p_He4_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Li6 --> n + p + He4
@@ -16673,7 +16673,7 @@ void rate_Li6_to_n_p_He4_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Be9_to_n_He4_He4_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Be9 --> n + He4 + He4
@@ -16730,7 +16730,7 @@ void rate_Be9_to_n_He4_He4_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_C12_to_He4_He4_He4_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // C12 --> 3 He4
@@ -16808,7 +16808,7 @@ void rate_C12_to_He4_He4_He4_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_p_to_d_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // n + p --> d
@@ -16886,7 +16886,7 @@ void rate_n_p_to_d_reaclib(const tf_t& tfactors, const amrex::Real log_scor, con
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_p_to_d_reaclib_beta_pos(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // p + p --> d
@@ -16922,7 +16922,7 @@ void rate_p_p_to_d_reaclib_beta_pos(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_p_to_d_reaclib_electron_capture(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // p + p --> d
@@ -16958,7 +16958,7 @@ void rate_p_p_to_d_reaclib_electron_capture(const tf_t& tfactors, const amrex::R
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_d_to_He3_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // d + p --> He3
@@ -17015,7 +17015,7 @@ void rate_p_d_to_He3_reaclib(const tf_t& tfactors, const amrex::Real log_scor, c
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_d_d_to_He4_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // d + d --> He4
@@ -17051,7 +17051,7 @@ void rate_d_d_to_He4_reaclib(const tf_t& tfactors, const amrex::Real log_scor, c
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_d_to_Li6_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // d + He4 --> Li6
@@ -17108,7 +17108,7 @@ void rate_He4_d_to_Li6_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_He3_to_He4_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // He3 + n --> He4
@@ -17164,7 +17164,7 @@ void rate_n_He3_to_He4_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_He3_to_He4_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // He3 + p --> He4
@@ -17200,7 +17200,7 @@ void rate_p_He3_to_He4_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_He3_to_Be7_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // He3 + He4 --> Be7
@@ -17257,7 +17257,7 @@ void rate_He4_He3_to_Be7_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Li6_to_Li7_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Li6 + n --> Li7
@@ -17292,7 +17292,7 @@ void rate_n_Li6_to_Li7_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Li6_to_Be7_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Li6 + p --> Be7
@@ -17328,7 +17328,7 @@ void rate_p_Li6_to_Be7_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Li6_to_B10_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Li6 + He4 --> B10
@@ -17385,7 +17385,7 @@ void rate_He4_Li6_to_B10_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Li7_to_B11_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Li7 + He4 --> B11
@@ -17463,7 +17463,7 @@ void rate_He4_Li7_to_B11_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Be7_to_B8_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Be7 + p --> B8
@@ -17520,7 +17520,7 @@ void rate_p_Be7_to_B8_reaclib(const tf_t& tfactors, const amrex::Real log_scor, 
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Be9_to_B10_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Be9 + p --> B10
@@ -17598,7 +17598,7 @@ void rate_p_Be9_to_B10_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_B10_to_B11_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // B10 + n --> B11
@@ -17634,7 +17634,7 @@ void rate_n_B10_to_B11_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_B11_to_C12_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // B11 + p --> C12
@@ -17712,7 +17712,7 @@ void rate_p_B11_to_C12_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_C12_to_C13_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // C12 + n --> C13
@@ -17748,7 +17748,7 @@ void rate_n_C12_to_C13_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_C12_to_N13_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // C12 + p --> N13
@@ -17805,7 +17805,7 @@ void rate_p_C12_to_N13_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_C12_to_O16_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // C12 + He4 --> O16
@@ -17862,7 +17862,7 @@ void rate_He4_C12_to_O16_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_C13_to_C14_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // C13 + n --> C14
@@ -17898,7 +17898,7 @@ void rate_n_C13_to_C14_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_C13_to_N14_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // C13 + p --> N14
@@ -17976,7 +17976,7 @@ void rate_p_C13_to_N14_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_C14_to_N15_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // C14 + p --> N15
@@ -18033,7 +18033,7 @@ void rate_p_C14_to_N15_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_C14_to_O18_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // C14 + He4 --> O18
@@ -18111,7 +18111,7 @@ void rate_He4_C14_to_O18_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_N13_to_N14_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // N13 + n --> N14
@@ -18168,7 +18168,7 @@ void rate_n_N13_to_N14_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_N13_to_O14_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // N13 + p --> O14
@@ -18225,7 +18225,7 @@ void rate_p_N13_to_O14_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_N14_to_N15_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // N14 + n --> N15
@@ -18261,7 +18261,7 @@ void rate_n_N14_to_N15_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_N14_to_O15_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // N14 + p --> O15
@@ -18360,7 +18360,7 @@ void rate_p_N14_to_O15_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_N14_to_F18_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // N14 + He4 --> F18
@@ -18438,7 +18438,7 @@ void rate_He4_N14_to_F18_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_N15_to_O16_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // N15 + p --> O16
@@ -18516,7 +18516,7 @@ void rate_p_N15_to_O16_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_N15_to_F19_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // N15 + He4 --> F19
@@ -18615,7 +18615,7 @@ void rate_He4_N15_to_F19_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_O14_to_O15_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O14 + n --> O15
@@ -18651,7 +18651,7 @@ void rate_n_O14_to_O15_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_O14_to_Ne18_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O14 + He4 --> Ne18
@@ -18750,7 +18750,7 @@ void rate_He4_O14_to_Ne18_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_O15_to_O16_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O15 + n --> O16
@@ -18786,7 +18786,7 @@ void rate_n_O15_to_O16_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_O15_to_Ne19_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O15 + He4 --> Ne19
@@ -18864,7 +18864,7 @@ void rate_He4_O15_to_Ne19_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_O16_to_O17_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O16 + n --> O17
@@ -18900,7 +18900,7 @@ void rate_n_O16_to_O17_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_O16_to_F17_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O16 + p --> F17
@@ -18936,7 +18936,7 @@ void rate_p_O16_to_F17_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_O16_to_Ne20_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O16 + He4 --> Ne20
@@ -19014,7 +19014,7 @@ void rate_He4_O16_to_Ne20_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_O17_to_O18_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O17 + n --> O18
@@ -19071,7 +19071,7 @@ void rate_n_O17_to_O18_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_O17_to_F18_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O17 + p --> F18
@@ -19149,7 +19149,7 @@ void rate_p_O17_to_F18_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_O17_to_Ne21_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O17 + He4 --> Ne21
@@ -19227,7 +19227,7 @@ void rate_He4_O17_to_Ne21_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_O18_to_F19_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O18 + p --> F19
@@ -19326,7 +19326,7 @@ void rate_p_O18_to_F19_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_O18_to_Ne22_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O18 + He4 --> Ne22
@@ -19425,7 +19425,7 @@ void rate_He4_O18_to_Ne22_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_F17_to_F18_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // F17 + n --> F18
@@ -19461,7 +19461,7 @@ void rate_n_F17_to_F18_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_F17_to_Ne18_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // F17 + p --> Ne18
@@ -19518,7 +19518,7 @@ void rate_p_F17_to_Ne18_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_F17_to_Na21_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // F17 + He4 --> Na21
@@ -19554,7 +19554,7 @@ void rate_He4_F17_to_Na21_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_F18_to_F19_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // F18 + n --> F19
@@ -19590,7 +19590,7 @@ void rate_n_F18_to_F19_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_F18_to_Ne19_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // F18 + p --> Ne19
@@ -19668,7 +19668,7 @@ void rate_p_F18_to_Ne19_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_F18_to_Na22_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // F18 + He4 --> Na22
@@ -19704,7 +19704,7 @@ void rate_He4_F18_to_Na22_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_F19_to_Ne20_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // F19 + p --> Ne20
@@ -19782,7 +19782,7 @@ void rate_p_F19_to_Ne20_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_F19_to_Na23_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // F19 + He4 --> Na23
@@ -19818,7 +19818,7 @@ void rate_He4_F19_to_Na23_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ne18_to_Ne19_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne18 + n --> Ne19
@@ -19854,7 +19854,7 @@ void rate_n_Ne18_to_Ne19_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ne19_to_Ne20_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne19 + n --> Ne20
@@ -19890,7 +19890,7 @@ void rate_n_Ne19_to_Ne20_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ne19_to_Mg23_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne19 + He4 --> Mg23
@@ -19926,7 +19926,7 @@ void rate_He4_Ne19_to_Mg23_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ne20_to_Ne21_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne20 + n --> Ne21
@@ -19982,7 +19982,7 @@ void rate_n_Ne20_to_Ne21_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ne20_to_Na21_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne20 + p --> Na21
@@ -20081,7 +20081,7 @@ void rate_p_Ne20_to_Na21_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ne20_to_Mg24_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne20 + He4 --> Mg24
@@ -20180,7 +20180,7 @@ void rate_He4_Ne20_to_Mg24_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ne21_to_Ne22_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne21 + n --> Ne22
@@ -20216,7 +20216,7 @@ void rate_n_Ne21_to_Ne22_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ne21_to_Na22_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne21 + p --> Na22
@@ -20315,7 +20315,7 @@ void rate_p_Ne21_to_Na22_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ne21_to_Mg25_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne21 + He4 --> Mg25
@@ -20372,7 +20372,7 @@ void rate_He4_Ne21_to_Mg25_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ne22_to_Na23_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne22 + p --> Na23
@@ -20513,7 +20513,7 @@ void rate_p_Ne22_to_Na23_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ne22_to_Mg26_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne22 + He4 --> Mg26
@@ -20633,7 +20633,7 @@ void rate_He4_Ne22_to_Mg26_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Na21_to_Na22_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Na21 + n --> Na22
@@ -20669,7 +20669,7 @@ void rate_n_Na21_to_Na22_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Na21_to_Al25_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Na21 + He4 --> Al25
@@ -20705,7 +20705,7 @@ void rate_He4_Na21_to_Al25_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Na22_to_Na23_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Na22 + n --> Na23
@@ -20741,7 +20741,7 @@ void rate_n_Na22_to_Na23_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Na22_to_Mg23_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Na22 + p --> Mg23
@@ -20819,7 +20819,7 @@ void rate_p_Na22_to_Mg23_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Na22_to_Al26_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Na22 + He4 --> Al26
@@ -20855,7 +20855,7 @@ void rate_He4_Na22_to_Al26_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Na23_to_Mg24_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Na23 + p --> Mg24
@@ -20933,7 +20933,7 @@ void rate_p_Na23_to_Mg24_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Na23_to_Al27_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Na23 + He4 --> Al27
@@ -20969,7 +20969,7 @@ void rate_He4_Na23_to_Al27_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Mg23_to_Mg24_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mg23 + n --> Mg24
@@ -21005,7 +21005,7 @@ void rate_n_Mg23_to_Mg24_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Mg24_to_Mg25_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mg24 + n --> Mg25
@@ -21041,7 +21041,7 @@ void rate_n_Mg24_to_Mg25_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Mg24_to_Al25_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mg24 + p --> Al25
@@ -21098,7 +21098,7 @@ void rate_p_Mg24_to_Al25_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Mg24_to_Si28_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mg24 + He4 --> Si28
@@ -21155,7 +21155,7 @@ void rate_He4_Mg24_to_Si28_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Mg25_to_Mg26_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mg25 + n --> Mg26
@@ -21191,7 +21191,7 @@ void rate_n_Mg25_to_Mg26_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Mg25_to_Al26_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mg25 + p --> Al26
@@ -21269,7 +21269,7 @@ void rate_p_Mg25_to_Al26_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Mg25_to_Si29_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mg25 + He4 --> Si29
@@ -21305,7 +21305,7 @@ void rate_He4_Mg25_to_Si29_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Mg26_to_Al27_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mg26 + p --> Al27
@@ -21383,7 +21383,7 @@ void rate_p_Mg26_to_Al27_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Mg26_to_Si30_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mg26 + He4 --> Si30
@@ -21440,7 +21440,7 @@ void rate_He4_Mg26_to_Si30_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Al25_to_Al26_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Al25 + n --> Al26
@@ -21476,7 +21476,7 @@ void rate_n_Al25_to_Al26_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Al25_to_P29_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Al25 + He4 --> P29
@@ -21512,7 +21512,7 @@ void rate_He4_Al25_to_P29_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Al26_to_Al27_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Al26 + n --> Al27
@@ -21548,7 +21548,7 @@ void rate_n_Al26_to_Al27_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Al26_to_P30_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Al26 + He4 --> P30
@@ -21584,7 +21584,7 @@ void rate_He4_Al26_to_P30_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Al27_to_Si28_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Al27 + p --> Si28
@@ -21662,7 +21662,7 @@ void rate_p_Al27_to_Si28_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Al27_to_P31_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Al27 + He4 --> P31
@@ -21698,7 +21698,7 @@ void rate_He4_Al27_to_P31_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Si28_to_Si29_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Si28 + n --> Si29
@@ -21754,7 +21754,7 @@ void rate_n_Si28_to_Si29_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Si28_to_P29_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Si28 + p --> P29
@@ -21811,7 +21811,7 @@ void rate_p_Si28_to_P29_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Si28_to_S32_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Si28 + He4 --> S32
@@ -21847,7 +21847,7 @@ void rate_He4_Si28_to_S32_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Si29_to_Si30_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Si29 + n --> Si30
@@ -21902,7 +21902,7 @@ void rate_n_Si29_to_Si30_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Si29_to_P30_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Si29 + p --> P30
@@ -21980,7 +21980,7 @@ void rate_p_Si29_to_P30_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Si29_to_S33_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Si29 + He4 --> S33
@@ -22016,7 +22016,7 @@ void rate_He4_Si29_to_S33_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Si30_to_Si31_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Si30 + n --> Si31
@@ -22052,7 +22052,7 @@ void rate_n_Si30_to_Si31_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Si30_to_P31_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Si30 + p --> P31
@@ -22235,7 +22235,7 @@ void rate_p_Si30_to_P31_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Si30_to_S34_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Si30 + He4 --> S34
@@ -22271,7 +22271,7 @@ void rate_He4_Si30_to_S34_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Si31_to_Si32_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Si31 + n --> Si32
@@ -22307,7 +22307,7 @@ void rate_n_Si31_to_Si32_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Si31_to_P32_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Si31 + p --> P32
@@ -22343,7 +22343,7 @@ void rate_p_Si31_to_P32_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Si31_to_S35_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Si31 + He4 --> S35
@@ -22379,7 +22379,7 @@ void rate_He4_Si31_to_S35_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Si32_to_P33_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Si32 + p --> P33
@@ -22415,7 +22415,7 @@ void rate_p_Si32_to_P33_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Si32_to_S36_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Si32 + He4 --> S36
@@ -22451,7 +22451,7 @@ void rate_He4_Si32_to_S36_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_P29_to_P30_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P29 + n --> P30
@@ -22487,7 +22487,7 @@ void rate_n_P29_to_P30_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_P29_to_Cl33_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P29 + He4 --> Cl33
@@ -22523,7 +22523,7 @@ void rate_He4_P29_to_Cl33_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_P30_to_P31_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P30 + n --> P31
@@ -22559,7 +22559,7 @@ void rate_n_P30_to_P31_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_P30_to_Cl34_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P30 + He4 --> Cl34
@@ -22595,7 +22595,7 @@ void rate_He4_P30_to_Cl34_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_P31_to_P32_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P31 + n --> P32
@@ -22652,7 +22652,7 @@ void rate_n_P31_to_P32_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_P31_to_S32_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P31 + p --> S32
@@ -22730,7 +22730,7 @@ void rate_p_P31_to_S32_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_P31_to_Cl35_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P31 + He4 --> Cl35
@@ -22766,7 +22766,7 @@ void rate_He4_P31_to_Cl35_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_P32_to_P33_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P32 + n --> P33
@@ -22802,7 +22802,7 @@ void rate_n_P32_to_P33_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_P32_to_S33_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P32 + p --> S33
@@ -22838,7 +22838,7 @@ void rate_p_P32_to_S33_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_P32_to_Cl36_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P32 + He4 --> Cl36
@@ -22874,7 +22874,7 @@ void rate_He4_P32_to_Cl36_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_P33_to_S34_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P33 + p --> S34
@@ -22910,7 +22910,7 @@ void rate_p_P33_to_S34_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_P33_to_Cl37_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P33 + He4 --> Cl37
@@ -22946,7 +22946,7 @@ void rate_He4_P33_to_Cl37_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_S32_to_S33_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S32 + n --> S33
@@ -22982,7 +22982,7 @@ void rate_n_S32_to_S33_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_S32_to_Cl33_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S32 + p --> Cl33
@@ -23060,7 +23060,7 @@ void rate_p_S32_to_Cl33_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_S32_to_Ar36_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S32 + He4 --> Ar36
@@ -23096,7 +23096,7 @@ void rate_He4_S32_to_Ar36_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_S33_to_S34_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S33 + n --> S34
@@ -23132,7 +23132,7 @@ void rate_n_S33_to_S34_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_S33_to_Cl34_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S33 + p --> Cl34
@@ -23168,7 +23168,7 @@ void rate_p_S33_to_Cl34_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_S33_to_Ar37_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S33 + He4 --> Ar37
@@ -23204,7 +23204,7 @@ void rate_He4_S33_to_Ar37_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_S34_to_S35_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S34 + n --> S35
@@ -23240,7 +23240,7 @@ void rate_n_S34_to_S35_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_S34_to_Cl35_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S34 + p --> Cl35
@@ -23423,7 +23423,7 @@ void rate_p_S34_to_Cl35_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_S34_to_Ar38_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S34 + He4 --> Ar38
@@ -23459,7 +23459,7 @@ void rate_He4_S34_to_Ar38_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_S35_to_S36_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S35 + n --> S36
@@ -23495,7 +23495,7 @@ void rate_n_S35_to_S36_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_S35_to_Cl36_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S35 + p --> Cl36
@@ -23531,7 +23531,7 @@ void rate_p_S35_to_Cl36_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_S35_to_Ar39_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S35 + He4 --> Ar39
@@ -23567,7 +23567,7 @@ void rate_He4_S35_to_Ar39_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_S36_to_Cl37_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S36 + p --> Cl37
@@ -23603,7 +23603,7 @@ void rate_p_S36_to_Cl37_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_S36_to_Ar40_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S36 + He4 --> Ar40
@@ -23639,7 +23639,7 @@ void rate_He4_S36_to_Ar40_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cl33_to_Cl34_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl33 + n --> Cl34
@@ -23675,7 +23675,7 @@ void rate_n_Cl33_to_Cl34_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cl33_to_K37_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl33 + He4 --> K37
@@ -23711,7 +23711,7 @@ void rate_He4_Cl33_to_K37_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cl34_to_Cl35_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl34 + n --> Cl35
@@ -23747,7 +23747,7 @@ void rate_n_Cl34_to_Cl35_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cl34_to_K38_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl34 + He4 --> K38
@@ -23783,7 +23783,7 @@ void rate_He4_Cl34_to_K38_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cl35_to_Cl36_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl35 + n --> Cl36
@@ -23819,7 +23819,7 @@ void rate_n_Cl35_to_Cl36_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cl35_to_Ar36_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl35 + p --> Ar36
@@ -23918,7 +23918,7 @@ void rate_p_Cl35_to_Ar36_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cl35_to_K39_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl35 + He4 --> K39
@@ -23954,7 +23954,7 @@ void rate_He4_Cl35_to_K39_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cl36_to_Cl37_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl36 + n --> Cl37
@@ -23990,7 +23990,7 @@ void rate_n_Cl36_to_Cl37_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cl36_to_Ar37_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl36 + p --> Ar37
@@ -24026,7 +24026,7 @@ void rate_p_Cl36_to_Ar37_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cl36_to_K40_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl36 + He4 --> K40
@@ -24062,7 +24062,7 @@ void rate_He4_Cl36_to_K40_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cl37_to_Ar38_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl37 + p --> Ar38
@@ -24098,7 +24098,7 @@ void rate_p_Cl37_to_Ar38_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cl37_to_K41_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl37 + He4 --> K41
@@ -24134,7 +24134,7 @@ void rate_He4_Cl37_to_K41_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ar36_to_Ar37_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar36 + n --> Ar37
@@ -24170,7 +24170,7 @@ void rate_n_Ar36_to_Ar37_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ar36_to_K37_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar36 + p --> K37
@@ -24248,7 +24248,7 @@ void rate_p_Ar36_to_K37_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ar36_to_Ca40_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar36 + He4 --> Ca40
@@ -24284,7 +24284,7 @@ void rate_He4_Ar36_to_Ca40_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ar37_to_Ar38_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar37 + n --> Ar38
@@ -24320,7 +24320,7 @@ void rate_n_Ar37_to_Ar38_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ar37_to_K38_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar37 + p --> K38
@@ -24356,7 +24356,7 @@ void rate_p_Ar37_to_K38_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ar37_to_Ca41_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar37 + He4 --> Ca41
@@ -24392,7 +24392,7 @@ void rate_He4_Ar37_to_Ca41_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ar38_to_Ar39_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar38 + n --> Ar39
@@ -24428,7 +24428,7 @@ void rate_n_Ar38_to_Ar39_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ar38_to_K39_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar38 + p --> K39
@@ -24464,7 +24464,7 @@ void rate_p_Ar38_to_K39_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ar38_to_Ca42_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar38 + He4 --> Ca42
@@ -24500,7 +24500,7 @@ void rate_He4_Ar38_to_Ca42_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ar39_to_Ar40_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar39 + n --> Ar40
@@ -24536,7 +24536,7 @@ void rate_n_Ar39_to_Ar40_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ar39_to_K40_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar39 + p --> K40
@@ -24572,7 +24572,7 @@ void rate_p_Ar39_to_K40_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ar39_to_Ca43_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar39 + He4 --> Ca43
@@ -24608,7 +24608,7 @@ void rate_He4_Ar39_to_Ca43_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ar40_to_K41_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar40 + p --> K41
@@ -24644,7 +24644,7 @@ void rate_p_Ar40_to_K41_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ar40_to_Ca44_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar40 + He4 --> Ca44
@@ -24680,7 +24680,7 @@ void rate_He4_Ar40_to_Ca44_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_K37_to_K38_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K37 + n --> K38
@@ -24716,7 +24716,7 @@ void rate_n_K37_to_K38_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_K38_to_K39_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K38 + n --> K39
@@ -24752,7 +24752,7 @@ void rate_n_K38_to_K39_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_K39_to_K40_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K39 + n --> K40
@@ -24788,7 +24788,7 @@ void rate_n_K39_to_K40_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_K39_to_Ca40_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K39 + p --> Ca40
@@ -24866,7 +24866,7 @@ void rate_p_K39_to_Ca40_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_K39_to_Sc43_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K39 + He4 --> Sc43
@@ -24902,7 +24902,7 @@ void rate_He4_K39_to_Sc43_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_K40_to_K41_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K40 + n --> K41
@@ -24938,7 +24938,7 @@ void rate_n_K40_to_K41_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_K40_to_Ca41_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K40 + p --> Ca41
@@ -24974,7 +24974,7 @@ void rate_p_K40_to_Ca41_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_K40_to_Sc44_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K40 + He4 --> Sc44
@@ -25010,7 +25010,7 @@ void rate_He4_K40_to_Sc44_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_K41_to_Ca42_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K41 + p --> Ca42
@@ -25067,7 +25067,7 @@ void rate_p_K41_to_Ca42_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_K41_to_Sc45_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K41 + He4 --> Sc45
@@ -25103,7 +25103,7 @@ void rate_He4_K41_to_Sc45_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ca40_to_Ca41_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca40 + n --> Ca41
@@ -25139,7 +25139,7 @@ void rate_n_Ca40_to_Ca41_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ca40_to_Ti44_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca40 + He4 --> Ti44
@@ -25175,7 +25175,7 @@ void rate_He4_Ca40_to_Ti44_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ca41_to_Ca42_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca41 + n --> Ca42
@@ -25211,7 +25211,7 @@ void rate_n_Ca41_to_Ca42_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ca41_to_Ti45_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca41 + He4 --> Ti45
@@ -25247,7 +25247,7 @@ void rate_He4_Ca41_to_Ti45_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ca42_to_Ca43_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca42 + n --> Ca43
@@ -25283,7 +25283,7 @@ void rate_n_Ca42_to_Ca43_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ca42_to_Sc43_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca42 + p --> Sc43
@@ -25319,7 +25319,7 @@ void rate_p_Ca42_to_Sc43_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ca42_to_Ti46_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca42 + He4 --> Ti46
@@ -25355,7 +25355,7 @@ void rate_He4_Ca42_to_Ti46_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ca43_to_Ca44_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca43 + n --> Ca44
@@ -25391,7 +25391,7 @@ void rate_n_Ca43_to_Ca44_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ca43_to_Sc44_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca43 + p --> Sc44
@@ -25427,7 +25427,7 @@ void rate_p_Ca43_to_Sc44_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ca43_to_Ti47_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca43 + He4 --> Ti47
@@ -25463,7 +25463,7 @@ void rate_He4_Ca43_to_Ti47_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ca44_to_Ca45_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca44 + n --> Ca45
@@ -25499,7 +25499,7 @@ void rate_n_Ca44_to_Ca45_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ca44_to_Sc45_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca44 + p --> Sc45
@@ -25535,7 +25535,7 @@ void rate_p_Ca44_to_Sc45_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ca44_to_Ti48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca44 + He4 --> Ti48
@@ -25571,7 +25571,7 @@ void rate_He4_Ca44_to_Ti48_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ca45_to_Ca46_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca45 + n --> Ca46
@@ -25607,7 +25607,7 @@ void rate_n_Ca45_to_Ca46_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ca45_to_Sc46_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca45 + p --> Sc46
@@ -25643,7 +25643,7 @@ void rate_p_Ca45_to_Sc46_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ca45_to_Ti49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca45 + He4 --> Ti49
@@ -25679,7 +25679,7 @@ void rate_He4_Ca45_to_Ti49_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ca46_to_Ca47_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca46 + n --> Ca47
@@ -25715,7 +25715,7 @@ void rate_n_Ca46_to_Ca47_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ca46_to_Sc47_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca46 + p --> Sc47
@@ -25751,7 +25751,7 @@ void rate_p_Ca46_to_Sc47_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ca46_to_Ti50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca46 + He4 --> Ti50
@@ -25787,7 +25787,7 @@ void rate_He4_Ca46_to_Ti50_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ca47_to_Ca48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca47 + n --> Ca48
@@ -25823,7 +25823,7 @@ void rate_n_Ca47_to_Ca48_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ca47_to_Sc48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca47 + p --> Sc48
@@ -25859,7 +25859,7 @@ void rate_p_Ca47_to_Sc48_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ca47_to_Ti51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca47 + He4 --> Ti51
@@ -25895,7 +25895,7 @@ void rate_He4_Ca47_to_Ti51_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ca48_to_Sc49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca48 + p --> Sc49
@@ -25931,7 +25931,7 @@ void rate_p_Ca48_to_Sc49_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Sc43_to_Sc44_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc43 + n --> Sc44
@@ -25967,7 +25967,7 @@ void rate_n_Sc43_to_Sc44_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Sc43_to_Ti44_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc43 + p --> Ti44
@@ -26003,7 +26003,7 @@ void rate_p_Sc43_to_Ti44_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Sc43_to_V47_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc43 + He4 --> V47
@@ -26039,7 +26039,7 @@ void rate_He4_Sc43_to_V47_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Sc44_to_Sc45_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc44 + n --> Sc45
@@ -26075,7 +26075,7 @@ void rate_n_Sc44_to_Sc45_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Sc44_to_Ti45_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc44 + p --> Ti45
@@ -26111,7 +26111,7 @@ void rate_p_Sc44_to_Ti45_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Sc44_to_V48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc44 + He4 --> V48
@@ -26147,7 +26147,7 @@ void rate_He4_Sc44_to_V48_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Sc45_to_Sc46_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc45 + n --> Sc46
@@ -26183,7 +26183,7 @@ void rate_n_Sc45_to_Sc46_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Sc45_to_Ti46_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc45 + p --> Ti46
@@ -26219,7 +26219,7 @@ void rate_p_Sc45_to_Ti46_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Sc45_to_V49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc45 + He4 --> V49
@@ -26255,7 +26255,7 @@ void rate_He4_Sc45_to_V49_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Sc46_to_Sc47_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc46 + n --> Sc47
@@ -26291,7 +26291,7 @@ void rate_n_Sc46_to_Sc47_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Sc46_to_Ti47_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc46 + p --> Ti47
@@ -26327,7 +26327,7 @@ void rate_p_Sc46_to_Ti47_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Sc46_to_V50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc46 + He4 --> V50
@@ -26363,7 +26363,7 @@ void rate_He4_Sc46_to_V50_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Sc47_to_Sc48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc47 + n --> Sc48
@@ -26399,7 +26399,7 @@ void rate_n_Sc47_to_Sc48_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Sc47_to_Ti48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc47 + p --> Ti48
@@ -26435,7 +26435,7 @@ void rate_p_Sc47_to_Ti48_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Sc47_to_V51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc47 + He4 --> V51
@@ -26471,7 +26471,7 @@ void rate_He4_Sc47_to_V51_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Sc48_to_Sc49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc48 + n --> Sc49
@@ -26507,7 +26507,7 @@ void rate_n_Sc48_to_Sc49_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Sc48_to_Ti49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc48 + p --> Ti49
@@ -26543,7 +26543,7 @@ void rate_p_Sc48_to_Ti49_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Sc48_to_V52_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc48 + He4 --> V52
@@ -26579,7 +26579,7 @@ void rate_He4_Sc48_to_V52_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Sc49_to_Ti50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc49 + p --> Ti50
@@ -26615,7 +26615,7 @@ void rate_p_Sc49_to_Ti50_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ti44_to_Ti45_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti44 + n --> Ti45
@@ -26651,7 +26651,7 @@ void rate_n_Ti44_to_Ti45_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ti44_to_Cr48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti44 + He4 --> Cr48
@@ -26687,7 +26687,7 @@ void rate_He4_Ti44_to_Cr48_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ti45_to_Ti46_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti45 + n --> Ti46
@@ -26723,7 +26723,7 @@ void rate_n_Ti45_to_Ti46_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ti45_to_V46_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti45 + p --> V46
@@ -26759,7 +26759,7 @@ void rate_p_Ti45_to_V46_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ti45_to_Cr49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti45 + He4 --> Cr49
@@ -26795,7 +26795,7 @@ void rate_He4_Ti45_to_Cr49_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ti46_to_Ti47_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti46 + n --> Ti47
@@ -26831,7 +26831,7 @@ void rate_n_Ti46_to_Ti47_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ti46_to_V47_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti46 + p --> V47
@@ -26867,7 +26867,7 @@ void rate_p_Ti46_to_V47_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ti46_to_Cr50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti46 + He4 --> Cr50
@@ -26903,7 +26903,7 @@ void rate_He4_Ti46_to_Cr50_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ti47_to_Ti48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti47 + n --> Ti48
@@ -26939,7 +26939,7 @@ void rate_n_Ti47_to_Ti48_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ti47_to_V48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti47 + p --> V48
@@ -26975,7 +26975,7 @@ void rate_p_Ti47_to_V48_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ti47_to_Cr51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti47 + He4 --> Cr51
@@ -27011,7 +27011,7 @@ void rate_He4_Ti47_to_Cr51_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ti48_to_Ti49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti48 + n --> Ti49
@@ -27047,7 +27047,7 @@ void rate_n_Ti48_to_Ti49_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ti48_to_V49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti48 + p --> V49
@@ -27083,7 +27083,7 @@ void rate_p_Ti48_to_V49_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ti48_to_Cr52_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti48 + He4 --> Cr52
@@ -27119,7 +27119,7 @@ void rate_He4_Ti48_to_Cr52_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ti49_to_Ti50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti49 + n --> Ti50
@@ -27155,7 +27155,7 @@ void rate_n_Ti49_to_Ti50_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ti49_to_V50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti49 + p --> V50
@@ -27191,7 +27191,7 @@ void rate_p_Ti49_to_V50_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ti49_to_Cr53_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti49 + He4 --> Cr53
@@ -27227,7 +27227,7 @@ void rate_He4_Ti49_to_Cr53_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ti50_to_Ti51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti50 + n --> Ti51
@@ -27263,7 +27263,7 @@ void rate_n_Ti50_to_Ti51_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ti50_to_V51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti50 + p --> V51
@@ -27299,7 +27299,7 @@ void rate_p_Ti50_to_V51_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ti50_to_Cr54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti50 + He4 --> Cr54
@@ -27335,7 +27335,7 @@ void rate_He4_Ti50_to_Cr54_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ti51_to_V52_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti51 + p --> V52
@@ -27371,7 +27371,7 @@ void rate_p_Ti51_to_V52_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_V46_to_V47_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V46 + n --> V47
@@ -27407,7 +27407,7 @@ void rate_n_V46_to_V47_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_V46_to_Mn50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V46 + He4 --> Mn50
@@ -27443,7 +27443,7 @@ void rate_He4_V46_to_Mn50_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_V47_to_V48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V47 + n --> V48
@@ -27479,7 +27479,7 @@ void rate_n_V47_to_V48_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_V47_to_Cr48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V47 + p --> Cr48
@@ -27578,7 +27578,7 @@ void rate_p_V47_to_Cr48_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_V47_to_Mn51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V47 + He4 --> Mn51
@@ -27614,7 +27614,7 @@ void rate_He4_V47_to_Mn51_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_V48_to_V49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V48 + n --> V49
@@ -27650,7 +27650,7 @@ void rate_n_V48_to_V49_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_V48_to_Cr49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V48 + p --> Cr49
@@ -27686,7 +27686,7 @@ void rate_p_V48_to_Cr49_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_V48_to_Mn52_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V48 + He4 --> Mn52
@@ -27722,7 +27722,7 @@ void rate_He4_V48_to_Mn52_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_V49_to_V50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V49 + n --> V50
@@ -27758,7 +27758,7 @@ void rate_n_V49_to_V50_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_V49_to_Cr50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V49 + p --> Cr50
@@ -27794,7 +27794,7 @@ void rate_p_V49_to_Cr50_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_V49_to_Mn53_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V49 + He4 --> Mn53
@@ -27830,7 +27830,7 @@ void rate_He4_V49_to_Mn53_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_V50_to_V51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V50 + n --> V51
@@ -27866,7 +27866,7 @@ void rate_n_V50_to_V51_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_V50_to_Cr51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V50 + p --> Cr51
@@ -27902,7 +27902,7 @@ void rate_p_V50_to_Cr51_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_V50_to_Mn54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V50 + He4 --> Mn54
@@ -27938,7 +27938,7 @@ void rate_He4_V50_to_Mn54_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_V51_to_V52_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V51 + n --> V52
@@ -27974,7 +27974,7 @@ void rate_n_V51_to_V52_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_V51_to_Cr52_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V51 + p --> Cr52
@@ -28010,7 +28010,7 @@ void rate_p_V51_to_Cr52_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_V51_to_Mn55_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V51 + He4 --> Mn55
@@ -28046,7 +28046,7 @@ void rate_He4_V51_to_Mn55_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_V52_to_Cr53_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V52 + p --> Cr53
@@ -28082,7 +28082,7 @@ void rate_p_V52_to_Cr53_reaclib(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cr48_to_Cr49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr48 + n --> Cr49
@@ -28118,7 +28118,7 @@ void rate_n_Cr48_to_Cr49_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cr48_to_Fe52_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr48 + He4 --> Fe52
@@ -28154,7 +28154,7 @@ void rate_He4_Cr48_to_Fe52_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cr49_to_Cr50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr49 + n --> Cr50
@@ -28190,7 +28190,7 @@ void rate_n_Cr49_to_Cr50_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cr49_to_Mn50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr49 + p --> Mn50
@@ -28226,7 +28226,7 @@ void rate_p_Cr49_to_Mn50_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cr49_to_Fe53_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr49 + He4 --> Fe53
@@ -28262,7 +28262,7 @@ void rate_He4_Cr49_to_Fe53_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cr50_to_Cr51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr50 + n --> Cr51
@@ -28298,7 +28298,7 @@ void rate_n_Cr50_to_Cr51_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cr50_to_Mn51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr50 + p --> Mn51
@@ -28334,7 +28334,7 @@ void rate_p_Cr50_to_Mn51_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cr50_to_Fe54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr50 + He4 --> Fe54
@@ -28370,7 +28370,7 @@ void rate_He4_Cr50_to_Fe54_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cr51_to_Cr52_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr51 + n --> Cr52
@@ -28406,7 +28406,7 @@ void rate_n_Cr51_to_Cr52_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cr51_to_Mn52_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr51 + p --> Mn52
@@ -28442,7 +28442,7 @@ void rate_p_Cr51_to_Mn52_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cr51_to_Fe55_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr51 + He4 --> Fe55
@@ -28478,7 +28478,7 @@ void rate_He4_Cr51_to_Fe55_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cr52_to_Cr53_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr52 + n --> Cr53
@@ -28514,7 +28514,7 @@ void rate_n_Cr52_to_Cr53_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cr52_to_Mn53_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr52 + p --> Mn53
@@ -28550,7 +28550,7 @@ void rate_p_Cr52_to_Mn53_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cr52_to_Fe56_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr52 + He4 --> Fe56
@@ -28586,7 +28586,7 @@ void rate_He4_Cr52_to_Fe56_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cr53_to_Cr54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr53 + n --> Cr54
@@ -28622,7 +28622,7 @@ void rate_n_Cr53_to_Cr54_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cr53_to_Mn54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr53 + p --> Mn54
@@ -28658,7 +28658,7 @@ void rate_p_Cr53_to_Mn54_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cr53_to_Fe57_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr53 + He4 --> Fe57
@@ -28694,7 +28694,7 @@ void rate_He4_Cr53_to_Fe57_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cr54_to_Mn55_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr54 + p --> Mn55
@@ -28730,7 +28730,7 @@ void rate_p_Cr54_to_Mn55_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cr54_to_Fe58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr54 + He4 --> Fe58
@@ -28766,7 +28766,7 @@ void rate_He4_Cr54_to_Fe58_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Mn50_to_Mn51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn50 + n --> Mn51
@@ -28802,7 +28802,7 @@ void rate_n_Mn50_to_Mn51_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Mn50_to_Co54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn50 + He4 --> Co54
@@ -28838,7 +28838,7 @@ void rate_He4_Mn50_to_Co54_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Mn51_to_Mn52_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn51 + n --> Mn52
@@ -28874,7 +28874,7 @@ void rate_n_Mn51_to_Mn52_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Mn51_to_Fe52_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn51 + p --> Fe52
@@ -28910,7 +28910,7 @@ void rate_p_Mn51_to_Fe52_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Mn51_to_Co55_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn51 + He4 --> Co55
@@ -28946,7 +28946,7 @@ void rate_He4_Mn51_to_Co55_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Mn52_to_Mn53_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn52 + n --> Mn53
@@ -28982,7 +28982,7 @@ void rate_n_Mn52_to_Mn53_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Mn52_to_Fe53_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn52 + p --> Fe53
@@ -29018,7 +29018,7 @@ void rate_p_Mn52_to_Fe53_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Mn52_to_Co56_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn52 + He4 --> Co56
@@ -29054,7 +29054,7 @@ void rate_He4_Mn52_to_Co56_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Mn53_to_Mn54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn53 + n --> Mn54
@@ -29090,7 +29090,7 @@ void rate_n_Mn53_to_Mn54_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Mn53_to_Fe54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn53 + p --> Fe54
@@ -29126,7 +29126,7 @@ void rate_p_Mn53_to_Fe54_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Mn53_to_Co57_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn53 + He4 --> Co57
@@ -29162,7 +29162,7 @@ void rate_He4_Mn53_to_Co57_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Mn54_to_Mn55_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn54 + n --> Mn55
@@ -29198,7 +29198,7 @@ void rate_n_Mn54_to_Mn55_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Mn54_to_Fe55_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn54 + p --> Fe55
@@ -29234,7 +29234,7 @@ void rate_p_Mn54_to_Fe55_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Mn54_to_Co58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn54 + He4 --> Co58
@@ -29270,7 +29270,7 @@ void rate_He4_Mn54_to_Co58_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Mn55_to_Fe56_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn55 + p --> Fe56
@@ -29306,7 +29306,7 @@ void rate_p_Mn55_to_Fe56_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Mn55_to_Co59_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn55 + He4 --> Co59
@@ -29342,7 +29342,7 @@ void rate_He4_Mn55_to_Co59_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Fe52_to_Fe53_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe52 + n --> Fe53
@@ -29378,7 +29378,7 @@ void rate_n_Fe52_to_Fe53_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Fe52_to_Co53_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe52 + p --> Co53
@@ -29414,7 +29414,7 @@ void rate_p_Fe52_to_Co53_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Fe52_to_Ni56_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe52 + He4 --> Ni56
@@ -29450,7 +29450,7 @@ void rate_He4_Fe52_to_Ni56_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Fe53_to_Fe54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe53 + n --> Fe54
@@ -29486,7 +29486,7 @@ void rate_n_Fe53_to_Fe54_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Fe53_to_Co54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe53 + p --> Co54
@@ -29522,7 +29522,7 @@ void rate_p_Fe53_to_Co54_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Fe53_to_Ni57_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe53 + He4 --> Ni57
@@ -29558,7 +29558,7 @@ void rate_He4_Fe53_to_Ni57_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Fe54_to_Fe55_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe54 + n --> Fe55
@@ -29594,7 +29594,7 @@ void rate_n_Fe54_to_Fe55_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Fe54_to_Co55_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe54 + p --> Co55
@@ -29630,7 +29630,7 @@ void rate_p_Fe54_to_Co55_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Fe54_to_Ni58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe54 + He4 --> Ni58
@@ -29666,7 +29666,7 @@ void rate_He4_Fe54_to_Ni58_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Fe55_to_Fe56_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe55 + n --> Fe56
@@ -29702,7 +29702,7 @@ void rate_n_Fe55_to_Fe56_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Fe55_to_Co56_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe55 + p --> Co56
@@ -29738,7 +29738,7 @@ void rate_p_Fe55_to_Co56_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Fe55_to_Ni59_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe55 + He4 --> Ni59
@@ -29774,7 +29774,7 @@ void rate_He4_Fe55_to_Ni59_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Fe56_to_Fe57_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe56 + n --> Fe57
@@ -29810,7 +29810,7 @@ void rate_n_Fe56_to_Fe57_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Fe56_to_Co57_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe56 + p --> Co57
@@ -29846,7 +29846,7 @@ void rate_p_Fe56_to_Co57_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Fe56_to_Ni60_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe56 + He4 --> Ni60
@@ -29882,7 +29882,7 @@ void rate_He4_Fe56_to_Ni60_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Fe57_to_Fe58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe57 + n --> Fe58
@@ -29918,7 +29918,7 @@ void rate_n_Fe57_to_Fe58_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Fe57_to_Co58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe57 + p --> Co58
@@ -29954,7 +29954,7 @@ void rate_p_Fe57_to_Co58_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Fe57_to_Ni61_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe57 + He4 --> Ni61
@@ -29990,7 +29990,7 @@ void rate_He4_Fe57_to_Ni61_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Fe58_to_Co59_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe58 + p --> Co59
@@ -30026,7 +30026,7 @@ void rate_p_Fe58_to_Co59_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Fe58_to_Ni62_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe58 + He4 --> Ni62
@@ -30062,7 +30062,7 @@ void rate_He4_Fe58_to_Ni62_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Co53_to_Co54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co53 + n --> Co54
@@ -30098,7 +30098,7 @@ void rate_n_Co53_to_Co54_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Co53_to_Cu57_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co53 + He4 --> Cu57
@@ -30134,7 +30134,7 @@ void rate_He4_Co53_to_Cu57_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Co54_to_Co55_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co54 + n --> Co55
@@ -30170,7 +30170,7 @@ void rate_n_Co54_to_Co55_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Co54_to_Cu58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co54 + He4 --> Cu58
@@ -30206,7 +30206,7 @@ void rate_He4_Co54_to_Cu58_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Co55_to_Co56_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co55 + n --> Co56
@@ -30242,7 +30242,7 @@ void rate_n_Co55_to_Co56_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Co55_to_Ni56_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co55 + p --> Ni56
@@ -30278,7 +30278,7 @@ void rate_p_Co55_to_Ni56_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Co55_to_Cu59_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co55 + He4 --> Cu59
@@ -30314,7 +30314,7 @@ void rate_He4_Co55_to_Cu59_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Co56_to_Co57_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co56 + n --> Co57
@@ -30350,7 +30350,7 @@ void rate_n_Co56_to_Co57_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Co56_to_Ni57_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co56 + p --> Ni57
@@ -30386,7 +30386,7 @@ void rate_p_Co56_to_Ni57_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Co56_to_Cu60_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co56 + He4 --> Cu60
@@ -30422,7 +30422,7 @@ void rate_He4_Co56_to_Cu60_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Co57_to_Co58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co57 + n --> Co58
@@ -30458,7 +30458,7 @@ void rate_n_Co57_to_Co58_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Co57_to_Ni58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co57 + p --> Ni58
@@ -30494,7 +30494,7 @@ void rate_p_Co57_to_Ni58_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Co57_to_Cu61_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co57 + He4 --> Cu61
@@ -30530,7 +30530,7 @@ void rate_He4_Co57_to_Cu61_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Co58_to_Co59_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co58 + n --> Co59
@@ -30566,7 +30566,7 @@ void rate_n_Co58_to_Co59_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Co58_to_Ni59_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co58 + p --> Ni59
@@ -30602,7 +30602,7 @@ void rate_p_Co58_to_Ni59_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Co58_to_Cu62_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co58 + He4 --> Cu62
@@ -30638,7 +30638,7 @@ void rate_He4_Co58_to_Cu62_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Co59_to_Ni60_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co59 + p --> Ni60
@@ -30674,7 +30674,7 @@ void rate_p_Co59_to_Ni60_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Co59_to_Cu63_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co59 + He4 --> Cu63
@@ -30710,7 +30710,7 @@ void rate_He4_Co59_to_Cu63_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ni56_to_Ni57_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni56 + n --> Ni57
@@ -30746,7 +30746,7 @@ void rate_n_Ni56_to_Ni57_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ni56_to_Cu57_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni56 + p --> Cu57
@@ -30866,7 +30866,7 @@ void rate_p_Ni56_to_Cu57_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ni56_to_Zn60_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni56 + He4 --> Zn60
@@ -30902,7 +30902,7 @@ void rate_He4_Ni56_to_Zn60_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ni57_to_Ni58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni57 + n --> Ni58
@@ -30938,7 +30938,7 @@ void rate_n_Ni57_to_Ni58_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ni57_to_Cu58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni57 + p --> Cu58
@@ -30974,7 +30974,7 @@ void rate_p_Ni57_to_Cu58_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ni57_to_Zn61_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni57 + He4 --> Zn61
@@ -31010,7 +31010,7 @@ void rate_He4_Ni57_to_Zn61_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ni58_to_Ni59_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni58 + n --> Ni59
@@ -31046,7 +31046,7 @@ void rate_n_Ni58_to_Ni59_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ni58_to_Cu59_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni58 + p --> Cu59
@@ -31082,7 +31082,7 @@ void rate_p_Ni58_to_Cu59_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ni58_to_Zn62_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni58 + He4 --> Zn62
@@ -31118,7 +31118,7 @@ void rate_He4_Ni58_to_Zn62_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ni59_to_Ni60_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni59 + n --> Ni60
@@ -31154,7 +31154,7 @@ void rate_n_Ni59_to_Ni60_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ni59_to_Cu60_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni59 + p --> Cu60
@@ -31190,7 +31190,7 @@ void rate_p_Ni59_to_Cu60_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ni59_to_Zn63_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni59 + He4 --> Zn63
@@ -31226,7 +31226,7 @@ void rate_He4_Ni59_to_Zn63_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ni60_to_Ni61_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni60 + n --> Ni61
@@ -31262,7 +31262,7 @@ void rate_n_Ni60_to_Ni61_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ni60_to_Cu61_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni60 + p --> Cu61
@@ -31298,7 +31298,7 @@ void rate_p_Ni60_to_Cu61_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ni60_to_Zn64_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni60 + He4 --> Zn64
@@ -31334,7 +31334,7 @@ void rate_He4_Ni60_to_Zn64_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ni61_to_Ni62_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni61 + n --> Ni62
@@ -31370,7 +31370,7 @@ void rate_n_Ni61_to_Ni62_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ni61_to_Cu62_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni61 + p --> Cu62
@@ -31406,7 +31406,7 @@ void rate_p_Ni61_to_Cu62_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ni61_to_Zn65_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni61 + He4 --> Zn65
@@ -31442,7 +31442,7 @@ void rate_He4_Ni61_to_Zn65_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ni62_to_Ni63_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni62 + n --> Ni63
@@ -31478,7 +31478,7 @@ void rate_n_Ni62_to_Ni63_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ni62_to_Cu63_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni62 + p --> Cu63
@@ -31514,7 +31514,7 @@ void rate_p_Ni62_to_Cu63_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ni62_to_Zn66_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni62 + He4 --> Zn66
@@ -31550,7 +31550,7 @@ void rate_He4_Ni62_to_Zn66_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ni63_to_Ni64_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni63 + n --> Ni64
@@ -31586,7 +31586,7 @@ void rate_n_Ni63_to_Ni64_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ni63_to_Cu64_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni63 + p --> Cu64
@@ -31622,7 +31622,7 @@ void rate_p_Ni63_to_Cu64_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ni64_to_Cu65_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni64 + p --> Cu65
@@ -31658,7 +31658,7 @@ void rate_p_Ni64_to_Cu65_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cu57_to_Cu58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu57 + n --> Cu58
@@ -31694,7 +31694,7 @@ void rate_n_Cu57_to_Cu58_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cu58_to_Cu59_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu58 + n --> Cu59
@@ -31730,7 +31730,7 @@ void rate_n_Cu58_to_Cu59_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cu58_to_Zn59_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu58 + p --> Zn59
@@ -31808,7 +31808,7 @@ void rate_p_Cu58_to_Zn59_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cu58_to_Ga62_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu58 + He4 --> Ga62
@@ -31844,7 +31844,7 @@ void rate_He4_Cu58_to_Ga62_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cu59_to_Cu60_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu59 + n --> Cu60
@@ -31880,7 +31880,7 @@ void rate_n_Cu59_to_Cu60_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cu59_to_Zn60_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu59 + p --> Zn60
@@ -31916,7 +31916,7 @@ void rate_p_Cu59_to_Zn60_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cu59_to_Ga63_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu59 + He4 --> Ga63
@@ -31952,7 +31952,7 @@ void rate_He4_Cu59_to_Ga63_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cu60_to_Cu61_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu60 + n --> Cu61
@@ -31988,7 +31988,7 @@ void rate_n_Cu60_to_Cu61_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cu60_to_Zn61_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu60 + p --> Zn61
@@ -32024,7 +32024,7 @@ void rate_p_Cu60_to_Zn61_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cu60_to_Ga64_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu60 + He4 --> Ga64
@@ -32060,7 +32060,7 @@ void rate_He4_Cu60_to_Ga64_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cu61_to_Cu62_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu61 + n --> Cu62
@@ -32096,7 +32096,7 @@ void rate_n_Cu61_to_Cu62_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cu61_to_Zn62_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu61 + p --> Zn62
@@ -32132,7 +32132,7 @@ void rate_p_Cu61_to_Zn62_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cu62_to_Cu63_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu62 + n --> Cu63
@@ -32168,7 +32168,7 @@ void rate_n_Cu62_to_Cu63_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cu62_to_Zn63_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu62 + p --> Zn63
@@ -32204,7 +32204,7 @@ void rate_p_Cu62_to_Zn63_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cu63_to_Cu64_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu63 + n --> Cu64
@@ -32240,7 +32240,7 @@ void rate_n_Cu63_to_Cu64_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cu63_to_Zn64_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu63 + p --> Zn64
@@ -32276,7 +32276,7 @@ void rate_p_Cu63_to_Zn64_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cu64_to_Cu65_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu64 + n --> Cu65
@@ -32312,7 +32312,7 @@ void rate_n_Cu64_to_Cu65_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cu64_to_Zn65_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu64 + p --> Zn65
@@ -32348,7 +32348,7 @@ void rate_p_Cu64_to_Zn65_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cu65_to_Zn66_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu65 + p --> Zn66
@@ -32384,7 +32384,7 @@ void rate_p_Cu65_to_Zn66_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Zn59_to_Zn60_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn59 + n --> Zn60
@@ -32420,7 +32420,7 @@ void rate_n_Zn59_to_Zn60_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Zn59_to_Ge63_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn59 + He4 --> Ge63
@@ -32456,7 +32456,7 @@ void rate_He4_Zn59_to_Ge63_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Zn60_to_Zn61_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn60 + n --> Zn61
@@ -32492,7 +32492,7 @@ void rate_n_Zn60_to_Zn61_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Zn60_to_Ge64_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn60 + He4 --> Ge64
@@ -32528,7 +32528,7 @@ void rate_He4_Zn60_to_Ge64_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Zn61_to_Zn62_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn61 + n --> Zn62
@@ -32564,7 +32564,7 @@ void rate_n_Zn61_to_Zn62_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Zn61_to_Ga62_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn61 + p --> Ga62
@@ -32642,7 +32642,7 @@ void rate_p_Zn61_to_Ga62_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Zn62_to_Zn63_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn62 + n --> Zn63
@@ -32678,7 +32678,7 @@ void rate_n_Zn62_to_Zn63_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Zn62_to_Ga63_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn62 + p --> Ga63
@@ -32777,7 +32777,7 @@ void rate_p_Zn62_to_Ga63_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Zn63_to_Zn64_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn63 + n --> Zn64
@@ -32813,7 +32813,7 @@ void rate_n_Zn63_to_Zn64_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Zn63_to_Ga64_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn63 + p --> Ga64
@@ -32849,7 +32849,7 @@ void rate_p_Zn63_to_Ga64_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Zn64_to_Zn65_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn64 + n --> Zn65
@@ -32885,7 +32885,7 @@ void rate_n_Zn64_to_Zn65_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Zn65_to_Zn66_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn65 + n --> Zn66
@@ -32921,7 +32921,7 @@ void rate_n_Zn65_to_Zn66_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ga62_to_Ga63_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ga62 + n --> Ga63
@@ -32957,7 +32957,7 @@ void rate_n_Ga62_to_Ga63_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ga62_to_Ge63_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ga62 + p --> Ge63
@@ -33077,7 +33077,7 @@ void rate_p_Ga62_to_Ge63_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ga63_to_Ga64_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ga63 + n --> Ga64
@@ -33113,7 +33113,7 @@ void rate_n_Ga63_to_Ga64_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ga63_to_Ge64_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ga63 + p --> Ge64
@@ -33149,7 +33149,7 @@ void rate_p_Ga63_to_Ge64_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ge63_to_Ge64_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ge63 + n --> Ge64
@@ -33185,7 +33185,7 @@ void rate_n_Ge63_to_Ge64_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_d_d_to_n_He3_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // d + d --> n + He3
@@ -33221,7 +33221,7 @@ void rate_d_d_to_n_He3_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_He3_to_d_d_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // He3 + n --> d + d
@@ -33257,7 +33257,7 @@ void rate_n_He3_to_d_d_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_d_He3_to_p_He4_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // He3 + d --> p + He4
@@ -33314,7 +33314,7 @@ void rate_d_He3_to_p_He4_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_He3_to_p_Li6_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // He3 + He4 --> p + Li6
@@ -33350,7 +33350,7 @@ void rate_He4_He3_to_p_Li6_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_He4_to_d_He3_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // p + He4 --> d + He3
@@ -33407,7 +33407,7 @@ void rate_p_He4_to_d_He3_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_He4_to_n_Be7_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // He4 + He4 --> n + Be7
@@ -33443,7 +33443,7 @@ void rate_He4_He4_to_n_Be7_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_He4_to_p_Li7_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // He4 + He4 --> p + Li7
@@ -33542,7 +33542,7 @@ void rate_He4_He4_to_p_Li7_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Li6_to_He4_He3_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Li6 + p --> He4 + He3
@@ -33578,7 +33578,7 @@ void rate_p_Li6_to_He4_He3_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_d_Li6_to_n_Be7_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Li6 + d --> n + Be7
@@ -33614,7 +33614,7 @@ void rate_d_Li6_to_n_Be7_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_d_Li6_to_p_Li7_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Li6 + d --> p + Li7
@@ -33650,7 +33650,7 @@ void rate_d_Li6_to_p_Li7_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Li6_to_p_Be9_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Li6 + He4 --> p + Be9
@@ -33728,7 +33728,7 @@ void rate_He4_Li6_to_p_Be9_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Li7_to_n_Be7_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Li7 + p --> n + Be7
@@ -33764,7 +33764,7 @@ void rate_p_Li7_to_n_Be7_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Li7_to_d_Li6_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Li7 + p --> d + Li6
@@ -33800,7 +33800,7 @@ void rate_p_Li7_to_d_Li6_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Li7_to_He4_He4_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Li7 + p --> He4 + He4
@@ -33899,7 +33899,7 @@ void rate_p_Li7_to_He4_He4_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Li7_to_n_B10_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Li7 + He4 --> n + B10
@@ -33933,7 +33933,7 @@ void rate_He4_Li7_to_n_B10_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Be7_to_p_Li7_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Be7 + n --> p + Li7
@@ -33969,7 +33969,7 @@ void rate_n_Be7_to_p_Li7_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Be7_to_d_Li6_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Be7 + n --> d + Li6
@@ -34005,7 +34005,7 @@ void rate_n_Be7_to_d_Li6_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Be7_to_He4_He4_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Be7 + n --> He4 + He4
@@ -34041,7 +34041,7 @@ void rate_n_Be7_to_He4_He4_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Be7_to_p_B10_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Be7 + He4 --> p + B10
@@ -34098,7 +34098,7 @@ void rate_He4_Be7_to_p_B10_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Be9_to_He4_Li6_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Be9 + p --> He4 + Li6
@@ -34176,7 +34176,7 @@ void rate_p_Be9_to_He4_Li6_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Be9_to_n_C12_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Be9 + He4 --> n + C12
@@ -34294,7 +34294,7 @@ void rate_He4_Be9_to_n_C12_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_B10_to_He4_Li7_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // B10 + n --> He4 + Li7
@@ -34329,7 +34329,7 @@ void rate_n_B10_to_He4_Li7_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_B10_to_He4_Be7_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // B10 + p --> He4 + Be7
@@ -34386,7 +34386,7 @@ void rate_p_B10_to_He4_Be7_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_B10_to_n_N13_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // B10 + He4 --> n + N13
@@ -34422,7 +34422,7 @@ void rate_He4_B10_to_n_N13_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_B10_to_p_C13_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // B10 + He4 --> p + C13
@@ -34458,7 +34458,7 @@ void rate_He4_B10_to_p_C13_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_B11_to_n_N14_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // B11 + He4 --> n + N14
@@ -34557,7 +34557,7 @@ void rate_He4_B11_to_n_N14_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_B11_to_p_C14_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // B11 + He4 --> p + C14
@@ -34677,7 +34677,7 @@ void rate_He4_B11_to_p_C14_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_C12_to_He4_Be9_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // C12 + n --> He4 + Be9
@@ -34795,7 +34795,7 @@ void rate_n_C12_to_He4_Be9_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_C12_to_n_O15_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // C12 + He4 --> n + O15
@@ -34831,7 +34831,7 @@ void rate_He4_C12_to_n_O15_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_C12_to_p_N15_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // C12 + He4 --> p + N15
@@ -34930,7 +34930,7 @@ void rate_He4_C12_to_p_N15_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_C12_C12_to_n_Mg23_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // C12 + C12 --> n + Mg23
@@ -34966,7 +34966,7 @@ void rate_C12_C12_to_n_Mg23_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_C12_C12_to_p_Na23_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // C12 + C12 --> p + Na23
@@ -35002,7 +35002,7 @@ void rate_C12_C12_to_p_Na23_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_C12_C12_to_He4_Ne20_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // C12 + C12 --> He4 + Ne20
@@ -35038,7 +35038,7 @@ void rate_C12_C12_to_He4_Ne20_reaclib(const tf_t& tfactors, const amrex::Real lo
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_C13_to_n_N13_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // C13 + p --> n + N13
@@ -35074,7 +35074,7 @@ void rate_p_C13_to_n_N13_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_C13_to_He4_B10_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // C13 + p --> He4 + B10
@@ -35110,7 +35110,7 @@ void rate_p_C13_to_He4_B10_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_d_C13_to_n_N14_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // C13 + d --> n + N14
@@ -35146,7 +35146,7 @@ void rate_d_C13_to_n_N14_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_C13_to_n_O16_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // C13 + He4 --> n + O16
@@ -35203,7 +35203,7 @@ void rate_He4_C13_to_n_O16_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_C14_to_n_N14_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // C14 + p --> n + N14
@@ -35260,7 +35260,7 @@ void rate_p_C14_to_n_N14_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_C14_to_He4_B11_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // C14 + p --> He4 + B11
@@ -35380,7 +35380,7 @@ void rate_p_C14_to_He4_B11_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_d_C14_to_n_N15_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // C14 + d --> n + N15
@@ -35437,7 +35437,7 @@ void rate_d_C14_to_n_N15_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_C14_to_n_O17_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // C14 + He4 --> n + O17
@@ -35513,7 +35513,7 @@ void rate_He4_C14_to_n_O17_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_N13_to_p_C13_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // N13 + n --> p + C13
@@ -35549,7 +35549,7 @@ void rate_n_N13_to_p_C13_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_N13_to_He4_B10_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // N13 + n --> He4 + B10
@@ -35585,7 +35585,7 @@ void rate_n_N13_to_He4_B10_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_N13_to_p_O16_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // N13 + He4 --> p + O16
@@ -35621,7 +35621,7 @@ void rate_He4_N13_to_p_O16_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_N14_to_p_C14_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // N14 + n --> p + C14
@@ -35678,7 +35678,7 @@ void rate_n_N14_to_p_C14_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_N14_to_d_C13_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // N14 + n --> d + C13
@@ -35714,7 +35714,7 @@ void rate_n_N14_to_d_C13_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_N14_to_He4_B11_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // N14 + n --> He4 + B11
@@ -35813,7 +35813,7 @@ void rate_n_N14_to_He4_B11_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_N14_to_n_O14_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // N14 + p --> n + O14
@@ -35849,7 +35849,7 @@ void rate_p_N14_to_n_O14_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_N14_to_n_F17_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // N14 + He4 --> n + F17
@@ -35885,7 +35885,7 @@ void rate_He4_N14_to_n_F17_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_N14_to_p_O17_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // N14 + He4 --> p + O17
@@ -35984,7 +35984,7 @@ void rate_He4_N14_to_p_O17_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_N15_to_d_C14_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // N15 + n --> d + C14
@@ -36041,7 +36041,7 @@ void rate_n_N15_to_d_C14_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_N15_to_n_O15_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // N15 + p --> n + O15
@@ -36077,7 +36077,7 @@ void rate_p_N15_to_n_O15_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_N15_to_He4_C12_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // N15 + p --> He4 + C12
@@ -36176,7 +36176,7 @@ void rate_p_N15_to_He4_C12_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_N15_to_n_F18_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // N15 + He4 --> n + F18
@@ -36212,7 +36212,7 @@ void rate_He4_N15_to_n_F18_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_N15_to_p_O18_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // N15 + He4 --> p + O18
@@ -36311,7 +36311,7 @@ void rate_He4_N15_to_p_O18_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_O14_to_p_N14_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O14 + n --> p + N14
@@ -36347,7 +36347,7 @@ void rate_n_O14_to_p_N14_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_O14_to_p_F17_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O14 + He4 --> p + F17
@@ -36488,7 +36488,7 @@ void rate_He4_O14_to_p_F17_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_O15_to_p_N15_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O15 + n --> p + N15
@@ -36524,7 +36524,7 @@ void rate_n_O15_to_p_N15_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_O15_to_He4_C12_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O15 + n --> He4 + C12
@@ -36560,7 +36560,7 @@ void rate_n_O15_to_He4_C12_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_O15_to_n_Ne18_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O15 + He4 --> n + Ne18
@@ -36596,7 +36596,7 @@ void rate_He4_O15_to_n_Ne18_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_O15_to_p_F18_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O15 + He4 --> p + F18
@@ -36674,7 +36674,7 @@ void rate_He4_O15_to_p_F18_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_O16_to_He4_C13_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O16 + n --> He4 + C13
@@ -36731,7 +36731,7 @@ void rate_n_O16_to_He4_C13_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_O16_to_He4_N13_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O16 + p --> He4 + N13
@@ -36767,7 +36767,7 @@ void rate_p_O16_to_He4_N13_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_O16_to_n_Ne19_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O16 + He4 --> n + Ne19
@@ -36803,7 +36803,7 @@ void rate_He4_O16_to_n_Ne19_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_O16_to_p_F19_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O16 + He4 --> p + F19
@@ -36923,7 +36923,7 @@ void rate_He4_O16_to_p_F19_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_C12_O16_to_p_Al27_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O16 + C12 --> p + Al27
@@ -36959,7 +36959,7 @@ void rate_C12_O16_to_p_Al27_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_C12_O16_to_He4_Mg24_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O16 + C12 --> He4 + Mg24
@@ -36995,7 +36995,7 @@ void rate_C12_O16_to_He4_Mg24_reaclib(const tf_t& tfactors, const amrex::Real lo
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_O16_O16_to_p_P31_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O16 + O16 --> p + P31
@@ -37031,7 +37031,7 @@ void rate_O16_O16_to_p_P31_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_O16_O16_to_He4_Si28_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O16 + O16 --> He4 + Si28
@@ -37067,7 +37067,7 @@ void rate_O16_O16_to_He4_Si28_reaclib(const tf_t& tfactors, const amrex::Real lo
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_O17_to_He4_C14_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O17 + n --> He4 + C14
@@ -37144,7 +37144,7 @@ void rate_n_O17_to_He4_C14_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_O17_to_n_F17_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O17 + p --> n + F17
@@ -37178,7 +37178,7 @@ void rate_p_O17_to_n_F17_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_O17_to_He4_N14_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O17 + p --> He4 + N14
@@ -37277,7 +37277,7 @@ void rate_p_O17_to_He4_N14_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_O17_to_n_Ne20_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O17 + He4 --> n + Ne20
@@ -37355,7 +37355,7 @@ void rate_He4_O17_to_n_Ne20_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_O18_to_n_F18_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O18 + p --> n + F18
@@ -37389,7 +37389,7 @@ void rate_p_O18_to_n_F18_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_O18_to_He4_N15_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O18 + p --> He4 + N15
@@ -37488,7 +37488,7 @@ void rate_p_O18_to_He4_N15_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_O18_to_n_Ne21_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // O18 + He4 --> n + Ne21
@@ -37564,7 +37564,7 @@ void rate_He4_O18_to_n_Ne21_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_F17_to_p_O17_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // F17 + n --> p + O17
@@ -37599,7 +37599,7 @@ void rate_n_F17_to_p_O17_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_F17_to_He4_N14_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // F17 + n --> He4 + N14
@@ -37635,7 +37635,7 @@ void rate_n_F17_to_He4_N14_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_F17_to_He4_O14_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // F17 + p --> He4 + O14
@@ -37776,7 +37776,7 @@ void rate_p_F17_to_He4_O14_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_F17_to_p_Ne20_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // F17 + He4 --> p + Ne20
@@ -37812,7 +37812,7 @@ void rate_He4_F17_to_p_Ne20_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_F18_to_p_O18_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // F18 + n --> p + O18
@@ -37847,7 +37847,7 @@ void rate_n_F18_to_p_O18_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_F18_to_He4_N15_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // F18 + n --> He4 + N15
@@ -37883,7 +37883,7 @@ void rate_n_F18_to_He4_N15_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_F18_to_n_Ne18_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // F18 + p --> n + Ne18
@@ -37919,7 +37919,7 @@ void rate_p_F18_to_n_Ne18_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_F18_to_He4_O15_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // F18 + p --> He4 + O15
@@ -37997,7 +37997,7 @@ void rate_p_F18_to_He4_O15_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_F18_to_n_Na21_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // F18 + He4 --> n + Na21
@@ -38033,7 +38033,7 @@ void rate_He4_F18_to_n_Na21_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_F18_to_p_Ne21_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // F18 + He4 --> p + Ne21
@@ -38069,7 +38069,7 @@ void rate_He4_F18_to_p_Ne21_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_F19_to_n_Ne19_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // F19 + p --> n + Ne19
@@ -38126,7 +38126,7 @@ void rate_p_F19_to_n_Ne19_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_F19_to_He4_O16_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // F19 + p --> He4 + O16
@@ -38246,7 +38246,7 @@ void rate_p_F19_to_He4_O16_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_F19_to_n_Na22_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // F19 + He4 --> n + Na22
@@ -38303,7 +38303,7 @@ void rate_He4_F19_to_n_Na22_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_F19_to_p_Ne22_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // F19 + He4 --> p + Ne22
@@ -38381,7 +38381,7 @@ void rate_He4_F19_to_p_Ne22_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ne18_to_p_F18_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne18 + n --> p + F18
@@ -38417,7 +38417,7 @@ void rate_n_Ne18_to_p_F18_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ne18_to_He4_O15_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne18 + n --> He4 + O15
@@ -38453,7 +38453,7 @@ void rate_n_Ne18_to_He4_O15_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ne18_to_p_Na21_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne18 + He4 --> p + Na21
@@ -38531,7 +38531,7 @@ void rate_He4_Ne18_to_p_Na21_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ne19_to_p_F19_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne19 + n --> p + F19
@@ -38588,7 +38588,7 @@ void rate_n_Ne19_to_p_F19_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ne19_to_He4_O16_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne19 + n --> He4 + O16
@@ -38624,7 +38624,7 @@ void rate_n_Ne19_to_He4_O16_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ne19_to_p_Na22_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne19 + He4 --> p + Na22
@@ -38660,7 +38660,7 @@ void rate_He4_Ne19_to_p_Na22_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ne20_to_He4_O17_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne20 + n --> He4 + O17
@@ -38738,7 +38738,7 @@ void rate_n_Ne20_to_He4_O17_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ne20_to_He4_F17_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne20 + p --> He4 + F17
@@ -38774,7 +38774,7 @@ void rate_p_Ne20_to_He4_F17_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ne20_to_n_Mg23_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne20 + He4 --> n + Mg23
@@ -38810,7 +38810,7 @@ void rate_He4_Ne20_to_n_Mg23_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ne20_to_p_Na23_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne20 + He4 --> p + Na23
@@ -38888,7 +38888,7 @@ void rate_He4_Ne20_to_p_Na23_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ne20_to_C12_C12_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne20 + He4 --> C12 + C12
@@ -38924,7 +38924,7 @@ void rate_He4_Ne20_to_C12_C12_reaclib(const tf_t& tfactors, const amrex::Real lo
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_C12_Ne20_to_p_P31_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne20 + C12 --> p + P31
@@ -38960,7 +38960,7 @@ void rate_C12_Ne20_to_p_P31_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_C12_Ne20_to_He4_Si28_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne20 + C12 --> He4 + Si28
@@ -38996,7 +38996,7 @@ void rate_C12_Ne20_to_He4_Si28_reaclib(const tf_t& tfactors, const amrex::Real l
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ne21_to_He4_O18_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne21 + n --> He4 + O18
@@ -39072,7 +39072,7 @@ void rate_n_Ne21_to_He4_O18_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ne21_to_n_Na21_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne21 + p --> n + Na21
@@ -39108,7 +39108,7 @@ void rate_p_Ne21_to_n_Na21_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ne21_to_He4_F18_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne21 + p --> He4 + F18
@@ -39144,7 +39144,7 @@ void rate_p_Ne21_to_He4_F18_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ne21_to_n_Mg24_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne21 + He4 --> n + Mg24
@@ -39201,7 +39201,7 @@ void rate_He4_Ne21_to_n_Mg24_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ne22_to_n_Na22_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne22 + p --> n + Na22
@@ -39237,7 +39237,7 @@ void rate_p_Ne22_to_n_Na22_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ne22_to_He4_F19_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne22 + p --> He4 + F19
@@ -39315,7 +39315,7 @@ void rate_p_Ne22_to_He4_F19_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ne22_to_n_Mg25_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ne22 + He4 --> n + Mg25
@@ -39393,7 +39393,7 @@ void rate_He4_Ne22_to_n_Mg25_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Na21_to_p_Ne21_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Na21 + n --> p + Ne21
@@ -39429,7 +39429,7 @@ void rate_n_Na21_to_p_Ne21_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Na21_to_He4_F18_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Na21 + n --> He4 + F18
@@ -39465,7 +39465,7 @@ void rate_n_Na21_to_He4_F18_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Na21_to_He4_Ne18_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Na21 + p --> He4 + Ne18
@@ -39543,7 +39543,7 @@ void rate_p_Na21_to_He4_Ne18_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Na21_to_p_Mg24_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Na21 + He4 --> p + Mg24
@@ -39579,7 +39579,7 @@ void rate_He4_Na21_to_p_Mg24_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Na22_to_p_Ne22_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Na22 + n --> p + Ne22
@@ -39615,7 +39615,7 @@ void rate_n_Na22_to_p_Ne22_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Na22_to_He4_F19_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Na22 + n --> He4 + F19
@@ -39672,7 +39672,7 @@ void rate_n_Na22_to_He4_F19_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Na22_to_He4_Ne19_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Na22 + p --> He4 + Ne19
@@ -39708,7 +39708,7 @@ void rate_p_Na22_to_He4_Ne19_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Na22_to_n_Al25_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Na22 + He4 --> n + Al25
@@ -39744,7 +39744,7 @@ void rate_He4_Na22_to_n_Al25_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Na22_to_p_Mg25_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Na22 + He4 --> p + Mg25
@@ -39780,7 +39780,7 @@ void rate_He4_Na22_to_p_Mg25_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Na23_to_n_Mg23_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Na23 + p --> n + Mg23
@@ -39816,7 +39816,7 @@ void rate_p_Na23_to_n_Mg23_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Na23_to_He4_Ne20_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Na23 + p --> He4 + Ne20
@@ -39894,7 +39894,7 @@ void rate_p_Na23_to_He4_Ne20_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Na23_to_C12_C12_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Na23 + p --> C12 + C12
@@ -39930,7 +39930,7 @@ void rate_p_Na23_to_C12_C12_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Na23_to_n_Al26_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Na23 + He4 --> n + Al26
@@ -40008,7 +40008,7 @@ void rate_He4_Na23_to_n_Al26_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Na23_to_p_Mg26_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Na23 + He4 --> p + Mg26
@@ -40044,7 +40044,7 @@ void rate_He4_Na23_to_p_Mg26_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Mg23_to_p_Na23_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mg23 + n --> p + Na23
@@ -40080,7 +40080,7 @@ void rate_n_Mg23_to_p_Na23_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Mg23_to_He4_Ne20_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mg23 + n --> He4 + Ne20
@@ -40116,7 +40116,7 @@ void rate_n_Mg23_to_He4_Ne20_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Mg23_to_C12_C12_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mg23 + n --> C12 + C12
@@ -40152,7 +40152,7 @@ void rate_n_Mg23_to_C12_C12_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Mg23_to_p_Al26_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mg23 + He4 --> p + Al26
@@ -40188,7 +40188,7 @@ void rate_He4_Mg23_to_p_Al26_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Mg24_to_He4_Ne21_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mg24 + n --> He4 + Ne21
@@ -40245,7 +40245,7 @@ void rate_n_Mg24_to_He4_Ne21_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Mg24_to_He4_Na21_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mg24 + p --> He4 + Na21
@@ -40281,7 +40281,7 @@ void rate_p_Mg24_to_He4_Na21_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Mg24_to_p_Al27_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mg24 + He4 --> p + Al27
@@ -40359,7 +40359,7 @@ void rate_He4_Mg24_to_p_Al27_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Mg24_to_C12_O16_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mg24 + He4 --> C12 + O16
@@ -40395,7 +40395,7 @@ void rate_He4_Mg24_to_C12_O16_reaclib(const tf_t& tfactors, const amrex::Real lo
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Mg25_to_He4_Ne22_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mg25 + n --> He4 + Ne22
@@ -40473,7 +40473,7 @@ void rate_n_Mg25_to_He4_Ne22_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Mg25_to_n_Al25_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mg25 + p --> n + Al25
@@ -40509,7 +40509,7 @@ void rate_p_Mg25_to_n_Al25_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Mg25_to_He4_Na22_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mg25 + p --> He4 + Na22
@@ -40545,7 +40545,7 @@ void rate_p_Mg25_to_He4_Na22_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Mg25_to_n_Si28_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mg25 + He4 --> n + Si28
@@ -40602,7 +40602,7 @@ void rate_He4_Mg25_to_n_Si28_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Mg26_to_n_Al26_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mg26 + p --> n + Al26
@@ -40680,7 +40680,7 @@ void rate_p_Mg26_to_n_Al26_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Mg26_to_He4_Na23_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mg26 + p --> He4 + Na23
@@ -40716,7 +40716,7 @@ void rate_p_Mg26_to_He4_Na23_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Mg26_to_n_Si29_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mg26 + He4 --> n + Si29
@@ -40773,7 +40773,7 @@ void rate_He4_Mg26_to_n_Si29_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Al25_to_p_Mg25_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Al25 + n --> p + Mg25
@@ -40809,7 +40809,7 @@ void rate_n_Al25_to_p_Mg25_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Al25_to_He4_Na22_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Al25 + n --> He4 + Na22
@@ -40845,7 +40845,7 @@ void rate_n_Al25_to_He4_Na22_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Al25_to_p_Si28_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Al25 + He4 --> p + Si28
@@ -40881,7 +40881,7 @@ void rate_He4_Al25_to_p_Si28_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Al26_to_p_Mg26_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Al26 + n --> p + Mg26
@@ -40959,7 +40959,7 @@ void rate_n_Al26_to_p_Mg26_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Al26_to_He4_Na23_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Al26 + n --> He4 + Na23
@@ -41037,7 +41037,7 @@ void rate_n_Al26_to_He4_Na23_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Al26_to_He4_Mg23_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Al26 + p --> He4 + Mg23
@@ -41073,7 +41073,7 @@ void rate_p_Al26_to_He4_Mg23_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Al26_to_n_P29_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Al26 + He4 --> n + P29
@@ -41109,7 +41109,7 @@ void rate_He4_Al26_to_n_P29_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Al26_to_p_Si29_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Al26 + He4 --> p + Si29
@@ -41145,7 +41145,7 @@ void rate_He4_Al26_to_p_Si29_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Al27_to_He4_Mg24_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Al27 + p --> He4 + Mg24
@@ -41223,7 +41223,7 @@ void rate_p_Al27_to_He4_Mg24_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Al27_to_C12_O16_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Al27 + p --> C12 + O16
@@ -41259,7 +41259,7 @@ void rate_p_Al27_to_C12_O16_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Al27_to_n_P30_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Al27 + He4 --> n + P30
@@ -41316,7 +41316,7 @@ void rate_He4_Al27_to_n_P30_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Al27_to_p_Si30_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Al27 + He4 --> p + Si30
@@ -41352,7 +41352,7 @@ void rate_He4_Al27_to_p_Si30_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Si28_to_He4_Mg25_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Si28 + n --> He4 + Mg25
@@ -41409,7 +41409,7 @@ void rate_n_Si28_to_He4_Mg25_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Si28_to_He4_Al25_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Si28 + p --> He4 + Al25
@@ -41445,7 +41445,7 @@ void rate_p_Si28_to_He4_Al25_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Si28_to_p_P31_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Si28 + He4 --> p + P31
@@ -41523,7 +41523,7 @@ void rate_He4_Si28_to_p_P31_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Si28_to_C12_Ne20_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Si28 + He4 --> C12 + Ne20
@@ -41559,7 +41559,7 @@ void rate_He4_Si28_to_C12_Ne20_reaclib(const tf_t& tfactors, const amrex::Real l
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Si28_to_O16_O16_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Si28 + He4 --> O16 + O16
@@ -41595,7 +41595,7 @@ void rate_He4_Si28_to_O16_O16_reaclib(const tf_t& tfactors, const amrex::Real lo
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Si29_to_He4_Mg26_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Si29 + n --> He4 + Mg26
@@ -41652,7 +41652,7 @@ void rate_n_Si29_to_He4_Mg26_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Si29_to_n_P29_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Si29 + p --> n + P29
@@ -41688,7 +41688,7 @@ void rate_p_Si29_to_n_P29_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Si29_to_He4_Al26_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Si29 + p --> He4 + Al26
@@ -41724,7 +41724,7 @@ void rate_p_Si29_to_He4_Al26_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Si29_to_n_S32_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Si29 + He4 --> n + S32
@@ -41760,7 +41760,7 @@ void rate_He4_Si29_to_n_S32_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Si29_to_p_P32_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Si29 + He4 --> p + P32
@@ -41796,7 +41796,7 @@ void rate_He4_Si29_to_p_P32_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Si30_to_n_P30_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Si30 + p --> n + P30
@@ -41832,7 +41832,7 @@ void rate_p_Si30_to_n_P30_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Si30_to_He4_Al27_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Si30 + p --> He4 + Al27
@@ -41868,7 +41868,7 @@ void rate_p_Si30_to_He4_Al27_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Si30_to_n_S33_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Si30 + He4 --> n + S33
@@ -41904,7 +41904,7 @@ void rate_He4_Si30_to_n_S33_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Si30_to_p_P33_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Si30 + He4 --> p + P33
@@ -41940,7 +41940,7 @@ void rate_He4_Si30_to_p_P33_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Si31_to_n_P31_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Si31 + p --> n + P31
@@ -41976,7 +41976,7 @@ void rate_p_Si31_to_n_P31_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Si31_to_n_S34_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Si31 + He4 --> n + S34
@@ -42012,7 +42012,7 @@ void rate_He4_Si31_to_n_S34_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Si32_to_n_P32_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Si32 + p --> n + P32
@@ -42048,7 +42048,7 @@ void rate_p_Si32_to_n_P32_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Si32_to_n_S35_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Si32 + He4 --> n + S35
@@ -42084,7 +42084,7 @@ void rate_He4_Si32_to_n_S35_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_P29_to_p_Si29_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P29 + n --> p + Si29
@@ -42120,7 +42120,7 @@ void rate_n_P29_to_p_Si29_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_P29_to_He4_Al26_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P29 + n --> He4 + Al26
@@ -42156,7 +42156,7 @@ void rate_n_P29_to_He4_Al26_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_P29_to_p_S32_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P29 + He4 --> p + S32
@@ -42192,7 +42192,7 @@ void rate_He4_P29_to_p_S32_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_P30_to_p_Si30_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P30 + n --> p + Si30
@@ -42228,7 +42228,7 @@ void rate_n_P30_to_p_Si30_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_P30_to_He4_Al27_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P30 + n --> He4 + Al27
@@ -42285,7 +42285,7 @@ void rate_n_P30_to_He4_Al27_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_P30_to_n_Cl33_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P30 + He4 --> n + Cl33
@@ -42321,7 +42321,7 @@ void rate_He4_P30_to_n_Cl33_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_P30_to_p_S33_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P30 + He4 --> p + S33
@@ -42357,7 +42357,7 @@ void rate_He4_P30_to_p_S33_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_P31_to_p_Si31_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P31 + n --> p + Si31
@@ -42393,7 +42393,7 @@ void rate_n_P31_to_p_Si31_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_P31_to_He4_Si28_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P31 + p --> He4 + Si28
@@ -42471,7 +42471,7 @@ void rate_p_P31_to_He4_Si28_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_P31_to_C12_Ne20_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P31 + p --> C12 + Ne20
@@ -42507,7 +42507,7 @@ void rate_p_P31_to_C12_Ne20_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_P31_to_O16_O16_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P31 + p --> O16 + O16
@@ -42543,7 +42543,7 @@ void rate_p_P31_to_O16_O16_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_P31_to_n_Cl34_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P31 + He4 --> n + Cl34
@@ -42579,7 +42579,7 @@ void rate_He4_P31_to_n_Cl34_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_P31_to_p_S34_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P31 + He4 --> p + S34
@@ -42615,7 +42615,7 @@ void rate_He4_P31_to_p_S34_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_P32_to_p_Si32_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P32 + n --> p + Si32
@@ -42651,7 +42651,7 @@ void rate_n_P32_to_p_Si32_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_P32_to_n_S32_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P32 + p --> n + S32
@@ -42687,7 +42687,7 @@ void rate_p_P32_to_n_S32_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_P32_to_He4_Si29_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P32 + p --> He4 + Si29
@@ -42723,7 +42723,7 @@ void rate_p_P32_to_He4_Si29_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_P32_to_n_Cl35_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P32 + He4 --> n + Cl35
@@ -42759,7 +42759,7 @@ void rate_He4_P32_to_n_Cl35_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_P32_to_p_S35_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P32 + He4 --> p + S35
@@ -42795,7 +42795,7 @@ void rate_He4_P32_to_p_S35_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_P33_to_n_S33_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P33 + p --> n + S33
@@ -42831,7 +42831,7 @@ void rate_p_P33_to_n_S33_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_P33_to_He4_Si30_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P33 + p --> He4 + Si30
@@ -42867,7 +42867,7 @@ void rate_p_P33_to_He4_Si30_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_P33_to_n_Cl36_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P33 + He4 --> n + Cl36
@@ -42903,7 +42903,7 @@ void rate_He4_P33_to_n_Cl36_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_P33_to_p_S36_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // P33 + He4 --> p + S36
@@ -42939,7 +42939,7 @@ void rate_He4_P33_to_p_S36_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_S32_to_p_P32_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S32 + n --> p + P32
@@ -42975,7 +42975,7 @@ void rate_n_S32_to_p_P32_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_S32_to_He4_Si29_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S32 + n --> He4 + Si29
@@ -43011,7 +43011,7 @@ void rate_n_S32_to_He4_Si29_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_S32_to_He4_P29_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S32 + p --> He4 + P29
@@ -43047,7 +43047,7 @@ void rate_p_S32_to_He4_P29_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_S32_to_p_Cl35_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S32 + He4 --> p + Cl35
@@ -43146,7 +43146,7 @@ void rate_He4_S32_to_p_Cl35_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_S33_to_p_P33_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S33 + n --> p + P33
@@ -43182,7 +43182,7 @@ void rate_n_S33_to_p_P33_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_S33_to_He4_Si30_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S33 + n --> He4 + Si30
@@ -43218,7 +43218,7 @@ void rate_n_S33_to_He4_Si30_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_S33_to_n_Cl33_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S33 + p --> n + Cl33
@@ -43254,7 +43254,7 @@ void rate_p_S33_to_n_Cl33_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_S33_to_He4_P30_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S33 + p --> He4 + P30
@@ -43290,7 +43290,7 @@ void rate_p_S33_to_He4_P30_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_S33_to_n_Ar36_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S33 + He4 --> n + Ar36
@@ -43326,7 +43326,7 @@ void rate_He4_S33_to_n_Ar36_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_S33_to_p_Cl36_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S33 + He4 --> p + Cl36
@@ -43362,7 +43362,7 @@ void rate_He4_S33_to_p_Cl36_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_S34_to_He4_Si31_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S34 + n --> He4 + Si31
@@ -43398,7 +43398,7 @@ void rate_n_S34_to_He4_Si31_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_S34_to_n_Cl34_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S34 + p --> n + Cl34
@@ -43434,7 +43434,7 @@ void rate_p_S34_to_n_Cl34_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_S34_to_He4_P31_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S34 + p --> He4 + P31
@@ -43470,7 +43470,7 @@ void rate_p_S34_to_He4_P31_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_S34_to_n_Ar37_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S34 + He4 --> n + Ar37
@@ -43527,7 +43527,7 @@ void rate_He4_S34_to_n_Ar37_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_S34_to_p_Cl37_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S34 + He4 --> p + Cl37
@@ -43563,7 +43563,7 @@ void rate_He4_S34_to_p_Cl37_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_S35_to_He4_Si32_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S35 + n --> He4 + Si32
@@ -43599,7 +43599,7 @@ void rate_n_S35_to_He4_Si32_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_S35_to_n_Cl35_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S35 + p --> n + Cl35
@@ -43635,7 +43635,7 @@ void rate_p_S35_to_n_Cl35_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_S35_to_He4_P32_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S35 + p --> He4 + P32
@@ -43671,7 +43671,7 @@ void rate_p_S35_to_He4_P32_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_S35_to_n_Ar38_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S35 + He4 --> n + Ar38
@@ -43707,7 +43707,7 @@ void rate_He4_S35_to_n_Ar38_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_S36_to_n_Cl36_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S36 + p --> n + Cl36
@@ -43743,7 +43743,7 @@ void rate_p_S36_to_n_Cl36_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_S36_to_He4_P33_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S36 + p --> He4 + P33
@@ -43779,7 +43779,7 @@ void rate_p_S36_to_He4_P33_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_S36_to_n_Ar39_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // S36 + He4 --> n + Ar39
@@ -43815,7 +43815,7 @@ void rate_He4_S36_to_n_Ar39_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cl33_to_p_S33_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl33 + n --> p + S33
@@ -43851,7 +43851,7 @@ void rate_n_Cl33_to_p_S33_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cl33_to_He4_P30_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl33 + n --> He4 + P30
@@ -43887,7 +43887,7 @@ void rate_n_Cl33_to_He4_P30_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cl33_to_p_Ar36_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl33 + He4 --> p + Ar36
@@ -43923,7 +43923,7 @@ void rate_He4_Cl33_to_p_Ar36_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cl34_to_p_S34_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl34 + n --> p + S34
@@ -43959,7 +43959,7 @@ void rate_n_Cl34_to_p_S34_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cl34_to_He4_P31_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl34 + n --> He4 + P31
@@ -43995,7 +43995,7 @@ void rate_n_Cl34_to_He4_P31_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cl34_to_n_K37_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl34 + He4 --> n + K37
@@ -44031,7 +44031,7 @@ void rate_He4_Cl34_to_n_K37_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cl34_to_p_Ar37_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl34 + He4 --> p + Ar37
@@ -44067,7 +44067,7 @@ void rate_He4_Cl34_to_p_Ar37_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cl35_to_p_S35_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl35 + n --> p + S35
@@ -44103,7 +44103,7 @@ void rate_n_Cl35_to_p_S35_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cl35_to_He4_P32_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl35 + n --> He4 + P32
@@ -44139,7 +44139,7 @@ void rate_n_Cl35_to_He4_P32_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cl35_to_He4_S32_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl35 + p --> He4 + S32
@@ -44238,7 +44238,7 @@ void rate_p_Cl35_to_He4_S32_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cl35_to_n_K38_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl35 + He4 --> n + K38
@@ -44274,7 +44274,7 @@ void rate_He4_Cl35_to_n_K38_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cl35_to_p_Ar38_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl35 + He4 --> p + Ar38
@@ -44310,7 +44310,7 @@ void rate_He4_Cl35_to_p_Ar38_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cl36_to_p_S36_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl36 + n --> p + S36
@@ -44346,7 +44346,7 @@ void rate_n_Cl36_to_p_S36_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cl36_to_He4_P33_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl36 + n --> He4 + P33
@@ -44382,7 +44382,7 @@ void rate_n_Cl36_to_He4_P33_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cl36_to_n_Ar36_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl36 + p --> n + Ar36
@@ -44418,7 +44418,7 @@ void rate_p_Cl36_to_n_Ar36_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cl36_to_He4_S33_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl36 + p --> He4 + S33
@@ -44454,7 +44454,7 @@ void rate_p_Cl36_to_He4_S33_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cl36_to_n_K39_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl36 + He4 --> n + K39
@@ -44490,7 +44490,7 @@ void rate_He4_Cl36_to_n_K39_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cl36_to_p_Ar39_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl36 + He4 --> p + Ar39
@@ -44526,7 +44526,7 @@ void rate_He4_Cl36_to_p_Ar39_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cl37_to_n_Ar37_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl37 + p --> n + Ar37
@@ -44562,7 +44562,7 @@ void rate_p_Cl37_to_n_Ar37_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cl37_to_He4_S34_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl37 + p --> He4 + S34
@@ -44598,7 +44598,7 @@ void rate_p_Cl37_to_He4_S34_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cl37_to_n_K40_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl37 + He4 --> n + K40
@@ -44634,7 +44634,7 @@ void rate_He4_Cl37_to_n_K40_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cl37_to_p_Ar40_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cl37 + He4 --> p + Ar40
@@ -44670,7 +44670,7 @@ void rate_He4_Cl37_to_p_Ar40_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ar36_to_p_Cl36_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar36 + n --> p + Cl36
@@ -44706,7 +44706,7 @@ void rate_n_Ar36_to_p_Cl36_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ar36_to_He4_S33_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar36 + n --> He4 + S33
@@ -44742,7 +44742,7 @@ void rate_n_Ar36_to_He4_S33_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ar36_to_He4_Cl33_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar36 + p --> He4 + Cl33
@@ -44778,7 +44778,7 @@ void rate_p_Ar36_to_He4_Cl33_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ar36_to_p_K39_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar36 + He4 --> p + K39
@@ -44814,7 +44814,7 @@ void rate_He4_Ar36_to_p_K39_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ar37_to_p_Cl37_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar37 + n --> p + Cl37
@@ -44850,7 +44850,7 @@ void rate_n_Ar37_to_p_Cl37_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ar37_to_He4_S34_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar37 + n --> He4 + S34
@@ -44907,7 +44907,7 @@ void rate_n_Ar37_to_He4_S34_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ar37_to_n_K37_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar37 + p --> n + K37
@@ -44943,7 +44943,7 @@ void rate_p_Ar37_to_n_K37_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ar37_to_He4_Cl34_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar37 + p --> He4 + Cl34
@@ -44979,7 +44979,7 @@ void rate_p_Ar37_to_He4_Cl34_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ar37_to_n_Ca40_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar37 + He4 --> n + Ca40
@@ -45015,7 +45015,7 @@ void rate_He4_Ar37_to_n_Ca40_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ar37_to_p_K40_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar37 + He4 --> p + K40
@@ -45051,7 +45051,7 @@ void rate_He4_Ar37_to_p_K40_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ar38_to_He4_S35_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar38 + n --> He4 + S35
@@ -45087,7 +45087,7 @@ void rate_n_Ar38_to_He4_S35_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ar38_to_n_K38_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar38 + p --> n + K38
@@ -45123,7 +45123,7 @@ void rate_p_Ar38_to_n_K38_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ar38_to_He4_Cl35_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar38 + p --> He4 + Cl35
@@ -45159,7 +45159,7 @@ void rate_p_Ar38_to_He4_Cl35_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ar38_to_n_Ca41_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar38 + He4 --> n + Ca41
@@ -45195,7 +45195,7 @@ void rate_He4_Ar38_to_n_Ca41_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ar38_to_p_K41_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar38 + He4 --> p + K41
@@ -45231,7 +45231,7 @@ void rate_He4_Ar38_to_p_K41_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ar39_to_He4_S36_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar39 + n --> He4 + S36
@@ -45267,7 +45267,7 @@ void rate_n_Ar39_to_He4_S36_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ar39_to_n_K39_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar39 + p --> n + K39
@@ -45303,7 +45303,7 @@ void rate_p_Ar39_to_n_K39_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ar39_to_He4_Cl36_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar39 + p --> He4 + Cl36
@@ -45339,7 +45339,7 @@ void rate_p_Ar39_to_He4_Cl36_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ar39_to_n_Ca42_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar39 + He4 --> n + Ca42
@@ -45375,7 +45375,7 @@ void rate_He4_Ar39_to_n_Ca42_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ar40_to_n_K40_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar40 + p --> n + K40
@@ -45411,7 +45411,7 @@ void rate_p_Ar40_to_n_K40_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ar40_to_He4_Cl37_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar40 + p --> He4 + Cl37
@@ -45447,7 +45447,7 @@ void rate_p_Ar40_to_He4_Cl37_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ar40_to_n_Ca43_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ar40 + He4 --> n + Ca43
@@ -45483,7 +45483,7 @@ void rate_He4_Ar40_to_n_Ca43_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_K37_to_p_Ar37_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K37 + n --> p + Ar37
@@ -45519,7 +45519,7 @@ void rate_n_K37_to_p_Ar37_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_K37_to_He4_Cl34_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K37 + n --> He4 + Cl34
@@ -45555,7 +45555,7 @@ void rate_n_K37_to_He4_Cl34_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_K37_to_p_Ca40_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K37 + He4 --> p + Ca40
@@ -45591,7 +45591,7 @@ void rate_He4_K37_to_p_Ca40_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_K38_to_p_Ar38_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K38 + n --> p + Ar38
@@ -45627,7 +45627,7 @@ void rate_n_K38_to_p_Ar38_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_K38_to_He4_Cl35_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K38 + n --> He4 + Cl35
@@ -45663,7 +45663,7 @@ void rate_n_K38_to_He4_Cl35_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_K38_to_p_Ca41_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K38 + He4 --> p + Ca41
@@ -45699,7 +45699,7 @@ void rate_He4_K38_to_p_Ca41_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_K39_to_p_Ar39_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K39 + n --> p + Ar39
@@ -45735,7 +45735,7 @@ void rate_n_K39_to_p_Ar39_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_K39_to_He4_Cl36_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K39 + n --> He4 + Cl36
@@ -45771,7 +45771,7 @@ void rate_n_K39_to_He4_Cl36_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_K39_to_He4_Ar36_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K39 + p --> He4 + Ar36
@@ -45807,7 +45807,7 @@ void rate_p_K39_to_He4_Ar36_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_K39_to_p_Ca42_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K39 + He4 --> p + Ca42
@@ -45843,7 +45843,7 @@ void rate_He4_K39_to_p_Ca42_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_K40_to_p_Ar40_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K40 + n --> p + Ar40
@@ -45879,7 +45879,7 @@ void rate_n_K40_to_p_Ar40_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_K40_to_He4_Cl37_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K40 + n --> He4 + Cl37
@@ -45915,7 +45915,7 @@ void rate_n_K40_to_He4_Cl37_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_K40_to_n_Ca40_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K40 + p --> n + Ca40
@@ -45951,7 +45951,7 @@ void rate_p_K40_to_n_Ca40_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_K40_to_He4_Ar37_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K40 + p --> He4 + Ar37
@@ -45987,7 +45987,7 @@ void rate_p_K40_to_He4_Ar37_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_K40_to_n_Sc43_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K40 + He4 --> n + Sc43
@@ -46023,7 +46023,7 @@ void rate_He4_K40_to_n_Sc43_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_K40_to_p_Ca43_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K40 + He4 --> p + Ca43
@@ -46059,7 +46059,7 @@ void rate_He4_K40_to_p_Ca43_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_K41_to_n_Ca41_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K41 + p --> n + Ca41
@@ -46116,7 +46116,7 @@ void rate_p_K41_to_n_Ca41_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_K41_to_He4_Ar38_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K41 + p --> He4 + Ar38
@@ -46152,7 +46152,7 @@ void rate_p_K41_to_He4_Ar38_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_K41_to_n_Sc44_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K41 + He4 --> n + Sc44
@@ -46209,7 +46209,7 @@ void rate_He4_K41_to_n_Sc44_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_K41_to_p_Ca44_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // K41 + He4 --> p + Ca44
@@ -46266,7 +46266,7 @@ void rate_He4_K41_to_p_Ca44_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ca40_to_p_K40_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca40 + n --> p + K40
@@ -46302,7 +46302,7 @@ void rate_n_Ca40_to_p_K40_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ca40_to_He4_Ar37_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca40 + n --> He4 + Ar37
@@ -46338,7 +46338,7 @@ void rate_n_Ca40_to_He4_Ar37_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ca40_to_He4_K37_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca40 + p --> He4 + K37
@@ -46374,7 +46374,7 @@ void rate_p_Ca40_to_He4_K37_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ca40_to_p_Sc43_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca40 + He4 --> p + Sc43
@@ -46410,7 +46410,7 @@ void rate_He4_Ca40_to_p_Sc43_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ca41_to_p_K41_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca41 + n --> p + K41
@@ -46467,7 +46467,7 @@ void rate_n_Ca41_to_p_K41_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ca41_to_He4_Ar38_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca41 + n --> He4 + Ar38
@@ -46503,7 +46503,7 @@ void rate_n_Ca41_to_He4_Ar38_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ca41_to_He4_K38_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca41 + p --> He4 + K38
@@ -46539,7 +46539,7 @@ void rate_p_Ca41_to_He4_K38_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ca41_to_n_Ti44_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca41 + He4 --> n + Ti44
@@ -46575,7 +46575,7 @@ void rate_He4_Ca41_to_n_Ti44_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ca41_to_p_Sc44_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca41 + He4 --> p + Sc44
@@ -46611,7 +46611,7 @@ void rate_He4_Ca41_to_p_Sc44_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ca42_to_He4_Ar39_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca42 + n --> He4 + Ar39
@@ -46647,7 +46647,7 @@ void rate_n_Ca42_to_He4_Ar39_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ca42_to_He4_K39_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca42 + p --> He4 + K39
@@ -46683,7 +46683,7 @@ void rate_p_Ca42_to_He4_K39_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ca42_to_n_Ti45_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca42 + He4 --> n + Ti45
@@ -46719,7 +46719,7 @@ void rate_He4_Ca42_to_n_Ti45_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ca42_to_p_Sc45_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca42 + He4 --> p + Sc45
@@ -46755,7 +46755,7 @@ void rate_He4_Ca42_to_p_Sc45_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ca43_to_He4_Ar40_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca43 + n --> He4 + Ar40
@@ -46791,7 +46791,7 @@ void rate_n_Ca43_to_He4_Ar40_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ca43_to_n_Sc43_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca43 + p --> n + Sc43
@@ -46827,7 +46827,7 @@ void rate_p_Ca43_to_n_Sc43_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ca43_to_He4_K40_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca43 + p --> He4 + K40
@@ -46863,7 +46863,7 @@ void rate_p_Ca43_to_He4_K40_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ca43_to_n_Ti46_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca43 + He4 --> n + Ti46
@@ -46899,7 +46899,7 @@ void rate_He4_Ca43_to_n_Ti46_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ca43_to_p_Sc46_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca43 + He4 --> p + Sc46
@@ -46935,7 +46935,7 @@ void rate_He4_Ca43_to_p_Sc46_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ca44_to_n_Sc44_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca44 + p --> n + Sc44
@@ -46971,7 +46971,7 @@ void rate_p_Ca44_to_n_Sc44_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ca44_to_He4_K41_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca44 + p --> He4 + K41
@@ -47028,7 +47028,7 @@ void rate_p_Ca44_to_He4_K41_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ca44_to_n_Ti47_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca44 + He4 --> n + Ti47
@@ -47064,7 +47064,7 @@ void rate_He4_Ca44_to_n_Ti47_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ca44_to_p_Sc47_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca44 + He4 --> p + Sc47
@@ -47100,7 +47100,7 @@ void rate_He4_Ca44_to_p_Sc47_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ca45_to_n_Sc45_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca45 + p --> n + Sc45
@@ -47136,7 +47136,7 @@ void rate_p_Ca45_to_n_Sc45_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ca45_to_n_Ti48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca45 + He4 --> n + Ti48
@@ -47172,7 +47172,7 @@ void rate_He4_Ca45_to_n_Ti48_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ca45_to_p_Sc48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca45 + He4 --> p + Sc48
@@ -47208,7 +47208,7 @@ void rate_He4_Ca45_to_p_Sc48_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ca46_to_n_Sc46_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca46 + p --> n + Sc46
@@ -47244,7 +47244,7 @@ void rate_p_Ca46_to_n_Sc46_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ca46_to_n_Ti49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca46 + He4 --> n + Ti49
@@ -47280,7 +47280,7 @@ void rate_He4_Ca46_to_n_Ti49_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ca46_to_p_Sc49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca46 + He4 --> p + Sc49
@@ -47316,7 +47316,7 @@ void rate_He4_Ca46_to_p_Sc49_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ca47_to_n_Sc47_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca47 + p --> n + Sc47
@@ -47352,7 +47352,7 @@ void rate_p_Ca47_to_n_Sc47_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ca47_to_n_Ti50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca47 + He4 --> n + Ti50
@@ -47388,7 +47388,7 @@ void rate_He4_Ca47_to_n_Ti50_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ca48_to_n_Sc48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca48 + p --> n + Sc48
@@ -47424,7 +47424,7 @@ void rate_p_Ca48_to_n_Sc48_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ca48_to_n_Ti51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ca48 + He4 --> n + Ti51
@@ -47460,7 +47460,7 @@ void rate_He4_Ca48_to_n_Ti51_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Sc43_to_p_Ca43_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc43 + n --> p + Ca43
@@ -47496,7 +47496,7 @@ void rate_n_Sc43_to_p_Ca43_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Sc43_to_He4_K40_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc43 + n --> He4 + K40
@@ -47532,7 +47532,7 @@ void rate_n_Sc43_to_He4_K40_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Sc43_to_He4_Ca40_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc43 + p --> He4 + Ca40
@@ -47568,7 +47568,7 @@ void rate_p_Sc43_to_He4_Ca40_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Sc43_to_n_V46_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc43 + He4 --> n + V46
@@ -47604,7 +47604,7 @@ void rate_He4_Sc43_to_n_V46_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Sc43_to_p_Ti46_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc43 + He4 --> p + Ti46
@@ -47640,7 +47640,7 @@ void rate_He4_Sc43_to_p_Ti46_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Sc44_to_p_Ca44_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc44 + n --> p + Ca44
@@ -47676,7 +47676,7 @@ void rate_n_Sc44_to_p_Ca44_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Sc44_to_He4_K41_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc44 + n --> He4 + K41
@@ -47733,7 +47733,7 @@ void rate_n_Sc44_to_He4_K41_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Sc44_to_n_Ti44_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc44 + p --> n + Ti44
@@ -47769,7 +47769,7 @@ void rate_p_Sc44_to_n_Ti44_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Sc44_to_He4_Ca41_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc44 + p --> He4 + Ca41
@@ -47805,7 +47805,7 @@ void rate_p_Sc44_to_He4_Ca41_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Sc44_to_n_V47_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc44 + He4 --> n + V47
@@ -47841,7 +47841,7 @@ void rate_He4_Sc44_to_n_V47_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Sc44_to_p_Ti47_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc44 + He4 --> p + Ti47
@@ -47877,7 +47877,7 @@ void rate_He4_Sc44_to_p_Ti47_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Sc45_to_p_Ca45_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc45 + n --> p + Ca45
@@ -47913,7 +47913,7 @@ void rate_n_Sc45_to_p_Ca45_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Sc45_to_n_Ti45_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc45 + p --> n + Ti45
@@ -47949,7 +47949,7 @@ void rate_p_Sc45_to_n_Ti45_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Sc45_to_He4_Ca42_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc45 + p --> He4 + Ca42
@@ -47985,7 +47985,7 @@ void rate_p_Sc45_to_He4_Ca42_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Sc45_to_n_V48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc45 + He4 --> n + V48
@@ -48021,7 +48021,7 @@ void rate_He4_Sc45_to_n_V48_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Sc45_to_p_Ti48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc45 + He4 --> p + Ti48
@@ -48057,7 +48057,7 @@ void rate_He4_Sc45_to_p_Ti48_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Sc46_to_p_Ca46_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc46 + n --> p + Ca46
@@ -48093,7 +48093,7 @@ void rate_n_Sc46_to_p_Ca46_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Sc46_to_n_Ti46_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc46 + p --> n + Ti46
@@ -48129,7 +48129,7 @@ void rate_p_Sc46_to_n_Ti46_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Sc46_to_He4_Ca43_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc46 + p --> He4 + Ca43
@@ -48165,7 +48165,7 @@ void rate_p_Sc46_to_He4_Ca43_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Sc46_to_n_V49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc46 + He4 --> n + V49
@@ -48201,7 +48201,7 @@ void rate_He4_Sc46_to_n_V49_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Sc46_to_p_Ti49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc46 + He4 --> p + Ti49
@@ -48237,7 +48237,7 @@ void rate_He4_Sc46_to_p_Ti49_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Sc47_to_p_Ca47_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc47 + n --> p + Ca47
@@ -48273,7 +48273,7 @@ void rate_n_Sc47_to_p_Ca47_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Sc47_to_n_Ti47_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc47 + p --> n + Ti47
@@ -48309,7 +48309,7 @@ void rate_p_Sc47_to_n_Ti47_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Sc47_to_He4_Ca44_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc47 + p --> He4 + Ca44
@@ -48345,7 +48345,7 @@ void rate_p_Sc47_to_He4_Ca44_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Sc47_to_n_V50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc47 + He4 --> n + V50
@@ -48381,7 +48381,7 @@ void rate_He4_Sc47_to_n_V50_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Sc47_to_p_Ti50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc47 + He4 --> p + Ti50
@@ -48417,7 +48417,7 @@ void rate_He4_Sc47_to_p_Ti50_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Sc48_to_p_Ca48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc48 + n --> p + Ca48
@@ -48453,7 +48453,7 @@ void rate_n_Sc48_to_p_Ca48_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Sc48_to_n_Ti48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc48 + p --> n + Ti48
@@ -48489,7 +48489,7 @@ void rate_p_Sc48_to_n_Ti48_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Sc48_to_He4_Ca45_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc48 + p --> He4 + Ca45
@@ -48525,7 +48525,7 @@ void rate_p_Sc48_to_He4_Ca45_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Sc48_to_n_V51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc48 + He4 --> n + V51
@@ -48561,7 +48561,7 @@ void rate_He4_Sc48_to_n_V51_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Sc48_to_p_Ti51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc48 + He4 --> p + Ti51
@@ -48597,7 +48597,7 @@ void rate_He4_Sc48_to_p_Ti51_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Sc49_to_n_Ti49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc49 + p --> n + Ti49
@@ -48633,7 +48633,7 @@ void rate_p_Sc49_to_n_Ti49_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Sc49_to_He4_Ca46_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc49 + p --> He4 + Ca46
@@ -48669,7 +48669,7 @@ void rate_p_Sc49_to_He4_Ca46_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Sc49_to_n_V52_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Sc49 + He4 --> n + V52
@@ -48705,7 +48705,7 @@ void rate_He4_Sc49_to_n_V52_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ti44_to_p_Sc44_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti44 + n --> p + Sc44
@@ -48741,7 +48741,7 @@ void rate_n_Ti44_to_p_Sc44_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ti44_to_He4_Ca41_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti44 + n --> He4 + Ca41
@@ -48777,7 +48777,7 @@ void rate_n_Ti44_to_He4_Ca41_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ti44_to_p_V47_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti44 + He4 --> p + V47
@@ -48813,7 +48813,7 @@ void rate_He4_Ti44_to_p_V47_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ti45_to_p_Sc45_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti45 + n --> p + Sc45
@@ -48849,7 +48849,7 @@ void rate_n_Ti45_to_p_Sc45_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ti45_to_He4_Ca42_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti45 + n --> He4 + Ca42
@@ -48885,7 +48885,7 @@ void rate_n_Ti45_to_He4_Ca42_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ti45_to_n_Cr48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti45 + He4 --> n + Cr48
@@ -48921,7 +48921,7 @@ void rate_He4_Ti45_to_n_Cr48_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ti45_to_p_V48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti45 + He4 --> p + V48
@@ -48957,7 +48957,7 @@ void rate_He4_Ti45_to_p_V48_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ti46_to_p_Sc46_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti46 + n --> p + Sc46
@@ -48993,7 +48993,7 @@ void rate_n_Ti46_to_p_Sc46_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ti46_to_He4_Ca43_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti46 + n --> He4 + Ca43
@@ -49029,7 +49029,7 @@ void rate_n_Ti46_to_He4_Ca43_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ti46_to_n_V46_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti46 + p --> n + V46
@@ -49065,7 +49065,7 @@ void rate_p_Ti46_to_n_V46_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ti46_to_He4_Sc43_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti46 + p --> He4 + Sc43
@@ -49101,7 +49101,7 @@ void rate_p_Ti46_to_He4_Sc43_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ti46_to_n_Cr49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti46 + He4 --> n + Cr49
@@ -49137,7 +49137,7 @@ void rate_He4_Ti46_to_n_Cr49_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ti46_to_p_V49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti46 + He4 --> p + V49
@@ -49173,7 +49173,7 @@ void rate_He4_Ti46_to_p_V49_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ti47_to_p_Sc47_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti47 + n --> p + Sc47
@@ -49209,7 +49209,7 @@ void rate_n_Ti47_to_p_Sc47_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ti47_to_He4_Ca44_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti47 + n --> He4 + Ca44
@@ -49245,7 +49245,7 @@ void rate_n_Ti47_to_He4_Ca44_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ti47_to_n_V47_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti47 + p --> n + V47
@@ -49281,7 +49281,7 @@ void rate_p_Ti47_to_n_V47_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ti47_to_He4_Sc44_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti47 + p --> He4 + Sc44
@@ -49317,7 +49317,7 @@ void rate_p_Ti47_to_He4_Sc44_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ti47_to_n_Cr50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti47 + He4 --> n + Cr50
@@ -49353,7 +49353,7 @@ void rate_He4_Ti47_to_n_Cr50_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ti47_to_p_V50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti47 + He4 --> p + V50
@@ -49389,7 +49389,7 @@ void rate_He4_Ti47_to_p_V50_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ti48_to_p_Sc48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti48 + n --> p + Sc48
@@ -49425,7 +49425,7 @@ void rate_n_Ti48_to_p_Sc48_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ti48_to_He4_Ca45_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti48 + n --> He4 + Ca45
@@ -49461,7 +49461,7 @@ void rate_n_Ti48_to_He4_Ca45_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ti48_to_n_V48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti48 + p --> n + V48
@@ -49497,7 +49497,7 @@ void rate_p_Ti48_to_n_V48_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ti48_to_He4_Sc45_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti48 + p --> He4 + Sc45
@@ -49533,7 +49533,7 @@ void rate_p_Ti48_to_He4_Sc45_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ti48_to_n_Cr51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti48 + He4 --> n + Cr51
@@ -49569,7 +49569,7 @@ void rate_He4_Ti48_to_n_Cr51_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ti48_to_p_V51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti48 + He4 --> p + V51
@@ -49605,7 +49605,7 @@ void rate_He4_Ti48_to_p_V51_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ti49_to_p_Sc49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti49 + n --> p + Sc49
@@ -49641,7 +49641,7 @@ void rate_n_Ti49_to_p_Sc49_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ti49_to_He4_Ca46_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti49 + n --> He4 + Ca46
@@ -49677,7 +49677,7 @@ void rate_n_Ti49_to_He4_Ca46_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ti49_to_n_V49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti49 + p --> n + V49
@@ -49713,7 +49713,7 @@ void rate_p_Ti49_to_n_V49_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ti49_to_He4_Sc46_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti49 + p --> He4 + Sc46
@@ -49749,7 +49749,7 @@ void rate_p_Ti49_to_He4_Sc46_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ti49_to_n_Cr52_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti49 + He4 --> n + Cr52
@@ -49785,7 +49785,7 @@ void rate_He4_Ti49_to_n_Cr52_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ti49_to_p_V52_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti49 + He4 --> p + V52
@@ -49821,7 +49821,7 @@ void rate_He4_Ti49_to_p_V52_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ti50_to_He4_Ca47_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti50 + n --> He4 + Ca47
@@ -49857,7 +49857,7 @@ void rate_n_Ti50_to_He4_Ca47_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ti50_to_n_V50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti50 + p --> n + V50
@@ -49893,7 +49893,7 @@ void rate_p_Ti50_to_n_V50_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ti50_to_He4_Sc47_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti50 + p --> He4 + Sc47
@@ -49929,7 +49929,7 @@ void rate_p_Ti50_to_He4_Sc47_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ti50_to_n_Cr53_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti50 + He4 --> n + Cr53
@@ -49965,7 +49965,7 @@ void rate_He4_Ti50_to_n_Cr53_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ti51_to_He4_Ca48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti51 + n --> He4 + Ca48
@@ -50001,7 +50001,7 @@ void rate_n_Ti51_to_He4_Ca48_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ti51_to_n_V51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti51 + p --> n + V51
@@ -50037,7 +50037,7 @@ void rate_p_Ti51_to_n_V51_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ti51_to_He4_Sc48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti51 + p --> He4 + Sc48
@@ -50073,7 +50073,7 @@ void rate_p_Ti51_to_He4_Sc48_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ti51_to_n_Cr54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ti51 + He4 --> n + Cr54
@@ -50109,7 +50109,7 @@ void rate_He4_Ti51_to_n_Cr54_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_V46_to_p_Ti46_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V46 + n --> p + Ti46
@@ -50145,7 +50145,7 @@ void rate_n_V46_to_p_Ti46_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_V46_to_He4_Sc43_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V46 + n --> He4 + Sc43
@@ -50181,7 +50181,7 @@ void rate_n_V46_to_He4_Sc43_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_V46_to_p_Cr49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V46 + He4 --> p + Cr49
@@ -50217,7 +50217,7 @@ void rate_He4_V46_to_p_Cr49_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_V47_to_p_Ti47_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V47 + n --> p + Ti47
@@ -50253,7 +50253,7 @@ void rate_n_V47_to_p_Ti47_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_V47_to_He4_Sc44_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V47 + n --> He4 + Sc44
@@ -50289,7 +50289,7 @@ void rate_n_V47_to_He4_Sc44_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_V47_to_He4_Ti44_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V47 + p --> He4 + Ti44
@@ -50325,7 +50325,7 @@ void rate_p_V47_to_He4_Ti44_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_V47_to_n_Mn50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V47 + He4 --> n + Mn50
@@ -50361,7 +50361,7 @@ void rate_He4_V47_to_n_Mn50_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_V47_to_p_Cr50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V47 + He4 --> p + Cr50
@@ -50397,7 +50397,7 @@ void rate_He4_V47_to_p_Cr50_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_V48_to_p_Ti48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V48 + n --> p + Ti48
@@ -50433,7 +50433,7 @@ void rate_n_V48_to_p_Ti48_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_V48_to_He4_Sc45_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V48 + n --> He4 + Sc45
@@ -50469,7 +50469,7 @@ void rate_n_V48_to_He4_Sc45_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_V48_to_n_Cr48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V48 + p --> n + Cr48
@@ -50505,7 +50505,7 @@ void rate_p_V48_to_n_Cr48_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_V48_to_He4_Ti45_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V48 + p --> He4 + Ti45
@@ -50541,7 +50541,7 @@ void rate_p_V48_to_He4_Ti45_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_V48_to_n_Mn51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V48 + He4 --> n + Mn51
@@ -50577,7 +50577,7 @@ void rate_He4_V48_to_n_Mn51_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_V48_to_p_Cr51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V48 + He4 --> p + Cr51
@@ -50613,7 +50613,7 @@ void rate_He4_V48_to_p_Cr51_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_V49_to_p_Ti49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V49 + n --> p + Ti49
@@ -50649,7 +50649,7 @@ void rate_n_V49_to_p_Ti49_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_V49_to_He4_Sc46_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V49 + n --> He4 + Sc46
@@ -50685,7 +50685,7 @@ void rate_n_V49_to_He4_Sc46_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_V49_to_n_Cr49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V49 + p --> n + Cr49
@@ -50721,7 +50721,7 @@ void rate_p_V49_to_n_Cr49_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_V49_to_He4_Ti46_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V49 + p --> He4 + Ti46
@@ -50757,7 +50757,7 @@ void rate_p_V49_to_He4_Ti46_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_V49_to_n_Mn52_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V49 + He4 --> n + Mn52
@@ -50793,7 +50793,7 @@ void rate_He4_V49_to_n_Mn52_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_V49_to_p_Cr52_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V49 + He4 --> p + Cr52
@@ -50829,7 +50829,7 @@ void rate_He4_V49_to_p_Cr52_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_V50_to_p_Ti50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V50 + n --> p + Ti50
@@ -50865,7 +50865,7 @@ void rate_n_V50_to_p_Ti50_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_V50_to_He4_Sc47_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V50 + n --> He4 + Sc47
@@ -50901,7 +50901,7 @@ void rate_n_V50_to_He4_Sc47_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_V50_to_n_Cr50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V50 + p --> n + Cr50
@@ -50937,7 +50937,7 @@ void rate_p_V50_to_n_Cr50_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_V50_to_He4_Ti47_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V50 + p --> He4 + Ti47
@@ -50973,7 +50973,7 @@ void rate_p_V50_to_He4_Ti47_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_V50_to_n_Mn53_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V50 + He4 --> n + Mn53
@@ -51009,7 +51009,7 @@ void rate_He4_V50_to_n_Mn53_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_V50_to_p_Cr53_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V50 + He4 --> p + Cr53
@@ -51045,7 +51045,7 @@ void rate_He4_V50_to_p_Cr53_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_V51_to_p_Ti51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V51 + n --> p + Ti51
@@ -51081,7 +51081,7 @@ void rate_n_V51_to_p_Ti51_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_V51_to_He4_Sc48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V51 + n --> He4 + Sc48
@@ -51117,7 +51117,7 @@ void rate_n_V51_to_He4_Sc48_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_V51_to_n_Cr51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V51 + p --> n + Cr51
@@ -51153,7 +51153,7 @@ void rate_p_V51_to_n_Cr51_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_V51_to_He4_Ti48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V51 + p --> He4 + Ti48
@@ -51189,7 +51189,7 @@ void rate_p_V51_to_He4_Ti48_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_V51_to_n_Mn54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V51 + He4 --> n + Mn54
@@ -51225,7 +51225,7 @@ void rate_He4_V51_to_n_Mn54_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_V51_to_p_Cr54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V51 + He4 --> p + Cr54
@@ -51261,7 +51261,7 @@ void rate_He4_V51_to_p_Cr54_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_V52_to_He4_Sc49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V52 + n --> He4 + Sc49
@@ -51297,7 +51297,7 @@ void rate_n_V52_to_He4_Sc49_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_V52_to_n_Cr52_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V52 + p --> n + Cr52
@@ -51333,7 +51333,7 @@ void rate_p_V52_to_n_Cr52_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_V52_to_He4_Ti49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V52 + p --> He4 + Ti49
@@ -51369,7 +51369,7 @@ void rate_p_V52_to_He4_Ti49_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_V52_to_n_Mn55_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // V52 + He4 --> n + Mn55
@@ -51405,7 +51405,7 @@ void rate_He4_V52_to_n_Mn55_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cr48_to_p_V48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr48 + n --> p + V48
@@ -51441,7 +51441,7 @@ void rate_n_Cr48_to_p_V48_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cr48_to_He4_Ti45_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr48 + n --> He4 + Ti45
@@ -51477,7 +51477,7 @@ void rate_n_Cr48_to_He4_Ti45_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cr48_to_p_Mn51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr48 + He4 --> p + Mn51
@@ -51513,7 +51513,7 @@ void rate_He4_Cr48_to_p_Mn51_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cr49_to_p_V49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr49 + n --> p + V49
@@ -51549,7 +51549,7 @@ void rate_n_Cr49_to_p_V49_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cr49_to_He4_Ti46_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr49 + n --> He4 + Ti46
@@ -51585,7 +51585,7 @@ void rate_n_Cr49_to_He4_Ti46_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cr49_to_He4_V46_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr49 + p --> He4 + V46
@@ -51621,7 +51621,7 @@ void rate_p_Cr49_to_He4_V46_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cr49_to_n_Fe52_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr49 + He4 --> n + Fe52
@@ -51657,7 +51657,7 @@ void rate_He4_Cr49_to_n_Fe52_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cr49_to_p_Mn52_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr49 + He4 --> p + Mn52
@@ -51693,7 +51693,7 @@ void rate_He4_Cr49_to_p_Mn52_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cr50_to_p_V50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr50 + n --> p + V50
@@ -51729,7 +51729,7 @@ void rate_n_Cr50_to_p_V50_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cr50_to_He4_Ti47_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr50 + n --> He4 + Ti47
@@ -51765,7 +51765,7 @@ void rate_n_Cr50_to_He4_Ti47_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cr50_to_n_Mn50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr50 + p --> n + Mn50
@@ -51801,7 +51801,7 @@ void rate_p_Cr50_to_n_Mn50_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cr50_to_He4_V47_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr50 + p --> He4 + V47
@@ -51837,7 +51837,7 @@ void rate_p_Cr50_to_He4_V47_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cr50_to_n_Fe53_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr50 + He4 --> n + Fe53
@@ -51873,7 +51873,7 @@ void rate_He4_Cr50_to_n_Fe53_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cr50_to_p_Mn53_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr50 + He4 --> p + Mn53
@@ -51909,7 +51909,7 @@ void rate_He4_Cr50_to_p_Mn53_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cr51_to_p_V51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr51 + n --> p + V51
@@ -51945,7 +51945,7 @@ void rate_n_Cr51_to_p_V51_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cr51_to_He4_Ti48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr51 + n --> He4 + Ti48
@@ -51981,7 +51981,7 @@ void rate_n_Cr51_to_He4_Ti48_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cr51_to_n_Mn51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr51 + p --> n + Mn51
@@ -52017,7 +52017,7 @@ void rate_p_Cr51_to_n_Mn51_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cr51_to_He4_V48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr51 + p --> He4 + V48
@@ -52053,7 +52053,7 @@ void rate_p_Cr51_to_He4_V48_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cr51_to_n_Fe54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr51 + He4 --> n + Fe54
@@ -52089,7 +52089,7 @@ void rate_He4_Cr51_to_n_Fe54_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cr51_to_p_Mn54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr51 + He4 --> p + Mn54
@@ -52125,7 +52125,7 @@ void rate_He4_Cr51_to_p_Mn54_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cr52_to_p_V52_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr52 + n --> p + V52
@@ -52161,7 +52161,7 @@ void rate_n_Cr52_to_p_V52_reaclib(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cr52_to_He4_Ti49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr52 + n --> He4 + Ti49
@@ -52197,7 +52197,7 @@ void rate_n_Cr52_to_He4_Ti49_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cr52_to_n_Mn52_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr52 + p --> n + Mn52
@@ -52233,7 +52233,7 @@ void rate_p_Cr52_to_n_Mn52_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cr52_to_He4_V49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr52 + p --> He4 + V49
@@ -52269,7 +52269,7 @@ void rate_p_Cr52_to_He4_V49_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cr52_to_n_Fe55_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr52 + He4 --> n + Fe55
@@ -52305,7 +52305,7 @@ void rate_He4_Cr52_to_n_Fe55_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cr52_to_p_Mn55_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr52 + He4 --> p + Mn55
@@ -52341,7 +52341,7 @@ void rate_He4_Cr52_to_p_Mn55_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cr53_to_He4_Ti50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr53 + n --> He4 + Ti50
@@ -52377,7 +52377,7 @@ void rate_n_Cr53_to_He4_Ti50_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cr53_to_n_Mn53_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr53 + p --> n + Mn53
@@ -52413,7 +52413,7 @@ void rate_p_Cr53_to_n_Mn53_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cr53_to_He4_V50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr53 + p --> He4 + V50
@@ -52449,7 +52449,7 @@ void rate_p_Cr53_to_He4_V50_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cr53_to_n_Fe56_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr53 + He4 --> n + Fe56
@@ -52485,7 +52485,7 @@ void rate_He4_Cr53_to_n_Fe56_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cr54_to_He4_Ti51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr54 + n --> He4 + Ti51
@@ -52521,7 +52521,7 @@ void rate_n_Cr54_to_He4_Ti51_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cr54_to_n_Mn54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr54 + p --> n + Mn54
@@ -52557,7 +52557,7 @@ void rate_p_Cr54_to_n_Mn54_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cr54_to_He4_V51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr54 + p --> He4 + V51
@@ -52593,7 +52593,7 @@ void rate_p_Cr54_to_He4_V51_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cr54_to_n_Fe57_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cr54 + He4 --> n + Fe57
@@ -52629,7 +52629,7 @@ void rate_He4_Cr54_to_n_Fe57_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Mn50_to_p_Cr50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn50 + n --> p + Cr50
@@ -52665,7 +52665,7 @@ void rate_n_Mn50_to_p_Cr50_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Mn50_to_He4_V47_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn50 + n --> He4 + V47
@@ -52701,7 +52701,7 @@ void rate_n_Mn50_to_He4_V47_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Mn50_to_n_Co53_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn50 + He4 --> n + Co53
@@ -52737,7 +52737,7 @@ void rate_He4_Mn50_to_n_Co53_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Mn50_to_p_Fe53_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn50 + He4 --> p + Fe53
@@ -52773,7 +52773,7 @@ void rate_He4_Mn50_to_p_Fe53_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Mn51_to_p_Cr51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn51 + n --> p + Cr51
@@ -52809,7 +52809,7 @@ void rate_n_Mn51_to_p_Cr51_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Mn51_to_He4_V48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn51 + n --> He4 + V48
@@ -52845,7 +52845,7 @@ void rate_n_Mn51_to_He4_V48_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Mn51_to_He4_Cr48_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn51 + p --> He4 + Cr48
@@ -52881,7 +52881,7 @@ void rate_p_Mn51_to_He4_Cr48_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Mn51_to_n_Co54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn51 + He4 --> n + Co54
@@ -52917,7 +52917,7 @@ void rate_He4_Mn51_to_n_Co54_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Mn51_to_p_Fe54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn51 + He4 --> p + Fe54
@@ -52953,7 +52953,7 @@ void rate_He4_Mn51_to_p_Fe54_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Mn52_to_p_Cr52_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn52 + n --> p + Cr52
@@ -52989,7 +52989,7 @@ void rate_n_Mn52_to_p_Cr52_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Mn52_to_He4_V49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn52 + n --> He4 + V49
@@ -53025,7 +53025,7 @@ void rate_n_Mn52_to_He4_V49_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Mn52_to_n_Fe52_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn52 + p --> n + Fe52
@@ -53061,7 +53061,7 @@ void rate_p_Mn52_to_n_Fe52_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Mn52_to_He4_Cr49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn52 + p --> He4 + Cr49
@@ -53097,7 +53097,7 @@ void rate_p_Mn52_to_He4_Cr49_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Mn52_to_n_Co55_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn52 + He4 --> n + Co55
@@ -53133,7 +53133,7 @@ void rate_He4_Mn52_to_n_Co55_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Mn52_to_p_Fe55_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn52 + He4 --> p + Fe55
@@ -53169,7 +53169,7 @@ void rate_He4_Mn52_to_p_Fe55_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Mn53_to_p_Cr53_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn53 + n --> p + Cr53
@@ -53205,7 +53205,7 @@ void rate_n_Mn53_to_p_Cr53_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Mn53_to_He4_V50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn53 + n --> He4 + V50
@@ -53241,7 +53241,7 @@ void rate_n_Mn53_to_He4_V50_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Mn53_to_n_Fe53_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn53 + p --> n + Fe53
@@ -53277,7 +53277,7 @@ void rate_p_Mn53_to_n_Fe53_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Mn53_to_He4_Cr50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn53 + p --> He4 + Cr50
@@ -53313,7 +53313,7 @@ void rate_p_Mn53_to_He4_Cr50_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Mn53_to_n_Co56_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn53 + He4 --> n + Co56
@@ -53349,7 +53349,7 @@ void rate_He4_Mn53_to_n_Co56_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Mn53_to_p_Fe56_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn53 + He4 --> p + Fe56
@@ -53385,7 +53385,7 @@ void rate_He4_Mn53_to_p_Fe56_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Mn54_to_p_Cr54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn54 + n --> p + Cr54
@@ -53421,7 +53421,7 @@ void rate_n_Mn54_to_p_Cr54_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Mn54_to_He4_V51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn54 + n --> He4 + V51
@@ -53457,7 +53457,7 @@ void rate_n_Mn54_to_He4_V51_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Mn54_to_n_Fe54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn54 + p --> n + Fe54
@@ -53493,7 +53493,7 @@ void rate_p_Mn54_to_n_Fe54_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Mn54_to_He4_Cr51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn54 + p --> He4 + Cr51
@@ -53529,7 +53529,7 @@ void rate_p_Mn54_to_He4_Cr51_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Mn54_to_n_Co57_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn54 + He4 --> n + Co57
@@ -53565,7 +53565,7 @@ void rate_He4_Mn54_to_n_Co57_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Mn54_to_p_Fe57_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn54 + He4 --> p + Fe57
@@ -53601,7 +53601,7 @@ void rate_He4_Mn54_to_p_Fe57_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Mn55_to_He4_V52_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn55 + n --> He4 + V52
@@ -53637,7 +53637,7 @@ void rate_n_Mn55_to_He4_V52_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Mn55_to_n_Fe55_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn55 + p --> n + Fe55
@@ -53673,7 +53673,7 @@ void rate_p_Mn55_to_n_Fe55_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Mn55_to_He4_Cr52_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn55 + p --> He4 + Cr52
@@ -53709,7 +53709,7 @@ void rate_p_Mn55_to_He4_Cr52_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Mn55_to_n_Co58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn55 + He4 --> n + Co58
@@ -53745,7 +53745,7 @@ void rate_He4_Mn55_to_n_Co58_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Mn55_to_p_Fe58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Mn55 + He4 --> p + Fe58
@@ -53781,7 +53781,7 @@ void rate_He4_Mn55_to_p_Fe58_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Fe52_to_p_Mn52_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe52 + n --> p + Mn52
@@ -53817,7 +53817,7 @@ void rate_n_Fe52_to_p_Mn52_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Fe52_to_He4_Cr49_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe52 + n --> He4 + Cr49
@@ -53853,7 +53853,7 @@ void rate_n_Fe52_to_He4_Cr49_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Fe52_to_p_Co55_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe52 + He4 --> p + Co55
@@ -53889,7 +53889,7 @@ void rate_He4_Fe52_to_p_Co55_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Fe53_to_p_Mn53_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe53 + n --> p + Mn53
@@ -53925,7 +53925,7 @@ void rate_n_Fe53_to_p_Mn53_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Fe53_to_He4_Cr50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe53 + n --> He4 + Cr50
@@ -53961,7 +53961,7 @@ void rate_n_Fe53_to_He4_Cr50_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Fe53_to_n_Co53_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe53 + p --> n + Co53
@@ -53997,7 +53997,7 @@ void rate_p_Fe53_to_n_Co53_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Fe53_to_He4_Mn50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe53 + p --> He4 + Mn50
@@ -54033,7 +54033,7 @@ void rate_p_Fe53_to_He4_Mn50_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Fe53_to_n_Ni56_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe53 + He4 --> n + Ni56
@@ -54069,7 +54069,7 @@ void rate_He4_Fe53_to_n_Ni56_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Fe53_to_p_Co56_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe53 + He4 --> p + Co56
@@ -54105,7 +54105,7 @@ void rate_He4_Fe53_to_p_Co56_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Fe54_to_p_Mn54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe54 + n --> p + Mn54
@@ -54141,7 +54141,7 @@ void rate_n_Fe54_to_p_Mn54_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Fe54_to_He4_Cr51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe54 + n --> He4 + Cr51
@@ -54177,7 +54177,7 @@ void rate_n_Fe54_to_He4_Cr51_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Fe54_to_n_Co54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe54 + p --> n + Co54
@@ -54213,7 +54213,7 @@ void rate_p_Fe54_to_n_Co54_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Fe54_to_He4_Mn51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe54 + p --> He4 + Mn51
@@ -54249,7 +54249,7 @@ void rate_p_Fe54_to_He4_Mn51_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Fe54_to_n_Ni57_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe54 + He4 --> n + Ni57
@@ -54285,7 +54285,7 @@ void rate_He4_Fe54_to_n_Ni57_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Fe54_to_p_Co57_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe54 + He4 --> p + Co57
@@ -54321,7 +54321,7 @@ void rate_He4_Fe54_to_p_Co57_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Fe55_to_p_Mn55_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe55 + n --> p + Mn55
@@ -54357,7 +54357,7 @@ void rate_n_Fe55_to_p_Mn55_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Fe55_to_He4_Cr52_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe55 + n --> He4 + Cr52
@@ -54393,7 +54393,7 @@ void rate_n_Fe55_to_He4_Cr52_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Fe55_to_n_Co55_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe55 + p --> n + Co55
@@ -54429,7 +54429,7 @@ void rate_p_Fe55_to_n_Co55_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Fe55_to_He4_Mn52_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe55 + p --> He4 + Mn52
@@ -54465,7 +54465,7 @@ void rate_p_Fe55_to_He4_Mn52_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Fe55_to_n_Ni58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe55 + He4 --> n + Ni58
@@ -54501,7 +54501,7 @@ void rate_He4_Fe55_to_n_Ni58_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Fe55_to_p_Co58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe55 + He4 --> p + Co58
@@ -54537,7 +54537,7 @@ void rate_He4_Fe55_to_p_Co58_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Fe56_to_He4_Cr53_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe56 + n --> He4 + Cr53
@@ -54573,7 +54573,7 @@ void rate_n_Fe56_to_He4_Cr53_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Fe56_to_n_Co56_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe56 + p --> n + Co56
@@ -54609,7 +54609,7 @@ void rate_p_Fe56_to_n_Co56_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Fe56_to_He4_Mn53_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe56 + p --> He4 + Mn53
@@ -54645,7 +54645,7 @@ void rate_p_Fe56_to_He4_Mn53_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Fe56_to_n_Ni59_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe56 + He4 --> n + Ni59
@@ -54681,7 +54681,7 @@ void rate_He4_Fe56_to_n_Ni59_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Fe56_to_p_Co59_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe56 + He4 --> p + Co59
@@ -54717,7 +54717,7 @@ void rate_He4_Fe56_to_p_Co59_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Fe57_to_He4_Cr54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe57 + n --> He4 + Cr54
@@ -54753,7 +54753,7 @@ void rate_n_Fe57_to_He4_Cr54_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Fe57_to_n_Co57_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe57 + p --> n + Co57
@@ -54789,7 +54789,7 @@ void rate_p_Fe57_to_n_Co57_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Fe57_to_He4_Mn54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe57 + p --> He4 + Mn54
@@ -54825,7 +54825,7 @@ void rate_p_Fe57_to_He4_Mn54_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Fe57_to_n_Ni60_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe57 + He4 --> n + Ni60
@@ -54861,7 +54861,7 @@ void rate_He4_Fe57_to_n_Ni60_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Fe58_to_n_Co58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe58 + p --> n + Co58
@@ -54897,7 +54897,7 @@ void rate_p_Fe58_to_n_Co58_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Fe58_to_He4_Mn55_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe58 + p --> He4 + Mn55
@@ -54933,7 +54933,7 @@ void rate_p_Fe58_to_He4_Mn55_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Fe58_to_n_Ni61_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Fe58 + He4 --> n + Ni61
@@ -54969,7 +54969,7 @@ void rate_He4_Fe58_to_n_Ni61_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Co53_to_p_Fe53_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co53 + n --> p + Fe53
@@ -55005,7 +55005,7 @@ void rate_n_Co53_to_p_Fe53_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Co53_to_He4_Mn50_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co53 + n --> He4 + Mn50
@@ -55041,7 +55041,7 @@ void rate_n_Co53_to_He4_Mn50_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Co53_to_p_Ni56_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co53 + He4 --> p + Ni56
@@ -55077,7 +55077,7 @@ void rate_He4_Co53_to_p_Ni56_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Co54_to_p_Fe54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co54 + n --> p + Fe54
@@ -55113,7 +55113,7 @@ void rate_n_Co54_to_p_Fe54_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Co54_to_He4_Mn51_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co54 + n --> He4 + Mn51
@@ -55149,7 +55149,7 @@ void rate_n_Co54_to_He4_Mn51_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Co54_to_n_Cu57_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co54 + He4 --> n + Cu57
@@ -55185,7 +55185,7 @@ void rate_He4_Co54_to_n_Cu57_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Co54_to_p_Ni57_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co54 + He4 --> p + Ni57
@@ -55221,7 +55221,7 @@ void rate_He4_Co54_to_p_Ni57_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Co55_to_p_Fe55_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co55 + n --> p + Fe55
@@ -55257,7 +55257,7 @@ void rate_n_Co55_to_p_Fe55_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Co55_to_He4_Mn52_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co55 + n --> He4 + Mn52
@@ -55293,7 +55293,7 @@ void rate_n_Co55_to_He4_Mn52_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Co55_to_He4_Fe52_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co55 + p --> He4 + Fe52
@@ -55329,7 +55329,7 @@ void rate_p_Co55_to_He4_Fe52_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Co55_to_n_Cu58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co55 + He4 --> n + Cu58
@@ -55365,7 +55365,7 @@ void rate_He4_Co55_to_n_Cu58_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Co55_to_p_Ni58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co55 + He4 --> p + Ni58
@@ -55401,7 +55401,7 @@ void rate_He4_Co55_to_p_Ni58_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Co56_to_p_Fe56_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co56 + n --> p + Fe56
@@ -55437,7 +55437,7 @@ void rate_n_Co56_to_p_Fe56_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Co56_to_He4_Mn53_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co56 + n --> He4 + Mn53
@@ -55473,7 +55473,7 @@ void rate_n_Co56_to_He4_Mn53_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Co56_to_n_Ni56_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co56 + p --> n + Ni56
@@ -55509,7 +55509,7 @@ void rate_p_Co56_to_n_Ni56_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Co56_to_He4_Fe53_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co56 + p --> He4 + Fe53
@@ -55545,7 +55545,7 @@ void rate_p_Co56_to_He4_Fe53_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Co56_to_n_Cu59_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co56 + He4 --> n + Cu59
@@ -55581,7 +55581,7 @@ void rate_He4_Co56_to_n_Cu59_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Co56_to_p_Ni59_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co56 + He4 --> p + Ni59
@@ -55617,7 +55617,7 @@ void rate_He4_Co56_to_p_Ni59_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Co57_to_p_Fe57_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co57 + n --> p + Fe57
@@ -55653,7 +55653,7 @@ void rate_n_Co57_to_p_Fe57_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Co57_to_He4_Mn54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co57 + n --> He4 + Mn54
@@ -55689,7 +55689,7 @@ void rate_n_Co57_to_He4_Mn54_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Co57_to_n_Ni57_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co57 + p --> n + Ni57
@@ -55725,7 +55725,7 @@ void rate_p_Co57_to_n_Ni57_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Co57_to_He4_Fe54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co57 + p --> He4 + Fe54
@@ -55761,7 +55761,7 @@ void rate_p_Co57_to_He4_Fe54_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Co57_to_n_Cu60_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co57 + He4 --> n + Cu60
@@ -55797,7 +55797,7 @@ void rate_He4_Co57_to_n_Cu60_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Co57_to_p_Ni60_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co57 + He4 --> p + Ni60
@@ -55833,7 +55833,7 @@ void rate_He4_Co57_to_p_Ni60_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Co58_to_p_Fe58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co58 + n --> p + Fe58
@@ -55869,7 +55869,7 @@ void rate_n_Co58_to_p_Fe58_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Co58_to_He4_Mn55_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co58 + n --> He4 + Mn55
@@ -55905,7 +55905,7 @@ void rate_n_Co58_to_He4_Mn55_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Co58_to_n_Ni58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co58 + p --> n + Ni58
@@ -55941,7 +55941,7 @@ void rate_p_Co58_to_n_Ni58_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Co58_to_He4_Fe55_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co58 + p --> He4 + Fe55
@@ -55977,7 +55977,7 @@ void rate_p_Co58_to_He4_Fe55_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Co58_to_n_Cu61_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co58 + He4 --> n + Cu61
@@ -56013,7 +56013,7 @@ void rate_He4_Co58_to_n_Cu61_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Co58_to_p_Ni61_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co58 + He4 --> p + Ni61
@@ -56049,7 +56049,7 @@ void rate_He4_Co58_to_p_Ni61_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Co59_to_n_Ni59_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co59 + p --> n + Ni59
@@ -56085,7 +56085,7 @@ void rate_p_Co59_to_n_Ni59_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Co59_to_He4_Fe56_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co59 + p --> He4 + Fe56
@@ -56121,7 +56121,7 @@ void rate_p_Co59_to_He4_Fe56_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Co59_to_n_Cu62_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co59 + He4 --> n + Cu62
@@ -56157,7 +56157,7 @@ void rate_He4_Co59_to_n_Cu62_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Co59_to_p_Ni62_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Co59 + He4 --> p + Ni62
@@ -56193,7 +56193,7 @@ void rate_He4_Co59_to_p_Ni62_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ni56_to_p_Co56_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni56 + n --> p + Co56
@@ -56229,7 +56229,7 @@ void rate_n_Ni56_to_p_Co56_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ni56_to_He4_Fe53_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni56 + n --> He4 + Fe53
@@ -56265,7 +56265,7 @@ void rate_n_Ni56_to_He4_Fe53_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ni56_to_He4_Co53_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni56 + p --> He4 + Co53
@@ -56301,7 +56301,7 @@ void rate_p_Ni56_to_He4_Co53_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ni56_to_n_Zn59_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni56 + He4 --> n + Zn59
@@ -56337,7 +56337,7 @@ void rate_He4_Ni56_to_n_Zn59_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ni56_to_p_Cu59_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni56 + He4 --> p + Cu59
@@ -56373,7 +56373,7 @@ void rate_He4_Ni56_to_p_Cu59_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ni57_to_p_Co57_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni57 + n --> p + Co57
@@ -56409,7 +56409,7 @@ void rate_n_Ni57_to_p_Co57_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ni57_to_He4_Fe54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni57 + n --> He4 + Fe54
@@ -56445,7 +56445,7 @@ void rate_n_Ni57_to_He4_Fe54_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ni57_to_n_Cu57_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni57 + p --> n + Cu57
@@ -56481,7 +56481,7 @@ void rate_p_Ni57_to_n_Cu57_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ni57_to_He4_Co54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni57 + p --> He4 + Co54
@@ -56517,7 +56517,7 @@ void rate_p_Ni57_to_He4_Co54_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ni57_to_n_Zn60_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni57 + He4 --> n + Zn60
@@ -56553,7 +56553,7 @@ void rate_He4_Ni57_to_n_Zn60_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ni57_to_p_Cu60_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni57 + He4 --> p + Cu60
@@ -56589,7 +56589,7 @@ void rate_He4_Ni57_to_p_Cu60_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ni58_to_p_Co58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni58 + n --> p + Co58
@@ -56625,7 +56625,7 @@ void rate_n_Ni58_to_p_Co58_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ni58_to_He4_Fe55_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni58 + n --> He4 + Fe55
@@ -56661,7 +56661,7 @@ void rate_n_Ni58_to_He4_Fe55_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ni58_to_n_Cu58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni58 + p --> n + Cu58
@@ -56697,7 +56697,7 @@ void rate_p_Ni58_to_n_Cu58_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ni58_to_He4_Co55_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni58 + p --> He4 + Co55
@@ -56733,7 +56733,7 @@ void rate_p_Ni58_to_He4_Co55_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ni58_to_n_Zn61_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni58 + He4 --> n + Zn61
@@ -56769,7 +56769,7 @@ void rate_He4_Ni58_to_n_Zn61_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ni58_to_p_Cu61_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni58 + He4 --> p + Cu61
@@ -56805,7 +56805,7 @@ void rate_He4_Ni58_to_p_Cu61_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ni59_to_p_Co59_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni59 + n --> p + Co59
@@ -56841,7 +56841,7 @@ void rate_n_Ni59_to_p_Co59_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ni59_to_He4_Fe56_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni59 + n --> He4 + Fe56
@@ -56877,7 +56877,7 @@ void rate_n_Ni59_to_He4_Fe56_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ni59_to_n_Cu59_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni59 + p --> n + Cu59
@@ -56913,7 +56913,7 @@ void rate_p_Ni59_to_n_Cu59_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ni59_to_He4_Co56_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni59 + p --> He4 + Co56
@@ -56949,7 +56949,7 @@ void rate_p_Ni59_to_He4_Co56_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ni59_to_n_Zn62_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni59 + He4 --> n + Zn62
@@ -56985,7 +56985,7 @@ void rate_He4_Ni59_to_n_Zn62_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ni59_to_p_Cu62_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni59 + He4 --> p + Cu62
@@ -57021,7 +57021,7 @@ void rate_He4_Ni59_to_p_Cu62_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ni60_to_He4_Fe57_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni60 + n --> He4 + Fe57
@@ -57057,7 +57057,7 @@ void rate_n_Ni60_to_He4_Fe57_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ni60_to_n_Cu60_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni60 + p --> n + Cu60
@@ -57093,7 +57093,7 @@ void rate_p_Ni60_to_n_Cu60_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ni60_to_He4_Co57_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni60 + p --> He4 + Co57
@@ -57129,7 +57129,7 @@ void rate_p_Ni60_to_He4_Co57_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ni60_to_n_Zn63_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni60 + He4 --> n + Zn63
@@ -57165,7 +57165,7 @@ void rate_He4_Ni60_to_n_Zn63_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ni60_to_p_Cu63_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni60 + He4 --> p + Cu63
@@ -57201,7 +57201,7 @@ void rate_He4_Ni60_to_p_Cu63_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ni61_to_He4_Fe58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni61 + n --> He4 + Fe58
@@ -57237,7 +57237,7 @@ void rate_n_Ni61_to_He4_Fe58_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ni61_to_n_Cu61_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni61 + p --> n + Cu61
@@ -57273,7 +57273,7 @@ void rate_p_Ni61_to_n_Cu61_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ni61_to_He4_Co58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni61 + p --> He4 + Co58
@@ -57309,7 +57309,7 @@ void rate_p_Ni61_to_He4_Co58_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ni61_to_n_Zn64_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni61 + He4 --> n + Zn64
@@ -57345,7 +57345,7 @@ void rate_He4_Ni61_to_n_Zn64_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ni61_to_p_Cu64_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni61 + He4 --> p + Cu64
@@ -57381,7 +57381,7 @@ void rate_He4_Ni61_to_p_Cu64_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ni62_to_n_Cu62_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni62 + p --> n + Cu62
@@ -57417,7 +57417,7 @@ void rate_p_Ni62_to_n_Cu62_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ni62_to_He4_Co59_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni62 + p --> He4 + Co59
@@ -57453,7 +57453,7 @@ void rate_p_Ni62_to_He4_Co59_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ni62_to_n_Zn65_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni62 + He4 --> n + Zn65
@@ -57489,7 +57489,7 @@ void rate_He4_Ni62_to_n_Zn65_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ni62_to_p_Cu65_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni62 + He4 --> p + Cu65
@@ -57525,7 +57525,7 @@ void rate_He4_Ni62_to_p_Cu65_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ni63_to_n_Cu63_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni63 + p --> n + Cu63
@@ -57561,7 +57561,7 @@ void rate_p_Ni63_to_n_Cu63_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ni63_to_n_Zn66_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni63 + He4 --> n + Zn66
@@ -57597,7 +57597,7 @@ void rate_He4_Ni63_to_n_Zn66_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ni64_to_n_Cu64_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ni64 + p --> n + Cu64
@@ -57633,7 +57633,7 @@ void rate_p_Ni64_to_n_Cu64_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cu57_to_p_Ni57_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu57 + n --> p + Ni57
@@ -57669,7 +57669,7 @@ void rate_n_Cu57_to_p_Ni57_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cu57_to_He4_Co54_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu57 + n --> He4 + Co54
@@ -57705,7 +57705,7 @@ void rate_n_Cu57_to_He4_Co54_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cu57_to_p_Zn60_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu57 + He4 --> p + Zn60
@@ -57741,7 +57741,7 @@ void rate_He4_Cu57_to_p_Zn60_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cu58_to_p_Ni58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu58 + n --> p + Ni58
@@ -57777,7 +57777,7 @@ void rate_n_Cu58_to_p_Ni58_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cu58_to_He4_Co55_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu58 + n --> He4 + Co55
@@ -57813,7 +57813,7 @@ void rate_n_Cu58_to_He4_Co55_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cu58_to_p_Zn61_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu58 + He4 --> p + Zn61
@@ -57849,7 +57849,7 @@ void rate_He4_Cu58_to_p_Zn61_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cu59_to_p_Ni59_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu59 + n --> p + Ni59
@@ -57885,7 +57885,7 @@ void rate_n_Cu59_to_p_Ni59_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cu59_to_He4_Co56_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu59 + n --> He4 + Co56
@@ -57921,7 +57921,7 @@ void rate_n_Cu59_to_He4_Co56_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cu59_to_n_Zn59_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu59 + p --> n + Zn59
@@ -57957,7 +57957,7 @@ void rate_p_Cu59_to_n_Zn59_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cu59_to_He4_Ni56_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu59 + p --> He4 + Ni56
@@ -57993,7 +57993,7 @@ void rate_p_Cu59_to_He4_Ni56_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cu59_to_n_Ga62_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu59 + He4 --> n + Ga62
@@ -58029,7 +58029,7 @@ void rate_He4_Cu59_to_n_Ga62_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cu59_to_p_Zn62_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu59 + He4 --> p + Zn62
@@ -58065,7 +58065,7 @@ void rate_He4_Cu59_to_p_Zn62_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cu60_to_p_Ni60_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu60 + n --> p + Ni60
@@ -58101,7 +58101,7 @@ void rate_n_Cu60_to_p_Ni60_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cu60_to_He4_Co57_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu60 + n --> He4 + Co57
@@ -58137,7 +58137,7 @@ void rate_n_Cu60_to_He4_Co57_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cu60_to_n_Zn60_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu60 + p --> n + Zn60
@@ -58173,7 +58173,7 @@ void rate_p_Cu60_to_n_Zn60_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cu60_to_He4_Ni57_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu60 + p --> He4 + Ni57
@@ -58209,7 +58209,7 @@ void rate_p_Cu60_to_He4_Ni57_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cu60_to_n_Ga63_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu60 + He4 --> n + Ga63
@@ -58245,7 +58245,7 @@ void rate_He4_Cu60_to_n_Ga63_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cu60_to_p_Zn63_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu60 + He4 --> p + Zn63
@@ -58281,7 +58281,7 @@ void rate_He4_Cu60_to_p_Zn63_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cu61_to_p_Ni61_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu61 + n --> p + Ni61
@@ -58317,7 +58317,7 @@ void rate_n_Cu61_to_p_Ni61_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cu61_to_He4_Co58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu61 + n --> He4 + Co58
@@ -58353,7 +58353,7 @@ void rate_n_Cu61_to_He4_Co58_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cu61_to_n_Zn61_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu61 + p --> n + Zn61
@@ -58389,7 +58389,7 @@ void rate_p_Cu61_to_n_Zn61_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cu61_to_He4_Ni58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu61 + p --> He4 + Ni58
@@ -58425,7 +58425,7 @@ void rate_p_Cu61_to_He4_Ni58_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cu61_to_n_Ga64_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu61 + He4 --> n + Ga64
@@ -58461,7 +58461,7 @@ void rate_He4_Cu61_to_n_Ga64_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cu61_to_p_Zn64_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu61 + He4 --> p + Zn64
@@ -58497,7 +58497,7 @@ void rate_He4_Cu61_to_p_Zn64_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cu62_to_p_Ni62_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu62 + n --> p + Ni62
@@ -58533,7 +58533,7 @@ void rate_n_Cu62_to_p_Ni62_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cu62_to_He4_Co59_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu62 + n --> He4 + Co59
@@ -58569,7 +58569,7 @@ void rate_n_Cu62_to_He4_Co59_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cu62_to_n_Zn62_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu62 + p --> n + Zn62
@@ -58605,7 +58605,7 @@ void rate_p_Cu62_to_n_Zn62_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cu62_to_He4_Ni59_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu62 + p --> He4 + Ni59
@@ -58641,7 +58641,7 @@ void rate_p_Cu62_to_He4_Ni59_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cu62_to_p_Zn65_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu62 + He4 --> p + Zn65
@@ -58677,7 +58677,7 @@ void rate_He4_Cu62_to_p_Zn65_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cu63_to_p_Ni63_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu63 + n --> p + Ni63
@@ -58713,7 +58713,7 @@ void rate_n_Cu63_to_p_Ni63_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cu63_to_n_Zn63_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu63 + p --> n + Zn63
@@ -58749,7 +58749,7 @@ void rate_p_Cu63_to_n_Zn63_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cu63_to_He4_Ni60_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu63 + p --> He4 + Ni60
@@ -58785,7 +58785,7 @@ void rate_p_Cu63_to_He4_Ni60_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Cu63_to_p_Zn66_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu63 + He4 --> p + Zn66
@@ -58821,7 +58821,7 @@ void rate_He4_Cu63_to_p_Zn66_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Cu64_to_p_Ni64_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu64 + n --> p + Ni64
@@ -58857,7 +58857,7 @@ void rate_n_Cu64_to_p_Ni64_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cu64_to_n_Zn64_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu64 + p --> n + Zn64
@@ -58893,7 +58893,7 @@ void rate_p_Cu64_to_n_Zn64_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cu64_to_He4_Ni61_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu64 + p --> He4 + Ni61
@@ -58929,7 +58929,7 @@ void rate_p_Cu64_to_He4_Ni61_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cu65_to_n_Zn65_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu65 + p --> n + Zn65
@@ -58965,7 +58965,7 @@ void rate_p_Cu65_to_n_Zn65_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Cu65_to_He4_Ni62_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Cu65 + p --> He4 + Ni62
@@ -59001,7 +59001,7 @@ void rate_p_Cu65_to_He4_Ni62_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Zn59_to_p_Cu59_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn59 + n --> p + Cu59
@@ -59037,7 +59037,7 @@ void rate_n_Zn59_to_p_Cu59_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Zn59_to_He4_Ni56_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn59 + n --> He4 + Ni56
@@ -59073,7 +59073,7 @@ void rate_n_Zn59_to_He4_Ni56_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Zn59_to_p_Ga62_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn59 + He4 --> p + Ga62
@@ -59109,7 +59109,7 @@ void rate_He4_Zn59_to_p_Ga62_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Zn60_to_p_Cu60_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn60 + n --> p + Cu60
@@ -59145,7 +59145,7 @@ void rate_n_Zn60_to_p_Cu60_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Zn60_to_He4_Ni57_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn60 + n --> He4 + Ni57
@@ -59181,7 +59181,7 @@ void rate_n_Zn60_to_He4_Ni57_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Zn60_to_He4_Cu57_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn60 + p --> He4 + Cu57
@@ -59217,7 +59217,7 @@ void rate_p_Zn60_to_He4_Cu57_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Zn60_to_n_Ge63_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn60 + He4 --> n + Ge63
@@ -59253,7 +59253,7 @@ void rate_He4_Zn60_to_n_Ge63_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Zn60_to_p_Ga63_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn60 + He4 --> p + Ga63
@@ -59289,7 +59289,7 @@ void rate_He4_Zn60_to_p_Ga63_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Zn61_to_p_Cu61_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn61 + n --> p + Cu61
@@ -59325,7 +59325,7 @@ void rate_n_Zn61_to_p_Cu61_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Zn61_to_He4_Ni58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn61 + n --> He4 + Ni58
@@ -59361,7 +59361,7 @@ void rate_n_Zn61_to_He4_Ni58_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Zn61_to_He4_Cu58_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn61 + p --> He4 + Cu58
@@ -59397,7 +59397,7 @@ void rate_p_Zn61_to_He4_Cu58_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Zn61_to_n_Ge64_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn61 + He4 --> n + Ge64
@@ -59433,7 +59433,7 @@ void rate_He4_Zn61_to_n_Ge64_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Zn61_to_p_Ga64_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn61 + He4 --> p + Ga64
@@ -59469,7 +59469,7 @@ void rate_He4_Zn61_to_p_Ga64_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Zn62_to_p_Cu62_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn62 + n --> p + Cu62
@@ -59505,7 +59505,7 @@ void rate_n_Zn62_to_p_Cu62_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Zn62_to_He4_Ni59_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn62 + n --> He4 + Ni59
@@ -59541,7 +59541,7 @@ void rate_n_Zn62_to_He4_Ni59_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Zn62_to_n_Ga62_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn62 + p --> n + Ga62
@@ -59577,7 +59577,7 @@ void rate_p_Zn62_to_n_Ga62_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Zn62_to_He4_Cu59_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn62 + p --> He4 + Cu59
@@ -59613,7 +59613,7 @@ void rate_p_Zn62_to_He4_Cu59_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Zn63_to_p_Cu63_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn63 + n --> p + Cu63
@@ -59649,7 +59649,7 @@ void rate_n_Zn63_to_p_Cu63_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Zn63_to_He4_Ni60_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn63 + n --> He4 + Ni60
@@ -59685,7 +59685,7 @@ void rate_n_Zn63_to_He4_Ni60_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Zn63_to_n_Ga63_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn63 + p --> n + Ga63
@@ -59721,7 +59721,7 @@ void rate_p_Zn63_to_n_Ga63_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Zn63_to_He4_Cu60_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn63 + p --> He4 + Cu60
@@ -59757,7 +59757,7 @@ void rate_p_Zn63_to_He4_Cu60_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Zn64_to_p_Cu64_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn64 + n --> p + Cu64
@@ -59793,7 +59793,7 @@ void rate_n_Zn64_to_p_Cu64_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Zn64_to_He4_Ni61_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn64 + n --> He4 + Ni61
@@ -59829,7 +59829,7 @@ void rate_n_Zn64_to_He4_Ni61_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Zn64_to_n_Ga64_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn64 + p --> n + Ga64
@@ -59865,7 +59865,7 @@ void rate_p_Zn64_to_n_Ga64_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Zn64_to_He4_Cu61_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn64 + p --> He4 + Cu61
@@ -59901,7 +59901,7 @@ void rate_p_Zn64_to_He4_Cu61_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Zn65_to_p_Cu65_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn65 + n --> p + Cu65
@@ -59937,7 +59937,7 @@ void rate_n_Zn65_to_p_Cu65_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Zn65_to_He4_Ni62_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn65 + n --> He4 + Ni62
@@ -59973,7 +59973,7 @@ void rate_n_Zn65_to_He4_Ni62_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Zn65_to_He4_Cu62_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn65 + p --> He4 + Cu62
@@ -60009,7 +60009,7 @@ void rate_p_Zn65_to_He4_Cu62_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Zn66_to_He4_Ni63_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn66 + n --> He4 + Ni63
@@ -60045,7 +60045,7 @@ void rate_n_Zn66_to_He4_Ni63_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Zn66_to_He4_Cu63_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Zn66 + p --> He4 + Cu63
@@ -60081,7 +60081,7 @@ void rate_p_Zn66_to_He4_Cu63_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ga62_to_p_Zn62_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ga62 + n --> p + Zn62
@@ -60117,7 +60117,7 @@ void rate_n_Ga62_to_p_Zn62_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ga62_to_He4_Cu59_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ga62 + n --> He4 + Cu59
@@ -60153,7 +60153,7 @@ void rate_n_Ga62_to_He4_Cu59_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ga62_to_He4_Zn59_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ga62 + p --> He4 + Zn59
@@ -60189,7 +60189,7 @@ void rate_p_Ga62_to_He4_Zn59_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ga63_to_p_Zn63_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ga63 + n --> p + Zn63
@@ -60225,7 +60225,7 @@ void rate_n_Ga63_to_p_Zn63_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ga63_to_He4_Cu60_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ga63 + n --> He4 + Cu60
@@ -60261,7 +60261,7 @@ void rate_n_Ga63_to_He4_Cu60_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ga63_to_n_Ge63_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ga63 + p --> n + Ge63
@@ -60297,7 +60297,7 @@ void rate_p_Ga63_to_n_Ge63_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ga63_to_He4_Zn60_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ga63 + p --> He4 + Zn60
@@ -60333,7 +60333,7 @@ void rate_p_Ga63_to_He4_Zn60_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ga64_to_p_Zn64_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ga64 + n --> p + Zn64
@@ -60369,7 +60369,7 @@ void rate_n_Ga64_to_p_Zn64_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ga64_to_He4_Cu61_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ga64 + n --> He4 + Cu61
@@ -60405,7 +60405,7 @@ void rate_n_Ga64_to_He4_Cu61_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ga64_to_n_Ge64_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ga64 + p --> n + Ge64
@@ -60441,7 +60441,7 @@ void rate_p_Ga64_to_n_Ge64_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ga64_to_He4_Zn61_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ga64 + p --> He4 + Zn61
@@ -60477,7 +60477,7 @@ void rate_p_Ga64_to_He4_Zn61_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ge63_to_p_Ga63_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ge63 + n --> p + Ga63
@@ -60513,7 +60513,7 @@ void rate_n_Ge63_to_p_Ga63_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ge63_to_He4_Zn60_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ge63 + n --> He4 + Zn60
@@ -60549,7 +60549,7 @@ void rate_n_Ge63_to_He4_Zn60_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ge64_to_p_Ga64_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ge64 + n --> p + Ga64
@@ -60585,7 +60585,7 @@ void rate_n_Ge64_to_p_Ga64_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_Ge64_to_He4_Zn61_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Ge64 + n --> He4 + Zn61
@@ -60621,7 +60621,7 @@ void rate_n_Ge64_to_He4_Zn61_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_d_to_n_p_p_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // d + p --> n + p + p
@@ -60657,7 +60657,7 @@ void rate_p_d_to_n_p_p_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He3_He3_to_p_p_He4_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // He3 + He3 --> p + p + He4
@@ -60693,7 +60693,7 @@ void rate_He3_He3_to_p_p_He4_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_d_Li7_to_n_He4_He4_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Li7 + d --> n + He4 + He4
@@ -60729,7 +60729,7 @@ void rate_d_Li7_to_n_He4_He4_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_d_Be7_to_p_He4_He4_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Be7 + d --> p + He4 + He4
@@ -60765,7 +60765,7 @@ void rate_d_Be7_to_p_He4_He4_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Be9_to_d_He4_He4_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Be9 + p --> d + He4 + He4
@@ -60843,7 +60843,7 @@ void rate_p_Be9_to_d_He4_He4_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_B8_to_p_He4_He4_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // B8 + n --> p + He4 + He4
@@ -60879,7 +60879,7 @@ void rate_n_B8_to_p_He4_He4_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_B11_to_He4_He4_He4_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // B11 + p --> 3 He4
@@ -60936,7 +60936,7 @@ void rate_p_B11_to_He4_He4_He4_reaclib(const tf_t& tfactors, const amrex::Real l
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He3_Li7_to_n_p_He4_He4_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Li7 + He3 --> n + p + He4 + He4
@@ -60972,7 +60972,7 @@ void rate_He3_Li7_to_n_p_He4_He4_reaclib(const tf_t& tfactors, const amrex::Real
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He3_Be7_to_p_p_He4_He4_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Be7 + He3 --> p + p + He4 + He4
@@ -61008,7 +61008,7 @@ void rate_He3_Be7_to_p_p_He4_He4_reaclib(const tf_t& tfactors, const amrex::Real
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Be9_to_n_p_He4_He4_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // Be9 + p --> n + p + He4 + He4
@@ -61065,7 +61065,7 @@ void rate_p_Be9_to_n_p_He4_He4_reaclib(const tf_t& tfactors, const amrex::Real l
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_p_He4_to_Li6_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // n + p + He4 --> Li6
@@ -61101,7 +61101,7 @@ void rate_n_p_He4_to_Li6_reaclib(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_He4_He4_to_Be9_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // n + He4 + He4 --> Be9
@@ -61158,7 +61158,7 @@ void rate_n_He4_He4_to_Be9_reaclib(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_He4_He4_to_C12_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // 3 He4 --> C12
@@ -61236,7 +61236,7 @@ void rate_He4_He4_He4_to_C12_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_p_p_to_p_d_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // n + p + p --> p + d
@@ -61272,7 +61272,7 @@ void rate_n_p_p_to_p_d_reaclib(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_p_He4_to_He3_He3_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // p + p + He4 --> He3 + He3
@@ -61308,7 +61308,7 @@ void rate_p_p_He4_to_He3_He3_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_He4_He4_to_d_Li7_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // n + He4 + He4 --> d + Li7
@@ -61344,7 +61344,7 @@ void rate_n_He4_He4_to_d_Li7_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_He4_He4_to_n_B8_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // p + He4 + He4 --> n + B8
@@ -61380,7 +61380,7 @@ void rate_p_He4_He4_to_n_B8_reaclib(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_He4_He4_to_d_Be7_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // p + He4 + He4 --> d + Be7
@@ -61416,7 +61416,7 @@ void rate_p_He4_He4_to_d_Be7_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_d_He4_He4_to_p_Be9_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // d + He4 + He4 --> p + Be9
@@ -61494,7 +61494,7 @@ void rate_d_He4_He4_to_p_Be9_reaclib(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_He4_He4_to_p_B11_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // 3 He4 --> p + B11
@@ -61551,7 +61551,7 @@ void rate_He4_He4_He4_to_p_B11_reaclib(const tf_t& tfactors, const amrex::Real l
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_p_He4_He4_to_He3_Li7_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // n + p + He4 + He4 --> He3 + Li7
@@ -61587,7 +61587,7 @@ void rate_n_p_He4_He4_to_He3_Li7_reaclib(const tf_t& tfactors, const amrex::Real
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_n_p_He4_He4_to_p_Be9_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // n + p + He4 + He4 --> p + Be9
@@ -61644,7 +61644,7 @@ void rate_n_p_He4_He4_to_p_Be9_reaclib(const tf_t& tfactors, const amrex::Real l
 }
 
 template <int do_T_derivatives>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_p_He4_He4_to_He3_Be7_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // p + p + He4 + He4 --> He3 + Be7

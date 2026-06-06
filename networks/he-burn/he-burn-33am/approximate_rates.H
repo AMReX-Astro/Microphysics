@@ -12,7 +12,7 @@ using namespace Rates;
 using namespace Species;
 
 template <typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_S32_He4_to_Ar36_approx(const T& rate_eval, amrex::Real& rate, amrex::Real& drate_dT) {
 
     amrex::Real r_pg = rate_eval.screened_rates(k_p_Cl35_to_Ar36_reaclib);
@@ -33,7 +33,7 @@ void rate_S32_He4_to_Ar36_approx(const T& rate_eval, amrex::Real& rate, amrex::R
 }
 
 template <typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ar36_to_S32_He4_approx(const T& rate_eval, amrex::Real& rate, amrex::Real& drate_dT) {
 
     amrex::Real r_pg = rate_eval.screened_rates(k_p_Cl35_to_Ar36_reaclib);
@@ -54,7 +54,7 @@ void rate_Ar36_to_S32_He4_approx(const T& rate_eval, amrex::Real& rate, amrex::R
 }
 
 template <typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ar36_He4_to_Ca40_approx(const T& rate_eval, amrex::Real& rate, amrex::Real& drate_dT) {
 
     amrex::Real r_pg = rate_eval.screened_rates(k_p_K39_to_Ca40_reaclib);
@@ -75,7 +75,7 @@ void rate_Ar36_He4_to_Ca40_approx(const T& rate_eval, amrex::Real& rate, amrex::
 }
 
 template <typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ca40_to_Ar36_He4_approx(const T& rate_eval, amrex::Real& rate, amrex::Real& drate_dT) {
 
     amrex::Real r_pg = rate_eval.screened_rates(k_p_K39_to_Ca40_reaclib);
@@ -96,7 +96,7 @@ void rate_Ca40_to_Ar36_He4_approx(const T& rate_eval, amrex::Real& rate, amrex::
 }
 
 template <typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ca40_He4_to_Ti44_approx(const T& rate_eval, amrex::Real& rate, amrex::Real& drate_dT) {
 
     amrex::Real r_pg = rate_eval.screened_rates(k_p_Sc43_to_Ti44_reaclib);
@@ -117,7 +117,7 @@ void rate_Ca40_He4_to_Ti44_approx(const T& rate_eval, amrex::Real& rate, amrex::
 }
 
 template <typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ti44_to_Ca40_He4_approx(const T& rate_eval, amrex::Real& rate, amrex::Real& drate_dT) {
 
     amrex::Real r_pg = rate_eval.screened_rates(k_p_Sc43_to_Ti44_reaclib);
@@ -138,7 +138,7 @@ void rate_Ti44_to_Ca40_He4_approx(const T& rate_eval, amrex::Real& rate, amrex::
 }
 
 template <typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ti44_He4_to_Cr48_approx(const T& rate_eval, amrex::Real& rate, amrex::Real& drate_dT) {
 
     amrex::Real r_pg = rate_eval.screened_rates(k_p_V47_to_Cr48_reaclib);
@@ -159,7 +159,7 @@ void rate_Ti44_He4_to_Cr48_approx(const T& rate_eval, amrex::Real& rate, amrex::
 }
 
 template <typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cr48_to_Ti44_He4_approx(const T& rate_eval, amrex::Real& rate, amrex::Real& drate_dT) {
 
     amrex::Real r_pg = rate_eval.screened_rates(k_p_V47_to_Cr48_reaclib);

@@ -15,7 +15,7 @@ namespace modified_rates {
     using namespace temp_tabular;
 
     template <int do_T_derivatives>
-    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    AMREX_GPU_DEVICE AMREX_INLINE
     void rate_C12_C12_to_Mg24_modified(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
         // C12 + C12 --> Mg24 (calls the underlying rate)
@@ -24,7 +24,7 @@ namespace modified_rates {
     }
 
     template <int do_T_derivatives>
-    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    AMREX_GPU_DEVICE AMREX_INLINE
     void rate_O16_O16_to_S32_modified(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
         // O16 + O16 --> S32 (calls the underlying rate)
@@ -33,7 +33,7 @@ namespace modified_rates {
     }
 
     template <int do_T_derivatives>
-    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    AMREX_GPU_DEVICE AMREX_INLINE
     void rate_C12_O16_to_Si28_modified(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
         // O16 + C12 --> Si28 (calls the underlying rate)
