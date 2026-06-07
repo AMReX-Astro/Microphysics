@@ -171,29 +171,6 @@ bool species_change_valid (const rosenbrock_t<int_neqs>& rstate)
     return true;
 }
 
-template <int int_neqs>
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-amrex::Real yass_change_norm (const rosenbrock_t<int_neqs>& rstate)
-{
-    amrex::Real max_change = 0.0_rt;
-    amrex::Real max_species = 0.0_rt;
-
-    for (int i = 1; i <= NumSpec && i <= int_neqs; ++i) {
-        max_species = amrex::max(max_species, std::abs(rstate.y(i)));
-    }
-
-    const amrex::Real active_floor = integrator_rp::yass_floor * max_species;
-
-    for (int i = 1; i <= NumSpec && i <= int_neqs; ++i) {
-        const amrex::Real yi = std::abs(rstate.y(i));
-        if (yi > active_floor) {
-            max_change = amrex::max(max_change, std::abs(rstate.ynew(i) - rstate.y(i)) / yi);
-        }
-    }
-
-    return max_change / integrator_rp::yass_epsilon;
-}
-
 template <typename MatrixType, int int_neqs>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 bool matrix_is_finite (const MatrixType& matrix)
@@ -381,15 +358,6 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
         }
     }
 
-    if (integrator_rp::rosenbrock_timestep_controller == 1 &&
-        (integrator_rp::yass_epsilon <= 0.0_rt ||
-         integrator_rp::yass_floor < 0.0_rt ||
-         integrator_rp::yass_fac_min <= 0.0_rt ||
-         integrator_rp::yass_fac_max < integrator_rp::yass_fac_min ||
-         integrator_rp::yass_reduction_fac <= 0.0_rt)) {
-        return IERR_BAD_INPUTS;
-    }
-
     rstate.n_rhs = 0;
     rstate.n_jac = 0;
     rstate.n_step = 0;
@@ -564,22 +532,13 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
             const bool valid_update = rosenbrock::species_change_valid(rstate);
             constexpr amrex::Real err_min = 1.e-10_rt;
             amrex::Real err = rosenbrock::error_norm(rstate);
-            amrex::Real controller_fac = 1.0_rt;
-
-            if (integrator_rp::rosenbrock_timestep_controller == 1) {
-                err = rosenbrock::yass_change_norm(rstate);
-                controller_fac = amrex::Clamp(1.0_rt / amrex::max(err, err_min),
-                                              integrator_rp::yass_fac_min,
-                                              integrator_rp::yass_fac_max);
-            } else {
-                controller_fac = amrex::Clamp(
-                    std::pow(1.0_rt / amrex::max(err, err_min),
-                             1.0_rt / (integrator_rp::h211b_b * integrator_rp::h211b_k)) *
-                    std::pow(1.0_rt / amrex::max(errold, err_min),
-                             1.0_rt / (integrator_rp::h211b_b * integrator_rp::h211b_k)) *
-                    std::pow(facold, -1.0_rt / integrator_rp::h211b_b),
-                    integrator_rp::h211b_fac_min, integrator_rp::h211b_fac_max);
-            }
+            amrex::Real controller_fac = amrex::Clamp(
+                std::pow(1.0_rt / amrex::max(err, err_min),
+                         1.0_rt / (integrator_rp::h211b_b * integrator_rp::h211b_k)) *
+                std::pow(1.0_rt / amrex::max(errold, err_min),
+                         1.0_rt / (integrator_rp::h211b_b * integrator_rp::h211b_k)) *
+                std::pow(facold, -1.0_rt / integrator_rp::h211b_b),
+                integrator_rp::h211b_fac_min, integrator_rp::h211b_fac_max);
             facold = controller_fac;
             errold = err;
 
@@ -613,14 +572,11 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
             n_reject += 1;
             last = false;
             if (n_reject >= 2) {
-                hnew *= integrator_rp::rosenbrock_timestep_controller == 1 ?
-                    integrator_rp::yass_reduction_fac : integrator_rp::h211b_reduction_fac;
+                hnew *= integrator_rp::h211b_reduction_fac;
             }
             if (valid_update) {
-                const amrex::Real reject_fac =
-                    integrator_rp::rosenbrock_timestep_controller == 1 ?
-                    integrator_rp::yass_reduction_fac : integrator_rp::h211b_reduction_fac;
-                h = posneg * amrex::min(std::abs(hnew), reject_fac * std::abs(h));
+                h = posneg * amrex::min(std::abs(hnew),
+                                         integrator_rp::h211b_reduction_fac * std::abs(h));
             } else {
                 h *= 0.25_rt;
             }
