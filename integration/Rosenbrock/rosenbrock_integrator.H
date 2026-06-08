@@ -600,9 +600,6 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
     if (integrator_rp::rosenbrock_tableau == 4) {
         return rosenbrock_integrator<BurnT, rosenbrock::ros2_tableau>(state, rstate);
     }
-    if (integrator_rp::rosenbrock_tableau == 5) {
-        return rosenbrock_integrator<BurnT, rosenbrock::rosenbrock_euler_tableau>(state, rstate);
-    }
 
     return rosenbrock_integrator<BurnT, rosenbrock::rodas5p_tableau>(state, rstate);
 }
