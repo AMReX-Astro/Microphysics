@@ -530,43 +530,6 @@ struct rodas4p_tableau {
     }
 };
 
-struct rosenbrock_euler_tableau {
-    static constexpr int stages = 1;
-    static constexpr amrex::Real gamma = 1.0_rt;
-
-    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-    static constexpr amrex::Real ct (const int i) {
-        (void) i;
-        return 0.0_rt;
-    }
-
-    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-    static constexpr amrex::Real a (const int i, const int j) {
-        (void) i;
-        (void) j;
-        return 0.0_rt;
-    }
-
-    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-    static constexpr amrex::Real c (const int i, const int j) {
-        (void) i;
-        (void) j;
-        return 0.0_rt;
-    }
-
-    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-    static constexpr amrex::Real b (const int i) {
-        (void) i;
-        return 1.0_rt;
-    }
-
-    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-    static constexpr amrex::Real e (const int i) {
-        (void) i;
-        return 1.0_rt;
-    }
-};
-
 using coefficients = rodas5p_tableau;
 
 }
