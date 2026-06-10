@@ -66,47 +66,6 @@ struct ros2s_tableau {
     }
 };
 
-struct ros2_tableau {
-    static constexpr int stages = 2;
-    static constexpr amrex::Real gamma = 1.7071067811865475_rt;
-
-    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-    static constexpr amrex::Real ct (const int i) {
-        (void) i;
-        return 1.0_rt;
-    }
-
-    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-    static constexpr amrex::Real a (const int i, const int j) {
-        if (i == 2 && j == 1) {
-            return 0.585786437626905_rt;
-        }
-        return 0.0_rt;
-    }
-
-    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-    static constexpr amrex::Real c (const int i, const int j) {
-        if (i == 2 && j == 1) {
-            return -1.1715728752538102_rt;
-        }
-        return 0.0_rt;
-    }
-
-    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-    static constexpr amrex::Real b (const int i) {
-        if (i == 1) {
-            return 0.8786796564403575_rt;
-        }
-        return 0.2928932188134525_rt;
-    }
-
-    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-    static constexpr amrex::Real e (const int i) {
-        (void) i;
-        return 0.2928932188134525_rt;
-    }
-};
-
 struct rodas3p_tableau {
     static constexpr int stages = 5;
     static constexpr amrex::Real gamma = 1.0_rt / 3.0_rt;
