@@ -70,10 +70,6 @@ Presently, allowed integrators are:
 
   * ``3`` : ROS2S method, a 2nd order, stiff-accurate method :cite:`ros2s`.
 
-  * ``4`` : ROS2 method, a 2nd order, L-stable method :cite:`ros2`.
-
-  * ``5`` : Rosenbrock-Euler, a first-order method.
-
   Here the "P" suffix refers to methods developed to satisfy the stiff
   accuracy conditions of :cite:`Prothero1974` (ROS2S also satisfies
   these).
