@@ -119,7 +119,8 @@ state_backup_t integrator_backup (const BurnT& state) {
 template <typename BurnT, typename IntegratorT>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void integrator_cleanup (IntegratorT& int_state, BurnT& state,
-                         int istate, const state_backup_t& state_save, amrex::Real dt)
+                         int istate, const state_backup_t& state_save, amrex::Real dt,
+                         const amrex::Real final_state_species_failure_tolerance_factor = 1.0_rt)
 {
 
     // Copy the integration data back to the burn state.
@@ -156,8 +157,11 @@ void integrator_cleanup (IntegratorT& int_state, BurnT& state,
         state.success = false;
     }
 
+    const amrex::Real final_state_species_failure_tolerance =
+        final_state_species_failure_tolerance_factor * integrator_rp::species_failure_tolerance;
+
     for (int n = 1; n <= NumSpec; ++n) {
-        if (int_state.y(n) < -integrator_rp::species_failure_tolerance) {
+        if (int_state.y(n) < -final_state_species_failure_tolerance) {
             state.success = false;
         }
 
