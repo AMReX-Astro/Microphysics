@@ -1094,6 +1094,177 @@ void rate_Ni56_to_He4_Fe52_derived(const tf_t& tfactors, const amrex::Real log_s
 
 template <int do_T_derivatives, typename T>
 AMREX_GPU_DEVICE AMREX_INLINE
+void rate_Cu59_to_He4_Co55_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+
+    // Cu59 --> He4 + Co55
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    // Evaluate partition function terms
+
+    amrex::Real Cu59_log_pf, dCu59_log_pf_dT9;
+
+    // interpolating Cu59 partition function
+    get_partition_function_cached(Cu59, tfactors.T9, pf_cache, Cu59_log_pf, dCu59_log_pf_dT9);
+
+    amrex::Real He4_log_pf, dHe4_log_pf_dT9;
+
+    // setting He4 log(partition function) to 0.0 by default, independent of T
+    He4_log_pf = 0.0_rt;
+    dHe4_log_pf_dT9 = 0.0_rt;
+
+    amrex::Real Co55_log_pf, dCo55_log_pf_dT9;
+
+    // interpolating Co55 partition function
+    get_partition_function_cached(Co55, tfactors.T9, pf_cache, Co55_log_pf, dCo55_log_pf_dT9);
+
+    amrex::Real net_log_pf = He4_log_pf + Co55_log_pf - Cu59_log_pf;
+    [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dHe4_log_pf_dT9 + dCo55_log_pf_dT9 - dCu59_log_pf_dT9;
+
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // ReacLib set derived from ths8r
+    ln_set_rate =  90.97354557942113 + -55.1611006026015 * tfactors.T9i + -94.1404 * tfactors.T913i + -2.62786 * tfactors.T913
+                         + -2.12066 * tfactors.T9 + 0.237999 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
+    ln_set_rate += net_log_pf + log_scor;
+
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dln_set_rate_dT9 =  55.1611006026015 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -94.1404 * tfactors.T943i + (1.0/3.0) * -2.62786 * tfactors.T923i
+                                  + -2.12066 + (5.0/3.0) * 0.237999 * tfactors.T923 + 0.833333 * tfactors.T9i;
+
+        dln_set_rate_dT9 += net_dlog_pf_dT9 + dlog_scor_dT * 1.0e9_rt;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9_rt;
+    }
+
+}
+
+template <int do_T_derivatives, typename T>
+AMREX_GPU_DEVICE AMREX_INLINE
+void rate_Zn60_to_p_Cu59_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+
+    // Zn60 --> p + Cu59
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    // Evaluate partition function terms
+
+    amrex::Real Cu59_log_pf, dCu59_log_pf_dT9;
+
+    // interpolating Cu59 partition function
+    get_partition_function_cached(Cu59, tfactors.T9, pf_cache, Cu59_log_pf, dCu59_log_pf_dT9);
+
+    amrex::Real p_log_pf, dp_log_pf_dT9;
+
+    // setting p log(partition function) to 0.0 by default, independent of T
+    p_log_pf = 0.0_rt;
+    dp_log_pf_dT9 = 0.0_rt;
+
+    amrex::Real Zn60_log_pf, dZn60_log_pf_dT9;
+
+    // interpolating Zn60 partition function
+    get_partition_function_cached(Zn60, tfactors.T9, pf_cache, Zn60_log_pf, dZn60_log_pf_dT9);
+
+    amrex::Real net_log_pf = p_log_pf + Cu59_log_pf - Zn60_log_pf;
+    [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dp_log_pf_dT9 + dCu59_log_pf_dT9 - dZn60_log_pf_dT9;
+
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // ReacLib set derived from ths8r
+    ln_set_rate =  62.31218638341413 + -59.240729222177784 * tfactors.T9i + -39.9808 * tfactors.T913i + 1.17311 * tfactors.T913
+                         + -2.90486 * tfactors.T9 + 0.339644 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
+    ln_set_rate += net_log_pf + log_scor;
+
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dln_set_rate_dT9 =  59.240729222177784 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -39.9808 * tfactors.T943i + (1.0/3.0) * 1.17311 * tfactors.T923i
+                                  + -2.90486 + (5.0/3.0) * 0.339644 * tfactors.T923 + 0.833333 * tfactors.T9i;
+
+        dln_set_rate_dT9 += net_dlog_pf_dT9 + dlog_scor_dT * 1.0e9_rt;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9_rt;
+    }
+
+}
+
+template <int do_T_derivatives, typename T>
+AMREX_GPU_DEVICE AMREX_INLINE
+void rate_Zn60_to_He4_Ni56_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+
+    // Zn60 --> He4 + Ni56
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    // Evaluate partition function terms
+
+    amrex::Real Ni56_log_pf, dNi56_log_pf_dT9;
+
+    // interpolating Ni56 partition function
+    get_partition_function_cached(Ni56, tfactors.T9, pf_cache, Ni56_log_pf, dNi56_log_pf_dT9);
+
+    amrex::Real He4_log_pf, dHe4_log_pf_dT9;
+
+    // setting He4 log(partition function) to 0.0 by default, independent of T
+    He4_log_pf = 0.0_rt;
+    dHe4_log_pf_dT9 = 0.0_rt;
+
+    amrex::Real Zn60_log_pf, dZn60_log_pf_dT9;
+
+    // interpolating Zn60 partition function
+    get_partition_function_cached(Zn60, tfactors.T9, pf_cache, Zn60_log_pf, dZn60_log_pf_dT9);
+
+    amrex::Real net_log_pf = He4_log_pf + Ni56_log_pf - Zn60_log_pf;
+    [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dHe4_log_pf_dT9 + dNi56_log_pf_dT9 - dZn60_log_pf_dT9;
+
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // ReacLib set derived from ths8r
+    ln_set_rate =  86.06332792090964 + -31.2372260432927 * tfactors.T9i + -96.4898 * tfactors.T913i + 6.47209 * tfactors.T913
+                         + -5.2029 * tfactors.T9 + 0.533391 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
+    ln_set_rate += net_log_pf + log_scor;
+
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dln_set_rate_dT9 =  31.2372260432927 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -96.4898 * tfactors.T943i + (1.0/3.0) * 6.47209 * tfactors.T923i
+                                  + -5.2029 + (5.0/3.0) * 0.533391 * tfactors.T923 + 0.833333 * tfactors.T9i;
+
+        dln_set_rate_dT9 += net_dlog_pf_dT9 + dlog_scor_dT * 1.0e9_rt;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9_rt;
+    }
+
+}
+
+template <int do_T_derivatives, typename T>
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_C12_to_He4_He4_He4_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // C12 --> 3 He4
@@ -2050,6 +2221,69 @@ void rate_p_Co55_to_He4_Fe52_derived(const tf_t& tfactors, const amrex::Real log
 
 template <int do_T_derivatives, typename T>
 AMREX_GPU_DEVICE AMREX_INLINE
+void rate_He4_Ni56_to_p_Cu59_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+
+    // Ni56 + He4 --> p + Cu59
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    // Evaluate partition function terms
+
+    amrex::Real Cu59_log_pf, dCu59_log_pf_dT9;
+
+    // interpolating Cu59 partition function
+    get_partition_function_cached(Cu59, tfactors.T9, pf_cache, Cu59_log_pf, dCu59_log_pf_dT9);
+
+    amrex::Real Ni56_log_pf, dNi56_log_pf_dT9;
+
+    // interpolating Ni56 partition function
+    get_partition_function_cached(Ni56, tfactors.T9, pf_cache, Ni56_log_pf, dNi56_log_pf_dT9);
+
+    amrex::Real p_log_pf, dp_log_pf_dT9;
+
+    // setting p log(partition function) to 0.0 by default, independent of T
+    p_log_pf = 0.0_rt;
+    dp_log_pf_dT9 = 0.0_rt;
+
+    amrex::Real He4_log_pf, dHe4_log_pf_dT9;
+
+    // setting He4 log(partition function) to 0.0 by default, independent of T
+    He4_log_pf = 0.0_rt;
+    dHe4_log_pf_dT9 = 0.0_rt;
+
+    amrex::Real net_log_pf = p_log_pf + Cu59_log_pf - He4_log_pf - Ni56_log_pf;
+    [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dp_log_pf_dT9 + dCu59_log_pf_dT9 - dHe4_log_pf_dT9 - dNi56_log_pf_dT9;
+
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // ReacLib set derived from ths8r
+    ln_set_rate =  20.864958462504486 + -28.003503178913892 * tfactors.T9i + -39.9808 * tfactors.T913i + 13.6773 * tfactors.T913
+                         + -3.76429 * tfactors.T9 + 0.438096 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    ln_set_rate += net_log_pf + log_scor;
+
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dln_set_rate_dT9 =  28.003503178913892 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -39.9808 * tfactors.T943i + (1.0/3.0) * 13.6773 * tfactors.T923i
+                                  + -3.76429 + (5.0/3.0) * 0.438096 * tfactors.T923 + -0.666667 * tfactors.T9i;
+
+        dln_set_rate_dT9 += net_dlog_pf_dT9 + dlog_scor_dT * 1.0e9_rt;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9_rt;
+    }
+
+}
+
+template <int do_T_derivatives, typename T>
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Mg24_to_C12_C12_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Mg24 --> C12 + C12
@@ -2552,6 +2786,63 @@ void rate_Ni58_to_He4_Fe54_derived(const tf_t& tfactors, const amrex::Real log_s
 
 template <int do_T_derivatives, typename T>
 AMREX_GPU_DEVICE AMREX_INLINE
+void rate_Cu59_to_p_Ni58_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+
+    // Cu59 --> p + Ni58
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    // Evaluate partition function terms
+
+    amrex::Real Cu59_log_pf, dCu59_log_pf_dT9;
+
+    // interpolating Cu59 partition function
+    get_partition_function_cached(Cu59, tfactors.T9, pf_cache, Cu59_log_pf, dCu59_log_pf_dT9);
+
+    amrex::Real p_log_pf, dp_log_pf_dT9;
+
+    // setting p log(partition function) to 0.0 by default, independent of T
+    p_log_pf = 0.0_rt;
+    dp_log_pf_dT9 = 0.0_rt;
+
+    amrex::Real Ni58_log_pf, dNi58_log_pf_dT9;
+
+    // interpolating Ni58 partition function
+    get_partition_function_cached(Ni58, tfactors.T9, pf_cache, Ni58_log_pf, dNi58_log_pf_dT9);
+
+    amrex::Real net_log_pf = p_log_pf + Ni58_log_pf - Cu59_log_pf;
+    [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dp_log_pf_dT9 + dNi58_log_pf_dT9 - dCu59_log_pf_dT9;
+
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // ReacLib set derived from si13n
+    ln_set_rate =  58.97928371193912 + -39.67086986195644 * tfactors.T9i + -39.0526 * tfactors.T913i + 1.0436 * tfactors.T913
+                         + -2.10834 * tfactors.T9 + 0.239559 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
+    ln_set_rate += net_log_pf + log_scor;
+
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dln_set_rate_dT9 =  39.67086986195644 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -39.0526 * tfactors.T943i + (1.0/3.0) * 1.0436 * tfactors.T923i
+                                  + -2.10834 + (5.0/3.0) * 0.239559 * tfactors.T923 + 0.833333 * tfactors.T9i;
+
+        dln_set_rate_dT9 += net_dlog_pf_dT9 + dlog_scor_dT * 1.0e9_rt;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9_rt;
+    }
+
+}
+
+template <int do_T_derivatives, typename T>
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Fe54_to_He4_Mn51_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Fe54 + p --> He4 + Mn51
@@ -2788,6 +3079,69 @@ void rate_p_Co56_to_n_Ni56_derived(const tf_t& tfactors, const amrex::Real log_s
     if constexpr (std::is_same_v<T, rate_derivs_t>) {
         dln_set_rate_dT9 =  33.830037058152215 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 1.76846 * tfactors.T923i
                                   + 0.197992 + (5.0/3.0) * -0.017494 * tfactors.T923;
+
+        dln_set_rate_dT9 += net_dlog_pf_dT9 + dlog_scor_dT * 1.0e9_rt;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9_rt;
+    }
+
+}
+
+template <int do_T_derivatives, typename T>
+AMREX_GPU_DEVICE AMREX_INLINE
+void rate_He4_Co56_to_n_Cu59_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
+
+    // Co56 + He4 --> n + Cu59
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    // Evaluate partition function terms
+
+    amrex::Real n_log_pf, dn_log_pf_dT9;
+
+    // setting n log(partition function) to 0.0 by default, independent of T
+    n_log_pf = 0.0_rt;
+    dn_log_pf_dT9 = 0.0_rt;
+
+    amrex::Real Cu59_log_pf, dCu59_log_pf_dT9;
+
+    // interpolating Cu59 partition function
+    get_partition_function_cached(Cu59, tfactors.T9, pf_cache, Cu59_log_pf, dCu59_log_pf_dT9);
+
+    amrex::Real He4_log_pf, dHe4_log_pf_dT9;
+
+    // setting He4 log(partition function) to 0.0 by default, independent of T
+    He4_log_pf = 0.0_rt;
+    dHe4_log_pf_dT9 = 0.0_rt;
+
+    amrex::Real Co56_log_pf, dCo56_log_pf_dT9;
+
+    // interpolating Co56 partition function
+    get_partition_function_cached(Co56, tfactors.T9, pf_cache, Co56_log_pf, dCo56_log_pf_dT9);
+
+    amrex::Real net_log_pf = n_log_pf + Cu59_log_pf - He4_log_pf - Co56_log_pf;
+    [[maybe_unused]] amrex::Real net_dlog_pf_dT9 = dn_log_pf_dT9 + dCu59_log_pf_dT9 - dHe4_log_pf_dT9 - dCo56_log_pf_dT9;
+
+    amrex::Real ln_set_rate{0.0};
+    amrex::Real dln_set_rate_dT9{0.0};
+    amrex::Real set_rate{0.0};
+
+    // ReacLib set derived from ths8r
+    ln_set_rate =  8.911918754289905 + -61.8335402370445 * tfactors.T9i + -1.00882 * tfactors.T913
+                         + 1.88993 * tfactors.T9 + -0.202319 * tfactors.T953;
+
+    ln_set_rate += net_log_pf + log_scor;
+
+    if constexpr (std::is_same_v<T, rate_derivs_t>) {
+        dln_set_rate_dT9 =  61.8335402370445 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -1.00882 * tfactors.T923i
+                                  + 1.88993 + (5.0/3.0) * -0.202319 * tfactors.T923;
 
         dln_set_rate_dT9 += net_dlog_pf_dT9 + dlog_scor_dT * 1.0e9_rt;
     }
@@ -4328,6 +4682,42 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Cu59_to_He4_Co55_derived
+
+        amrex::Real log_scor {0.0_rt};
+        amrex::Real dlog_scor_dT {0.0_rt};
+        rate_Cu59_to_He4_Co55_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
+        rate_eval.screened_rates(k_Cu59_to_He4_Co55_derived) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_Cu59_to_He4_Co55_derived) = drate_dT;
+        }
+    }
+
+    {
+        // Zn60_to_p_Cu59_derived
+
+        amrex::Real log_scor {0.0_rt};
+        amrex::Real dlog_scor_dT {0.0_rt};
+        rate_Zn60_to_p_Cu59_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
+        rate_eval.screened_rates(k_Zn60_to_p_Cu59_derived) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_Zn60_to_p_Cu59_derived) = drate_dT;
+        }
+    }
+
+    {
+        // Zn60_to_He4_Ni56_derived
+
+        amrex::Real log_scor {0.0_rt};
+        amrex::Real dlog_scor_dT {0.0_rt};
+        rate_Zn60_to_He4_Ni56_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
+        rate_eval.screened_rates(k_Zn60_to_He4_Ni56_derived) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_Zn60_to_He4_Ni56_derived) = drate_dT;
+        }
+    }
+
+    {
         // C12_to_He4_He4_He4_derived
 
         amrex::Real log_scor {0.0_rt};
@@ -4556,6 +4946,24 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // He4_Ni56_to_p_Cu59_derived
+
+        amrex::Real log_scor {0.0_rt};
+        amrex::Real dlog_scor_dT {0.0_rt};
+#ifdef SCREENING
+        log_scor = rate_eval.log_screen(k_He4_Ni56);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            dlog_scor_dT = rate_eval.dlog_screen_dT(k_He4_Ni56);
+        }
+#endif
+        rate_He4_Ni56_to_p_Cu59_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
+        rate_eval.screened_rates(k_He4_Ni56_to_p_Cu59_derived) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_He4_Ni56_to_p_Cu59_derived) = drate_dT;
+        }
+    }
+
+    {
         // Mg24_to_C12_C12_derived
 
         amrex::Real log_scor {0.0_rt};
@@ -4664,6 +5072,18 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Cu59_to_p_Ni58_derived
+
+        amrex::Real log_scor {0.0_rt};
+        amrex::Real dlog_scor_dT {0.0_rt};
+        rate_Cu59_to_p_Ni58_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
+        rate_eval.screened_rates(k_Cu59_to_p_Ni58_derived) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_Cu59_to_p_Ni58_derived) = drate_dT;
+        }
+    }
+
+    {
         // p_Fe54_to_He4_Mn51_derived
 
         amrex::Real log_scor {0.0_rt};
@@ -4732,6 +5152,24 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
         rate_eval.screened_rates(k_p_Co56_to_n_Ni56_derived) = rate;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dscreened_rates_dT(k_p_Co56_to_n_Ni56_derived) = drate_dT;
+        }
+    }
+
+    {
+        // He4_Co56_to_n_Cu59_derived
+
+        amrex::Real log_scor {0.0_rt};
+        amrex::Real dlog_scor_dT {0.0_rt};
+#ifdef SCREENING
+        log_scor = rate_eval.log_screen(k_He4_Co56);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            dlog_scor_dT = rate_eval.dlog_screen_dT(k_He4_Co56);
+        }
+#endif
+        rate_He4_Co56_to_n_Cu59_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
+        rate_eval.screened_rates(k_He4_Co56_to_n_Cu59_derived) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_He4_Co56_to_n_Cu59_derived) = drate_dT;
         }
     }
 
