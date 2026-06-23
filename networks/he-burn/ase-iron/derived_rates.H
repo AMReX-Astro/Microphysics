@@ -10,7 +10,7 @@
 using namespace Rates;
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_N13_to_p_C12_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // N13 --> p + C12
@@ -90,7 +90,7 @@ void rate_N13_to_p_C12_derived(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_O16_to_He4_C12_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // O16 --> He4 + C12
@@ -169,7 +169,7 @@ void rate_O16_to_He4_C12_derived(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ne20_to_He4_O16_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Ne20 --> He4 + O16
@@ -266,7 +266,7 @@ void rate_Ne20_to_He4_O16_derived(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Mg24_to_p_Na23_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Mg24 --> p + Na23
@@ -363,7 +363,7 @@ void rate_Mg24_to_p_Na23_derived(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Mg24_to_He4_Ne20_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Mg24 --> He4 + Ne20
@@ -479,7 +479,7 @@ void rate_Mg24_to_He4_Ne20_derived(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Si28_to_p_Al27_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Si28 --> p + Al27
@@ -578,7 +578,7 @@ void rate_Si28_to_p_Al27_derived(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Si28_to_He4_Mg24_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Si28 --> He4 + Mg24
@@ -654,7 +654,7 @@ void rate_Si28_to_He4_Mg24_derived(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_S32_to_p_P31_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // S32 --> p + P31
@@ -751,7 +751,7 @@ void rate_S32_to_p_P31_derived(const tf_t& tfactors, const amrex::Real log_scor,
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_S32_to_He4_Si28_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // S32 --> He4 + Si28
@@ -808,7 +808,7 @@ void rate_S32_to_He4_Si28_derived(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Fe52_to_p_Mn51_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Fe52 --> p + Mn51
@@ -865,7 +865,7 @@ void rate_Fe52_to_p_Mn51_derived(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Fe52_to_He4_Cr48_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Fe52 --> He4 + Cr48
@@ -922,7 +922,7 @@ void rate_Fe52_to_He4_Cr48_derived(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Co55_to_He4_Mn51_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Co55 --> He4 + Mn51
@@ -979,7 +979,7 @@ void rate_Co55_to_He4_Mn51_derived(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ni56_to_p_Co55_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Ni56 --> p + Co55
@@ -1036,7 +1036,7 @@ void rate_Ni56_to_p_Co55_derived(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ni56_to_He4_Fe52_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Ni56 --> He4 + Fe52
@@ -1093,7 +1093,7 @@ void rate_Ni56_to_He4_Fe52_derived(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cu59_to_He4_Co55_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Cu59 --> He4 + Co55
@@ -1150,7 +1150,7 @@ void rate_Cu59_to_He4_Co55_derived(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Zn60_to_p_Cu59_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Zn60 --> p + Cu59
@@ -1207,7 +1207,7 @@ void rate_Zn60_to_p_Cu59_derived(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Zn60_to_He4_Ni56_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Zn60 --> He4 + Ni56
@@ -1264,7 +1264,7 @@ void rate_Zn60_to_He4_Ni56_derived(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_C12_to_He4_He4_He4_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // C12 --> 3 He4
@@ -1359,7 +1359,7 @@ void rate_C12_to_He4_He4_He4_derived(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_O16_to_He4_N13_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // O16 + p --> He4 + N13
@@ -1423,7 +1423,7 @@ void rate_p_O16_to_He4_N13_derived(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ne20_to_p_Na23_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Ne20 + He4 --> p + Na23
@@ -1528,7 +1528,7 @@ void rate_He4_Ne20_to_p_Na23_derived(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ne20_to_C12_C12_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Ne20 + He4 --> C12 + C12
@@ -1586,7 +1586,7 @@ void rate_He4_Ne20_to_C12_C12_derived(const tf_t& tfactors, const amrex::Real lo
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Na23_to_C12_C12_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Na23 + p --> C12 + C12
@@ -1644,7 +1644,7 @@ void rate_p_Na23_to_C12_C12_derived(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Mg24_to_p_Al27_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Mg24 + He4 --> p + Al27
@@ -1749,7 +1749,7 @@ void rate_He4_Mg24_to_p_Al27_derived(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Mg24_to_C12_O16_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Mg24 + He4 --> C12 + O16
@@ -1812,7 +1812,7 @@ void rate_He4_Mg24_to_C12_O16_derived(const tf_t& tfactors, const amrex::Real lo
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Al27_to_C12_O16_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Al27 + p --> C12 + O16
@@ -1875,7 +1875,7 @@ void rate_p_Al27_to_C12_O16_derived(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Si28_to_p_P31_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Si28 + He4 --> p + P31
@@ -1980,7 +1980,7 @@ void rate_He4_Si28_to_p_P31_derived(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Si28_to_O16_O16_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Si28 + He4 --> O16 + O16
@@ -2037,7 +2037,7 @@ void rate_He4_Si28_to_O16_O16_derived(const tf_t& tfactors, const amrex::Real lo
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_P31_to_O16_O16_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // P31 + p --> O16 + O16
@@ -2094,7 +2094,7 @@ void rate_p_P31_to_O16_O16_derived(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Mn51_to_He4_Cr48_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Mn51 + p --> He4 + Cr48
@@ -2157,7 +2157,7 @@ void rate_p_Mn51_to_He4_Cr48_derived(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Co55_to_He4_Fe52_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Co55 + p --> He4 + Fe52
@@ -2220,7 +2220,7 @@ void rate_p_Co55_to_He4_Fe52_derived(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ni56_to_p_Cu59_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Ni56 + He4 --> p + Cu59
@@ -2283,7 +2283,7 @@ void rate_He4_Ni56_to_p_Cu59_derived(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Mg24_to_C12_C12_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Mg24 --> C12 + C12
@@ -2335,7 +2335,7 @@ void rate_Mg24_to_C12_C12_derived(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_S32_to_O16_O16_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // S32 --> O16 + O16
@@ -2386,7 +2386,7 @@ void rate_S32_to_O16_O16_derived(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Si28_to_C12_O16_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Si28 --> C12 + O16
@@ -2443,7 +2443,7 @@ void rate_Si28_to_C12_O16_derived(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Co55_to_p_Fe54_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Co55 --> p + Fe54
@@ -2500,7 +2500,7 @@ void rate_Co55_to_p_Fe54_derived(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Co56_to_n_Co55_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Co56 --> n + Co55
@@ -2557,7 +2557,7 @@ void rate_Co56_to_n_Co55_derived(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Co57_to_n_Co56_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Co57 --> n + Co56
@@ -2614,7 +2614,7 @@ void rate_Co57_to_n_Co56_derived(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Co57_to_p_Fe56_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Co57 --> p + Fe56
@@ -2671,7 +2671,7 @@ void rate_Co57_to_p_Fe56_derived(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ni58_to_p_Co57_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Ni58 --> p + Co57
@@ -2728,7 +2728,7 @@ void rate_Ni58_to_p_Co57_derived(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ni58_to_He4_Fe54_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Ni58 --> He4 + Fe54
@@ -2785,7 +2785,7 @@ void rate_Ni58_to_He4_Fe54_derived(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cu59_to_p_Ni58_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Cu59 --> p + Ni58
@@ -2842,7 +2842,7 @@ void rate_Cu59_to_p_Ni58_derived(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Fe54_to_He4_Mn51_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Fe54 + p --> He4 + Mn51
@@ -2905,7 +2905,7 @@ void rate_p_Fe54_to_He4_Mn51_derived(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Fe54_to_p_Co57_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Fe54 + He4 --> p + Co57
@@ -2968,7 +2968,7 @@ void rate_He4_Fe54_to_p_Co57_derived(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Fe56_to_n_Co56_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Fe56 + p --> n + Co56
@@ -3031,7 +3031,7 @@ void rate_p_Fe56_to_n_Co56_derived(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Co56_to_n_Ni56_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Co56 + p --> n + Ni56
@@ -3094,7 +3094,7 @@ void rate_p_Co56_to_n_Ni56_derived(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Co56_to_n_Cu59_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Co56 + He4 --> n + Cu59
@@ -3157,7 +3157,7 @@ void rate_He4_Co56_to_n_Cu59_derived(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_Ni58_to_He4_Co55_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Ni58 + p --> He4 + Co55
@@ -3220,7 +3220,7 @@ void rate_p_Ni58_to_He4_Co55_derived(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_S32_to_p_Cl35_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // S32 + He4 --> p + Cl35
@@ -3346,7 +3346,7 @@ void rate_He4_S32_to_p_Cl35_derived(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ar36_to_He4_S32_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Ar36 --> He4 + S32
@@ -3403,7 +3403,7 @@ void rate_Ar36_to_He4_S32_derived(const tf_t& tfactors, const amrex::Real log_sc
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ar36_to_p_Cl35_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Ar36 --> p + Cl35
@@ -3519,7 +3519,7 @@ void rate_Ar36_to_p_Cl35_derived(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ar36_to_p_K39_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Ar36 + He4 --> p + K39
@@ -3582,7 +3582,7 @@ void rate_He4_Ar36_to_p_K39_derived(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ca40_to_He4_Ar36_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Ca40 --> He4 + Ar36
@@ -3639,7 +3639,7 @@ void rate_Ca40_to_He4_Ar36_derived(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ca40_to_p_K39_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Ca40 --> p + K39
@@ -3738,7 +3738,7 @@ void rate_Ca40_to_p_K39_derived(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_He4_Ca40_to_p_Sc43_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Ca40 + He4 --> p + Sc43
@@ -3801,7 +3801,7 @@ void rate_He4_Ca40_to_p_Sc43_derived(const tf_t& tfactors, const amrex::Real log
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ti44_to_He4_Ca40_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Ti44 --> He4 + Ca40
@@ -3858,7 +3858,7 @@ void rate_Ti44_to_He4_Ca40_derived(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ti44_to_p_Sc43_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Ti44 --> p + Sc43
@@ -3915,7 +3915,7 @@ void rate_Ti44_to_p_Sc43_derived(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cr48_to_He4_Ti44_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Cr48 --> He4 + Ti44
@@ -3972,7 +3972,7 @@ void rate_Cr48_to_He4_Ti44_derived(const tf_t& tfactors, const amrex::Real log_s
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Cr48_to_p_V47_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Cr48 --> p + V47
@@ -4092,7 +4092,7 @@ void rate_Cr48_to_p_V47_derived(const tf_t& tfactors, const amrex::Real log_scor
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_p_V47_to_He4_Ti44_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // V47 + p --> He4 + Ti44
@@ -4155,7 +4155,7 @@ void rate_p_V47_to_He4_Ti44_derived(const tf_t& tfactors, const amrex::Real log_
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Fe54_to_n_Fe53_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Fe54 --> n + Fe53
@@ -4212,7 +4212,7 @@ void rate_Fe54_to_n_Fe53_derived(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Fe53_to_n_Fe52_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Fe53 --> n + Fe52
@@ -4269,7 +4269,7 @@ void rate_Fe53_to_n_Fe52_derived(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Fe56_to_n_Fe55_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Fe56 --> n + Fe55
@@ -4326,7 +4326,7 @@ void rate_Fe56_to_n_Fe55_derived(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Fe55_to_n_Fe54_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Fe55 --> n + Fe54
@@ -4383,7 +4383,7 @@ void rate_Fe55_to_n_Fe54_derived(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ni58_to_n_Ni57_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Ni58 --> n + Ni57
@@ -4440,7 +4440,7 @@ void rate_Ni58_to_n_Ni57_derived(const tf_t& tfactors, const amrex::Real log_sco
 }
 
 template <int do_T_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void rate_Ni57_to_n_Ni56_derived(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT, [[maybe_unused]] const T& rate_eval, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
     // Ni57 --> n + Ni56
@@ -4514,6 +4514,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     pf_cache.index_temp_array_1 = interp_net::find_index(tfactors.T9, part_fun::temp_array_1);
 
     {
+        // N13_to_p_C12_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_N13_to_p_C12_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -4524,6 +4526,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // O16_to_He4_C12_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_O16_to_He4_C12_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -4534,6 +4538,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Ne20_to_He4_O16_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Ne20_to_He4_O16_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -4544,6 +4550,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Mg24_to_p_Na23_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Mg24_to_p_Na23_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -4554,6 +4562,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Mg24_to_He4_Ne20_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Mg24_to_He4_Ne20_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -4564,6 +4574,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Si28_to_p_Al27_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Si28_to_p_Al27_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -4574,6 +4586,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Si28_to_He4_Mg24_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Si28_to_He4_Mg24_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -4584,6 +4598,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // S32_to_p_P31_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_S32_to_p_P31_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -4594,6 +4610,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // S32_to_He4_Si28_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_S32_to_He4_Si28_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -4604,6 +4622,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Fe52_to_p_Mn51_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Fe52_to_p_Mn51_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -4614,6 +4634,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Fe52_to_He4_Cr48_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Fe52_to_He4_Cr48_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -4624,6 +4646,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Co55_to_He4_Mn51_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Co55_to_He4_Mn51_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -4634,6 +4658,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Ni56_to_p_Co55_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Ni56_to_p_Co55_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -4644,6 +4670,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Ni56_to_He4_Fe52_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Ni56_to_He4_Fe52_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -4654,6 +4682,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Cu59_to_He4_Co55_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Cu59_to_He4_Co55_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -4664,6 +4694,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Zn60_to_p_Cu59_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Zn60_to_p_Cu59_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -4674,6 +4706,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Zn60_to_He4_Ni56_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Zn60_to_He4_Ni56_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -4684,6 +4718,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // C12_to_He4_He4_He4_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_C12_to_He4_He4_He4_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -4694,6 +4730,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // p_O16_to_He4_N13_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4710,6 +4748,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // He4_Ne20_to_p_Na23_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4726,6 +4766,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // He4_Ne20_to_C12_C12_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4742,6 +4784,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // p_Na23_to_C12_C12_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4758,6 +4802,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // He4_Mg24_to_p_Al27_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4774,6 +4820,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // He4_Mg24_to_C12_O16_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4790,6 +4838,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // p_Al27_to_C12_O16_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4806,6 +4856,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // He4_Si28_to_p_P31_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4822,6 +4874,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // He4_Si28_to_O16_O16_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4838,6 +4892,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // p_P31_to_O16_O16_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4854,6 +4910,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // p_Mn51_to_He4_Cr48_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4870,6 +4928,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // p_Co55_to_He4_Fe52_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4886,6 +4946,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // He4_Ni56_to_p_Cu59_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -4902,6 +4964,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Mg24_to_C12_C12_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Mg24_to_C12_C12_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -4912,6 +4976,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // S32_to_O16_O16_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_S32_to_O16_O16_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -4922,6 +4988,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Si28_to_C12_O16_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Si28_to_C12_O16_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -4932,6 +5000,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Co55_to_p_Fe54_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Co55_to_p_Fe54_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -4942,6 +5012,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Co56_to_n_Co55_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Co56_to_n_Co55_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -4952,6 +5024,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Co57_to_n_Co56_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Co57_to_n_Co56_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -4962,6 +5036,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Co57_to_p_Fe56_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Co57_to_p_Fe56_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -4972,6 +5048,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Ni58_to_p_Co57_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Ni58_to_p_Co57_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -4982,6 +5060,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Ni58_to_He4_Fe54_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Ni58_to_He4_Fe54_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -4992,6 +5072,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Cu59_to_p_Ni58_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Cu59_to_p_Ni58_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -5002,6 +5084,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // p_Fe54_to_He4_Mn51_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -5018,6 +5102,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // He4_Fe54_to_p_Co57_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -5034,6 +5120,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // p_Fe56_to_n_Co56_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -5050,6 +5138,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // p_Co56_to_n_Ni56_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -5066,6 +5156,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // He4_Co56_to_n_Cu59_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -5082,6 +5174,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // p_Ni58_to_He4_Co55_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -5098,6 +5192,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // He4_S32_to_p_Cl35_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -5114,6 +5210,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Ar36_to_He4_S32_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Ar36_to_He4_S32_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -5124,6 +5222,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Ar36_to_p_Cl35_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Ar36_to_p_Cl35_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -5134,6 +5234,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // He4_Ar36_to_p_K39_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -5150,6 +5252,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Ca40_to_He4_Ar36_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Ca40_to_He4_Ar36_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -5160,6 +5264,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Ca40_to_p_K39_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Ca40_to_p_K39_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -5170,6 +5276,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // He4_Ca40_to_p_Sc43_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -5186,6 +5294,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Ti44_to_He4_Ca40_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Ti44_to_He4_Ca40_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -5196,6 +5306,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Ti44_to_p_Sc43_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Ti44_to_p_Sc43_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -5206,6 +5318,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Cr48_to_He4_Ti44_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Cr48_to_He4_Ti44_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -5216,6 +5330,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Cr48_to_p_V47_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Cr48_to_p_V47_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -5226,6 +5342,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // p_V47_to_He4_Ti44_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -5242,6 +5360,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Fe54_to_n_Fe53_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Fe54_to_n_Fe53_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -5252,6 +5372,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Fe53_to_n_Fe52_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Fe53_to_n_Fe52_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -5262,6 +5384,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Fe56_to_n_Fe55_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Fe56_to_n_Fe55_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -5272,6 +5396,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Fe55_to_n_Fe54_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Fe55_to_n_Fe54_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -5282,6 +5408,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Ni58_to_n_Ni57_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Ni58_to_n_Ni57_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
@@ -5292,6 +5420,8 @@ fill_derived_rates(const tf_t& tfactors, T& rate_eval)
     }
 
     {
+        // Ni57_to_n_Ni56_derived
+
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
         rate_Ni57_to_n_Ni56_derived<do_T_derivatives, T>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT, rate_eval, pf_cache);
