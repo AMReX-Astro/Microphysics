@@ -22,7 +22,7 @@ namespace part_fun {
 
     // this is T9
 
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> temp_array_1 = {
+    inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 0, npts_1-1> temp_array_1 = {
         0.01, 0.15, 0.2, 0.3, 0.4,
         0.5, 0.6, 0.7, 0.8, 0.9,
         1.0, 1.5, 2.0, 2.5, 3.0,
@@ -45,7 +45,7 @@ namespace part_fun {
 
     // this is log(partition function)
 
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> O16_pf_array = {
+    inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 0, npts_1-1> O16_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
@@ -69,10 +69,10 @@ namespace part_fun {
 
     // this is log(partition function)
 
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> F17_pf_array = {
+    inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 0, npts_1-1> F17_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
-        0.0, 0.009950330853168092, 0.01980262729617973, 0.02955880224154443, 0.04879016416943205,
+        0.0, 0.009950330853168092, 0.01980262729617973, 0.02955880224154443, 0.04879016416943204,
         0.058268908123975824, 0.0769610411361284, 0.08617769624105241, 0.09531017980432493, 0.12221763272424911,
         0.13976194237515863, 0.1570037488096647, 0.17395330712343798, 0.19885085874516517, 0.26236426446749106,
         0.3293037471426003, 0.41871033485818504, 0.5247285289349821, 0.6471032420585384, 0.7884573603642703,
@@ -93,7 +93,7 @@ namespace part_fun {
 
     // this is log(partition function)
 
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1-1> Ne20_pf_array = {
+    inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 0, npts_1-1> Ne20_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 1.5999872001381317e-05, 0.00038192705657577196, 0.0025407695097516073, 0.008962714607884434,
@@ -161,13 +161,9 @@ namespace part_fun {
         // Store the coefficient and derivative adjacent in memory, as they're
         // always accessed at the same time.
         amrex::Array2D<amrex::Real, 1, NumSpecTotal, 1, 2, amrex::Order::C> data;
-<<<<<<< HEAD
         int index_temp_array_1{-1};
 
-        AMREX_GPU_HOST_DEVICE AMREX_INLINE
-=======
         AMREX_GPU_DEVICE AMREX_INLINE
->>>>>>> development
         pf_cache_t() {
             // The entries will be default-initialized to -900,
             // log(partition_function) should never be -900.

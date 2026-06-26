@@ -1,5 +1,1 @@
-<<<<<<< HEAD
-pynucastro version: 2.9.0-44-g77ed73b73
-=======
-pynucastro version: 2.12.0
->>>>>>> development
+pynucastro version: 2.12.0-1-g500bf4ce4
