@@ -1,18 +1,25 @@
 #ifndef actual_network_H
 #define actual_network_H
 
+#include <random>
 #include <string_view>
 
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>
 #include <AMReX_Loop.H>
 
+#include <extern_parameters.H>
 #include <fundamental_constants.H>
 #include <network_properties.H>
 
 using namespace amrex::literals;
 
-void actual_network_init();
+
+inline
+void actual_network_init() {
+
+
+}
 
 constexpr std::string_view network_name = "pynucastro-cxx";
 
@@ -249,6 +256,42 @@ namespace Rates
         NumRates = k_p_p_He4_He4_to_He3_Be7_derived
     };
 
+    enum ScreenPairs :
+    std::uint8_t
+    {
+        k_He4_O15 = 1,
+        k_He2_He4 = 2,
+        k_p_F18 = 3,
+        k_p_C12 = 4,
+        k_He3_He3 = 5,
+        k_He4_N14 = 6,
+        k_He3_He4 = 7,
+        k_p_C13 = 8,
+        k_He3_Be7 = 9,
+        k_He2_Be8 = 10,
+        k_He4_C12 = 11,
+        k_p_p = 12,
+        k_p_O17 = 13,
+        k_p_N15 = 14,
+        k_p_d = 15,
+        k_p_He3 = 16,
+        k_d_d = 17,
+        k_d_He3 = 18,
+        k_p_He4 = 19,
+        k_p_Be7 = 20,
+        k_d_Be7 = 21,
+        k_p_Be8 = 22,
+        k_p_N13 = 23,
+        k_He4_O14 = 24,
+        k_He4_He4 = 25,
+        k_p_O16 = 26,
+        k_p_N14 = 27,
+        k_p_F17 = 28,
+        k_He4_Be8 = 29,
+        k_He4_N13 = 30,
+        NumScreenPairs = k_He4_N13
+    };
+
     // rate names -- note: the rates are 1-based, not zero-based, so we pad
     // this vector with rate_names[0] = "" so the indices line up with the
     // NetworkRates enum
@@ -311,6 +354,12 @@ namespace Rates
         "p_He4_He4_to_d_Be7_derived",  // 54,
         "p_p_He4_He4_to_He3_Be7_derived"  // 55,
     };
+
+    template<std::uint8_t rate>
+    AMREX_GPU_DEVICE AMREX_INLINE
+    constexpr amrex::Real get_p_random() {
+        return 0.0_rt;
+    }
 
 }
 

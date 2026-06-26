@@ -70,15 +70,11 @@ Presently, allowed integrators are:
 
   * ``3`` : ROS2S method, a 2nd order, stiff-accurate method :cite:`ros2s`.
 
-  * ``4`` : ROS2 method, a 2nd order, L-stable method :cite:`ros2`.
-
-  * ``5`` : a first-order method based on the YASS method (described in :cite:`YASS`).
-
   Here the "P" suffix refers to methods developed to satisfy the stiff
   accuracy conditions of :cite:`Prothero1974` (ROS2S also satisfies
   these).
 
-  By default, the H211b error-history timestep controller from :cite:`h211b` (see Eq. 31) is used, but the YASS heuristic method can be used instead by setting ``integrator.rosenbrock_timestep_controller=1``.
+  The H211b error-history timestep controller from :cite:`h211b` (see Eq. 31) is used.
 
 * ``VODE``: the VODE :cite:`vode` integration package.  We ported this
   integrator to C++ and removed the non-stiff integration code paths.

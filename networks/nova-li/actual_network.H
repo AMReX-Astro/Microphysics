@@ -1,18 +1,25 @@
 #ifndef actual_network_H
 #define actual_network_H
 
+#include <random>
 #include <string_view>
 
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>
 #include <AMReX_Loop.H>
 
+#include <extern_parameters.H>
 #include <fundamental_constants.H>
 #include <network_properties.H>
 
 using namespace amrex::literals;
 
-void actual_network_init();
+
+inline
+void actual_network_init() {
+
+
+}
 
 constexpr std::string_view network_name = "pynucastro-cxx";
 
@@ -243,6 +250,7 @@ namespace Rates
         k_N13_to_C13_reaclib = 2,
         k_O14_to_N14_reaclib = 3,
         k_O15_to_N15_reaclib = 4,
+<<<<<<< HEAD
         k_B8_to_He4_He4_reaclib = 5,
         k_p_p_to_d_reaclib_beta_pos = 6,
         k_p_p_to_d_reaclib_electron_capture = 7,
@@ -294,6 +302,101 @@ namespace Rates
         k_F17_to_p_O16_derived = 53,
         k_He4_F17_to_p_Ne20_derived = 54,
         NumRates = k_He4_F17_to_p_Ne20_derived
+=======
+        k_B8_to_p_Be7_reaclib = 5,
+        k_B8_to_He4_He4_reaclib = 6,
+        k_F17_to_p_O16_reaclib = 7,
+        k_p_p_to_d_reaclib_beta_pos = 8,
+        k_p_p_to_d_reaclib_electron_capture = 9,
+        k_p_d_to_He3_reaclib = 10,
+        k_d_d_to_He4_reaclib = 11,
+        k_p_He3_to_He4_reaclib = 12,
+        k_He4_He3_to_Be7_reaclib = 13,
+        k_He4_Li7_to_B11_reaclib = 14,
+        k_p_Be7_to_B8_reaclib = 15,
+        k_p_B11_to_C12_reaclib = 16,
+        k_p_C12_to_N13_reaclib = 17,
+        k_He4_C12_to_O16_reaclib = 18,
+        k_p_C13_to_N14_reaclib = 19,
+        k_p_N13_to_O14_reaclib = 20,
+        k_p_N14_to_O15_reaclib = 21,
+        k_He4_N14_to_F18_reaclib = 22,
+        k_p_N15_to_O16_reaclib = 23,
+        k_He4_N15_to_F19_reaclib = 24,
+        k_He4_O14_to_Ne18_reaclib = 25,
+        k_He4_O15_to_Ne19_reaclib = 26,
+        k_p_O16_to_F17_reaclib = 27,
+        k_He4_O16_to_Ne20_reaclib = 28,
+        k_p_O17_to_F18_reaclib = 29,
+        k_He4_O17_to_Ne21_reaclib = 30,
+        k_p_O18_to_F19_reaclib = 31,
+        k_p_F17_to_Ne18_reaclib = 32,
+        k_p_F18_to_Ne19_reaclib = 33,
+        k_p_F19_to_Ne20_reaclib = 34,
+        k_d_He3_to_p_He4_reaclib = 35,
+        k_p_Li7_to_He4_He4_reaclib = 36,
+        k_He4_N13_to_p_O16_reaclib = 37,
+        k_p_N15_to_He4_C12_reaclib = 38,
+        k_He4_O14_to_p_F17_reaclib = 39,
+        k_p_O17_to_He4_N14_reaclib = 40,
+        k_p_O18_to_He4_N15_reaclib = 41,
+        k_He4_F17_to_p_Ne20_reaclib = 42,
+        k_p_F18_to_He4_O15_reaclib = 43,
+        k_He4_F18_to_p_Ne21_reaclib = 44,
+        k_p_F19_to_He4_O16_reaclib = 45,
+        k_He3_He3_to_p_p_He4_reaclib = 46,
+        k_d_Be7_to_p_He4_He4_reaclib = 47,
+        k_p_B11_to_He4_He4_He4_reaclib = 48,
+        k_He3_Be7_to_p_p_He4_He4_reaclib = 49,
+        k_He4_He4_He4_to_C12_reaclib = 50,
+        k_F17_to_O17_weaktab = 51,
+        k_F18_to_O18_weaktab = 52,
+        k_Ne18_to_F18_weaktab = 53,
+        k_Ne19_to_F19_weaktab = 54,
+        NumRates = k_Ne19_to_F19_weaktab
+>>>>>>> development
+    };
+
+    enum ScreenPairs :
+    std::uint8_t
+    {
+        k_p_Li7 = 1,
+        k_p_F18 = 2,
+        k_p_C12 = 3,
+        k_He3_He3 = 4,
+        k_He4_O16 = 5,
+        k_He4_F17 = 6,
+        k_He4_N14 = 7,
+        k_He3_He4 = 8,
+        k_p_F19 = 9,
+        k_p_C13 = 10,
+        k_p_B11 = 11,
+        k_He3_Be7 = 12,
+        k_He4_Li7 = 13,
+        k_He4_F18 = 14,
+        k_He4_C12 = 15,
+        k_p_p = 16,
+        k_p_O17 = 17,
+        k_p_N15 = 18,
+        k_p_O18 = 19,
+        k_p_d = 20,
+        k_p_He3 = 21,
+        k_He4_O17 = 22,
+        k_d_d = 23,
+        k_He4_N15 = 24,
+        k_d_He3 = 25,
+        k_p_Be7 = 26,
+        k_d_Be7 = 27,
+        k_p_N13 = 28,
+        k_He4_O14 = 29,
+        k_He4_He4 = 30,
+        k_He4_Be8 = 31,
+        k_p_O16 = 32,
+        k_p_N14 = 33,
+        k_p_F17 = 34,
+        k_He4_O15 = 35,
+        k_He4_N13 = 36,
+        NumScreenPairs = k_He4_N13
     };
 
     // rate names -- note: the rates are 1-based, not zero-based, so we pad
@@ -306,6 +409,7 @@ namespace Rates
         "N13_to_C13_reaclib",  // 2,
         "O14_to_N14_reaclib",  // 3,
         "O15_to_N15_reaclib",  // 4,
+<<<<<<< HEAD
         "B8_to_He4_He4_reaclib",  // 5,
         "p_p_to_d_reaclib_beta_pos",  // 6,
         "p_p_to_d_reaclib_electron_capture",  // 7,
@@ -356,7 +460,65 @@ namespace Rates
         "B8_to_p_Be7_derived",  // 52,
         "F17_to_p_O16_derived",  // 53,
         "He4_F17_to_p_Ne20_derived"  // 54,
+=======
+        "B8_to_p_Be7_reaclib",  // 5,
+        "B8_to_He4_He4_reaclib",  // 6,
+        "F17_to_p_O16_reaclib",  // 7,
+        "p_p_to_d_reaclib_beta_pos",  // 8,
+        "p_p_to_d_reaclib_electron_capture",  // 9,
+        "p_d_to_He3_reaclib",  // 10,
+        "d_d_to_He4_reaclib",  // 11,
+        "p_He3_to_He4_reaclib",  // 12,
+        "He4_He3_to_Be7_reaclib",  // 13,
+        "He4_Li7_to_B11_reaclib",  // 14,
+        "p_Be7_to_B8_reaclib",  // 15,
+        "p_B11_to_C12_reaclib",  // 16,
+        "p_C12_to_N13_reaclib",  // 17,
+        "He4_C12_to_O16_reaclib",  // 18,
+        "p_C13_to_N14_reaclib",  // 19,
+        "p_N13_to_O14_reaclib",  // 20,
+        "p_N14_to_O15_reaclib",  // 21,
+        "He4_N14_to_F18_reaclib",  // 22,
+        "p_N15_to_O16_reaclib",  // 23,
+        "He4_N15_to_F19_reaclib",  // 24,
+        "He4_O14_to_Ne18_reaclib",  // 25,
+        "He4_O15_to_Ne19_reaclib",  // 26,
+        "p_O16_to_F17_reaclib",  // 27,
+        "He4_O16_to_Ne20_reaclib",  // 28,
+        "p_O17_to_F18_reaclib",  // 29,
+        "He4_O17_to_Ne21_reaclib",  // 30,
+        "p_O18_to_F19_reaclib",  // 31,
+        "p_F17_to_Ne18_reaclib",  // 32,
+        "p_F18_to_Ne19_reaclib",  // 33,
+        "p_F19_to_Ne20_reaclib",  // 34,
+        "d_He3_to_p_He4_reaclib",  // 35,
+        "p_Li7_to_He4_He4_reaclib",  // 36,
+        "He4_N13_to_p_O16_reaclib",  // 37,
+        "p_N15_to_He4_C12_reaclib",  // 38,
+        "He4_O14_to_p_F17_reaclib",  // 39,
+        "p_O17_to_He4_N14_reaclib",  // 40,
+        "p_O18_to_He4_N15_reaclib",  // 41,
+        "He4_F17_to_p_Ne20_reaclib",  // 42,
+        "p_F18_to_He4_O15_reaclib",  // 43,
+        "He4_F18_to_p_Ne21_reaclib",  // 44,
+        "p_F19_to_He4_O16_reaclib",  // 45,
+        "He3_He3_to_p_p_He4_reaclib",  // 46,
+        "d_Be7_to_p_He4_He4_reaclib",  // 47,
+        "p_B11_to_He4_He4_He4_reaclib",  // 48,
+        "He3_Be7_to_p_p_He4_He4_reaclib",  // 49,
+        "He4_He4_He4_to_C12_reaclib",  // 50,
+        "F17_to_O17_weaktab",  // 51,
+        "F18_to_O18_weaktab",  // 52,
+        "Ne18_to_F18_weaktab",  // 53,
+        "Ne19_to_F19_weaktab"  // 54,
+>>>>>>> development
     };
+
+    template<std::uint8_t rate>
+    AMREX_GPU_DEVICE AMREX_INLINE
+    constexpr amrex::Real get_p_random() {
+        return 0.0_rt;
+    }
 
 }
 

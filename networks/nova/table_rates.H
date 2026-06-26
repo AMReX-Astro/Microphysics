@@ -55,11 +55,11 @@ constexpr int add_vars = 1;  // 1 Additional Var in entries
 namespace rate_tables
 {
     // F17 --> O17
-    inline AMREX_GPU_MANAGED table_t j_F17_O17_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5};
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_F17_O17_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 12> j_F17_O17_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121};
+    inline AMREX_GPU_DEVICE table_t j_F17_O17_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5};
+    inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 11> j_F17_O17_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
+    inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 12> j_F17_O17_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121};
     // Array3D is column-major (Fortran-ordering).  T varies fastest, then rho Ye, then the component
-    inline AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 12, 1, 11, 1, num_vars>
+    inline AMREX_GPU_DEVICE amrex::Array3D<amrex::Real, 1, 12, 1, 11, 1, num_vars>
          j_F17_O17_data{
 -1.98599,       -1.985996,       -1.985997,       -1.985998,       -1.985991,       -1.985811,       -1.984179,       -1.977601,       -1.918501,       -1.559899,       -0.462121,        1.718247,  // RATE
 -1.985903,       -1.985964,       -1.985971,       -1.985976,       -1.985976,       -1.985801,       -1.984173,       -1.977571,       -1.918501,       -1.559899,       -0.462121,        1.718247,
@@ -97,11 +97,11 @@ namespace rate_tables
          };
 
     // O17 --> F17
-    inline AMREX_GPU_MANAGED table_t j_O17_F17_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5};
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_O17_F17_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 12> j_O17_F17_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121};
+    inline AMREX_GPU_DEVICE table_t j_O17_F17_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5};
+    inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 11> j_O17_F17_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
+    inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 12> j_O17_F17_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121};
     // Array3D is column-major (Fortran-ordering).  T varies fastest, then rho Ye, then the component
-    inline AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 12, 1, 11, 1, num_vars>
+    inline AMREX_GPU_DEVICE amrex::Array3D<amrex::Real, 1, 12, 1, 11, 1, num_vars>
          j_O17_F17_data{
 -99.69897,       -99.69897,         -72.639,         -36.441,         -21.007,         -15.597,         -11.237,          -8.922,       -6.409967,       -4.069196,       -1.723001,        1.202117,  // RATE
 -99.69897,       -99.69897,         -73.639,         -37.441,          -21.42,         -15.619,         -11.238,          -8.923,       -6.409967,       -4.069196,       -1.723001,        1.202117,
@@ -141,7 +141,7 @@ namespace rate_tables
 }
 
 
-AMREX_INLINE AMREX_GPU_HOST_DEVICE
+AMREX_INLINE AMREX_GPU_DEVICE
 amrex::Real
 evaluate_linear_1d(const amrex::Real fhi, const amrex::Real flo, const amrex::Real xhi, const amrex::Real xlo, const amrex::Real x)
 {
@@ -154,7 +154,7 @@ evaluate_linear_1d(const amrex::Real fhi, const amrex::Real flo, const amrex::Re
     return f;
 }
 
-AMREX_INLINE AMREX_GPU_HOST_DEVICE
+AMREX_INLINE AMREX_GPU_DEVICE
 amrex::Real
 evaluate_linear_2d(const amrex::Real fip1jp1, const amrex::Real fip1j, const amrex::Real fijp1, const amrex::Real fij,
           const amrex::Real xhi, const amrex::Real xlo, const amrex::Real yhi, const amrex::Real ylo,
@@ -186,7 +186,7 @@ evaluate_linear_2d(const amrex::Real fip1jp1, const amrex::Real fip1j, const amr
 
 
 template<typename R, typename T, typename D>
-AMREX_INLINE AMREX_GPU_HOST_DEVICE
+AMREX_INLINE AMREX_GPU_DEVICE
 amrex::Real
 evaluate_vars(const int irhoy_lo, const int jtemp_lo,
               const R& log_rhoy_table, const T& log_temp_table, const D& data,
@@ -216,7 +216,7 @@ evaluate_vars(const int irhoy_lo, const int jtemp_lo,
 
 
 template<typename R, typename T, typename D>
-AMREX_INLINE AMREX_GPU_HOST_DEVICE
+AMREX_INLINE AMREX_GPU_DEVICE
 amrex::Real
 evaluate_dr_dtemp(const int irhoy_lo, const int jtemp_lo,
                   const table_t& table_meta, const R& log_rhoy_table, const T& log_temp_table, const D& data,
@@ -359,7 +359,7 @@ evaluate_dr_dtemp(const int irhoy_lo, const int jtemp_lo,
 
 
 template <typename R, typename T, typename D>
-AMREX_INLINE AMREX_GPU_HOST_DEVICE
+AMREX_INLINE AMREX_GPU_DEVICE
 void
 get_entries(const int irhoy_lo, const int jtemp_lo,
             const table_t& table_meta, const R& log_rhoy_table, const T& log_temp_table, const D& data,
@@ -387,7 +387,7 @@ get_entries(const int irhoy_lo, const int jtemp_lo,
 }
 
 template <typename R, typename T, typename D>
-AMREX_INLINE AMREX_GPU_HOST_DEVICE
+AMREX_INLINE AMREX_GPU_DEVICE
 void
 tabular_evaluate(const table_t& table_meta,
                  const R& log_rhoy_table, const T& log_temp_table, const D& data,
