@@ -1,5 +1,34 @@
 # Changelog
 
+## 26.06
+
+  * add a 5th order stiffly-accurate Rosenbrock integrator (#1994,
+    #2001, #2002, #2004, #2008)
+
+  * update CMake to allow selection of the integrator (#2005)
+
+  * add a utility to find xrb ignition condition (#1911)
+
+  * fix function signature of ``primordial_chem`` (#1986)
+
+  * reverse ``inline`` changes to EOS for HIP (#1991)
+
+  * fix some math rendering in docs (#1992)
+
+## 26.05
+
+  * fix the `vode_example` network (#1984)
+
+  * add a unit test that just evaluates tabulated weak
+    rates from a pynucastro network (#1979)
+
+  * update the build system to support compiling a network
+    test outside of Microphysics/ (#1978)
+
+  * some fixes to `BackwardEuler` failure modes (#1977)
+
+  * update the burn failure documentation (#1974)
+
 ## 26.04
 
   * add documentation on recovering from burn failures (#1971)

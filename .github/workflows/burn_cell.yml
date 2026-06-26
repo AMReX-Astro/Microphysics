@@ -40,7 +40,7 @@ jobs:
       - name: Compare to stored output (VODE, he-burn/he-burn-19am)
         run: |
           cd unit_test/burn_cell
-          diff -I "^Initializing AMReX" -I "^AMReX" -I "^reading in reaclib rates" test.out ci-benchmarks/he-burn-19am_unit_test.out
+          diff -I "^Initializing AMReX" -I "^AMReX" test.out ci-benchmarks/he-burn-19am_unit_test.out
 
       - name: Compile, burn_cell (VODE, ECSN)
         run: |
@@ -58,7 +58,7 @@ jobs:
       - name: Compare to stored output (VODE, ECSN)
         run: |
           cd unit_test/burn_cell
-          diff -I "^Initializing AMReX" -I "^AMReX" -I "^reading in reaclib rates" test.out ci-benchmarks/ecsn_unit_test.out
+          diff -I "^Initializing AMReX" -I "^AMReX" test.out ci-benchmarks/ecsn_unit_test.out
 
       - name: Compile, burn_cell (VODE, ignition_chamulak)
         run: |
@@ -74,7 +74,7 @@ jobs:
       - name: Compare to stored output (VODE, ignition_chamulak)
         run: |
           cd unit_test/burn_cell
-          diff -I "^Initializing AMReX" -I "^AMReX" -I "^reading in reaclib rates" test.out ci-benchmarks/chamulak_VODE_unit_test.out
+          diff -I "^Initializing AMReX" -I "^AMReX" test.out ci-benchmarks/chamulak_VODE_unit_test.out
 
       - name: Compile, burn_cell (ForwardEuler, triple_alpha_plus_cago)
         run: |
@@ -90,7 +90,7 @@ jobs:
       - name: Compare to stored output (ForwardEuler, triple_alpha_plus_cago)
         run: |
           cd unit_test/burn_cell
-          diff -I "^Initializing AMReX" -I "^AMReX" -I "^reading in reaclib rates" test.out ci-benchmarks/triple_alpha_plus_cago_FE_unit_test.out
+          diff -I "^Initializing AMReX" -I "^AMReX" test.out ci-benchmarks/triple_alpha_plus_cago_FE_unit_test.out
 
       - name: Compile, burn_cell (BackwardEuler, he-burn/he-burn-19am)
         run: |
@@ -106,7 +106,23 @@ jobs:
       - name: Compare to stored output (BackwardEuler, he-burn/he-burn-19am)
         run: |
           cd unit_test/burn_cell
-          diff -I "^Initializing AMReX" -I "^AMReX" -I "^reading in reaclib rates" test.out ci-benchmarks/he-burn-19am_BE_unit_test.out
+          diff -I "^Initializing AMReX" -I "^AMReX" test.out ci-benchmarks/he-burn-19am_BE_unit_test.out
+
+      - name: Compile, burn_cell (BackwardEuler, vode_example)
+        run: |
+          cd unit_test/burn_cell
+          make realclean
+          make NETWORK_DIR=vode_example INTEGRATOR_DIR=BackwardEuler -j 4
+
+      - name: Run burn_cell (BackwardEuler, vode_example)
+        run: |
+          cd unit_test/burn_cell
+          ./main3d.gnu.ex inputs_vode_example amrex.fpe_trap_{invalid,zero,overflow}=1 > test.out
+
+      - name: Compare to stored output (BackwardEuler, vode_example)
+        run: |
+          cd unit_test/burn_cell
+          diff -I "^Initializing AMReX" -I "^AMReX" test.out ci-benchmarks/vode_example_BE_unit_test.out
 
       - name: Compile, burn_cell (QSS, aprox13)
         run: |
@@ -122,7 +138,7 @@ jobs:
       - name: Compare to stored output (QSS, aprox13)
         run: |
           cd unit_test/burn_cell
-          diff -I "^Initializing AMReX" -I "^AMReX" -I "^reading in reaclib rates" test.out ci-benchmarks/aprox13_QSS_unit_test.out
+          diff -I "^Initializing AMReX" -I "^AMReX" test.out ci-benchmarks/aprox13_QSS_unit_test.out
 
       - name: Compile, burn_cell (RKC, aprox13)
         run: |
@@ -138,7 +154,23 @@ jobs:
       - name: Compare to stored output (RKC, aprox13)
         run: |
           cd unit_test/burn_cell
-          diff -I "^Initializing AMReX" -I "^AMReX" -I "^reading in reaclib rates" test.out ci-benchmarks/aprox13_RKC_unit_test.out
+          diff -I "^Initializing AMReX" -I "^AMReX" test.out ci-benchmarks/aprox13_RKC_unit_test.out
+
+      - name: Compile, burn_cell (Rosenbrock, aprox13)
+        run: |
+          cd unit_test/burn_cell
+          make realclean
+          make NETWORK_DIR=aprox13 INTEGRATOR_DIR=Rosenbrock -j 4
+
+      - name: Run burn_cell (Rosenbrock, aprox13)
+        run: |
+          cd unit_test/burn_cell
+          ./main3d.gnu.ex inputs_aprox13 unit_test.temperature=1.e9 amrex.fpe_trap_{invalid,zero,overflow}=1 > test.out
+
+      - name: Compare to stored output (Rosenbrock, aprox13)
+        run: |
+          cd unit_test/burn_cell
+          diff -I "^Initializing AMReX" -I "^AMReX" test.out ci-benchmarks/aprox13_Rosenbrock_unit_test.out
 
       - name: Print backtrace
         if: ${{ failure() && hashFiles('unit_test/burn_cell/Backtrace.0') != '' }}
