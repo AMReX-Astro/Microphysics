@@ -45,7 +45,24 @@ void dvhin (BurnT& state, DvodeT& vstate, amrex::Real& H0, int& NITER, int& IER)
     amrex::Real HUB = PT1 * TDIST;
 
     for (int i = 1; i <= int_neqs; ++i) {
-        const amrex::Real atol = i <= NumSpec ? vstate.atol_spec : vstate.atol_enuc;
+        amrex::Real atol{};
+#if defined (PHOTOCHEMISTRY)
+        if (i <= NumSpec) {
+            atol = vstate.atol_spec;
+        } else if (i == NumSpec + 1) {
+            atol = vstate.atol_enuc;
+        } else if ((i - NumSpec - 2) % MicrophysicsNumRadVarsPerGroup == 0) {
+            atol = vstate.atol_rad_num;
+        } else {
+            atol = vstate.atol_rad_flux;
+        }
+#else
+        if (i <= NumSpec) {
+            atol = vstate.atol_spec;
+        } else {
+            atol = vstate.atol_enuc;
+        }
+#endif
         const amrex::Real DELYI = PT1 * std::abs(vstate.yh(i,1)) + atol;
         const amrex::Real AFI = std::abs(vstate.yh(i,2));
         if (AFI * HUB > DELYI) {

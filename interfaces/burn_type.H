@@ -24,7 +24,11 @@ using namespace network_rp;
 // For Strang evolution, this will be the number of equations we are
 // evolving.  For simplified-SDC, we will need neqs when getting the
 // reaction sources from the network's RHS.
+#if defined (PHOTOCHEMISTRY)
+const int neqs = 1 + NumSpec + NumRadEqs;
+#else
 const int neqs = 1 + NumSpec;
+#endif
 
 // Index of the energy variable in the work arrays.
 
@@ -43,7 +47,11 @@ using YdotNetArray1D = amrex::Array1D<amrex::Real, 1, neqs>;
 // carry momentum as an unevolved variable
 
 const int SFS   = 0;
+#if defined (PHOTOCHEMISTRY)
+const int SEINT = NumSpec + NumRadEqs;
+#else
 const int SEINT = NumSpec;
+#endif
 // the following are not evolved
 const int SFX   = SEINT + 1;
 const int SRHO  = SFX + NumAux; // this is SFS + NumSpec if NumAux = 0;
@@ -81,6 +89,10 @@ struct burn_t
   amrex::Real xn[NumSpec]{};
 #if NAUX_NET > 0
   amrex::Real aux[NumAux]{};
+#endif
+#ifdef PHOTOCHEMISTRY
+  amrex::Real rn[NumRadEqs]{};
+  amrex::Real c_hat{};
 #endif
 
   // scaling used to make e we integrate dimensionless
@@ -164,7 +176,6 @@ struct burn_t
 
 };
 
-
 inline
 std::ostream& operator<< (std::ostream& o, burn_t const& burn_state)
 {
@@ -175,6 +186,12 @@ std::ostream& operator<< (std::ostream& o, burn_t const& burn_state)
   for (double X : burn_state.xn) {
     o << X << " ";
   }
+#ifdef PHOTOCHEMISTRY
+  o << "rn = ";
+  for (double Rn : burn_state.rn) {
+    o << Rn << " ";
+  }
+#endif
   o << std::endl;
   o << "(i, j, k) = " << burn_state.i << " " << burn_state.j << " " << burn_state.k << std::endl;
 #if NAUX_NET > 0
@@ -239,6 +256,12 @@ void eos_to_burn (const T& eos_state, BurnT& burn_state)
         burn_state.aux[n] = eos_state.aux[n];
     }
 #endif
+#ifdef PHOTOCHEMISTRY
+    for (int n = 0; n < NumRadEqs; ++n) {
+        burn_state.rn[n] = eos_state.rn[n];
+    }
+    burn_state.c_hat = eos_state.c_hat;
+#endif
 
     burn_state.cv   = eos_state.cv;
 
@@ -275,6 +298,13 @@ void burn_to_eos (const BurnT& burn_state, T& eos_state)
     for (int n = 0; n < NumAux; ++n) {
         eos_state.aux[n] = burn_state.aux[n];
     }
+#endif
+
+#ifdef PHOTOCHEMISTRY
+    for (int n = 0; n < NumRadEqs; ++n) {
+        eos_state.rn[n] = burn_state.rn[n];
+    }
+    eos_state.c_hat = burn_state.c_hat;
 #endif
 
     eos_state.cv   = burn_state.cv;

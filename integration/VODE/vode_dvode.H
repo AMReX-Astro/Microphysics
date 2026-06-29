@@ -81,6 +81,18 @@ int dvode (BurnT& state, DvodeT& vstate)
     }
     vstate.ewt(NumSpec+1) = vstate.rtol_enuc * std::abs(vstate.yh(NumSpec+1,1)) + vstate.atol_enuc;
     vstate.ewt(NumSpec+1) = 1.0_rt / vstate.ewt(NumSpec+1);
+#ifdef PHOTOCHEMISTRY
+    for (int i = 1; i <= NumChemBands; ++i) {
+        int rad_n_index = NumSpec + 2 + (i-1) * MicrophysicsNumRadVarsPerGroup;
+        vstate.ewt(rad_n_index) = vstate.rtol_rad_num * std::abs(vstate.yh(rad_n_index,1)) + vstate.atol_rad_num;
+        vstate.ewt(rad_n_index) = 1.0_rt / vstate.ewt(rad_n_index);
+        for (int j = 2; j <= MicrophysicsNumRadVarsPerGroup; ++j){
+            int rad_flux_index = rad_n_index + j - 1;
+            vstate.ewt(rad_flux_index) = vstate.rtol_rad_flux * std::abs(vstate.yh(rad_flux_index,1)) + vstate.atol_rad_flux;
+            vstate.ewt(rad_flux_index) = 1.0_rt / vstate.ewt(rad_flux_index);
+        }
+    }
+#endif
 
     // Call DVHIN to set initial step size H0 to be attempted.
     H0 = 0.0_rt;
@@ -154,6 +166,18 @@ int dvode (BurnT& state, DvodeT& vstate)
            }
            vstate.ewt(NumSpec+1) = vstate.rtol_enuc * std::abs(vstate.yh(NumSpec+1,1)) + vstate.atol_enuc;
            vstate.ewt(NumSpec+1) = 1.0_rt / vstate.ewt(NumSpec+1);
+#ifdef PHOTOCHEMISTRY
+            for (int i = 1; i <= NumChemBands; ++i) {
+                int rad_n_index = NumSpec + 2 + (i-1) * MicrophysicsNumRadVarsPerGroup;
+                vstate.ewt(rad_n_index) = vstate.rtol_rad_num * std::abs(vstate.yh(rad_n_index,1)) + vstate.atol_rad_num;
+                vstate.ewt(rad_n_index) = 1.0_rt / vstate.ewt(rad_n_index);
+                for (int j = 2; j <= MicrophysicsNumRadVarsPerGroup; ++j){
+                    int rad_flux_index = rad_n_index + j - 1;
+                    vstate.ewt(rad_flux_index) = vstate.rtol_rad_flux * std::abs(vstate.yh(rad_flux_index,1)) + vstate.atol_rad_flux;
+                    vstate.ewt(rad_flux_index) = 1.0_rt / vstate.ewt(rad_flux_index);
+                }
+            }
+#endif
 
        }
        else {
