@@ -1,5 +1,26 @@
 # Changelog
 
+## 26.07
+
+  * add a `test_react` benchmark inputs for comparing CPU and GPU
+    (#2018)
+
+  * fix DOIs / journal names for the JOSS paper (#2023, #2026)
+
+  * docs: fix a typo in an equation (#2022), make linkcheck more
+    robust (#2010)
+
+  * update pynucastro networks to 2.12 (#1998).  This was done first
+    as a test for `ase` in (#2009)
+
+  * bump github CI checkout action from 6 to 7 (#2021) and cache from
+    5 to 6 (#2025)
+
+  * remove some variants of Rosenbrock that are not useful, including
+    Rosenbrock-Euler and Ros2 (#2015), YASS (#2014).
+
+  * mark the NSE solver `__device__` only on GPUs (#2012)
+
 ## 26.06
 
   * add a 5th order stiffly-accurate Rosenbrock integrator (#1994,
