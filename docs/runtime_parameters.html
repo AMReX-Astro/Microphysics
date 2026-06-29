@@ -1372,59 +1372,26 @@ consider species that are &gt; X_reject_buffer * atol_spec</p></td>
 method from DifferentialEquations.jl   1 = Rodas4P
 6-stage method from DifferentialEquations.jl   2 =
 Rodas3P 5-stage method from DifferentialEquations.jl
-3 = existing 3-stage ROS2S tableau   4 = Verwer et al.
-(1999) 2-stage ROS2 tableau   5 = Rosenbrock-Euler
-1-stage method</p></td>
+3 = ROS2S   3-stage method from Hamkar et al. (2012)</p></td>
 <td><p>0</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rosenbrock_timestep_controller</span></code></p></td>
-<td><p>Timestep controller selector:   0 = H211b error-history
-controller   1 = Khokhlov/YASS concentration-change
-controller</p></td>
-<td><p>0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">h211b_b</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">h211b_b</span></code></p></td>
 <td><p>H211b timestep controller parameters</p></td>
 <td><p>4.0</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">h211b_k</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">h211b_k</span></code></p></td>
 <td></td>
 <td><p>2.5</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">h211b_fac_min</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">h211b_fac_min</span></code></p></td>
 <td></td>
 <td><p>0.2</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">h211b_fac_max</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">h211b_fac_max</span></code></p></td>
 <td></td>
 <td><p>6.0</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">h211b_reduction_fac</span></code></p></td>
-<td></td>
-<td><p>0.5</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">yass_epsilon</span></code></p></td>
-<td><p>Khokhlov/YASS timestep controller parameters. This
-controller accepts a step when each active species
-changes by no more than yass_epsilon relative to its
-starting value. Species with concentration &lt;=
-yass_floor times the most abundant species do not
-constrain the step.</p></td>
-<td><p>0.1</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">yass_floor</span></code></p></td>
-<td></td>
-<td><p>1.e-3</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">yass_fac_min</span></code></p></td>
-<td></td>
-<td><p>0.2</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">yass_fac_max</span></code></p></td>
-<td></td>
-<td><p>6.0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">yass_reduction_fac</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">h211b_reduction_fac</span></code></p></td>
 <td></td>
 <td><p>0.5</p></td>
 </tr>
