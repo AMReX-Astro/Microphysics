@@ -53,7 +53,7 @@ void clean_state (const amrex::Real time, BurnT& state, I& int_state)
     // Ensure that mass fractions always stay positive and less than or
     // equal to 1.
 
-    if (integrator_rp::do_species_clip) {
+    if (int_state.clip_species) {
         for (int n = 1; n <= NumSpec; ++n) {
             int_state.y(n) = amrex::Clamp(int_state.y(n), integrator_rp::SMALL_X_SAFE, 1.0_rt);
         }

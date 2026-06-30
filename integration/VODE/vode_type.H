@@ -125,6 +125,9 @@ struct dvode_t
     // jacobian_type = the type of Jacobian to use (1 = analytic, 2 = numerical)
     short jacobian_type;
 
+    // do we clip the species before evaluating the rates
+    bool clip_species;
+
     // EL     = Real array of integration coefficients.  See DVSET
     amrex::Array1D<amrex::Real, 1, VODE_LMAX> el;
 

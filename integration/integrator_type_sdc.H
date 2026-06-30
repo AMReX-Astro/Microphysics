@@ -18,7 +18,7 @@ void clean_state(const amrex::Real time, BurnT& state, T& int_state)
 {
     // Ensure that mass fractions always stay positive.
 
-    if (integrator_rp::do_species_clip) {
+    if (int_state.clip_species) {
         for (int n = 1; n <= NumSpec; ++n) {
             // we use 1-based indexing, so we need to offset SFS
             int_state.y(SFS+n) = amrex::Clamp(int_state.y(SFS+n),
