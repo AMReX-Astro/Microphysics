@@ -118,8 +118,12 @@ nse_include_enu_weak       bool        1
 # for the linear algebra, do we allow pivoting?
 linalg_do_pivoting         bool        1
 
+# when converting the Jacobian from (rho, Y, T) to (rho, X, e), do
+# we add a correction to the species terms reflecting that
+# dT/dX at constant e is not zero?
+correct_jacobian_for_const_e  bool     1
+
 # We will use this parameter to determine if a given species
 # abundance is unreasonably small or large (each X must satisfy
 # -failure_tolerance <= X <= 1.0 + failure_tolerance).
 species_failure_tolerance  real       1.e-2_rt
-
