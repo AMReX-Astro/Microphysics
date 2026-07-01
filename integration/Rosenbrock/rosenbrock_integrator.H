@@ -187,9 +187,10 @@ bool matrix_is_finite (const MatrixType& matrix)
     return true;
 }
 
-template <int int_neqs>
+template <typename BurnT, int int_neqs>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-bool valid_integrator_state (const amrex::Array1D<amrex::Real, 1, int_neqs>& y)
+bool valid_integrator_state ([[maybe_unused]] amrex::Real time, [[maybe_unused]] const BurnT& state,
+                             const amrex::Array1D<amrex::Real, 1, int_neqs>& y)
 {
     for (int n = 1; n <= int_neqs; ++n) {
         const amrex::Real yn = y(n);
@@ -205,6 +206,24 @@ bool valid_integrator_state (const amrex::Array1D<amrex::Real, 1, int_neqs>& y)
         }
 
         if (! integrator_rp::use_number_densities && y(n) > 1.0_rt) {
+            return false;
+        }
+    }
+
+    if (y(net_ienuc) <= 0.0_rt) {
+        return false;
+    }
+#endif
+
+#ifdef SDC
+    amrex::Real rho_current = state.rho_orig + time * state.ydot_a[SRHO];
+
+    for (int n = 1; n <= NumSpec; ++n) {
+        if (y(n) < -integrator_rp::atol_spec * rho_current) {
+            return false;
+        }
+
+        if (y(n) > (1.0_rt + integrator_rp::atol_spec) * rho_current) {
             return false;
         }
     }
@@ -482,7 +501,10 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
                     }
                 }
 
-                if (! rosenbrock::valid_integrator_state(rstate.ynew)) {
+                // intermediate stage time
+                amrex::Real _time = x + C::ct(istage) * h;
+
+                if (! rosenbrock::valid_integrator_state(_time, state, rstate.ynew)) {
                     h *= 0.25_rt;
                     reject = true;
                     n_reject += 1;
@@ -520,7 +542,8 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
 
             rstate.n_step += 1;
 
-            const bool valid_state = rosenbrock::valid_integrator_state(rstate.ynew);
+            amrex::Real _time = x + h;
+            const bool valid_state = rosenbrock::valid_integrator_state(_time, state, rstate.ynew);
             if (! valid_state) {
                 reject = true;
                 n_reject += 1;
