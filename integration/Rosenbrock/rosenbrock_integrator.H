@@ -219,11 +219,11 @@ bool valid_integrator_state ([[maybe_unused]] amrex::Real time, [[maybe_unused]]
     amrex::Real rho_current = state.rho_orig + time * state.ydot_a[SRHO];
 
     for (int n = 1; n <= NumSpec; ++n) {
-        if (y(n) < -integrator_rp::atol_spec) {
+        if (y(n) < -integrator_rp::atol_spec * rho_current) {
             return false;
         }
 
-        if (! integrator_rp::use_number_densities && y(n) > rho_current) {
+        if (y(n) > (1.0_rt + integrator_rp::atol_spec) * rho_current) {
             return false;
         }
     }
