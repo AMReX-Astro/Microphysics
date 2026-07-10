@@ -118,41 +118,6 @@ void rate_O15_to_N15_reaclib(const tf_t& tfactors, const amrex::Real log_scor, c
 
 template <int do_T_derivatives>
 AMREX_GPU_DEVICE AMREX_INLINE
-void rate_F17_to_O17_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
-
-    // F17 --> O17
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    amrex::Real ln_set_rate{0.0};
-    amrex::Real dln_set_rate_dT9{0.0};
-    amrex::Real set_rate{0.0};
-
-    // wc12w
-    ln_set_rate =  -4.53318;
-    amrex::ignore_unused(tfactors);
-
-    ln_set_rate += log_scor;
-
-    if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 = 0.0;
-
-        dln_set_rate_dT9 += dlog_scor_dT * 1.0e9_rt;
-    }
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    if constexpr (do_T_derivatives) {
-        drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
-    }
-
-}
-
-template <int do_T_derivatives>
-AMREX_GPU_DEVICE AMREX_INLINE
 void rate_B8_to_He4_He4_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
     // B8 --> He4 + He4
@@ -1859,18 +1824,6 @@ fill_reaclib_rates([[maybe_unused]] const tf_t& tfactors,
         rate_eval.screened_rates(k_O15_to_N15_reaclib) = rate;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dscreened_rates_dT(k_O15_to_N15_reaclib) = drate_dT;
-        }
-    }
-
-    {
-        // F17_to_O17_reaclib
-
-        amrex::Real log_scor {0.0_rt};
-        amrex::Real dlog_scor_dT {0.0_rt};
-        rate_F17_to_O17_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-        rate_eval.screened_rates(k_F17_to_O17_reaclib) = rate;
-        if constexpr (std::is_same_v<T, rate_derivs_t>) {
-            rate_eval.dscreened_rates_dT(k_F17_to_O17_reaclib) = drate_dT;
         }
     }
 
