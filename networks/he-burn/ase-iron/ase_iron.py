@@ -13,7 +13,7 @@ def get_library():
 
     all_reactants = ["p",
                      "he4", "c12", "o16", "ne20", "mg24", "si28", "s32",
-                     "ar36", "ca40", "ti44", "cr48", "fe52", "ni56",
+                     "ar36", "ca40", "ti44", "cr48", "fe52", "ni56", "cu59", "zn60",
                      "al27", "p31", "cl35", "k39", "sc43", "v47", "mn51", "co55",
                      "n13", "na23"]
 
@@ -54,7 +54,7 @@ def get_library():
                  "mn51",
                  "fe52", "fe53", "fe54", "fe55", "fe56",
                  "co55", "co56", "co57",
-                 "ni56", "ni57", "ni58"]
+                 "ni56", "ni57", "ni58", "cu59", "zn60"]
     subch += reaclib_lib.linking_nuclei(iron_peak)
     weak_lib = pyna.TabularLibrary(ordering=["ffn", "langanke", "oda"])
     iron_weak_lib = weak_lib.linking_nuclei(set(iron_peak + all_reactants))
@@ -110,7 +110,7 @@ def doit():
              rotated=True, hide_xalpha=True,
              size=(1500, 450),
              node_size=600, node_font_size=9,
-             Z_range=(1, 29))
+             Z_range=(1, 31))
 
     net.write_network()
 
