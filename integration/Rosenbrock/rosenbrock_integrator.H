@@ -152,7 +152,7 @@ amrex::Real error_norm (const rosenbrock_t<int_neqs>& rstate)
 
 template <int int_neqs>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-bool species_change_valid (const rosenbrock_t<int_neqs>& rstate)
+bool species_change_valid ([[maybe_unused]] const rosenbrock_t<int_neqs>& rstate)
 {
 #ifdef STRANG
     constexpr amrex::Real increase_change_factor = 4.0_rt;
