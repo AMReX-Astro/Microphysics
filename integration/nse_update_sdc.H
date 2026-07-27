@@ -33,7 +33,7 @@ using namespace amrex::literals;
 /// on input, *_source are the reactive sources at time t0 and on output
 /// they are the sources at time t0+dt
 ///
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0, const amrex::Real *rhoaux0,
                 const amrex::Real dt, const amrex::Real *ydot_a,
                 amrex::Real& drhoedt, amrex::Real* drhoauxdt, const amrex::Real T_fixed) {
@@ -168,7 +168,7 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0, const amrex::Re
 /// this version works with the tabulated NSE and requires AUX_THERMO
 ///
 template <typename BurnT>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
 
     using namespace AuxZero;
@@ -307,7 +307,7 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
 ///
 /// This computes drhoedt and drhoyedt_weak for a given (rho, rho e, and rho Ye)
 ///
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
                 const amrex::Real rhoYe0, amrex::Real &T0,
                 amrex::Real &mu_p, amrex::Real &mu_n,
@@ -415,7 +415,7 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
 ///
 
 template <typename BurnT>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
 
     state.success = true;

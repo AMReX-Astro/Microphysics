@@ -1,0 +1,33 @@
+Initializing AMReX (26.03-138-g66a74362aa17)...
+AMReX (26.03-138-g66a74362aa17) initialized
+starting the single zone burn...
+Maximum Time (s): 4e+10
+State Density (g/cm^3): 100000
+State Temperature (K): 100000000
+Mass Fraction (y1): 1
+Mass Fraction (y2): 0
+Mass Fraction (y3): 0
+RHS at t = 0
+    y1 -0.04
+    y2 0.04
+    y3 3e-53
+------------------------------------
+successful? 1
+ - Hnuc = 0
+ - added e = 0
+ - final T = 100000000
+------------------------------------
+e initial = 4.685675996e+16
+e final =   4.685675996e+16
+------------------------------------
+new mass fractions: 
+y1 5.209493144e-08
+y2 2.083797365e-13
+y3 0.9999999479
+------------------------------------
+species creation rates: 
+omegadot(y1): -2.49999987e-11
+omegadot(y2): 5.209493412e-24
+omegadot(y3): 2.49999987e-11
+number of steps taken: 312756
+AMReX (26.03-138-g66a74362aa17) finalized

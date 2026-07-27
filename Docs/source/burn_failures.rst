@@ -132,6 +132,9 @@ Some tips for helping the integrator:
   loop, and if not, it bails out of the corrector, forcing the
   integrator to retry the entire step.
 
+  This can sometimes make the integration harder, especially if used with
+  ``integrator.species_failure_tolerance``.
+
 Things we no longer recommend:
 
 .. index:: integrator.do_species_clip, integrator.renormalize_abundances

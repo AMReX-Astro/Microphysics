@@ -1,5 +1,55 @@
 # Changelog
 
+## 26.07
+
+  * add a `test_react` benchmark inputs for comparing CPU and GPU
+    (#2018)
+
+  * fix DOIs / journal names for the JOSS paper (#2023, #2026)
+
+  * docs: fix a typo in an equation (#2022), make linkcheck more
+    robust (#2010)
+
+  * update pynucastro networks to 2.12 (#1998).  This was done first
+    as a test for `ase` in (#2009)
+
+  * bump github CI checkout action from 6 to 7 (#2021) and cache from
+    5 to 6 (#2025)
+
+  * remove some variants of Rosenbrock that are not useful, including
+    Rosenbrock-Euler and Ros2 (#2015), YASS (#2014).
+
+  * mark the NSE solver `__device__` only on GPUs (#2012)
+
+## 26.06
+
+  * add a 5th order stiffly-accurate Rosenbrock integrator (#1994,
+    #2001, #2002, #2004, #2008)
+
+  * update CMake to allow selection of the integrator (#2005)
+
+  * add a utility to find xrb ignition condition (#1911)
+
+  * fix function signature of ``primordial_chem`` (#1986)
+
+  * reverse ``inline`` changes to EOS for HIP (#1991)
+
+  * fix some math rendering in docs (#1992)
+
+## 26.05
+
+  * fix the `vode_example` network (#1984)
+
+  * add a unit test that just evaluates tabulated weak
+    rates from a pynucastro network (#1979)
+
+  * update the build system to support compiling a network
+    test outside of Microphysics/ (#1978)
+
+  * some fixes to `BackwardEuler` failure modes (#1977)
+
+  * update the burn failure documentation (#1974)
+
 ## 26.04
 
   * add documentation on recovering from burn failures (#1971)

@@ -32,10 +32,19 @@ The individual parameter definitions take the form::
 where "data-type" can be: ``real``, ``bool``, ``int``, ``string``.
 
 The "priority" is simply an integer that is used to determine
-what happens when two different ``_paramerter`` files define the same
+what happens when two different ``_parameter`` files define the same
 parameter but with different defaults.  In this case, the version of
 the parameter with the highest priority takes precedence. This allows
 specific implementations to override the general parameter defaults.
+
+.. index:: CUSTOM_PARAMETERS
+
+.. note::
+
+   You can set ``CUSTOM_PARAMETERS`` to the a filename with additional
+   parameters.  This is used for standalone builds (when
+   ``NETWORK_CUSTOM_PATH`` is set).  This parameter file will be
+   added to the ones found via ``findparams.py``.
 
 Known Parameters
 ================

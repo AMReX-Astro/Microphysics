@@ -415,13 +415,14 @@ The full network appears as:
 
 As with ``ase``, this network is constructed to have reverse rates for all forward rates, allowing
 it to be used with the :ref:`self_consistent_nse` solver.  It builds off of ``ase`` by including
-more iron-group nuclei (using the same nuclei as ``he-burn-28amnp``).
+more iron-group nuclei.
 
 The full network appears as:
 
 .. figure:: ../../networks/he-burn/ase-iron/ase-iron.png
    :align: center
 
+Overall there are 28 nuclei with 7 approximated-out nuclei and 153 rates.
 
 ``cno_he_burn_33a``
 -------------------
@@ -559,10 +560,8 @@ X_a / (A_a m_u)`, our rate equation is
 
 .. math::
 
-   \begin{align}
     \frac{dX_f}{dt} &= - \frac{r_0}{m_u} \rho X_f^2 \frac{1}{A_f} \left (\frac{T}{T_0}\right)^\nu \equiv \omegadot_f  \\
     \frac{dX_a}{dt} &= \frac{1}{2}\frac{r_0}{m_u} \rho X_f^2 \frac{A_a}{A_f^2} \left (\frac{T}{T_0}\right)^\nu = \frac{r_0}{m_u} \rho X_f^2 \frac{1}{A_f} \left (\frac{T}{T_0}\right)^\nu
-   \end{align}
 
 We define a new rate constant, :math:`\rt` with units of :math:`[\mathrm{s^{-1}}]` as
 

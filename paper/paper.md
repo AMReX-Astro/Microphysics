@@ -125,7 +125,8 @@ support for astrophysical simulation codes.
 # State of the field
 
 Individual reaction networks and equations of state have been made
-available by authors for decades, including [@cococubed].  Flash
+available by authors for decades, including a wide variety from
+https://cococubed.com/code_pages/burn.shtml.  Flash
 [@flash] comes with a set of reaction networks and equations of state
 as well.  The closest compilation to ours is the recent
 singularity-EOS library [@singularity], which provides various

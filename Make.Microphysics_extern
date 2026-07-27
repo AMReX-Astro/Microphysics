@@ -66,7 +66,11 @@ endif
 
 
 EOS_PATH := $(MICROPHYSICS_HOME)/EOS/$(strip $(EOS_DIR))
-NETWORK_PATH := $(MICROPHYSICS_HOME)/networks/$(strip $(NETWORK_DIR))
+ifneq ($(NETWORK_CUSTOM_PATH),)
+    NETWORK_PATH := $(NETWORK_CUSTOM_PATH)
+else
+    NETWORK_PATH := $(MICROPHYSICS_HOME)/networks/$(strip $(NETWORK_DIR))
+endif
 ifeq ($(USE_CONDUCTIVITY), TRUE)
    CONDUCTIVITY_PATH := $(MICROPHYSICS_HOME)/conductivity/$(strip $(CONDUCTIVITY_DIR))
 endif
