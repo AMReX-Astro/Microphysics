@@ -2,6 +2,8 @@
 
 ## 26.08
 
+  * add an `AGENTS.md` (#2034)
+
   * `ase-iron` now includes Cu59 and Zn60 (#1993)
 
   * bump github CI setup-python from 6 to 7 (#2030)
