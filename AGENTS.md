@@ -139,6 +139,8 @@ All runtime configuration goes in the `inputs` file, not in source code. Paramet
 
 - **Development Model**: Work from short-lived branches based on the latest `development`, and never commit directly on the tracking `development` branch (see the “Development Model” section of `README.md`). The `main` branch is used for monthly releases.
 - **CHANGES.md**: Add a line summarizing any bug fix or new feature, referencing the PR number.
+- **Bug tracking**: When finding or fixing a bug, file an issue if one does not already describe it. In the issue and `CHANGES.md`, cite the relevant PR number or commit hash when known.
+- **Dirty worktrees**: Preserve existing tracked and untracked changes. Do not run cleanup commands or delete build artifacts, scratch files, or other local work unless the user explicitly asks or the exact target has been confirmed as disposable.
 - **Issue logging & hand-off**: Keep a personal, untracked scratchpad on each machine (we recommend `agent-notes/<NN>-<component>-<short-description>.md`). Use it to capture open questions, repro notes, or follow-ups. Include suggested patches whenever possible so the next agent can act quickly.
 - **Learn from past bugs**: If you already keep a local `agent-notes/` notebook, skim it before diving into similar code to refresh common pitfalls.
 
@@ -146,6 +148,7 @@ All runtime configuration goes in the `inputs` file, not in source code. Paramet
 
 ### PR and Bug Reviews
 1. **Sync & inspect** – Update the local branch, note the PR/issue scope, and identify which physics module(s) are affected.
+   Preserve any existing dirty worktree; do not discard local changes while syncing or reproducing.
 2. **Reproduce** – Build the relevant problem directory with the same flags as the PR author. Check the `GNUmakefile` for `DIM`, `USE_*` flags, `EOS_DIR`, and `NETWORK_DIR`.
 3. **Read the diff** – Confirm changes follow code conventions (`amrex::Real`, `ParallelFor` kernels, named state indices, `Make.package` updated for new files).
 4. **Run** – Execute the unit test with the appropriate `inputs` file and compare output to expected results if a baseline exists.
@@ -155,15 +158,16 @@ All runtime configuration goes in the `inputs` file, not in source code. Paramet
 ### Feature or Fix Implementation
 1. **Understand scope** – Identify which subdirectory owns the physics, and which `USE_*` flag gates it.
 2. **Find a reference problem** – Locate a problem under `unit_test/` that exercises the affected physics. Use it to build and test.
-3. **Implement** – Touch only files relevant to the task. If adding a new source file to `Source/<module>/`, add it to that module's `Make.package`.
+3. **Implement** – Touch only files relevant to the task. If adding a new source file, add it to that module's `Make.package`.
 4. **Test** – Rebuild and run. For physics changes, compare against a known-good baseline or analytic solution.
 5. **Document** – Update `Docs/source/` RST files if behavior changes. Update `CHANGES.md` with a one-line summary referencing the PR.
+   File an issue for a newly discovered bug if one does not already exist, and reference the issue or PR where appropriate.
 6. **Hand off** – Record open questions, test commands, and outputs in `agent-notes/` or the PR description.
 
 ### Documentation Updates
 - RST source lives in `Docs/source/`. The published guide mirrors it exactly.
 - When adding a new runtime parameter, document it in the appropriate section.
-- When adding a new physics module or `USE_*` flag, add it to `Docs/source/build_system.rst`.
+- When adding a new physics module or `USE_*` flag, add it to appropriate documentation file.
 
 ## Quick Checklist
 
