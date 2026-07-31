@@ -424,6 +424,14 @@ The full network appears as:
 
 Overall there are 28 nuclei with 7 approximated-out nuclei and 153 rates.
 
+``ase-iron-starlib``
+--------------------
+
+This is the same as ``ase-iron``, but uses rates from StarLib
+:cite:`StarLib` instead of ReacLib :cite:`ReacLib`.  This allows for
+an exploration of rate uncertainties by setting
+``network.starlib_seed``.
+
 ``cno_he_burn_33a``
 -------------------
 
