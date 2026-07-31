@@ -9,7 +9,7 @@ DO_DERIVED_RATES = True
 
 def get_library():
 
-    reaclib_lib = pyna.ReacLibLibrary()
+    reaclib_lib = pyna.StarLibLibrary()
 
     all_reactants = ["p",
                      "he4", "c12", "o16", "ne20", "mg24", "si28", "s32",
@@ -106,7 +106,7 @@ def doit():
     rho = 1.e7
     T = 6.e9
 
-    net.plot(outfile="ase-iron.png",
+    net.plot(outfile="ase-iron-starlib.png",
              rotated=True, hide_xalpha=True,
              size=(1500, 450),
              node_size=600, node_font_size=9,
