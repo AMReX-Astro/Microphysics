@@ -45,7 +45,7 @@ def doit():
                    size=(600, 700), Z_range=[24, 29], N_range=[-1, 4],
                    node_size=600,
                    node_font_size=10,
-                   highlight_filter_function=lambda rate: isinstance(rate, pyna.rates.TabularRate) and rate.Q > 0)
+                   highlight_filter_function=lambda rate: isinstance(rate, pyna.rates.TabularWeakRate) and rate.Q > 0)
 
     fig.savefig("he-burn-28amnp-zoom.png", bbox_inches="tight")
 
