@@ -16,6 +16,12 @@
 #ifdef SDC
 #include <integrator_rhs_sdc.H>
 #endif
+#ifdef NSE_TABLE
+#include <nse_table_check.H>
+#endif
+#ifdef NSE_NET
+#include <nse_check.H>
+#endif
 
 #include <integrator_data.H>
 #include <rosenbrock_type.H>
@@ -146,7 +152,7 @@ amrex::Real error_norm (const rosenbrock_t<int_neqs>& rstate)
 
 template <int int_neqs>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-bool species_change_valid (const rosenbrock_t<int_neqs>& rstate)
+bool species_change_valid ([[maybe_unused]] const rosenbrock_t<int_neqs>& rstate)
 {
 #ifdef STRANG
     constexpr amrex::Real increase_change_factor = 4.0_rt;
@@ -165,27 +171,20 @@ bool species_change_valid (const rosenbrock_t<int_neqs>& rstate)
     return true;
 }
 
-template <int int_neqs>
+template <typename MatrixType, int int_neqs>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-amrex::Real yass_change_norm (const rosenbrock_t<int_neqs>& rstate)
+bool matrix_is_finite (const MatrixType& matrix)
 {
-    amrex::Real max_change = 0.0_rt;
-    amrex::Real max_species = 0.0_rt;
-
-    for (int i = 1; i <= NumSpec && i <= int_neqs; ++i) {
-        max_species = amrex::max(max_species, std::abs(rstate.y(i)));
-    }
-
-    const amrex::Real active_floor = integrator_rp::yass_floor * max_species;
-
-    for (int i = 1; i <= NumSpec && i <= int_neqs; ++i) {
-        const amrex::Real yi = std::abs(rstate.y(i));
-        if (yi > active_floor) {
-            max_change = amrex::max(max_change, std::abs(rstate.ynew(i) - rstate.y(i)) / yi);
+    for (int j = 1; j <= int_neqs; ++j) {
+        for (int i = 1; i <= int_neqs; ++i) {
+            const amrex::Real value = matrix(i, j);
+            if (std::isnan(value) || std::isinf(value)) {
+                return false;
+            }
         }
     }
 
-    return max_change / integrator_rp::yass_epsilon;
+    return true;
 }
 
 template <int int_neqs>
@@ -194,7 +193,7 @@ bool valid_integrator_state (const amrex::Array1D<amrex::Real, 1, int_neqs>& y)
 {
     for (int n = 1; n <= int_neqs; ++n) {
         const amrex::Real yn = y(n);
-        if (yn != yn || std::abs(yn) == std::numeric_limits<amrex::Real>::infinity()) {
+        if (std::isnan(yn) || std::isinf(yn)) {
             return false;
         }
     }
@@ -230,7 +229,10 @@ void evaluate_jacobian (BurnT& state, rosenbrock_t<int_neqs>& rstate, const amre
     if (rstate.jacobian_type == 1) {
         jac(time, state, rstate, rstate.jac);
         rstate.n_jac += 1;
-        return;
+
+        if (matrix_is_finite<decltype(rstate.jac), int_neqs>(rstate.jac)) {
+            return;
+        }
     }
 
     constexpr amrex::Real UROUND = std::numeric_limits<amrex::Real>::epsilon();
@@ -356,15 +358,6 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
         }
     }
 
-    if (integrator_rp::rosenbrock_timestep_controller == 1 &&
-        (integrator_rp::yass_epsilon <= 0.0_rt ||
-         integrator_rp::yass_floor < 0.0_rt ||
-         integrator_rp::yass_fac_min <= 0.0_rt ||
-         integrator_rp::yass_fac_max < integrator_rp::yass_fac_min ||
-         integrator_rp::yass_reduction_fac <= 0.0_rt)) {
-        return IERR_BAD_INPUTS;
-    }
-
     rstate.n_rhs = 0;
     rstate.n_jac = 0;
     rstate.n_step = 0;
@@ -389,7 +382,14 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
     amrex::Real x = rstate.t;
     amrex::Array1D<amrex::Real, 1, int_neqs> rhs_tmp;
 
+    // main evolution loop
+
+    // within this loop, x will be the current time and h will be the
+    // step size we are attempting.  The solution at the current time
+    // is rstate.y().
+
     while (true) {
+
         if (rstate.n_step > integrator_rp::ode_max_steps) {
             rstate.t = x;
             rstate.dt = h;
@@ -413,6 +413,32 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
             h = rstate.tout - x;
             last = true;
         }
+
+#ifdef NSE
+        // check if, during the course of integration, we hit NSE, and
+        // if so, bail out.
+
+        // we only do this after MIN_NSE_BAILOUT_STEPS to prevent us
+        // from hitting this right at the start when the integrator
+        // might do so wild exploration.  Also ensure we are not
+        // working > tmax, so we don't need to worry about
+        // extrapolating back in time.
+
+        if (rstate.n_step > MIN_NSE_BAILOUT_STEPS && x <= rstate.tout) {
+            // first we need to make the burn_t in sync
+
+            int_to_burn(x, rstate, state);
+
+            if (in_nse(state)) {
+                rstate.t = x;
+                return IERR_ENTERED_NSE;
+            }
+        }
+#endif
+
+
+        // take a step -- this loop will keep trying until a step is
+        // successful or a catastrophic error is encountered.
 
         while (true) {
             rstate.dt = h;
@@ -506,26 +532,20 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
             const bool valid_update = rosenbrock::species_change_valid(rstate);
             constexpr amrex::Real err_min = 1.e-10_rt;
             amrex::Real err = rosenbrock::error_norm(rstate);
-            amrex::Real controller_fac = 1.0_rt;
-
-            if (integrator_rp::rosenbrock_timestep_controller == 1) {
-                err = rosenbrock::yass_change_norm(rstate);
-                controller_fac = amrex::Clamp(1.0_rt / amrex::max(err, err_min),
-                                              integrator_rp::yass_fac_min,
-                                              integrator_rp::yass_fac_max);
-            } else {
-                controller_fac = amrex::Clamp(
-                    std::pow(1.0_rt / amrex::max(err, err_min),
-                             1.0_rt / (integrator_rp::h211b_b * integrator_rp::h211b_k)) *
-                    std::pow(1.0_rt / amrex::max(errold, err_min),
-                             1.0_rt / (integrator_rp::h211b_b * integrator_rp::h211b_k)) *
-                    std::pow(facold, -1.0_rt / integrator_rp::h211b_b),
-                    integrator_rp::h211b_fac_min, integrator_rp::h211b_fac_max);
-            }
+            amrex::Real controller_fac = amrex::Clamp(
+                std::pow(1.0_rt / amrex::max(err, err_min),
+                         1.0_rt / (integrator_rp::h211b_b * integrator_rp::h211b_k)) *
+                std::pow(1.0_rt / amrex::max(errold, err_min),
+                         1.0_rt / (integrator_rp::h211b_b * integrator_rp::h211b_k)) *
+                std::pow(facold, -1.0_rt / integrator_rp::h211b_b),
+                integrator_rp::h211b_fac_min, integrator_rp::h211b_fac_max);
             facold = controller_fac;
             errold = err;
 
             amrex::Real hnew = h * controller_fac;
+
+            // update the starting time and state for the next step
+            // and predict the next timestep
 
             if (err <= 1.0_rt && valid_update) {
                 for (int n = 1; n <= int_neqs; ++n) {
@@ -545,18 +565,18 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
                 break;
             }
 
+            // if we made it here, then we've failed
+            // cut the timestep in prep for trying again
+
             reject = true;
             n_reject += 1;
             last = false;
             if (n_reject >= 2) {
-                hnew *= integrator_rp::rosenbrock_timestep_controller == 1 ?
-                    integrator_rp::yass_reduction_fac : integrator_rp::h211b_reduction_fac;
+                hnew *= integrator_rp::h211b_reduction_fac;
             }
             if (valid_update) {
-                const amrex::Real reject_fac =
-                    integrator_rp::rosenbrock_timestep_controller == 1 ?
-                    integrator_rp::yass_reduction_fac : integrator_rp::h211b_reduction_fac;
-                h = posneg * amrex::min(std::abs(hnew), reject_fac * std::abs(h));
+                h = posneg * amrex::min(std::abs(hnew),
+                                         integrator_rp::h211b_reduction_fac * std::abs(h));
             } else {
                 h *= 0.25_rt;
             }
@@ -576,12 +596,6 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
     }
     if (integrator_rp::rosenbrock_tableau == 3) {
         return rosenbrock_integrator<BurnT, rosenbrock::ros2s_tableau>(state, rstate);
-    }
-    if (integrator_rp::rosenbrock_tableau == 4) {
-        return rosenbrock_integrator<BurnT, rosenbrock::ros2_tableau>(state, rstate);
-    }
-    if (integrator_rp::rosenbrock_tableau == 5) {
-        return rosenbrock_integrator<BurnT, rosenbrock::rosenbrock_euler_tableau>(state, rstate);
     }
 
     return rosenbrock_integrator<BurnT, rosenbrock::rodas5p_tableau>(state, rstate);

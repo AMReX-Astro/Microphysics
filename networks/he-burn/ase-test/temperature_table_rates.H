@@ -5,7 +5,7 @@
 
 #include <tfactors.H>
 #include <actual_network.H>
-
+#include <interp_tools.H>
 
 using namespace amrex::literals;
 
@@ -14,7 +14,8 @@ using namespace Rates;
 // temperature / rate tabulation for O16 + p --> F17
 
 namespace O16_p_to_F17_iliadis_data {
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 51> log_t9 = {
+
+    inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 51> log_t9 = {
      -5.809142990314028  , -5.521460917862246  , -5.298317366548036  ,
      -5.115995809754082  , -4.961845129926823  , -4.8283137373023015 ,
      -4.710530701645918  , -4.605170185988091  , -4.509860006183766  ,
@@ -34,7 +35,7 @@ namespace O16_p_to_F17_iliadis_data {
      0.9162907318741551 ,  1.0986122886681098 ,  1.252762968495368
     };
 
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 51> log_rate = {
+    inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 51> log_rate = {
      -92.93857540035118  , -82.5573056521023   , -75.17704808114306  ,
      -69.55076155001605  , -65.06026927373573  , -61.357534849389125 ,
      -58.22977030900149  , -55.537137188803406 , -53.184101816303524 ,
@@ -53,25 +54,27 @@ namespace O16_p_to_F17_iliadis_data {
      3.2703291064571163,   3.872450230308323 ,   4.364753306003425 ,
      5.127529045567755 ,   5.694068782468562 ,   6.129268051255177
     };
+
 }
 
 
 namespace temp_tabular {
 
     template <int do_T_derivatives>
-    AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void rate_O16_p_to_F17_iliadis(const tf_t& tfactors, amrex::Real& rate, amrex::Real& drate_dT) {
+    AMREX_GPU_DEVICE AMREX_INLINE
+    void rate_O16_p_to_F17_iliadis(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
         // O16 + p --> F17
 
-        auto [_rate, _drate_dT] = interp_net::cubic_interp_uneven<do_T_derivatives>(
+        auto [_log_rate, _dlog_rate_dlogT9] = interp_net::monotone_1d_interp<do_T_derivatives>(
                                                    tfactors.lnT9,
                                                    O16_p_to_F17_iliadis_data::log_t9,
                                                    O16_p_to_F17_iliadis_data::log_rate);
-        rate = std::exp(_rate);
+        rate = std::exp(_log_rate + log_scor);
         // we found dlog(rate)/dlog(T9)
         if constexpr (do_T_derivatives) {
-            drate_dT = rate * tfactors.T9i * _drate_dT * 1.0e-9_rt;
+            amrex::Real dlog_rate_dT = tfactors.T9i * _dlog_rate_dlogT9 * 1.0e-9_rt + dlog_scor_dT
+    ;        drate_dT = rate * dlog_rate_dT;
         }
     }
 
@@ -89,12 +92,25 @@ namespace temp_tabular {
         [[maybe_unused]] amrex::Real rate;
         [[maybe_unused]] amrex::Real drate_dT;
 
-        rate_O16_p_to_F17_iliadis<do_T_derivatives>(tfactors, rate, drate_dT);
-        rate_eval.screened_rates(k_O16_p_to_F17_iliadis) = rate;
-        if constexpr (std::is_same_v<T, rate_derivs_t>) {
-            rate_eval.dscreened_rates_dT(k_O16_p_to_F17_iliadis) = drate_dT;
+        {
+            // O16_p_to_F17_iliadis
 
+            amrex::Real log_scor {0.0_rt};
+            amrex::Real dlog_scor_dT {0.0_rt};
+#ifdef SCREENING
+            log_scor = rate_eval.log_screen(k_p_O16);
+            if constexpr (std::is_same_v<T, rate_derivs_t>) {
+                dlog_scor_dT = rate_eval.dlog_screen_dT(k_p_O16);
+            }
+#endif
+            rate_O16_p_to_F17_iliadis<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
+            rate_eval.screened_rates(k_O16_p_to_F17_iliadis) = rate;
+            if constexpr (std::is_same_v<T, rate_derivs_t>) {
+                rate_eval.dscreened_rates_dT(k_O16_p_to_F17_iliadis) = drate_dT;
+            }
         }
+
+
 
     }
 

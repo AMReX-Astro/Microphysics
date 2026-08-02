@@ -1,0 +1,8 @@
+# this is the null description for the X-ray burst ignition condition
+#
+
+# name short-name aion zion
+ hydrogen-1   H1    1.0  1.0
+ helium-4     He4   4.0  2.0
+ oxygen-14    O14  14.0  8.0
+ oxygen-15    O15  15.0  8.0

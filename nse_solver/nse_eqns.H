@@ -28,7 +28,7 @@ struct nse_solver_data
 
 
 template <typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 T get_T_independent_nse_state(const T& state) {
     // Computes (2J + 1) m^{5/2} (kB 1e9 / 2 π ħ^2)^{3/2} / ρ
     // a portion of the nse_state that is not dependent on Temperature.
@@ -114,7 +114,7 @@ void compute_coulomb_contribution(amrex::Array1D<amrex::Real, 1, NumSpec>& u_c,
 
 
 template <int do_T9_derivatives, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void get_T_dependent_nse_state(nse_solver_data<T>& state_data) {
     // It does two things:
     // 1. Applies T9^{3/2} to the input state,
