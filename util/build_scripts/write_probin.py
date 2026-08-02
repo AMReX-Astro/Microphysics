@@ -62,7 +62,10 @@ def get_next_line(fin):
         line = fin.readline()
         pos = line.find("#")
 
-    return line[:pos]
+    if pos > -1:
+        return line[:pos]
+    else:
+        return line
 
 
 def parse_param_file(params_list, param_file):

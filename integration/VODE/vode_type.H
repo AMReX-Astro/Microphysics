@@ -16,8 +16,8 @@ constexpr amrex::Real CCMXJ = 0.2e0_rt;
 
 constexpr amrex::Real HMIN = 0.0_rt;
 
-// For each species whose abundance is above a certain threshold, we do
-// not allow its mass fraction to change by more than a certain amount
+// For each species or radiation quantity whose value is above a certain threshold,
+// we do not allow its mass fraction to change by more than a certain amount
 // in any integration step.
 constexpr amrex::Real vode_increase_change_factor = 4.0_rt;
 constexpr amrex::Real vode_decrease_change_factor = 0.25_rt;
@@ -139,9 +139,18 @@ struct dvode_t
     // Tolerances
     amrex::Real rtol_spec, atol_spec;
     amrex::Real rtol_enuc, atol_enuc;
+#ifdef PHOTOCHEMISTRY
+    amrex::Real rtol_rad_num, atol_rad_num;
+    amrex::Real rtol_rad_flux, atol_rad_flux;
+#endif
 
     // Local time and integration end time
     amrex::Real t, tout;
+
+#ifdef PHOTOCHEMISTRY
+    // Reduced speed of light
+    amrex::Real c_hat;
+#endif
 
     // Integration array
     amrex::Array1D<amrex::Real, 1, int_neqs> y;

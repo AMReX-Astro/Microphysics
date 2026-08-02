@@ -20,6 +20,8 @@
 #include <integrator_data.H>
 #include <microphysics_autodiff.H>
 
+// TODO(james471): Check if this requires changes for radiation variables
+
 #ifdef NEW_NETWORK_IMPLEMENTATION
 
 // Forward declarations

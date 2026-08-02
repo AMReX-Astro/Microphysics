@@ -14,6 +14,10 @@ struct eos_t:eos_base_t {
     amrex::Real h{};
     amrex::Real s{};
     amrex::Real xn[NumSpec]{};
+#ifdef PHOTOCHEMISTRY
+    amrex::Real rn[NumRadEqs]{};
+    amrex::Real c_hat{};
+#endif
 #if NAUX_NET > 0
     amrex::Real aux[NumAux]{};
 #endif
@@ -58,6 +62,10 @@ struct eos_re_t:eos_base_t {
     amrex::Real T{};
     amrex::Real e{};
     amrex::Real xn[NumSpec]{};
+#ifdef PHOTOCHEMISTRY
+    amrex::Real rn[NumRadEqs]{};
+    amrex::Real c_hat{};
+#endif
 #if NAUX_NET > 0
     amrex::Real aux[NumAux]{};
 #endif
@@ -88,6 +96,10 @@ struct eos_rep_t:eos_base_t {
     amrex::Real xn[NumSpec]{};
 #if NAUX_NET > 0
     amrex::Real aux[NumAux]{};
+#endif
+#ifdef PHOTOCHEMISTRY
+    amrex::Real rn[NumRadEqs]{};
+    amrex::Real c_hat{};
 #endif
     amrex::Real dedT{};
     amrex::Real dedr{};
@@ -227,6 +239,14 @@ std::ostream& print_state (std::ostream& o, T const& eos_state)
             o << eos_state.aux[n] << " ";
         }
         o << std::endl;
+#endif
+#ifdef PHOTOCHEMISTRY
+        o << "rn = ";
+        for (int n = 0; n < NumRadEqs; ++n) {
+            o << eos_state.rn[n] << " ";
+        }
+        o << std::endl;
+        o << "c_hat = " << eos_state.c_hat << std::endl;
 #endif
     }
     if constexpr (has_pressure<T>) {

@@ -7,7 +7,11 @@
 
 // Define the size of the ODE system that VODE will integrate
 
+#ifndef PHOTOCHEMISTRY
 constexpr int INT_NEQS = NumSpec + 1;
+#else
+constexpr int INT_NEQS = NumRadEqs + NumSpec + 1;
+#endif
 
 
 // for outputting the burn state failure, use enough precision
@@ -41,6 +45,9 @@ constexpr int integrator_neqs ()
 #ifdef STRANG
     if constexpr (has_xn<BurnT>) {
         int_neqs += NumSpec;
+#ifdef PHOTOCHEMISTRY
+        int_neqs += NumRadEqs;
+#endif
     }
 
     if constexpr (has_energy<BurnT>) {
@@ -48,6 +55,9 @@ constexpr int integrator_neqs ()
     }
 #else
     int_neqs = NumSpec + 1;
+#ifdef PHOTOCHEMISTRY
+    int_neqs += NumRadEqs;
+#endif
 #endif
 
     return int_neqs;

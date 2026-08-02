@@ -1,6 +1,7 @@
 #ifndef EOS_H
 #define EOS_H
 
+#include <iostream>
 #include <network_properties.H>
 #include <eos_data.H>
 #include <eos_type.H>
@@ -72,7 +73,6 @@ void eos_reset (T& state, bool& has_been_reset)
 {
   state.T = amrex::min(EOSData::maxtemp, amrex::max(EOSData::mintemp, state.T));
   state.rho = amrex::min(EOSData::maxdens, amrex::max(EOSData::mindens, state.rho));
-
   actual_eos(eos_input_rt, state);
 
   has_been_reset = true;
@@ -216,6 +216,13 @@ void print_state (T& state) {
     std::cout << state.xn[n] << " ";
   }
   std::cout << std::endl;
+#ifdef PHOTOCHEMISTRY
+  std::cout << "RAD = ";
+  for (int n = 0; n < NumRadEqs; n ++) {
+    std::cout << state.rn[n] << " ";
+  }
+  std::cout << std::endl;
+#endif
 
   std::cout << "Y_E = " << state.y_e;
 }
@@ -424,7 +431,6 @@ void eos (const I input, T& state)
   eos_override(state);
 
   // Call the EOS.
-
   if (!has_been_reset) {
     actual_eos(input, state);
   }
