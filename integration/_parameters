@@ -121,5 +121,5 @@ linalg_do_pivoting         bool        1
 # We will use this parameter to determine if a given species
 # abundance is unreasonably small or large (each X must satisfy
 # -failure_tolerance <= X <= 1.0 + failure_tolerance).
-species_failure_tolerance  real       1.e-2_rt
+species_failure_tolerance  real       1.e-4_rt
 
