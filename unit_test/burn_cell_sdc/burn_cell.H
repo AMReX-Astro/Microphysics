@@ -20,10 +20,11 @@ void burn_cell_c()
 
         massfractions[n-1] = get_xn(n, unit_test_rp::uniform_xn);
 
-        if (massfractions[n-1] < 0 || massfractions[n-1] > 1) {
-            amrex::Error("mass fraction for " + short_spec_names_cxx[n-1] + " not initialized in the interval [0,1]!");
+        if (! unit_test_rp::mass_fraction_rho_weighted) {
+            if (massfractions[n-1] < 0 || massfractions[n-1] > 1) {
+                amrex::Error("mass fraction for " + short_spec_names_cxx[n-1] + " not initialized in the interval [0,1]!");
+            }
         }
-
     }
 
 
@@ -214,8 +215,14 @@ void burn_cell_c()
     eos_state.rho = unit_test_rp::density;
     eos_state.T = unit_test_rp::temperature;
 
-    for (int n = 0; n < NumSpec; n++) {
-      eos_state.xn[n] = massfractions[n];
+    if (unit_test_rp::mass_fraction_rho_weighted) {
+        for (int n = 0; n < NumSpec; n++) {
+            eos_state.xn[n] = massfractions[n] / unit_test_rp::density;
+        }
+    } else {
+        for (int n = 0; n < NumSpec; n++) {
+            eos_state.xn[n] = massfractions[n];
+        }
     }
 #ifdef AUX_THERMO
     if (unit_test_rp::recompute_aux) {
@@ -235,8 +242,14 @@ void burn_cell_c()
     burn_state.rho = eos_state.rho;
     burn_state.T = eos_state.T;
 
-    for (int n = 0; n < NumSpec; n++) {
-      burn_state.y[SFS+n] = burn_state.rho * eos_state.xn[n];
+    if (unit_test_rp::mass_fraction_rho_weighted) {
+        for (int n = 0; n < NumSpec; n++) {
+            burn_state.y[SFS+n] = massfractions[n];
+        }
+    } else {
+        for (int n = 0; n < NumSpec; n++) {
+            burn_state.y[SFS+n] = burn_state.rho * eos_state.xn[n];
+        }
     }
 
 #if NAUX_NET > 0
