@@ -75,17 +75,14 @@ setting the ``integrator.react_boost`` runtime parameter.  This will simply
 multiply the righthand sides of each species evolution equation (and
 appropriate Jacobian terms) by the specified constant amount.
 
-Interfaces
-==========
 
-The interfaces to all of the networks and integrators are written in C++.
+``burner`` interface
+====================
 
-``burner``
-----------
-
-The main entry point for C++ is ``burner()`` in
-``interfaces/burner.H``.  This simply calls the ``integrator()``
-routine (at the moment this can be ``VODE``, ``BackwardEuler``, ``ForwardEuler``, ``QSS``, or ``RKC``).
+The main entry point for integrating the reaction ODE system is
+``burner()`` in ``interfaces/burner.H``.  This simply calls the
+``integrator()`` routine (at the moment this can be
+``BackwardEuler``, ``ForwardEuler``, ``RKC``, ``Rosenbrock``, ``QSS``, or ``VODE``).
 
 .. code-block:: c++
 
@@ -157,8 +154,11 @@ the functions ``integrator_setup()`` and ``integrator_cleanup()``.
    the output will be the total internal energy, including that released
    burning the burn.
 
-Network Routines
-----------------
+Network routines
+================
+
+Any reaction network must provide a righthand side and Jacobian
+function.
 
 .. important::
 
@@ -170,7 +170,7 @@ Network Routines
    convert to mass fractions as needed for the integrators.
 
 Righthand size implementation
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------------
 
 The righthand side of the network is implemented by
 ``actual_rhs()`` in ``actual_rhs.H``, and appears as
@@ -233,30 +233,9 @@ fields to fill are:
    fraction rates for storage, e.g., :math:`dY_k/dt = A_k^{-1}
    dX_k/dt`.
 
-Righthand side wrapper
-^^^^^^^^^^^^^^^^^^^^^^
-
-The integrator provides a wrapper that sits between the integration
-routines and the network's implementation of the righthand side.  Its
-flow is (for VODE):
-
-#. call ``clean_state`` on the ``dvode_t``
-
-#. update the thermodynamics by calling ``update_thermodynamics``.  This takes both
-   the ``dvode_t`` and the ``burn_t`` and computes the temperature that matches the
-   current state.
-
-#. call ``actual_rhs``
-
-#. convert the derivatives to mass-fraction-based (since we integrate :math:`X`)
-   and zero out the temperature and energy derivatives if we are not integrating
-   those quantities.
-
-#. apply any boosting if ``integrator.react_boost`` > 0
-
 
 Jacobian implementation
-^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------
 
 .. index:: integrator.jacobian
 
@@ -278,19 +257,105 @@ The analytic Jacobian is specific to each network and is provided by
 
 where the ``MatrixType`` is most commonly ``MathArray2D<1, neqs, 1, neqs>``
 
-The Jacobian matrix elements are stored in ``jac`` as:
+There are 4 different regions in the Jacobian: $\partial \dot{\bf Y} / \partial {\bf Y}$,
+$\partial \dot{\bf Y} / \partial {e}$, $\partial \dot{e} / \partial {\bf Y}$, $\partial \dot{e} / \partial {e}$.
+We discuss how these are computed and stored below:
 
-* ``jac(m, n)`` for :math:`\mathrm{m}, \mathrm{n} \in [1, \mathrm{NumSpec}]` :
-  :math:`d(\dot{Y}_m)/dY_n`
+* $\partial \dot{\bf Y} / \partial {\bf Y}$ :
 
-* ``jac(net_ienuc, n)`` for :math:`\mathrm{n} \in [1, \mathrm{NumSpec}]` :
-  :math:`d(\dot{e})/dY_n`
+  This corresponds to elements :math:`d(\dot{Y}_m)/dY_n`
 
-* ``jac(m, net_ienuc)`` for :math:`\mathrm{m} \in [1, \mathrm{NumSpec}]` :
-  :math:`d(\dot{Y}_m)/de`
+  * *stored as*: ``jac(m, n)`` for :math:`\mathrm{m}, \mathrm{n} \in [1, \mathrm{NumSpec}]`
 
-* ``jac(net_ienuc, net_ienuc)`` :
-  :math:`d(\dot{e})/de`
+  * *computed as*: each network has a function to compute these elements
+    directly, since we need to know the stoichiometry.  This is easy as
+    it is just differentiating the righthand side with respect to
+    species.
+
+* $\partial \dot{\bf Y} / \partial {e}$ :
+
+  This corresponds to elements:   :math:`d(\dot{Y}_m)/de`
+
+  * *stored as*: ``jac(m, net_ienuc)`` for :math:`\mathrm{m} \in [1, \mathrm{NumSpec}]`
+
+  * *computed as*: we directly compute the temperature derivative of the $dY_m/dt$ expressions
+    by computing the temperature derivative of the rates, i.e. $d\lambda/dt$, and then
+    evaluating the $dY_m/dt$ using these temperature derivatives to get $d{\dot{\bf Y}}/dT$.
+
+    We then convert it to an energy derivative via the chain rule, namely:
+
+    .. math::
+
+       \frac{\partial\dot{\bf Y}}{\partial e} = \frac{1}{c_v} \frac{\partial \dot{\bf Y}}{\partial T}
+
+* $\partial \dot{e} / \partial {\bf Y}$ :
+
+  This corresponds to  :math:`d(\dot{e})/dY_n`
+
+  * *stored as*: ``jac(net_ienuc, n)`` for :math:`\mathrm{n} \in [1, \mathrm{NumSpec}]` :
+
+  * *computed as*: there are 3 different terms that make up the energy evolution:
+
+    .. math::
+
+       \frac{de}{dt} = \epsilon_\mathrm{nuc} - \epsilon_{\nu,\mathrm{weak}} - \epsilon_{\nu,\mathrm{therm}}
+
+    The derivative of each of these ($\partial \epsilon_* / \partial Y_n$) are computed separately, and in different fashions:
+
+    * $\epsilon_\mathrm{nuc}$ : this is the energy release just from the change in mass:
+
+      .. math::
+
+         \epsilon_\mathrm{nuc} = -N_A \sum_{m=1}^{\mathrm{NumSpec}} \dot{Y}_m m_m c^2
+
+      where $m$ is the index of the nucleus, and $m_m$ is the mass of that nucleus.
+      Differentiating with respect to $Y_n$, we have:
+
+      .. math::
+
+         \epsilon_\mathrm{nuc} = -N_A \sum_{m=1}^{\mathrm{NumSpec}} \frac{\partial \dot{Y}_m}{\partial Y_n} m_m c^2
+
+      We already have the ${\partial \dot{Y}_m}/{\partial Y_n}$, so
+      the contribution of $\epsilon_\mathrm{nuc}$ to each entry
+      $\partial (\dot{e})/\partial Y_n$ in the Jacobian is just the sum down column
+      $n$, weighting by $mc^2$.
+
+    * $\epsilon_{\nu,\mathrm{weak}}$ : this represents the neutrino
+      losses from weak rates.  Presently this is not accounted for.
+
+    * $\epsilon_{\nu,\mathrm{therm}}$ : these represents the thermal
+      neutrino losses (see :ref:`neutrino_loss`).  The neutrino loss
+      functions directly provide $\partial
+      \epsilon_{\nu,\mathrm{therm}} / \partial \bar{A}$ and $\partial
+      \epsilon_{\nu,\mathrm{therm}} / \partial \bar{Z}$, so we can
+      compute $\partial \epsilon_{\nu,\mathrm{therm}} / \partial Y_n$
+      via the chain rule.
+
+* $\partial \dot{e} / \partial {e}$ :
+
+  * *stored as*: ``jac(net_ienuc, net_ienuc)``
+
+  * *computed as*: just like $\partial \dot{e} / \partial Y_n$, there are 3 different terms that make up the energy evolution.
+    The method for computing each contribution is largely the same:
+
+    * $\epsilon_\mathrm{nuc}$ : now we differentiate this with respect to temperature:
+
+      .. math::
+
+         \epsilon_\mathrm{nuc} = -N_A \sum_{m=1}^{\mathrm{NumSpec}} \frac{\partial \dot{Y}_m}{\partial T} m_m c^2
+
+      and as before, we already have the ${\partial \dot{Y}_m}/{\partial T}$, so
+      the contribution of $\epsilon_\mathrm{nuc}$ to
+      $\partial (\dot{e})/\partial e$ is computed by summing down the last
+      column of the Jacobian (weighting by $mc^2$) and adding the $c_v$ weighting
+      to convert from $\partial/\partial T$ to $\partial/\partial e$.
+
+    * $\epsilon_{\nu,\mathrm{weak}}$ : as above, we do not presently
+      account for this.
+
+    * $\epsilon_{\nu,\mathrm{therm}}$ : as above, the neutrin loss
+      functions directly provide $\partial
+      \epsilon_{\nu,\mathrm{therm}} / \partial T$.
 
 .. important::
 
@@ -341,13 +406,51 @@ The form of the Jacobian return by the integrator looks like:
    The integrator does not zero the Jacobian elements.  It is the responsibility
    of the Jacobian implementation to zero the Jacobian array if necessary.
 
+Wrappers
+========
+
+To translate between the network's righthand side and Jacobian functions
+and those expects by the ODE integrators, we provide a set of wrappers.
+These handle the conversion of variables (e.g. $Y$ to $X$) and ensure
+that the state is thermodynamically consistent at the start.
+
+These wrappers take an integrator state and copy back and forth to the ``burn_t``
+that the networks want.
+
+.. note::
+
+   In the flowcharts below, we'll refer to the generic integrator type
+   as ``int_state``.  The actual type will depend on the integrator
+   used, e.g. ``dvode_t`` for VODE, ``rkc_t`` for RKC, ...
+
+Righthand side wrapper
+----------------------
+
+The integrator provides a wrapper that sits between the integration
+routines and the network's implementation of the righthand side.  Its
+flow is:
+
+#. call ``clean_state`` on ``int_state``
+
+#. update the thermodynamics by calling ``update_thermodynamics``.  This takes both
+   the ``int_state`` and the ``burn_t`` and computes the temperature that matches the
+   current state.
+
+#. call ``actual_rhs``
+
+#. convert the derivatives to mass-fraction-based (since we integrate :math:`X`)
+   and zero out the temperature and energy derivatives if we are not integrating
+   those quantities.
+
+#. apply any boosting if ``integrator.react_boost`` > 0
+
 
 Jacobian wrapper
-^^^^^^^^^^^^^^^^
+----------------
 
 The integrator provides a wrapper that sits between the integration
 routines and the network's implementation of the Jacobian.  Its
-flow is (for VODE):
+flow is:
 
 .. note::
 

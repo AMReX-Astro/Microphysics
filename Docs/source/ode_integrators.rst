@@ -52,8 +52,6 @@ Presently, allowed integrators are:
   the `Gershgorin circle theorem <https://en.wikipedia.org/wiki/Gershgorin_circle_theorem>`_
   is used instead.
 
-.. index:: integrator.use_jacobian_caching
-
 * ``Rosenbrock``: this implements several different Rosenbrock implicit
   methods for stiff ODEs.  Several different methods can be selected through
   the runtime parameter ``integrator.rosenbrock_tableau``.  The
@@ -76,6 +74,8 @@ Presently, allowed integrators are:
 
   The H211b error-history timestep controller from :cite:`h211b` (see Eq. 31) is used.
 
+.. index:: integrator.use_jacobian_caching
+
 * ``VODE``: the VODE :cite:`vode` integration package.  We ported this
   integrator to C++ and removed the non-stiff integration code paths.
 
@@ -93,20 +93,24 @@ robust.
 
 .. index:: integrator.scale_system
 
+Scaling the ODE system
+======================
+
+The runtime parameter ``integrator.scale_system`` will scale the
+internal energy that the integrator sees by the initial value of
+:math:`e` to make the system :math:`\mathcal{O}(1)`.  The value of
+``atol_enuc`` will likewise be scaled.  This works for both Strang and
+simplified-SDC.
+
 .. note::
 
-   The runtime parameter ``integrator.scale_system``
-   will scale the internal energy that the integrator sees by the initial
-   value of :math:`e` to make the system :math:`\mathcal{O}(1)`.  The value
-   of ``atol_enuc`` will likewise be scaled.  This works for both Strang
-   and simplified-SDC.  For the ``RKC`` integrator, this is enabled by
-   default.
+   For the ``RKC`` integrator, this is enabled by default.
 
-   For most integrators this algebraic change should not affect the output
-   to more than roundoff, but the option is included to allow for some
-   different integration approaches in the future.
+For most integrators this algebraic change should not affect the output
+to more than roundoff, but the option is included to allow for some
+different integration approaches in the future.
 
-   This option currently does not work with the ForwardEuler or QSS integrators.
+This option currently does not work with the ForwardEuler or QSS integrators.
 
 Timestep selection
 ==================
