@@ -317,12 +317,17 @@ fractions</em> for the <code class="docutils literal notranslate"><span class="p
 <li><p><code class="docutils literal notranslate"><span class="pre">state.ydot(net_ienuc)</span></code> : the change in the internal energy
 from the net, <span class="math notranslate nohighlight">\(de/dt\)</span></p></li>
 </ul>
-<p>The righthand side routine is assumed to return the change in <em>molar fractions</em>,
-<span class="math notranslate nohighlight">\(dY_k/dt\)</span>. These will be converted to the change in mass fractions, <span class="math notranslate nohighlight">\(dX_k/dt\)</span>
-by the wrappers that call the righthand side routine for the integrator.
-If the network builds the RHS in terms of mass fractions directly, <span class="math notranslate nohighlight">\(dX_k/dt\)</span>, then
-these will need to be converted to molar fraction rates for storage, e.g.,
-<span class="math notranslate nohighlight">\(dY_k/dt = A_k^{-1} dX_k/dt\)</span>.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The righthand side routine is assumed to return the change in
+<em>molar fractions</em>, <span class="math notranslate nohighlight">\(dY_k/dt\)</span>. These will be converted to the
+change in mass fractions, <span class="math notranslate nohighlight">\(dX_k/dt\)</span> by the wrappers that call
+the righthand side routine for the integrator.  If the network
+builds the RHS in terms of mass fractions directly,
+<span class="math notranslate nohighlight">\(dX_k/dt\)</span>, then these will need to be converted to molar
+fraction rates for storage, e.g., <span class="math notranslate nohighlight">\(dY_k/dt = A_k^{-1}
+dX_k/dt\)</span>.</p>
+</div>
 </section>
 <section id="righthand-side-wrapper">
 <h4>Righthand side wrapper<a class="headerlink" href="#righthand-side-wrapper" title="Link to this heading"></a></h4>
@@ -368,14 +373,41 @@ a difference method is implemented in
 <li><p><code class="docutils literal notranslate"><span class="pre">jac(net_ienuc,</span> <span class="pre">net_ienuc)</span></code> :
 <span class="math notranslate nohighlight">\(d(\dot{e})/de\)</span></p></li>
 </ul>
-<p>The form looks like:</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The Jacobian returned by the network is assumed to be in terms of molar fractions.
+However, we do convert the temperature derivative to an energy derivative already
+in the network by multiplying by <span class="math notranslate nohighlight">\((1/c_v)\)</span>.</p>
+</div>
+<p>The form of the Jacobian return by the integrator looks like:</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\left (
 \begin{matrix}
-   \ddots  &amp; \vdots                          &amp;          &amp; \vdots \\
-   \cdots  &amp; \partial \dot{Y}_m/\partial Y_n &amp; \cdots   &amp; \partial \dot{Y}_m/\partial e    \\
-           &amp; \vdots                          &amp; \ddots   &amp; \vdots  \\
-   \cdots  &amp; \partial \dot{e}/\partial Y_n   &amp; \cdots   &amp; \partial \dot{e}/\partial e   \\
+  \dfrac{\partial \dot{Y}_1}{\partial Y_1} &amp;
+  \dfrac{\partial \dot{Y}_1}{\partial Y_2} &amp;
+  \cdots &amp;
+  \dfrac{\partial \dot{Y}_1}{\partial Y_\mathrm{NumSpec}} &amp;
+  \dfrac{1}{c_v} \dfrac{\partial \dot{Y}_1}{\partial T} \\
+  %
+  \dfrac{\partial \dot{Y}_2}{\partial Y_1} &amp;
+  \dfrac{\partial \dot{Y}_2}{\partial Y_2} &amp;
+  \cdots &amp;
+  \dfrac{\partial \dot{Y}_2}{\partial Y_\mathrm{NumSpec}} &amp;
+  \dfrac{1}{c_v} \dfrac{\partial \dot{Y}_2}{\partial T} \\
+  %
+  \vdots &amp; \vdots &amp; \ddots &amp; \vdots &amp; \vdots \\
+  %
+  \dfrac{\partial \dot{Y}_\mathrm{NumSpec}}{\partial Y_1} &amp;
+  \dfrac{\partial \dot{Y}_\mathrm{NumSpec}}{\partial Y_2} &amp;
+  \cdots &amp;
+  \dfrac{\partial \dot{Y}_\mathrm{NumSpec}}{\partial Y_\mathrm{NumSpec}} &amp;
+  \dfrac{1}{c_v} \dfrac{\partial \dot{Y}_\mathrm{NumSpec}}{\partial T} \\
+  %
+  \dfrac{\partial \dot{e}}{\partial Y_1} &amp;
+  \dfrac{\partial \dot{e}}{\partial Y_2} &amp;
+  \cdots &amp;
+  \dfrac{\partial \dot{e}}{\partial Y_\mathrm{NumSpec}} &amp;
+  \dfrac{1}{c_v} \dfrac{\partial \dot{e}}{\partial T}
 \end{matrix}
 \right )\end{split}\]</div>
 <div class="admonition note">
@@ -401,12 +433,56 @@ calling the Jacobian wrapper, likely because we just called the RHS
 wrapper above which did the <code class="docutils literal notranslate"><span class="pre">clean_state</span></code> and
 <code class="docutils literal notranslate"><span class="pre">update_thermodynamics</span></code> calls.</p>
 </div>
-<ol class="arabic simple" id="index-6">
+<ol class="arabic" id="index-6">
 <li><p>call <code class="docutils literal notranslate"><span class="pre">integrator_to_burn()</span></code> to update the <code class="docutils literal notranslate"><span class="pre">burn_t</span></code></p></li>
 <li><p>call <code class="docutils literal notranslate"><span class="pre">actual_jac()</span></code> to have the network fill the Jacobian array</p></li>
-<li><p>convert the derivative to be mass-fraction-based</p></li>
+<li><p>convert the derivative to be mass-fraction-based.</p>
+<p>Since <span class="math notranslate nohighlight">\(Y_k = X_k/A_k\)</span>, we have <span class="math notranslate nohighlight">\(\partial/\partial X_k = A_k^{-1} \partial/\partial Y_k\)</span>.</p>
+<p>We transform by:</p>
+<ul class="simple">
+<li><p>multiplying all rows of the form <span class="math notranslate nohighlight">\(\partial Y_m / \partial \star\)</span> by <span class="math notranslate nohighlight">\(A_m\)</span> (where <span class="math notranslate nohighlight">\(\star\)</span> is either a molar fraction or <span class="math notranslate nohighlight">\(T\)</span>/<span class="math notranslate nohighlight">\(e\)</span>).</p></li>
+<li><p>multiplying all columns of the form <span class="math notranslate nohighlight">\(\partial \star / \partial Y_n\)</span> by <span class="math notranslate nohighlight">\(1/A_n\)</span>.</p></li>
+</ul>
+</li>
+<li><p>add correction
+terms proportional to <span class="math notranslate nohighlight">\(\partial e/\partial X_k  |_{\rho, T, X_{j,j\ne k}}\)</span>
+if <code class="docutils literal notranslate"><span class="pre">integrator.correct_jacobian_for_const_e</span></code> is <code class="docutils literal notranslate"><span class="pre">1</span></code>.</p>
+<p>The system we integrate is <span class="math notranslate nohighlight">\((X_k, e)\)</span>, but the derivatives we took in the analytic Jacobian
+were in terms of <span class="math notranslate nohighlight">\(T\)</span> and not <span class="math notranslate nohighlight">\(e\)</span>.  So we need to correct for the fact that for some quantity
+<span class="math notranslate nohighlight">\(q\)</span>,</p>
+<div class="math notranslate nohighlight">
+\[\left . \frac{\partial q}{\partial X_k} \right |_e \ne \left . \frac{\partial q}{\partial X_k} \right  |_T\]</div>
+<p>If we write <span class="math notranslate nohighlight">\(q = q(\rho, T(\rho, X_k, e), X_k)\)</span> then we find that:</p>
+<div class="math notranslate nohighlight">
+\[\left . \frac{\partial q}{\partial X_k} \right |_{\rho, e, X_{j,j\ne k}} =
+       \left . \frac{\partial q}{\partial X_k} \right  |_{\rho, T, X_{j,j\ne k}} - \frac{e_{X_k}}{c_v} \left . \frac{\partial T}{\partial X_k} \right |_{\rho, e, X_{j,j\ne k}}\]</div>
+<p>where <span class="math notranslate nohighlight">\(e_{X_k} = \partial e / \partial X_k |_{\rho, T, X_{j,j\ne k}}\)</span>.</p>
+<p>This correction term is described in <span class="bibtex-citation" id="id1">[<a class="reference internal" href="zreferences.html#id42" title="M. Zingale, M. P. Katz, A. Nonaka, and M. Rasmussen. An improved method for coupling hydrodynamics with astrophysical reaction networks. The Astrophysical Journal, 936(1):6, aug 2022. URL: https://dx.doi.org/10.3847/1538-4357/ac8478, doi:10.3847/1538-4357/ac8478.">43</a>]</span>.</p>
+</li>
 <li><p>apply any boosting to the rates if <code class="docutils literal notranslate"><span class="pre">integrator.react_boost</span></code> &gt; 0</p></li>
 </ol>
+<p>The final form of the Jacobian is:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\left (
+\begin{matrix}
+  \dfrac{\partial \dot{X}_1}{\partial X_1} - \dfrac{e_{X_1}}{c_v} \dfrac{\partial \dot{X}_1}{\partial T} &amp;
+  \dfrac{\partial \dot{X}_1}{\partial X_2} - \dfrac{e_{X_2}}{c_v} \dfrac{\partial \dot{X}_1}{\partial T} &amp;
+  \cdots &amp;
+  \dfrac{1}{c_v} \dfrac{\partial \dot{X}_1}{\partial T} \\
+  %
+  \dfrac{\partial \dot{X}_2}{\partial X_1} - \dfrac{e_{X_1}}{c_v} \dfrac{\partial \dot{X}_2}{\partial T} &amp;
+  \dfrac{\partial \dot{X}_2}{\partial X_2} - \dfrac{e_{X_2}}{c_v} \dfrac{\partial \dot{X}_2}{\partial T} &amp;
+  \cdots &amp;
+  \dfrac{1}{c_v} \dfrac{\partial \dot{X}_2}{\partial T} \\
+  %
+  \vdots &amp; \vdots &amp; \ddots &amp; \vdots \\
+  %
+  \dfrac{\partial \dot{e}}{\partial X_1} - \dfrac{e_{X_1}}{c_v} \dfrac{\partial \dot{e}}{\partial T} &amp;
+  \dfrac{\partial \dot{e}}{\partial X_2} - \dfrac{e_{X_2}}{c_v} \dfrac{\partial \dot{e}}{\partial T} &amp;
+  \cdots &amp;
+  \dfrac{1}{c_v} \dfrac{\partial \dot{e}}{\partial T}
+\end{matrix}
+\right )\end{split}\]</div>
 </section>
 </section>
 </section>
