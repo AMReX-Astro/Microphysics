@@ -91,7 +91,7 @@ affiliations:
   name: Department of Physics and Astronomy, Michigan State University, E. Lansing, MI, USA
 - index: 12
   Institute for Advanced Computational Science, Stony Brook University, Stony Brook, NY
-  
+
 date: 4 Aug 2026
 
 bibliography: paper.bib
