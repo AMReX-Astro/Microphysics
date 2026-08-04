@@ -74,7 +74,7 @@ affiliations:
 - index: 3
   name: Department of Physics, University of Wisconsin, Madison, Madison, WI, USA
 - index: 4
-  name: no affiliation
+  name: Independent Researcher, USA
 - index: 5
   name: Department of Astronomy, University of Arizona, Tucson, AZ, USA
 - index: 6
@@ -90,7 +90,7 @@ affiliations:
 - index: 11
   name: Department of Physics and Astronomy, Michigan State University, E. Lansing, MI, USA
 - index: 12
-  name: Institute for Advanced Computational Science, Stony Brook University, Stony Brook, NY
+  name: Institute for Advanced Computational Science, Stony Brook University, Stony Brook, NY, USA
 
 date: 4 Aug 2026
 
@@ -115,7 +115,7 @@ implemented in C++ with GPU-offloading a key design feature.
 
 # Statement of need
 
-Astrophysical simulation codes need many different smallscale
+Astrophysical simulation codes need many different small-scale
 (microphysics) physics inputs to close the system of equations.  There
 are many astrophysics simulation codes built around the AMReX library,
 with each specializing in different astrophysics phenomena.  Each of
@@ -128,7 +128,7 @@ support for astrophysical simulation codes.
 
 Individual reaction networks and equations of state have been made
 available by authors for decades, including a wide variety from
-https://cococubed.com/code_pages/burn.shtml.  Flash
+[Cococubed.com](https://cococubed.com/code_pages/burn.shtml).  Flash
 [@flash] comes with a set of reaction networks and equations of state
 as well.  The closest compilation to ours is the recent
 singularity-EOS library [@singularity], which provides various
@@ -161,11 +161,11 @@ opacities, as well as the tools needed to work with them, most notably
 the suite of stiff ODE integrators for the networks.
 Several classic Fortran libraries have been converted to header-only
 C++ implementations, including the VODE integrator [@vode], the hybrid
-Powell method of MINPACK [@powell], and the Runge-Kutta Chebyshev
+Powell method of MINPACK [@powell], and the Runge--Kutta--Chebyshev
 (RKC) integration method [@rkc].  The code was modernized where possible,
 with many `go to` statements removed and additional logic added
-to support our applications (see for example the discussion
-on VODE in @castro_simple_sdc).
+to support our applications [see for example the discussion
+on VODE in @castro_simple_sdc].
 We also make use of the C++ autodiff library [@autodiff] to compute
 thermodynamic derivatives required in the Jacobians of our reaction
 networks.
@@ -194,10 +194,10 @@ Another key design feature is the separation of the reaction network
 from the integrator.  This allows us to easily experiment with
 different integration methods (such as the RKC integrator) and also
 support different modes of coupling reactions to a simulation code,
-including operator splitting and spectral deferred corrections (SDC)
-(see, e.g., @castro_simple_sdc).  The latter is especially important
+including operator splitting and spectral deferred corrections [SDC\;
+see, e.g., @castro_simple_sdc].  The latter is especially important
 for explosive astrophysical flows.  Tight integration with pynucastro
-[@pynucastro; @pynucastro2], allows for the generation of custom
+[@pynucastro; @pynucastro2] allows for the generation of custom
 reaction networks for a science problem.
 
 There are two ways to use Microphysics: in a standalone fashion (via
