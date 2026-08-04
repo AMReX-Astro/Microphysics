@@ -12,85 +12,87 @@ tags:
 
 authors:
 - surname: AMReX-Astro Microphysics Team
-  affiliation: '†'
+  affiliation: '1'
 
 - name: Khanak Bhargava
-  affiliation: '1'
-
-- name: Abigail Bishop
   affiliation: '2'
 
+- name: Abigail Bishop
+  affiliation: '3'
+
 - name: Zhi Chen
-  affiliation: '1'
+  affiliation: '2'
 
 - name: Doreen Fan
-  affiliation: '3'
-
-- name: Carl Fields
   affiliation: '4'
 
+- name: Carl Fields
+  affiliation: '5'
+
 - name: Adam M. Jacobs
-  affiliation: '3'
-  
+  affiliation: '4'
+
 - name: Eric T. Johnson
-  affiliation: '1'
+  affiliation: '2'
 
 - name: Max P. Katz
-  affiliation: '1'
+  affiliation: '2'
 
 - name: Mark Krumholz
-  affiliation: '5'
-  
-- name: Chris Malone
   affiliation: '6'
 
-- name: Andy Nonaka
+- name: Chris Malone
   affiliation: '7'
-  
-- name: Piyush Sharda
+
+- name: Andy Nonaka
   affiliation: '8'
+
+- name: Piyush Sharda
+  affiliation: '9'
 
 - given-names: Alexander
   surname: Smith Clark
-  affiliation: '1'
+  affiliation: '2'
 
 - name: Frank Timmes
-  affiliation: '9'
-
-- name: Ben Wibking
   affiliation: '10'
 
+- name: Ben Wibking
+  affiliation: '11'
+
 - name: Don E. Willcox
-  affiliation: '3'
-  
+  affiliation: '12'
+
 - name: Michael Zingale
-  affiliation: '1'
+  affiliation: '2'
 
 affiliations:
-- index: †
-  name: https://github.com/amrex-astro/Microphysics
 - index: 1
-  name: Department of Physics and Astronomy, Stony Brook University, Stony Brook, NY, USA
+  name: Collaboration
 - index: 2
-  name: Department of Physics, University of Wisconsin, Madison, Madison, WI, USA
+  name: Department of Physics and Astronomy, Stony Brook University, Stony Brook, NY, USA
 - index: 3
-  name: affiliation not disclosed
+  name: Department of Physics, University of Wisconsin, Madison, Madison, WI, USA
 - index: 4
-  name: Department of Astronomy, University of Arizona, Tucson, AZ, USA
+  name: no affiliation
 - index: 5
-  name: Research School of Astronomy and Astrophysics, The Australian National University, Australia
+  name: Department of Astronomy, University of Arizona, Tucson, AZ, USA
 - index: 6
-  name: Los Alamos National Laboratory, Los Alamos, NM, USA
+  name: Research School of Astronomy and Astrophysics, The Australian National University, Australia
 - index: 7
-  name: Lawrence Berkeley National Laboratory, Berkeley, CA, USA
+  name: Los Alamos National Laboratory, Los Alamos, NM, USA
 - index: 8
-  name: Leiden Observatory, Leiden, The Netherlands
+  name: Lawrence Berkeley National Laboratory, Berkeley, CA, USA
 - index: 9
-  name: Arizona State University, Tempe, AZ, USA
+  name: Leiden Observatory, Leiden, The Netherlands
 - index: 10
+  name: Arizona State University, Tempe, AZ, USA
+- index: 11
   name: Department of Physics and Astronomy, Michigan State University, E. Lansing, MI, USA
+- index: 12
+  name: Institute for Advanced Computational Science, Stony Brook University, Stony Brook, NY
 
-date: 20 July 2025
+date: 4 Aug 2026
 
 bibliography: paper.bib
 ---
@@ -239,4 +241,3 @@ supported by the US Department of Energy, Office of Nuclear Physics
 grant DE-FG02-87ER40317.
 
 # References
-
