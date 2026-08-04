@@ -31,7 +31,7 @@ authors:
 
 - name: Adam M. Jacobs
   affiliation: '4'
-  
+
 - name: Eric T. Johnson
   affiliation: '2'
 
@@ -40,13 +40,13 @@ authors:
 
 - name: Mark Krumholz
   affiliation: '6'
-  
+
 - name: Chris Malone
   affiliation: '7'
 
 - name: Andy Nonaka
   affiliation: '8'
-  
+
 - name: Piyush Sharda
   affiliation: '9'
 
@@ -62,7 +62,7 @@ authors:
 
 - name: Don E. Willcox
   affiliation: '12'
-  
+
 - name: Michael Zingale
   affiliation: '2'
 
@@ -90,7 +90,7 @@ affiliations:
 - index: 11
   name: Department of Physics and Astronomy, Michigan State University, E. Lansing, MI, USA
 - index: 12
-  Institute for Advanced Computational Science, Stony Brook University, Stony Brook, NY
+  name: Institute for Advanced Computational Science, Stony Brook University, Stony Brook, NY
 
 date: 4 Aug 2026
 
@@ -241,4 +241,3 @@ supported by the US Department of Energy, Office of Nuclear Physics
 grant DE-FG02-87ER40317.
 
 # References
-
