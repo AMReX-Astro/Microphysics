@@ -279,7 +279,7 @@ We discuss how these are computed and stored below:
   * *stored as*: ``jac(m, net_ienuc)`` for :math:`\mathrm{m} \in [1, \mathrm{NumSpec}]`
 
   * *computed as*: we directly compute the temperature derivative of the $dY_m/dt$ expressions
-    by computing the temperature derivative of the rates, i.e. $d\lambda/dt$, and then
+    by computing the temperature derivative of the rates, i.e. $d\lambda/dT$, and then
     evaluating the $dY_m/dt$ using these temperature derivatives to get $d{\dot{\bf Y}}/dT$.
 
     We then convert it to an energy derivative via the chain rule, namely:
@@ -313,7 +313,7 @@ We discuss how these are computed and stored below:
 
       .. math::
 
-         \epsilon_\mathrm{nuc} = -N_A \sum_{m=1}^{\mathrm{NumSpec}} \frac{\partial \dot{Y}_m}{\partial Y_n} m_m c^2
+         \frac{\partial{\epsilon_\mathrm{nuc}}}{\partial Y_n} = -N_A \sum_{m=1}^{\mathrm{NumSpec}} \frac{\partial \dot{Y}_m}{\partial Y_n} m_m c^2
 
       We already have the ${\partial \dot{Y}_m}/{\partial Y_n}$, so
       the contribution of $\epsilon_\mathrm{nuc}$ to each entry
@@ -342,7 +342,7 @@ We discuss how these are computed and stored below:
 
       .. math::
 
-         \epsilon_\mathrm{nuc} = -N_A \sum_{m=1}^{\mathrm{NumSpec}} \frac{\partial \dot{Y}_m}{\partial T} m_m c^2
+         \frac{\partial \epsilon_\mathrm{nuc}}{\partial T} = -N_A \sum_{m=1}^{\mathrm{NumSpec}} \frac{\partial \dot{Y}_m}{\partial T} m_m c^2
 
       and as before, we already have the ${\partial \dot{Y}_m}/{\partial T}$, so
       the contribution of $\epsilon_\mathrm{nuc}$ to
