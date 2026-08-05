@@ -46,7 +46,7 @@ def get_library():
                  "co55", "co56", "co57",
                  "ni56", "ni57", "ni58", "cu59", "zn60"]
     subch += reaclib_lib.linking_nuclei(iron_peak)
-    weak_lib = pyna.TabularLibrary(ordering=["ffn", "langanke", "oda"])
+    weak_lib = pyna.TabularWeakLibrary(ordering=["ffn", "langanke", "oda"])
     iron_weak_lib = weak_lib.linking_nuclei(set(iron_peak + all_reactants))
     subch += iron_weak_lib
 
