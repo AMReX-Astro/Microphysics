@@ -16,55 +16,72 @@ authors:
 
 - name: Khanak Bhargava
   affiliation: '2'
+  orcid: 0000-0003-0385-7918
 
 - name: Abigail Bishop
   affiliation: '3'
+  orcid: 0000-0002-0375-644X
 
 - name: Zhi Chen
   affiliation: '2'
+  orcid: 0000-0002-2839-107X
 
 - name: Doreen Fan
   affiliation: '4'
+  orcid: 0000-0002-3246-4315
 
 - name: Carl Fields
   affiliation: '5'
+  orcid: 0000-0002-8925-057X
 
 - name: Adam M. Jacobs
   affiliation: '4'
+  orcid: 0000-0002-3580-2420
 
 - name: Eric T. Johnson
   affiliation: '2'
+  orcid: 0000-0003-3603-6868
 
 - name: Max P. Katz
   affiliation: '2'
+  orcid: 0000-0003-0439-4556
 
 - name: Mark Krumholz
   affiliation: '6'
+  orcid: 0000-0003-3893-854X
 
 - name: Chris Malone
   affiliation: '7'
+  orcid: 0000-0002-4045-7932
 
 - name: Andy Nonaka
   affiliation: '8'
+  orcid: 0000-0003-1791-0265
 
 - name: Piyush Sharda
   affiliation: '9'
+  orcid: 0000-0003-3347-7094
 
 - given-names: Alexander
   surname: Smith Clark
   affiliation: '2'
+  orcid: 0000-0001-5961-1680
 
 - name: Frank Timmes
   affiliation: '10'
+  orcid: 0000-0002-0474-159X
 
 - name: Ben Wibking
   affiliation: '11'
+  orcid: 0000-0003-3175-2291
 
 - name: Don E. Willcox
   affiliation: '12'
+  orcid: 0000-0003-2300-5165
 
 - name: Michael Zingale
   affiliation: '2'
+  orcid: 0000-0001-8401-030X
 
 affiliations:
 - index: 1
