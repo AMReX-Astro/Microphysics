@@ -9,7 +9,7 @@ DO_DERIVED_RATES = True
 
 def get_library():
 
-    starlib_lib = pyna.StarLibLibrary()
+    reaclib_lib = pyna.StarLibLibrary()
 
     all_reactants = ["p",
                      "he4", "c12", "o16", "ne20", "mg24", "si28", "s32",
@@ -17,7 +17,7 @@ def get_library():
                      "al27", "p31", "cl35", "k39", "sc43", "v47", "mn51", "co55",
                      "n13", "na23"]
 
-    subch = starlib_lib.linking_nuclei(all_reactants)
+    subch = reaclib_lib.linking_nuclei(all_reactants)
 
     # in this list, we have the reactants, the actual reactants,
     # and modified products that we will use instead
@@ -26,7 +26,7 @@ def get_library():
                    ("o16(c12,n)si27", "si28")]
 
     for r, mp in other_rates:
-        _r = starlib_lib.get_rate_by_name(r)
+        _r = reaclib_lib.get_rate_by_name(r)
         forward_rate = pyna.ModifiedRate(_r, new_products=[mp])
         derived_rate = pyna.DerivedRate(forward_rate, use_pf=True)
         subch += pyna.Library(rates=[forward_rate, derived_rate])
@@ -54,7 +54,6 @@ def get_library():
                  "mn51",
                  "fe52", "fe53", "fe54", "fe55", "fe56",
                  "co55", "co56", "co57",
-
                  "ni56", "ni57", "ni58", "cu59", "zn60"]
     subch += reaclib_lib.linking_nuclei(iron_peak)
     weak_lib = pyna.TabularWeakLibrary(ordering=["ffn", "langanke", "oda"])
@@ -107,7 +106,7 @@ def doit():
     rho = 1.e7
     T = 6.e9
 
-    net.plot(outfile="ase-iron.png",
+    net.plot(outfile="ase-iron-starlib.png",
              rotated=True, hide_xalpha=True,
              size=(1500, 450),
              node_size=600, node_font_size=9,

@@ -75,17 +75,14 @@ setting the ``integrator.react_boost`` runtime parameter.  This will simply
 multiply the righthand sides of each species evolution equation (and
 appropriate Jacobian terms) by the specified constant amount.
 
-Interfaces
-==========
 
-The interfaces to all of the networks and integrators are written in C++.
+``burner`` interface
+====================
 
-``burner``
-----------
-
-The main entry point for C++ is ``burner()`` in
-``interfaces/burner.H``.  This simply calls the ``integrator()``
-routine (at the moment this can be ``VODE``, ``BackwardEuler``, ``ForwardEuler``, ``QSS``, or ``RKC``).
+The main entry point for integrating the reaction ODE system is
+``burner()`` in ``interfaces/burner.H``.  This simply calls the
+``integrator()`` routine (at the moment this can be
+``BackwardEuler``, ``ForwardEuler``, ``RKC``, ``Rosenbrock``, ``QSS``, or ``VODE``).
 
 .. code-block:: c++
 
@@ -157,8 +154,11 @@ the functions ``integrator_setup()`` and ``integrator_cleanup()``.
    the output will be the total internal energy, including that released
    burning the burn.
 
-Network Routines
-----------------
+Network routines
+================
+
+Any reaction network must provide a righthand side and Jacobian
+function.
 
 .. important::
 
@@ -170,7 +170,7 @@ Network Routines
    convert to mass fractions as needed for the integrators.
 
 Righthand size implementation
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------------
 
 The righthand side of the network is implemented by
 ``actual_rhs()`` in ``actual_rhs.H``, and appears as
@@ -222,37 +222,20 @@ fields to fill are:
 * ``state.ydot(net_ienuc)`` : the change in the internal energy
   from the net, :math:`de/dt`
 
-The righthand side routine is assumed to return the change in *molar fractions*,
-:math:`dY_k/dt`. These will be converted to the change in mass fractions, :math:`dX_k/dt`
-by the wrappers that call the righthand side routine for the integrator.
-If the network builds the RHS in terms of mass fractions directly, :math:`dX_k/dt`, then
-these will need to be converted to molar fraction rates for storage, e.g.,
-:math:`dY_k/dt = A_k^{-1} dX_k/dt`.
+.. important::
 
-Righthand side wrapper
-^^^^^^^^^^^^^^^^^^^^^^
-
-The integrator provides a wrapper that sits between the integration
-routines and the network's implementation of the righthand side.  Its
-flow is (for VODE):
-
-#. call ``clean_state`` on the ``dvode_t``
-
-#. update the thermodynamics by calling ``update_thermodynamics``.  This takes both
-   the ``dvode_t`` and the ``burn_t`` and computes the temperature that matches the
-   current state.
-
-#. call ``actual_rhs``
-
-#. convert the derivatives to mass-fraction-based (since we integrate :math:`X`)
-   and zero out the temperature and energy derivatives if we are not integrating
-   those quantities.
-
-#. apply any boosting if ``integrator.react_boost`` > 0
+   The righthand side routine is assumed to return the change in
+   *molar fractions*, :math:`dY_k/dt`. These will be converted to the
+   change in mass fractions, :math:`dX_k/dt` by the wrappers that call
+   the righthand side routine for the integrator.  If the network
+   builds the RHS in terms of mass fractions directly,
+   :math:`dX_k/dt`, then these will need to be converted to molar
+   fraction rates for storage, e.g., :math:`dY_k/dt = A_k^{-1}
+   dX_k/dt`.
 
 
 Jacobian implementation
-^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------
 
 .. index:: integrator.jacobian
 
@@ -274,29 +257,142 @@ The analytic Jacobian is specific to each network and is provided by
 
 where the ``MatrixType`` is most commonly ``MathArray2D<1, neqs, 1, neqs>``
 
-The Jacobian matrix elements are stored in ``jac`` as:
+There are 4 different regions in the Jacobian: $\partial \dot{\bf Y} / \partial {\bf Y}$,
+$\partial \dot{\bf Y} / \partial {e}$, $\partial \dot{e} / \partial {\bf Y}$, $\partial \dot{e} / \partial {e}$.
+We discuss how these are computed and stored below:
 
-* ``jac(m, n)`` for :math:`\mathrm{m}, \mathrm{n} \in [1, \mathrm{NumSpec}]` :
-  :math:`d(\dot{Y}_m)/dY_n`
+* $\partial \dot{\bf Y} / \partial {\bf Y}$ :
 
-* ``jac(net_ienuc, n)`` for :math:`\mathrm{n} \in [1, \mathrm{NumSpec}]` :
-  :math:`d(\dot{e})/dY_n`
+  This corresponds to elements :math:`d(\dot{Y}_m)/dY_n`
 
-* ``jac(m, net_ienuc)`` for :math:`\mathrm{m} \in [1, \mathrm{NumSpec}]` :
-  :math:`d(\dot{Y}_m)/de`
+  * *stored as*: ``jac(m, n)`` for :math:`\mathrm{m}, \mathrm{n} \in [1, \mathrm{NumSpec}]`
 
-* ``jac(net_ienuc, net_ienuc)`` :
-  :math:`d(\dot{e})/de`
+  * *computed as*: each network has a function to compute these elements
+    directly, since we need to know the stoichiometry.  This is easy as
+    it is just differentiating the righthand side with respect to
+    species.
 
-The form looks like:
+* $\partial \dot{\bf Y} / \partial {e}$ :
+
+  This corresponds to elements:   :math:`d(\dot{Y}_m)/de`
+
+  * *stored as*: ``jac(m, net_ienuc)`` for :math:`\mathrm{m} \in [1, \mathrm{NumSpec}]`
+
+  * *computed as*: we directly compute the temperature derivative of the $dY_m/dt$ expressions
+    by computing the temperature derivative of the rates, i.e. $d\lambda/dT$, and then
+    evaluating the $dY_m/dt$ using these temperature derivatives to get $d{\dot{\bf Y}}/dT$.
+
+    We then convert it to an energy derivative via the chain rule, namely:
+
+    .. math::
+
+       \frac{\partial\dot{\bf Y}}{\partial e} = \frac{1}{c_v} \frac{\partial \dot{\bf Y}}{\partial T}
+
+* $\partial \dot{e} / \partial {\bf Y}$ :
+
+  This corresponds to  :math:`d(\dot{e})/dY_n`
+
+  * *stored as*: ``jac(net_ienuc, n)`` for :math:`\mathrm{n} \in [1, \mathrm{NumSpec}]` :
+
+  * *computed as*: there are 3 different terms that make up the energy evolution:
+
+    .. math::
+
+       \frac{de}{dt} = \epsilon_\mathrm{nuc} - \epsilon_{\nu,\mathrm{weak}} - \epsilon_{\nu,\mathrm{therm}}
+
+    The derivative of each of these ($\partial \epsilon_* / \partial Y_n$) are computed separately, and in different fashions:
+
+    * $\epsilon_\mathrm{nuc}$ : this is the energy release just from the change in mass:
+
+      .. math::
+
+         \epsilon_\mathrm{nuc} = -N_A \sum_{m=1}^{\mathrm{NumSpec}} \dot{Y}_m m_m c^2
+
+      where $m$ is the index of the nucleus, and $m_m$ is the mass of that nucleus.
+      Differentiating with respect to $Y_n$, we have:
+
+      .. math::
+
+         \frac{\partial{\epsilon_\mathrm{nuc}}}{\partial Y_n} = -N_A \sum_{m=1}^{\mathrm{NumSpec}} \frac{\partial \dot{Y}_m}{\partial Y_n} m_m c^2
+
+      We already have the ${\partial \dot{Y}_m}/{\partial Y_n}$, so
+      the contribution of $\epsilon_\mathrm{nuc}$ to each entry
+      $\partial (\dot{e})/\partial Y_n$ in the Jacobian is just the sum down column
+      $n$, weighting by $mc^2$.
+
+    * $\epsilon_{\nu,\mathrm{weak}}$ : this represents the neutrino
+      losses from weak rates.  Presently this is not accounted for.
+
+    * $\epsilon_{\nu,\mathrm{therm}}$ : these represents the thermal
+      neutrino losses (see :ref:`neutrino_loss`).  The neutrino loss
+      functions directly provide $\partial
+      \epsilon_{\nu,\mathrm{therm}} / \partial \bar{A}$ and $\partial
+      \epsilon_{\nu,\mathrm{therm}} / \partial \bar{Z}$, so we can
+      compute $\partial \epsilon_{\nu,\mathrm{therm}} / \partial Y_n$
+      via the chain rule.
+
+* $\partial \dot{e} / \partial {e}$ :
+
+  * *stored as*: ``jac(net_ienuc, net_ienuc)``
+
+  * *computed as*: just like $\partial \dot{e} / \partial Y_n$, there are 3 different terms that make up the energy evolution.
+    The method for computing each contribution is largely the same:
+
+    * $\epsilon_\mathrm{nuc}$ : now we differentiate this with respect to temperature:
+
+      .. math::
+
+         \frac{\partial \epsilon_\mathrm{nuc}}{\partial T} = -N_A \sum_{m=1}^{\mathrm{NumSpec}} \frac{\partial \dot{Y}_m}{\partial T} m_m c^2
+
+      and as before, we already have the ${\partial \dot{Y}_m}/{\partial T}$, so
+      the contribution of $\epsilon_\mathrm{nuc}$ to
+      $\partial (\dot{e})/\partial e$ is computed by summing down the last
+      column of the Jacobian (weighting by $mc^2$) and adding the $c_v$ weighting
+      to convert from $\partial/\partial T$ to $\partial/\partial e$.
+
+    * $\epsilon_{\nu,\mathrm{weak}}$ : as above, we do not presently
+      account for this.
+
+    * $\epsilon_{\nu,\mathrm{therm}}$ : as above, the neutrin loss
+      functions directly provide $\partial
+      \epsilon_{\nu,\mathrm{therm}} / \partial T$.
+
+.. important::
+
+   The Jacobian returned by the network is assumed to be in terms of molar fractions.
+   However, we do convert the temperature derivative to an energy derivative already
+   in the network by multiplying by $(1/c_v)$.
+
+The form of the Jacobian return by the integrator looks like:
 
 .. math::
    \left (
    \begin{matrix}
-      \ddots  & \vdots                          &          & \vdots \\
-      \cdots  & \partial \dot{Y}_m/\partial Y_n & \cdots   & \partial \dot{Y}_m/\partial e    \\
-              & \vdots                          & \ddots   & \vdots  \\
-      \cdots  & \partial \dot{e}/\partial Y_n   & \cdots   & \partial \dot{e}/\partial e   \\
+     \dfrac{\partial \dot{Y}_1}{\partial Y_1} &
+     \dfrac{\partial \dot{Y}_1}{\partial Y_2} &
+     \cdots &
+     \dfrac{\partial \dot{Y}_1}{\partial Y_\mathrm{NumSpec}} &
+     \dfrac{1}{c_v} \dfrac{\partial \dot{Y}_1}{\partial T} \\
+     %
+     \dfrac{\partial \dot{Y}_2}{\partial Y_1} &
+     \dfrac{\partial \dot{Y}_2}{\partial Y_2} &
+     \cdots &
+     \dfrac{\partial \dot{Y}_2}{\partial Y_\mathrm{NumSpec}} &
+     \dfrac{1}{c_v} \dfrac{\partial \dot{Y}_2}{\partial T} \\
+     %
+     \vdots & \vdots & \ddots & \vdots & \vdots \\
+     %
+     \dfrac{\partial \dot{Y}_\mathrm{NumSpec}}{\partial Y_1} &
+     \dfrac{\partial \dot{Y}_\mathrm{NumSpec}}{\partial Y_2} &
+     \cdots &
+     \dfrac{\partial \dot{Y}_\mathrm{NumSpec}}{\partial Y_\mathrm{NumSpec}} &
+     \dfrac{1}{c_v} \dfrac{\partial \dot{Y}_\mathrm{NumSpec}}{\partial T} \\
+     %
+     \dfrac{\partial \dot{e}}{\partial Y_1} &
+     \dfrac{\partial \dot{e}}{\partial Y_2} &
+     \cdots &
+     \dfrac{\partial \dot{e}}{\partial Y_\mathrm{NumSpec}} &
+     \dfrac{1}{c_v} \dfrac{\partial \dot{e}}{\partial T}
    \end{matrix}
    \right )
 
@@ -310,13 +406,51 @@ The form looks like:
    The integrator does not zero the Jacobian elements.  It is the responsibility
    of the Jacobian implementation to zero the Jacobian array if necessary.
 
+Wrappers
+========
+
+To translate between the network's righthand side and Jacobian functions
+and those expects by the ODE integrators, we provide a set of wrappers.
+These handle the conversion of variables (e.g. $Y$ to $X$) and ensure
+that the state is thermodynamically consistent at the start.
+
+These wrappers take an integrator state and copy back and forth to the ``burn_t``
+that the networks want.
+
+.. note::
+
+   In the flowcharts below, we'll refer to the generic integrator type
+   as ``int_state``.  The actual type will depend on the integrator
+   used, e.g. ``dvode_t`` for VODE, ``rkc_t`` for RKC, ...
+
+Righthand side wrapper
+----------------------
+
+The integrator provides a wrapper that sits between the integration
+routines and the network's implementation of the righthand side.  Its
+flow is:
+
+#. call ``clean_state`` on ``int_state``
+
+#. update the thermodynamics by calling ``update_thermodynamics``.  This takes both
+   the ``int_state`` and the ``burn_t`` and computes the temperature that matches the
+   current state.
+
+#. call ``actual_rhs``
+
+#. convert the derivatives to mass-fraction-based (since we integrate :math:`X`)
+   and zero out the temperature and energy derivatives if we are not integrating
+   those quantities.
+
+#. apply any boosting if ``integrator.react_boost`` > 0
+
 
 Jacobian wrapper
-^^^^^^^^^^^^^^^^
+----------------
 
 The integrator provides a wrapper that sits between the integration
 routines and the network's implementation of the Jacobian.  Its
-flow is (for VODE):
+flow is:
 
 .. note::
 
@@ -325,16 +459,70 @@ flow is (for VODE):
    wrapper above which did the ``clean_state`` and
    ``update_thermodynamics`` calls.
 
-.. index:: integrator.react_boost
+.. index:: integrator.react_boost, integrator.correct_jacobian_for_const_e
 
 #. call ``integrator_to_burn()`` to update the ``burn_t``
 
 #. call ``actual_jac()`` to have the network fill the Jacobian array
 
-#. convert the derivative to be mass-fraction-based
+#. convert the derivative to be mass-fraction-based.
+
+   Since $Y_k = X_k/A_k$, we have $\partial/\partial X_k = A_k^{-1} \partial/\partial Y_k$.
+
+   We transform by:
+
+   * multiplying all rows of the form $\partial Y_m / \partial \star$ by $A_m$ (where $\star$ is either a molar fraction or $T$/$e$).
+
+   * multiplying all columns of the form $\partial \star / \partial Y_n$ by $1/A_n$.
+
+#. add correction
+   terms proportional to :math:`\partial e/\partial X_k  |_{\rho, T, X_{j,j\ne k}}`
+   if ``integrator.correct_jacobian_for_const_e`` is ``1``.
+
+   The system we integrate is $(X_k, e)$, but the derivatives we took in the analytic Jacobian
+   were in terms of $T$ and not $e$.  So we need to correct for the fact that for some quantity
+   $q$,
+
+   .. math::
+
+      \left . \frac{\partial q}{\partial X_k} \right |_e \ne \left . \frac{\partial q}{\partial X_k} \right  |_T
+
+   If we write $q = q(\rho, T(\rho, X_k, e), X_k)$ then we find that:
+
+   .. math::
+
+      \left . \frac{\partial q}{\partial X_k} \right |_{\rho, e, X_{j,j\ne k}} =
+             \left . \frac{\partial q}{\partial X_k} \right  |_{\rho, T, X_{j,j\ne k}} - \frac{e_{X_k}}{c_v} \left . \frac{\partial T}{\partial X_k} \right |_{\rho, e, X_{j,j\ne k}}
+
+   where :math:`e_{X_k} = \partial e / \partial X_k |_{\rho, T, X_{j,j\ne k}}`.
+
+   This correction term is described in :cite:`castro_simple_sdc`.
 
 #. apply any boosting to the rates if ``integrator.react_boost`` > 0
 
+The final form of the Jacobian is:
+
+.. math::
+   \left (
+   \begin{matrix}
+     \dfrac{\partial \dot{X}_1}{\partial X_1} - \dfrac{e_{X_1}}{c_v} \dfrac{\partial \dot{X}_1}{\partial T} &
+     \dfrac{\partial \dot{X}_1}{\partial X_2} - \dfrac{e_{X_2}}{c_v} \dfrac{\partial \dot{X}_1}{\partial T} &
+     \cdots &
+     \dfrac{1}{c_v} \dfrac{\partial \dot{X}_1}{\partial T} \\
+     %
+     \dfrac{\partial \dot{X}_2}{\partial X_1} - \dfrac{e_{X_1}}{c_v} \dfrac{\partial \dot{X}_2}{\partial T} &
+     \dfrac{\partial \dot{X}_2}{\partial X_2} - \dfrac{e_{X_2}}{c_v} \dfrac{\partial \dot{X}_2}{\partial T} &
+     \cdots &
+     \dfrac{1}{c_v} \dfrac{\partial \dot{X}_2}{\partial T} \\
+     %
+     \vdots & \vdots & \ddots & \vdots \\
+     %
+     \dfrac{\partial \dot{e}}{\partial X_1} - \dfrac{e_{X_1}}{c_v} \dfrac{\partial \dot{e}}{\partial T} &
+     \dfrac{\partial \dot{e}}{\partial X_2} - \dfrac{e_{X_2}}{c_v} \dfrac{\partial \dot{e}}{\partial T} &
+     \cdots &
+     \dfrac{1}{c_v} \dfrac{\partial \dot{e}}{\partial T}
+   \end{matrix}
+   \right )
 
 
 
