@@ -1,5 +1,20 @@
 # Changelog
 
+## 26.08
+
+  * update pynucastro scripts to use new class names to prepare for
+    pynucastro 3.0 (#2035)
+
+  * add a StarLib version of `ase-iron` (#2032)
+
+  * add an `AGENTS.md` (#2034)
+
+  * `ase-iron` now includes Cu59 and Zn60 (#1993)
+
+  * bump github CI setup-python from 6 to 7 (#2030)
+
+  * clean unused var warnings in Rosenbrock (#2031)
+
 ## 26.07
 
   * add a `test_react` benchmark inputs for comparing CPU and GPU
