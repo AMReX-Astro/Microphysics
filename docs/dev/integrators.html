@@ -80,15 +80,15 @@
 <p class="caption" role="heading"><span class="caption-text">ODE integrators</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Reaction ODE System</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#interfaces">Interfaces</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#burner"><code class="docutils literal notranslate"><span class="pre">burner</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#network-routines">Network Routines</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#righthand-size-implementation">Righthand size implementation</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#righthand-side-wrapper">Righthand side wrapper</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#jacobian-implementation">Jacobian implementation</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#jacobian-wrapper">Jacobian wrapper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#burner-interface"><code class="docutils literal notranslate"><span class="pre">burner</span></code> interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#network-routines">Network routines</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#righthand-size-implementation">Righthand size implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#jacobian-implementation">Jacobian implementation</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#wrappers">Wrappers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#righthand-side-wrapper">Righthand side wrapper</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#jacobian-wrapper">Jacobian wrapper</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#thermodynamics-and-e-evolution">Thermodynamics and <span class="math notranslate nohighlight">\(e\)</span> Evolution</a></li>
@@ -202,14 +202,12 @@ new network that defines the RHS in whatever way you like.</p>
 setting the <code class="docutils literal notranslate"><span class="pre">integrator.react_boost</span></code> runtime parameter.  This will simply
 multiply the righthand sides of each species evolution equation (and
 appropriate Jacobian terms) by the specified constant amount.</p>
-<section id="interfaces">
-<h2>Interfaces<a class="headerlink" href="#interfaces" title="Link to this heading"></a></h2>
-<p>The interfaces to all of the networks and integrators are written in C++.</p>
-<section id="burner">
-<h3><code class="docutils literal notranslate"><span class="pre">burner</span></code><a class="headerlink" href="#burner" title="Link to this heading"></a></h3>
-<p>The main entry point for C++ is <code class="docutils literal notranslate"><span class="pre">burner()</span></code> in
-<code class="docutils literal notranslate"><span class="pre">interfaces/burner.H</span></code>.  This simply calls the <code class="docutils literal notranslate"><span class="pre">integrator()</span></code>
-routine (at the moment this can be <code class="docutils literal notranslate"><span class="pre">VODE</span></code>, <code class="docutils literal notranslate"><span class="pre">BackwardEuler</span></code>, <code class="docutils literal notranslate"><span class="pre">ForwardEuler</span></code>, <code class="docutils literal notranslate"><span class="pre">QSS</span></code>, or <code class="docutils literal notranslate"><span class="pre">RKC</span></code>).</p>
+<section id="burner-interface">
+<h2><code class="docutils literal notranslate"><span class="pre">burner</span></code> interface<a class="headerlink" href="#burner-interface" title="Link to this heading"></a></h2>
+<p>The main entry point for integrating the reaction ODE system is
+<code class="docutils literal notranslate"><span class="pre">burner()</span></code> in <code class="docutils literal notranslate"><span class="pre">interfaces/burner.H</span></code>.  This simply calls the
+<code class="docutils literal notranslate"><span class="pre">integrator()</span></code> routine (at the moment this can be
+<code class="docutils literal notranslate"><span class="pre">BackwardEuler</span></code>, <code class="docutils literal notranslate"><span class="pre">ForwardEuler</span></code>, <code class="docutils literal notranslate"><span class="pre">RKC</span></code>, <code class="docutils literal notranslate"><span class="pre">Rosenbrock</span></code>, <code class="docutils literal notranslate"><span class="pre">QSS</span></code>, or <code class="docutils literal notranslate"><span class="pre">VODE</span></code>).</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">AMREX_GPU_HOST_DEVICE</span><span class="w"> </span><span class="n">AMREX_FORCE_INLINE</span>
 <span class="kt">void</span><span class="w"> </span><span class="n">burner</span><span class="w"> </span><span class="p">(</span><span class="n">burn_t</span><span class="o">&amp;</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">amrex</span><span class="o">::</span><span class="n">Real</span><span class="w"> </span><span class="n">dt</span><span class="p">)</span>
 </pre></div>
@@ -264,7 +262,9 @@ burning the burn.</p>
 </div>
 </section>
 <section id="network-routines">
-<h3>Network Routines<a class="headerlink" href="#network-routines" title="Link to this heading"></a></h3>
+<h2>Network routines<a class="headerlink" href="#network-routines" title="Link to this heading"></a></h2>
+<p>Any reaction network must provide a righthand side and Jacobian
+function.</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
 <p>Microphysics integrates the reaction system in terms of mass
@@ -275,7 +275,7 @@ fractions.  The integration wrappers will internally
 convert to mass fractions as needed for the integrators.</p>
 </div>
 <section id="righthand-size-implementation">
-<h4>Righthand size implementation<a class="headerlink" href="#righthand-size-implementation" title="Link to this heading"></a></h4>
+<h3>Righthand size implementation<a class="headerlink" href="#righthand-size-implementation" title="Link to this heading"></a></h3>
 <p>The righthand side of the network is implemented by
 <code class="docutils literal notranslate"><span class="pre">actual_rhs()</span></code> in <code class="docutils literal notranslate"><span class="pre">actual_rhs.H</span></code>, and appears as</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">AMREX_GPU_HOST_DEVICE</span><span class="w"> </span><span class="n">AMREX_INLINE</span>
@@ -329,25 +329,8 @@ fraction rates for storage, e.g., <span class="math notranslate nohighlight">\(d
 dX_k/dt\)</span>.</p>
 </div>
 </section>
-<section id="righthand-side-wrapper">
-<h4>Righthand side wrapper<a class="headerlink" href="#righthand-side-wrapper" title="Link to this heading"></a></h4>
-<p>The integrator provides a wrapper that sits between the integration
-routines and the network’s implementation of the righthand side.  Its
-flow is (for VODE):</p>
-<ol class="arabic simple">
-<li><p>call <code class="docutils literal notranslate"><span class="pre">clean_state</span></code> on the <code class="docutils literal notranslate"><span class="pre">dvode_t</span></code></p></li>
-<li><p>update the thermodynamics by calling <code class="docutils literal notranslate"><span class="pre">update_thermodynamics</span></code>.  This takes both
-the <code class="docutils literal notranslate"><span class="pre">dvode_t</span></code> and the <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> and computes the temperature that matches the
-current state.</p></li>
-<li><p>call <code class="docutils literal notranslate"><span class="pre">actual_rhs</span></code></p></li>
-<li><p>convert the derivatives to mass-fraction-based (since we integrate <span class="math notranslate nohighlight">\(X\)</span>)
-and zero out the temperature and energy derivatives if we are not integrating
-those quantities.</p></li>
-<li><p>apply any boosting if <code class="docutils literal notranslate"><span class="pre">integrator.react_boost</span></code> &gt; 0</p></li>
-</ol>
-</section>
 <section id="jacobian-implementation">
-<h4>Jacobian implementation<a class="headerlink" href="#jacobian-implementation" title="Link to this heading"></a></h4>
+<h3>Jacobian implementation<a class="headerlink" href="#jacobian-implementation" title="Link to this heading"></a></h3>
 <p id="index-5">Either an analytic or numerical Jacobian is used for the implicit
 integrators, selected via the <code class="docutils literal notranslate"><span class="pre">integrator.jacobian</span></code> runtime
 parameter (<code class="docutils literal notranslate"><span class="pre">1</span></code> = analytic; <code class="docutils literal notranslate"><span class="pre">2</span></code> = numerical).  For VODE, the
@@ -362,16 +345,91 @@ a difference method is implemented in
 </pre></div>
 </div>
 <p>where the <code class="docutils literal notranslate"><span class="pre">MatrixType</span></code> is most commonly <code class="docutils literal notranslate"><span class="pre">MathArray2D&lt;1,</span> <span class="pre">neqs,</span> <span class="pre">1,</span> <span class="pre">neqs&gt;</span></code></p>
-<p>The Jacobian matrix elements are stored in <code class="docutils literal notranslate"><span class="pre">jac</span></code> as:</p>
+<p>There are 4 different regions in the Jacobian: <span class="math notranslate nohighlight">\(\partial \dot{\bf Y} / \partial {\bf Y}\)</span>,
+<span class="math notranslate nohighlight">\(\partial \dot{\bf Y} / \partial {e}\)</span>, <span class="math notranslate nohighlight">\(\partial \dot{e} / \partial {\bf Y}\)</span>, <span class="math notranslate nohighlight">\(\partial \dot{e} / \partial {e}\)</span>.
+We discuss how these are computed and stored below:</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(\partial \dot{\bf Y} / \partial {\bf Y}\)</span> :</p>
+<p>This corresponds to elements <span class="math notranslate nohighlight">\(d(\dot{Y}_m)/dY_n\)</span></p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">jac(m,</span> <span class="pre">n)</span></code> for <span class="math notranslate nohighlight">\(\mathrm{m}, \mathrm{n} \in [1, \mathrm{NumSpec}]\)</span> :
-<span class="math notranslate nohighlight">\(d(\dot{Y}_m)/dY_n\)</span></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">jac(net_ienuc,</span> <span class="pre">n)</span></code> for <span class="math notranslate nohighlight">\(\mathrm{n} \in [1, \mathrm{NumSpec}]\)</span> :
-<span class="math notranslate nohighlight">\(d(\dot{e})/dY_n\)</span></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">jac(m,</span> <span class="pre">net_ienuc)</span></code> for <span class="math notranslate nohighlight">\(\mathrm{m} \in [1, \mathrm{NumSpec}]\)</span> :
-<span class="math notranslate nohighlight">\(d(\dot{Y}_m)/de\)</span></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">jac(net_ienuc,</span> <span class="pre">net_ienuc)</span></code> :
-<span class="math notranslate nohighlight">\(d(\dot{e})/de\)</span></p></li>
+<li><p><em>stored as</em>: <code class="docutils literal notranslate"><span class="pre">jac(m,</span> <span class="pre">n)</span></code> for <span class="math notranslate nohighlight">\(\mathrm{m}, \mathrm{n} \in [1, \mathrm{NumSpec}]\)</span></p></li>
+<li><p><em>computed as</em>: each network has a function to compute these elements
+directly, since we need to know the stoichiometry.  This is easy as
+it is just differentiating the righthand side with respect to
+species.</p></li>
+</ul>
+</li>
+<li><p><span class="math notranslate nohighlight">\(\partial \dot{\bf Y} / \partial {e}\)</span> :</p>
+<p>This corresponds to elements:   <span class="math notranslate nohighlight">\(d(\dot{Y}_m)/de\)</span></p>
+<ul>
+<li><p><em>stored as</em>: <code class="docutils literal notranslate"><span class="pre">jac(m,</span> <span class="pre">net_ienuc)</span></code> for <span class="math notranslate nohighlight">\(\mathrm{m} \in [1, \mathrm{NumSpec}]\)</span></p></li>
+<li><p><em>computed as</em>: we directly compute the temperature derivative of the <span class="math notranslate nohighlight">\(dY_m/dt\)</span> expressions
+by computing the temperature derivative of the rates, i.e. <span class="math notranslate nohighlight">\(d\lambda/dT\)</span>, and then
+evaluating the <span class="math notranslate nohighlight">\(dY_m/dt\)</span> using these temperature derivatives to get <span class="math notranslate nohighlight">\(d{\dot{\bf Y}}/dT\)</span>.</p>
+<p>We then convert it to an energy derivative via the chain rule, namely:</p>
+<div class="math notranslate nohighlight">
+\[\frac{\partial\dot{\bf Y}}{\partial e} = \frac{1}{c_v} \frac{\partial \dot{\bf Y}}{\partial T}\]</div>
+</li>
+</ul>
+</li>
+<li><p><span class="math notranslate nohighlight">\(\partial \dot{e} / \partial {\bf Y}\)</span> :</p>
+<p>This corresponds to  <span class="math notranslate nohighlight">\(d(\dot{e})/dY_n\)</span></p>
+<ul>
+<li><p><em>stored as</em>: <code class="docutils literal notranslate"><span class="pre">jac(net_ienuc,</span> <span class="pre">n)</span></code> for <span class="math notranslate nohighlight">\(\mathrm{n} \in [1, \mathrm{NumSpec}]\)</span> :</p></li>
+<li><p><em>computed as</em>: there are 3 different terms that make up the energy evolution:</p>
+<div class="math notranslate nohighlight">
+\[\frac{de}{dt} = \epsilon_\mathrm{nuc} - \epsilon_{\nu,\mathrm{weak}} - \epsilon_{\nu,\mathrm{therm}}\]</div>
+<p>The derivative of each of these (<span class="math notranslate nohighlight">\(\partial \epsilon_* / \partial Y_n\)</span>) are computed separately, and in different fashions:</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(\epsilon_\mathrm{nuc}\)</span> : this is the energy release just from the change in mass:</p>
+<div class="math notranslate nohighlight">
+\[\epsilon_\mathrm{nuc} = -N_A \sum_{m=1}^{\mathrm{NumSpec}} \dot{Y}_m m_m c^2\]</div>
+<p>where <span class="math notranslate nohighlight">\(m\)</span> is the index of the nucleus, and <span class="math notranslate nohighlight">\(m_m\)</span> is the mass of that nucleus.
+Differentiating with respect to <span class="math notranslate nohighlight">\(Y_n\)</span>, we have:</p>
+<div class="math notranslate nohighlight">
+\[\frac{\partial{\epsilon_\mathrm{nuc}}}{\partial Y_n} = -N_A \sum_{m=1}^{\mathrm{NumSpec}} \frac{\partial \dot{Y}_m}{\partial Y_n} m_m c^2\]</div>
+<p>We already have the <span class="math notranslate nohighlight">\({\partial \dot{Y}_m}/{\partial Y_n}\)</span>, so
+the contribution of <span class="math notranslate nohighlight">\(\epsilon_\mathrm{nuc}\)</span> to each entry
+<span class="math notranslate nohighlight">\(\partial (\dot{e})/\partial Y_n\)</span> in the Jacobian is just the sum down column
+<span class="math notranslate nohighlight">\(n\)</span>, weighting by <span class="math notranslate nohighlight">\(mc^2\)</span>.</p>
+</li>
+<li><p><span class="math notranslate nohighlight">\(\epsilon_{\nu,\mathrm{weak}}\)</span> : this represents the neutrino
+losses from weak rates.  Presently this is not accounted for.</p></li>
+<li><p><span class="math notranslate nohighlight">\(\epsilon_{\nu,\mathrm{therm}}\)</span> : these represents the thermal
+neutrino losses (see <a class="reference internal" href="neutrinos.html#neutrino-loss"><span class="std std-ref">Neutrino Losses</span></a>).  The neutrino loss
+functions directly provide <span class="math notranslate nohighlight">\(\partial
+\epsilon_{\nu,\mathrm{therm}} / \partial \bar{A}\)</span> and <span class="math notranslate nohighlight">\(\partial
+\epsilon_{\nu,\mathrm{therm}} / \partial \bar{Z}\)</span>, so we can
+compute <span class="math notranslate nohighlight">\(\partial \epsilon_{\nu,\mathrm{therm}} / \partial Y_n\)</span>
+via the chain rule.</p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><span class="math notranslate nohighlight">\(\partial \dot{e} / \partial {e}\)</span> :</p>
+<ul>
+<li><p><em>stored as</em>: <code class="docutils literal notranslate"><span class="pre">jac(net_ienuc,</span> <span class="pre">net_ienuc)</span></code></p></li>
+<li><p><em>computed as</em>: just like <span class="math notranslate nohighlight">\(\partial \dot{e} / \partial Y_n\)</span>, there are 3 different terms that make up the energy evolution.
+The method for computing each contribution is largely the same:</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(\epsilon_\mathrm{nuc}\)</span> : now we differentiate this with respect to temperature:</p>
+<div class="math notranslate nohighlight">
+\[\frac{\partial \epsilon_\mathrm{nuc}}{\partial T} = -N_A \sum_{m=1}^{\mathrm{NumSpec}} \frac{\partial \dot{Y}_m}{\partial T} m_m c^2\]</div>
+<p>and as before, we already have the <span class="math notranslate nohighlight">\({\partial \dot{Y}_m}/{\partial T}\)</span>, so
+the contribution of <span class="math notranslate nohighlight">\(\epsilon_\mathrm{nuc}\)</span> to
+<span class="math notranslate nohighlight">\(\partial (\dot{e})/\partial e\)</span> is computed by summing down the last
+column of the Jacobian (weighting by <span class="math notranslate nohighlight">\(mc^2\)</span>) and adding the <span class="math notranslate nohighlight">\(c_v\)</span> weighting
+to convert from <span class="math notranslate nohighlight">\(\partial/\partial T\)</span> to <span class="math notranslate nohighlight">\(\partial/\partial e\)</span>.</p>
+</li>
+<li><p><span class="math notranslate nohighlight">\(\epsilon_{\nu,\mathrm{weak}}\)</span> : as above, we do not presently
+account for this.</p></li>
+<li><p><span class="math notranslate nohighlight">\(\epsilon_{\nu,\mathrm{therm}}\)</span> : as above, the neutrin loss
+functions directly provide <span class="math notranslate nohighlight">\(\partial
+\epsilon_{\nu,\mathrm{therm}} / \partial T\)</span>.</p></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
@@ -421,11 +479,43 @@ Jacobian is used.</p>
 of the Jacobian implementation to zero the Jacobian array if necessary.</p>
 </div>
 </section>
+</section>
+<section id="wrappers">
+<h2>Wrappers<a class="headerlink" href="#wrappers" title="Link to this heading"></a></h2>
+<p>To translate between the network’s righthand side and Jacobian functions
+and those expects by the ODE integrators, we provide a set of wrappers.
+These handle the conversion of variables (e.g. <span class="math notranslate nohighlight">\(Y\)</span> to <span class="math notranslate nohighlight">\(X\)</span>) and ensure
+that the state is thermodynamically consistent at the start.</p>
+<p>These wrappers take an integrator state and copy back and forth to the <code class="docutils literal notranslate"><span class="pre">burn_t</span></code>
+that the networks want.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In the flowcharts below, we’ll refer to the generic integrator type
+as <code class="docutils literal notranslate"><span class="pre">int_state</span></code>.  The actual type will depend on the integrator
+used, e.g. <code class="docutils literal notranslate"><span class="pre">dvode_t</span></code> for VODE, <code class="docutils literal notranslate"><span class="pre">rkc_t</span></code> for RKC, …</p>
+</div>
+<section id="righthand-side-wrapper">
+<h3>Righthand side wrapper<a class="headerlink" href="#righthand-side-wrapper" title="Link to this heading"></a></h3>
+<p>The integrator provides a wrapper that sits between the integration
+routines and the network’s implementation of the righthand side.  Its
+flow is:</p>
+<ol class="arabic simple">
+<li><p>call <code class="docutils literal notranslate"><span class="pre">clean_state</span></code> on <code class="docutils literal notranslate"><span class="pre">int_state</span></code></p></li>
+<li><p>update the thermodynamics by calling <code class="docutils literal notranslate"><span class="pre">update_thermodynamics</span></code>.  This takes both
+the <code class="docutils literal notranslate"><span class="pre">int_state</span></code> and the <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> and computes the temperature that matches the
+current state.</p></li>
+<li><p>call <code class="docutils literal notranslate"><span class="pre">actual_rhs</span></code></p></li>
+<li><p>convert the derivatives to mass-fraction-based (since we integrate <span class="math notranslate nohighlight">\(X\)</span>)
+and zero out the temperature and energy derivatives if we are not integrating
+those quantities.</p></li>
+<li><p>apply any boosting if <code class="docutils literal notranslate"><span class="pre">integrator.react_boost</span></code> &gt; 0</p></li>
+</ol>
+</section>
 <section id="jacobian-wrapper">
-<h4>Jacobian wrapper<a class="headerlink" href="#jacobian-wrapper" title="Link to this heading"></a></h4>
+<h3>Jacobian wrapper<a class="headerlink" href="#jacobian-wrapper" title="Link to this heading"></a></h3>
 <p>The integrator provides a wrapper that sits between the integration
 routines and the network’s implementation of the Jacobian.  Its
-flow is (for VODE):</p>
+flow is:</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>It is assumed that the thermodynamics are already correct when
@@ -483,7 +573,6 @@ were in terms of <span class="math notranslate nohighlight">\(T\)</span> and not
   \dfrac{1}{c_v} \dfrac{\partial \dot{e}}{\partial T}
 \end{matrix}
 \right )\end{split}\]</div>
-</section>
 </section>
 </section>
 <section id="thermodynamics-and-e-evolution">

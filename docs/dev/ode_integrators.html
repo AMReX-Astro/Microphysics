@@ -82,6 +82,7 @@
 <li class="toctree-l1"><a class="reference internal" href="integrators.html">Reaction ODE System</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">ODE Integrators</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#available-integrators">Available integrators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#scaling-the-ode-system">Scaling the ODE system</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#timestep-selection">Timestep selection</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#linear-algebra">Linear algebra</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#integration-errors">Integration errors</a></li>
@@ -183,8 +184,6 @@ built into RKC.  Alternately, by setting <code class="docutils literal notransla
 the <a class="reference external" href="https://en.wikipedia.org/wiki/Gershgorin_circle_theorem">Gershgorin circle theorem</a>
 is used instead.</p>
 </li>
-</ul>
-<ul id="index-2">
 <li><p><code class="docutils literal notranslate"><span class="pre">Rosenbrock</span></code>: this implements several different Rosenbrock implicit
 methods for stiff ODEs.  Several different methods can be selected through
 the runtime parameter <code class="docutils literal notranslate"><span class="pre">integrator.rosenbrock_tableau</span></code>.  The
@@ -202,6 +201,8 @@ accuracy conditions of <span class="bibtex-citation" id="id7">[<a class="referen
 these).</p>
 <p>The H211b error-history timestep controller from <span class="bibtex-citation" id="id8">[<a class="reference internal" href="zreferences.html#id76" title="Gustaf Söderlind. Digital filters in adaptive time-stepping. ACM Trans. Math. Softw., 29(1):1–26, March 2003. URL: https://doi.org/10.1145/641876.641877, doi:10.1145/641876.641877.">51</a>]</span> (see Eq. 31) is used.</p>
 </li>
+</ul>
+<ul id="index-2">
 <li><p><code class="docutils literal notranslate"><span class="pre">VODE</span></code>: the VODE <span class="bibtex-citation" id="id9">[<a class="reference internal" href="zreferences.html#id27" title="P. N. Brown, G. D. Byrne, and A. C. Hindmarsh. VODE: a variable coefficient ode solver. SIAM J. Sci. Stat. Comput., 10:1038-1051, 1989.">52</a>]</span> integration package.  We ported this
 integrator to C++ and removed the non-stiff integration code paths.</p>
 <div class="admonition note">
@@ -216,19 +217,22 @@ setting the build parameter <code class="docutils literal notranslate"><span cla
 </ul>
 <p>We recommend that you use the VODE solver, as it is the most
 robust.</p>
-<div class="admonition note" id="index-3">
+</section>
+<section id="scaling-the-ode-system">
+<span id="index-3"></span><h2>Scaling the ODE system<a class="headerlink" href="#scaling-the-ode-system" title="Link to this heading"></a></h2>
+<p>The runtime parameter <code class="docutils literal notranslate"><span class="pre">integrator.scale_system</span></code> will scale the
+internal energy that the integrator sees by the initial value of
+<span class="math notranslate nohighlight">\(e\)</span> to make the system <span class="math notranslate nohighlight">\(\mathcal{O}(1)\)</span>.  The value of
+<code class="docutils literal notranslate"><span class="pre">atol_enuc</span></code> will likewise be scaled.  This works for both Strang and
+simplified-SDC.</p>
+<div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The runtime parameter <code class="docutils literal notranslate"><span class="pre">integrator.scale_system</span></code>
-will scale the internal energy that the integrator sees by the initial
-value of <span class="math notranslate nohighlight">\(e\)</span> to make the system <span class="math notranslate nohighlight">\(\mathcal{O}(1)\)</span>.  The value
-of <code class="docutils literal notranslate"><span class="pre">atol_enuc</span></code> will likewise be scaled.  This works for both Strang
-and simplified-SDC.  For the <code class="docutils literal notranslate"><span class="pre">RKC</span></code> integrator, this is enabled by
-default.</p>
+<p>For the <code class="docutils literal notranslate"><span class="pre">RKC</span></code> integrator, this is enabled by default.</p>
+</div>
 <p>For most integrators this algebraic change should not affect the output
 to more than roundoff, but the option is included to allow for some
 different integration approaches in the future.</p>
 <p>This option currently does not work with the ForwardEuler or QSS integrators.</p>
-</div>
 </section>
 <section id="timestep-selection">
 <h2>Timestep selection<a class="headerlink" href="#timestep-selection" title="Link to this heading"></a></h2>
