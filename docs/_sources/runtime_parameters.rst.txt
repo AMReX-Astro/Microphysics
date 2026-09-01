@@ -598,6 +598,10 @@ namespace: ``integrator``
 +---------------------------------------+---------------------------------------------------------+------------------------------+
 | ``linalg_do_pivoting``                | for the linear algebra, do we allow pivoting?           | 1                            |
 +---------------------------------------+---------------------------------------------------------+------------------------------+
+| ``correct_jacobian_for_const_e``      | when converting the Jacobian from (rho, Y, T) to (rho,  | 1                            |
+|                                       | X, e), do we add a correction to the species terms      |                              |
+|                                       | reflecting that dT/dX at constant e is not zero?        |                              |
++---------------------------------------+---------------------------------------------------------+------------------------------+
 | ``species_failure_tolerance``         | We will use this parameter to determine if a given      | 1.e-2_rt                     |
 |                                       | species abundance is unreasonably small or large (each  |                              |
 |                                       | X must satisfy -failure_tolerance <= X <= 1.0 +         |                              |
