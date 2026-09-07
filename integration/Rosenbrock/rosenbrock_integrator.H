@@ -589,12 +589,6 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>& rstate)
 {
     if (integrator_rp::rosenbrock_tableau == 1) {
-        return rosenbrock_integrator<BurnT, rosenbrock::rodas4p_tableau>(state, rstate);
-    }
-    if (integrator_rp::rosenbrock_tableau == 2) {
-        return rosenbrock_integrator<BurnT, rosenbrock::rodas3p_tableau>(state, rstate);
-    }
-    if (integrator_rp::rosenbrock_tableau == 3) {
         return rosenbrock_integrator<BurnT, rosenbrock::ros2s_tableau>(state, rstate);
     }
 
