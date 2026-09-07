@@ -1,1 +1,1 @@
-pynucastro version: 2.11.0-10-ge524a06ef
+pynucastro version: 2.12.0

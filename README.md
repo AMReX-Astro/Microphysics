@@ -1,5 +1,7 @@
-[![github pages](https://github.com/AMReX-Astro/Microphysics/actions/workflows/gh-pages.yml/badge.svg)](https://github.com/AMReX-Astro/Microphysics/actions/workflows/gh-pages.yml)
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.10422/status.svg)](https://doi.org/10.21105/joss.10422)
 [![DOI](https://zenodo.org/badge/33425497.svg)](https://zenodo.org/badge/latestdoi/33425497)
+
+[![github pages](https://github.com/AMReX-Astro/Microphysics/actions/workflows/gh-pages.yml/badge.svg)](https://github.com/AMReX-Astro/Microphysics/actions/workflows/gh-pages.yml)
 
 # Microphysics
 

@@ -60,7 +60,7 @@ def doit():
                    size=(1500, 450),
                    node_size=500, node_font_size=10,
                    Z_range=(1, 29),
-                   highlight_filter_function=lambda r: isinstance(r, pyna.rates.TabularRate))
+                   highlight_filter_function=lambda r: isinstance(r, pyna.rates.TabularWeakRate))
 
     net.write_network()
 

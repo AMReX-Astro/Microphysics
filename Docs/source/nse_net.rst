@@ -240,7 +240,7 @@ The overview of the steps we take are the following:
 
     .. math::
 
-      2|b_f(k) - b_r(k)|/(b_f(k) + b_r(k) < \epsilon
+      2|b_f(k) - b_r(k)|/(b_f(k) + b_r(k)) < \epsilon
 
     where :math:`\epsilon` is set by ``nse.ase_tol``,
     which has a default value of 0.1.

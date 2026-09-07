@@ -29,7 +29,7 @@ def create_network():
         print(f"removing {r} : {rl.get_rate_by_name(r).Q}")
         rl_lib.remove_rate(r)
 
-    tl = pyna.TabularLibrary()
+    tl = pyna.TabularWeakLibrary()
     tl_rates = tl.get_rate_by_name(["na23(,)ne23",
                                     "ne23(,)na23",
                                     "mg23(,)na23",
