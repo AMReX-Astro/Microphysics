@@ -1,5 +1,21 @@
 # Changelog
 
+## 26.09
+
+  * remove old C++ files from pynucastro nets and `general_null`
+    (#2044, #2045)
+
+  * remove unused vars from `BackwardEuler` (#2046)
+
+  * JOSS paper fixes (#2037, #2038, #2039, #2041, #2042)
+
+  * update `CITATION.md` (#2040)
+
+  * docs: improved documentation on how the Jacobian is computed
+    (#2036)
+
+  * optionally add T/e correction term to Strang Jacobians (#1595)
+
 ## 26.08
 
   * update pynucastro scripts to use new class names to prepare for
