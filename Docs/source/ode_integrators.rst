@@ -52,8 +52,6 @@ Presently, allowed integrators are:
   the `Gershgorin circle theorem <https://en.wikipedia.org/wiki/Gershgorin_circle_theorem>`_
   is used instead.
 
-.. index:: integrator.use_jacobian_caching
-
 * ``Rosenbrock``: this implements several different Rosenbrock implicit
   methods for stiff ODEs.  Several different methods can be selected through
   the runtime parameter ``integrator.rosenbrock_tableau``.  The
@@ -64,21 +62,15 @@ Presently, allowed integrators are:
     <https://github.com/SciML/DifferentialEquations.jl>`_
     :cite:`rodas5p`.
 
-  * ``1`` : Rodas4P method from ``DifferentialEquations.jl`` (they give :cite:`rodas4p` as a reference).
-
-  * ``2`` : Rodas3P method from ``DifferentialEquations.jl``  (see a `juliacon preprint <https://github.com/hbrs-cse/RosenbrockMethods/blob/main/paper/JuliaPaper.pdf>`_).
-
-  * ``3`` : ROS2S method, a 2nd order, stiff-accurate method :cite:`ros2s`.
-
-  * ``4`` : ROS2 method, a 2nd order, L-stable method :cite:`ros2`.
-
-  * ``5`` : a first-order method based on the YASS method (described in :cite:`YASS`).
+  * ``1`` : ROS2S method, a 2nd order, stiff-accurate method :cite:`ros2s`.
 
   Here the "P" suffix refers to methods developed to satisfy the stiff
   accuracy conditions of :cite:`Prothero1974` (ROS2S also satisfies
   these).
 
-  By default, the H211b error-history timestep controller from :cite:`h211b` (see Eq. 31) is used, but the YASS heuristic method can be used instead by setting ``integrator.rosenbrock_timestep_controller=1``.
+  The H211b error-history timestep controller from :cite:`h211b` (see Eq. 31) is used.
+
+.. index:: integrator.use_jacobian_caching
 
 * ``VODE``: the VODE :cite:`vode` integration package.  We ported this
   integrator to C++ and removed the non-stiff integration code paths.
@@ -97,20 +89,24 @@ robust.
 
 .. index:: integrator.scale_system
 
+Scaling the ODE system
+======================
+
+The runtime parameter ``integrator.scale_system`` will scale the
+internal energy that the integrator sees by the initial value of
+:math:`e` to make the system :math:`\mathcal{O}(1)`.  The value of
+``atol_enuc`` will likewise be scaled.  This works for both Strang and
+simplified-SDC.
+
 .. note::
 
-   The runtime parameter ``integrator.scale_system``
-   will scale the internal energy that the integrator sees by the initial
-   value of :math:`e` to make the system :math:`\mathcal{O}(1)`.  The value
-   of ``atol_enuc`` will likewise be scaled.  This works for both Strang
-   and simplified-SDC.  For the ``RKC`` integrator, this is enabled by
-   default.
+   For the ``RKC`` integrator, this is enabled by default.
 
-   For most integrators this algebraic change should not affect the output
-   to more than roundoff, but the option is included to allow for some
-   different integration approaches in the future.
+For most integrators this algebraic change should not affect the output
+to more than roundoff, but the option is included to allow for some
+different integration approaches in the future.
 
-   This option currently does not work with the ForwardEuler or QSS integrators.
+This option currently does not work with the ForwardEuler or QSS integrators.
 
 Timestep selection
 ==================
