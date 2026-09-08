@@ -62,11 +62,7 @@ Presently, allowed integrators are:
     <https://github.com/SciML/DifferentialEquations.jl>`_
     :cite:`rodas5p`.
 
-  * ``1`` : Rodas4P method from ``DifferentialEquations.jl`` (they give :cite:`rodas4p` as a reference).
-
-  * ``2`` : Rodas3P method from ``DifferentialEquations.jl``  (see a `juliacon preprint <https://github.com/hbrs-cse/RosenbrockMethods/blob/main/paper/JuliaPaper.pdf>`_).
-
-  * ``3`` : ROS2S method, a 2nd order, stiff-accurate method :cite:`ros2s`.
+  * ``1`` : ROS2S method, a 2nd order, stiff-accurate method :cite:`ros2s`.
 
   Here the "P" suffix refers to methods developed to satisfy the stiff
   accuracy conditions of :cite:`Prothero1974` (ROS2S also satisfies
