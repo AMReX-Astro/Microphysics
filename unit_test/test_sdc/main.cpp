@@ -145,7 +145,7 @@ void main_main ()
         auto state_arr = state.array(mfi);
 
         amrex::ParallelFor(bx,
-        [=] AMREX_GPU_HOST_DEVICE (int i, int j, int k)
+        [=] AMREX_GPU_DEVICE (int i, int j, int k)
         {
 
             state_arr(i, j, k, vars.itemp) =
@@ -199,7 +199,7 @@ void main_main ()
         auto n_rhs = integrator_n_rhs.array(mfi);
 
         amrex::ParallelFor(bx,
-        [=] AMREX_GPU_HOST_DEVICE (int i, int j, int k)
+        [=] AMREX_GPU_DEVICE (int i, int j, int k)
         {
             bool success = do_react(vars, i, j, k, s, n_rhs);
 

@@ -7,7 +7,7 @@ import pynucastro as pyna
 def create_network():
 
     rl = pyna.ReacLibLibrary()
-    tl = pyna.TabularLibrary(ordering=["ffn", "langanke"])
+    tl = pyna.TabularWeakLibrary(ordering=["ffn", "langanke"])
 
     all_nuclei = ['n',
                   'h1', 'h2',
