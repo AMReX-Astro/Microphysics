@@ -228,15 +228,15 @@ linkcheck_timeout = 100
 linkcheck_allow_unauthorized = True
 linkcheck_workers = 5
 linkcheck_rate_limit_timeout = 60
-user_agent = "Mozilla/5.0 (X11; Linux x86_64; rv:120.0) Gecko/20100101 Firefox/120.0"
+user_agent = (
+    "Mozilla/5.0 (X11; Linux x86_64) "
+    "AppleWebKit/537.36 Chrome/140 Safari/537.36"
+)
 
 linkcheck_request_headers = {
-    "*": {
-        "User-Agent": (
-            "Mozilla/5.0 (X11; Linux x86_64; rv:120.0) "
-            "Gecko/20100101 Firefox/120.0"
-        )
-    }
+    "https://doi.org/": {
+        "Accept": "text/html,application/xhtml+xml",
+    },
 }
 linkcheck_ignore = [r"https://doi.org/10.1103/[Pp]hys[Rr]ev*",
                     "https://www.sciencedirect.com/science/article/pii/S016892741200133X",
