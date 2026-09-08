@@ -398,7 +398,9 @@ void actual_integrator (BurnT& state, amrex::Real dt, const bool is_retry=false)
     // Subtract off the initial energy (the application codes expect
     // to get back only the generated energy during the burn).
 
-    state.e -= e_in;
+    if (integrator_rp::subtract_internal_energy) {
+        state.e -= e_in;
+    }
 
 #ifndef AMREX_USE_GPU
     if (integrator_rp::burner_verbose) {
