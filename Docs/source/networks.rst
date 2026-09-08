@@ -166,6 +166,8 @@ burning.  This network is managed by pynucastro.
 .. figure:: ../../networks/CNO_extras/cno_extras_hide_alpha.png
    :align: center
 
+Overall there are 22 nuclei and 74 rates explicitly connecting the nuclei.
+
 .. note::
 
    We add ${}^{56}\mathrm{Fe}$ as an inert nucleus to allow this to be

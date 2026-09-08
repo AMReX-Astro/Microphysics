@@ -1,18 +1,20 @@
-#ifndef TEMPERATURE_TABLE_RATES_H
-#define TEMPERATURE_TABLE_RATES_H
+#ifndef BRANCHED_RATES_H
+#define BRANCHED_RATES_H
 
-#include <AMReX_Array.H>
+#include <AMReX.H>
+#include <AMReX_Print.H>
 
 #include <tfactors.H>
 #include <actual_network.H>
-#include <interp_tools.H>
+#include <rate_type.H>
+#include <temperature_table_rates.H>
+#include <reaclib_rates.H>
 
-using namespace amrex::literals;
-
-
-namespace temp_tabular {
+namespace branched_rates {
 
     using namespace Rates;
+
+    using namespace temp_tabular;
 
 
     template <int do_T_derivatives, typename T>
@@ -26,8 +28,6 @@ namespace temp_tabular {
         [[maybe_unused]] amrex::Real drate_dT;
 
 
-
     }
-
 }
 #endif
