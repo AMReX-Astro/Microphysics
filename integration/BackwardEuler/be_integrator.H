@@ -28,8 +28,13 @@
 ///
 template <typename BurnT, typename BeT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-int single_step (BurnT& state, BeT& be, const amrex::Real dt)
+int single_step (BurnT& state, BeT& be,
+                 const amrex::Real t, const amrex::Real dt)
 {
+    // here t is the current time.  Since we are implicit, we
+    // want to evaluate the RHS at the new time, t + dt
+    const amrex::Real tnew = t + dt;
+
     constexpr int int_neqs = integrator_neqs<BurnT>();
 
     int ierr = IERR_SUCCESS;
@@ -40,7 +45,7 @@ int single_step (BurnT& state, BeT& be, const amrex::Real dt)
 
     amrex::Array1D<amrex::Real, 1, int_neqs> ydot;
 
-    rhs(be.t, state, be, ydot);
+    rhs(tnew, state, be, ydot);
 
     be.n_rhs += 1;
 
@@ -59,7 +64,7 @@ int single_step (BurnT& state, BeT& be, const amrex::Real dt)
 
         if (integrator_rp::do_corrector_validation) {
 #ifdef SDC
-            const amrex::Real rho_current = state.rho_orig + be.t * state.ydot_a[SRHO];
+            const amrex::Real rho_current = state.rho_orig + tnew * state.ydot_a[SRHO];
             const amrex::Real thresh = integrator_rp::species_failure_tolerance * rho_current;
 #else
             const amrex::Real thresh = integrator_rp::species_failure_tolerance;
@@ -80,13 +85,13 @@ int single_step (BurnT& state, BeT& be, const amrex::Real dt)
 
         // get the ydots for our current guess of y
 
-        rhs(be.t, state, be, ydot);
+        rhs(tnew, state, be, ydot);
         be.n_rhs += 1;
 
         // construct the Jacobian
 
         if (be.jacobian_type == 1) {
-            jac(be.t, state, be, be.jac);
+            jac(tnew, state, be, be.jac);
         } else {
             jac_info_t jac_info;
             jac_info.h = dt;
@@ -202,7 +207,7 @@ int be_integrator (BurnT& state, BeT& be)
     if (integrator_rp::do_single_step == 1) {
         // Do a single step to the final time
         const amrex::Real dt_single_step = be.tout - be.t;
-        ierr = single_step(state, be, dt_single_step);
+        ierr = single_step(state, be, be.t, dt_single_step);
         if (ierr == IERR_SUCCESS) {
             be.t = be.tout;
         }
@@ -247,9 +252,9 @@ int be_integrator (BurnT& state, BeT& be)
         // this means no errors from either half step
         bool have_fine_solution = false;
 
-        ierr = single_step(state, be, dt_sub/2);
+        ierr = single_step(state, be, be.t, dt_sub/2);
         if (ierr == IERR_SUCCESS) {
-            ierr = single_step(state, be, dt_sub/2);
+            ierr = single_step(state, be, be.t + dt_sub/2, dt_sub/2);
 
             if (ierr == IERR_SUCCESS) {
                 // store the fine dt solution
@@ -263,7 +268,7 @@ int be_integrator (BurnT& state, BeT& be)
                 for (int n = 1; n <= int_neqs; ++n) {
                     be.y(n) = y_old(n);
                 }
-                ierr = single_step(state, be, dt_sub);
+                ierr = single_step(state, be, be.t, dt_sub);
             }
         }
 
