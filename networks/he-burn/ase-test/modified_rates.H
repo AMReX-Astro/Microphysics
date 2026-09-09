@@ -12,6 +12,9 @@
 
 namespace modified_rates {
 
+    using namespace Rates;
+
+    using namespace reaclib_rates;
     using namespace temp_tabular;
 
     template <int do_T_derivatives>
@@ -19,7 +22,6 @@ namespace modified_rates {
     void rate_C12_C12_to_Mg24_modified(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
         // C12 + C12 --> Mg24 (calls the underlying rate)
-
         rate_C12_C12_to_n_Mg23_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
     }
 
@@ -28,22 +30,20 @@ namespace modified_rates {
     void rate_O16_O16_to_S32_modified(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
         // O16 + O16 --> S32 (calls the underlying rate)
-
         rate_O16_O16_to_n_S31_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
     }
 
     template <int do_T_derivatives>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_C12_O16_to_Si28_modified(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_O16_C12_to_Si28_modified(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
 
         // O16 + C12 --> Si28 (calls the underlying rate)
-
-        rate_C12_O16_to_n_Si27_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
+        rate_O16_C12_to_n_Si27_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
     }
 
 
     template <int do_T_derivatives, typename T>
-    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    AMREX_GPU_DEVICE AMREX_INLINE
     void
     fill_rates([[maybe_unused]] const tf_t& tfactors,
                [[maybe_unused]] T& rate_eval)
@@ -89,7 +89,7 @@ namespace modified_rates {
         }
 
         {
-            // C12_O16_to_Si28_modified
+            // O16_C12_to_Si28_modified
 
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
@@ -99,10 +99,10 @@ namespace modified_rates {
                 dlog_scor_dT = rate_eval.dlog_screen_dT(k_C12_O16);
             }
 #endif
-            rate_C12_O16_to_Si28_modified<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_C12_O16_to_Si28_modified) = rate;
+            rate_O16_C12_to_Si28_modified<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
+            rate_eval.screened_rates(k_O16_C12_to_Si28_modified) = rate;
             if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_C12_O16_to_Si28_modified) = drate_dT;
+                rate_eval.dscreened_rates_dT(k_O16_C12_to_Si28_modified) = drate_dT;
             }
         }
 

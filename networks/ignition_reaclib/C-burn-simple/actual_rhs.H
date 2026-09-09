@@ -19,17 +19,12 @@
 #include <reaclib_rates.H>
 #include <approximate_rates.H>
 #include <modified_rates.H>
-#include <table_rates.H>
+#include <branched_rates.H>
 #include <temperature_table_rates.H>
+#include <tabular_weak_rates.H>
 #include <derived_rates.H>
 
 using namespace amrex::literals;
-using namespace ArrayUtil;
-
-using namespace Species;
-using namespace Rates;
-
-using namespace rate_tables;
 
 template<class T>
 AMREX_GPU_DEVICE AMREX_INLINE
@@ -57,6 +52,8 @@ AMREX_GPU_DEVICE AMREX_INLINE
 void evaluate_screening(const burn_t& state,
                         const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
                         T& rate_eval) {
+
+    using namespace Rates;
 
     // Evaluate screening terms
 
@@ -102,9 +99,11 @@ void evaluate_rates(const burn_t& state,
                     const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
                     T& rate_eval) {
 
+    using namespace Rates;
+
     // here Y is consistent with state.xn
 
-    [[maybe_unused]] amrex::Real rhoy = state.rho * state.y_e;
+    [[maybe_unused]] const amrex::Real rhoy = state.rho * state.y_e;
 
     const tf_t tfactors = evaluate_tfactors(state.T);
 
@@ -116,7 +115,9 @@ void evaluate_rates(const burn_t& state,
 
     // Fill in different rates
 
-    fill_reaclib_rates<do_T_derivatives, T>(tfactors, rate_eval);
+    reaclib_rates::fill_rates<do_T_derivatives, T>(tfactors, rate_eval);
+
+    tabular_weak_rates::fill_rates(state.T, rhoy, Y, rate_eval);
 
     temp_tabular::fill_rates<do_T_derivatives, T>(tfactors, rate_eval);
 
@@ -124,35 +125,20 @@ void evaluate_rates(const burn_t& state,
     // TemperatureTabular/StarLib rates as the original rate
     modified_rates::fill_rates<do_T_derivatives, T>(tfactors, rate_eval);
 
+    // fill branched rates -- these can have ReacLib or
+    // TemperatureTabular/StarLib as the underlying rate or branches.
+    branched_rates::fill_rates<do_T_derivatives, T>(tfactors, rate_eval);
+
     // Calculate Derived Rates next. This should go last but before
     // approx rates, since those may have ReacLibRate,
     // TemperatureTabularRate / StarLibRate, or DerivedRate as the
     // underlying rate.
+    derived_rates::fill_rates<do_T_derivatives, T>(tfactors, rate_eval);
 
-    fill_derived_rates<do_T_derivatives, T>(tfactors, rate_eval);
 
 
     // Fill approximate rates
-
-    fill_approx_rates<do_T_derivatives, T>(tfactors, state.rho, Y, rate_eval);
-
-    // Calculate tabular weak rates
-
-    [[maybe_unused]] amrex::Real rate, drate_dt, edot_nu, edot_gamma;
-
-    rate_eval.enuc_weak = 0.0_rt;
-
-    amrex::Real log_temp = std::log10(state.T);
-    amrex::Real log_rhoy = std::log10(rhoy);
-
-    tabular_evaluate(j_n_p_meta, j_n_p_rhoy, j_n_p_temp, j_n_p_data,
-                     log_rhoy, log_temp, state.T, rate, drate_dt, edot_nu, edot_gamma);
-    rate_eval.screened_rates(k_n_to_p_weaktab) = rate;
-    if constexpr (std::is_same_v<T, rate_derivs_t>) {
-        rate_eval.dscreened_rates_dT(k_n_to_p_weaktab) = drate_dt;
-    }
-    rate_eval.enuc_weak += C::n_A * Y(N) * (edot_nu + edot_gamma);
-
+    approximate_rates::fill_rates<do_T_derivatives, T>(tfactors, state.rho, Y, rate_eval);
 
 }
 
@@ -204,22 +190,15 @@ void get_ydot_weak(const burn_t& state,
 
     // Compute all weak rates and get ydot_weak
 
-    amrex::Real log_temp = std::log10(state.T);
-    amrex::Real log_rhoy = std::log10(rhoy);
-
-    tabular_evaluate(j_n_p_meta, j_n_p_rhoy, j_n_p_temp, j_n_p_data,
-                     log_rhoy, log_temp, state.T, rate, drate_dT, edot_nu, edot_gamma);
-    rate_eval.screened_rates(k_n_to_p_weaktab) = rate;
-    rate_eval.enuc_weak += C::n_A * Y(N) * (edot_nu + edot_gamma);
-
+    tabular_weak_rates::fill_rates(state.T, rhoy, Y, rate_eval);
 
     const auto& screened_rates = rate_eval.screened_rates;
 
     ydot_nuc(N) =
-        -screened_rates(k_n_to_p_weaktab)*Y(N);
+        -screened_rates(k_n_to_p_beta_neg_weaktab)*Y(N);
 
     ydot_nuc(H1) =
-        screened_rates(k_n_to_p_weaktab)*Y(N);
+        screened_rates(k_n_to_p_beta_neg_weaktab)*Y(N);
 
     ydot_nuc(He4) = 0.0_rt;
 
@@ -242,30 +221,30 @@ AMREX_GPU_DEVICE AMREX_INLINE
 void rhs_nuc(const burn_t& state,
              amrex::Array1D<amrex::Real, 1, neqs>& ydot_nuc,
              const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
-             const amrex::Array1D<amrex::Real, 1, NumRates>& screened_rates) {
+             const amrex::Array1D<amrex::Real, 1, Rates::NumRates>& screened_rates) {
 
     using namespace Rates;
 
     ydot_nuc(N) =
-        -screened_rates(k_n_to_p_weaktab)*Y(N) +
+        -screened_rates(k_n_to_p_beta_neg_weaktab)*Y(N) +
         0.5*screened_rates(k_C12_C12_to_n_Mg23_reaclib)*amrex::Math::powi<2>(Y(C12))*state.rho;
 
     ydot_nuc(H1) =
         0.5*screened_rates(k_C12_C12_to_p_Na23_reaclib)*amrex::Math::powi<2>(Y(C12))*state.rho +
-        screened_rates(k_n_to_p_weaktab)*Y(N);
+        screened_rates(k_n_to_p_beta_neg_weaktab)*Y(N);
 
     ydot_nuc(He4) =
         0.5*screened_rates(k_C12_C12_to_He4_Ne20_reaclib)*amrex::Math::powi<2>(Y(C12))*state.rho +
-        -screened_rates(k_He4_C12_to_O16_reaclib)*Y(C12)*Y(He4)*state.rho;
+        -screened_rates(k_C12_He4_to_O16_reaclib)*Y(C12)*Y(He4)*state.rho;
 
     ydot_nuc(C12) =
         -screened_rates(k_C12_C12_to_He4_Ne20_reaclib)*amrex::Math::powi<2>(Y(C12))*state.rho +
         -screened_rates(k_C12_C12_to_p_Na23_reaclib)*amrex::Math::powi<2>(Y(C12))*state.rho +
-        -screened_rates(k_He4_C12_to_O16_reaclib)*Y(C12)*Y(He4)*state.rho +
+        -screened_rates(k_C12_He4_to_O16_reaclib)*Y(C12)*Y(He4)*state.rho +
         -screened_rates(k_C12_C12_to_n_Mg23_reaclib)*amrex::Math::powi<2>(Y(C12))*state.rho;
 
     ydot_nuc(O16) =
-        screened_rates(k_He4_C12_to_O16_reaclib)*Y(C12)*Y(He4)*state.rho;
+        screened_rates(k_C12_He4_to_O16_reaclib)*Y(C12)*Y(He4)*state.rho;
 
     ydot_nuc(Ne20) =
         0.5*screened_rates(k_C12_C12_to_He4_Ne20_reaclib)*amrex::Math::powi<2>(Y(C12))*state.rho;
@@ -330,12 +309,14 @@ AMREX_GPU_DEVICE AMREX_INLINE
 void jac_nuc(const burn_t& state,
              MatrixType& jac,
              const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
-             const amrex::Array1D<amrex::Real, 1, NumRates>& screened_rates)
+             const amrex::Array1D<amrex::Real, 1, Rates::NumRates>& screened_rates)
 {
+
+    using namespace Rates;
 
     amrex::Real scratch;
 
-    scratch = -screened_rates(k_n_to_p_weaktab);
+    scratch = -screened_rates(k_n_to_p_beta_neg_weaktab);
     jac.set(N, N, scratch);
 
     jac.set(N, H1, 0.0);
@@ -353,7 +334,7 @@ void jac_nuc(const burn_t& state,
 
     jac.set(N, Mg23, 0.0);
 
-    scratch = screened_rates(k_n_to_p_weaktab);
+    scratch = screened_rates(k_n_to_p_beta_neg_weaktab);
     jac.set(H1, N, scratch);
 
     jac.set(H1, H1, 0.0);
@@ -375,10 +356,10 @@ void jac_nuc(const burn_t& state,
 
     jac.set(He4, H1, 0.0);
 
-    scratch = -screened_rates(k_He4_C12_to_O16_reaclib)*Y(C12)*state.rho;
+    scratch = -screened_rates(k_C12_He4_to_O16_reaclib)*Y(C12)*state.rho;
     jac.set(He4, He4, scratch);
 
-    scratch = 1.0*screened_rates(k_C12_C12_to_He4_Ne20_reaclib)*Y(C12)*state.rho - screened_rates(k_He4_C12_to_O16_reaclib)*Y(He4)*state.rho;
+    scratch = 1.0*screened_rates(k_C12_C12_to_He4_Ne20_reaclib)*Y(C12)*state.rho - screened_rates(k_C12_He4_to_O16_reaclib)*Y(He4)*state.rho;
     jac.set(He4, C12, scratch);
 
     jac.set(He4, O16, 0.0);
@@ -393,10 +374,10 @@ void jac_nuc(const burn_t& state,
 
     jac.set(C12, H1, 0.0);
 
-    scratch = -screened_rates(k_He4_C12_to_O16_reaclib)*Y(C12)*state.rho;
+    scratch = -screened_rates(k_C12_He4_to_O16_reaclib)*Y(C12)*state.rho;
     jac.set(C12, He4, scratch);
 
-    scratch = -2.0*screened_rates(k_C12_C12_to_He4_Ne20_reaclib)*Y(C12)*state.rho - 2.0*screened_rates(k_C12_C12_to_n_Mg23_reaclib)*Y(C12)*state.rho - 2.0*screened_rates(k_C12_C12_to_p_Na23_reaclib)*Y(C12)*state.rho - screened_rates(k_He4_C12_to_O16_reaclib)*Y(He4)*state.rho;
+    scratch = -2.0*screened_rates(k_C12_C12_to_He4_Ne20_reaclib)*Y(C12)*state.rho - 2.0*screened_rates(k_C12_C12_to_n_Mg23_reaclib)*Y(C12)*state.rho - 2.0*screened_rates(k_C12_C12_to_p_Na23_reaclib)*Y(C12)*state.rho - screened_rates(k_C12_He4_to_O16_reaclib)*Y(He4)*state.rho;
     jac.set(C12, C12, scratch);
 
     jac.set(C12, O16, 0.0);
@@ -411,10 +392,10 @@ void jac_nuc(const burn_t& state,
 
     jac.set(O16, H1, 0.0);
 
-    scratch = screened_rates(k_He4_C12_to_O16_reaclib)*Y(C12)*state.rho;
+    scratch = screened_rates(k_C12_He4_to_O16_reaclib)*Y(C12)*state.rho;
     jac.set(O16, He4, scratch);
 
-    scratch = screened_rates(k_He4_C12_to_O16_reaclib)*Y(He4)*state.rho;
+    scratch = screened_rates(k_C12_He4_to_O16_reaclib)*Y(He4)*state.rho;
     jac.set(O16, C12, scratch);
 
     jac.set(O16, O16, 0.0);
