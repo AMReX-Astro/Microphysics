@@ -170,6 +170,10 @@ void actual_integrator (BurnT& state, amrex::Real dt, bool is_retry=false)
 
     initialize_int_state(fe);
 
+    // save the initial internal energy in case we subtract it off at
+    // the end
+    amrex::Real e_in_orig = state.e;
+
     fe.tout = dt;
 
     amrex::Real T_in = state.T;
@@ -179,7 +183,9 @@ void actual_integrator (BurnT& state, amrex::Real dt, bool is_retry=false)
         xn_in[n] = state.xn[n];
     }
 
-    while (fe.t < (1.0_rt - timestep_safety_factor) * dt && fe.n_step < integrator_rp::ode_max_steps) {
+    while (fe.t < (1.0_rt - timestep_safety_factor) * dt &&
+           fe.n_step < integrator_rp::ode_max_steps) {
+
         // Evaluate the RHS.
 
         amrex::Array1D<amrex::Real, 1, NumSpec> spec_rhs;
@@ -224,6 +230,11 @@ void actual_integrator (BurnT& state, amrex::Real dt, bool is_retry=false)
     state.n_step = fe.n_step;
     state.n_rhs = fe.n_rhs;
     state.n_jac = 0;
+
+    if (integrator_rp::subtract_internal_energy) {
+        state.e -= e_in_orig;
+    }
+
 
 #ifndef AMREX_USE_GPU
     if (integrator_rp::burner_verbose) {
