@@ -314,6 +314,8 @@ int be_integrator (BurnT& state, BeT& be)
 
             amrex::Real dt_new = dt_sub * std::sqrt(1.0_rt / rel_error);
             dt_sub = amrex::Clamp(dt_new, dt_sub / 2.0, 2.0 * dt_sub);
+            // apply our global cap
+            dt_sub = std::min(dt_sub, integrator_rp::ode_max_dt);
 
         } else {
 
