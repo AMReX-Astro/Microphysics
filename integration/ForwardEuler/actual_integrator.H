@@ -170,10 +170,6 @@ void actual_integrator (BurnT& state, amrex::Real dt, bool is_retry=false)
 
     initialize_int_state(fe);
 
-    // save the initial internal energy in case we subtract it off at
-    // the end
-    amrex::Real e_in_orig = state.e;
-
     fe.tout = dt;
 
     amrex::Real T_in = state.T;
@@ -232,7 +228,7 @@ void actual_integrator (BurnT& state, amrex::Real dt, bool is_retry=false)
     state.n_jac = 0;
 
     if (integrator_rp::subtract_internal_energy) {
-        state.e -= e_in_orig;
+        state.e -= e_in;
     }
 
 
