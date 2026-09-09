@@ -407,7 +407,7 @@ void actual_integrator (BurnT& state, amrex::Real dt, const bool is_retry=false)
         // Print out some integration statistics, if desired.
         std::cout <<  "integration summary: " << std::endl;
         std::cout <<  "dens: " << state.rho << " temp: " << state.T << std::endl;
-        if (integrator::subtract_internal_energy) {
+        if (integrator_rp::subtract_internal_energy) {
             std::cout <<  "energy released: " << state.e << std::endl;
         } else {
             std::cout <<  "energy released: " << state.e - e_in << std::endl;
@@ -436,7 +436,7 @@ void actual_integrator (BurnT& state, amrex::Real dt, const bool is_retry=false)
             std::cout << state.xn[n] << " ";
         }
         std::cout << std::endl;
-        if (integrator::subtract_internal_energy) {
+        if (integrator_rp::subtract_internal_energy) {
             std::cout << "energy generated = " << state.e << std::endl;
         } else {
             std::cout << "energy generated = " << state.e - e_in << std::endl;
