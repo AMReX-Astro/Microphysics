@@ -179,7 +179,11 @@ void integrator_cleanup (IntegratorT& int_state, BurnT& state,
         // Print out some integration statistics, if desired.
         std::cout <<  "integration summary: " << std::endl;
         std::cout <<  "dens: " << state.rho << " temp: " << state.T << std::endl;
-        std::cout << " energy released: " << state.e << std::endl;
+        if (integrator_rp::subtract_internal_energy) {
+            std::cout << " energy released: " << state.e << std::endl;
+        } else {
+            std::cout << " energy released: " << state.e - state_save.e_in << std::endl;
+        }
         std::cout <<  "number of steps taken: " << state.n_step << std::endl;
         std::cout <<  "number of f evaluations: " << state.n_rhs << std::endl;
     }
@@ -210,7 +214,11 @@ void integrator_cleanup (IntegratorT& int_state, BurnT& state,
             std::cout << std::scientific << std::setprecision(OUTDIGITS) << X << " ";
         }
         std::cout << std::endl;
-        std::cout << "energy generated = " << state.e << std::endl;
+        if (integrator_rp::subtract_internal_energy) {
+            std::cout << "energy generated = " << state.e << std::endl;
+        } else {
+            std::cout << "energy generated = " << state_save.e_in << std::endl;
+        }
 #elif defined(ALLOW_GPU_PRINTF)
         AMREX_DEVICE_PRINTF("[ERROR] integration failed in net, istate = %d, time = %g, dt = %g, dens = %g, temp_start = %g\n",
                             istate, int_state.t, dt, state.rho, state_save.T_in);
