@@ -166,14 +166,16 @@ void burn_cell_c()
 
         nstep_int += burn_state.n_step;
 
-        // state.e represents the change in energy over the burn (for
-        // just this sybcycle), so turn it back into a physical energy
+        if (integrator_rp::subtract_internal_energy) {
+            // state.e represents the change in energy over the burn (for
+            // just this sybcycle), so turn it back into a physical energy
 
-        burn_state.e += energy_initial;
+            burn_state.e += energy_initial;
 
-        // reset the initial energy for the next subcycle
+            // reset the initial energy for the next subcycle
 
-        energy_initial = burn_state.e;
+            energy_initial = burn_state.e;
+        }
 
         // get the updated T
 
