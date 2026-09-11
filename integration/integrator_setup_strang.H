@@ -217,7 +217,7 @@ void integrator_cleanup (IntegratorT& int_state, BurnT& state,
         if (integrator_rp::subtract_internal_energy) {
             std::cout << "energy generated = " << state.e << std::endl;
         } else {
-            std::cout << "energy generated = " << state_save.e_in << std::endl;
+            std::cout << "energy generated = " << state.e - state_save.e_in << std::endl;
         }
 #elif defined(ALLOW_GPU_PRINTF)
         AMREX_DEVICE_PRINTF("[ERROR] integration failed in net, istate = %d, time = %g, dt = %g, dens = %g, temp_start = %g\n",
