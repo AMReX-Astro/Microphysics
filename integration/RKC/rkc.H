@@ -233,30 +233,6 @@ int rkclow (BurnT& state, RkcT& rstate)
 
         err = std::sqrt(err / int_neqs);
 
-        // before we accept or reject the step, let's check if we've entered
-        // NSE
-
-#ifdef NSE
-       // check if, during the course of integration, we hit NSE, and
-       // if so, bail out we rely on the state being consistent after
-       // the call to dvstep, even if the step failed.
-
-       // we only do this after MIN_NSE_BAILOUT_STEPS to prevent us
-       // from hitting this right at the start when VODE might do so
-       // wild exploration.  Also ensure we are not working > tmax,
-       // so we don't need to worry about extrapolating back in time.
-
-       if (rstate.n_step > MIN_NSE_BAILOUT_STEPS && rstate.t <= rstate.tout) {
-           // first we need to make the burn_t in sync
-
-           int_to_burn(rstate.t, rstate, state);
-
-           if (in_nse(state)) {
-               return IERR_ENTERED_NSE;
-           }
-       }
-#endif
-
         if (err > 1.0_rt) {
             // Step is rejected.
             rstate.nrejct++;
@@ -289,6 +265,21 @@ int rkclow (BurnT& state, RkcT& rstate)
             rstate.yjm1(i) = ylast;
             rstate.yjm2(i) = yplast;
         }
+#ifdef NSE
+        // Check for NSE only after accepting the step, so the state
+        // and time are consistent.
+        // Wait until after MIN_NSE_BAILOUT_STEPS and avoid checking
+        // beyond tout, where we would need to extrapolate back in time.
+
+        if (rstate.n_step > MIN_NSE_BAILOUT_STEPS && rstate.t <= rstate.tout) {
+            int_to_burn(rstate.t, rstate, state);
+
+            if (in_nse(state)) {
+                return IERR_ENTERED_NSE;
+            }
+        }
+#endif
+
         amrex::Real fac = 10.0_rt;
         if (rstate.naccpt == 1) {
             amrex::Real temp2 = std::cbrt(err);
