@@ -26,22 +26,22 @@ jobs:
           sudo apt-get update -y -qq
           sudo apt-get -qq -y install curl cmake jq clang g++>=9.3.0
 
-      - name: Compile, test_nse_interp (NSE, aprox19)
+      - name: Compile, nse_interp_check (NSE, aprox19)
         run: |
-          cd unit_test/test_nse_interp
+          cd unit_test/nse_interp_check
           make realclean
           make -j 4
 
-      - name: Run test_nse_interp (NSE, aprox19)
+      - name: Run nse_interp_check (NSE, aprox19)
         run: |
-          cd unit_test/test_nse_interp
+          cd unit_test/nse_interp_check
           ./main3d.gnu.ex amrex.fpe_trap_{invalid,zero,overflow}=1 > test.out
 
       - name: Print backtrace
-        if: ${{ failure() && hashFiles('unit_test/test_nse_interp/Backtrace.0') != '' }}
-        run: cat unit_test/test_nse_interp/Backtrace.0
+        if: ${{ failure() && hashFiles('unit_test/nse_interp_check/Backtrace.0') != '' }}
+        run: cat unit_test/nse_interp_check/Backtrace.0
 
       - name: Compare to stored output (NSE, aprox19)
         run: |
-          cd unit_test/test_nse_interp
+          cd unit_test/nse_interp_check
           diff -I "^Initializing AMReX" -I "^AMReX" -I "^reading in reaclib rates" test.out ci-benchmarks/aprox19.out

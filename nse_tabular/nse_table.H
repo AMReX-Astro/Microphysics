@@ -3,6 +3,9 @@
 
 #include <iostream>
 #include <fstream>
+#include <cmath>
+#include <limits>
+#include <sstream>
 
 #include <AMReX.H>
 #include <AMReX_Print.H>
@@ -45,8 +48,6 @@ void init_nse() {
       amrex::Error("unable to open NSE table: " + nse_table_size::table_name);
   }
 
-  amrex::Real ttemp, tdens, tye;
-
   // skip the header -- it is 4 lines
   std::string line;
   std::getline(nse_table_file, line);
@@ -59,12 +60,20 @@ void init_nse() {
           for (int iye = 1; iye <= nse_table_size::nye; iye++) {
               const int j = nse_idx(irho, it, iye);
 
-              std::getline(nse_table_file, line);
-              if (line.empty()) {
-                  amrex::Error("Error reading from the NSE table");
+              const auto row_error = [=] (const std::string& reason) {
+                  amrex::Error("NSE table " + nse_table_size::table_name +
+                               ", line " + std::to_string(j + 4) +
+                               ", index " + std::to_string(j) +
+                               " (irho=" + std::to_string(irho) +
+                               ", it=" + std::to_string(it) +
+                               ", iye=" + std::to_string(iye) + "): " + reason);
+              };
+              if (!std::getline(nse_table_file, line) || line.empty()) {
+                  row_error("missing or empty row");
               }
               std::istringstream data(line);
-              data >> ttemp >> tdens >> tye;
+              amrex::Real ttemp, tdens, tye;
+              data >> tdens >> ttemp >> tye;
               data >> nse_table::abartab(j)
                    >> nse_table::beatab(j)
                    >> nse_table::dyedttab(j)
@@ -73,6 +82,47 @@ void init_nse() {
                    >> nse_table::enutab(j);
               for (int n = 1; n <= NumSpec; n++) {
                   data >> nse_table::massfractab(n, j);
+              }
+              if (data.fail()) {
+                  row_error("incomplete or invalid numeric data");
+              }
+              data >> std::ws;
+              if (!data.eof()) {
+                  row_error("unexpected trailing data");
+              }
+
+              for (const auto value : {tdens, ttemp, tye,
+                                       nse_table::abartab(j), nse_table::beatab(j),
+                                       nse_table::dyedttab(j), nse_table::dabardttab(j),
+                                       nse_table::dbeadttab(j), nse_table::enutab(j)}) {
+                  if (!std::isfinite(value)) {
+                      row_error("non-finite coordinate or table value");
+                  }
+              }
+              for (int n = 1; n <= NumSpec; n++) {
+                  if (!std::isfinite(nse_table::massfractab(n, j))) {
+                      row_error("non-finite mass fraction");
+                  }
+              }
+
+              // Coordinates are printed to ten decimal places. Also allow
+              // roundoff when amrex::Real uses single precision.
+              const auto matches_grid = [] (amrex::Real value, amrex::Real expected) {
+                  const amrex::Real tol = 1.e-10_rt +
+                      4 * std::numeric_limits<amrex::Real>::epsilon() * std::abs(expected);
+                  return std::abs(value - expected) <= tol;
+              };
+              const amrex::Real logrho = nse_table_size::logrho_min +
+                  (irho - 1) * nse_table_size::dlogrho;
+              const amrex::Real logT = nse_table_size::logT_min +
+                  (it - 1) * nse_table_size::dlogT;
+              const amrex::Real ye = nse_table_size::ye_max -
+                  (iye - 1) * nse_table_size::dye;
+              if (!matches_grid(tdens, logrho) || !matches_grid(ttemp, logT) ||
+                  !matches_grid(tye, ye)) {
+                  row_error("coordinates do not match the expected (logrho, logT, Ye) grid: (" +
+                            std::to_string(logrho) + ", " + std::to_string(logT) +
+                            ", " + std::to_string(ye) + ")");
               }
           }
       }
@@ -125,26 +175,79 @@ int nse_get_ye_index(const amrex::Real ye) {
     return ic0 + 1;
 }
 
+
+// Slope Limiter to preserve monotonicity
+// See C. Moler, Numerical Computing with Matlab, 2004.
+// :doi:`10.1137/1.9780898717952`, Chapter 3.4
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+amrex::Real
+limit_slope(const amrex::Real dm, const amrex::Real dp) {
+
+    // note: we assume that dx is constant in our interval
+
+    if (dm * dp <= 0.0_rt) {
+        return 0.0_rt;
+    }
+
+    return 2.0_rt / (1.0_rt / dm + 1.0_rt / dp);
+}
+
+
 ///
 /// given 4 points (xs, fs), with spacing dx, return the interplated
-/// value of f at point x by fitting a cubic to the points
+/// value of f at point x by fitting a monotone cubic Hermite
+/// polynomial to the points:
+///
+/// H(x) = f0 H_{1,0}(x) + f1 H_{1,1}(x) + f'0 Ĥ_{1,0}(x) + f'1 Ĥ_{1,0}(x)
+///
+/// The slope f' is limited to preserve monotonicity.
 ///
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-amrex::Real cubic(const amrex::Real* xs, const amrex::Real* fs, const amrex::Real dx, const amrex::Real x) {
+amrex::Real cubic(const amrex::Real* xs, const amrex::Real* fs,
+                  const amrex::Real dx, const amrex::Real x,
+                  const bool lo_bnd, const bool hi_bnd) {
 
-    // fit a cubic of the form
-    // f(x) = a (x - x_i)**3 + b (x - x_i)**2 + c (x - x_i) + d
-    // to the data (xs, fs)
-    // we take x_i to be x[1]
+    // given the 4 points xs, the point x is in [xs[1], xs[2]]
+    // we'll use i0 = 1 as the reference for the interpolation
 
-    amrex::Real a = (3 * fs[1] - 3 * fs[2] + fs[3] - fs[0]) / (6 * amrex::Math::powi<3>(dx));
-    amrex::Real b = (-2 * fs[1] + fs[2] + fs[0]) / (2 * dx * dx);
-    amrex::Real c = (-3 * fs[1] + 6 * fs[2] - fs[3] - 2 * fs[0]) / (6 * dx);
-    amrex::Real d = fs[1];
+    // we have already guaranteed that all of the xs are in the
+    // domain, so we don't need to worry about boundaries.
 
-    return a * amrex::Math::powi<3>(x - xs[1]) +
-           b * amrex::Math::powi<2>(x - xs[1]) + c * (x - xs[1]) + d;
+    // Compute the slope at i0 and i0 + 1
+    const auto i0 = 1;
 
+    const auto dx_inv = 1.0_rt / dx;
+
+    amrex::Real m0, m1;
+    m1 = m0 = (fs[i0+1] - fs[i0]) * dx_inv;
+
+    // Compute the slope from the other side and limit the slope to
+    // preserve monotonicity
+    if (! lo_bnd) {
+        amrex::Real d_im1 = (fs[i0] - fs[i0-1]) * dx_inv;
+        m0 = limit_slope(d_im1, m0);
+    }
+
+    if (! hi_bnd) {
+        amrex::Real d_ip1 = (fs[i0+2] - fs[i0+1]) * dx_inv;
+        m1 = limit_slope(m1, d_ip1);
+    }
+
+    // Compute cubic Hermite polynomial basis
+    const amrex::Real t = (x - xs[i0]) * dx_inv;
+    const amrex::Real t2 = t * t;
+    const amrex::Real t3 = t2 * t;
+
+    const amrex::Real H1 = -2.0_rt * t3 + 3.0_rt * t2;
+    const amrex::Real H0 = -H1 + 1.0_rt;
+    const amrex::Real Hhat1 = dx * (t3 - t2);
+    const amrex::Real Hhat0 = dx * (t3 - 2.0_rt * t2 + t);
+
+    // Construct the interpolant
+    // H_3(x) = f0 H_{1,0}(x) + f1 H_{1,1}(x) + f'0 Ĥ_{1,0}(x) + f'1 Ĥ_{1,0}(x)
+
+    const amrex::Real fv = fs[i0] * H0 + fs[i0+1] * H1 + m0 * Hhat0 + m1 * Hhat1;
+    return fv;
 }
 
 ///
@@ -153,20 +256,49 @@ amrex::Real cubic(const amrex::Real* xs, const amrex::Real* fs, const amrex::Rea
 /// points and differentiating the interpolant
 ///
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-amrex::Real cubic_deriv(const amrex::Real* xs, const amrex::Real* fs, const amrex::Real dx, const amrex::Real x) {
+amrex::Real cubic_deriv(const amrex::Real* xs, const amrex::Real* fs,
+                        const amrex::Real dx, const amrex::Real x,
+                        const bool lo_bnd, const bool hi_bnd) {
 
-    // fit a cubic of the form
-    // f(x) = a (x - x_i)**3 + b (x - x_i)**2 + c (x - x_i) + d
-    // to the data (xs, fs)
-    // we take x_i to be x[1]
-    // then return dfdx = 3 a (x - x_i)**2 + 2 b (x - x_i) + c
+    // given the 4 points xs, the point x is in [xs[1], xs[2]]
+    // we'll use i0 = 1 as the reference for the interpolation
 
-    amrex::Real a = (3 * fs[1] - 3 * fs[2] + fs[3] - fs[0]) / (6 * amrex::Math::powi<3>(dx));
-    amrex::Real b = (-2 * fs[1] + fs[2] + fs[0]) / (2 * dx * dx);
-    amrex::Real c = (-3 * fs[1] + 6 * fs[2] - fs[3] - 2 * fs[0]) / (6 * dx);
-    //amrex::Real d = fs[1];
+    // we have already guaranteed that all of the xs are in the
+    // domain, so we don't need to worry about boundaries.
 
-    return 3.0_rt * a * amrex::Math::powi<2>(x - xs[1]) + 2.0_rt * b * (x - xs[1]) + c;
+    // Compute the slope at i0 and i0 + 1
+    const auto i0 = 1;
+
+    const auto dx_inv = 1.0_rt / dx;
+
+    amrex::Real m0, m1;
+    m1 = m0 = (fs[i0+1] - fs[i0]) * dx_inv;
+
+    // Compute the slope from the other side and limit the slope to
+    // preserve monotonicity
+    if (! lo_bnd) {
+        amrex::Real d_im1 = (fs[i0] - fs[i0-1]) * dx_inv;
+        m0 = limit_slope(d_im1, m0);
+    }
+
+    if (! hi_bnd) {
+        amrex::Real d_ip1 = (fs[i0+2] - fs[i0+1]) * dx_inv;
+        m1 = limit_slope(m1, d_ip1);
+    }
+
+    // Compute cubic Hermite polynomial basis
+    const amrex::Real t = (x - xs[i0]) * dx_inv;
+    const amrex::Real t2 = t * t;
+
+    const amrex::Real dH1dx = -6.0_rt * (t2 - t) * dx_inv;
+    const amrex::Real dH0dx = -dH1dx;
+    const amrex::Real dHhat1dx = 3.0_rt * t2 - 2.0_rt * t;
+    const amrex::Real dHhat0dx = 3.0_rt * t2 - 4.0_rt * t + 1.0_rt;
+
+    const amrex::Real dfdx = fs[i0] * dH0dx + fs[i0+1] * dH1dx +
+                             m0 * dHhat0dx + m1 * dHhat1dx;
+
+    return dfdx;
 
 }
 
@@ -217,37 +349,48 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 amrex::Real tricubic(const int ir0, const int it0, const int ic0,
               const amrex::Real rho, const amrex::Real temp, const amrex::Real ye, const T& data) {
 
-    const amrex::Real yes[] = {nse_table_ye(ic0),
+    // as we come in, we expect temp to be in it0:it0+1, and we also
+    // are assured that it0 and it0+1 don't go out of bounds.  Likewise
+    // for rho and ye.  Our 1D cubic interpolation routine will handle
+    // the boundary conditions for us.
+
+    const amrex::Real yes[] = {nse_table_ye(std::max(1, ic0-1)),
+                               nse_table_ye(ic0),
                                nse_table_ye(ic0+1),
-                               nse_table_ye(ic0+2),
-                               nse_table_ye(ic0+3)};
+                               nse_table_ye(std::min(nse_table_size::nye, ic0+2))};
 
-    const amrex::Real Ts[] = {nse_table_logT(it0),
+    const amrex::Real Ts[] = {nse_table_logT(std::max(1, it0-1)),
+                              nse_table_logT(it0),
                               nse_table_logT(it0+1),
-                              nse_table_logT(it0+2),
-                              nse_table_logT(it0+3)};
+                              nse_table_logT(std::min(nse_table_size::ntemp, it0+2))};
 
-    const amrex::Real rhos[] = {nse_table_logrho(ir0),
+    const amrex::Real rhos[] = {nse_table_logrho(std::max(1, ir0-1)),
+                                nse_table_logrho(ir0),
                                 nse_table_logrho(ir0+1),
-                                nse_table_logrho(ir0+2),
-                                nse_table_logrho(ir0+3)};
+                                nse_table_logrho(std::min(nse_table_size::nden, ir0+2))};
 
     // first do the 16 ye interpolations
 
     // the first index will be rho and the second will be T
     amrex::Real d1[4][4];
 
-    for (int ii = 0; ii < 4; ++ii) {
-        for (int jj = 0; jj < 4; ++jj) {
+    bool lo_bnd = (ic0 == 1);
+    bool hi_bnd = (ic0 + 1 == nse_table_size::nye);
 
-            const amrex::Real _d[] = {data(nse_idx(ir0+ii, it0+jj, ic0)),
-                                      data(nse_idx(ir0+ii, it0+jj, ic0+1)),
-                                      data(nse_idx(ir0+ii, it0+jj, ic0+2)),
-                                      data(nse_idx(ir0+ii, it0+jj, ic0+3))};
+    for (int ii = 0; ii < 4; ++ii) {
+        int idx_r = std::max(1, std::min(ir0 - 1 + ii, nse_table_size::nden));
+
+        for (int jj = 0; jj < 4; ++jj) {
+            int idx_t = std::max(1, std::min(it0 - 1 + jj, nse_table_size::ntemp));
+
+            const amrex::Real _d[] = {data(nse_idx(idx_r, idx_t, std::max(1, ic0-1))),
+                                      data(nse_idx(idx_r, idx_t, ic0)),
+                                      data(nse_idx(idx_r, idx_t, ic0+1)),
+                                      data(nse_idx(idx_r, idx_t, std::min(ic0+2, nse_table_size::nye)))};
 
             // note that the ye values are monotonically decreasing,
             // so the "dx" needs to be negative
-            d1[ii][jj] = cubic(yes, _d, -nse_table_size::dye, ye);
+            d1[ii][jj] = cubic(yes, _d, -nse_table_size::dye, ye, lo_bnd, hi_bnd);
         }
     }
 
@@ -255,15 +398,20 @@ amrex::Real tricubic(const int ir0, const int it0, const int ic0,
 
     amrex::Real d2[4];
 
-    for (int ii = 0; ii < 4; ++ii) {
+    lo_bnd = (it0 == 1);
+    hi_bnd = (it0 + 1 == nse_table_size::ntemp);
 
+    for (int ii = 0; ii < 4; ++ii) {
         const amrex::Real _d[] = {d1[ii][0], d1[ii][1], d1[ii][2], d1[ii][3]};
-        d2[ii] = cubic(Ts, _d, nse_table_size::dlogT, temp);
+        d2[ii] = cubic(Ts, _d, nse_table_size::dlogT, temp, lo_bnd, hi_bnd);
     }
 
     // finally do the remaining interpolation over rho
 
-    amrex::Real val = cubic(rhos, d2, nse_table_size::dlogrho, rho);
+    lo_bnd = (ir0 == 1);
+    hi_bnd = (ir0 + 1 == nse_table_size::nden);
+
+    amrex::Real val = cubic(rhos, d2, nse_table_size::dlogrho, rho, lo_bnd, hi_bnd);
 
     return val;
 
@@ -278,37 +426,48 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 amrex::Real tricubic_dT(const int ir0, const int it0, const int ic0,
                  const amrex::Real rho, const amrex::Real temp, const amrex::Real ye, const T& data) {
 
-    const amrex::Real yes[] = {nse_table_ye(ic0),
+    // as we come in, we expect temp to be in it0:it0+1, and we also
+    // are assured that it0 and it0+1 don't go out of bounds.  Likewise
+    // for rho and ye.  Our 1D cubic interpolation routine will handle
+    // the boundary conditions for us.
+
+    const amrex::Real yes[] = {nse_table_ye(std::max(1, ic0-1)),
+                               nse_table_ye(ic0),
                                nse_table_ye(ic0+1),
-                               nse_table_ye(ic0+2),
-                               nse_table_ye(ic0+3)};
+                               nse_table_ye(std::min(nse_table_size::nye, ic0+2))};
 
-    const amrex::Real Ts[] = {nse_table_logT(it0),
+    const amrex::Real Ts[] = {nse_table_logT(std::max(1, it0-1)),
+                              nse_table_logT(it0),
                               nse_table_logT(it0+1),
-                              nse_table_logT(it0+2),
-                              nse_table_logT(it0+3)};
+                              nse_table_logT(std::min(nse_table_size::ntemp, it0+2))};
 
-    const amrex::Real rhos[] = {nse_table_logrho(ir0),
+    const amrex::Real rhos[] = {nse_table_logrho(std::max(1, ir0-1)),
+                                nse_table_logrho(ir0),
                                 nse_table_logrho(ir0+1),
-                                nse_table_logrho(ir0+2),
-                                nse_table_logrho(ir0+3)};
+                                nse_table_logrho(std::min(nse_table_size::nden, ir0+2))};
 
     // first do the 16 ye interpolations
 
     // the first index will be rho and the second will be T
     amrex::Real d1[4][4];
 
-    for (int ii = 0; ii < 4; ++ii) {
-        for (int jj = 0; jj < 4; ++jj) {
+    bool lo_bnd = (ic0 == 1);
+    bool hi_bnd = (ic0 + 1 == nse_table_size::nye);
 
-            const amrex::Real _d[] = {data(nse_idx(ir0+ii, it0+jj, ic0)),
-                                      data(nse_idx(ir0+ii, it0+jj, ic0+1)),
-                                      data(nse_idx(ir0+ii, it0+jj, ic0+2)),
-                                      data(nse_idx(ir0+ii, it0+jj, ic0+3))};
+    for (int ii = 0; ii < 4; ++ii) {
+        int idx_r = std::max(1, std::min(ir0 - 1 + ii, nse_table_size::nden));
+
+        for (int jj = 0; jj < 4; ++jj) {
+            int idx_t = std::max(1, std::min(it0 - 1 + jj, nse_table_size::ntemp));
+
+            const amrex::Real _d[] = {data(nse_idx(idx_r, idx_t, std::max(1, ic0-1))),
+                                      data(nse_idx(idx_r, idx_t, ic0)),
+                                      data(nse_idx(idx_r, idx_t, ic0+1)),
+                                      data(nse_idx(idx_r, idx_t, std::min(ic0+2, nse_table_size::nye)))};
 
             // note that the ye values are monotonically decreasing,
             // so the "dx" needs to be negative
-            d1[ii][jj] = cubic(yes, _d, -nse_table_size::dye, ye);
+            d1[ii][jj] = cubic(yes, _d, -nse_table_size::dye, ye, lo_bnd, hi_bnd);
         }
     }
 
@@ -316,16 +475,21 @@ amrex::Real tricubic_dT(const int ir0, const int it0, const int ic0,
 
     amrex::Real d2[4];
 
-    for (int jj = 0; jj < 4; ++jj) {
+    lo_bnd = (ir0 == 1);
+    hi_bnd = (ir0 + 1 == nse_table_size::nden);
 
+    for (int jj = 0; jj < 4; ++jj) {
         const amrex::Real _d[] = {d1[0][jj], d1[1][jj], d1[2][jj], d1[3][jj]};
-        d2[jj] = cubic(rhos, _d, nse_table_size::dlogrho, rho);
+        d2[jj] = cubic(rhos, _d, nse_table_size::dlogrho, rho, lo_bnd, hi_bnd);
     }
 
     // finally do the remaining interpolation over T, but return
     // the derivative of the interpolant
 
-    amrex::Real val = cubic_deriv(Ts, d2, nse_table_size::dlogT, temp);
+    lo_bnd = (it0 == 1);
+    hi_bnd = (it0 + 1 == nse_table_size::ntemp);
+
+    amrex::Real val = cubic_deriv(Ts, d2, nse_table_size::dlogT, temp, lo_bnd, hi_bnd);
 
     return val;
 
@@ -341,37 +505,48 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 amrex::Real tricubic_drho(const int ir0, const int it0, const int ic0,
                    const amrex::Real rho, const amrex::Real temp, const amrex::Real ye, const T& data) {
 
-    const amrex::Real yes[] = {nse_table_ye(ic0),
+    // as we come in, we expect temp to be in it0:it0+1, and we also
+    // are assured that it0 and it0+1 don't go out of bounds.  Likewise
+    // for rho and ye.  Our 1D cubic interpolation routine will handle
+    // the boundary conditions for us.
+
+    const amrex::Real yes[] = {nse_table_ye(std::max(1, ic0-1)),
+                               nse_table_ye(ic0),
                                nse_table_ye(ic0+1),
-                               nse_table_ye(ic0+2),
-                               nse_table_ye(ic0+3)};
+                               nse_table_ye(std::min(nse_table_size::nye, ic0+2))};
 
-    const amrex::Real Ts[] = {nse_table_logT(it0),
+    const amrex::Real Ts[] = {nse_table_logT(std::max(1, it0-1)),
+                              nse_table_logT(it0),
                               nse_table_logT(it0+1),
-                              nse_table_logT(it0+2),
-                              nse_table_logT(it0+3)};
+                              nse_table_logT(std::min(nse_table_size::ntemp, it0+2))};
 
-    const amrex::Real rhos[] = {nse_table_logrho(ir0),
+    const amrex::Real rhos[] = {nse_table_logrho(std::max(1, ir0-1)),
+                                nse_table_logrho(ir0),
                                 nse_table_logrho(ir0+1),
-                                nse_table_logrho(ir0+2),
-                                nse_table_logrho(ir0+3)};
+                                nse_table_logrho(std::min(nse_table_size::nden, ir0+2))};
 
     // first do the 16 ye interpolations
 
     // the first index will be rho and the second will be T
     amrex::Real d1[4][4];
 
-    for (int ii = 0; ii < 4; ++ii) {
-        for (int jj = 0; jj < 4; ++jj) {
+    bool lo_bnd = (ic0 == 1);
+    bool hi_bnd = (ic0 + 1 == nse_table_size::nye);
 
-            const amrex::Real _d[] = {data(nse_idx(ir0+ii, it0+jj, ic0)),
-                                      data(nse_idx(ir0+ii, it0+jj, ic0+1)),
-                                      data(nse_idx(ir0+ii, it0+jj, ic0+2)),
-                                      data(nse_idx(ir0+ii, it0+jj, ic0+3))};
+    for (int ii = 0; ii < 4; ++ii) {
+        int idx_r = std::max(1, std::min(ir0 - 1 + ii, nse_table_size::nden));
+
+        for (int jj = 0; jj < 4; ++jj) {
+            int idx_t = std::max(1, std::min(it0 - 1 + jj, nse_table_size::ntemp));
+
+            const amrex::Real _d[] = {data(nse_idx(idx_r, idx_t, std::max(1, ic0-1))),
+                                      data(nse_idx(idx_r, idx_t, ic0)),
+                                      data(nse_idx(idx_r, idx_t, ic0+1)),
+                                      data(nse_idx(idx_r, idx_t, std::min(ic0+2, nse_table_size::nye)))};
 
             // note that the ye values are monotonically decreasing,
             // so the "dx" needs to be negative
-            d1[ii][jj] = cubic(yes, _d, -nse_table_size::dye, ye);
+            d1[ii][jj] = cubic(yes, _d, -nse_table_size::dye, ye, lo_bnd, hi_bnd);
         }
     }
 
@@ -379,16 +554,23 @@ amrex::Real tricubic_drho(const int ir0, const int it0, const int ic0,
 
     amrex::Real d2[4];
 
+    lo_bnd = (it0 == 1);
+    hi_bnd = (it0 + 1 == nse_table_size::ntemp);
+
     for (int ii = 0; ii < 4; ++ii) {
 
         const amrex::Real _d[] = {d1[ii][0], d1[ii][1], d1[ii][2], d1[ii][3]};
-        d2[ii] = cubic(Ts, _d, nse_table_size::dlogT, temp);
+        d2[ii] = cubic(Ts, _d, nse_table_size::dlogT, temp, lo_bnd, hi_bnd);
     }
 
     // finally do the remaining interpolation over rho, but return
     // the derivative of the interpolant
 
-    amrex::Real val = cubic_deriv(rhos, d2, nse_table_size::dlogrho, rho);
+
+    lo_bnd = (ir0 == 1);
+    hi_bnd = (ir0 + 1 == nse_table_size::nden);
+
+    amrex::Real val = cubic_deriv(rhos, d2, nse_table_size::dlogrho, rho, lo_bnd, hi_bnd);
 
     return val;
 
@@ -452,18 +634,15 @@ void nse_interp(nse_table_t& nse_state, bool skip_X_fill=false) {
     } else {
 
         // for a cubic interpolant, we need 4 points that span the data value
-        // for temperature, these will be it0, it0+1, it0+2, it0+3
-        // with the idea that the temperature we want is between it0+1 and it0+2
-        // so we offset one to the left and also ensure that we don't go off the table
+        // for temperature, these will be it0-1, it0, it0+1, it0+2
+        // with the idea that the temperature we want is between it0 and it0+1
 
-        int ir0 = nse_get_logrho_index(rholog) - 1;
-        ir0 = amrex::Clamp(ir0, 1, nse_table_size::nden-3);
+        // we will handle the case where it0 or it0+1 is at the bounds of
+        // the table in the caller.
 
-        int it0 = nse_get_logT_index(tlog) - 1;
-        it0 = amrex::Clamp(it0, 1, nse_table_size::ntemp-3);
-
-        int ic0 = nse_get_ye_index(yet) - 1;
-        ic0 = amrex::Clamp(ic0, 1, nse_table_size::nye-3);
+        int ir0 = nse_get_logrho_index(rholog);
+        int it0 = nse_get_logT_index(tlog);
+        int ic0 = nse_get_ye_index(yet);
 
         nse_state.abar = tricubic(ir0, it0, ic0, rholog, tlog, yet, abartab);
         nse_state.bea = tricubic(ir0, it0, ic0, rholog, tlog, yet, beatab);
@@ -519,14 +698,9 @@ nse_interp_dT(const amrex::Real temp, const amrex::Real rho, const amrex::Real y
         yet = amrex::Clamp(yet, yemin, yemax);
     }
 
-    int ir0 = nse_get_logrho_index(rholog) - 1;
-    ir0 = amrex::Clamp(ir0, 1, nse_table_size::nden-3);
-
-    int it0 = nse_get_logT_index(tlog) - 1;
-    it0 = amrex::Clamp(it0, 1, nse_table_size::ntemp-3);
-
-    int ic0 = nse_get_ye_index(yet) - 1;
-    ic0 = amrex::Clamp(ic0, 1, nse_table_size::nye-3);
+    int ir0 = nse_get_logrho_index(rholog);
+    int it0 = nse_get_logT_index(tlog);
+    int ic0 = nse_get_ye_index(yet);
 
     // note: this is returning the derivative wrt log10(T), so we need to
     // convert to d/dT
@@ -572,14 +746,9 @@ nse_interp_drho(const amrex::Real temp, const amrex::Real rho, const amrex::Real
         yet = amrex::Clamp(yet, yemin, yemax);
     }
 
-    int ir0 = nse_get_logrho_index(rholog) - 1;
-    ir0 = amrex::Clamp(ir0, 1, nse_table_size::nden-3);
-
-    int it0 = nse_get_logT_index(tlog) - 1;
-    it0 = amrex::Clamp(it0, 1, nse_table_size::ntemp-3);
-
-    int ic0 = nse_get_ye_index(yet) - 1;
-    ic0 = amrex::Clamp(ic0, 1, nse_table_size::nye-3);
+    int ir0 = nse_get_logrho_index(rholog);
+    int it0 = nse_get_logT_index(tlog);
+    int ic0 = nse_get_ye_index(yet);
 
     // note: this is returning the derivative wrt log10(rho), so we need to
     // convert to d/drho
