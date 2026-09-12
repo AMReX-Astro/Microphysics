@@ -15,10 +15,12 @@ AMREX_INLINE
 void nse_cell_c()
 {
 
+    std::cout << std::endl;
+
     std::cout << "rho, T, Ye = "
               << unit_test_rp::density << " "
               << unit_test_rp::temperature << " "
-              << unit_test_rp::ye << std::endl;
+              << unit_test_rp::ye << std::endl << std::endl;
 
     // check the indices
 
@@ -45,6 +47,8 @@ void nse_cell_c()
 
     // now try 1-d interpolation in T -- for cubic interpolation, we
     // need to offset the indices one to the left
+
+    std::cout << "testing 1-d cubic interpolation at input state" << std::endl;
 
     ir0--;
     ir0 = amrex::max(1, amrex::min(nse_table_size::nden-3, ir0));
@@ -125,7 +129,9 @@ void nse_cell_c()
 
     }
 
-    std::cout << "tricubic interpolated values: " << std::endl;
+    std::cout << std::endl;
+
+    std::cout << "tricubic interpolated values at input state: " << std::endl;
 
     nse_table_t nse_state;
     nse_state.T = unit_test_rp::temperature;
@@ -146,6 +152,7 @@ void nse_cell_c()
 
     // temp derivatives
 
+    std::cout << std::endl;
     std::cout << std::endl;
     std::cout << "testing temperature derivatives of cubic" << std::endl;
 
@@ -184,7 +191,6 @@ void nse_cell_c()
 
     // dens derivatives
 
-    std::cout << std::endl;
     std::cout << "testing density derivatives of cubic" << std::endl;
 
     std::cout << "first finite-difference derivatives" << std::endl;
@@ -215,6 +221,7 @@ void nse_cell_c()
     std::cout << "dAbar/drho = " << dabardrho << std::endl;
     std::cout << "dbea/drho = " << dbeadrho << std::endl;
 
+    std::cout << std::endl;
     std::cout << std::endl;
 
     //
@@ -278,7 +285,7 @@ void nse_cell_c()
         eos_state.aux[iabar] = nse_state.abar;
         eos(eos_input_rt, eos_state);
 
-        std::cout << "EOS T from e consistency check (old method): " << eos_state.e << " " << e_new << std::endl;
+        std::cout << "EOS T from e consistency check (old method); change in e: " << eos_state.e << " " << e_new << std::endl;
 
         // attempt 2:
         // now we try the new interface.  This effectively does:
@@ -302,7 +309,7 @@ void nse_cell_c()
 
         eos(eos_input_rt, eos_state);
 
-        std::cout << "EOS T from e consistency check (new method): " << eos_state.e << " " << e_new << std::endl;
+        std::cout << "EOS T from e consistency check (new method); change in e: " << eos_state.e << " " << e_new << std::endl;
         std::cout << std::endl;
     }
 
@@ -344,7 +351,7 @@ void nse_cell_c()
         eos_state.aux[iabar] = nse_state.abar;
         eos(eos_input_rt, eos_state);
 
-        std::cout << "EOS T from p consistency check (old method): " << eos_state.p << " " << p_new << std::endl;
+        std::cout << "EOS T from p consistency check (old method); change in p: " << eos_state.p << " " << p_new << std::endl;
 
         // attempt 2:
         // now we try the new interface.  This effectively does:
@@ -368,7 +375,7 @@ void nse_cell_c()
 
         eos(eos_input_rt, eos_state);
 
-        std::cout << "EOS T from p consistency check (new method): " << eos_state.p << " " << p_new << std::endl;
+        std::cout << "EOS T from p consistency check (new method); change in p: " << eos_state.p << " " << p_new << std::endl;
         std::cout << std::endl;
     }
 
@@ -412,7 +419,7 @@ void nse_cell_c()
         eos_state.aux[iabar] = nse_state.abar;
         eos(eos_input_rt, eos_state);
 
-        std::cout << "EOS rho from p consistency check (old method): " << eos_state.p << " " << p_new << std::endl;
+        std::cout << "EOS rho from p consistency check (old method); change in p: " << eos_state.p << " " << p_new << std::endl;
 
         // attempt 2:
         // now we try the new interface.  This effectively does:
@@ -436,7 +443,7 @@ void nse_cell_c()
 
         eos(eos_input_rt, eos_state);
 
-        std::cout << "EOS rho from p consistency check (new method): " << eos_state.p << " " << p_new << std::endl;
+        std::cout << "EOS rho from p consistency check (new method); change in p: " << eos_state.p << " " << p_new << std::endl;
         std::cout << std::endl;
     }
 
