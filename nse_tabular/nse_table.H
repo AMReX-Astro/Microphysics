@@ -175,26 +175,74 @@ int nse_get_ye_index(const amrex::Real ye) {
     return ic0 + 1;
 }
 
+
+// Slope Limiter to preserve monotonicity
+// See C. Moler, Numerical Computing with Matlab, 2004.
+// :doi:`10.1137/1.9780898717952`, Chapter 3.4
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+amrex::Real
+limit_slope(const amrex::Real dm, const amrex::Real dp) {
+
+    // note: we assume that dx is constant in our interval
+
+    if (dm * dp <= 0.0_rt) {
+        return 0.0_rt;
+    }
+
+    return 2.0_rt / (1.0_rt / dm + 1.0_rt / dp);
+}
+
+
 ///
 /// given 4 points (xs, fs), with spacing dx, return the interplated
-/// value of f at point x by fitting a cubic to the points
+/// value of f at point x by fitting a monotone cubic Hermite
+/// polynomial to the points:
+///
+/// H(x) = f0 H_{1,0}(x) + f1 H_{1,1}(x) + f'0 Ĥ_{1,0}(x) + f'1 Ĥ_{1,0}(x)
+///
+/// The slope f' is limited to preserve monotonicity.
 ///
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-amrex::Real cubic(const amrex::Real* xs, const amrex::Real* fs, const amrex::Real dx, const amrex::Real x) {
+amrex::Real cubic(const amrex::Real* xs, const amrex::Real* fs,
+                  const amrex::Real dx, const amrex::Real x) {
 
-    // fit a cubic of the form
-    // f(x) = a (x - x_i)**3 + b (x - x_i)**2 + c (x - x_i) + d
-    // to the data (xs, fs)
-    // we take x_i to be x[1]
+    // given the 4 points xs, the point x is in [xs[1], xs[2]]
+    // we'll use i0 = 1 as the reference for the interpolation
 
-    amrex::Real a = (3 * fs[1] - 3 * fs[2] + fs[3] - fs[0]) / (6 * amrex::Math::powi<3>(dx));
-    amrex::Real b = (-2 * fs[1] + fs[2] + fs[0]) / (2 * dx * dx);
-    amrex::Real c = (-3 * fs[1] + 6 * fs[2] - fs[3] - 2 * fs[0]) / (6 * dx);
-    amrex::Real d = fs[1];
+    // we have already guaranteed that all of the xs are in the
+    // domain, so we don't need to worry about boundaries.
 
-    return a * amrex::Math::powi<3>(x - xs[1]) +
-           b * amrex::Math::powi<2>(x - xs[1]) + c * (x - xs[1]) + d;
+    // Compute the slope at i0 and i0 + 1
+    const auto i0 = 1;
 
+    const auto dx_inv = 1.0_rt / dx;
+
+    amrex::Real m0, m1;
+    m1 = m0 = (fs[i0+1] - fs[i0]) * dx_inv;
+
+    // Compute the slope from the other side and limit the slope to
+    // preserve monotonicity
+    amrex::Real d_im1 = (fs[i0] - fs[i0-1]) * dx_inv;
+    m0 = limit_slope(d_im1, m0);
+
+    amrex::Real d_ip1 = (fs[i0+2] - fs[i0+1]) * dx_inv;
+    m1 = limit_slope(m1, d_ip1);
+
+    // Compute cubic Hermite polynomial basis
+    const amrex::Real t = (x - xs[i0]) * dx_inv;
+    const amrex::Real t2 = t * t;
+    const amrex::Real t3 = t2 * t;
+
+    const amrex::Real H1 = -2.0_rt * t3 + 3.0_rt * t2;
+    const amrex::Real H0 = -H1 + 1.0_rt;
+    const amrex::Real Hhat1 = dx * (t3 - t2);
+    const amrex::Real Hhat0 = dx * (t3 - 2.0_rt * t2 + t);
+
+    // Construct the interpolant
+    // H_3(x) = f0 H_{1,0}(x) + f1 H_{1,1}(x) + f'0 Ĥ_{1,0}(x) + f'1 Ĥ_{1,0}(x)
+
+    const amrex::Real fv = fs[i0] * H0 + fs[i0+1] * H1 + m0 * Hhat0 + m1 * Hhat1;
+    return fv;
 }
 
 ///
@@ -205,18 +253,41 @@ amrex::Real cubic(const amrex::Real* xs, const amrex::Real* fs, const amrex::Rea
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 amrex::Real cubic_deriv(const amrex::Real* xs, const amrex::Real* fs, const amrex::Real dx, const amrex::Real x) {
 
-    // fit a cubic of the form
-    // f(x) = a (x - x_i)**3 + b (x - x_i)**2 + c (x - x_i) + d
-    // to the data (xs, fs)
-    // we take x_i to be x[1]
-    // then return dfdx = 3 a (x - x_i)**2 + 2 b (x - x_i) + c
+    // given the 4 points xs, the point x is in [xs[1], xs[2]]
+    // we'll use i0 = 1 as the reference for the interpolation
 
-    amrex::Real a = (3 * fs[1] - 3 * fs[2] + fs[3] - fs[0]) / (6 * amrex::Math::powi<3>(dx));
-    amrex::Real b = (-2 * fs[1] + fs[2] + fs[0]) / (2 * dx * dx);
-    amrex::Real c = (-3 * fs[1] + 6 * fs[2] - fs[3] - 2 * fs[0]) / (6 * dx);
-    //amrex::Real d = fs[1];
+    // we have already guaranteed that all of the xs are in the
+    // domain, so we don't need to worry about boundaries.
 
-    return 3.0_rt * a * amrex::Math::powi<2>(x - xs[1]) + 2.0_rt * b * (x - xs[1]) + c;
+    // Compute the slope at i0 and i0 + 1
+    const auto i0 = 1;
+
+    const auto dx_inv = 1.0_rt / dx;
+
+    amrex::Real m0, m1;
+    m1 = m0 = (fs[i0+1] - fs[i0]) * dx_inv;
+
+    // Compute the slope from the other side and limit the slope to
+    // preserve monotonicity
+    amrex::Real d_im1 = (fs[i0] - fs[i0-1]) * dx_inv;
+    m0 = limit_slope(d_im1, m0);
+
+    amrex::Real d_ip1 = (fs[i0+2] - fs[i0+1]) * dx_inv;
+    m1 = limit_slope(m1, d_ip1);
+
+    // Compute cubic Hermite polynomial basis
+    const amrex::Real t = (x - xs[i0]) * dx_inv;
+    const amrex::Real t2 = t * t;
+
+    const amrex::Real dH1dx = -6.0_rt * (t2 - t) * dx_inv;
+    const amrex::Real dH0dx = -dH1dx;
+    const amrex::Real dHhat1dx = 3.0_rt * t2 - 2.0_rt * t;
+    const amrex::Real dHhat0dx = 3.0_rt * t2 - 4.0_rt * t + 1.0_rt;
+
+    const amrex::Real dfdx = fs[i0] * dH0dx + fs[i0+1] * dH1dx +
+                             m0 * dHhat0dx + m1 * dHhat1dx;
+
+    return dfdx;
 
 }
 
