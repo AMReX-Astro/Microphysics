@@ -6,6 +6,7 @@
 #include <cmath>
 #include <limits>
 #include <sstream>
+#include <utility>
 
 #include <AMReX.H>
 #include <AMReX_Print.H>
@@ -203,9 +204,10 @@ limit_slope(const amrex::Real dm, const amrex::Real dp) {
 /// The slope f' is limited to preserve monotonicity.
 ///
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-amrex::Real cubic(const amrex::Real* xs, const amrex::Real* fs,
-                  const amrex::Real dx, const amrex::Real x,
-                  const bool lo_bnd, const bool hi_bnd) {
+std::pair<amrex::Real, amrex::Real>
+cubic(const amrex::Real* xs, const amrex::Real* fs,
+      const amrex::Real dx, const amrex::Real x,
+      const bool lo_bnd, const bool hi_bnd) {
 
     // given the 4 points xs, the point x is in [xs[1], xs[2]]
     // we'll use i0 = 1 as the reference for the interpolation
@@ -247,49 +249,8 @@ amrex::Real cubic(const amrex::Real* xs, const amrex::Real* fs,
     // H_3(x) = f0 H_{1,0}(x) + f1 H_{1,1}(x) + f'0 Ĥ_{1,0}(x) + f'1 Ĥ_{1,0}(x)
 
     const amrex::Real fv = fs[i0] * H0 + fs[i0+1] * H1 + m0 * Hhat0 + m1 * Hhat1;
-    return fv;
-}
 
-///
-/// given 4 points (xs, fs), with spacing dx between the xs, return
-/// the derivative of f at point x by fitting a cubic to the
-/// points and differentiating the interpolant
-///
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-amrex::Real cubic_deriv(const amrex::Real* xs, const amrex::Real* fs,
-                        const amrex::Real dx, const amrex::Real x,
-                        const bool lo_bnd, const bool hi_bnd) {
-
-    // given the 4 points xs, the point x is in [xs[1], xs[2]]
-    // we'll use i0 = 1 as the reference for the interpolation
-
-    // we have already guaranteed that all of the xs are in the
-    // domain, so we don't need to worry about boundaries.
-
-    // Compute the slope at i0 and i0 + 1
-    const auto i0 = 1;
-
-    const auto dx_inv = 1.0_rt / dx;
-
-    amrex::Real m0, m1;
-    m1 = m0 = (fs[i0+1] - fs[i0]) * dx_inv;
-
-    // Compute the slope from the other side and limit the slope to
-    // preserve monotonicity
-    if (! lo_bnd) {
-        amrex::Real d_im1 = (fs[i0] - fs[i0-1]) * dx_inv;
-        m0 = limit_slope(d_im1, m0);
-    }
-
-    if (! hi_bnd) {
-        amrex::Real d_ip1 = (fs[i0+2] - fs[i0+1]) * dx_inv;
-        m1 = limit_slope(m1, d_ip1);
-    }
-
-    // Compute cubic Hermite polynomial basis
-    const amrex::Real t = (x - xs[i0]) * dx_inv;
-    const amrex::Real t2 = t * t;
-
+    // now the derivative
     const amrex::Real dH1dx = -6.0_rt * (t2 - t) * dx_inv;
     const amrex::Real dH0dx = -dH1dx;
     const amrex::Real dHhat1dx = 3.0_rt * t2 - 2.0_rt * t;
@@ -298,7 +259,7 @@ amrex::Real cubic_deriv(const amrex::Real* xs, const amrex::Real* fs,
     const amrex::Real dfdx = fs[i0] * dH0dx + fs[i0+1] * dH1dx +
                              m0 * dHhat0dx + m1 * dHhat1dx;
 
-    return dfdx;
+    return {fv, dfdx};
 
 }
 
@@ -390,7 +351,8 @@ amrex::Real tricubic(const int ir0, const int it0, const int ic0,
 
             // note that the ye values are monotonically decreasing,
             // so the "dx" needs to be negative
-            d1[ii][jj] = cubic(yes, _d, -nse_table_size::dye, ye, lo_bnd, hi_bnd);
+            const auto [fv, dfdx] = cubic(yes, _d, -nse_table_size::dye, ye, lo_bnd, hi_bnd);
+            d1[ii][jj] = fv;
         }
     }
 
@@ -403,7 +365,8 @@ amrex::Real tricubic(const int ir0, const int it0, const int ic0,
 
     for (int ii = 0; ii < 4; ++ii) {
         const amrex::Real _d[] = {d1[ii][0], d1[ii][1], d1[ii][2], d1[ii][3]};
-        d2[ii] = cubic(Ts, _d, nse_table_size::dlogT, temp, lo_bnd, hi_bnd);
+        const auto [fv, dfdx] = cubic(Ts, _d, nse_table_size::dlogT, temp, lo_bnd, hi_bnd);
+        d2[ii] = fv;
     }
 
     // finally do the remaining interpolation over rho
@@ -411,9 +374,9 @@ amrex::Real tricubic(const int ir0, const int it0, const int ic0,
     lo_bnd = (ir0 == 1);
     hi_bnd = (ir0 + 1 == nse_table_size::nden);
 
-    amrex::Real val = cubic(rhos, d2, nse_table_size::dlogrho, rho, lo_bnd, hi_bnd);
+    const auto [fv, dfdx] = cubic(rhos, d2, nse_table_size::dlogrho, rho, lo_bnd, hi_bnd);
 
-    return val;
+    return fv;
 
 }
 
@@ -467,7 +430,8 @@ amrex::Real tricubic_dT(const int ir0, const int it0, const int ic0,
 
             // note that the ye values are monotonically decreasing,
             // so the "dx" needs to be negative
-            d1[ii][jj] = cubic(yes, _d, -nse_table_size::dye, ye, lo_bnd, hi_bnd);
+            const auto [fv, dfdx] = cubic(yes, _d, -nse_table_size::dye, ye, lo_bnd, hi_bnd);
+            d1[ii][jj] = fv;
         }
     }
 
@@ -480,7 +444,8 @@ amrex::Real tricubic_dT(const int ir0, const int it0, const int ic0,
 
     for (int jj = 0; jj < 4; ++jj) {
         const amrex::Real _d[] = {d1[0][jj], d1[1][jj], d1[2][jj], d1[3][jj]};
-        d2[jj] = cubic(rhos, _d, nse_table_size::dlogrho, rho, lo_bnd, hi_bnd);
+        const auto [fv, dfdx] = cubic(rhos, _d, nse_table_size::dlogrho, rho, lo_bnd, hi_bnd);
+        d2[jj] = fv;
     }
 
     // finally do the remaining interpolation over T, but return
@@ -489,9 +454,9 @@ amrex::Real tricubic_dT(const int ir0, const int it0, const int ic0,
     lo_bnd = (it0 == 1);
     hi_bnd = (it0 + 1 == nse_table_size::ntemp);
 
-    amrex::Real val = cubic_deriv(Ts, d2, nse_table_size::dlogT, temp, lo_bnd, hi_bnd);
+    const auto [fv, dfdx] = cubic(Ts, d2, nse_table_size::dlogT, temp, lo_bnd, hi_bnd);
 
-    return val;
+    return dfdx;
 
 }
 
@@ -546,7 +511,9 @@ amrex::Real tricubic_drho(const int ir0, const int it0, const int ic0,
 
             // note that the ye values are monotonically decreasing,
             // so the "dx" needs to be negative
-            d1[ii][jj] = cubic(yes, _d, -nse_table_size::dye, ye, lo_bnd, hi_bnd);
+            const auto [fv, dfdx] = cubic(yes, _d, -nse_table_size::dye, ye, lo_bnd, hi_bnd);
+            d1[ii][jj] = fv;
+
         }
     }
 
@@ -560,7 +527,8 @@ amrex::Real tricubic_drho(const int ir0, const int it0, const int ic0,
     for (int ii = 0; ii < 4; ++ii) {
 
         const amrex::Real _d[] = {d1[ii][0], d1[ii][1], d1[ii][2], d1[ii][3]};
-        d2[ii] = cubic(Ts, _d, nse_table_size::dlogT, temp, lo_bnd, hi_bnd);
+        const auto [fv, dfdx] = cubic(Ts, _d, nse_table_size::dlogT, temp, lo_bnd, hi_bnd);
+        d2[ii] = fv;
     }
 
     // finally do the remaining interpolation over rho, but return
@@ -570,9 +538,9 @@ amrex::Real tricubic_drho(const int ir0, const int it0, const int ic0,
     lo_bnd = (ir0 == 1);
     hi_bnd = (ir0 + 1 == nse_table_size::nden);
 
-    amrex::Real val = cubic_deriv(rhos, d2, nse_table_size::dlogrho, rho, lo_bnd, hi_bnd);
+    const auto [fv, dfdx] = cubic(rhos, d2, nse_table_size::dlogrho, rho, lo_bnd, hi_bnd);
 
-    return val;
+    return dfdx;
 
 }
 

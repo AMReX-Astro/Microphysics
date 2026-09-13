@@ -75,8 +75,9 @@ void nse_cell_c()
         }
         std::cout << std::endl;
 
-        std::cout << "    cubic interpolated value: " <<
-            cubic(rhos, _d, nse_table_size::dlogrho, logrho, false, false) << std::endl << std::endl;
+        const auto [fv, dfdx] = cubic(rhos, _d, nse_table_size::dlogrho, logrho, false, false);
+
+        std::cout << "    cubic interpolated value: " << fv << std::endl << std::endl;
     }
 
     {
@@ -100,8 +101,8 @@ void nse_cell_c()
         }
         std::cout << std::endl;
 
-        std::cout << "    cubic interpolated value: " <<
-            cubic(Ts, _d, nse_table_size::dlogT, logT, false, false) << std::endl << std::endl;
+        const auto [fv, dfdx] = cubic(Ts, _d, nse_table_size::dlogT, logT, false, false);
+        std::cout << "    cubic interpolated value: " << fv << std::endl << std::endl;
 
     }
 
@@ -126,8 +127,9 @@ void nse_cell_c()
         }
         std::cout << std::endl;
 
-        std::cout << "    cubic interpolated value: " <<
-            cubic(yes, _d, -nse_table_size::dye, unit_test_rp::ye, false, false) << std::endl << std::endl;
+        const auto [fv, dfdx] = cubic(yes, _d, -nse_table_size::dye, unit_test_rp::ye, false, false);
+
+        std::cout << "    cubic interpolated value: " << fv << std::endl << std::endl;
 
     }
 
