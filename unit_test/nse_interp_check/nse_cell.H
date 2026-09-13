@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <format>
+#include <limits>
 
 #include <extern_parameters.H>
 #include <eos.H>
@@ -17,6 +18,83 @@
 AMREX_INLINE
 void nse_cell_c()
 {
+    // Test the derivative of the 1D interpolant when its sample values
+    // depend on another parameter q, while the interpolation coordinate x
+    // stays fixed. In the NSE temperature derivative, x is log10(rho) and
+    // q is log10(T). These synthetic data let us test the chain rule through
+    // the slope limiter independently of the NSE table.
+    {
+        // Each row supplies four neighboring samples. The first two rows
+        // are monotone with unequal secants, so they exercise the harmonic
+        // mean and its derivative. The last two contain extrema, where
+        // opposite-sign secants cause the limiter to select zero slopes.
+        const amrex::Real samples[][4] = {
+            {0.0_rt, 1.0_rt, 3.0_rt, 6.0_rt},
+            {6.0_rt, 3.0_rt, 1.0_rt, 0.0_rt},
+            {0.0_rt, 2.0_rt, 1.0_rt, 3.0_rt},
+            {3.0_rt, 1.0_rt, 2.0_rt, 0.0_rt}};
+        // Define f_i(q) = samples_i + q * dfs_dq_i, with q = 0 as the
+        // reference state. Different derivatives at each sample make the
+        // secants, and therefore the limited slopes, depend on q.
+        const amrex::Real dfs_dq[] = {0.7_rt, -0.4_rt, 0.3_rt, 1.1_rt};
+
+        // A centered difference has O(h^2) truncation error and O(eps/h)
+        // roundoff error. h = eps^(1/3) balances the two for these O(1) data.
+        const amrex::Real h = std::cbrt(std::numeric_limits<amrex::Real>::epsilon());
+
+        for (const auto& fs : samples) {
+            // Exercise increasing coordinates and decreasing coordinates
+            // (the latter are used for Ye in the NSE table).
+            for (const auto dx : {1.0_rt, -1.0_rt}) {
+                const amrex::Real xs[] = {0.0_rt, dx, 2.0_rt * dx, 3.0_rt * dx};
+                // Each flag replaces the corresponding endpoint's limited
+                // slope with the interval secant. Test neither, either, or
+                // both endpoints using that fallback. An outer sample is
+                // ignored when its endpoint flag is set.
+                for (const bool lo_bnd : {false, true}) {
+                    for (const bool hi_bnd : {false, true}) {
+                        // Evaluate at both ends of the middle interval and
+                        // at an interior point, where slope terms contribute
+                        // to the interpolated value as well as its derivative.
+                        for (const auto t : {0.0_rt, 0.4_rt, 1.0_rt}) {
+                            const amrex::Real x = xs[1] + t * dx;
+                            // Perturb q, not x. Recomputing the full cubic at
+                            // q = +/-h includes the change in its limiter.
+                            // These samples stay away from limiter branch
+                            // transitions, where a derivative may not exist.
+                            amrex::Real fp[4], fm[4];
+                            for (int i = 0; i < 4; ++i) {
+                                fp[i] = fs[i] + h * dfs_dq[i];
+                                fm[i] = fs[i] - h * dfs_dq[i];
+                            }
+                            const auto plus = cubic(xs, fp, dx, x, lo_bnd, hi_bnd);
+                            const auto minus = cubic(xs, fm, dx, x, lo_bnd, hi_bnd);
+                            // Propagate the known sample derivatives through
+                            // the unperturbed interpolant analytically.
+                            const auto deriv = cubic_split_limiter(xs, fs, dfs_dq,
+                                                                   dx, x, lo_bnd, hi_bnd);
+                            // cubic returns {f, df/dx}, so differencing its
+                            // two outputs in q gives df/dq and d(df/dx)/dq.
+                            // Both must agree with cubic_split_limiter.
+                            const amrex::Real fd = (plus.first - minus.first) / (2.0_rt * h);
+                            const amrex::Real fd_dx = (plus.second - minus.second) / (2.0_rt * h);
+                            // Allow a margin over the expected O(h^2) error,
+                            // with an absolute tolerance near zero and a
+                            // relative tolerance for larger derivatives.
+                            const auto agrees = [=] (amrex::Real a, amrex::Real b) {
+                                return std::abs(a - b) <= 100.0_rt * h * h *
+                                    std::max(1.0_rt, std::abs(b));
+                            };
+                            if (!agrees(deriv.first, fd) || !agrees(deriv.second, fd_dx)) {
+                                amrex::Abort("NSE limited-slope derivative regression failed");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        std::cout << "limited-slope derivative checks passed\n";
+    }
 
     std::cout << std::endl;
 

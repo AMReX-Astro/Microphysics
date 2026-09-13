@@ -265,14 +265,34 @@ cubic(const amrex::Real* xs, const amrex::Real* fs,
 
 
 ///
-/// an alternate version of the monotone cubic interpolation.
-/// Here we use fs to compute the limiter but dfs_dx is what
-/// we interpolate.
+/// Differentiate the slope limiter with respect to a parameter on which
+/// its input slopes depend. Select the branch using the original slopes.
+/// At a branch transition, use the zero-branch derivative.
+///
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+amrex::Real
+limit_slope_deriv(const amrex::Real dm, const amrex::Real dp,
+                  const amrex::Real ddm, const amrex::Real ddp) {
+
+    if (dm * dp <= 0.0_rt) {
+        return 0.0_rt;
+    }
+
+    const amrex::Real wm = dm / (dm + dp);
+    const amrex::Real wp = dp / (dm + dp);
+    return 2.0_rt * (wp * wp * ddm + wm * wm * ddp);
+}
+
+
+///
+/// Differentiate the cubic with respect to a parameter q at fixed x.
+/// dfs_dq contains the derivatives of fs (in our application q = log10(T)).
+/// Return dfdq and its spatial derivative, propagating through the limiter.
 ///
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 std::pair<amrex::Real, amrex::Real>
 cubic_split_limiter(const amrex::Real* xs,
-                    const amrex::Real* fs, const amrex::Real* dfs_dx,
+                    const amrex::Real* fs, const amrex::Real* dfs_dq,
                     const amrex::Real dx, const amrex::Real x,
                     const bool lo_bnd, const bool hi_bnd) {
 
@@ -287,19 +307,23 @@ cubic_split_limiter(const amrex::Real* xs,
 
     const auto dx_inv = 1.0_rt / dx;
 
-    amrex::Real m0, m1;
-    m1 = m0 = (fs[i0+1] - fs[i0]) * dx_inv;
+    const amrex::Real dc = (fs[i0+1] - fs[i0]) * dx_inv;
+    const amrex::Real ddc = (dfs_dq[i0+1] - dfs_dq[i0]) * dx_inv;
+    amrex::Real m0 = ddc;
+    amrex::Real m1 = ddc;
 
-    // Compute the slope from the other side and limit the slope to
-    // preserve monotonicity
+    // Differentiate the limited slopes. At a domain endpoint the slope
+    // is the interval secant, whose derivative is already stored above.
     if (! lo_bnd) {
-        amrex::Real d_im1 = (fs[i0] - fs[i0-1]) * dx_inv;
-        m0 = limit_slope(d_im1, m0);
+        const amrex::Real d_im1 = (fs[i0] - fs[i0-1]) * dx_inv;
+        const amrex::Real dd_im1 = (dfs_dq[i0] - dfs_dq[i0-1]) * dx_inv;
+        m0 = limit_slope_deriv(d_im1, dc, dd_im1, ddc);
     }
 
     if (! hi_bnd) {
-        amrex::Real d_ip1 = (fs[i0+2] - fs[i0+1]) * dx_inv;
-        m1 = limit_slope(m1, d_ip1);
+        const amrex::Real d_ip1 = (fs[i0+2] - fs[i0+1]) * dx_inv;
+        const amrex::Real dd_ip1 = (dfs_dq[i0+2] - dfs_dq[i0+1]) * dx_inv;
+        m1 = limit_slope_deriv(dc, d_ip1, ddc, dd_ip1);
     }
 
     // Compute cubic Hermite polynomial basis
@@ -315,7 +339,7 @@ cubic_split_limiter(const amrex::Real* xs,
     // Construct the interpolant
     // H_3(x) = f0 H_{1,0}(x) + f1 H_{1,1}(x) + f'0 Ĥ_{1,0}(x) + f'1 Ĥ_{1,0}(x)
 
-    const amrex::Real fv = dfs_dx[i0] * H0 + dfs_dx[i0+1] * H1 + m0 * Hhat0 + m1 * Hhat1;
+    const amrex::Real fv = dfs_dq[i0] * H0 + dfs_dq[i0+1] * H1 + m0 * Hhat0 + m1 * Hhat1;
 
     // now the derivative
     const amrex::Real dH1dx = -6.0_rt * (t2 - t) * dx_inv;
@@ -323,7 +347,7 @@ cubic_split_limiter(const amrex::Real* xs,
     const amrex::Real dHhat1dx = 3.0_rt * t2 - 2.0_rt * t;
     const amrex::Real dHhat0dx = 3.0_rt * t2 - 4.0_rt * t + 1.0_rt;
 
-    const amrex::Real dfdx = dfs_dx[i0] * dH0dx + dfs_dx[i0+1] * dH1dx +
+    const amrex::Real dfdx = dfs_dq[i0] * dH0dx + dfs_dq[i0+1] * dH1dx +
                              m0 * dHhat0dx + m1 * dHhat1dx;
 
     return {fv, dfdx};
@@ -465,8 +489,8 @@ amrex::Real tricubic_dT(const int ir0, const int it0, const int ic0,
     // the limiter), so we need to do the interpolations in the same
     // order (Ye -> T -> rho) since they don't commute.  For a variable f,
     // we want to store the interpolated results of f and df/dT, and then
-    // for the final rho interpolation, we want to use f to compute the
-    // limiter for the cubic but interpolate on the values df/dT.
+    // for the final rho interpolation, we differentiate the limited
+    // slopes using both f and df/dT.
 
     const amrex::Real yes[] = {nse_table_ye(std::max(1, ic0-1)),
                                nse_table_ye(ic0),
@@ -526,8 +550,8 @@ amrex::Real tricubic_dT(const int ir0, const int it0, const int ic0,
         d2_deriv[ii] = dfdx;
     }
 
-    // finally do the remaining interpolation over rho, but we want to limit on
-    // q but interpolate dq/dT.
+    // Finally propagate dq/dT through the rho interpolation, including
+    // the temperature dependence of its limited slopes.
 
     lo_bnd = (ir0 == 1);
     hi_bnd = (ir0 + 1 == nse_table_size::nden);
