@@ -264,6 +264,73 @@ cubic(const amrex::Real* xs, const amrex::Real* fs,
 }
 
 
+///
+/// an alternate version of the monotone cubic interpolation.
+/// Here we use fs to compute the limiter but dfs_dx is what
+/// we interpolate.
+///
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+std::pair<amrex::Real, amrex::Real>
+cubic_split_limiter(const amrex::Real* xs,
+                    const amrex::Real* fs, const amrex::Real* dfs_dx,
+                    const amrex::Real dx, const amrex::Real x,
+                    const bool lo_bnd, const bool hi_bnd) {
+
+    // given the 4 points xs, the point x is in [xs[1], xs[2]]
+    // we'll use i0 = 1 as the reference for the interpolation
+
+    // we have already guaranteed that all of the xs are in the
+    // domain, so we don't need to worry about boundaries.
+
+    // Compute the slope at i0 and i0 + 1
+    const auto i0 = 1;
+
+    const auto dx_inv = 1.0_rt / dx;
+
+    amrex::Real m0, m1;
+    m1 = m0 = (fs[i0+1] - fs[i0]) * dx_inv;
+
+    // Compute the slope from the other side and limit the slope to
+    // preserve monotonicity
+    if (! lo_bnd) {
+        amrex::Real d_im1 = (fs[i0] - fs[i0-1]) * dx_inv;
+        m0 = limit_slope(d_im1, m0);
+    }
+
+    if (! hi_bnd) {
+        amrex::Real d_ip1 = (fs[i0+2] - fs[i0+1]) * dx_inv;
+        m1 = limit_slope(m1, d_ip1);
+    }
+
+    // Compute cubic Hermite polynomial basis
+    const amrex::Real t = (x - xs[i0]) * dx_inv;
+    const amrex::Real t2 = t * t;
+    const amrex::Real t3 = t2 * t;
+
+    const amrex::Real H1 = -2.0_rt * t3 + 3.0_rt * t2;
+    const amrex::Real H0 = -H1 + 1.0_rt;
+    const amrex::Real Hhat1 = dx * (t3 - t2);
+    const amrex::Real Hhat0 = dx * (t3 - 2.0_rt * t2 + t);
+
+    // Construct the interpolant
+    // H_3(x) = f0 H_{1,0}(x) + f1 H_{1,1}(x) + f'0 Ĥ_{1,0}(x) + f'1 Ĥ_{1,0}(x)
+
+    const amrex::Real fv = dfs_dx[i0] * H0 + dfs_dx[i0+1] * H1 + m0 * Hhat0 + m1 * Hhat1;
+
+    // now the derivative
+    const amrex::Real dH1dx = -6.0_rt * (t2 - t) * dx_inv;
+    const amrex::Real dH0dx = -dH1dx;
+    const amrex::Real dHhat1dx = 3.0_rt * t2 - 2.0_rt * t;
+    const amrex::Real dHhat0dx = 3.0_rt * t2 - 4.0_rt * t + 1.0_rt;
+
+    const amrex::Real dfdx = dfs_dx[i0] * dH0dx + dfs_dx[i0+1] * dH1dx +
+                             m0 * dHhat0dx + m1 * dHhat1dx;
+
+    return {fv, dfdx};
+
+}
+
+
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 amrex::Real trilinear(const int ir1, const int it1, const int ic1,
@@ -394,6 +461,13 @@ amrex::Real tricubic_dT(const int ir0, const int it0, const int ic0,
     // for rho and ye.  Our 1D cubic interpolation routine will handle
     // the boundary conditions for us.
 
+    // note, our cubic is nonlinear in the function values (because of
+    // the limiter), so we need to do the interpolations in the same
+    // order (Ye -> T -> rho) since they don't commute.  For a variable f,
+    // we want to store the interpolated results of f and df/dT, and then
+    // for the final rho interpolation, we want to use f to compute the
+    // limiter for the cubic but interpolate on the values df/dT.
+
     const amrex::Real yes[] = {nse_table_ye(std::max(1, ic0-1)),
                                nse_table_ye(ic0),
                                nse_table_ye(ic0+1),
@@ -435,28 +509,34 @@ amrex::Real tricubic_dT(const int ir0, const int it0, const int ic0,
         }
     }
 
-    // now do the 4 rho interpolations (one in each T plane)
+    // now do the 4 T interpolations (one in each rho plane)
+
+    // we need to store both q and dq/dT interpolated in the T
+    // direction in all 4 rho planes.
 
     amrex::Real d2[4];
+    amrex::Real d2_deriv[4];
+    lo_bnd = (it0 == 1);
+    hi_bnd = (it0 + 1 == nse_table_size::ntemp);
+
+    for (int ii = 0; ii < 4; ++ii) {
+        const amrex::Real _d[] = {d1[ii][0], d1[ii][1], d1[ii][2], d1[ii][3]};
+        const auto [fv, dfdx] = cubic(Ts, _d, nse_table_size::dlogT, temp, lo_bnd, hi_bnd);
+        d2[ii] = fv;
+        d2_deriv[ii] = dfdx;
+    }
+
+    // finally do the remaining interpolation over rho, but we want to limit on
+    // q but interpolate dq/dT.
 
     lo_bnd = (ir0 == 1);
     hi_bnd = (ir0 + 1 == nse_table_size::nden);
 
-    for (int jj = 0; jj < 4; ++jj) {
-        const amrex::Real _d[] = {d1[0][jj], d1[1][jj], d1[2][jj], d1[3][jj]};
-        const auto [fv, dfdx] = cubic(rhos, _d, nse_table_size::dlogrho, rho, lo_bnd, hi_bnd);
-        d2[jj] = fv;
-    }
+    const auto [fv, dfdx] = cubic_split_limiter(rhos, d2, d2_deriv,
+                                                nse_table_size::dlogrho, rho, lo_bnd, hi_bnd);
 
-    // finally do the remaining interpolation over T, but return
-    // the derivative of the interpolant
-
-    lo_bnd = (it0 == 1);
-    hi_bnd = (it0 + 1 == nse_table_size::ntemp);
-
-    const auto [fv, dfdx] = cubic(Ts, d2, nse_table_size::dlogT, temp, lo_bnd, hi_bnd);
-
-    return dfdx;
+    // we return fv now -- it is the interpolation of dq/dT over rho.
+    return fv;
 
 }
 
