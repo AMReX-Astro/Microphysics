@@ -27,7 +27,8 @@ def get_library():
 
     for r, mp in other_rates:
         _r = reaclib_lib.get_rate_by_name(r)
-        forward_rate = pyna.ModifiedRate(_r, new_products=[mp])
+        forward_rate = pyna.ModifiedRate(_r, new_products=[mp],
+                                         description=f"{r}(n,γ){mp}")
         derived_rate = pyna.DerivedRate(forward_rate, use_pf=True)
         subch += pyna.Library(rates=[forward_rate, derived_rate])
 

@@ -32,16 +32,14 @@ def create_network():
     # cool state
     rho = 1.7e3
     T = 7.e7
-    comp = pyna.Composition(net.unique_nuclei)
-    comp.set_solar_like()
-    state1 = (rho, T, comp)
+    comp = pyna.Composition(net.unique_nuclei, init="solar")
+    state1 = pyna.ThermoState(rho=rho, T=T, comp=comp)
 
     # hotter state
     rho = 1.e3
     T = 1.e8
-    comp = pyna.Composition(net.unique_nuclei)
-    comp.set_equal()
-    state2 = (rho, T, comp)
+    comp = pyna.Composition(net.unique_nuclei, init="uniform")
+    state2 = pyna.ThermoState(rho=rho, T=T, comp=comp)
 
     cutoff_ratio = 1.e-50
 
