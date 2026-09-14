@@ -1,5 +1,5 @@
-Initializing AMReX (26.01-95-g2fd316b7e939)...
-AMReX (26.01-95-g2fd316b7e939) initialized
+Initializing AMReX (26.09-112-ge503138a474f)...
+AMReX (26.09-112-ge503138a474f) initialized
 starting the single zone burn...
 Maximum Time (s): 4e+10
 State Density (g/cm^3): 100000
@@ -21,13 +21,13 @@ e initial = 4.685675996e+16
 e final =   4.685675996e+16
 ------------------------------------
 new mass fractions: 
-y1 5.209492907e-08
-y2 2.08379727e-13
+y1 5.209492953e-08
+y2 2.083797289e-13
 y3 0.9999999479
 ------------------------------------
 species creation rates: 
 omegadot(y1): -2.49999987e-11
-omegadot(y2): 5.209493175e-24
+omegadot(y2): 5.209493221e-24
 omegadot(y3): 2.49999987e-11
-number of steps taken: 312548
-AMReX (26.01-95-g2fd316b7e939) finalized
+number of steps taken: 312580
+AMReX (26.09-112-ge503138a474f) finalized
