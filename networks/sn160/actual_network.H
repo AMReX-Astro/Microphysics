@@ -4624,7 +4624,7 @@ namespace Rates
         "He4_He4_p_p_to_He3_Be7_derived"  // 1626,
     };
 
-    template<std::uint8_t rate>
+    template<std::uint16_t rate>
     AMREX_GPU_DEVICE AMREX_INLINE
     constexpr amrex::Real get_p_random() {
         return 0.0_rt;
