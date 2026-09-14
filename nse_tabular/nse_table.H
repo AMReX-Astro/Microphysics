@@ -727,8 +727,15 @@ void nse_interp(nse_table_t& nse_state, bool skip_X_fill=false) {
 
         if (! skip_X_fill) {
             for (int n = 1; n <= NumSpec; n++) {
-                amrex::Real _X = tricubic(ir0, it0, ic0, rholog, tlog, yet,
+                amrex::Real _X{};
+                if (network_rp::nse_force_linear_interp_species) {
+                    _X = trilinear(ir0, it0, ic0, rholog, tlog, yet,
                                    [=] (const int i) {return massfractab(n, i);});
+
+                } else {
+                    _X = tricubic(ir0, it0, ic0, rholog, tlog, yet,
+                                  [=] (const int i) {return massfractab(n, i);});
+                }
                 nse_state.X[n-1] = amrex::Clamp(_X, 0.0_rt, 1.0_rt);
             }
         }
