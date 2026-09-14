@@ -1,5 +1,5 @@
-#ifndef actual_rhs_H
-#define actual_rhs_H
+#ifndef ACTUAL_RHS_H
+#define ACTUAL_RHS_H
 
 #include <extern_parameters.H>
 #include <actual_network.H>
@@ -7,7 +7,8 @@
 
 using namespace network_rp;
 
-void actual_rhs_init ();
+inline
+void actual_rhs_init () {};
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_rhs (const burn_t& state, amrex::Array1D<amrex::Real, 1, neqs>& ydot)

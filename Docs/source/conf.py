@@ -228,8 +228,8 @@ linkcheck_timeout = 100
 linkcheck_allow_unauthorized = True
 linkcheck_workers = 5
 linkcheck_rate_limit_timeout = 60
-
 user_agent = "Mozilla/5.0 (X11; Linux x86_64; rv:120.0) Gecko/20100101 Firefox/120.0"
+
 linkcheck_request_headers = {
     "*": {
         "User-Agent": (

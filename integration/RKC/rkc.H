@@ -148,7 +148,7 @@ int rkclow (BurnT& state, RkcT& rstate)
 
     rstate.n_rhs++;
     amrex::Real tdir = std::copysign(1.0_rt, rstate.tout - rstate.t);
-    rstate.hmax = std::abs(rstate.tout - rstate.t);
+    rstate.hmax = std::min(std::abs(rstate.tout - rstate.t), integrator_rp::ode_max_dt);
 
     amrex::Real hmin{};
     amrex::Real sprad{};

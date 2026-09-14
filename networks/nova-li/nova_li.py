@@ -17,7 +17,7 @@ def create_network():
 
     nova_library = rl.linking_nuclei(all_nuclei, with_reverse=True)
 
-    tl = pyna.TabularLibrary(ordering=["ffn", "oda", "langanke"])
+    tl = pyna.TabularWeakLibrary(ordering=["ffn", "oda", "langanke"])
     weak_library = tl.linking_nuclei(all_nuclei)
 
     # remove duplicates

@@ -127,7 +127,7 @@ def get_core_library(*,
 
         all_lib += reaclib_lib.linking_nuclei(iron_peak)
 
-    weak_lib = pyna.TabularLibrary(ordering=["ffn", "langanke", "oda"])
+    weak_lib = pyna.TabularWeakLibrary(ordering=["ffn", "langanke", "oda"])
     iron_weak_lib = weak_lib.linking_nuclei(set(iron_peak + nuclei))
     all_lib += iron_weak_lib
 

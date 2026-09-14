@@ -9,7 +9,7 @@
             "orcid": "0000-0003-0385-7918"
         },
         {
-	    "affiliation": "Stony Brook University",
+	    "affiliation": "Department of Physics, University of Wisconsin, Madison",
             "name": "Bishop, Abigail",
             "orcid": "0000-0002-0375-644X"
         },
@@ -37,7 +37,6 @@
             "orcid": "0000-0003-3603-6868"
         },
         {
-            "affiliation": "Stony Brook University",
             "name": "Katz, Maximilian",
             "orcid": "0000-0003-0439-4556"
         },
@@ -62,7 +61,7 @@
             "orcid": "0000-0003-3347-7094"
         },
         {
-            "affiliation": "Stony Brook University",
+            "affiliation": "Institute for Gravitation and the Cosmos, Penn State University",
             "name": "Smith Clark, Alexander",
             "orcid": "0000-0001-5961-1680"
         },
@@ -77,6 +76,7 @@
             "orcid": "0000-0003-3175-2291"
         },
         {
+	    "affiliation": "Institute for Advanced Computational Science, Stony Brook University",
             "name": "Willcox, Donald",
             "orcid": "0000-0003-2300-5165"
         },

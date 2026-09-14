@@ -1,5 +1,5 @@
-#ifndef actual_network_H
-#define actual_network_H
+#ifndef ACTUAL_NETWORK_H
+#define ACTUAL_NETWORK_H
 
 #include <string_view>
 #include <AMReX_REAL.H>
@@ -7,7 +7,8 @@
 
 #include <network_properties.H>
 
-void actual_network_init();
+inline
+void actual_network_init() {};
 
 constexpr std::string_view network_name = "general_null";
 
