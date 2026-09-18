@@ -128,3 +128,46 @@ Runtime Options
   default since ``chabrier1998`` is often used along with
   ``USE_NSE_NET=TRUE``, and the NSE solver doesn't include quantum
   corrections.
+
+
+Composition Derivatives
+-----------------------
+
+Use ``plasma_state_t<screening_dual_t>`` to compute temperature and
+composition derivatives together.  ``fill_plasma_state`` seeds a
+three-component autodiff gradient in the order :math:`(T, M_1, M_2)`, where
+
+.. math::
+
+   M_1 = \sum_i Z_i Y_i, \qquad M_2 = \sum_i Z_i^2 Y_i.
+
+The sums include all plasma species.  Density and the reacting pair's
+nuclear charges and masses are held fixed.  These two moments contain all
+composition dependence of the implemented screening methods; there is no
+independent dependence on :math:`\bar{A}`.
+
+For example::
+
+   plasma_state_t<screening_dual_t> pstate;
+   fill_plasma_state(pstate, temp, rho, Y);
+   amrex::Real h, dh_dT, dh_dM1, dh_dM2;
+   actual_log_screen(pstate, scn_fac, h, dh_dT, dh_dM1, dh_dM2);
+
+Here ``h`` is the natural logarithm of the screening enhancement.  The
+same output arguments are available for ``actual_screen``, which returns
+the enhancement itself and its derivatives, including its output cap.
+The plasma state can be reused for every screening pair.
+
+Recover the derivative with respect to an individual molar abundance via
+
+.. math::
+
+   \frac{\partial h}{\partial Y_j}
+   = Z_j \frac{\partial h}{\partial M_1}
+     + Z_j^2 \frac{\partial h}{\partial M_2}.
+
+For a screened rate :math:`\lambda=\lambda_0 e^h`, its screening
+contribution to the abundance derivative is
+:math:`\lambda\,\partial h/\partial Y_j`.  Networks must propagate these
+terms into their Jacobians explicitly.  Existing real-valued and
+single-temperature-derivative screening calls remain supported.
