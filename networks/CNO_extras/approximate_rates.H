@@ -15,8 +15,9 @@ namespace approximate_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Ne18_He4_to_Mg22_approx(const T& rate_eval, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_Ne18_He4_to_Mg22_approx(T& rate_eval) {
 
+        amrex::Real rate{}, drate_dT{};
         amrex::Real r_pg = rate_eval.screened_rates(k_Na21_p_to_Mg22_reaclib);
         amrex::Real r_pa = rate_eval.screened_rates(k_Na21_p_to_He4_Ne18_derived);
         amrex::Real r_pY = 0.0_rt;
@@ -31,6 +32,10 @@ namespace approximate_rates {
             amrex::Real drdT_pa = rate_eval.dscreened_rates_dT(k_Na21_p_to_He4_Ne18_derived);
             amrex::Real drdT_pY = 0.0_rt;
             drate_dT = drdT_ag + drdT_ap * r_pg * dd + r_ap * drdT_pg * dd - r_ap * r_pg * dd * dd * (drdT_pg + drdT_pa + drdT_pY);
+        }
+        rate_eval.screened_rates(k_Ne18_He4_to_Mg22_approx) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_Ne18_He4_to_Mg22_approx) = drate_dT;
         }
     }
 
@@ -48,10 +53,9 @@ namespace approximate_rates {
         [[maybe_unused]] amrex::Real rate{};
         [[maybe_unused]] amrex::Real drate_dT{};
 
-        rate_Ne18_He4_to_Mg22_approx<T>(rate_eval, rate, drate_dT);
-        rate_eval.screened_rates(k_Ne18_He4_to_Mg22_approx) = rate;
-        if constexpr (std::is_same_v<T, rate_derivs_t>) {
-            rate_eval.dscreened_rates_dT(k_Ne18_He4_to_Mg22_approx) = drate_dT;
+        {
+            // Ne18_He4_to_Mg22_approx
+            rate_Ne18_He4_to_Mg22_approx(rate_eval);
         }
 
 

@@ -74,7 +74,7 @@ void evaluate_screening(const burn_t& state,
         static_assert(scn_fac.z1 == 2.0_rt);
         actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
         rate_eval.log_screen(k_He4_Ne18) = log_scor;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_He4_Ne18) = dlog_scor_dT;
         }
     }
@@ -84,7 +84,7 @@ void evaluate_screening(const burn_t& state,
         static_assert(scn_fac.z1 == 1.0_rt);
         actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
         rate_eval.log_screen(k_p_F18) = log_scor;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_p_F18) = dlog_scor_dT;
         }
     }
@@ -94,7 +94,7 @@ void evaluate_screening(const burn_t& state,
         static_assert(scn_fac.z1 == 1.0_rt);
         actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
         rate_eval.log_screen(k_p_C12) = log_scor;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_p_C12) = dlog_scor_dT;
         }
     }
@@ -104,7 +104,7 @@ void evaluate_screening(const burn_t& state,
         static_assert(scn_fac.z1 == 1.0_rt);
         actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
         rate_eval.log_screen(k_p_Na21) = log_scor;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_p_Na21) = dlog_scor_dT;
         }
     }
@@ -114,7 +114,7 @@ void evaluate_screening(const burn_t& state,
         static_assert(scn_fac.z1 == 2.0_rt);
         actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
         rate_eval.log_screen(k_He4_O16) = log_scor;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_He4_O16) = dlog_scor_dT;
         }
     }
@@ -124,7 +124,7 @@ void evaluate_screening(const burn_t& state,
         static_assert(scn_fac.z1 == 2.0_rt);
         actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
         rate_eval.log_screen(k_He3_He3) = log_scor;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_He3_He3) = dlog_scor_dT;
         }
     }
@@ -134,7 +134,7 @@ void evaluate_screening(const burn_t& state,
         static_assert(scn_fac.z1 == 2.0_rt);
         actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
         rate_eval.log_screen(k_He4_F17) = log_scor;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_He4_F17) = dlog_scor_dT;
         }
     }
@@ -144,7 +144,7 @@ void evaluate_screening(const burn_t& state,
         static_assert(scn_fac.z1 == 2.0_rt);
         actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
         rate_eval.log_screen(k_He4_N14) = log_scor;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_He4_N14) = dlog_scor_dT;
         }
     }
@@ -154,7 +154,7 @@ void evaluate_screening(const burn_t& state,
         static_assert(scn_fac.z1 == 2.0_rt);
         actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
         rate_eval.log_screen(k_He3_He4) = log_scor;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_He3_He4) = dlog_scor_dT;
         }
     }
@@ -164,7 +164,7 @@ void evaluate_screening(const burn_t& state,
         static_assert(scn_fac.z1 == 1.0_rt);
         actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
         rate_eval.log_screen(k_p_F19) = log_scor;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_p_F19) = dlog_scor_dT;
         }
     }
@@ -174,7 +174,7 @@ void evaluate_screening(const burn_t& state,
         static_assert(scn_fac.z1 == 1.0_rt);
         actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
         rate_eval.log_screen(k_p_C13) = log_scor;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_p_C13) = dlog_scor_dT;
         }
     }
@@ -184,7 +184,7 @@ void evaluate_screening(const burn_t& state,
         static_assert(scn_fac.z1 == 2.0_rt);
         actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
         rate_eval.log_screen(k_He4_C12) = log_scor;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_He4_C12) = dlog_scor_dT;
         }
     }
@@ -194,7 +194,7 @@ void evaluate_screening(const burn_t& state,
         static_assert(scn_fac.z1 == 1.0_rt);
         actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
         rate_eval.log_screen(k_p_p) = log_scor;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_p_p) = dlog_scor_dT;
         }
     }
@@ -204,7 +204,7 @@ void evaluate_screening(const burn_t& state,
         static_assert(scn_fac.z1 == 1.0_rt);
         actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
         rate_eval.log_screen(k_p_O17) = log_scor;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_p_O17) = dlog_scor_dT;
         }
     }
@@ -214,7 +214,7 @@ void evaluate_screening(const burn_t& state,
         static_assert(scn_fac.z1 == 1.0_rt);
         actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
         rate_eval.log_screen(k_p_N15) = log_scor;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_p_N15) = dlog_scor_dT;
         }
     }
@@ -224,7 +224,7 @@ void evaluate_screening(const burn_t& state,
         static_assert(scn_fac.z1 == 1.0_rt);
         actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
         rate_eval.log_screen(k_p_Ne20) = log_scor;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_p_Ne20) = dlog_scor_dT;
         }
     }
@@ -234,7 +234,7 @@ void evaluate_screening(const burn_t& state,
         static_assert(scn_fac.z1 == 1.0_rt);
         actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
         rate_eval.log_screen(k_p_O18) = log_scor;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_p_O18) = dlog_scor_dT;
         }
     }
@@ -244,7 +244,7 @@ void evaluate_screening(const burn_t& state,
         static_assert(scn_fac.z1 == 1.0_rt);
         actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
         rate_eval.log_screen(k_p_He3) = log_scor;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_p_He3) = dlog_scor_dT;
         }
     }
@@ -254,7 +254,7 @@ void evaluate_screening(const burn_t& state,
         static_assert(scn_fac.z1 == 2.0_rt);
         actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
         rate_eval.log_screen(k_He4_N15) = log_scor;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_He4_N15) = dlog_scor_dT;
         }
     }
@@ -264,7 +264,7 @@ void evaluate_screening(const burn_t& state,
         static_assert(scn_fac.z1 == 2.0_rt);
         actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
         rate_eval.log_screen(k_He4_Ne20) = log_scor;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_He4_Ne20) = dlog_scor_dT;
         }
     }
@@ -274,7 +274,7 @@ void evaluate_screening(const burn_t& state,
         static_assert(scn_fac.z1 == 1.0_rt);
         actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
         rate_eval.log_screen(k_p_N13) = log_scor;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_p_N13) = dlog_scor_dT;
         }
     }
@@ -284,7 +284,7 @@ void evaluate_screening(const burn_t& state,
         static_assert(scn_fac.z1 == 2.0_rt);
         actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
         rate_eval.log_screen(k_He4_O14) = log_scor;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_He4_O14) = dlog_scor_dT;
         }
     }
@@ -294,7 +294,7 @@ void evaluate_screening(const burn_t& state,
         static_assert(scn_fac.z1 == 2.0_rt);
         actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
         rate_eval.log_screen(k_He4_He4) = log_scor;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_He4_He4) = dlog_scor_dT;
         }
     }
@@ -304,7 +304,7 @@ void evaluate_screening(const burn_t& state,
         static_assert(scn_fac.z1 == 2.0_rt);
         actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
         rate_eval.log_screen(k_He4_Be8) = log_scor;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_He4_Be8) = dlog_scor_dT;
         }
     }
@@ -314,7 +314,7 @@ void evaluate_screening(const burn_t& state,
         static_assert(scn_fac.z1 == 1.0_rt);
         actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
         rate_eval.log_screen(k_p_O16) = log_scor;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_p_O16) = dlog_scor_dT;
         }
     }
@@ -324,7 +324,7 @@ void evaluate_screening(const burn_t& state,
         static_assert(scn_fac.z1 == 1.0_rt);
         actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
         rate_eval.log_screen(k_p_N14) = log_scor;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_p_N14) = dlog_scor_dT;
         }
     }
@@ -334,7 +334,7 @@ void evaluate_screening(const burn_t& state,
         static_assert(scn_fac.z1 == 1.0_rt);
         actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
         rate_eval.log_screen(k_p_F17) = log_scor;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_p_F17) = dlog_scor_dT;
         }
     }
@@ -344,7 +344,7 @@ void evaluate_screening(const burn_t& state,
         static_assert(scn_fac.z1 == 1.0_rt);
         actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
         rate_eval.log_screen(k_p_Ne19) = log_scor;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_p_Ne19) = dlog_scor_dT;
         }
     }
@@ -354,7 +354,7 @@ void evaluate_screening(const burn_t& state,
         static_assert(scn_fac.z1 == 2.0_rt);
         actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
         rate_eval.log_screen(k_He4_O15) = log_scor;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_He4_O15) = dlog_scor_dT;
         }
     }
@@ -364,7 +364,7 @@ void evaluate_screening(const burn_t& state,
         static_assert(scn_fac.z1 == 2.0_rt);
         actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
         rate_eval.log_screen(k_He4_N13) = log_scor;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_He4_N13) = dlog_scor_dT;
         }
     }
@@ -397,7 +397,7 @@ void evaluate_rates(const burn_t& state,
 
     reaclib_rates::fill_rates<do_T_derivatives, T>(tfactors, rate_eval);
 
-    tabular_weak_rates::fill_rates(state.T, rhoy, Y, rate_eval);
+    tabular_weak_rates::fill_rates<T>(state.T, rhoy, Y, rate_eval);
 
     temp_tabular::fill_rates<do_T_derivatives, T>(tfactors, rate_eval);
 
@@ -510,113 +510,87 @@ void get_ydot_weak(const burn_t& state,
 
     {
         // N13_to_C13_beta_pos_reaclib
-
-        amrex::Real log_scor {0.0_rt};
-        amrex::Real dlog_scor_dT {0.0_rt};
-        reaclib_rates::rate_N13_to_C13_beta_pos_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-        rate_eval.screened_rates(k_N13_to_C13_beta_pos_reaclib) = rate;
+        reaclib_rates::rate_N13_to_C13_beta_pos_reaclib(rate_eval, tfactors);
     }
 
     {
         // O14_to_N14_beta_pos_reaclib
-
-        amrex::Real log_scor {0.0_rt};
-        amrex::Real dlog_scor_dT {0.0_rt};
-        reaclib_rates::rate_O14_to_N14_beta_pos_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-        rate_eval.screened_rates(k_O14_to_N14_beta_pos_reaclib) = rate;
+        reaclib_rates::rate_O14_to_N14_beta_pos_reaclib(rate_eval, tfactors);
     }
 
     {
         // O15_to_N15_beta_pos_reaclib
-
-        amrex::Real log_scor {0.0_rt};
-        amrex::Real dlog_scor_dT {0.0_rt};
-        reaclib_rates::rate_O15_to_N15_beta_pos_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-        rate_eval.screened_rates(k_O15_to_N15_beta_pos_reaclib) = rate;
+        reaclib_rates::rate_O15_to_N15_beta_pos_reaclib(rate_eval, tfactors);
     }
 
     {
         // p_p_to_d_beta_pos_reaclib
-
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
         log_scor = rate_eval.log_screen(k_p_p);
 #endif
-        reaclib_rates::rate_p_p_to_d_beta_pos_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-        rate_eval.screened_rates(k_p_p_to_d_beta_pos_reaclib) = rate;
+        reaclib_rates::rate_p_p_to_d_beta_pos_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
     }
 
     {
         // p_p_to_d_electron_capture_reaclib
-
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
         log_scor = rate_eval.log_screen(k_p_p);
 #endif
-        reaclib_rates::rate_p_p_to_d_electron_capture_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-        rate_eval.screened_rates(k_p_p_to_d_electron_capture_reaclib) = rate;
+        reaclib_rates::rate_p_p_to_d_electron_capture_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
     }
 
     {
         // He3_p_to_He4_beta_pos_reaclib
-
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
         log_scor = rate_eval.log_screen(k_p_He3);
 #endif
-        reaclib_rates::rate_He3_p_to_He4_beta_pos_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-        rate_eval.screened_rates(k_He3_p_to_He4_beta_pos_reaclib) = rate;
+        reaclib_rates::rate_He3_p_to_He4_beta_pos_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
     }
 
     {
         // Ne19_3p_to_Mg22_beta_pos_modified
-
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
         log_scor = rate_eval.log_screen(k_p_Ne19);
 #endif
-        modified_rates::rate_Ne19_3p_to_Mg22_beta_pos_modified<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-        rate_eval.screened_rates(k_Ne19_3p_to_Mg22_beta_pos_modified) = rate;
+        modified_rates::rate_Ne19_3p_to_Mg22_beta_pos_modified(rate_eval, tfactors, log_scor, dlog_scor_dT);
     }
 
     {
         // p_p_p_to_He3_beta_pos_modified
-
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
         log_scor = rate_eval.log_screen(k_p_p);
 #endif
-        modified_rates::rate_p_p_p_to_He3_beta_pos_modified<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-        rate_eval.screened_rates(k_p_p_p_to_He3_beta_pos_modified) = rate;
+        modified_rates::rate_p_p_p_to_He3_beta_pos_modified(rate_eval, tfactors, log_scor, dlog_scor_dT);
     }
 
     {
         // p_p_p_to_He3_electron_capture_modified
-
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
         log_scor = rate_eval.log_screen(k_p_p);
 #endif
-        modified_rates::rate_p_p_p_to_He3_electron_capture_modified<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-        rate_eval.screened_rates(k_p_p_p_to_He3_electron_capture_modified) = rate;
+        modified_rates::rate_p_p_p_to_He3_electron_capture_modified(rate_eval, tfactors, log_scor, dlog_scor_dT);
     }
 
     {
         // He3_He4_p_to_He4_He4_beta_pos_modified
-
         amrex::Real log_scor {0.0_rt};
         amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
         log_scor = rate_eval.log_screen(k_He3_He4);
 #endif
-        modified_rates::rate_He3_He4_p_to_He4_He4_beta_pos_modified<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-        rate_eval.screened_rates(k_He3_He4_p_to_He4_He4_beta_pos_modified) = rate;
+        modified_rates::rate_He3_He4_p_to_He4_He4_beta_pos_modified(rate_eval, tfactors, log_scor, dlog_scor_dT);
     }
 
     tabular_weak_rates::fill_rates(state.T, rhoy, Y, rate_eval);

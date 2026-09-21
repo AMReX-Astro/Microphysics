@@ -14,15 +14,13 @@ namespace reaclib_rates {
     using namespace Rates;
     using namespace Species;
 
-    template <int do_T_derivatives>
+    template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_N13_to_C13_beta_pos_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_N13_to_C13_beta_pos_reaclib(T& rate_eval, const tf_t& tfactors) {
 
         // N13 --> C13
 
-        rate = 0.0;
-        drate_dT = 0.0;
-
+        amrex::Real rate{}, drate_dT{};
         amrex::Real ln_set_rate{0.0};
         amrex::Real dln_set_rate_dT9{0.0};
         amrex::Real set_rate{0.0};
@@ -31,33 +29,32 @@ namespace reaclib_rates {
         ln_set_rate =  -6.7601;
         amrex::ignore_unused(tfactors);
 
-        ln_set_rate += log_scor;
-
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 = 0.0;
 
-            dln_set_rate_dT9 += dlog_scor_dT * 1.0e9_rt;
         }
 
         // avoid underflows by zeroing rates in [0.0, 1.e-100]
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
+        rate_eval.screened_rates(k_N13_to_C13_beta_pos_reaclib) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_N13_to_C13_beta_pos_reaclib) = drate_dT;
+        }
     }
 
-    template <int do_T_derivatives>
+    template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_O14_to_N14_beta_pos_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_O14_to_N14_beta_pos_reaclib(T& rate_eval, const tf_t& tfactors) {
 
         // O14 --> N14
 
-        rate = 0.0;
-        drate_dT = 0.0;
-
+        amrex::Real rate{}, drate_dT{};
         amrex::Real ln_set_rate{0.0};
         amrex::Real dln_set_rate_dT9{0.0};
         amrex::Real set_rate{0.0};
@@ -66,33 +63,32 @@ namespace reaclib_rates {
         ln_set_rate =  -4.62354;
         amrex::ignore_unused(tfactors);
 
-        ln_set_rate += log_scor;
-
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 = 0.0;
 
-            dln_set_rate_dT9 += dlog_scor_dT * 1.0e9_rt;
         }
 
         // avoid underflows by zeroing rates in [0.0, 1.e-100]
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
+        rate_eval.screened_rates(k_O14_to_N14_beta_pos_reaclib) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_O14_to_N14_beta_pos_reaclib) = drate_dT;
+        }
     }
 
-    template <int do_T_derivatives>
+    template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_O15_to_N15_beta_pos_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_O15_to_N15_beta_pos_reaclib(T& rate_eval, const tf_t& tfactors) {
 
         // O15 --> N15
 
-        rate = 0.0;
-        drate_dT = 0.0;
-
+        amrex::Real rate{}, drate_dT{};
         amrex::Real ln_set_rate{0.0};
         amrex::Real dln_set_rate_dT9{0.0};
         amrex::Real set_rate{0.0};
@@ -101,33 +97,32 @@ namespace reaclib_rates {
         ln_set_rate =  -5.17053;
         amrex::ignore_unused(tfactors);
 
-        ln_set_rate += log_scor;
-
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 = 0.0;
 
-            dln_set_rate_dT9 += dlog_scor_dT * 1.0e9_rt;
         }
 
         // avoid underflows by zeroing rates in [0.0, 1.e-100]
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
+        rate_eval.screened_rates(k_O15_to_N15_beta_pos_reaclib) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_O15_to_N15_beta_pos_reaclib) = drate_dT;
+        }
     }
 
-    template <int do_T_derivatives>
+    template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_C12_p_to_N13_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_C12_p_to_N13_reaclib(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT) {
 
         // C12 + p --> N13
 
-        rate = 0.0;
-        drate_dT = 0.0;
-
+        amrex::Real rate{}, drate_dT{};
         amrex::Real ln_set_rate{0.0};
         amrex::Real dln_set_rate_dT9{0.0};
         amrex::Real set_rate{0.0};
@@ -138,7 +133,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  + -(1.0/3.0) * -13.692 * tfactors.T943i + (1.0/3.0) * -0.230881 * tfactors.T923i
                                       + 4.44362 + (5.0/3.0) * -3.15898 * tfactors.T923 + -0.666667 * tfactors.T9i;
 
@@ -149,7 +144,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -159,7 +154,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  3.77849 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -5.10735 * tfactors.T943i + (1.0/3.0) * -2.24111 * tfactors.T923i
                                       + 0.148883 + -1.5 * tfactors.T9i;
 
@@ -170,21 +165,23 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
+        rate_eval.screened_rates(k_C12_p_to_N13_reaclib) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_C12_p_to_N13_reaclib) = drate_dT;
+        }
     }
 
-    template <int do_T_derivatives>
+    template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_C12_He4_to_O16_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_C12_He4_to_O16_reaclib(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT) {
 
         // C12 + He4 --> O16
 
-        rate = 0.0;
-        drate_dT = 0.0;
-
+        amrex::Real rate{}, drate_dT{};
         amrex::Real ln_set_rate{0.0};
         amrex::Real dln_set_rate_dT9{0.0};
         amrex::Real set_rate{0.0};
@@ -195,7 +192,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  1.84097 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 103.411 * tfactors.T943i + (1.0/3.0) * -420.567 * tfactors.T923i
                                       + 64.0874 + (5.0/3.0) * -12.4624 * tfactors.T923 + 137.303 * tfactors.T9i;
 
@@ -206,7 +203,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -216,7 +213,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  1.39254 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 58.9128 * tfactors.T943i + (1.0/3.0) * -148.273 * tfactors.T923i
                                       + 9.08324 + (5.0/3.0) * -0.541041 * tfactors.T923 + 70.3554 * tfactors.T9i;
 
@@ -227,21 +224,23 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
+        rate_eval.screened_rates(k_C12_He4_to_O16_reaclib) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_C12_He4_to_O16_reaclib) = drate_dT;
+        }
     }
 
-    template <int do_T_derivatives>
+    template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_C13_p_to_N14_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_C13_p_to_N14_reaclib(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT) {
 
         // C13 + p --> N14
 
-        rate = 0.0;
-        drate_dT = 0.0;
-
+        amrex::Real rate{}, drate_dT{};
         amrex::Real ln_set_rate{0.0};
         amrex::Real dln_set_rate_dT9{0.0};
         amrex::Real set_rate{0.0};
@@ -252,7 +251,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  + -(1.0/3.0) * -13.72 * tfactors.T943i + (1.0/3.0) * -0.450018 * tfactors.T923i
                                       + 3.70823 + (5.0/3.0) * -1.70545 * tfactors.T923 + -0.666667 * tfactors.T9i;
 
@@ -263,7 +262,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -273,7 +272,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  5.78147 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -0.196703 * tfactors.T923i
                                       + 0.142126 + (5.0/3.0) * -0.0238912 * tfactors.T923 + -1.5 * tfactors.T9i;
 
@@ -284,7 +283,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -294,7 +293,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  13.5543 * tfactors.T9i * tfactors.T9i
                                       + -1.5 * tfactors.T9i;
 
@@ -305,21 +304,23 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
+        rate_eval.screened_rates(k_C13_p_to_N14_reaclib) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_C13_p_to_N14_reaclib) = drate_dT;
+        }
     }
 
-    template <int do_T_derivatives>
+    template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_N13_p_to_O14_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_N13_p_to_O14_reaclib(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT) {
 
         // N13 + p --> O14
 
-        rate = 0.0;
-        drate_dT = 0.0;
-
+        amrex::Real rate{}, drate_dT{};
         amrex::Real ln_set_rate{0.0};
         amrex::Real dln_set_rate_dT9{0.0};
         amrex::Real set_rate{0.0};
@@ -330,7 +331,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  6.12602 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 1.57122 * tfactors.T943i
                                       + -1.5 * tfactors.T9i;
 
@@ -341,7 +342,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -351,7 +352,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  + -(1.0/3.0) * -15.1676 * tfactors.T943i + (1.0/3.0) * 0.0955166 * tfactors.T923i
                                       + 3.0659 + (5.0/3.0) * -0.507339 * tfactors.T923 + -0.666667 * tfactors.T9i;
 
@@ -362,21 +363,23 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
+        rate_eval.screened_rates(k_N13_p_to_O14_reaclib) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_N13_p_to_O14_reaclib) = drate_dT;
+        }
     }
 
-    template <int do_T_derivatives>
+    template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_N14_p_to_O15_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_N14_p_to_O15_reaclib(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT) {
 
         // N14 + p --> O15
 
-        rate = 0.0;
-        drate_dT = 0.0;
-
+        amrex::Real rate{}, drate_dT{};
         amrex::Real ln_set_rate{0.0};
         amrex::Real dln_set_rate_dT9{0.0};
         amrex::Real set_rate{0.0};
@@ -387,7 +390,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  4.891 * tfactors.T9i * tfactors.T9i
                                       + 0.0682 * tfactors.T9i;
 
@@ -398,7 +401,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -408,7 +411,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  2.998 * tfactors.T9i * tfactors.T9i
                                       + -1.5 * tfactors.T9i;
 
@@ -419,7 +422,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -429,7 +432,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  + -(1.0/3.0) * -15.193 * tfactors.T943i + (1.0/3.0) * -4.63975 * tfactors.T923i
                                       + 9.73458 + (5.0/3.0) * -9.55051 * tfactors.T923 + 0.333333 * tfactors.T9i;
 
@@ -440,7 +443,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -450,7 +453,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  + -(1.0/3.0) * -15.193 * tfactors.T943i + (1.0/3.0) * -0.161954 * tfactors.T923i
                                       + -7.52123 + (5.0/3.0) * -0.987565 * tfactors.T923 + -0.666667 * tfactors.T9i;
 
@@ -461,21 +464,23 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
+        rate_eval.screened_rates(k_N14_p_to_O15_reaclib) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_N14_p_to_O15_reaclib) = drate_dT;
+        }
     }
 
-    template <int do_T_derivatives>
+    template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_N14_He4_to_F18_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_N14_He4_to_F18_reaclib(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT) {
 
         // N14 + He4 --> F18
 
-        rate = 0.0;
-        drate_dT = 0.0;
-
+        amrex::Real rate{}, drate_dT{};
         amrex::Real ln_set_rate{0.0};
         amrex::Real dln_set_rate_dT9{0.0};
         amrex::Real set_rate{0.0};
@@ -486,7 +491,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  10.9656 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -5.6227 * tfactors.T943i
                                       + -1.5 * tfactors.T9i;
 
@@ -497,7 +502,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -507,7 +512,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  5.16034 * tfactors.T9i * tfactors.T9i
                                       + -1.5 * tfactors.T9i;
 
@@ -518,7 +523,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -528,7 +533,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  + -(1.0/3.0) * -36.2504 * tfactors.T943i
                                       + (5.0/3.0) * -5.0 * tfactors.T923 + -0.666667 * tfactors.T9i;
 
@@ -539,21 +544,23 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
+        rate_eval.screened_rates(k_N14_He4_to_F18_reaclib) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_N14_He4_to_F18_reaclib) = drate_dT;
+        }
     }
 
-    template <int do_T_derivatives>
+    template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_N15_p_to_O16_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_N15_p_to_O16_reaclib(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT) {
 
         // N15 + p --> O16
 
-        rate = 0.0;
-        drate_dT = 0.0;
-
+        amrex::Real rate{}, drate_dT{};
         amrex::Real ln_set_rate{0.0};
         amrex::Real dln_set_rate_dT9{0.0};
         amrex::Real set_rate{0.0};
@@ -564,7 +571,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  10.2295 * tfactors.T9i * tfactors.T9i
                                       + 0.0459037 + -1.5 * tfactors.T9i;
 
@@ -575,7 +582,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -585,7 +592,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  2.92315 * tfactors.T9i * tfactors.T9i
                                       + -1.5 * tfactors.T9i;
 
@@ -596,7 +603,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -606,7 +613,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  + -(1.0/3.0) * -15.24 * tfactors.T943i + (1.0/3.0) * 0.334926 * tfactors.T923i
                                       + 4.59088 + (5.0/3.0) * -4.78468 * tfactors.T923 + -0.666667 * tfactors.T9i;
 
@@ -617,21 +624,23 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
+        rate_eval.screened_rates(k_N15_p_to_O16_reaclib) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_N15_p_to_O16_reaclib) = drate_dT;
+        }
     }
 
-    template <int do_T_derivatives>
+    template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_N15_He4_to_F19_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_N15_He4_to_F19_reaclib(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT) {
 
         // N15 + He4 --> F19
 
-        rate = 0.0;
-        drate_dT = 0.0;
-
+        amrex::Real rate{}, drate_dT{};
         amrex::Real ln_set_rate{0.0};
         amrex::Real dln_set_rate_dT9{0.0};
         amrex::Real set_rate{0.0};
@@ -642,7 +651,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  4.19986 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 35.4292 * tfactors.T923i
                                       + -5.5767 + (5.0/3.0) * 0.441293 * tfactors.T923 + -1.5 * tfactors.T9i;
 
@@ -653,7 +662,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -663,7 +672,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  6.98462 * tfactors.T9i * tfactors.T9i
                                       + -1.5 * tfactors.T9i;
 
@@ -674,7 +683,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -684,7 +693,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  4.17795 * tfactors.T9i * tfactors.T9i
                                       + -1.5 * tfactors.T9i;
 
@@ -695,7 +704,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -705,7 +714,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  + -(1.0/3.0) * -36.2324 * tfactors.T943i
                                       + (5.0/3.0) * -2.0 * tfactors.T923 + -0.666667 * tfactors.T9i;
 
@@ -716,21 +725,23 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
+        rate_eval.screened_rates(k_N15_He4_to_F19_reaclib) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_N15_He4_to_F19_reaclib) = drate_dT;
+        }
     }
 
-    template <int do_T_derivatives>
+    template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_O14_He4_to_Ne18_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_O14_He4_to_Ne18_reaclib(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT) {
 
         // O14 + He4 --> Ne18
 
-        rate = 0.0;
-        drate_dT = 0.0;
-
+        amrex::Real rate{}, drate_dT{};
         amrex::Real ln_set_rate{0.0};
         amrex::Real dln_set_rate_dT9{0.0};
         amrex::Real set_rate{0.0};
@@ -741,7 +752,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  + -(1.0/3.0) * -39.38 * tfactors.T943i + (1.0/3.0) * -0.0772187 * tfactors.T923i
                                       + -0.635361 + (5.0/3.0) * 0.106236 * tfactors.T923 + -0.666667 * tfactors.T9i;
 
@@ -752,7 +763,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -762,7 +773,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  12.159 * tfactors.T9i * tfactors.T9i
                                       + 5.0 * tfactors.T9i;
 
@@ -773,7 +784,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -783,7 +794,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  22.61 * tfactors.T9i * tfactors.T9i
                                       + -1.5 * tfactors.T9i;
 
@@ -794,7 +805,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -804,7 +815,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  11.73 * tfactors.T9i * tfactors.T9i
                                       + -1.5 * tfactors.T9i;
 
@@ -815,21 +826,23 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
+        rate_eval.screened_rates(k_O14_He4_to_Ne18_reaclib) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_O14_He4_to_Ne18_reaclib) = drate_dT;
+        }
     }
 
-    template <int do_T_derivatives>
+    template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_O15_He4_to_Ne19_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_O15_He4_to_Ne19_reaclib(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT) {
 
         // O15 + He4 --> Ne19
 
-        rate = 0.0;
-        drate_dT = 0.0;
-
+        amrex::Real rate{}, drate_dT{};
         amrex::Real ln_set_rate{0.0};
         amrex::Real dln_set_rate_dT9{0.0};
         amrex::Real set_rate{0.0};
@@ -840,7 +853,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  4.20439 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -3.24609 * tfactors.T943i + (1.0/3.0) * 44.4647 * tfactors.T923i
                                       + -9.79962 + (5.0/3.0) * 0.841782 * tfactors.T923 + -1.5 * tfactors.T9i;
 
@@ -851,7 +864,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -861,7 +874,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  5.88439 * tfactors.T9i * tfactors.T9i
                                       + -1.5 * tfactors.T9i;
 
@@ -872,7 +885,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -882,7 +895,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  + -(1.0/3.0) * -39.578 * tfactors.T943i
                                       + (5.0/3.0) * -3.0 * tfactors.T923 + -0.666667 * tfactors.T9i;
 
@@ -893,21 +906,23 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
+        rate_eval.screened_rates(k_O15_He4_to_Ne19_reaclib) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_O15_He4_to_Ne19_reaclib) = drate_dT;
+        }
     }
 
-    template <int do_T_derivatives>
+    template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_O16_p_to_F17_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_O16_p_to_F17_reaclib(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT) {
 
         // O16 + p --> F17
 
-        rate = 0.0;
-        drate_dT = 0.0;
-
+        amrex::Real rate{}, drate_dT{};
         amrex::Real ln_set_rate{0.0};
         amrex::Real dln_set_rate_dT9{0.0};
         amrex::Real set_rate{0.0};
@@ -918,7 +933,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  + -(1.0/3.0) * -16.696 * tfactors.T943i + (1.0/3.0) * -1.16252 * tfactors.T923i
                                       + 0.267703 + (5.0/3.0) * -0.0338411 * tfactors.T923 + -0.666667 * tfactors.T9i;
 
@@ -929,21 +944,23 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
+        rate_eval.screened_rates(k_O16_p_to_F17_reaclib) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_O16_p_to_F17_reaclib) = drate_dT;
+        }
     }
 
-    template <int do_T_derivatives>
+    template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_O16_He4_to_Ne20_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_O16_He4_to_Ne20_reaclib(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT) {
 
         // O16 + He4 --> Ne20
 
-        rate = 0.0;
-        drate_dT = 0.0;
-
+        amrex::Real rate{}, drate_dT{};
         amrex::Real ln_set_rate{0.0};
         amrex::Real dln_set_rate_dT9{0.0};
         amrex::Real set_rate{0.0};
@@ -954,7 +971,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  10.3585 * tfactors.T9i * tfactors.T9i
                                       + -1.5 * tfactors.T9i;
 
@@ -965,7 +982,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -975,7 +992,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  + -(1.0/3.0) * -39.7262 * tfactors.T943i + (1.0/3.0) * -0.210799 * tfactors.T923i
                                       + 0.442879 + (5.0/3.0) * -0.0797753 * tfactors.T923 + -0.666667 * tfactors.T9i;
 
@@ -986,7 +1003,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -996,7 +1013,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  12.7643 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -3.65925 * tfactors.T923i
                                       + 0.714224 + (5.0/3.0) * -0.00107508 * tfactors.T923 + -1.5 * tfactors.T9i;
 
@@ -1007,21 +1024,23 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
+        rate_eval.screened_rates(k_O16_He4_to_Ne20_reaclib) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_O16_He4_to_Ne20_reaclib) = drate_dT;
+        }
     }
 
-    template <int do_T_derivatives>
+    template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_O17_p_to_F18_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_O17_p_to_F18_reaclib(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT) {
 
         // O17 + p --> F18
 
-        rate = 0.0;
-        drate_dT = 0.0;
-
+        amrex::Real rate{}, drate_dT{};
         amrex::Real ln_set_rate{0.0};
         amrex::Real dln_set_rate_dT9{0.0};
         amrex::Real set_rate{0.0};
@@ -1032,7 +1051,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  6.22828 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 2.31435 * tfactors.T923i
                                       + -0.302835 + (5.0/3.0) * 0.020133 * tfactors.T923 + -1.5 * tfactors.T9i;
 
@@ -1043,7 +1062,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -1053,7 +1072,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  0.746296 * tfactors.T9i * tfactors.T9i
                                       + -1.5 * tfactors.T9i;
 
@@ -1064,7 +1083,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -1074,7 +1093,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  + -(1.0/3.0) * -16.4035 * tfactors.T943i + (1.0/3.0) * 4.31885 * tfactors.T923i
                                       + -0.709921 + (5.0/3.0) * -2.0 * tfactors.T923 + -0.666667 * tfactors.T9i;
 
@@ -1085,21 +1104,23 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
+        rate_eval.screened_rates(k_O17_p_to_F18_reaclib) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_O17_p_to_F18_reaclib) = drate_dT;
+        }
     }
 
-    template <int do_T_derivatives>
+    template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_O18_p_to_F19_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_O18_p_to_F19_reaclib(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT) {
 
         // O18 + p --> F19
 
-        rate = 0.0;
-        drate_dT = 0.0;
-
+        amrex::Real rate{}, drate_dT{};
         amrex::Real ln_set_rate{0.0};
         amrex::Real dln_set_rate_dT9{0.0};
         amrex::Real set_rate{0.0};
@@ -1110,7 +1131,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  + -(1.0/3.0) * -16.7246 * tfactors.T943i
                                       + (5.0/3.0) * -3.0 * tfactors.T923 + -0.666667 * tfactors.T9i;
 
@@ -1121,7 +1142,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -1131,7 +1152,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  6.7253 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 3.99059 * tfactors.T923i
                                       + -0.593127 + (5.0/3.0) * 0.0877534 * tfactors.T923 + -1.5 * tfactors.T9i;
 
@@ -1142,7 +1163,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -1152,7 +1173,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  1.65681 * tfactors.T9i * tfactors.T9i
                                       + -1.5 * tfactors.T9i;
 
@@ -1163,7 +1184,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -1173,7 +1194,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  0.244743 * tfactors.T9i * tfactors.T9i
                                       + -1.5 * tfactors.T9i;
 
@@ -1184,21 +1205,23 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
+        rate_eval.screened_rates(k_O18_p_to_F19_reaclib) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_O18_p_to_F19_reaclib) = drate_dT;
+        }
     }
 
-    template <int do_T_derivatives>
+    template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_F17_p_to_Ne18_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_F17_p_to_Ne18_reaclib(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT) {
 
         // F17 + p --> Ne18
 
-        rate = 0.0;
-        drate_dT = 0.0;
-
+        amrex::Real rate{}, drate_dT{};
         amrex::Real ln_set_rate{0.0};
         amrex::Real dln_set_rate_dT9{0.0};
         amrex::Real set_rate{0.0};
@@ -1209,7 +1232,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  0.0323504 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -14.2191 * tfactors.T943i + (1.0/3.0) * 34.0647 * tfactors.T923i
                                       + -16.5698 + (5.0/3.0) * 2.48116 * tfactors.T923 + -2.13376 * tfactors.T9i;
 
@@ -1220,7 +1243,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -1230,7 +1253,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  4.95969 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -21.3249 * tfactors.T943i + (1.0/3.0) * -0.230774 * tfactors.T923i
                                       + 0.917931 + (5.0/3.0) * -0.0440377 * tfactors.T923 + -7.36014 * tfactors.T9i;
 
@@ -1241,21 +1264,23 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
+        rate_eval.screened_rates(k_F17_p_to_Ne18_reaclib) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_F17_p_to_Ne18_reaclib) = drate_dT;
+        }
     }
 
-    template <int do_T_derivatives>
+    template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_F18_p_to_Ne19_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_F18_p_to_Ne19_reaclib(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT) {
 
         // F18 + p --> Ne19
 
-        rate = 0.0;
-        drate_dT = 0.0;
-
+        amrex::Real rate{}, drate_dT{};
         amrex::Real ln_set_rate{0.0};
         amrex::Real dln_set_rate_dT9{0.0};
         amrex::Real set_rate{0.0};
@@ -1266,7 +1291,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  2.89147 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 13.1683 * tfactors.T923i
                                       + -1.92023 + (5.0/3.0) * 0.16901 * tfactors.T923 + -1.5 * tfactors.T9i;
 
@@ -1277,7 +1302,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -1287,7 +1312,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  0.39895 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 22.4903 * tfactors.T923i
                                       + 0.307872 + (5.0/3.0) * -0.296226 * tfactors.T923 + -1.5 * tfactors.T9i;
 
@@ -1298,7 +1323,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -1308,7 +1333,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  + -(1.0/3.0) * -21.4023 * tfactors.T943i + (1.0/3.0) * -93.766 * tfactors.T923i
                                       + 179.258 + (5.0/3.0) * -202.561 * tfactors.T923 + -0.666667 * tfactors.T9i;
 
@@ -1319,21 +1344,23 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
+        rate_eval.screened_rates(k_F18_p_to_Ne19_reaclib) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_F18_p_to_Ne19_reaclib) = drate_dT;
+        }
     }
 
-    template <int do_T_derivatives>
+    template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_F19_p_to_Ne20_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_F19_p_to_Ne20_reaclib(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT) {
 
         // F19 + p --> Ne20
 
-        rate = 0.0;
-        drate_dT = 0.0;
-
+        amrex::Real rate{}, drate_dT{};
         amrex::Real ln_set_rate{0.0};
         amrex::Real dln_set_rate_dT9{0.0};
         amrex::Real set_rate{0.0};
@@ -1344,7 +1371,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  7.74414 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 31.6442 * tfactors.T943i + (1.0/3.0) * -58.6563 * tfactors.T923i
                                       + 67.7365 + (5.0/3.0) * -22.9721 * tfactors.T923 + -1.5 * tfactors.T9i;
 
@@ -1355,7 +1382,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -1365,7 +1392,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  1.71383 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -11.3832 * tfactors.T943i + (1.0/3.0) * 5.47872 * tfactors.T923i
                                       + -1.07203 + (5.0/3.0) * 0.11196 * tfactors.T923 + -1.5 * tfactors.T9i;
 
@@ -1376,7 +1403,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -1386,7 +1413,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  + -(1.0/3.0) * -18.116 * tfactors.T943i + (1.0/3.0) * -1.4622 * tfactors.T923i
                                       + 6.95113 + (5.0/3.0) * -2.90366 * tfactors.T923 + -0.666667 * tfactors.T9i;
 
@@ -1397,21 +1424,23 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
+        rate_eval.screened_rates(k_F19_p_to_Ne20_reaclib) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_F19_p_to_Ne20_reaclib) = drate_dT;
+        }
     }
 
-    template <int do_T_derivatives>
+    template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Ne20_He4_to_Mg24_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_Ne20_He4_to_Mg24_reaclib(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT) {
 
         // Ne20 + He4 --> Mg24
 
-        rate = 0.0;
-        drate_dT = 0.0;
-
+        amrex::Real rate{}, drate_dT{};
         amrex::Real ln_set_rate{0.0};
         amrex::Real dln_set_rate_dT9{0.0};
         amrex::Real set_rate{0.0};
@@ -1422,7 +1451,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  12.7809 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 16.9229 * tfactors.T923i
                                       + -2.57325 + (5.0/3.0) * 0.208997 * tfactors.T923 + -1.5 * tfactors.T9i;
 
@@ -1433,7 +1462,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -1443,7 +1472,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  9.22026 * tfactors.T9i * tfactors.T9i
                                       + -1.5 * tfactors.T9i;
 
@@ -1454,7 +1483,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -1464,7 +1493,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  2.50605 * tfactors.T9i * tfactors.T9i
                                       + -1.5 * tfactors.T9i;
 
@@ -1475,7 +1504,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -1485,7 +1514,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  + -(1.0/3.0) * -46.2525 * tfactors.T943i + (1.0/3.0) * 5.58901 * tfactors.T923i
                                       + 7.61843 + (5.0/3.0) * -3.683 * tfactors.T923 + -0.666667 * tfactors.T9i;
 
@@ -1496,21 +1525,23 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
+        rate_eval.screened_rates(k_Ne20_He4_to_Mg24_reaclib) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_Ne20_He4_to_Mg24_reaclib) = drate_dT;
+        }
     }
 
-    template <int do_T_derivatives>
+    template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_N13_He4_to_p_O16_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_N13_He4_to_p_O16_reaclib(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT) {
 
         // N13 + He4 --> p + O16
 
-        rate = 0.0;
-        drate_dT = 0.0;
-
+        amrex::Real rate{}, drate_dT{};
         amrex::Real ln_set_rate{0.0};
         amrex::Real dln_set_rate_dT9{0.0};
         amrex::Real set_rate{0.0};
@@ -1521,7 +1552,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  + -(1.0/3.0) * -35.829 * tfactors.T943i + (1.0/3.0) * -0.530275 * tfactors.T923i
                                       + -0.982462 + (5.0/3.0) * 0.0808059 * tfactors.T923 + -0.666667 * tfactors.T9i;
 
@@ -1532,21 +1563,23 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
+        rate_eval.screened_rates(k_N13_He4_to_p_O16_reaclib) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_N13_He4_to_p_O16_reaclib) = drate_dT;
+        }
     }
 
-    template <int do_T_derivatives>
+    template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_N15_p_to_He4_C12_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_N15_p_to_He4_C12_reaclib(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT) {
 
         // N15 + p --> He4 + C12
 
-        rate = 0.0;
-        drate_dT = 0.0;
-
+        amrex::Real rate{}, drate_dT{};
         amrex::Real ln_set_rate{0.0};
         amrex::Real dln_set_rate_dT9{0.0};
         amrex::Real set_rate{0.0};
@@ -1557,7 +1590,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  + -(1.0/3.0) * -15.253 * tfactors.T943i + (1.0/3.0) * 1.59318 * tfactors.T923i
                                       + 2.4479 + (5.0/3.0) * -2.19708 * tfactors.T923 + -0.666667 * tfactors.T9i;
 
@@ -1568,7 +1601,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -1578,7 +1611,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  1.1638 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 22.7105 * tfactors.T923i
                                       + -2.90707 + (5.0/3.0) * 0.205754 * tfactors.T923 + -1.5 * tfactors.T9i;
 
@@ -1589,7 +1622,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -1599,7 +1632,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  7.406 * tfactors.T9i * tfactors.T9i
                                       + -1.5 * tfactors.T9i;
 
@@ -1610,7 +1643,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -1620,7 +1653,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  2.02117 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 30.8497 * tfactors.T923i
                                       + -8.50433 + (5.0/3.0) * -1.54426 * tfactors.T923 + -1.5 * tfactors.T9i;
 
@@ -1631,21 +1664,23 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
+        rate_eval.screened_rates(k_N15_p_to_He4_C12_reaclib) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_N15_p_to_He4_C12_reaclib) = drate_dT;
+        }
     }
 
-    template <int do_T_derivatives>
+    template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_O14_He4_to_p_F17_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_O14_He4_to_p_F17_reaclib(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT) {
 
         // O14 + He4 --> p + F17
 
-        rate = 0.0;
-        drate_dT = 0.0;
-
+        amrex::Real rate{}, drate_dT{};
         amrex::Real ln_set_rate{0.0};
         amrex::Real dln_set_rate_dT9{0.0};
         amrex::Real set_rate{0.0};
@@ -1656,7 +1691,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  12.0223 * tfactors.T9i * tfactors.T9i
                                       + -1.5 * tfactors.T9i;
 
@@ -1667,7 +1702,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -1677,7 +1712,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  26.0 * tfactors.T9i * tfactors.T9i
                                       + -1.5 * tfactors.T9i;
 
@@ -1688,7 +1723,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -1698,7 +1733,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  + -(1.0/3.0) * -39.388 * tfactors.T943i + (1.0/3.0) * -17.4673 * tfactors.T923i
                                       + 35.3029 + (5.0/3.0) * -24.8162 * tfactors.T923 + -0.666667 * tfactors.T9i;
 
@@ -1709,7 +1744,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -1719,7 +1754,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  22.51 * tfactors.T9i * tfactors.T9i
                                       + -1.5 * tfactors.T9i;
 
@@ -1730,7 +1765,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -1740,7 +1775,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  13.6 * tfactors.T9i * tfactors.T9i
                                       + -1.5 * tfactors.T9i;
 
@@ -1751,7 +1786,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -1761,7 +1796,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  0.453036 * tfactors.T9i * tfactors.T9i
                                       + -1.5 * tfactors.T9i;
 
@@ -1772,21 +1807,23 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
+        rate_eval.screened_rates(k_O14_He4_to_p_F17_reaclib) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_O14_He4_to_p_F17_reaclib) = drate_dT;
+        }
     }
 
-    template <int do_T_derivatives>
+    template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_O17_p_to_He4_N14_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_O17_p_to_He4_N14_reaclib(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT) {
 
         // O17 + p --> He4 + N14
 
-        rate = 0.0;
-        drate_dT = 0.0;
-
+        amrex::Real rate{}, drate_dT{};
         amrex::Real ln_set_rate{0.0};
         amrex::Real dln_set_rate_dT9{0.0};
         amrex::Real set_rate{0.0};
@@ -1797,7 +1834,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  0.753395 * tfactors.T9i * tfactors.T9i
                                       + -1.5 * tfactors.T9i;
 
@@ -1808,7 +1845,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -1818,7 +1855,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  + -(1.0/3.0) * -16.9078 * tfactors.T943i
                                       + (5.0/3.0) * -2.0 * tfactors.T923 + -0.666667 * tfactors.T9i;
 
@@ -1829,7 +1866,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -1839,7 +1876,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  4.95865 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 5.10182 * tfactors.T923i
                                       + 0.379373 + (5.0/3.0) * -0.0672515 * tfactors.T923 + -1.5 * tfactors.T9i;
 
@@ -1850,7 +1887,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -1860,7 +1897,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  2.11477 * tfactors.T9i * tfactors.T9i
                                       + -1.5 * tfactors.T9i;
 
@@ -1871,21 +1908,23 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
+        rate_eval.screened_rates(k_O17_p_to_He4_N14_reaclib) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_O17_p_to_He4_N14_reaclib) = drate_dT;
+        }
     }
 
-    template <int do_T_derivatives>
+    template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_O18_p_to_He4_N15_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_O18_p_to_He4_N15_reaclib(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT) {
 
         // O18 + p --> He4 + N15
 
-        rate = 0.0;
-        drate_dT = 0.0;
-
+        amrex::Real rate{}, drate_dT{};
         amrex::Real ln_set_rate{0.0};
         amrex::Real dln_set_rate_dT9{0.0};
         amrex::Real set_rate{0.0};
@@ -1896,7 +1935,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  0.245884 * tfactors.T9i * tfactors.T9i
                                       + -1.5 * tfactors.T9i;
 
@@ -1907,7 +1946,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -1917,7 +1956,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  + -(1.0/3.0) * -16.6979 * tfactors.T943i
                                       + (5.0/3.0) * -3.0 * tfactors.T923 + -0.666667 * tfactors.T9i;
 
@@ -1928,7 +1967,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -1938,7 +1977,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  5.32335 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 11.6568 * tfactors.T923i
                                       + -2.16303 + (5.0/3.0) * 0.209965 * tfactors.T923 + -1.5 * tfactors.T9i;
 
@@ -1949,7 +1988,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -1959,7 +1998,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  1.663 * tfactors.T9i * tfactors.T9i
                                       + -1.5 * tfactors.T9i;
 
@@ -1970,21 +2009,23 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
+        rate_eval.screened_rates(k_O18_p_to_He4_N15_reaclib) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_O18_p_to_He4_N15_reaclib) = drate_dT;
+        }
     }
 
-    template <int do_T_derivatives>
+    template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_F18_p_to_He4_O15_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_F18_p_to_He4_O15_reaclib(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT) {
 
         // F18 + p --> He4 + O15
 
-        rate = 0.0;
-        drate_dT = 0.0;
-
+        amrex::Real rate{}, drate_dT{};
         amrex::Real ln_set_rate{0.0};
         amrex::Real dln_set_rate_dT9{0.0};
         amrex::Real set_rate{0.0};
@@ -1995,7 +2036,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  3.01675 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 13.3223 * tfactors.T923i
                                       + -1.36696 + (5.0/3.0) * 0.0757363 * tfactors.T923 + -1.5 * tfactors.T9i;
 
@@ -2006,7 +2047,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -2016,7 +2057,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  0.376432 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 61.738 * tfactors.T923i
                                       + -108.29 + (5.0/3.0) * -34.2365 * tfactors.T923 + -1.5 * tfactors.T9i;
 
@@ -2027,7 +2068,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -2037,7 +2078,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  + -(1.0/3.0) * -21.4023 * tfactors.T943i + (1.0/3.0) * -80.8891 * tfactors.T923i
                                       + 134.6 + (5.0/3.0) * -126.504 * tfactors.T923 + -0.666667 * tfactors.T9i;
 
@@ -2048,21 +2089,23 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
+        rate_eval.screened_rates(k_F18_p_to_He4_O15_reaclib) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_F18_p_to_He4_O15_reaclib) = drate_dT;
+        }
     }
 
-    template <int do_T_derivatives>
+    template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_F19_p_to_He4_O16_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_F19_p_to_He4_O16_reaclib(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT) {
 
         // F19 + p --> He4 + O16
 
-        rate = 0.0;
-        drate_dT = 0.0;
-
+        amrex::Real rate{}, drate_dT{};
         amrex::Real ln_set_rate{0.0};
         amrex::Real dln_set_rate_dT9{0.0};
         amrex::Real set_rate{0.0};
@@ -2073,7 +2116,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  0.12765 * tfactors.T9i * tfactors.T9i
                                       + -1.5 * tfactors.T9i;
 
@@ -2084,7 +2127,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -2094,7 +2137,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  + -(1.0/3.0) * -18.116 * tfactors.T943i
                                       + 1.86674 + (5.0/3.0) * -7.5666 * tfactors.T923 + -0.666667 * tfactors.T9i;
 
@@ -2105,7 +2148,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -2115,7 +2158,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  3.286 * tfactors.T9i * tfactors.T9i
                                       + -0.21103 + 2.87702 * tfactors.T9i;
 
@@ -2126,7 +2169,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -2136,7 +2179,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  3.75185 * tfactors.T9i * tfactors.T9i
                                       + -1.5 * tfactors.T9i;
 
@@ -2147,7 +2190,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -2157,7 +2200,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  2.46828 * tfactors.T9i * tfactors.T9i
                                       + -1.5 * tfactors.T9i;
 
@@ -2168,21 +2211,23 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
+        rate_eval.screened_rates(k_F19_p_to_He4_O16_reaclib) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_F19_p_to_He4_O16_reaclib) = drate_dT;
+        }
     }
 
-    template <int do_T_derivatives>
+    template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Ne20_p_to_He4_F17_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_Ne20_p_to_He4_F17_reaclib(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT) {
 
         // Ne20 + p --> He4 + F17
 
-        rate = 0.0;
-        drate_dT = 0.0;
-
+        amrex::Real rate{}, drate_dT{};
         amrex::Real ln_set_rate{0.0};
         amrex::Real dln_set_rate_dT9{0.0};
         amrex::Real set_rate{0.0};
@@ -2193,7 +2238,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  47.9266 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -43.18 * tfactors.T943i + (1.0/3.0) * 4.46827 * tfactors.T923i
                                       + -1.63915 + (5.0/3.0) * 0.123483 * tfactors.T923 + -0.666667 * tfactors.T9i;
 
@@ -2204,21 +2249,23 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
+        rate_eval.screened_rates(k_Ne20_p_to_He4_F17_reaclib) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_Ne20_p_to_He4_F17_reaclib) = drate_dT;
+        }
     }
 
-    template <int do_T_derivatives>
+    template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_He4_He4_He4_to_C12_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_He4_He4_He4_to_C12_reaclib(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT) {
 
         // 3 He4 --> C12
 
-        rate = 0.0;
-        drate_dT = 0.0;
-
+        amrex::Real rate{}, drate_dT{};
         amrex::Real ln_set_rate{0.0};
         amrex::Real dln_set_rate_dT9{0.0};
         amrex::Real set_rate{0.0};
@@ -2229,7 +2276,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  1.02446 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -23.57 * tfactors.T943i + (1.0/3.0) * 20.4886 * tfactors.T923i
                                       + -12.9882 + (5.0/3.0) * -20.0 * tfactors.T923 + -2.16667 * tfactors.T9i;
 
@@ -2240,7 +2287,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -2250,7 +2297,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  + -(1.0/3.0) * -37.06 * tfactors.T943i + (1.0/3.0) * 29.3493 * tfactors.T923i
                                       + -115.507 + (5.0/3.0) * -10.0 * tfactors.T923 + -1.33333 * tfactors.T9i;
 
@@ -2261,7 +2308,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -2271,7 +2318,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  4.12656 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -13.49 * tfactors.T943i + (1.0/3.0) * 21.4259 * tfactors.T923i
                                       + -1.34769 + (5.0/3.0) * 0.0879816 * tfactors.T923 + -13.1653 * tfactors.T9i;
 
@@ -2282,21 +2329,23 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
+        rate_eval.screened_rates(k_He4_He4_He4_to_C12_reaclib) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_He4_He4_He4_to_C12_reaclib) = drate_dT;
+        }
     }
 
-    template <int do_T_derivatives>
+    template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Ne18_He4_to_p_Na21_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_Ne18_He4_to_p_Na21_reaclib(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT) {
 
         // Ne18 + He4 --> p + Na21
 
-        rate = 0.0;
-        drate_dT = 0.0;
-
+        amrex::Real rate{}, drate_dT{};
         amrex::Real ln_set_rate{0.0};
         amrex::Real dln_set_rate_dT9{0.0};
         amrex::Real set_rate{0.0};
@@ -2307,7 +2356,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  5.76874 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 8.5632e-08 * tfactors.T943i + (1.0/3.0) * 24.8579 * tfactors.T923i
                                       + 0.0823845 + (5.0/3.0) * -0.365374 * tfactors.T923 + -2.21415e-06 * tfactors.T9i;
 
@@ -2318,7 +2367,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -2328,7 +2377,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  10.2598 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 4.73034e-07 * tfactors.T943i + (1.0/3.0) * 36.29 * tfactors.T923i
                                       + -6.56565 + (5.0/3.0) * -2.96287e-06 * tfactors.T923 + -9.00373e-07 * tfactors.T9i;
 
@@ -2339,7 +2388,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -2349,7 +2398,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  3.8681 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 7.09521e-06 * tfactors.T943i + (1.0/3.0) * 34.1789 * tfactors.T923i
                                       + -1.72974 + (5.0/3.0) * -0.0395081 * tfactors.T923 + -7.82759e-07 * tfactors.T9i;
 
@@ -2360,21 +2409,23 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
+        rate_eval.screened_rates(k_Ne18_He4_to_p_Na21_reaclib) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_Ne18_He4_to_p_Na21_reaclib) = drate_dT;
+        }
     }
 
-    template <int do_T_derivatives>
+    template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Ne18_He4_to_Mg22_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_Ne18_He4_to_Mg22_reaclib(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT) {
 
         // Ne18 + He4 --> Mg22
 
-        rate = 0.0;
-        drate_dT = 0.0;
-
+        amrex::Real rate{}, drate_dT{};
         amrex::Real ln_set_rate{0.0};
         amrex::Real dln_set_rate_dT9{0.0};
         amrex::Real set_rate{0.0};
@@ -2385,7 +2436,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  + -(1.0/3.0) * -46.4859 * tfactors.T943i + (1.0/3.0) * 0.956741 * tfactors.T923i
                                       + -0.914402 + (5.0/3.0) * 0.0722478 * tfactors.T923 + -0.666667 * tfactors.T9i;
 
@@ -2396,21 +2447,23 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
+        rate_eval.screened_rates(k_Ne18_He4_to_Mg22_reaclib) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_Ne18_He4_to_Mg22_reaclib) = drate_dT;
+        }
     }
 
-    template <int do_T_derivatives>
+    template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Na21_p_to_Mg22_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_Na21_p_to_Mg22_reaclib(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT) {
 
         // Na21 + p --> Mg22
 
-        rate = 0.0;
-        drate_dT = 0.0;
-
+        amrex::Real rate{}, drate_dT{};
         amrex::Real ln_set_rate{0.0};
         amrex::Real dln_set_rate_dT9{0.0};
         amrex::Real set_rate{0.0};
@@ -2421,7 +2474,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  7.47826 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 4.75873 * tfactors.T923i
                                       + -0.708067 + (5.0/3.0) * 0.0523665 * tfactors.T923 + -1.5 * tfactors.T9i;
 
@@ -2432,7 +2485,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -2442,7 +2495,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  2.38741 * tfactors.T9i * tfactors.T9i
                                       + -1.5 * tfactors.T9i;
 
@@ -2453,7 +2506,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -2463,7 +2516,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  + -(1.0/3.0) * -20.7329 * tfactors.T943i
                                       + (5.0/3.0) * -1.5 * tfactors.T923 + -0.666667 * tfactors.T9i;
 
@@ -2474,21 +2527,23 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
+        rate_eval.screened_rates(k_Na21_p_to_Mg22_reaclib) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_Na21_p_to_Mg22_reaclib) = drate_dT;
+        }
     }
 
-    template <int do_T_derivatives>
+    template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Ne19_p_to_Na20_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_Ne19_p_to_Na20_reaclib(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT) {
 
         // Ne19 + p --> Na20
 
-        rate = 0.0;
-        drate_dT = 0.0;
-
+        amrex::Real rate{}, drate_dT{};
         amrex::Real ln_set_rate{0.0};
         amrex::Real dln_set_rate_dT9{0.0};
         amrex::Real set_rate{0.0};
@@ -2499,7 +2554,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  5.07623 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 1.23704 * tfactors.T923i
                                       + 0.337618 + (5.0/3.0) * -0.0562825 * tfactors.T923 + -1.5 * tfactors.T9i;
 
@@ -2510,7 +2565,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -2520,7 +2575,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  + -(1.0/3.0) * -19.5908 * tfactors.T943i + (1.0/3.0) * -2.37696 * tfactors.T923i
                                       + 3.26815 + (5.0/3.0) * -1.06524 * tfactors.T923 + -0.666667 * tfactors.T9i;
 
@@ -2531,21 +2586,23 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
+        rate_eval.screened_rates(k_Ne19_p_to_Na20_reaclib) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_Ne19_p_to_Na20_reaclib) = drate_dT;
+        }
     }
 
-    template <int do_T_derivatives>
+    template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Ne20_p_to_Na21_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_Ne20_p_to_Na21_reaclib(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT) {
 
         // Ne20 + p --> Na21
 
-        rate = 0.0;
-        drate_dT = 0.0;
-
+        amrex::Real rate{}, drate_dT{};
         amrex::Real ln_set_rate{0.0};
         amrex::Real dln_set_rate_dT9{0.0};
         amrex::Real set_rate{0.0};
@@ -2556,7 +2613,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  61.14 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 21894.7 * tfactors.T943i + (1.0/3.0) * -319153.0 * tfactors.T923i
                                       + 224369.0 + (5.0/3.0) * -188049.0 * tfactors.T923 + 48703.4 * tfactors.T9i;
 
@@ -2567,7 +2624,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -2577,7 +2634,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  0.152711 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 15.325 * tfactors.T943i + (1.0/3.0) * -294.859 * tfactors.T923i
                                       + 107.692 + (5.0/3.0) * -46.2072 * tfactors.T923 + 57.8398 * tfactors.T9i;
 
@@ -2588,7 +2645,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -2598,7 +2655,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  8.838 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 20.5893 * tfactors.T943i + (1.0/3.0) * -17.5841 * tfactors.T923i
                                       + 0.243226 + (5.0/3.0) * -0.000231418 * tfactors.T923 + 12.8398 * tfactors.T9i;
 
@@ -2609,7 +2666,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -2619,7 +2676,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  4.45358 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 258.57 * tfactors.T943i + (1.0/3.0) * -506.387 * tfactors.T923i
                                       + 22.1576 + (5.0/3.0) * -0.721182 * tfactors.T923 + 230.288 * tfactors.T9i;
 
@@ -2630,21 +2687,23 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
+        rate_eval.screened_rates(k_Ne20_p_to_Na21_reaclib) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_Ne20_p_to_Na21_reaclib) = drate_dT;
+        }
     }
 
-    template <int do_T_derivatives>
+    template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_p_p_to_d_beta_pos_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_p_p_to_d_beta_pos_reaclib(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT) {
 
         // p + p --> d
 
-        rate = 0.0;
-        drate_dT = 0.0;
-
+        amrex::Real rate{}, drate_dT{};
         amrex::Real ln_set_rate{0.0};
         amrex::Real dln_set_rate_dT9{0.0};
         amrex::Real set_rate{0.0};
@@ -2655,7 +2714,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  + -(1.0/3.0) * -3.51193 * tfactors.T943i + (1.0/3.0) * 3.10086 * tfactors.T923i
                                       + -0.198314 + (5.0/3.0) * 0.0126251 * tfactors.T923 + -1.02517 * tfactors.T9i;
 
@@ -2666,21 +2725,23 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
+        rate_eval.screened_rates(k_p_p_to_d_beta_pos_reaclib) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_p_p_to_d_beta_pos_reaclib) = drate_dT;
+        }
     }
 
-    template <int do_T_derivatives>
+    template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_p_p_to_d_electron_capture_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_p_p_to_d_electron_capture_reaclib(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT) {
 
         // p + p --> d
 
-        rate = 0.0;
-        drate_dT = 0.0;
-
+        amrex::Real rate{}, drate_dT{};
         amrex::Real ln_set_rate{0.0};
         amrex::Real dln_set_rate_dT9{0.0};
         amrex::Real set_rate{0.0};
@@ -2691,7 +2752,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  0.00246064 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -2.7507 * tfactors.T943i + (1.0/3.0) * -0.424877 * tfactors.T923i
                                       + 0.015987 + (5.0/3.0) * -0.000690875 * tfactors.T923 + -0.207625 * tfactors.T9i;
 
@@ -2702,21 +2763,23 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
+        rate_eval.screened_rates(k_p_p_to_d_electron_capture_reaclib) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_p_p_to_d_electron_capture_reaclib) = drate_dT;
+        }
     }
 
-    template <int do_T_derivatives>
+    template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_He3_He3_to_p_p_He4_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_He3_He3_to_p_p_He4_reaclib(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT) {
 
         // He3 + He3 --> p + p + He4
 
-        rate = 0.0;
-        drate_dT = 0.0;
-
+        amrex::Real rate{}, drate_dT{};
         amrex::Real ln_set_rate{0.0};
         amrex::Real dln_set_rate_dT9{0.0};
         amrex::Real set_rate{0.0};
@@ -2727,7 +2790,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  + -(1.0/3.0) * -12.277 * tfactors.T943i + (1.0/3.0) * -0.103699 * tfactors.T923i
                                       + -0.0649967 + (5.0/3.0) * 0.0168191 * tfactors.T923 + -0.666667 * tfactors.T9i;
 
@@ -2738,21 +2801,23 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
+        rate_eval.screened_rates(k_He3_He3_to_p_p_He4_reaclib) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_He3_He3_to_p_p_He4_reaclib) = drate_dT;
+        }
     }
 
-    template <int do_T_derivatives>
+    template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_He3_p_to_He4_beta_pos_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_He3_p_to_He4_beta_pos_reaclib(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT) {
 
         // He3 + p --> He4
 
-        rate = 0.0;
-        drate_dT = 0.0;
-
+        amrex::Real rate{}, drate_dT{};
         amrex::Real ln_set_rate{0.0};
         amrex::Real dln_set_rate_dT9{0.0};
         amrex::Real set_rate{0.0};
@@ -2763,7 +2828,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  4.30107e-12 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -6.141 * tfactors.T943i + (1.0/3.0) * -1.93473e-09 * tfactors.T923i
                                       + 2.04145e-10 + (5.0/3.0) * -1.80372e-11 * tfactors.T923 + -0.666667 * tfactors.T9i;
 
@@ -2774,21 +2839,23 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
+        rate_eval.screened_rates(k_He3_p_to_He4_beta_pos_reaclib) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_He3_p_to_He4_beta_pos_reaclib) = drate_dT;
+        }
     }
 
-    template <int do_T_derivatives>
+    template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_He3_He4_to_Be7_reaclib(const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, amrex::Real& rate, amrex::Real& drate_dT) {
+    void rate_He3_He4_to_Be7_reaclib(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT) {
 
         // He3 + He4 --> Be7
 
-        rate = 0.0;
-        drate_dT = 0.0;
-
+        amrex::Real rate{}, drate_dT{};
         amrex::Real ln_set_rate{0.0};
         amrex::Real dln_set_rate_dT9{0.0};
         amrex::Real set_rate{0.0};
@@ -2799,7 +2866,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  + -(1.0/3.0) * -12.8271 * tfactors.T943i + (1.0/3.0) * -3.8126 * tfactors.T923i
                                       + 0.0942285 + (5.0/3.0) * -0.00301018 * tfactors.T923 + 1.33333 * tfactors.T9i;
 
@@ -2810,7 +2877,7 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
@@ -2820,7 +2887,7 @@ namespace reaclib_rates {
 
         ln_set_rate += log_scor;
 
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             dln_set_rate_dT9 =  + -(1.0/3.0) * -12.8271 * tfactors.T943i + (1.0/3.0) * -0.0308225 * tfactors.T923i
                                       + -0.654685 + (5.0/3.0) * 0.0896331 * tfactors.T923 + -0.666667 * tfactors.T9i;
 
@@ -2831,10 +2898,14 @@ namespace reaclib_rates {
         ln_set_rate = std::max(ln_set_rate, -230.0);
         set_rate = std::exp(ln_set_rate);
         rate += set_rate;
-        if constexpr (do_T_derivatives) {
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
             drate_dT += set_rate * dln_set_rate_dT9 * 1.0e-9;
         }
 
+        rate_eval.screened_rates(k_He3_He4_to_Be7_reaclib) = rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_He3_He4_to_Be7_reaclib) = drate_dT;
+        }
     }
 
 
@@ -2850,43 +2921,21 @@ namespace reaclib_rates {
 
         {
             // N13_to_C13_beta_pos_reaclib
-
-            amrex::Real log_scor {0.0_rt};
-            amrex::Real dlog_scor_dT {0.0_rt};
-            rate_N13_to_C13_beta_pos_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_N13_to_C13_beta_pos_reaclib) = rate;
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_N13_to_C13_beta_pos_reaclib) = drate_dT;
-            }
+            rate_N13_to_C13_beta_pos_reaclib(rate_eval, tfactors);
         }
 
         {
             // O14_to_N14_beta_pos_reaclib
-
-            amrex::Real log_scor {0.0_rt};
-            amrex::Real dlog_scor_dT {0.0_rt};
-            rate_O14_to_N14_beta_pos_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_O14_to_N14_beta_pos_reaclib) = rate;
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_O14_to_N14_beta_pos_reaclib) = drate_dT;
-            }
+            rate_O14_to_N14_beta_pos_reaclib(rate_eval, tfactors);
         }
 
         {
             // O15_to_N15_beta_pos_reaclib
-
-            amrex::Real log_scor {0.0_rt};
-            amrex::Real dlog_scor_dT {0.0_rt};
-            rate_O15_to_N15_beta_pos_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_O15_to_N15_beta_pos_reaclib) = rate;
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_O15_to_N15_beta_pos_reaclib) = drate_dT;
-            }
+            rate_O15_to_N15_beta_pos_reaclib(rate_eval, tfactors);
         }
 
         {
             // C12_p_to_N13_reaclib
-
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -2895,16 +2944,11 @@ namespace reaclib_rates {
                 dlog_scor_dT = rate_eval.dlog_screen_dT(k_p_C12);
             }
 #endif
-            rate_C12_p_to_N13_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_C12_p_to_N13_reaclib) = rate;
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_C12_p_to_N13_reaclib) = drate_dT;
-            }
+            rate_C12_p_to_N13_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
         }
 
         {
             // C12_He4_to_O16_reaclib
-
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -2913,16 +2957,11 @@ namespace reaclib_rates {
                 dlog_scor_dT = rate_eval.dlog_screen_dT(k_He4_C12);
             }
 #endif
-            rate_C12_He4_to_O16_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_C12_He4_to_O16_reaclib) = rate;
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_C12_He4_to_O16_reaclib) = drate_dT;
-            }
+            rate_C12_He4_to_O16_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
         }
 
         {
             // C13_p_to_N14_reaclib
-
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -2931,16 +2970,11 @@ namespace reaclib_rates {
                 dlog_scor_dT = rate_eval.dlog_screen_dT(k_p_C13);
             }
 #endif
-            rate_C13_p_to_N14_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_C13_p_to_N14_reaclib) = rate;
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_C13_p_to_N14_reaclib) = drate_dT;
-            }
+            rate_C13_p_to_N14_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
         }
 
         {
             // N13_p_to_O14_reaclib
-
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -2949,16 +2983,11 @@ namespace reaclib_rates {
                 dlog_scor_dT = rate_eval.dlog_screen_dT(k_p_N13);
             }
 #endif
-            rate_N13_p_to_O14_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_N13_p_to_O14_reaclib) = rate;
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_N13_p_to_O14_reaclib) = drate_dT;
-            }
+            rate_N13_p_to_O14_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
         }
 
         {
             // N14_p_to_O15_reaclib
-
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -2967,16 +2996,11 @@ namespace reaclib_rates {
                 dlog_scor_dT = rate_eval.dlog_screen_dT(k_p_N14);
             }
 #endif
-            rate_N14_p_to_O15_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_N14_p_to_O15_reaclib) = rate;
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_N14_p_to_O15_reaclib) = drate_dT;
-            }
+            rate_N14_p_to_O15_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
         }
 
         {
             // N14_He4_to_F18_reaclib
-
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -2985,16 +3009,11 @@ namespace reaclib_rates {
                 dlog_scor_dT = rate_eval.dlog_screen_dT(k_He4_N14);
             }
 #endif
-            rate_N14_He4_to_F18_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_N14_He4_to_F18_reaclib) = rate;
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_N14_He4_to_F18_reaclib) = drate_dT;
-            }
+            rate_N14_He4_to_F18_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
         }
 
         {
             // N15_p_to_O16_reaclib
-
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3003,16 +3022,11 @@ namespace reaclib_rates {
                 dlog_scor_dT = rate_eval.dlog_screen_dT(k_p_N15);
             }
 #endif
-            rate_N15_p_to_O16_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_N15_p_to_O16_reaclib) = rate;
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_N15_p_to_O16_reaclib) = drate_dT;
-            }
+            rate_N15_p_to_O16_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
         }
 
         {
             // N15_He4_to_F19_reaclib
-
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3021,16 +3035,11 @@ namespace reaclib_rates {
                 dlog_scor_dT = rate_eval.dlog_screen_dT(k_He4_N15);
             }
 #endif
-            rate_N15_He4_to_F19_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_N15_He4_to_F19_reaclib) = rate;
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_N15_He4_to_F19_reaclib) = drate_dT;
-            }
+            rate_N15_He4_to_F19_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
         }
 
         {
             // O14_He4_to_Ne18_reaclib
-
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3039,16 +3048,11 @@ namespace reaclib_rates {
                 dlog_scor_dT = rate_eval.dlog_screen_dT(k_He4_O14);
             }
 #endif
-            rate_O14_He4_to_Ne18_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_O14_He4_to_Ne18_reaclib) = rate;
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_O14_He4_to_Ne18_reaclib) = drate_dT;
-            }
+            rate_O14_He4_to_Ne18_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
         }
 
         {
             // O15_He4_to_Ne19_reaclib
-
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3057,16 +3061,11 @@ namespace reaclib_rates {
                 dlog_scor_dT = rate_eval.dlog_screen_dT(k_He4_O15);
             }
 #endif
-            rate_O15_He4_to_Ne19_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_O15_He4_to_Ne19_reaclib) = rate;
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_O15_He4_to_Ne19_reaclib) = drate_dT;
-            }
+            rate_O15_He4_to_Ne19_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
         }
 
         {
             // O16_p_to_F17_reaclib
-
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3075,16 +3074,11 @@ namespace reaclib_rates {
                 dlog_scor_dT = rate_eval.dlog_screen_dT(k_p_O16);
             }
 #endif
-            rate_O16_p_to_F17_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_O16_p_to_F17_reaclib) = rate;
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_O16_p_to_F17_reaclib) = drate_dT;
-            }
+            rate_O16_p_to_F17_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
         }
 
         {
             // O16_He4_to_Ne20_reaclib
-
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3093,16 +3087,11 @@ namespace reaclib_rates {
                 dlog_scor_dT = rate_eval.dlog_screen_dT(k_He4_O16);
             }
 #endif
-            rate_O16_He4_to_Ne20_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_O16_He4_to_Ne20_reaclib) = rate;
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_O16_He4_to_Ne20_reaclib) = drate_dT;
-            }
+            rate_O16_He4_to_Ne20_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
         }
 
         {
             // O17_p_to_F18_reaclib
-
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3111,16 +3100,11 @@ namespace reaclib_rates {
                 dlog_scor_dT = rate_eval.dlog_screen_dT(k_p_O17);
             }
 #endif
-            rate_O17_p_to_F18_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_O17_p_to_F18_reaclib) = rate;
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_O17_p_to_F18_reaclib) = drate_dT;
-            }
+            rate_O17_p_to_F18_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
         }
 
         {
             // O18_p_to_F19_reaclib
-
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3129,16 +3113,11 @@ namespace reaclib_rates {
                 dlog_scor_dT = rate_eval.dlog_screen_dT(k_p_O18);
             }
 #endif
-            rate_O18_p_to_F19_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_O18_p_to_F19_reaclib) = rate;
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_O18_p_to_F19_reaclib) = drate_dT;
-            }
+            rate_O18_p_to_F19_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
         }
 
         {
             // F17_p_to_Ne18_reaclib
-
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3147,16 +3126,11 @@ namespace reaclib_rates {
                 dlog_scor_dT = rate_eval.dlog_screen_dT(k_p_F17);
             }
 #endif
-            rate_F17_p_to_Ne18_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_F17_p_to_Ne18_reaclib) = rate;
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_F17_p_to_Ne18_reaclib) = drate_dT;
-            }
+            rate_F17_p_to_Ne18_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
         }
 
         {
             // F18_p_to_Ne19_reaclib
-
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3165,16 +3139,11 @@ namespace reaclib_rates {
                 dlog_scor_dT = rate_eval.dlog_screen_dT(k_p_F18);
             }
 #endif
-            rate_F18_p_to_Ne19_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_F18_p_to_Ne19_reaclib) = rate;
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_F18_p_to_Ne19_reaclib) = drate_dT;
-            }
+            rate_F18_p_to_Ne19_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
         }
 
         {
             // F19_p_to_Ne20_reaclib
-
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3183,16 +3152,11 @@ namespace reaclib_rates {
                 dlog_scor_dT = rate_eval.dlog_screen_dT(k_p_F19);
             }
 #endif
-            rate_F19_p_to_Ne20_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_F19_p_to_Ne20_reaclib) = rate;
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_F19_p_to_Ne20_reaclib) = drate_dT;
-            }
+            rate_F19_p_to_Ne20_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
         }
 
         {
             // Ne20_He4_to_Mg24_reaclib
-
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3201,16 +3165,11 @@ namespace reaclib_rates {
                 dlog_scor_dT = rate_eval.dlog_screen_dT(k_He4_Ne20);
             }
 #endif
-            rate_Ne20_He4_to_Mg24_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_Ne20_He4_to_Mg24_reaclib) = rate;
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_Ne20_He4_to_Mg24_reaclib) = drate_dT;
-            }
+            rate_Ne20_He4_to_Mg24_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
         }
 
         {
             // N13_He4_to_p_O16_reaclib
-
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3219,16 +3178,11 @@ namespace reaclib_rates {
                 dlog_scor_dT = rate_eval.dlog_screen_dT(k_He4_N13);
             }
 #endif
-            rate_N13_He4_to_p_O16_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_N13_He4_to_p_O16_reaclib) = rate;
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_N13_He4_to_p_O16_reaclib) = drate_dT;
-            }
+            rate_N13_He4_to_p_O16_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
         }
 
         {
             // N15_p_to_He4_C12_reaclib
-
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3237,16 +3191,11 @@ namespace reaclib_rates {
                 dlog_scor_dT = rate_eval.dlog_screen_dT(k_p_N15);
             }
 #endif
-            rate_N15_p_to_He4_C12_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_N15_p_to_He4_C12_reaclib) = rate;
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_N15_p_to_He4_C12_reaclib) = drate_dT;
-            }
+            rate_N15_p_to_He4_C12_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
         }
 
         {
             // O14_He4_to_p_F17_reaclib
-
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3255,16 +3204,11 @@ namespace reaclib_rates {
                 dlog_scor_dT = rate_eval.dlog_screen_dT(k_He4_O14);
             }
 #endif
-            rate_O14_He4_to_p_F17_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_O14_He4_to_p_F17_reaclib) = rate;
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_O14_He4_to_p_F17_reaclib) = drate_dT;
-            }
+            rate_O14_He4_to_p_F17_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
         }
 
         {
             // O17_p_to_He4_N14_reaclib
-
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3273,16 +3217,11 @@ namespace reaclib_rates {
                 dlog_scor_dT = rate_eval.dlog_screen_dT(k_p_O17);
             }
 #endif
-            rate_O17_p_to_He4_N14_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_O17_p_to_He4_N14_reaclib) = rate;
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_O17_p_to_He4_N14_reaclib) = drate_dT;
-            }
+            rate_O17_p_to_He4_N14_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
         }
 
         {
             // O18_p_to_He4_N15_reaclib
-
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3291,16 +3230,11 @@ namespace reaclib_rates {
                 dlog_scor_dT = rate_eval.dlog_screen_dT(k_p_O18);
             }
 #endif
-            rate_O18_p_to_He4_N15_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_O18_p_to_He4_N15_reaclib) = rate;
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_O18_p_to_He4_N15_reaclib) = drate_dT;
-            }
+            rate_O18_p_to_He4_N15_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
         }
 
         {
             // F18_p_to_He4_O15_reaclib
-
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3309,16 +3243,11 @@ namespace reaclib_rates {
                 dlog_scor_dT = rate_eval.dlog_screen_dT(k_p_F18);
             }
 #endif
-            rate_F18_p_to_He4_O15_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_F18_p_to_He4_O15_reaclib) = rate;
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_F18_p_to_He4_O15_reaclib) = drate_dT;
-            }
+            rate_F18_p_to_He4_O15_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
         }
 
         {
             // F19_p_to_He4_O16_reaclib
-
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3327,16 +3256,11 @@ namespace reaclib_rates {
                 dlog_scor_dT = rate_eval.dlog_screen_dT(k_p_F19);
             }
 #endif
-            rate_F19_p_to_He4_O16_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_F19_p_to_He4_O16_reaclib) = rate;
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_F19_p_to_He4_O16_reaclib) = drate_dT;
-            }
+            rate_F19_p_to_He4_O16_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
         }
 
         {
             // Ne20_p_to_He4_F17_reaclib
-
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3345,16 +3269,11 @@ namespace reaclib_rates {
                 dlog_scor_dT = rate_eval.dlog_screen_dT(k_p_Ne20);
             }
 #endif
-            rate_Ne20_p_to_He4_F17_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_Ne20_p_to_He4_F17_reaclib) = rate;
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_Ne20_p_to_He4_F17_reaclib) = drate_dT;
-            }
+            rate_Ne20_p_to_He4_F17_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
         }
 
         {
             // He4_He4_He4_to_C12_reaclib
-
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3363,16 +3282,11 @@ namespace reaclib_rates {
                 dlog_scor_dT = rate_eval.dlog_screen_dT(k_He4_He4) + rate_eval.dlog_screen_dT(k_He4_Be8);
             }
 #endif
-            rate_He4_He4_He4_to_C12_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_He4_He4_He4_to_C12_reaclib) = rate;
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_He4_He4_He4_to_C12_reaclib) = drate_dT;
-            }
+            rate_He4_He4_He4_to_C12_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
         }
 
         {
             // Ne18_He4_to_p_Na21_reaclib
-
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3381,16 +3295,11 @@ namespace reaclib_rates {
                 dlog_scor_dT = rate_eval.dlog_screen_dT(k_He4_Ne18);
             }
 #endif
-            rate_Ne18_He4_to_p_Na21_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_Ne18_He4_to_p_Na21_reaclib) = rate;
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_Ne18_He4_to_p_Na21_reaclib) = drate_dT;
-            }
+            rate_Ne18_He4_to_p_Na21_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
         }
 
         {
             // Ne18_He4_to_Mg22_reaclib
-
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3399,16 +3308,11 @@ namespace reaclib_rates {
                 dlog_scor_dT = rate_eval.dlog_screen_dT(k_He4_Ne18);
             }
 #endif
-            rate_Ne18_He4_to_Mg22_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_Ne18_He4_to_Mg22_reaclib) = rate;
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_Ne18_He4_to_Mg22_reaclib) = drate_dT;
-            }
+            rate_Ne18_He4_to_Mg22_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
         }
 
         {
             // Na21_p_to_Mg22_reaclib
-
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3417,16 +3321,11 @@ namespace reaclib_rates {
                 dlog_scor_dT = rate_eval.dlog_screen_dT(k_p_Na21);
             }
 #endif
-            rate_Na21_p_to_Mg22_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_Na21_p_to_Mg22_reaclib) = rate;
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_Na21_p_to_Mg22_reaclib) = drate_dT;
-            }
+            rate_Na21_p_to_Mg22_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
         }
 
         {
             // Ne19_p_to_Na20_reaclib
-
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3435,16 +3334,11 @@ namespace reaclib_rates {
                 dlog_scor_dT = rate_eval.dlog_screen_dT(k_p_Ne19);
             }
 #endif
-            rate_Ne19_p_to_Na20_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_Ne19_p_to_Na20_reaclib) = rate;
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_Ne19_p_to_Na20_reaclib) = drate_dT;
-            }
+            rate_Ne19_p_to_Na20_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
         }
 
         {
             // Ne20_p_to_Na21_reaclib
-
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3453,16 +3347,11 @@ namespace reaclib_rates {
                 dlog_scor_dT = rate_eval.dlog_screen_dT(k_p_Ne20);
             }
 #endif
-            rate_Ne20_p_to_Na21_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_Ne20_p_to_Na21_reaclib) = rate;
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_Ne20_p_to_Na21_reaclib) = drate_dT;
-            }
+            rate_Ne20_p_to_Na21_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
         }
 
         {
             // p_p_to_d_beta_pos_reaclib
-
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3471,16 +3360,11 @@ namespace reaclib_rates {
                 dlog_scor_dT = rate_eval.dlog_screen_dT(k_p_p);
             }
 #endif
-            rate_p_p_to_d_beta_pos_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_p_p_to_d_beta_pos_reaclib) = rate;
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_p_p_to_d_beta_pos_reaclib) = drate_dT;
-            }
+            rate_p_p_to_d_beta_pos_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
         }
 
         {
             // p_p_to_d_electron_capture_reaclib
-
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3489,16 +3373,11 @@ namespace reaclib_rates {
                 dlog_scor_dT = rate_eval.dlog_screen_dT(k_p_p);
             }
 #endif
-            rate_p_p_to_d_electron_capture_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_p_p_to_d_electron_capture_reaclib) = rate;
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_p_p_to_d_electron_capture_reaclib) = drate_dT;
-            }
+            rate_p_p_to_d_electron_capture_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
         }
 
         {
             // He3_He3_to_p_p_He4_reaclib
-
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3507,16 +3386,11 @@ namespace reaclib_rates {
                 dlog_scor_dT = rate_eval.dlog_screen_dT(k_He3_He3);
             }
 #endif
-            rate_He3_He3_to_p_p_He4_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_He3_He3_to_p_p_He4_reaclib) = rate;
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_He3_He3_to_p_p_He4_reaclib) = drate_dT;
-            }
+            rate_He3_He3_to_p_p_He4_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
         }
 
         {
             // He3_p_to_He4_beta_pos_reaclib
-
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3525,16 +3399,11 @@ namespace reaclib_rates {
                 dlog_scor_dT = rate_eval.dlog_screen_dT(k_p_He3);
             }
 #endif
-            rate_He3_p_to_He4_beta_pos_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_He3_p_to_He4_beta_pos_reaclib) = rate;
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_He3_p_to_He4_beta_pos_reaclib) = drate_dT;
-            }
+            rate_He3_p_to_He4_beta_pos_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
         }
 
         {
             // He3_He4_to_Be7_reaclib
-
             amrex::Real log_scor {0.0_rt};
             amrex::Real dlog_scor_dT {0.0_rt};
 #ifdef SCREENING
@@ -3543,11 +3412,7 @@ namespace reaclib_rates {
                 dlog_scor_dT = rate_eval.dlog_screen_dT(k_He3_He4);
             }
 #endif
-            rate_He3_He4_to_Be7_reaclib<do_T_derivatives>(tfactors, log_scor, dlog_scor_dT, rate, drate_dT);
-            rate_eval.screened_rates(k_He3_He4_to_Be7_reaclib) = rate;
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                rate_eval.dscreened_rates_dT(k_He3_He4_to_Be7_reaclib) = drate_dT;
-            }
+            rate_He3_He4_to_Be7_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
         }
 
 
