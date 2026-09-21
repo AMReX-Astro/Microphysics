@@ -1,5 +1,5 @@
-#ifndef actual_network_H
-#define actual_network_H
+#ifndef ACTUAL_NETWORK_H
+#define ACTUAL_NETWORK_H
 
 #include <random>
 #include <string_view>
@@ -285,77 +285,77 @@ namespace Rates
     enum NetworkRates :
     std::uint8_t
     {
-        k_Co56_to_Fe56_weaktab = 1,
-        k_Co56_to_Ni56_weaktab = 2,
-        k_Fe56_to_Co56_weaktab = 3,
-        k_Ni56_to_Co56_weaktab = 4,
-        k_n_to_p_weaktab = 5,
-        k_p_to_n_weaktab = 6,
+        k_Co56_to_Fe56_electron_capture_weaktab = 1,
+        k_Co56_to_Ni56_beta_neg_weaktab = 2,
+        k_Fe56_to_Co56_beta_neg_weaktab = 3,
+        k_Ni56_to_Co56_electron_capture_weaktab = 4,
+        k_n_to_p_beta_neg_weaktab = 5,
+        k_p_to_n_electron_capture_weaktab = 6,
         k_C12_C12_to_p_Na23_starlib = 7,
         k_C12_C12_to_He4_Ne20_starlib = 8,
-        k_C12_O16_to_p_Al27_starlib = 9,
-        k_C12_O16_to_He4_Mg24_starlib = 10,
+        k_O16_C12_to_p_Al27_starlib = 9,
+        k_O16_C12_to_He4_Mg24_starlib = 10,
         k_O16_O16_to_p_P31_starlib = 11,
         k_O16_O16_to_He4_Si28_starlib = 12,
         k_He4_He4_He4_to_C12_starlib = 13,
-        k_p_C12_to_N13_starlib = 14,
-        k_He4_C12_to_O16_starlib = 15,
-        k_He4_N13_to_p_O16_starlib = 16,
-        k_He4_O16_to_Ne20_starlib = 17,
-        k_He4_Ne20_to_Mg24_starlib = 18,
-        k_p_Na23_to_He4_Ne20_starlib = 19,
-        k_p_Na23_to_Mg24_starlib = 20,
-        k_He4_Mg24_to_Si28_starlib = 21,
-        k_p_Al27_to_He4_Mg24_starlib = 22,
-        k_p_Al27_to_Si28_starlib = 23,
-        k_He4_Si28_to_S32_starlib = 24,
-        k_p_P31_to_He4_Si28_starlib = 25,
-        k_p_P31_to_S32_starlib = 26,
-        k_He4_Cr48_to_p_Mn51_starlib = 27,
-        k_He4_Cr48_to_Fe52_starlib = 28,
-        k_p_Mn51_to_Fe52_starlib = 29,
-        k_He4_Mn51_to_Co55_starlib = 30,
-        k_He4_Fe52_to_p_Co55_starlib = 31,
-        k_He4_Fe52_to_Ni56_starlib = 32,
-        k_p_Co55_to_Ni56_starlib = 33,
-        k_He4_Co55_to_Cu59_starlib = 34,
-        k_He4_Ni56_to_Zn60_starlib = 35,
-        k_p_Cu59_to_He4_Ni56_starlib = 36,
-        k_p_Cu59_to_Zn60_starlib = 37,
+        k_C12_p_to_N13_starlib = 14,
+        k_C12_He4_to_O16_starlib = 15,
+        k_N13_He4_to_p_O16_starlib = 16,
+        k_O16_He4_to_Ne20_starlib = 17,
+        k_Ne20_He4_to_Mg24_starlib = 18,
+        k_Na23_p_to_He4_Ne20_starlib = 19,
+        k_Na23_p_to_Mg24_starlib = 20,
+        k_Mg24_He4_to_Si28_starlib = 21,
+        k_Al27_p_to_He4_Mg24_starlib = 22,
+        k_Al27_p_to_Si28_starlib = 23,
+        k_Si28_He4_to_S32_starlib = 24,
+        k_P31_p_to_He4_Si28_starlib = 25,
+        k_P31_p_to_S32_starlib = 26,
+        k_Cr48_He4_to_p_Mn51_starlib = 27,
+        k_Cr48_He4_to_Fe52_starlib = 28,
+        k_Mn51_p_to_Fe52_starlib = 29,
+        k_Mn51_He4_to_Co55_starlib = 30,
+        k_Fe52_He4_to_p_Co55_starlib = 31,
+        k_Fe52_He4_to_Ni56_starlib = 32,
+        k_Co55_p_to_Ni56_starlib = 33,
+        k_Co55_He4_to_Cu59_starlib = 34,
+        k_Ni56_He4_to_Zn60_starlib = 35,
+        k_Cu59_p_to_He4_Ni56_starlib = 36,
+        k_Cu59_p_to_Zn60_starlib = 37,
         k_C12_C12_to_n_Mg23_starlib = 38,
         k_O16_O16_to_n_S31_starlib = 39,
-        k_C12_O16_to_n_Si27_starlib = 40,
-        k_He4_Mn51_to_p_Fe54_starlib = 41,
-        k_p_Fe54_to_Co55_starlib = 42,
-        k_p_Fe56_to_Co57_starlib = 43,
-        k_He4_Fe54_to_Ni58_starlib = 44,
-        k_n_Co55_to_Co56_starlib = 45,
-        k_n_Co56_to_p_Fe56_starlib = 46,
-        k_n_Co56_to_Co57_starlib = 47,
-        k_p_Co57_to_He4_Fe54_starlib = 48,
-        k_p_Co57_to_Ni58_starlib = 49,
-        k_He4_Co55_to_p_Ni58_starlib = 50,
-        k_n_Ni56_to_p_Co56_starlib = 51,
-        k_p_Ni58_to_Cu59_starlib = 52,
-        k_n_Cu59_to_He4_Co56_starlib = 53,
-        k_He4_S32_to_Ar36_starlib = 54,
-        k_p_Cl35_to_Ar36_starlib = 55,
-        k_p_Cl35_to_He4_S32_starlib = 56,
-        k_He4_Ar36_to_Ca40_starlib = 57,
-        k_p_K39_to_Ca40_starlib = 58,
-        k_p_K39_to_He4_Ar36_starlib = 59,
-        k_He4_Ca40_to_Ti44_starlib = 60,
-        k_p_Sc43_to_Ti44_starlib = 61,
-        k_p_Sc43_to_He4_Ca40_starlib = 62,
-        k_He4_Ti44_to_Cr48_starlib = 63,
-        k_p_V47_to_Cr48_starlib = 64,
-        k_p_V47_to_He4_Ti44_starlib = 65,
-        k_n_Fe52_to_Fe53_starlib = 66,
-        k_n_Fe53_to_Fe54_starlib = 67,
-        k_n_Fe54_to_Fe55_starlib = 68,
-        k_n_Fe55_to_Fe56_starlib = 69,
-        k_n_Ni56_to_Ni57_starlib = 70,
-        k_n_Ni57_to_Ni58_starlib = 71,
+        k_O16_C12_to_n_Si27_starlib = 40,
+        k_Mn51_He4_to_p_Fe54_starlib = 41,
+        k_Fe54_p_to_Co55_starlib = 42,
+        k_Fe56_p_to_Co57_starlib = 43,
+        k_Fe54_He4_to_Ni58_starlib = 44,
+        k_Co55_n_to_Co56_starlib = 45,
+        k_Co56_n_to_p_Fe56_starlib = 46,
+        k_Co56_n_to_Co57_starlib = 47,
+        k_Co57_p_to_He4_Fe54_starlib = 48,
+        k_Co57_p_to_Ni58_starlib = 49,
+        k_Co55_He4_to_p_Ni58_starlib = 50,
+        k_Ni56_n_to_p_Co56_starlib = 51,
+        k_Ni58_p_to_Cu59_starlib = 52,
+        k_Cu59_n_to_He4_Co56_starlib = 53,
+        k_S32_He4_to_Ar36_starlib = 54,
+        k_Cl35_p_to_He4_S32_starlib = 55,
+        k_Cl35_p_to_Ar36_starlib = 56,
+        k_Ar36_He4_to_Ca40_starlib = 57,
+        k_K39_p_to_He4_Ar36_starlib = 58,
+        k_K39_p_to_Ca40_starlib = 59,
+        k_Ca40_He4_to_Ti44_starlib = 60,
+        k_Sc43_p_to_He4_Ca40_starlib = 61,
+        k_Sc43_p_to_Ti44_starlib = 62,
+        k_Ti44_He4_to_Cr48_starlib = 63,
+        k_V47_p_to_He4_Ti44_starlib = 64,
+        k_V47_p_to_Cr48_starlib = 65,
+        k_Fe52_n_to_Fe53_starlib = 66,
+        k_Fe53_n_to_Fe54_starlib = 67,
+        k_Fe54_n_to_Fe55_starlib = 68,
+        k_Fe55_n_to_Fe56_starlib = 69,
+        k_Ni56_n_to_Ni57_starlib = 70,
+        k_Ni57_n_to_Ni58_starlib = 71,
         k_S32_He4_to_Ar36_approx = 72,
         k_Ar36_to_S32_He4_approx = 73,
         k_Ar36_He4_to_Ca40_approx = 74,
@@ -372,73 +372,73 @@ namespace Rates
         k_Ni58_to_Ni56_n_n_approx = 85,
         k_C12_C12_to_Mg24_modified = 86,
         k_O16_O16_to_S32_modified = 87,
-        k_C12_O16_to_Si28_modified = 88,
-        k_C12_to_He4_He4_He4_derived = 89,
-        k_He4_Ne20_to_C12_C12_derived = 90,
-        k_p_Na23_to_C12_C12_derived = 91,
-        k_He4_Mg24_to_C12_O16_derived = 92,
-        k_p_Al27_to_C12_O16_derived = 93,
-        k_He4_Si28_to_O16_O16_derived = 94,
-        k_p_P31_to_O16_O16_derived = 95,
-        k_p_O16_to_He4_N13_derived = 96,
+        k_O16_C12_to_Si28_modified = 88,
+        k_C12_to_3He4_derived = 89,
+        k_Ne20_He4_to_C12_C12_derived = 90,
+        k_Na23_p_to_C12_C12_derived = 91,
+        k_Mg24_He4_to_C12_O16_derived = 92,
+        k_Al27_p_to_C12_O16_derived = 93,
+        k_Si28_He4_to_O16_O16_derived = 94,
+        k_P31_p_to_O16_O16_derived = 95,
+        k_O16_p_to_He4_N13_derived = 96,
         k_N13_to_p_C12_derived = 97,
         k_O16_to_He4_C12_derived = 98,
         k_Ne20_to_He4_O16_derived = 99,
-        k_He4_Ne20_to_p_Na23_derived = 100,
+        k_Ne20_He4_to_p_Na23_derived = 100,
         k_Mg24_to_p_Na23_derived = 101,
         k_Mg24_to_He4_Ne20_derived = 102,
-        k_He4_Mg24_to_p_Al27_derived = 103,
+        k_Mg24_He4_to_p_Al27_derived = 103,
         k_Si28_to_p_Al27_derived = 104,
         k_Si28_to_He4_Mg24_derived = 105,
-        k_He4_Si28_to_p_P31_derived = 106,
+        k_Si28_He4_to_p_P31_derived = 106,
         k_S32_to_p_P31_derived = 107,
         k_S32_to_He4_Si28_derived = 108,
-        k_p_Mn51_to_He4_Cr48_derived = 109,
-        k_p_Co55_to_He4_Fe52_derived = 110,
+        k_Mn51_p_to_He4_Cr48_derived = 109,
+        k_Co55_p_to_He4_Fe52_derived = 110,
         k_Fe52_to_p_Mn51_derived = 111,
         k_Fe52_to_He4_Cr48_derived = 112,
         k_Co55_to_He4_Mn51_derived = 113,
         k_Ni56_to_p_Co55_derived = 114,
         k_Ni56_to_He4_Fe52_derived = 115,
-        k_He4_Ni56_to_p_Cu59_derived = 116,
+        k_Ni56_He4_to_p_Cu59_derived = 116,
         k_Cu59_to_He4_Co55_derived = 117,
         k_Zn60_to_p_Cu59_derived = 118,
         k_Zn60_to_He4_Ni56_derived = 119,
         k_Mg24_to_C12_C12_derived = 120,
         k_S32_to_O16_O16_derived = 121,
         k_Si28_to_C12_O16_derived = 122,
-        k_p_Fe54_to_He4_Mn51_derived = 123,
-        k_p_Fe56_to_n_Co56_derived = 124,
-        k_He4_Fe54_to_p_Co57_derived = 125,
-        k_p_Ni58_to_He4_Co55_derived = 126,
+        k_Fe54_p_to_He4_Mn51_derived = 123,
+        k_Fe56_p_to_n_Co56_derived = 124,
+        k_Fe54_He4_to_p_Co57_derived = 125,
+        k_Ni58_p_to_He4_Co55_derived = 126,
         k_Co55_to_p_Fe54_derived = 127,
         k_Co56_to_n_Co55_derived = 128,
         k_Co57_to_n_Co56_derived = 129,
         k_Co57_to_p_Fe56_derived = 130,
-        k_p_Co56_to_n_Ni56_derived = 131,
+        k_Co56_p_to_n_Ni56_derived = 131,
         k_Ni58_to_p_Co57_derived = 132,
         k_Ni58_to_He4_Fe54_derived = 133,
-        k_He4_Co56_to_n_Cu59_derived = 134,
+        k_Co56_He4_to_n_Cu59_derived = 134,
         k_Cu59_to_p_Ni58_derived = 135,
-        k_He4_S32_to_p_Cl35_derived = 136,
+        k_S32_He4_to_p_Cl35_derived = 136,
         k_Ar36_to_He4_S32_derived = 137,
         k_Ar36_to_p_Cl35_derived = 138,
-        k_He4_Ar36_to_p_K39_derived = 139,
+        k_Ar36_He4_to_p_K39_derived = 139,
         k_Ca40_to_He4_Ar36_derived = 140,
         k_Ca40_to_p_K39_derived = 141,
-        k_He4_Ca40_to_p_Sc43_derived = 142,
+        k_Ca40_He4_to_p_Sc43_derived = 142,
         k_Ti44_to_He4_Ca40_derived = 143,
         k_Ti44_to_p_Sc43_derived = 144,
-        k_He4_Ti44_to_p_V47_derived = 145,
+        k_Ti44_He4_to_p_V47_derived = 145,
         k_Cr48_to_He4_Ti44_derived = 146,
         k_Cr48_to_p_V47_derived = 147,
-        k_Fe54_to_n_Fe53_derived = 148,
-        k_Fe53_to_n_Fe52_derived = 149,
-        k_Fe56_to_n_Fe55_derived = 150,
-        k_Fe55_to_n_Fe54_derived = 151,
-        k_Ni58_to_n_Ni57_derived = 152,
-        k_Ni57_to_n_Ni56_derived = 153,
-        NumRates = k_Ni57_to_n_Ni56_derived
+        k_Fe53_to_n_Fe52_derived = 148,
+        k_Fe54_to_n_Fe53_derived = 149,
+        k_Fe55_to_n_Fe54_derived = 150,
+        k_Fe56_to_n_Fe55_derived = 151,
+        k_Ni57_to_n_Ni56_derived = 152,
+        k_Ni58_to_n_Ni57_derived = 153,
+        NumRates = k_Ni58_to_n_Ni57_derived
     };
 
     enum ScreenPairs :
@@ -492,77 +492,77 @@ namespace Rates
 
     static const std::vector<std::string> rate_names = {
         "",   // 0
-        "Co56_to_Fe56_weaktab",  // 1,
-        "Co56_to_Ni56_weaktab",  // 2,
-        "Fe56_to_Co56_weaktab",  // 3,
-        "Ni56_to_Co56_weaktab",  // 4,
-        "n_to_p_weaktab",  // 5,
-        "p_to_n_weaktab",  // 6,
+        "Co56_to_Fe56_electron_capture_weaktab",  // 1,
+        "Co56_to_Ni56_beta_neg_weaktab",  // 2,
+        "Fe56_to_Co56_beta_neg_weaktab",  // 3,
+        "Ni56_to_Co56_electron_capture_weaktab",  // 4,
+        "n_to_p_beta_neg_weaktab",  // 5,
+        "p_to_n_electron_capture_weaktab",  // 6,
         "C12_C12_to_p_Na23_starlib",  // 7,
         "C12_C12_to_He4_Ne20_starlib",  // 8,
-        "C12_O16_to_p_Al27_starlib",  // 9,
-        "C12_O16_to_He4_Mg24_starlib",  // 10,
+        "O16_C12_to_p_Al27_starlib",  // 9,
+        "O16_C12_to_He4_Mg24_starlib",  // 10,
         "O16_O16_to_p_P31_starlib",  // 11,
         "O16_O16_to_He4_Si28_starlib",  // 12,
         "He4_He4_He4_to_C12_starlib",  // 13,
-        "p_C12_to_N13_starlib",  // 14,
-        "He4_C12_to_O16_starlib",  // 15,
-        "He4_N13_to_p_O16_starlib",  // 16,
-        "He4_O16_to_Ne20_starlib",  // 17,
-        "He4_Ne20_to_Mg24_starlib",  // 18,
-        "p_Na23_to_He4_Ne20_starlib",  // 19,
-        "p_Na23_to_Mg24_starlib",  // 20,
-        "He4_Mg24_to_Si28_starlib",  // 21,
-        "p_Al27_to_He4_Mg24_starlib",  // 22,
-        "p_Al27_to_Si28_starlib",  // 23,
-        "He4_Si28_to_S32_starlib",  // 24,
-        "p_P31_to_He4_Si28_starlib",  // 25,
-        "p_P31_to_S32_starlib",  // 26,
-        "He4_Cr48_to_p_Mn51_starlib",  // 27,
-        "He4_Cr48_to_Fe52_starlib",  // 28,
-        "p_Mn51_to_Fe52_starlib",  // 29,
-        "He4_Mn51_to_Co55_starlib",  // 30,
-        "He4_Fe52_to_p_Co55_starlib",  // 31,
-        "He4_Fe52_to_Ni56_starlib",  // 32,
-        "p_Co55_to_Ni56_starlib",  // 33,
-        "He4_Co55_to_Cu59_starlib",  // 34,
-        "He4_Ni56_to_Zn60_starlib",  // 35,
-        "p_Cu59_to_He4_Ni56_starlib",  // 36,
-        "p_Cu59_to_Zn60_starlib",  // 37,
+        "C12_p_to_N13_starlib",  // 14,
+        "C12_He4_to_O16_starlib",  // 15,
+        "N13_He4_to_p_O16_starlib",  // 16,
+        "O16_He4_to_Ne20_starlib",  // 17,
+        "Ne20_He4_to_Mg24_starlib",  // 18,
+        "Na23_p_to_He4_Ne20_starlib",  // 19,
+        "Na23_p_to_Mg24_starlib",  // 20,
+        "Mg24_He4_to_Si28_starlib",  // 21,
+        "Al27_p_to_He4_Mg24_starlib",  // 22,
+        "Al27_p_to_Si28_starlib",  // 23,
+        "Si28_He4_to_S32_starlib",  // 24,
+        "P31_p_to_He4_Si28_starlib",  // 25,
+        "P31_p_to_S32_starlib",  // 26,
+        "Cr48_He4_to_p_Mn51_starlib",  // 27,
+        "Cr48_He4_to_Fe52_starlib",  // 28,
+        "Mn51_p_to_Fe52_starlib",  // 29,
+        "Mn51_He4_to_Co55_starlib",  // 30,
+        "Fe52_He4_to_p_Co55_starlib",  // 31,
+        "Fe52_He4_to_Ni56_starlib",  // 32,
+        "Co55_p_to_Ni56_starlib",  // 33,
+        "Co55_He4_to_Cu59_starlib",  // 34,
+        "Ni56_He4_to_Zn60_starlib",  // 35,
+        "Cu59_p_to_He4_Ni56_starlib",  // 36,
+        "Cu59_p_to_Zn60_starlib",  // 37,
         "C12_C12_to_n_Mg23_starlib",  // 38,
         "O16_O16_to_n_S31_starlib",  // 39,
-        "C12_O16_to_n_Si27_starlib",  // 40,
-        "He4_Mn51_to_p_Fe54_starlib",  // 41,
-        "p_Fe54_to_Co55_starlib",  // 42,
-        "p_Fe56_to_Co57_starlib",  // 43,
-        "He4_Fe54_to_Ni58_starlib",  // 44,
-        "n_Co55_to_Co56_starlib",  // 45,
-        "n_Co56_to_p_Fe56_starlib",  // 46,
-        "n_Co56_to_Co57_starlib",  // 47,
-        "p_Co57_to_He4_Fe54_starlib",  // 48,
-        "p_Co57_to_Ni58_starlib",  // 49,
-        "He4_Co55_to_p_Ni58_starlib",  // 50,
-        "n_Ni56_to_p_Co56_starlib",  // 51,
-        "p_Ni58_to_Cu59_starlib",  // 52,
-        "n_Cu59_to_He4_Co56_starlib",  // 53,
-        "He4_S32_to_Ar36_starlib",  // 54,
-        "p_Cl35_to_Ar36_starlib",  // 55,
-        "p_Cl35_to_He4_S32_starlib",  // 56,
-        "He4_Ar36_to_Ca40_starlib",  // 57,
-        "p_K39_to_Ca40_starlib",  // 58,
-        "p_K39_to_He4_Ar36_starlib",  // 59,
-        "He4_Ca40_to_Ti44_starlib",  // 60,
-        "p_Sc43_to_Ti44_starlib",  // 61,
-        "p_Sc43_to_He4_Ca40_starlib",  // 62,
-        "He4_Ti44_to_Cr48_starlib",  // 63,
-        "p_V47_to_Cr48_starlib",  // 64,
-        "p_V47_to_He4_Ti44_starlib",  // 65,
-        "n_Fe52_to_Fe53_starlib",  // 66,
-        "n_Fe53_to_Fe54_starlib",  // 67,
-        "n_Fe54_to_Fe55_starlib",  // 68,
-        "n_Fe55_to_Fe56_starlib",  // 69,
-        "n_Ni56_to_Ni57_starlib",  // 70,
-        "n_Ni57_to_Ni58_starlib",  // 71,
+        "O16_C12_to_n_Si27_starlib",  // 40,
+        "Mn51_He4_to_p_Fe54_starlib",  // 41,
+        "Fe54_p_to_Co55_starlib",  // 42,
+        "Fe56_p_to_Co57_starlib",  // 43,
+        "Fe54_He4_to_Ni58_starlib",  // 44,
+        "Co55_n_to_Co56_starlib",  // 45,
+        "Co56_n_to_p_Fe56_starlib",  // 46,
+        "Co56_n_to_Co57_starlib",  // 47,
+        "Co57_p_to_He4_Fe54_starlib",  // 48,
+        "Co57_p_to_Ni58_starlib",  // 49,
+        "Co55_He4_to_p_Ni58_starlib",  // 50,
+        "Ni56_n_to_p_Co56_starlib",  // 51,
+        "Ni58_p_to_Cu59_starlib",  // 52,
+        "Cu59_n_to_He4_Co56_starlib",  // 53,
+        "S32_He4_to_Ar36_starlib",  // 54,
+        "Cl35_p_to_He4_S32_starlib",  // 55,
+        "Cl35_p_to_Ar36_starlib",  // 56,
+        "Ar36_He4_to_Ca40_starlib",  // 57,
+        "K39_p_to_He4_Ar36_starlib",  // 58,
+        "K39_p_to_Ca40_starlib",  // 59,
+        "Ca40_He4_to_Ti44_starlib",  // 60,
+        "Sc43_p_to_He4_Ca40_starlib",  // 61,
+        "Sc43_p_to_Ti44_starlib",  // 62,
+        "Ti44_He4_to_Cr48_starlib",  // 63,
+        "V47_p_to_He4_Ti44_starlib",  // 64,
+        "V47_p_to_Cr48_starlib",  // 65,
+        "Fe52_n_to_Fe53_starlib",  // 66,
+        "Fe53_n_to_Fe54_starlib",  // 67,
+        "Fe54_n_to_Fe55_starlib",  // 68,
+        "Fe55_n_to_Fe56_starlib",  // 69,
+        "Ni56_n_to_Ni57_starlib",  // 70,
+        "Ni57_n_to_Ni58_starlib",  // 71,
         "S32_He4_to_Ar36_approx",  // 72,
         "Ar36_to_S32_He4_approx",  // 73,
         "Ar36_He4_to_Ca40_approx",  // 74,
@@ -579,72 +579,72 @@ namespace Rates
         "Ni58_to_Ni56_n_n_approx",  // 85,
         "C12_C12_to_Mg24_modified",  // 86,
         "O16_O16_to_S32_modified",  // 87,
-        "C12_O16_to_Si28_modified",  // 88,
-        "C12_to_He4_He4_He4_derived",  // 89,
-        "He4_Ne20_to_C12_C12_derived",  // 90,
-        "p_Na23_to_C12_C12_derived",  // 91,
-        "He4_Mg24_to_C12_O16_derived",  // 92,
-        "p_Al27_to_C12_O16_derived",  // 93,
-        "He4_Si28_to_O16_O16_derived",  // 94,
-        "p_P31_to_O16_O16_derived",  // 95,
-        "p_O16_to_He4_N13_derived",  // 96,
+        "O16_C12_to_Si28_modified",  // 88,
+        "C12_to_3He4_derived",  // 89,
+        "Ne20_He4_to_C12_C12_derived",  // 90,
+        "Na23_p_to_C12_C12_derived",  // 91,
+        "Mg24_He4_to_C12_O16_derived",  // 92,
+        "Al27_p_to_C12_O16_derived",  // 93,
+        "Si28_He4_to_O16_O16_derived",  // 94,
+        "P31_p_to_O16_O16_derived",  // 95,
+        "O16_p_to_He4_N13_derived",  // 96,
         "N13_to_p_C12_derived",  // 97,
         "O16_to_He4_C12_derived",  // 98,
         "Ne20_to_He4_O16_derived",  // 99,
-        "He4_Ne20_to_p_Na23_derived",  // 100,
+        "Ne20_He4_to_p_Na23_derived",  // 100,
         "Mg24_to_p_Na23_derived",  // 101,
         "Mg24_to_He4_Ne20_derived",  // 102,
-        "He4_Mg24_to_p_Al27_derived",  // 103,
+        "Mg24_He4_to_p_Al27_derived",  // 103,
         "Si28_to_p_Al27_derived",  // 104,
         "Si28_to_He4_Mg24_derived",  // 105,
-        "He4_Si28_to_p_P31_derived",  // 106,
+        "Si28_He4_to_p_P31_derived",  // 106,
         "S32_to_p_P31_derived",  // 107,
         "S32_to_He4_Si28_derived",  // 108,
-        "p_Mn51_to_He4_Cr48_derived",  // 109,
-        "p_Co55_to_He4_Fe52_derived",  // 110,
+        "Mn51_p_to_He4_Cr48_derived",  // 109,
+        "Co55_p_to_He4_Fe52_derived",  // 110,
         "Fe52_to_p_Mn51_derived",  // 111,
         "Fe52_to_He4_Cr48_derived",  // 112,
         "Co55_to_He4_Mn51_derived",  // 113,
         "Ni56_to_p_Co55_derived",  // 114,
         "Ni56_to_He4_Fe52_derived",  // 115,
-        "He4_Ni56_to_p_Cu59_derived",  // 116,
+        "Ni56_He4_to_p_Cu59_derived",  // 116,
         "Cu59_to_He4_Co55_derived",  // 117,
         "Zn60_to_p_Cu59_derived",  // 118,
         "Zn60_to_He4_Ni56_derived",  // 119,
         "Mg24_to_C12_C12_derived",  // 120,
         "S32_to_O16_O16_derived",  // 121,
         "Si28_to_C12_O16_derived",  // 122,
-        "p_Fe54_to_He4_Mn51_derived",  // 123,
-        "p_Fe56_to_n_Co56_derived",  // 124,
-        "He4_Fe54_to_p_Co57_derived",  // 125,
-        "p_Ni58_to_He4_Co55_derived",  // 126,
+        "Fe54_p_to_He4_Mn51_derived",  // 123,
+        "Fe56_p_to_n_Co56_derived",  // 124,
+        "Fe54_He4_to_p_Co57_derived",  // 125,
+        "Ni58_p_to_He4_Co55_derived",  // 126,
         "Co55_to_p_Fe54_derived",  // 127,
         "Co56_to_n_Co55_derived",  // 128,
         "Co57_to_n_Co56_derived",  // 129,
         "Co57_to_p_Fe56_derived",  // 130,
-        "p_Co56_to_n_Ni56_derived",  // 131,
+        "Co56_p_to_n_Ni56_derived",  // 131,
         "Ni58_to_p_Co57_derived",  // 132,
         "Ni58_to_He4_Fe54_derived",  // 133,
-        "He4_Co56_to_n_Cu59_derived",  // 134,
+        "Co56_He4_to_n_Cu59_derived",  // 134,
         "Cu59_to_p_Ni58_derived",  // 135,
-        "He4_S32_to_p_Cl35_derived",  // 136,
+        "S32_He4_to_p_Cl35_derived",  // 136,
         "Ar36_to_He4_S32_derived",  // 137,
         "Ar36_to_p_Cl35_derived",  // 138,
-        "He4_Ar36_to_p_K39_derived",  // 139,
+        "Ar36_He4_to_p_K39_derived",  // 139,
         "Ca40_to_He4_Ar36_derived",  // 140,
         "Ca40_to_p_K39_derived",  // 141,
-        "He4_Ca40_to_p_Sc43_derived",  // 142,
+        "Ca40_He4_to_p_Sc43_derived",  // 142,
         "Ti44_to_He4_Ca40_derived",  // 143,
         "Ti44_to_p_Sc43_derived",  // 144,
-        "He4_Ti44_to_p_V47_derived",  // 145,
+        "Ti44_He4_to_p_V47_derived",  // 145,
         "Cr48_to_He4_Ti44_derived",  // 146,
         "Cr48_to_p_V47_derived",  // 147,
-        "Fe54_to_n_Fe53_derived",  // 148,
-        "Fe53_to_n_Fe52_derived",  // 149,
-        "Fe56_to_n_Fe55_derived",  // 150,
-        "Fe55_to_n_Fe54_derived",  // 151,
-        "Ni58_to_n_Ni57_derived",  // 152,
-        "Ni57_to_n_Ni56_derived"  // 153,
+        "Fe53_to_n_Fe52_derived",  // 148,
+        "Fe54_to_n_Fe53_derived",  // 149,
+        "Fe55_to_n_Fe54_derived",  // 150,
+        "Fe56_to_n_Fe55_derived",  // 151,
+        "Ni57_to_n_Ni56_derived",  // 152,
+        "Ni58_to_n_Ni57_derived"  // 153,
     };
 
     template<std::uint8_t rate>
@@ -658,11 +658,11 @@ namespace Rates
             return starlib::prand(2);
         }
 
-        if constexpr (rate == k_C12_O16_to_p_Al27_starlib) {
+        if constexpr (rate == k_O16_C12_to_p_Al27_starlib) {
             return starlib::prand(3);
         }
 
-        if constexpr (rate == k_C12_O16_to_He4_Mg24_starlib) {
+        if constexpr (rate == k_O16_C12_to_He4_Mg24_starlib) {
             return starlib::prand(4);
         }
 
@@ -678,99 +678,99 @@ namespace Rates
             return starlib::prand(7);
         }
 
-        if constexpr (rate == k_p_C12_to_N13_starlib) {
+        if constexpr (rate == k_C12_p_to_N13_starlib) {
             return starlib::prand(8);
         }
 
-        if constexpr (rate == k_He4_C12_to_O16_starlib) {
+        if constexpr (rate == k_C12_He4_to_O16_starlib) {
             return starlib::prand(9);
         }
 
-        if constexpr (rate == k_He4_N13_to_p_O16_starlib) {
+        if constexpr (rate == k_N13_He4_to_p_O16_starlib) {
             return starlib::prand(10);
         }
 
-        if constexpr (rate == k_He4_O16_to_Ne20_starlib) {
+        if constexpr (rate == k_O16_He4_to_Ne20_starlib) {
             return starlib::prand(11);
         }
 
-        if constexpr (rate == k_He4_Ne20_to_Mg24_starlib) {
+        if constexpr (rate == k_Ne20_He4_to_Mg24_starlib) {
             return starlib::prand(12);
         }
 
-        if constexpr (rate == k_p_Na23_to_He4_Ne20_starlib) {
+        if constexpr (rate == k_Na23_p_to_He4_Ne20_starlib) {
             return starlib::prand(13);
         }
 
-        if constexpr (rate == k_p_Na23_to_Mg24_starlib) {
+        if constexpr (rate == k_Na23_p_to_Mg24_starlib) {
             return starlib::prand(14);
         }
 
-        if constexpr (rate == k_He4_Mg24_to_Si28_starlib) {
+        if constexpr (rate == k_Mg24_He4_to_Si28_starlib) {
             return starlib::prand(15);
         }
 
-        if constexpr (rate == k_p_Al27_to_He4_Mg24_starlib) {
+        if constexpr (rate == k_Al27_p_to_He4_Mg24_starlib) {
             return starlib::prand(16);
         }
 
-        if constexpr (rate == k_p_Al27_to_Si28_starlib) {
+        if constexpr (rate == k_Al27_p_to_Si28_starlib) {
             return starlib::prand(17);
         }
 
-        if constexpr (rate == k_He4_Si28_to_S32_starlib) {
+        if constexpr (rate == k_Si28_He4_to_S32_starlib) {
             return starlib::prand(18);
         }
 
-        if constexpr (rate == k_p_P31_to_He4_Si28_starlib) {
+        if constexpr (rate == k_P31_p_to_He4_Si28_starlib) {
             return starlib::prand(19);
         }
 
-        if constexpr (rate == k_p_P31_to_S32_starlib) {
+        if constexpr (rate == k_P31_p_to_S32_starlib) {
             return starlib::prand(20);
         }
 
-        if constexpr (rate == k_He4_Cr48_to_p_Mn51_starlib) {
+        if constexpr (rate == k_Cr48_He4_to_p_Mn51_starlib) {
             return starlib::prand(21);
         }
 
-        if constexpr (rate == k_He4_Cr48_to_Fe52_starlib) {
+        if constexpr (rate == k_Cr48_He4_to_Fe52_starlib) {
             return starlib::prand(22);
         }
 
-        if constexpr (rate == k_p_Mn51_to_Fe52_starlib) {
+        if constexpr (rate == k_Mn51_p_to_Fe52_starlib) {
             return starlib::prand(23);
         }
 
-        if constexpr (rate == k_He4_Mn51_to_Co55_starlib) {
+        if constexpr (rate == k_Mn51_He4_to_Co55_starlib) {
             return starlib::prand(24);
         }
 
-        if constexpr (rate == k_He4_Fe52_to_p_Co55_starlib) {
+        if constexpr (rate == k_Fe52_He4_to_p_Co55_starlib) {
             return starlib::prand(25);
         }
 
-        if constexpr (rate == k_He4_Fe52_to_Ni56_starlib) {
+        if constexpr (rate == k_Fe52_He4_to_Ni56_starlib) {
             return starlib::prand(26);
         }
 
-        if constexpr (rate == k_p_Co55_to_Ni56_starlib) {
+        if constexpr (rate == k_Co55_p_to_Ni56_starlib) {
             return starlib::prand(27);
         }
 
-        if constexpr (rate == k_He4_Co55_to_Cu59_starlib) {
+        if constexpr (rate == k_Co55_He4_to_Cu59_starlib) {
             return starlib::prand(28);
         }
 
-        if constexpr (rate == k_He4_Ni56_to_Zn60_starlib) {
+        if constexpr (rate == k_Ni56_He4_to_Zn60_starlib) {
             return starlib::prand(29);
         }
 
-        if constexpr (rate == k_p_Cu59_to_He4_Ni56_starlib) {
+        if constexpr (rate == k_Cu59_p_to_He4_Ni56_starlib) {
             return starlib::prand(30);
         }
 
-        if constexpr (rate == k_p_Cu59_to_Zn60_starlib) {
+        if constexpr (rate == k_Cu59_p_to_Zn60_starlib) {
             return starlib::prand(31);
         }
 
@@ -782,131 +782,131 @@ namespace Rates
             return starlib::prand(33);
         }
 
-        if constexpr (rate == k_C12_O16_to_n_Si27_starlib) {
+        if constexpr (rate == k_O16_C12_to_n_Si27_starlib) {
             return starlib::prand(34);
         }
 
-        if constexpr (rate == k_He4_Mn51_to_p_Fe54_starlib) {
+        if constexpr (rate == k_Mn51_He4_to_p_Fe54_starlib) {
             return starlib::prand(35);
         }
 
-        if constexpr (rate == k_p_Fe54_to_Co55_starlib) {
+        if constexpr (rate == k_Fe54_p_to_Co55_starlib) {
             return starlib::prand(36);
         }
 
-        if constexpr (rate == k_p_Fe56_to_Co57_starlib) {
+        if constexpr (rate == k_Fe56_p_to_Co57_starlib) {
             return starlib::prand(37);
         }
 
-        if constexpr (rate == k_He4_Fe54_to_Ni58_starlib) {
+        if constexpr (rate == k_Fe54_He4_to_Ni58_starlib) {
             return starlib::prand(38);
         }
 
-        if constexpr (rate == k_n_Co55_to_Co56_starlib) {
+        if constexpr (rate == k_Co55_n_to_Co56_starlib) {
             return starlib::prand(39);
         }
 
-        if constexpr (rate == k_n_Co56_to_p_Fe56_starlib) {
+        if constexpr (rate == k_Co56_n_to_p_Fe56_starlib) {
             return starlib::prand(40);
         }
 
-        if constexpr (rate == k_n_Co56_to_Co57_starlib) {
+        if constexpr (rate == k_Co56_n_to_Co57_starlib) {
             return starlib::prand(41);
         }
 
-        if constexpr (rate == k_p_Co57_to_He4_Fe54_starlib) {
+        if constexpr (rate == k_Co57_p_to_He4_Fe54_starlib) {
             return starlib::prand(42);
         }
 
-        if constexpr (rate == k_p_Co57_to_Ni58_starlib) {
+        if constexpr (rate == k_Co57_p_to_Ni58_starlib) {
             return starlib::prand(43);
         }
 
-        if constexpr (rate == k_He4_Co55_to_p_Ni58_starlib) {
+        if constexpr (rate == k_Co55_He4_to_p_Ni58_starlib) {
             return starlib::prand(44);
         }
 
-        if constexpr (rate == k_n_Ni56_to_p_Co56_starlib) {
+        if constexpr (rate == k_Ni56_n_to_p_Co56_starlib) {
             return starlib::prand(45);
         }
 
-        if constexpr (rate == k_p_Ni58_to_Cu59_starlib) {
+        if constexpr (rate == k_Ni58_p_to_Cu59_starlib) {
             return starlib::prand(46);
         }
 
-        if constexpr (rate == k_n_Cu59_to_He4_Co56_starlib) {
+        if constexpr (rate == k_Cu59_n_to_He4_Co56_starlib) {
             return starlib::prand(47);
         }
 
-        if constexpr (rate == k_He4_S32_to_Ar36_starlib) {
+        if constexpr (rate == k_S32_He4_to_Ar36_starlib) {
             return starlib::prand(48);
         }
 
-        if constexpr (rate == k_p_Cl35_to_Ar36_starlib) {
+        if constexpr (rate == k_Cl35_p_to_He4_S32_starlib) {
             return starlib::prand(49);
         }
 
-        if constexpr (rate == k_p_Cl35_to_He4_S32_starlib) {
+        if constexpr (rate == k_Cl35_p_to_Ar36_starlib) {
             return starlib::prand(50);
         }
 
-        if constexpr (rate == k_He4_Ar36_to_Ca40_starlib) {
+        if constexpr (rate == k_Ar36_He4_to_Ca40_starlib) {
             return starlib::prand(51);
         }
 
-        if constexpr (rate == k_p_K39_to_Ca40_starlib) {
+        if constexpr (rate == k_K39_p_to_He4_Ar36_starlib) {
             return starlib::prand(52);
         }
 
-        if constexpr (rate == k_p_K39_to_He4_Ar36_starlib) {
+        if constexpr (rate == k_K39_p_to_Ca40_starlib) {
             return starlib::prand(53);
         }
 
-        if constexpr (rate == k_He4_Ca40_to_Ti44_starlib) {
+        if constexpr (rate == k_Ca40_He4_to_Ti44_starlib) {
             return starlib::prand(54);
         }
 
-        if constexpr (rate == k_p_Sc43_to_Ti44_starlib) {
+        if constexpr (rate == k_Sc43_p_to_He4_Ca40_starlib) {
             return starlib::prand(55);
         }
 
-        if constexpr (rate == k_p_Sc43_to_He4_Ca40_starlib) {
+        if constexpr (rate == k_Sc43_p_to_Ti44_starlib) {
             return starlib::prand(56);
         }
 
-        if constexpr (rate == k_He4_Ti44_to_Cr48_starlib) {
+        if constexpr (rate == k_Ti44_He4_to_Cr48_starlib) {
             return starlib::prand(57);
         }
 
-        if constexpr (rate == k_p_V47_to_Cr48_starlib) {
+        if constexpr (rate == k_V47_p_to_He4_Ti44_starlib) {
             return starlib::prand(58);
         }
 
-        if constexpr (rate == k_p_V47_to_He4_Ti44_starlib) {
+        if constexpr (rate == k_V47_p_to_Cr48_starlib) {
             return starlib::prand(59);
         }
 
-        if constexpr (rate == k_n_Fe52_to_Fe53_starlib) {
+        if constexpr (rate == k_Fe52_n_to_Fe53_starlib) {
             return starlib::prand(60);
         }
 
-        if constexpr (rate == k_n_Fe53_to_Fe54_starlib) {
+        if constexpr (rate == k_Fe53_n_to_Fe54_starlib) {
             return starlib::prand(61);
         }
 
-        if constexpr (rate == k_n_Fe54_to_Fe55_starlib) {
+        if constexpr (rate == k_Fe54_n_to_Fe55_starlib) {
             return starlib::prand(62);
         }
 
-        if constexpr (rate == k_n_Fe55_to_Fe56_starlib) {
+        if constexpr (rate == k_Fe55_n_to_Fe56_starlib) {
             return starlib::prand(63);
         }
 
-        if constexpr (rate == k_n_Ni56_to_Ni57_starlib) {
+        if constexpr (rate == k_Ni56_n_to_Ni57_starlib) {
             return starlib::prand(64);
         }
 
-        if constexpr (rate == k_n_Ni57_to_Ni58_starlib) {
+        if constexpr (rate == k_Ni57_n_to_Ni58_starlib) {
             return starlib::prand(65);
         }
 
@@ -937,44 +937,44 @@ namespace NSE_INDEX
     constexpr int NumNSERatePairs = 42;
 
     inline AMREX_GPU_MANAGED amrex::Array2D<short, 1, NumNSERatePairs, 1, 10, amrex::Order::C> rate_pair_data {
-        He4, He4, He4, C12, -1, -1, C12, -1, k_He4_He4_He4_to_C12_starlib, k_C12_to_He4_He4_He4_derived,
-        H1, C12, -1, N13, -1, -1, C12, N13, k_p_C12_to_N13_starlib, k_N13_to_p_C12_derived,
-        He4, C12, -1, O16, -1, -1, C12, O16, k_He4_C12_to_O16_starlib, k_O16_to_He4_C12_derived,
-        He4, N13, -1, H1, O16, -1, N13, O16, k_He4_N13_to_p_O16_starlib, k_p_O16_to_He4_N13_derived,
-        He4, O16, -1, Ne20, -1, -1, O16, Ne20, k_He4_O16_to_Ne20_starlib, k_Ne20_to_He4_O16_derived,
-        He4, Ne20, -1, Mg24, -1, -1, Ne20, Mg24, k_He4_Ne20_to_Mg24_starlib, k_Mg24_to_He4_Ne20_derived,
-        H1, Na23, -1, He4, Ne20, -1, Na23, Ne20, k_p_Na23_to_He4_Ne20_starlib, k_He4_Ne20_to_p_Na23_derived,
-        H1, Na23, -1, Mg24, -1, -1, Na23, Mg24, k_p_Na23_to_Mg24_starlib, k_Mg24_to_p_Na23_derived,
-        He4, Mg24, -1, Si28, -1, -1, Mg24, Si28, k_He4_Mg24_to_Si28_starlib, k_Si28_to_He4_Mg24_derived,
-        H1, Al27, -1, He4, Mg24, -1, Al27, Mg24, k_p_Al27_to_He4_Mg24_starlib, k_He4_Mg24_to_p_Al27_derived,
-        H1, Al27, -1, Si28, -1, -1, Al27, Si28, k_p_Al27_to_Si28_starlib, k_Si28_to_p_Al27_derived,
-        He4, Si28, -1, S32, -1, -1, Si28, S32, k_He4_Si28_to_S32_starlib, k_S32_to_He4_Si28_derived,
-        H1, P31, -1, He4, Si28, -1, P31, Si28, k_p_P31_to_He4_Si28_starlib, k_He4_Si28_to_p_P31_derived,
-        H1, P31, -1, S32, -1, -1, P31, S32, k_p_P31_to_S32_starlib, k_S32_to_p_P31_derived,
-        He4, Cr48, -1, H1, Mn51, -1, Cr48, Mn51, k_He4_Cr48_to_p_Mn51_starlib, k_p_Mn51_to_He4_Cr48_derived,
-        He4, Cr48, -1, Fe52, -1, -1, Cr48, Fe52, k_He4_Cr48_to_Fe52_starlib, k_Fe52_to_He4_Cr48_derived,
-        H1, Mn51, -1, Fe52, -1, -1, Mn51, Fe52, k_p_Mn51_to_Fe52_starlib, k_Fe52_to_p_Mn51_derived,
-        He4, Mn51, -1, Co55, -1, -1, Mn51, Co55, k_He4_Mn51_to_Co55_starlib, k_Co55_to_He4_Mn51_derived,
-        He4, Fe52, -1, H1, Co55, -1, Fe52, Co55, k_He4_Fe52_to_p_Co55_starlib, k_p_Co55_to_He4_Fe52_derived,
-        He4, Fe52, -1, Ni56, -1, -1, Fe52, Ni56, k_He4_Fe52_to_Ni56_starlib, k_Ni56_to_He4_Fe52_derived,
-        H1, Co55, -1, Ni56, -1, -1, Co55, Ni56, k_p_Co55_to_Ni56_starlib, k_Ni56_to_p_Co55_derived,
-        He4, Co55, -1, Cu59, -1, -1, Co55, Cu59, k_He4_Co55_to_Cu59_starlib, k_Cu59_to_He4_Co55_derived,
-        He4, Ni56, -1, Zn60, -1, -1, Ni56, Zn60, k_He4_Ni56_to_Zn60_starlib, k_Zn60_to_He4_Ni56_derived,
-        H1, Cu59, -1, He4, Ni56, -1, Cu59, Ni56, k_p_Cu59_to_He4_Ni56_starlib, k_He4_Ni56_to_p_Cu59_derived,
-        H1, Cu59, -1, Zn60, -1, -1, Cu59, Zn60, k_p_Cu59_to_Zn60_starlib, k_Zn60_to_p_Cu59_derived,
-        He4, Mn51, -1, H1, Fe54, -1, Mn51, Fe54, k_He4_Mn51_to_p_Fe54_starlib, k_p_Fe54_to_He4_Mn51_derived,
-        H1, Fe54, -1, Co55, -1, -1, Fe54, Co55, k_p_Fe54_to_Co55_starlib, k_Co55_to_p_Fe54_derived,
-        H1, Fe56, -1, Co57, -1, -1, Fe56, Co57, k_p_Fe56_to_Co57_starlib, k_Co57_to_p_Fe56_derived,
-        He4, Fe54, -1, Ni58, -1, -1, Fe54, Ni58, k_He4_Fe54_to_Ni58_starlib, k_Ni58_to_He4_Fe54_derived,
-        N, Co55, -1, Co56, -1, -1, Co55, Co56, k_n_Co55_to_Co56_starlib, k_Co56_to_n_Co55_derived,
-        N, Co56, -1, H1, Fe56, -1, Co56, Fe56, k_n_Co56_to_p_Fe56_starlib, k_p_Fe56_to_n_Co56_derived,
-        N, Co56, -1, Co57, -1, -1, Co56, Co57, k_n_Co56_to_Co57_starlib, k_Co57_to_n_Co56_derived,
-        H1, Co57, -1, He4, Fe54, -1, Co57, Fe54, k_p_Co57_to_He4_Fe54_starlib, k_He4_Fe54_to_p_Co57_derived,
-        H1, Co57, -1, Ni58, -1, -1, Co57, Ni58, k_p_Co57_to_Ni58_starlib, k_Ni58_to_p_Co57_derived,
-        He4, Co55, -1, H1, Ni58, -1, Co55, Ni58, k_He4_Co55_to_p_Ni58_starlib, k_p_Ni58_to_He4_Co55_derived,
-        N, Ni56, -1, H1, Co56, -1, Ni56, Co56, k_n_Ni56_to_p_Co56_starlib, k_p_Co56_to_n_Ni56_derived,
-        H1, Ni58, -1, Cu59, -1, -1, Ni58, Cu59, k_p_Ni58_to_Cu59_starlib, k_Cu59_to_p_Ni58_derived,
-        N, Cu59, -1, He4, Co56, -1, Cu59, Co56, k_n_Cu59_to_He4_Co56_starlib, k_He4_Co56_to_n_Cu59_derived,
+        He4, He4, He4, C12, -1, -1, C12, -1, k_He4_He4_He4_to_C12_starlib, k_C12_to_3He4_derived,
+        H1, C12, -1, N13, -1, -1, C12, N13, k_C12_p_to_N13_starlib, k_N13_to_p_C12_derived,
+        He4, C12, -1, O16, -1, -1, C12, O16, k_C12_He4_to_O16_starlib, k_O16_to_He4_C12_derived,
+        He4, N13, -1, H1, O16, -1, N13, O16, k_N13_He4_to_p_O16_starlib, k_O16_p_to_He4_N13_derived,
+        He4, O16, -1, Ne20, -1, -1, O16, Ne20, k_O16_He4_to_Ne20_starlib, k_Ne20_to_He4_O16_derived,
+        He4, Ne20, -1, Mg24, -1, -1, Ne20, Mg24, k_Ne20_He4_to_Mg24_starlib, k_Mg24_to_He4_Ne20_derived,
+        H1, Na23, -1, He4, Ne20, -1, Na23, Ne20, k_Na23_p_to_He4_Ne20_starlib, k_Ne20_He4_to_p_Na23_derived,
+        H1, Na23, -1, Mg24, -1, -1, Na23, Mg24, k_Na23_p_to_Mg24_starlib, k_Mg24_to_p_Na23_derived,
+        He4, Mg24, -1, Si28, -1, -1, Mg24, Si28, k_Mg24_He4_to_Si28_starlib, k_Si28_to_He4_Mg24_derived,
+        H1, Al27, -1, He4, Mg24, -1, Al27, Mg24, k_Al27_p_to_He4_Mg24_starlib, k_Mg24_He4_to_p_Al27_derived,
+        H1, Al27, -1, Si28, -1, -1, Al27, Si28, k_Al27_p_to_Si28_starlib, k_Si28_to_p_Al27_derived,
+        He4, Si28, -1, S32, -1, -1, Si28, S32, k_Si28_He4_to_S32_starlib, k_S32_to_He4_Si28_derived,
+        H1, P31, -1, He4, Si28, -1, P31, Si28, k_P31_p_to_He4_Si28_starlib, k_Si28_He4_to_p_P31_derived,
+        H1, P31, -1, S32, -1, -1, P31, S32, k_P31_p_to_S32_starlib, k_S32_to_p_P31_derived,
+        He4, Cr48, -1, H1, Mn51, -1, Cr48, Mn51, k_Cr48_He4_to_p_Mn51_starlib, k_Mn51_p_to_He4_Cr48_derived,
+        He4, Cr48, -1, Fe52, -1, -1, Cr48, Fe52, k_Cr48_He4_to_Fe52_starlib, k_Fe52_to_He4_Cr48_derived,
+        H1, Mn51, -1, Fe52, -1, -1, Mn51, Fe52, k_Mn51_p_to_Fe52_starlib, k_Fe52_to_p_Mn51_derived,
+        He4, Mn51, -1, Co55, -1, -1, Mn51, Co55, k_Mn51_He4_to_Co55_starlib, k_Co55_to_He4_Mn51_derived,
+        He4, Fe52, -1, H1, Co55, -1, Fe52, Co55, k_Fe52_He4_to_p_Co55_starlib, k_Co55_p_to_He4_Fe52_derived,
+        He4, Fe52, -1, Ni56, -1, -1, Fe52, Ni56, k_Fe52_He4_to_Ni56_starlib, k_Ni56_to_He4_Fe52_derived,
+        H1, Co55, -1, Ni56, -1, -1, Co55, Ni56, k_Co55_p_to_Ni56_starlib, k_Ni56_to_p_Co55_derived,
+        He4, Co55, -1, Cu59, -1, -1, Co55, Cu59, k_Co55_He4_to_Cu59_starlib, k_Cu59_to_He4_Co55_derived,
+        He4, Ni56, -1, Zn60, -1, -1, Ni56, Zn60, k_Ni56_He4_to_Zn60_starlib, k_Zn60_to_He4_Ni56_derived,
+        H1, Cu59, -1, He4, Ni56, -1, Cu59, Ni56, k_Cu59_p_to_He4_Ni56_starlib, k_Ni56_He4_to_p_Cu59_derived,
+        H1, Cu59, -1, Zn60, -1, -1, Cu59, Zn60, k_Cu59_p_to_Zn60_starlib, k_Zn60_to_p_Cu59_derived,
+        He4, Mn51, -1, H1, Fe54, -1, Mn51, Fe54, k_Mn51_He4_to_p_Fe54_starlib, k_Fe54_p_to_He4_Mn51_derived,
+        H1, Fe54, -1, Co55, -1, -1, Fe54, Co55, k_Fe54_p_to_Co55_starlib, k_Co55_to_p_Fe54_derived,
+        H1, Fe56, -1, Co57, -1, -1, Fe56, Co57, k_Fe56_p_to_Co57_starlib, k_Co57_to_p_Fe56_derived,
+        He4, Fe54, -1, Ni58, -1, -1, Fe54, Ni58, k_Fe54_He4_to_Ni58_starlib, k_Ni58_to_He4_Fe54_derived,
+        N, Co55, -1, Co56, -1, -1, Co55, Co56, k_Co55_n_to_Co56_starlib, k_Co56_to_n_Co55_derived,
+        N, Co56, -1, H1, Fe56, -1, Co56, Fe56, k_Co56_n_to_p_Fe56_starlib, k_Fe56_p_to_n_Co56_derived,
+        N, Co56, -1, Co57, -1, -1, Co56, Co57, k_Co56_n_to_Co57_starlib, k_Co57_to_n_Co56_derived,
+        H1, Co57, -1, He4, Fe54, -1, Co57, Fe54, k_Co57_p_to_He4_Fe54_starlib, k_Fe54_He4_to_p_Co57_derived,
+        H1, Co57, -1, Ni58, -1, -1, Co57, Ni58, k_Co57_p_to_Ni58_starlib, k_Ni58_to_p_Co57_derived,
+        He4, Co55, -1, H1, Ni58, -1, Co55, Ni58, k_Co55_He4_to_p_Ni58_starlib, k_Ni58_p_to_He4_Co55_derived,
+        N, Ni56, -1, H1, Co56, -1, Ni56, Co56, k_Ni56_n_to_p_Co56_starlib, k_Co56_p_to_n_Ni56_derived,
+        H1, Ni58, -1, Cu59, -1, -1, Ni58, Cu59, k_Ni58_p_to_Cu59_starlib, k_Cu59_to_p_Ni58_derived,
+        N, Cu59, -1, He4, Co56, -1, Cu59, Co56, k_Cu59_n_to_He4_Co56_starlib, k_Co56_He4_to_n_Cu59_derived,
         S32, He4, -1, Ar36, -1, -1, S32, Ar36, k_S32_He4_to_Ar36_approx, k_Ar36_to_S32_He4_approx,
         Ar36, He4, -1, Ca40, -1, -1, Ar36, Ca40, k_Ar36_He4_to_Ca40_approx, k_Ca40_to_Ar36_He4_approx,
         Ca40, He4, -1, Ti44, -1, -1, Ca40, Ti44, k_Ca40_He4_to_Ti44_approx, k_Ti44_to_Ca40_He4_approx,
