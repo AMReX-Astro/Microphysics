@@ -197,13 +197,11 @@ These three quantities are stored as <code class="docutils literal notranslate">
 are indexed as <code class="docutils literal notranslate"><span class="pre">iye</span></code>, <code class="docutils literal notranslate"><span class="pre">iabar</span></code>, and <code class="docutils literal notranslate"><span class="pre">ibea</span></code>.  Additionally, when
 coupling to hydrodynamics, we need to advect these auxiliary
 quantities.</p>
-<p>The evolution equations for the auxiliary variables are:</p>
+<p>The evolution equations for the auxiliary variables (see <a class="reference internal" href="eos.html#aux-eos-comp"><span class="std std-ref">Auxiliary composition</span></a>) are:</p>
 <div class="math notranslate nohighlight">
-\[\begin{split}\begin{align*}
-\frac{DY_e}{Dt} &amp;= \sum_k \frac{Z_k}{A_k} \dot{\omega}_k \\
+\[\begin{split}\frac{DY_e}{Dt} &amp;= \sum_k \frac{Z_k}{A_k} \dot{\omega}_k \\
 \frac{D\bar{A}}{Dt} &amp;= -\bar{A}^2 \sum_k \frac{1}{A_k} \dot{\omega}_k \\
-\frac{D}{Dt} \left (\frac{B}{A} \right ) &amp;= \sum_k \frac{B_k}{A_k} \dot{\omega}_k
-\end{align*}\end{split}\]</div>
+\frac{D}{Dt} \left (\frac{B}{A} \right ) &amp;= \sum_k \frac{B_k}{A_k} \dot{\omega}_k\end{split}\]</div>
 <p>Therefore each of these auxiliary equations obeys an advection equation
 in the hydro part of the advancement.</p>
 <p>The table also provides <span class="math notranslate nohighlight">\(dY_e/dt\)</span>, <span class="math notranslate nohighlight">\((d\langle
