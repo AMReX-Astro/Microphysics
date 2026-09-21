@@ -1,5 +1,5 @@
-#ifndef actual_network_H
-#define actual_network_H
+#ifndef ACTUAL_NETWORK_H
+#define ACTUAL_NETWORK_H
 
 #include <random>
 #include <string_view>
@@ -162,29 +162,29 @@ namespace Rates
     enum NetworkRates :
     std::uint8_t
     {
-        k_p_C12_to_N13_reaclib = 1,
-        k_He4_C12_to_O16_reaclib = 2,
-        k_He4_O16_to_Ne20_reaclib = 3,
-        k_He4_Ne20_to_Mg24_reaclib = 4,
-        k_p_Na23_to_Mg24_reaclib = 5,
-        k_n_Mg23_to_Mg24_reaclib = 6,
+        k_C12_p_to_N13_reaclib = 1,
+        k_C12_He4_to_O16_reaclib = 2,
+        k_O16_He4_to_Ne20_reaclib = 3,
+        k_Ne20_He4_to_Mg24_reaclib = 4,
+        k_Na23_p_to_Mg24_reaclib = 5,
+        k_Mg23_n_to_Mg24_reaclib = 6,
         k_C12_C12_to_n_Mg23_reaclib = 7,
         k_C12_C12_to_p_Na23_reaclib = 8,
         k_C12_C12_to_He4_Ne20_reaclib = 9,
-        k_He4_N13_to_p_O16_reaclib = 10,
-        k_C12_O16_to_He4_Mg24_reaclib = 11,
-        k_He4_Ne20_to_p_Na23_reaclib = 12,
-        k_p_Na23_to_He4_Ne20_reaclib = 13,
-        k_n_Mg23_to_p_Na23_reaclib = 14,
-        k_n_Mg23_to_He4_Ne20_reaclib = 15,
-        k_n_Mg23_to_C12_C12_reaclib = 16,
+        k_N13_He4_to_p_O16_reaclib = 10,
+        k_O16_C12_to_He4_Mg24_reaclib = 11,
+        k_Ne20_He4_to_p_Na23_reaclib = 12,
+        k_Na23_p_to_He4_Ne20_reaclib = 13,
+        k_Mg23_n_to_p_Na23_reaclib = 14,
+        k_Mg23_n_to_He4_Ne20_reaclib = 15,
+        k_Mg23_n_to_C12_C12_reaclib = 16,
         k_He4_He4_He4_to_C12_reaclib = 17,
-        k_Na23_to_Ne23_weaktab = 18,
-        k_Ne23_to_Na23_weaktab = 19,
-        k_Mg23_to_Na23_weaktab = 20,
-        k_n_to_p_weaktab = 21,
-        k_p_to_n_weaktab = 22,
-        NumRates = k_p_to_n_weaktab
+        k_Na23_to_Ne23_electron_capture_weaktab = 18,
+        k_Ne23_to_Na23_beta_neg_weaktab = 19,
+        k_Mg23_to_Na23_electron_capture_weaktab = 20,
+        k_n_to_p_beta_neg_weaktab = 21,
+        k_p_to_n_electron_capture_weaktab = 22,
+        NumRates = k_p_to_n_electron_capture_weaktab
     };
 
     enum ScreenPairs :
@@ -209,28 +209,28 @@ namespace Rates
 
     static const std::vector<std::string> rate_names = {
         "",   // 0
-        "p_C12_to_N13_reaclib",  // 1,
-        "He4_C12_to_O16_reaclib",  // 2,
-        "He4_O16_to_Ne20_reaclib",  // 3,
-        "He4_Ne20_to_Mg24_reaclib",  // 4,
-        "p_Na23_to_Mg24_reaclib",  // 5,
-        "n_Mg23_to_Mg24_reaclib",  // 6,
+        "C12_p_to_N13_reaclib",  // 1,
+        "C12_He4_to_O16_reaclib",  // 2,
+        "O16_He4_to_Ne20_reaclib",  // 3,
+        "Ne20_He4_to_Mg24_reaclib",  // 4,
+        "Na23_p_to_Mg24_reaclib",  // 5,
+        "Mg23_n_to_Mg24_reaclib",  // 6,
         "C12_C12_to_n_Mg23_reaclib",  // 7,
         "C12_C12_to_p_Na23_reaclib",  // 8,
         "C12_C12_to_He4_Ne20_reaclib",  // 9,
-        "He4_N13_to_p_O16_reaclib",  // 10,
-        "C12_O16_to_He4_Mg24_reaclib",  // 11,
-        "He4_Ne20_to_p_Na23_reaclib",  // 12,
-        "p_Na23_to_He4_Ne20_reaclib",  // 13,
-        "n_Mg23_to_p_Na23_reaclib",  // 14,
-        "n_Mg23_to_He4_Ne20_reaclib",  // 15,
-        "n_Mg23_to_C12_C12_reaclib",  // 16,
+        "N13_He4_to_p_O16_reaclib",  // 10,
+        "O16_C12_to_He4_Mg24_reaclib",  // 11,
+        "Ne20_He4_to_p_Na23_reaclib",  // 12,
+        "Na23_p_to_He4_Ne20_reaclib",  // 13,
+        "Mg23_n_to_p_Na23_reaclib",  // 14,
+        "Mg23_n_to_He4_Ne20_reaclib",  // 15,
+        "Mg23_n_to_C12_C12_reaclib",  // 16,
         "He4_He4_He4_to_C12_reaclib",  // 17,
-        "Na23_to_Ne23_weaktab",  // 18,
-        "Ne23_to_Na23_weaktab",  // 19,
-        "Mg23_to_Na23_weaktab",  // 20,
-        "n_to_p_weaktab",  // 21,
-        "p_to_n_weaktab"  // 22,
+        "Na23_to_Ne23_electron_capture_weaktab",  // 18,
+        "Ne23_to_Na23_beta_neg_weaktab",  // 19,
+        "Mg23_to_Na23_electron_capture_weaktab",  // 20,
+        "n_to_p_beta_neg_weaktab",  // 21,
+        "p_to_n_electron_capture_weaktab"  // 22,
     };
 
     template<std::uint8_t rate>
@@ -263,7 +263,7 @@ namespace NSE_INDEX
     constexpr int NumNSERatePairs = 1;
 
     inline AMREX_GPU_MANAGED amrex::Array2D<std::int8_t, 1, NumNSERatePairs, 1, 10, amrex::Order::C> rate_pair_data {
-        H1, Na23, -1, He4, Ne20, -1, Na23, Ne20, k_p_Na23_to_He4_Ne20_reaclib, k_He4_Ne20_to_p_Na23_reaclib
+        H1, Na23, -1, He4, Ne20, -1, Na23, Ne20, k_Na23_p_to_He4_Ne20_reaclib, k_Ne20_He4_to_p_Na23_reaclib
     };
 }
 #endif

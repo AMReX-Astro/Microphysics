@@ -44,7 +44,9 @@ def create_network():
     new_rate_list = []
     rho = 7.e9
     T = 1.e9
-    ydots = rc.evaluate_rates(rho=rho, T=T, composition=comp)
+
+    state = pyna.ThermoState(rho=rho, T=T, comp=comp)
+    ydots = rc.evaluate_rates(state)
     for rate in rc.rates:
         if ydots[rate] >= 1.e-20 and rate.weak == False:
             new_rate_list.append(rate)
