@@ -5,6 +5,7 @@
 #include <variables.H>
 
 void main_main();
+void test_screening_derivatives();
 
 void screen_test_C(const Box& bx,
                    const amrex::Real dlogrho, const amrex::Real dlogT, const amrex::Real dmetal,

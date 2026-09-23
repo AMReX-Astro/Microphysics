@@ -43,16 +43,21 @@ constexpr std::string_view screen_name = "chugunov2009";
 constexpr std::string_view screen_name = "chabrier1998";
 #endif
 
+// Gradient components are (T, M1, M2), where M1 = sum(Z_i Y_i) and
+// M2 = sum(Z_i^2 Y_i) over ALL plasma species.  Density and the reacting
+// pair's nuclear properties are held fixed when taking these derivatives.
+using screening_dual_t = autodiff::dual_array<1, 3>;
+
 template <typename number_t = amrex::Real>
 struct plasma_state_t {
     number_t qlam0z;
     number_t taufac;
     number_t aa;
     number_t temp;
-    amrex::Real zbar;
-    amrex::Real z2bar;
-    amrex::Real n_e;
-    amrex::Real gamma_e_fac;
+    number_t zbar;
+    number_t z2bar;
+    number_t n_e;
+    number_t gamma_e_fac;
 };
 
 template <typename number_t>
@@ -61,15 +66,27 @@ std::ostream& operator<< (std::ostream& o, plasma_state_t<number_t> const& pstat
 {
     o << "qlam0z   = " << pstate.qlam0z << std::endl;
     if constexpr (autodiff::detail::isDual<number_t>) {
-        o << "qlam0zdt = " << autodiff::derivative(pstate.qlam0z) << std::endl;
+        if constexpr (std::is_same_v<number_t, screening_dual_t>) {
+            o << "qlam0zdt = " << autodiff::derivative(pstate.qlam0z)(1) << std::endl;
+        } else {
+            o << "qlam0zdt = " << autodiff::derivative(pstate.qlam0z) << std::endl;
+        }
     }
     o << "taufac   = " << pstate.taufac << std::endl;
     if constexpr (autodiff::detail::isDual<number_t>) {
-        o << "taufacdt = " << autodiff::derivative(pstate.taufac) << std::endl;
+        if constexpr (std::is_same_v<number_t, screening_dual_t>) {
+            o << "taufacdt = " << autodiff::derivative(pstate.taufac)(1) << std::endl;
+        } else {
+            o << "taufacdt = " << autodiff::derivative(pstate.taufac) << std::endl;
+        }
     }
     o << "aa       = " << pstate.aa << std::endl;
     if constexpr (autodiff::detail::isDual<number_t>) {
-        o << "daadt    = " << autodiff::derivative(pstate.aa) << std::endl;
+        if constexpr (std::is_same_v<number_t, screening_dual_t>) {
+            o << "daadt    = " << autodiff::derivative(pstate.aa)(1) << std::endl;
+        } else {
+            o << "daadt    = " << autodiff::derivative(pstate.aa) << std::endl;
+        }
     }
     o << "temp     = " << pstate.temp << std::endl;
     o << "zbar     = " << pstate.zbar << std::endl;
@@ -92,10 +109,10 @@ screening_finalize() {
 
 }
 
-template <typename number_t>
+template <typename number_t, typename temp_t>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void
-fill_plasma_state(plasma_state_t<number_t>& state, const number_t& temp,
+fill_plasma_state(plasma_state_t<number_t>& state, const temp_t& temp,
                   const amrex::Real dens, amrex::Array1D<amrex::Real, 1, NumSpec> const& y) {
 
     amrex::Real sum = 0.0_rt;
@@ -105,11 +122,21 @@ fill_plasma_state(plasma_state_t<number_t>& state, const number_t& temp,
     amrex::Real abar = 1.0_rt / sum;
     amrex::Real ytot = sum;
 
-    sum = 0.0_rt;
-    amrex::Real sum2 = 0.0_rt;
+    number_t m1 = 0.0_rt;
+    number_t m2 = 0.0_rt;
     for (int n = 1; n <= NumSpec; n++) {
-        sum += zion[n-1]*y(n);
-        sum2 += zion[n-1]*zion[n-1]*y(n);
+        m1 += zion[n-1]*y(n);
+        m2 += zion[n-1]*zion[n-1]*y(n);
+    }
+
+    number_t temp_ad = temp;
+    if constexpr (std::is_same_v<number_t, screening_dual_t>) {
+        // Seed the independent plasma moments, not individual abundances.
+        // Although zbar and z2bar contain abar, it cancels from every
+        // screening expression: rr*zbar = rho*M1, rr*(zbar+z2bar) =
+        // rho*(M1+M2), and z2bar/zbar = M2/M1.  Thus no third composition
+        // derivative (with respect to sum(Y_i) or abar) is needed.
+        autodiff::seed_array(temp_ad, m1, m2);
     }
 
     // Part of Eq.6 in Itoh:1979
@@ -117,12 +144,12 @@ fill_plasma_state(plasma_state_t<number_t>& state, const number_t& temp,
     // the extra (1/3) to make tau -> tau/3
     const amrex::Real co2 = (1.0_rt/3.0_rt) * 4.248719e3_rt;
 
-    amrex::Real zbar = sum * abar;
-    amrex::Real z2bar = sum2 * abar;
+    number_t zbar = m1 * abar;
+    number_t z2bar = m2 * abar;
 
     // ntot
     amrex::Real rr = dens * ytot;
-    number_t tempi = 1.0_rt / temp;
+    number_t tempi = 1.0_rt / temp_ad;
 
     // Part of Eq. 19 in Graboske:1973
     // pp = sqrt( \tilde{z}*(rho/u_I/T) )
@@ -134,24 +161,24 @@ fill_plasma_state(plasma_state_t<number_t>& state, const number_t& temp,
     // Part of Eq.6 in Itoh:1979
     state.taufac = co2 * admath::cbrt(tempi);
 
-    amrex::Real xni = std::cbrt(rr * zbar);
+    number_t xni = admath::cbrt(rr * zbar);
 
     // Part of Eq.4 in Itoh:1979
     // 2.27493e5 = e^2 / ( (3*m_u/(4pi))^(1/3) *k_B )
     state.aa = 2.27493e5_rt * tempi * xni;
 
-    state.temp = temp;
+    state.temp = temp_ad;
     state.zbar = zbar;
     state.z2bar = z2bar;
 
     // Electron number density
     // zbar * ntot works out to sum(z[i] * n[i]), after cancelling terms
-    state.n_e = zbar * rr * C::n_A;
+    state.n_e = zbar * rr * static_cast<amrex::Real>(C::n_A);
 
     // precomputed part of Gamma_e, from Chugunov 2009 eq. 6
     constexpr amrex::Real gamma_e_constants =
         C::q_e * C::q_e * gcem::pow(4.0_rt * M_PI / 3.0_rt, 1.0_rt / 3.0_rt) / C::k_B;
-    state.gamma_e_fac = gamma_e_constants * std::cbrt(state.n_e);
+    state.gamma_e_fac = gamma_e_constants * admath::cbrt(state.n_e);
 }
 
 template <typename number_t>
@@ -167,7 +194,7 @@ number_t debye_huckel (const plasma_state_t<number_t>& state,
     // scn_fac = screening factors for A and Z
 
     amrex::Real z1z2 = scn_fac.z1 * scn_fac.z2;
-    amrex::Real z_ratio = state.z2bar / state.zbar;
+    number_t z_ratio = state.z2bar / state.zbar;
 
     // Gamma_e from eq. 6
     number_t Gamma_e = state.gamma_e_fac / state.temp;
@@ -356,11 +383,11 @@ number_t chugunov2007 (const plasma_state_t<number_t>& state,
     //   m_i -> m_u * abar
     const amrex::Real mu12 = scn_fac.a1 * scn_fac.a2 / (scn_fac.a1 + scn_fac.a2);
     const amrex::Real z_factor = scn_fac.z1 * scn_fac.z2;
-    const amrex::Real n_i = state.n_e / scn_fac.ztilde3;
+    const number_t n_i = state.n_e / scn_fac.ztilde3;
     const amrex::Real m_i = 2.0_rt * mu12 / C::n_A;
 
     constexpr amrex::Real T_p_factor = C::hbar/C::k_B*C::q_e*gcem::sqrt(4.0_rt*GCEM_PI);
-    amrex::Real T_p = T_p_factor * std::sqrt(z_factor * n_i / m_i);
+    number_t T_p = T_p_factor * admath::sqrt(z_factor * n_i / m_i);
 
     // Normalized temperature
     number_t T_norm = state.temp / T_p;
@@ -517,7 +544,7 @@ number_t chugunov2009 (const plasma_state_t<number_t>& state,
     number_t h_fit = term1 + term2 - term3;
 
     // weak screening correction term, eq. A3
-    amrex::Real corr_C = 3.0_rt*z1z2 * std::sqrt(state.z2bar/state.zbar) /
+    number_t corr_C = 3.0_rt*z1z2 * admath::sqrt(state.z2bar/state.zbar) /
                          (scn_fac.zs52 - scn_fac.z1_52 - scn_fac.z2_52);
 
     // corrected enhancement factor, eq. A4
@@ -664,7 +691,11 @@ void actual_log_screen(const plasma_state_t<number_t>& state,
     log_scor_dual = actual_log_screen(state, scn_fac);
     if constexpr (autodiff::detail::isDual<number_t>) {
         log_scor = autodiff::val(log_scor_dual);
-        log_scordt = autodiff::derivative(log_scor_dual);
+        if constexpr (std::is_same_v<number_t, screening_dual_t>) {
+            log_scordt = autodiff::derivative(log_scor_dual)(1);
+        } else {
+            log_scordt = autodiff::derivative(log_scor_dual);
+        }
     } else {
         log_scor = log_scor_dual;
         log_scordt = std::numeric_limits<amrex::Real>::quiet_NaN();
@@ -698,11 +729,47 @@ void actual_screen(const plasma_state_t<number_t>& state,
     scor_dual = actual_screen(state, scn_fac);
     if constexpr (autodiff::detail::isDual<number_t>) {
         scor = autodiff::val(scor_dual);
-        scordt = autodiff::derivative(scor_dual);
+        if constexpr (std::is_same_v<number_t, screening_dual_t>) {
+            scordt = autodiff::derivative(scor_dual)(1);
+        } else {
+            scordt = autodiff::derivative(scor_dual);
+        }
     } else {
         scor = scor_dual;
         scordt = std::numeric_limits<amrex::Real>::quiet_NaN();
     }
+}
+
+// These overloads expose all three partial derivatives in one evaluation.
+// For h = log_scor, dh/dY_j = Z_j*dh/dM1 + Z_j^2*dh/dM2.
+// The same chain rule applies to scor.  Calling actual_screen preserves
+// its clipping policy, including zero derivatives when the factor is capped.
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void actual_log_screen(const plasma_state_t<screening_dual_t>& state,
+                       const scrn::screen_factors_t& scn_fac,
+                       amrex::Real& log_scor, amrex::Real& log_scordt,
+                       amrex::Real& log_scordM1, amrex::Real& log_scordM2)
+{
+    const screening_dual_t result = actual_log_screen(state, scn_fac);
+    log_scor = autodiff::val(result);
+    const auto& grad = autodiff::derivative(result);
+    log_scordt = grad(1);
+    log_scordM1 = grad(2);
+    log_scordM2 = grad(3);
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void actual_screen(const plasma_state_t<screening_dual_t>& state,
+                   const scrn::screen_factors_t& scn_fac,
+                   amrex::Real& scor, amrex::Real& scordt,
+                   amrex::Real& scordM1, amrex::Real& scordM2)
+{
+    const screening_dual_t result = actual_screen(state, scn_fac);
+    scor = autodiff::val(result);
+    const auto& grad = autodiff::derivative(result);
+    scordt = grad(1);
+    scordM1 = grad(2);
+    scordM2 = grad(3);
 }
 
 #endif
