@@ -3,6 +3,9 @@
 
 #include <iostream>
 #include <fstream>
+#include <cmath>
+#include <limits>
+#include <sstream>
 
 #include <AMReX.H>
 #include <AMReX_Print.H>
@@ -45,8 +48,6 @@ void init_nse() {
       amrex::Error("unable to open NSE table: " + nse_table_size::table_name);
   }
 
-  amrex::Real ttemp, tdens, tye;
-
   // skip the header -- it is 4 lines
   std::string line;
   std::getline(nse_table_file, line);
@@ -59,12 +60,20 @@ void init_nse() {
           for (int iye = 1; iye <= nse_table_size::nye; iye++) {
               const int j = nse_idx(irho, it, iye);
 
-              std::getline(nse_table_file, line);
-              if (line.empty()) {
-                  amrex::Error("Error reading from the NSE table");
+              const auto row_error = [=] (const std::string& reason) {
+                  amrex::Error("NSE table " + nse_table_size::table_name +
+                               ", line " + std::to_string(j + 4) +
+                               ", index " + std::to_string(j) +
+                               " (irho=" + std::to_string(irho) +
+                               ", it=" + std::to_string(it) +
+                               ", iye=" + std::to_string(iye) + "): " + reason);
+              };
+              if (!std::getline(nse_table_file, line) || line.empty()) {
+                  row_error("missing or empty row");
               }
               std::istringstream data(line);
-              data >> ttemp >> tdens >> tye;
+              amrex::Real ttemp, tdens, tye;
+              data >> tdens >> ttemp >> tye;
               data >> nse_table::abartab(j)
                    >> nse_table::beatab(j)
                    >> nse_table::dyedttab(j)
@@ -73,6 +82,47 @@ void init_nse() {
                    >> nse_table::enutab(j);
               for (int n = 1; n <= NumSpec; n++) {
                   data >> nse_table::massfractab(n, j);
+              }
+              if (data.fail()) {
+                  row_error("incomplete or invalid numeric data");
+              }
+              data >> std::ws;
+              if (!data.eof()) {
+                  row_error("unexpected trailing data");
+              }
+
+              for (const auto value : {tdens, ttemp, tye,
+                                       nse_table::abartab(j), nse_table::beatab(j),
+                                       nse_table::dyedttab(j), nse_table::dabardttab(j),
+                                       nse_table::dbeadttab(j), nse_table::enutab(j)}) {
+                  if (!std::isfinite(value)) {
+                      row_error("non-finite coordinate or table value");
+                  }
+              }
+              for (int n = 1; n <= NumSpec; n++) {
+                  if (!std::isfinite(nse_table::massfractab(n, j))) {
+                      row_error("non-finite mass fraction");
+                  }
+              }
+
+              // Coordinates are printed to ten decimal places. Also allow
+              // roundoff when amrex::Real uses single precision.
+              const auto matches_grid = [] (amrex::Real value, amrex::Real expected) {
+                  const amrex::Real tol = 1.e-10_rt +
+                      4 * std::numeric_limits<amrex::Real>::epsilon() * std::abs(expected);
+                  return std::abs(value - expected) <= tol;
+              };
+              const amrex::Real logrho = nse_table_size::logrho_min +
+                  (irho - 1) * nse_table_size::dlogrho;
+              const amrex::Real logT = nse_table_size::logT_min +
+                  (it - 1) * nse_table_size::dlogT;
+              const amrex::Real ye = nse_table_size::ye_max -
+                  (iye - 1) * nse_table_size::dye;
+              if (!matches_grid(tdens, logrho) || !matches_grid(ttemp, logT) ||
+                  !matches_grid(tye, ye)) {
+                  row_error("coordinates do not match the expected (logrho, logT, Ye) grid: (" +
+                            std::to_string(logrho) + ", " + std::to_string(logT) +
+                            ", " + std::to_string(ye) + ")");
               }
           }
       }
