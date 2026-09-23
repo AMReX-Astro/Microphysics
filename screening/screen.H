@@ -173,7 +173,7 @@ fill_plasma_state(plasma_state_t<number_t>& state, const temp_t& temp,
 
     // Electron number density
     // zbar * ntot works out to sum(z[i] * n[i]), after cancelling terms
-    state.n_e = zbar * rr * C::n_A;
+    state.n_e = zbar * rr * static_cast<amrex::Real>(C::n_A);
 
     // precomputed part of Gamma_e, from Chugunov 2009 eq. 6
     constexpr amrex::Real gamma_e_constants =
