@@ -2,9 +2,6 @@
 
 ## 26.09
 
-  * fix CI workflow setup, chemistry comparisons, and release notes;
-    remove obsolete workflow code
-
   * remove old C++ files from pynucastro nets and `general_null`
     (#2044, #2045)
 
