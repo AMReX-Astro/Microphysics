@@ -1,10 +1,6 @@
-name: docs build
+name: linkcheck
 
 on:
-  push:
-    branches:
-      - development
-      - main
   pull_request:
     branches:
       - development
@@ -14,7 +10,7 @@ env:
   FORCE_COLOR: "1"
 
 jobs:
-  docs:
+  linkcheck:
     runs-on: ubuntu-latest
 
     steps:
@@ -33,7 +29,15 @@ jobs:
       - name: Install dependencies
         run: pip install -r ./requirements.txt
 
-      - name: Build docs
+      - name: Link check
         run: |
           cd Docs/
-          make SPHINXOPTS='-v -W --keep-going' html
+          make SPHINXOPTS=-v linkcheck
+
+      - name: Upload linkcheck report
+        uses: actions/upload-artifact@v7
+        with:
+          name: linkcheck-output
+          path: Docs/build/linkcheck/output.txt
+          archive: false
+

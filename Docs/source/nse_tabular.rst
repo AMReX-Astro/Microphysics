@@ -65,15 +65,13 @@ are indexed as ``iye``, ``iabar``, and ``ibea``.  Additionally, when
 coupling to hydrodynamics, we need to advect these auxiliary
 quantities.
 
-The evolution equations for the auxiliary variables are:
+The evolution equations for the auxiliary variables (see :ref:`aux_eos_comp`) are:
 
 .. math::
 
-   \begin{align*}
    \frac{DY_e}{Dt} &= \sum_k \frac{Z_k}{A_k} \dot{\omega}_k \\
    \frac{D\bar{A}}{Dt} &= -\bar{A}^2 \sum_k \frac{1}{A_k} \dot{\omega}_k \\
    \frac{D}{Dt} \left (\frac{B}{A} \right ) &= \sum_k \frac{B_k}{A_k} \dot{\omega}_k
-   \end{align*}
 
 Therefore each of these auxiliary equations obeys an advection equation
 in the hydro part of the advancement.
