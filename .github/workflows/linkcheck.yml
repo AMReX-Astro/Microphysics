@@ -1,0 +1,43 @@
+name: linkcheck
+
+on:
+  pull_request:
+    branches:
+      - development
+
+env:
+  # enable color output from Sphinx
+  FORCE_COLOR: "1"
+
+jobs:
+  linkcheck:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install pandoc and doxygen
+        run: |
+          sudo apt install pandoc doxygen
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.14'
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r ./requirements.txt
+
+      - name: Link check
+        run: |
+          cd Docs/
+          make SPHINXOPTS=-v linkcheck
+
+      - name: Upload linkcheck report
+        uses: actions/upload-artifact@v7
+        with:
+          name: linkcheck-output
+          path: Docs/build/linkcheck/output.txt
+          archive: false
+

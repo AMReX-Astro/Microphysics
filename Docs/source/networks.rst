@@ -163,8 +163,10 @@ network <https://docs.mesastar.org/en/latest/net/nets.html>`_ which is
 meant to study hot-CNO burning and the start of the breakout from CNO
 burning.  This network is managed by pynucastro.
 
-.. figure:: ../../networks/CNO_extras/cno_extras_hide_alpha.png
+.. figure:: ../../networks/CNO_extras/cno_extras.png
    :align: center
+
+Overall there are 22 nuclei and 74 rates explicitly connecting the nuclei.
 
 .. note::
 
