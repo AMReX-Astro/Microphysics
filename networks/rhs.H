@@ -829,34 +829,29 @@ constexpr std::pair<amrex::Real, amrex::Real> rhs_term (const burn_t& state, con
 
     // Now compute the total contribution to this species.
 
+    amrex::Real coefficient = 0.0_rt;
+
     if constexpr (data.species_A == species) {
-        forward_term *= -data.number_A;
-        reverse_term *= data.number_A;
+        coefficient -= data.number_A;
     }
-    else if constexpr (data.species_B == species) {
-        forward_term *= -data.number_B;
-        reverse_term *= data.number_B;
+    if constexpr (data.species_B == species) {
+        coefficient -= data.number_B;
     }
-    else if constexpr (data.species_C == species) {
-        forward_term *= -data.number_C;
-        reverse_term *= data.number_C;
+    if constexpr (data.species_C == species) {
+        coefficient -= data.number_C;
     }
-    else if constexpr (data.species_D == species) {
-        forward_term *= data.number_D;
-        reverse_term *= -data.number_D;
+    if constexpr (data.species_D == species) {
+        coefficient += data.number_D;
     }
-    else if constexpr (data.species_E == species) {
-        forward_term *= data.number_E;
-        reverse_term *= -data.number_E;
+    if constexpr (data.species_E == species) {
+        coefficient += data.number_E;
     }
-    else if constexpr (data.species_F == species) {
-        forward_term *= data.number_F;
-        reverse_term *= -data.number_F;
+    if constexpr (data.species_F == species) {
+        coefficient += data.number_F;
     }
-    else {
-        forward_term = 0.0;
-        reverse_term = 0.0;
-    }
+
+    forward_term *= coefficient;
+    reverse_term *= -coefficient;
 
     return {forward_term, reverse_term};
 }
@@ -1100,28 +1095,28 @@ constexpr amrex::Real jac_term (const burn_t& state, const rate_t<autodiff::dual
 
     // Now compute the total contribution to this species.
 
-    amrex::Real term = 0.0_rt;
+    amrex::Real coefficient = 0.0_rt;
 
     if constexpr (data.species_A == spec1) {
-        term = data.number_A * (reverse_term - forward_term);
+        coefficient -= data.number_A;
     }
     if constexpr (data.species_B == spec1) {
-        term = data.number_B * (reverse_term - forward_term);
+        coefficient -= data.number_B;
     }
     if constexpr (data.species_C == spec1) {
-        term = data.number_C * (reverse_term - forward_term);
+        coefficient -= data.number_C;
     }
     if constexpr (data.species_D == spec1) {
-        term = data.number_D * (forward_term - reverse_term);
+        coefficient += data.number_D;
     }
     if constexpr (data.species_E == spec1) {
-        term = data.number_E * (forward_term - reverse_term);
+        coefficient += data.number_E;
     }
     if constexpr (data.species_F == spec1) {
-        term = data.number_F * (forward_term - reverse_term);
+        coefficient += data.number_F;
     }
 
-    return term;
+    return coefficient * (forward_term - reverse_term);
 }
 
 template<int rate, typename number_t>
