@@ -240,6 +240,7 @@ linkcheck_request_headers = {
 }
 linkcheck_ignore = [r"https://doi.org/10.1103/[Pp]hys[Rr]ev*",
                     "https://www.sciencedirect.com/science/article/pii/S016892741200133X",
+                    r"https://ui.adsabs.harvard.edu/abs/*",
                     "https://doi.org/10.1145/641876.641877",
                     "https://doi.org/10.1137/S1064827597326651"]
 
