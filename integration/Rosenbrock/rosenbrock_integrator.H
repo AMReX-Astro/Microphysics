@@ -157,12 +157,14 @@ bool species_change_valid ([[maybe_unused]] const rosenbrock_t<int_neqs>& rstate
 #ifdef STRANG
     constexpr amrex::Real increase_change_factor = 4.0_rt;
     constexpr amrex::Real decrease_change_factor = 0.25_rt;
+    const amrex::Real reject_threshold = integrator_rp::X_reject_buffer * rstate.atol_spec;
 
     for (int i = 1; i <= NumSpec; ++i) {
-        if (std::abs(rstate.y(i)) > integrator_rp::X_reject_buffer * rstate.atol_spec &&
-            std::abs(rstate.ynew(i)) > integrator_rp::X_reject_buffer * rstate.atol_spec &&
-            (std::abs(rstate.ynew(i)) > increase_change_factor * std::abs(rstate.y(i)) ||
-             std::abs(rstate.ynew(i)) < decrease_change_factor * std::abs(rstate.y(i)))) {
+        const amrex::Real y_abs = std::abs(rstate.y(i));
+        const amrex::Real ynew_abs = std::abs(rstate.ynew(i));
+        if (y_abs > reject_threshold && ynew_abs > reject_threshold &&
+            (ynew_abs > increase_change_factor * y_abs ||
+             ynew_abs < decrease_change_factor * y_abs)) {
             return false;
         }
     }
@@ -236,6 +238,7 @@ void evaluate_jacobian (BurnT& state, rosenbrock_t<int_neqs>& rstate, const amre
     }
 
     constexpr amrex::Real UROUND = std::numeric_limits<amrex::Real>::epsilon();
+    const amrex::Real sqrt_roundoff = std::sqrt(UROUND);
     amrex::Array1D<amrex::Real, 1, int_neqs> ewt;
     amrex::Array1D<amrex::Real, 1, int_neqs> ybase;
 
@@ -259,7 +262,7 @@ void evaluate_jacobian (BurnT& state, rosenbrock_t<int_neqs>& rstate, const amre
 
     for (int j = 1; j <= int_neqs; ++j) {
         const amrex::Real yj = ybase(j);
-        const amrex::Real R = amrex::max(std::sqrt(UROUND) * std::abs(yj), R0 / ewt(j));
+        const amrex::Real R = amrex::max(sqrt_roundoff * std::abs(yj), R0 / ewt(j));
         for (int n = 1; n <= int_neqs; ++n) {
             rstate.y(n) = ybase(n);
         }
@@ -381,6 +384,9 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
     amrex::Real hopt = h;
     amrex::Real x = rstate.t;
     amrex::Array1D<amrex::Real, 1, int_neqs> rhs_tmp;
+
+    const amrex::Real error_exponent = 1.0_rt / (integrator_rp::h211b_b * integrator_rp::h211b_k);
+    const amrex::Real history_exponent = -1.0_rt / integrator_rp::h211b_b;
 
     // main evolution loop
 
@@ -533,11 +539,9 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
             constexpr amrex::Real err_min = 1.e-10_rt;
             amrex::Real err = rosenbrock::error_norm(rstate);
             amrex::Real controller_fac = amrex::Clamp(
-                std::pow(1.0_rt / amrex::max(err, err_min),
-                         1.0_rt / (integrator_rp::h211b_b * integrator_rp::h211b_k)) *
-                std::pow(1.0_rt / amrex::max(errold, err_min),
-                         1.0_rt / (integrator_rp::h211b_b * integrator_rp::h211b_k)) *
-                std::pow(facold, -1.0_rt / integrator_rp::h211b_b),
+                std::pow(1.0_rt / amrex::max(err, err_min), error_exponent) *
+                std::pow(1.0_rt / amrex::max(errold, err_min), error_exponent) *
+                std::pow(facold, history_exponent),
                 integrator_rp::h211b_fac_min, integrator_rp::h211b_fac_max);
             facold = controller_fac;
             errold = err;
