@@ -6,6 +6,9 @@ on:
       - main
       - development
 
+permissions:
+  contents: write
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -14,7 +17,8 @@ jobs:
 
       - name: Install pandoc and doxygen
         run: |
-          sudo apt install pandoc doxygen
+          sudo apt-get update -y -qq
+          sudo apt-get install -y pandoc doxygen
 
       - name: Setup Python
         uses: actions/setup-python@v7
@@ -22,24 +26,12 @@ jobs:
           python-version: '3.14'
           cache: "pip"
 
-      - name: Upgrade pip
-        run: |
-          # install pip=>20.1 to use "pip cache dir"
-          python3 -m pip install --upgrade pip
-
       - name: Install dependencies
         run: python3 -m pip install -r ./requirements.txt
 
       - name: Build docs
-        if: ${{ endsWith(github.ref, 'main') }}
         env:
-          GITHUB_BRANCH: 'main'
-        run: ./deploy_docs_action.sh
-
-      - name: Build docs
-        if: ${{ endsWith(github.ref, 'development') }}
-        env:
-          GITHUB_BRANCH: 'development'
+          GITHUB_BRANCH: ${{ github.ref_name }}
         run: ./deploy_docs_action.sh
 
       - name: Deploy
