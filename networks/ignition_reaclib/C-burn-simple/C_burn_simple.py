@@ -12,7 +12,7 @@ def create_network():
     rl = pyna.ReacLibLibrary()
     rates = rl.get_rate_by_name(srates)
 
-    tl = pyna.TabularLibrary()
+    tl = pyna.TabularWeakLibrary()
     rates.append(tl.get_rate_by_name("n(,)p"))
 
     lib = pyna.Library(rates=rates)

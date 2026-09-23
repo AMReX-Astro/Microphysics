@@ -1,18 +1,25 @@
-#ifndef actual_network_H
-#define actual_network_H
+#ifndef ACTUAL_NETWORK_H
+#define ACTUAL_NETWORK_H
 
+#include <random>
 #include <string_view>
 
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>
 #include <AMReX_Loop.H>
 
+#include <extern_parameters.H>
 #include <fundamental_constants.H>
 #include <network_properties.H>
 
 using namespace amrex::literals;
 
-void actual_network_init();
+
+inline
+void actual_network_init() {
+
+
+}
 
 constexpr std::string_view network_name = "pynucastro-cxx";
 
@@ -156,24 +163,38 @@ namespace Rates
     std::uint8_t
     {
         k_Ne20_to_He4_O16_reaclib = 1,
-        k_He4_O16_to_Ne20_reaclib = 2,
-        k_He4_Ne20_to_Mg24_reaclib = 3,
-        k_He4_Mg24_to_Si28_reaclib = 4,
-        k_p_Al27_to_Si28_reaclib = 5,
-        k_He4_Al27_to_P31_reaclib = 6,
-        k_He4_Si28_to_S32_reaclib = 7,
-        k_p_P31_to_S32_reaclib = 8,
+        k_O16_He4_to_Ne20_reaclib = 2,
+        k_Ne20_He4_to_Mg24_reaclib = 3,
+        k_Mg24_He4_to_Si28_reaclib = 4,
+        k_Al27_p_to_Si28_reaclib = 5,
+        k_Al27_He4_to_P31_reaclib = 6,
+        k_Si28_He4_to_S32_reaclib = 7,
+        k_P31_p_to_S32_reaclib = 8,
         k_O16_O16_to_p_P31_reaclib = 9,
         k_O16_O16_to_He4_Si28_reaclib = 10,
-        k_He4_Mg24_to_p_Al27_reaclib = 11,
-        k_p_Al27_to_He4_Mg24_reaclib = 12,
-        k_He4_Si28_to_p_P31_reaclib = 13,
-        k_p_P31_to_He4_Si28_reaclib = 14,
-        k_F20_to_Ne20_weaktab = 15,
-        k_F20_to_O20_weaktab = 16,
-        k_Ne20_to_F20_weaktab = 17,
-        k_O20_to_F20_weaktab = 18,
-        NumRates = k_O20_to_F20_weaktab
+        k_Mg24_He4_to_p_Al27_reaclib = 11,
+        k_Al27_p_to_He4_Mg24_reaclib = 12,
+        k_Si28_He4_to_p_P31_reaclib = 13,
+        k_P31_p_to_He4_Si28_reaclib = 14,
+        k_F20_to_Ne20_beta_neg_weaktab = 15,
+        k_F20_to_O20_electron_capture_weaktab = 16,
+        k_Ne20_to_F20_electron_capture_weaktab = 17,
+        k_O20_to_F20_beta_neg_weaktab = 18,
+        NumRates = k_O20_to_F20_beta_neg_weaktab
+    };
+
+    enum ScreenPairs :
+    std::uint8_t
+    {
+        k_p_P31 = 1,
+        k_He4_O16 = 2,
+        k_He4_Ne20 = 3,
+        k_He4_Al27 = 4,
+        k_p_Al27 = 5,
+        k_He4_Mg24 = 6,
+        k_He4_Si28 = 7,
+        k_O16_O16 = 8,
+        NumScreenPairs = k_O16_O16
     };
 
     // rate names -- note: the rates are 1-based, not zero-based, so we pad
@@ -183,24 +204,30 @@ namespace Rates
     static const std::vector<std::string> rate_names = {
         "",   // 0
         "Ne20_to_He4_O16_reaclib",  // 1,
-        "He4_O16_to_Ne20_reaclib",  // 2,
-        "He4_Ne20_to_Mg24_reaclib",  // 3,
-        "He4_Mg24_to_Si28_reaclib",  // 4,
-        "p_Al27_to_Si28_reaclib",  // 5,
-        "He4_Al27_to_P31_reaclib",  // 6,
-        "He4_Si28_to_S32_reaclib",  // 7,
-        "p_P31_to_S32_reaclib",  // 8,
+        "O16_He4_to_Ne20_reaclib",  // 2,
+        "Ne20_He4_to_Mg24_reaclib",  // 3,
+        "Mg24_He4_to_Si28_reaclib",  // 4,
+        "Al27_p_to_Si28_reaclib",  // 5,
+        "Al27_He4_to_P31_reaclib",  // 6,
+        "Si28_He4_to_S32_reaclib",  // 7,
+        "P31_p_to_S32_reaclib",  // 8,
         "O16_O16_to_p_P31_reaclib",  // 9,
         "O16_O16_to_He4_Si28_reaclib",  // 10,
-        "He4_Mg24_to_p_Al27_reaclib",  // 11,
-        "p_Al27_to_He4_Mg24_reaclib",  // 12,
-        "He4_Si28_to_p_P31_reaclib",  // 13,
-        "p_P31_to_He4_Si28_reaclib",  // 14,
-        "F20_to_Ne20_weaktab",  // 15,
-        "F20_to_O20_weaktab",  // 16,
-        "Ne20_to_F20_weaktab",  // 17,
-        "O20_to_F20_weaktab"  // 18,
+        "Mg24_He4_to_p_Al27_reaclib",  // 11,
+        "Al27_p_to_He4_Mg24_reaclib",  // 12,
+        "Si28_He4_to_p_P31_reaclib",  // 13,
+        "P31_p_to_He4_Si28_reaclib",  // 14,
+        "F20_to_Ne20_beta_neg_weaktab",  // 15,
+        "F20_to_O20_electron_capture_weaktab",  // 16,
+        "Ne20_to_F20_electron_capture_weaktab",  // 17,
+        "O20_to_F20_beta_neg_weaktab"  // 18,
     };
+
+    template<std::uint8_t rate>
+    AMREX_GPU_DEVICE AMREX_INLINE
+    constexpr amrex::Real get_p_random() {
+        return 0.0_rt;
+    }
 
 }
 
@@ -226,9 +253,9 @@ namespace NSE_INDEX
     constexpr int NumNSERatePairs = 3;
 
     inline AMREX_GPU_MANAGED amrex::Array2D<std::int8_t, 1, NumNSERatePairs, 1, 10, amrex::Order::C> rate_pair_data {
-        He4, O16, -1, Ne20, -1, -1, O16, Ne20, k_He4_O16_to_Ne20_reaclib, k_Ne20_to_He4_O16_reaclib,
-        H1, Al27, -1, He4, Mg24, -1, Al27, Mg24, k_p_Al27_to_He4_Mg24_reaclib, k_He4_Mg24_to_p_Al27_reaclib,
-        H1, P31, -1, He4, Si28, -1, P31, Si28, k_p_P31_to_He4_Si28_reaclib, k_He4_Si28_to_p_P31_reaclib
+        He4, O16, -1, Ne20, -1, -1, O16, Ne20, k_O16_He4_to_Ne20_reaclib, k_Ne20_to_He4_O16_reaclib,
+        H1, Al27, -1, He4, Mg24, -1, Al27, Mg24, k_Al27_p_to_He4_Mg24_reaclib, k_Mg24_He4_to_p_Al27_reaclib,
+        H1, P31, -1, He4, Si28, -1, P31, Si28, k_P31_p_to_He4_Si28_reaclib, k_Si28_He4_to_p_P31_reaclib
     };
 }
 #endif

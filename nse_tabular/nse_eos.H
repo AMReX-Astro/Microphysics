@@ -95,6 +95,10 @@ nse_T_abar_from_e(const amrex::Real rho, const amrex::Real e_in, const amrex::Re
         iter++;
     }
 
+    if (! converged) {
+        amrex::Abort("convergence failure in nse_T_abar_from_e");
+    }
+
     // T is set to the last T
     // we just need to save abar for output
     abar = nse_state.abar;
@@ -184,6 +188,10 @@ nse_rho_abar_from_e(const amrex::Real T, const amrex::Real e_in, const amrex::Re
             converged = true;
         }
         iter++;
+    }
+
+    if (! converged) {
+        amrex::Abort("convergence failure in nse_rho_abar_from_e");
     }
 
     // rho is set to the last rho
@@ -277,6 +285,10 @@ nse_T_abar_from_p(const amrex::Real rho, const amrex::Real p_in, const amrex::Re
         iter++;
     }
 
+    if (! converged) {
+        amrex::Abort("convergence failure in nse_T_abar_from_p");
+    }
+
     // T is set to the last T
     // we just need to save abar for output
     abar = nse_state.abar;
@@ -366,6 +378,10 @@ nse_rho_abar_from_p(const amrex::Real T, const amrex::Real p_in, const amrex::Re
             converged = true;
         }
         iter++;
+    }
+
+    if (! converged) {
+        amrex::Abort("convergence failure in nse_rho_abar_from_p");
     }
 
     // rho is set to the last rho

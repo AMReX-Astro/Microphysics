@@ -1,18 +1,25 @@
-#ifndef actual_network_H
-#define actual_network_H
+#ifndef ACTUAL_NETWORK_H
+#define ACTUAL_NETWORK_H
 
+#include <random>
 #include <string_view>
 
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>
 #include <AMReX_Loop.H>
 
+#include <extern_parameters.H>
 #include <fundamental_constants.H>
 #include <network_properties.H>
 
 using namespace amrex::literals;
 
-void actual_network_init();
+
+inline
+void actual_network_init() {
+
+
+}
 
 constexpr std::string_view network_name = "pynucastro-cxx";
 
@@ -146,12 +153,20 @@ namespace Rates
         k_C12_C12_to_He4_Ne20_reaclib = 1,
         k_C12_C12_to_n_Mg23_reaclib = 2,
         k_C12_C12_to_p_Na23_reaclib = 3,
-        k_He4_C12_to_O16_reaclib = 4,
-        k_Na23_to_Ne23_weaktab = 5,
-        k_Ne23_to_Na23_weaktab = 6,
-        k_n_to_p_weaktab = 7,
-        k_p_to_n_weaktab = 8,
-        NumRates = k_p_to_n_weaktab
+        k_C12_He4_to_O16_reaclib = 4,
+        k_Na23_to_Ne23_electron_capture_weaktab = 5,
+        k_Ne23_to_Na23_beta_neg_weaktab = 6,
+        k_n_to_p_beta_neg_weaktab = 7,
+        k_p_to_n_electron_capture_weaktab = 8,
+        NumRates = k_p_to_n_electron_capture_weaktab
+    };
+
+    enum ScreenPairs :
+    std::uint8_t
+    {
+        k_He4_C12 = 1,
+        k_C12_C12 = 2,
+        NumScreenPairs = k_C12_C12
     };
 
     // rate names -- note: the rates are 1-based, not zero-based, so we pad
@@ -163,12 +178,18 @@ namespace Rates
         "C12_C12_to_He4_Ne20_reaclib",  // 1,
         "C12_C12_to_n_Mg23_reaclib",  // 2,
         "C12_C12_to_p_Na23_reaclib",  // 3,
-        "He4_C12_to_O16_reaclib",  // 4,
-        "Na23_to_Ne23_weaktab",  // 5,
-        "Ne23_to_Na23_weaktab",  // 6,
-        "n_to_p_weaktab",  // 7,
-        "p_to_n_weaktab"  // 8,
+        "C12_He4_to_O16_reaclib",  // 4,
+        "Na23_to_Ne23_electron_capture_weaktab",  // 5,
+        "Ne23_to_Na23_beta_neg_weaktab",  // 6,
+        "n_to_p_beta_neg_weaktab",  // 7,
+        "p_to_n_electron_capture_weaktab"  // 8,
     };
+
+    template<std::uint8_t rate>
+    AMREX_GPU_DEVICE AMREX_INLINE
+    constexpr amrex::Real get_p_random() {
+        return 0.0_rt;
+    }
 
 }
 

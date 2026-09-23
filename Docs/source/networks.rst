@@ -163,8 +163,10 @@ network <https://docs.mesastar.org/en/latest/net/nets.html>`_ which is
 meant to study hot-CNO burning and the start of the breakout from CNO
 burning.  This network is managed by pynucastro.
 
-.. figure:: ../../networks/CNO_extras/cno_extras_hide_alpha.png
+.. figure:: ../../networks/CNO_extras/cno_extras.png
    :align: center
+
+Overall there are 22 nuclei and 74 rates explicitly connecting the nuclei.
 
 .. note::
 
@@ -415,13 +417,22 @@ The full network appears as:
 
 As with ``ase``, this network is constructed to have reverse rates for all forward rates, allowing
 it to be used with the :ref:`self_consistent_nse` solver.  It builds off of ``ase`` by including
-more iron-group nuclei (using the same nuclei as ``he-burn-28amnp``).
+more iron-group nuclei.
 
 The full network appears as:
 
 .. figure:: ../../networks/he-burn/ase-iron/ase-iron.png
    :align: center
 
+Overall there are 28 nuclei with 7 approximated-out nuclei and 153 rates.
+
+``ase-iron-starlib``
+--------------------
+
+This is the same as ``ase-iron``, but uses rates from StarLib
+:cite:`StarLib` instead of ReacLib :cite:`ReacLib`.  This allows for
+an exploration of rate uncertainties by setting
+``network.starlib_seed``.
 
 ``cno_he_burn_33a``
 -------------------

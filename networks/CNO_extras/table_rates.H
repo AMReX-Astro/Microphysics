@@ -40,26 +40,24 @@ struct table_t
     int nheader;
 };
 
-// we add an additional index, k_index_dlogr_dlogt used for computing
-// the derivative of Log(rate) with respect of Log(temperature) by
-// using the table values. It isn't an index into the table but into
-// the 'entries' array. Is important to mention that although we
-// compute dlogr/dlogT as the computed quantity in 'entries', we
-// pursue ultimately dr/dt as the final desired quantity to be
-// computed for this index.
 
-constexpr int k_index_dlogr_dlogt = num_vars + 1;
-constexpr int add_vars = 1;  // 1 Additional Var in entries
+struct weak_rate_t
+{
+    amrex::Real rate;
+    amrex::Real drate_dT;
+    amrex::Real enu;
+    amrex::Real gamma;
+};
 
 
 namespace rate_tables
 {
     // F17 --> O17
-    inline AMREX_GPU_MANAGED table_t j_F17_O17_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5};
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_F17_O17_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 12> j_F17_O17_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121};
+    inline AMREX_GPU_DEVICE table_t j_F17_O17_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5};
+    inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 11> j_F17_O17_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
+    inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 12> j_F17_O17_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121};
     // Array3D is column-major (Fortran-ordering).  T varies fastest, then rho Ye, then the component
-    inline AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 12, 1, 11, 1, num_vars>
+    inline AMREX_GPU_DEVICE amrex::Array3D<amrex::Real, 1, 12, 1, 11, 1, num_vars>
          j_F17_O17_data{
 -1.98599,       -1.985996,       -1.985997,       -1.985998,       -1.985991,       -1.985811,       -1.984179,       -1.977601,       -1.918501,       -1.559899,       -0.462121,        1.718247,  // RATE
 -1.985903,       -1.985964,       -1.985971,       -1.985976,       -1.985976,       -1.985801,       -1.984173,       -1.977571,       -1.918501,       -1.559899,       -0.462121,        1.718247,
@@ -97,11 +95,11 @@ namespace rate_tables
          };
 
     // O17 --> F17
-    inline AMREX_GPU_MANAGED table_t j_O17_F17_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5};
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_O17_F17_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 12> j_O17_F17_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121};
+    inline AMREX_GPU_DEVICE table_t j_O17_F17_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5};
+    inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 11> j_O17_F17_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
+    inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 12> j_O17_F17_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121};
     // Array3D is column-major (Fortran-ordering).  T varies fastest, then rho Ye, then the component
-    inline AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 12, 1, 11, 1, num_vars>
+    inline AMREX_GPU_DEVICE amrex::Array3D<amrex::Real, 1, 12, 1, 11, 1, num_vars>
          j_O17_F17_data{
 -99.69897,       -99.69897,         -72.639,         -36.441,         -21.007,         -15.597,         -11.237,          -8.922,       -6.409967,       -4.069196,       -1.723001,        1.202117,  // RATE
 -99.69897,       -99.69897,         -73.639,         -37.441,          -21.42,         -15.619,         -11.238,          -8.923,       -6.409967,       -4.069196,       -1.723001,        1.202117,
@@ -139,11 +137,11 @@ namespace rate_tables
          };
 
     // F18 --> Ne18
-    inline AMREX_GPU_MANAGED table_t j_F18_Ne18_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5};
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_F18_Ne18_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 12> j_F18_Ne18_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121};
+    inline AMREX_GPU_DEVICE table_t j_F18_Ne18_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5};
+    inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 11> j_F18_Ne18_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
+    inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 12> j_F18_Ne18_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121};
     // Array3D is column-major (Fortran-ordering).  T varies fastest, then rho Ye, then the component
-    inline AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 12, 1, 11, 1, num_vars>
+    inline AMREX_GPU_DEVICE amrex::Array3D<amrex::Real, 1, 12, 1, 11, 1, num_vars>
          j_F18_Ne18_data{
 -99.69897,       -99.69897,       -99.69897,         -57.312,         -32.796,          -23.76,         -16.591,         -12.888,           -9.04,       -5.755992,       -2.758693,        0.781225,  // RATE
 -99.69897,       -99.69897,       -99.69897,         -58.312,         -33.209,         -23.782,         -16.592,         -12.889,           -9.04,       -5.755992,       -2.758693,        0.781225,
@@ -181,11 +179,11 @@ namespace rate_tables
          };
 
     // F18 --> O18
-    inline AMREX_GPU_MANAGED table_t j_F18_O18_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5};
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_F18_O18_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 12> j_F18_O18_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121};
+    inline AMREX_GPU_DEVICE table_t j_F18_O18_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5};
+    inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 11> j_F18_O18_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
+    inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 12> j_F18_O18_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121};
     // Array3D is column-major (Fortran-ordering).  T varies fastest, then rho Ye, then the component
-    inline AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 12, 1, 11, 1, num_vars>
+    inline AMREX_GPU_DEVICE amrex::Array3D<amrex::Real, 1, 12, 1, 11, 1, num_vars>
          j_F18_O18_data{
 -4.010762,       -4.010915,       -4.010933,       -4.010943,       -4.010771,       -4.006329,       -3.943745,       -3.744878,       -3.181896,       -2.350694,       -1.090264,        1.385945,  // RATE
 -4.008732,       -4.010152,       -4.010328,       -4.010433,       -4.010408,       -4.006087,       -3.943458,       -3.744432,       -3.181896,       -2.350694,       -1.090264,        1.385945,
@@ -223,11 +221,11 @@ namespace rate_tables
          };
 
     // Ne18 --> F18
-    inline AMREX_GPU_MANAGED table_t j_Ne18_F18_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5};
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_Ne18_F18_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 12> j_Ne18_F18_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121};
+    inline AMREX_GPU_DEVICE table_t j_Ne18_F18_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5};
+    inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 11> j_Ne18_F18_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
+    inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 12> j_Ne18_F18_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121};
     // Array3D is column-major (Fortran-ordering).  T varies fastest, then rho Ye, then the component
-    inline AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 12, 1, 11, 1, num_vars>
+    inline AMREX_GPU_DEVICE amrex::Array3D<amrex::Real, 1, 12, 1, 11, 1, num_vars>
          j_Ne18_F18_data{
 -0.397998,       -0.397999,          -0.398,          -0.398,       -0.397998,        -0.39797,       -0.398569,       -0.397001,       -0.387511,        -0.31553,        0.210666,         2.08323,  // RATE
 -0.397983,       -0.397994,       -0.397995,       -0.397996,       -0.397996,       -0.397969,       -0.398568,       -0.397001,       -0.387511,        -0.31553,        0.210666,         2.08323,
@@ -265,11 +263,11 @@ namespace rate_tables
          };
 
     // O18 --> F18
-    inline AMREX_GPU_MANAGED table_t j_O18_F18_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5};
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_O18_F18_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 12> j_O18_F18_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121};
+    inline AMREX_GPU_DEVICE table_t j_O18_F18_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5};
+    inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 11> j_O18_F18_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
+    inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 12> j_O18_F18_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121};
     // Array3D is column-major (Fortran-ordering).  T varies fastest, then rho Ye, then the component
-    inline AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 12, 1, 11, 1, num_vars>
+    inline AMREX_GPU_DEVICE amrex::Array3D<amrex::Real, 1, 12, 1, 11, 1, num_vars>
          j_O18_F18_data{
 -99.69897,         -88.207,         -45.102,         -22.822,         -13.332,         -10.285,          -7.744,       -6.326997,       -4.685921,       -2.989331,       -1.097718,        1.521493,  // RATE
 -99.69897,         -89.208,         -46.103,         -23.823,         -13.745,         -10.307,          -7.746,       -6.326997,       -4.685921,       -2.989331,       -1.097718,        1.521493,
@@ -307,11 +305,11 @@ namespace rate_tables
          };
 
     // F19 --> Ne19
-    inline AMREX_GPU_MANAGED table_t j_F19_Ne19_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5};
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_F19_Ne19_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 12> j_F19_Ne19_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121};
+    inline AMREX_GPU_DEVICE table_t j_F19_Ne19_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5};
+    inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 11> j_F19_Ne19_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
+    inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 12> j_F19_Ne19_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121};
     // Array3D is column-major (Fortran-ordering).  T varies fastest, then rho Ye, then the component
-    inline AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 12, 1, 11, 1, num_vars>
+    inline AMREX_GPU_DEVICE amrex::Array3D<amrex::Real, 1, 12, 1, 11, 1, num_vars>
          j_F19_Ne19_data{
 -99.69897,       -99.69897,         -84.364,         -42.168,         -24.192,          -17.79,         -12.668,       -9.975998,       -7.087988,       -4.446942,       -1.881574,        1.186902,  // RATE
 -99.69897,       -99.69897,         -85.364,         -43.168,         -24.605,         -17.811,          -12.67,       -9.976998,       -7.087988,       -4.446942,       -1.881574,        1.186902,
@@ -349,11 +347,11 @@ namespace rate_tables
          };
 
     // Ne19 --> F19
-    inline AMREX_GPU_MANAGED table_t j_Ne19_F19_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5};
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 11> j_Ne19_F19_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
-    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 12> j_Ne19_F19_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121};
+    inline AMREX_GPU_DEVICE table_t j_Ne19_F19_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5};
+    inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 11> j_Ne19_F19_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
+    inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 12> j_Ne19_F19_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121};
     // Array3D is column-major (Fortran-ordering).  T varies fastest, then rho Ye, then the component
-    inline AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 12, 1, 11, 1, num_vars>
+    inline AMREX_GPU_DEVICE amrex::Array3D<amrex::Real, 1, 12, 1, 11, 1, num_vars>
          j_Ne19_F19_data{
 -1.414994,       -1.414998,       -1.414998,       -1.414999,       -1.422995,       -1.439902,       -1.467534,       -1.481045,       -1.464793,       -1.231792,        -0.30521,        1.816432,  // RATE
 -1.414946,        -1.41498,       -1.414985,       -1.414988,       -1.422987,       -1.439897,       -1.467528,       -1.481045,       -1.464793,       -1.231792,        -0.30521,        1.816432,
@@ -393,7 +391,7 @@ namespace rate_tables
 }
 
 
-AMREX_INLINE AMREX_GPU_HOST_DEVICE
+AMREX_INLINE AMREX_GPU_DEVICE
 amrex::Real
 evaluate_linear_1d(const amrex::Real fhi, const amrex::Real flo, const amrex::Real xhi, const amrex::Real xlo, const amrex::Real x)
 {
@@ -406,7 +404,7 @@ evaluate_linear_1d(const amrex::Real fhi, const amrex::Real flo, const amrex::Re
     return f;
 }
 
-AMREX_INLINE AMREX_GPU_HOST_DEVICE
+AMREX_INLINE AMREX_GPU_DEVICE
 amrex::Real
 evaluate_linear_2d(const amrex::Real fip1jp1, const amrex::Real fip1j, const amrex::Real fijp1, const amrex::Real fij,
           const amrex::Real xhi, const amrex::Real xlo, const amrex::Real yhi, const amrex::Real ylo,
@@ -414,31 +412,20 @@ evaluate_linear_2d(const amrex::Real fip1jp1, const amrex::Real fip1j, const amr
 {
     // This is the 2-D linear interpolator, as an extension of evaluate_linear_1d.
 
-    amrex::Real f;
-    amrex::Real dx = xhi - xlo;
-    amrex::Real dxinv = 1.0_rt / dx;
-    amrex::Real dy = yhi - ylo;
-    amrex::Real dyinv = 1.0_rt / dy;
+    const amrex::Real u = (amrex::Clamp(x, xlo, xhi) - xlo) / (xhi - xlo);
+    const amrex::Real v = (amrex::Clamp(y, ylo, yhi) - ylo) / (yhi - ylo);
 
-    amrex::Real E =  fij;
-    amrex::Real C = (fijp1 - fij) * dyinv;
-    amrex::Real B = (fip1j - fij) * dxinv;
-    amrex::Real A = (fip1jp1 - B * dx - C * dy - E) * (dxinv * dyinv);
+    const amrex::Real E = fij;
+    const amrex::Real C = fijp1 - fij;
+    const amrex::Real B = fip1j - fij;
+    const amrex::Real A = fip1jp1 - fip1j - fijp1 + fij;
 
-    amrex::Real xx = amrex::Clamp(x, xlo, xhi);
-    amrex::Real yy = amrex::Clamp(y, ylo, yhi);
-
-    f =  A * (xx - xlo) * (yy - ylo) +
-         B * (xx - xlo) +
-         C * (yy - ylo) +
-         E;
-
-    return f;
+    return A * u * v + B * u + C * v + E;
 }
 
 
 template<typename R, typename T, typename D>
-AMREX_INLINE AMREX_GPU_HOST_DEVICE
+AMREX_INLINE AMREX_GPU_DEVICE
 amrex::Real
 evaluate_vars(const int irhoy_lo, const int jtemp_lo,
               const R& log_rhoy_table, const T& log_temp_table, const D& data,
@@ -468,185 +455,86 @@ evaluate_vars(const int irhoy_lo, const int jtemp_lo,
 
 
 template<typename R, typename T, typename D>
-AMREX_INLINE AMREX_GPU_HOST_DEVICE
+AMREX_INLINE AMREX_GPU_DEVICE
 amrex::Real
 evaluate_dr_dtemp(const int irhoy_lo, const int jtemp_lo,
-                  const table_t& table_meta, const R& log_rhoy_table, const T& log_temp_table, const D& data,
+                  [[maybe_unused]] const table_t& table_meta, const R& log_rhoy_table, const T& log_temp_table, const D& data,
                   const amrex::Real log_rhoy, const amrex::Real log_temp)
 {
-    // The main objective of this function is compute dlogr_dlogt.
+
+    // Differentiate the same bilinear log-rate interpolant as evaluate_vars.
+    // At temperature knots, use the cell selected by find_index_extrap:
+    // the cell to the right, except at the upper endpoint (the last cell).
 
     const int irhoy_hi = irhoy_lo + 1;
     const int jtemp_hi = jtemp_lo + 1;
 
-    amrex::Real dlogr_dlogt;
+    const amrex::Real log_temp_lo = log_temp_table(jtemp_lo);
+    const amrex::Real log_temp_hi = log_temp_table(jtemp_hi);
 
-    //Now we compute the forward finite difference on the boundary
-
-    if ((jtemp_lo - 1 < 1) || (jtemp_hi + 1 > table_meta.ntemp)) {
-
-        // In this case we are in the boundaries of the table.
-        // At the boundary, we compute the forward-j finite difference
-        // to compute dlogr_dlogt_i and dlogr_dlogt_ip1, using the
-        // following stencil:
-        //
-        //
-        //             fijp1-----------fip1jp1
-        //              |                 |
-        //              |                 |
-        //              |                 |
-        //              |                 |
-        //              |                 |
-        //              |                 |
-        //              |                 |
-        //             fij-------------fip1j
-        //
-        // with the following result:
-        //
-        //            dlogr_dlogt_i --------dlogr_dlogt_ip1
-        //
-        // Finally, we perform a 1d-linear interpolation between dlogr_dlogt_ip1
-        // and dlogr_dlogt_i to compute dlogr_dlogt
-
-        const amrex::Real log_rhoy_lo = log_rhoy_table(irhoy_lo);
-        const amrex::Real log_rhoy_hi = log_rhoy_table(irhoy_hi);
-
-        const amrex::Real log_temp_lo = log_temp_table(jtemp_lo);
-        const amrex::Real log_temp_hi = log_temp_table(jtemp_hi);
-
-        const amrex::Real fij     = data(jtemp_lo, irhoy_lo, jtab_rate);
-        const amrex::Real fip1j   = data(jtemp_lo, irhoy_hi, jtab_rate);
-        const amrex::Real fijp1   = data(jtemp_hi, irhoy_lo, jtab_rate);
-        const amrex::Real fip1jp1 = data(jtemp_hi, irhoy_hi, jtab_rate);
-
-        const amrex::Real dlogr_dlogt_i   = (fijp1 - fij) / (log_temp_hi - log_temp_lo);
-        const amrex::Real dlogr_dlogt_ip1 = (fip1jp1 - fip1j) / (log_temp_hi - log_temp_lo);
-
-        if ((log_temp < log_temp_lo) || (log_temp > log_temp_hi)) {
-            dlogr_dlogt = 0.0_rt;
-        } else {
-            dlogr_dlogt = evaluate_linear_1d(dlogr_dlogt_ip1, dlogr_dlogt_i, log_rhoy_hi, log_rhoy_lo, log_rhoy);
-        }
-
-    } else {
-
-        // In this case, we use a bigger stencil to reconstruct the
-        // temperature derivatives in the j and j+1 temperature positions,
-        // using the cetral-j finite differences:
-        //
-        //              fijp2 ------------fip1jp2
-        //                |                 |
-        //                |                 |
-        //                |                 |
-        //                |                 |
-        //                |                 |
-        //                |                 |
-        //                |                 |
-        //               fijp1------------fip1jp1
-        //                |                 |
-        //                |                 |
-        //                |                 |
-        //                |                 |
-        //                |                 |
-        //                |                 |
-        //                |                 |
-        //               fij------------- fip1j
-        //                |                 |
-        //                |                 |
-        //                |                 |
-        //                |                 |
-        //                |                 |
-        //                |                 |
-        //                |                 |
-        //               fijm1------------fip1jm1
-        //
-        // with the following result:
-        //
-        //
-        //            dr_dt_ijp1 --------dr_dt_ip1jp1
-        //                |                 |
-        //                |                 |
-        //                |                 |
-        //                |                 |
-        //                |                 |
-        //                |                 |
-        //                |                 |
-        //            dr_dt_ij-----------dr_dt_ip1j
-        //
-        // Finally, we perform a 2d-linear interpolation to
-        // compute dlogr_dlogt.
-
-        const amrex::Real log_temp_jm1  = log_temp_table(jtemp_lo-1);
-        const amrex::Real log_temp_j    = log_temp_table(jtemp_lo);
-        const amrex::Real log_temp_jp1  = log_temp_table(jtemp_hi);
-        const amrex::Real log_temp_jp2  = log_temp_table(jtemp_hi+1);
-
-        const amrex::Real log_rhoy_lo = log_rhoy_table(irhoy_lo);
-        const amrex::Real log_rhoy_hi = log_rhoy_table(irhoy_hi);
-
-        const amrex::Real fijm1   = data(jtemp_lo-1, irhoy_lo, jtab_rate);
-        const amrex::Real fij     = data(jtemp_lo, irhoy_lo, jtab_rate);
-        const amrex::Real fijp1   = data(jtemp_hi, irhoy_lo, jtab_rate);
-        const amrex::Real fijp2   = data(jtemp_hi+1, irhoy_lo, jtab_rate);
-
-        const amrex::Real fip1jm1 = data(jtemp_lo-1, irhoy_hi, jtab_rate);
-        const amrex::Real fip1j   = data(jtemp_lo, irhoy_hi, jtab_rate);
-        const amrex::Real fip1jp1 = data(jtemp_hi, irhoy_hi, jtab_rate);
-        const amrex::Real fip1jp2 = data(jtemp_hi+1, irhoy_hi, jtab_rate);
-
-        const amrex::Real dlogTinv1 = 1.0_rt / (log_temp_jp1 - log_temp_jm1);
-        const amrex::Real dlogTinv2 = 1.0_rt / (log_temp_jp2 - log_temp_j);
-        const amrex::Real dlogr_dlogt_ij     = (fijp1 - fijm1) * dlogTinv1;
-        const amrex::Real dlogr_dlogt_ijp1   = (fijp2 - fij) * dlogTinv2;
-        const amrex::Real dlogr_dlogt_ip1j   = (fip1jp1 - fip1jm1) * dlogTinv1;
-        const amrex::Real dlogr_dlogt_ip1jp1 = (fip1jp2 - fip1j) * dlogTinv2;
-
-        dlogr_dlogt = evaluate_linear_2d(dlogr_dlogt_ip1jp1,  dlogr_dlogt_ip1j, dlogr_dlogt_ijp1, dlogr_dlogt_ij,
-                                         log_rhoy_hi, log_rhoy_lo, log_temp_jp1, log_temp_j,
-                                         log_rhoy, log_temp);
-
+    // The interpolated rate is constant outside the temperature table.
+    if (log_temp < log_temp_lo || log_temp > log_temp_hi) {
+        return 0.0_rt;
     }
-    return dlogr_dlogt;
+
+    const amrex::Real log_rhoy_lo = log_rhoy_table(irhoy_lo);
+    const amrex::Real log_rhoy_hi = log_rhoy_table(irhoy_hi);
+
+    const amrex::Real fij     = data(jtemp_lo, irhoy_lo, jtab_rate);
+    const amrex::Real fip1j   = data(jtemp_lo, irhoy_hi, jtab_rate);
+    const amrex::Real fijp1   = data(jtemp_hi, irhoy_lo, jtab_rate);
+    const amrex::Real fip1jp1 = data(jtemp_hi, irhoy_hi, jtab_rate);
+
+    // compute the gradients in the T direction: dr/dT |_i and dr/dT |_{i+1}
+
+    const amrex::Real dlogT = log_temp_hi - log_temp_lo;
+    const amrex::Real dlogr_dlogT_i = (fijp1 - fij) / dlogT;
+    const amrex::Real dlogr_dlogT_ip1 = (fip1jp1 - fip1j) / dlogT;
+
+    return evaluate_linear_1d(dlogr_dlogT_ip1, dlogr_dlogT_i,
+                              log_rhoy_hi, log_rhoy_lo, log_rhoy);
 }
 
 
-template <typename R, typename T, typename D>
-AMREX_INLINE AMREX_GPU_HOST_DEVICE
+template <int do_T_derivatives, typename R, typename T, typename D>
+AMREX_INLINE AMREX_GPU_DEVICE
 void
 get_entries(const int irhoy_lo, const int jtemp_lo,
             const table_t& table_meta, const R& log_rhoy_table, const T& log_temp_table, const D& data,
-            const amrex::Real log_rhoy, const amrex::Real log_temp, amrex::Array1D<amrex::Real, 1, num_vars+add_vars>& entries)
+            const amrex::Real log_rhoy, const amrex::Real log_temp,
+            weak_rate_t& entries)
 {
 
     // only interpolate the quantities we currently use
 
-    entries(jtab_rate) = evaluate_vars(irhoy_lo, jtemp_lo,
-                                       log_rhoy_table, log_temp_table, data,
-                                       log_rhoy, log_temp, jtab_rate);
+    entries.rate = evaluate_vars(irhoy_lo, jtemp_lo,
+                                 log_rhoy_table, log_temp_table, data,
+                                 log_rhoy, log_temp, jtab_rate);
 
-    entries(jtab_nuloss) = evaluate_vars(irhoy_lo, jtemp_lo,
-                                         log_rhoy_table, log_temp_table, data,
-                                         log_rhoy, log_temp, jtab_nuloss);
+    entries.enu = evaluate_vars(irhoy_lo, jtemp_lo,
+                                log_rhoy_table, log_temp_table, data,
+                                log_rhoy, log_temp, jtab_nuloss);
 
-    entries(jtab_gamma) = evaluate_vars(irhoy_lo, jtemp_lo,
-                                        log_rhoy_table, log_temp_table, data,
-                                        log_rhoy, log_temp, jtab_gamma);
+    entries.gamma = evaluate_vars(irhoy_lo, jtemp_lo,
+                                  log_rhoy_table, log_temp_table, data,
+                                  log_rhoy, log_temp, jtab_gamma);
 
-    entries(k_index_dlogr_dlogt) =
-        evaluate_dr_dtemp(irhoy_lo, jtemp_lo,
-                          table_meta, log_rhoy_table, log_temp_table, data,
-                          log_rhoy, log_temp);
+    if constexpr (do_T_derivatives) {
+        entries.drate_dT =
+            evaluate_dr_dtemp(irhoy_lo, jtemp_lo,
+                              table_meta, log_rhoy_table, log_temp_table, data,
+                              log_rhoy, log_temp);
+    }
 }
 
-template <typename R, typename T, typename D>
-AMREX_INLINE AMREX_GPU_HOST_DEVICE
+template <int do_T_derivatives, typename R, typename T, typename D>
+AMREX_INLINE AMREX_GPU_DEVICE
 void
 tabular_evaluate(const table_t& table_meta,
                  const R& log_rhoy_table, const T& log_temp_table, const D& data,
                  const amrex::Real log_rhoy, const amrex::Real log_temp, const amrex::Real temp,
-                 amrex::Real& rate, amrex::Real& drate_dt, amrex::Real& edot_nu, amrex::Real& edot_gamma)
+                 weak_rate_t& entries)
 {
-    amrex::Array1D<amrex::Real, 1, num_vars+add_vars> entries;
 
     // Get the table entries at this rhoy, temp
 
@@ -656,17 +544,21 @@ tabular_evaluate(const table_t& table_meta,
     const int irhoy_lo = interp_net::find_index_extrap(log_rhoy, log_rhoy_table);
     const int jtemp_lo = interp_net::find_index_extrap(log_temp, log_temp_table);
 
-    get_entries(irhoy_lo, jtemp_lo,
-                table_meta, log_rhoy_table, log_temp_table, data,
-                log_rhoy, log_temp, entries);
+    get_entries<do_T_derivatives>(irhoy_lo, jtemp_lo,
+                                  table_meta, log_rhoy_table, log_temp_table, data,
+                                  log_rhoy, log_temp, entries);
 
-    // Fill outputs: rate, d(rate)/d(temperature), and
-    // (negative) neutrino loss contribution to energy generation
+    // Fill outputs: rate, d(rate)/dT, and (negative) neutrino loss
+    // contribution to energy generation
 
-    rate       = amrex::Math::exp10(entries(jtab_rate));
-    drate_dt   = rate * entries(k_index_dlogr_dlogt) / temp;
-    edot_nu    = -amrex::Math::exp10(entries(jtab_nuloss));
-    edot_gamma = amrex::Math::exp10(entries(jtab_gamma));
+    entries.rate = amrex::Math::exp10(entries.rate);
+    if constexpr (do_T_derivatives) {
+        entries.drate_dT = entries.rate * entries.drate_dT / temp;
+    } else {
+        entries.drate_dT = 0.0;
+    }
+    entries.enu = -amrex::Math::exp10(entries.enu);
+    entries.gamma = amrex::Math::exp10(entries.gamma);
 }
 
 #endif

@@ -119,7 +119,8 @@ state_backup_t integrator_backup (const BurnT& state) {
 template <typename BurnT, typename IntegratorT>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void integrator_cleanup (IntegratorT& int_state, BurnT& state,
-                         int istate, const state_backup_t& state_save, amrex::Real dt)
+                         int istate, const state_backup_t& state_save, amrex::Real dt,
+                         const amrex::Real final_state_species_failure_tolerance_factor = 1.0_rt)
 {
 
     // Copy the integration data back to the burn state.
@@ -156,8 +157,11 @@ void integrator_cleanup (IntegratorT& int_state, BurnT& state,
         state.success = false;
     }
 
+    const amrex::Real final_state_species_failure_tolerance =
+        final_state_species_failure_tolerance_factor * integrator_rp::species_failure_tolerance;
+
     for (int n = 1; n <= NumSpec; ++n) {
-        if (int_state.y(n) < -integrator_rp::species_failure_tolerance) {
+        if (int_state.y(n) < -final_state_species_failure_tolerance) {
             state.success = false;
         }
 
@@ -175,7 +179,11 @@ void integrator_cleanup (IntegratorT& int_state, BurnT& state,
         // Print out some integration statistics, if desired.
         std::cout <<  "integration summary: " << std::endl;
         std::cout <<  "dens: " << state.rho << " temp: " << state.T << std::endl;
-        std::cout << " energy released: " << state.e << std::endl;
+        if (integrator_rp::subtract_internal_energy) {
+            std::cout << " energy released: " << state.e << std::endl;
+        } else {
+            std::cout << " energy released: " << state.e - state_save.e_in << std::endl;
+        }
         std::cout <<  "number of steps taken: " << state.n_step << std::endl;
         std::cout <<  "number of f evaluations: " << state.n_rhs << std::endl;
     }
@@ -206,7 +214,11 @@ void integrator_cleanup (IntegratorT& int_state, BurnT& state,
             std::cout << std::scientific << std::setprecision(OUTDIGITS) << X << " ";
         }
         std::cout << std::endl;
-        std::cout << "energy generated = " << state.e << std::endl;
+        if (integrator_rp::subtract_internal_energy) {
+            std::cout << "energy generated = " << state.e << std::endl;
+        } else {
+            std::cout << "energy generated = " << state.e - state_save.e_in << std::endl;
+        }
 #elif defined(ALLOW_GPU_PRINTF)
         AMREX_DEVICE_PRINTF("[ERROR] integration failed in net, istate = %d, time = %g, dt = %g, dens = %g, temp_start = %g\n",
                             istate, int_state.t, dt, state.rho, state_save.T_in);
