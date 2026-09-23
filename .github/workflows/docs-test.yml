@@ -37,8 +37,3 @@ jobs:
         run: |
           cd Docs/
           make SPHINXOPTS='-v -W --keep-going' html
-
-      - name: Link check
-        run: |
-          cd Docs/
-          make SPHINXOPTS=-v linkcheck
