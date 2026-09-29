@@ -514,10 +514,10 @@ amrex::Real tricubic_dT(const int ir0, const int it0, const int ic0,
                               nse_table_logT(it0+1),
                               nse_table_logT(std::min(ntemp, ic0+2))};
 
-    const::Real rhos[] = {nse_table_logrho(std::max(1, ir0-1)),
-                          nse_table_logrho(ir0),
-                          nse_table_logrho(ir0+1),
-                          nse_table_logrho(std::min(nden, ir0+2))};
+    const amrex::Real rhos[] = {nse_table_logrho(std::max(1, ir0-1)),
+                                nse_table_logrho(ir0),
+                                nse_table_logrho(ir0+1),
+                                nse_table_logrho(std::min(nden, ir0+2))};
 
     // first do the 16 ye interpolations
 
