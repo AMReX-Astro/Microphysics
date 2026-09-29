@@ -399,27 +399,34 @@ amrex::Real trilinear(const int ir1, const int it1, const int ic1,
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 amrex::Real tricubic(const int ir0, const int it0, const int ic0,
-              const amrex::Real rho, const amrex::Real temp, const amrex::Real ye, const T& data) {
+                     const amrex::Real rho, const amrex::Real temp, const amrex::Real ye,
+                     const T& data) {
+
 
     // as we come in, we expect temp to be in it0:it0+1, and we also
     // are assured that it0 and it0+1 don't go out of bounds.  Likewise
     // for rho and ye.  Our 1D cubic interpolation routine will handle
     // the boundary conditions for us.
 
+    // CUDA doesn't like constexpr in min
+    const int nye = nse_table_size::nye;
+    const int ntemp = nse_table_size::ntemp;
+    const int nden = nse_table_size::nden;
+
     const amrex::Real yes[] = {nse_table_ye(std::max(1, ic0-1)),
                                nse_table_ye(ic0),
                                nse_table_ye(ic0+1),
-                               nse_table_ye(std::min(nse_table_size::nye, ic0+2))};
+                               nse_table_ye(std::min(nye, ic0+2))};
 
     const amrex::Real Ts[] = {nse_table_logT(std::max(1, it0-1)),
                               nse_table_logT(it0),
                               nse_table_logT(it0+1),
-                              nse_table_logT(std::min(nse_table_size::ntemp, it0+2))};
+                              nse_table_logT(std::min(ntemp, it0+2))};
 
     const amrex::Real rhos[] = {nse_table_logrho(std::max(1, ir0-1)),
                                 nse_table_logrho(ir0),
                                 nse_table_logrho(ir0+1),
-                                nse_table_logrho(std::min(nse_table_size::nden, ir0+2))};
+                                nse_table_logrho(std::min(nden, ir0+2))};
 
     // first do the 16 ye interpolations
 
@@ -500,9 +507,7 @@ amrex::Real tricubic_dT(const int ir0, const int it0, const int ic0,
     const amrex::Real Ts[] = {nse_table_logT(std::max(1, it0-1)),
                               nse_table_logT(it0),
                               nse_table_logT(it0+1),
-                              nse_table_logT(std::min(nse_table_size::ntemp, it0+2))};
-
-    const amrex::Real rhos[] = {nse_table_logrho(std::max(1, ir0-1)),
+::Real rhos[] = {nse_table_logrho(std::max(1, ir0-1)),
                                 nse_table_logrho(ir0),
                                 nse_table_logrho(ir0+1),
                                 nse_table_logrho(std::min(nse_table_size::nden, ir0+2))};
