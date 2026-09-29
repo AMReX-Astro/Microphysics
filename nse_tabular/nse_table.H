@@ -437,15 +437,15 @@ amrex::Real tricubic(const int ir0, const int it0, const int ic0,
     bool hi_bnd = (ic0 + 1 == nse_table_size::nye);
 
     for (int ii = 0; ii < 4; ++ii) {
-        int idx_r = std::max(1, std::min(ir0 - 1 + ii, nse_table_size::nden));
+        int idx_r = std::max(1, std::min(ir0 - 1 + ii, nden));
 
         for (int jj = 0; jj < 4; ++jj) {
-            int idx_t = std::max(1, std::min(it0 - 1 + jj, nse_table_size::ntemp));
+            int idx_t = std::max(1, std::min(it0 - 1 + jj, ntemp));
 
             const amrex::Real _d[] = {data(nse_idx(idx_r, idx_t, std::max(1, ic0-1))),
                                       data(nse_idx(idx_r, idx_t, ic0)),
                                       data(nse_idx(idx_r, idx_t, ic0+1)),
-                                      data(nse_idx(idx_r, idx_t, std::min(ic0+2, nse_table_size::nye)))};
+                                      data(nse_idx(idx_r, idx_t, std::min(ic0+2, nye)))};
 
             // note that the ye values are monotonically decreasing,
             // so the "dx" needs to be negative
@@ -499,18 +499,25 @@ amrex::Real tricubic_dT(const int ir0, const int it0, const int ic0,
     // for the final rho interpolation, we differentiate the limited
     // slopes using both f and df/dT.
 
+    // CUDA doesn't like constexpr in min
+    const int nye = nse_table_size::nye;
+    const int ntemp = nse_table_size::ntemp;
+    const int nden = nse_table_size::nden;
+
     const amrex::Real yes[] = {nse_table_ye(std::max(1, ic0-1)),
                                nse_table_ye(ic0),
                                nse_table_ye(ic0+1),
-                               nse_table_ye(std::min(nse_table_size::nye, ic0+2))};
+                               nse_table_ye(std::min(nye, ic0+2))};
 
     const amrex::Real Ts[] = {nse_table_logT(std::max(1, it0-1)),
                               nse_table_logT(it0),
                               nse_table_logT(it0+1),
-::Real rhos[] = {nse_table_logrho(std::max(1, ir0-1)),
-                                nse_table_logrho(ir0),
-                                nse_table_logrho(ir0+1),
-                                nse_table_logrho(std::min(nse_table_size::nden, ir0+2))};
+                              nse_table_logT(std::min(ntemp, ic0+2))};
+
+    const::Real rhos[] = {nse_table_logrho(std::max(1, ir0-1)),
+                          nse_table_logrho(ir0),
+                          nse_table_logrho(ir0+1),
+                          nse_table_logrho(std::min(nden, ir0+2))};
 
     // first do the 16 ye interpolations
 
@@ -521,15 +528,15 @@ amrex::Real tricubic_dT(const int ir0, const int it0, const int ic0,
     bool hi_bnd = (ic0 + 1 == nse_table_size::nye);
 
     for (int ii = 0; ii < 4; ++ii) {
-        int idx_r = std::max(1, std::min(ir0 - 1 + ii, nse_table_size::nden));
+        int idx_r = std::max(1, std::min(ir0 - 1 + ii, nden));
 
         for (int jj = 0; jj < 4; ++jj) {
-            int idx_t = std::max(1, std::min(it0 - 1 + jj, nse_table_size::ntemp));
+            int idx_t = std::max(1, std::min(it0 - 1 + jj, ntemp));
 
             const amrex::Real _d[] = {data(nse_idx(idx_r, idx_t, std::max(1, ic0-1))),
                                       data(nse_idx(idx_r, idx_t, ic0)),
                                       data(nse_idx(idx_r, idx_t, ic0+1)),
-                                      data(nse_idx(idx_r, idx_t, std::min(ic0+2, nse_table_size::nye)))};
+                                      data(nse_idx(idx_r, idx_t, std::min(ic0+2, nye)))};
 
             // note that the ye values are monotonically decreasing,
             // so the "dx" needs to be negative
@@ -584,20 +591,25 @@ amrex::Real tricubic_drho(const int ir0, const int it0, const int ic0,
     // for rho and ye.  Our 1D cubic interpolation routine will handle
     // the boundary conditions for us.
 
+    // CUDA doesn't like constexpr in min
+    const int nye = nse_table_size::nye;
+    const int ntemp = nse_table_size::ntemp;
+    const int nden = nse_table_size::nden;
+
     const amrex::Real yes[] = {nse_table_ye(std::max(1, ic0-1)),
                                nse_table_ye(ic0),
                                nse_table_ye(ic0+1),
-                               nse_table_ye(std::min(nse_table_size::nye, ic0+2))};
+                               nse_table_ye(std::min(nye, ic0+2))};
 
     const amrex::Real Ts[] = {nse_table_logT(std::max(1, it0-1)),
                               nse_table_logT(it0),
                               nse_table_logT(it0+1),
-                              nse_table_logT(std::min(nse_table_size::ntemp, it0+2))};
+                              nse_table_logT(std::min(ntemp, it0+2))};
 
     const amrex::Real rhos[] = {nse_table_logrho(std::max(1, ir0-1)),
                                 nse_table_logrho(ir0),
                                 nse_table_logrho(ir0+1),
-                                nse_table_logrho(std::min(nse_table_size::nden, ir0+2))};
+                                nse_table_logrho(std::min(nden, ir0+2))};
 
     // first do the 16 ye interpolations
 
@@ -608,15 +620,15 @@ amrex::Real tricubic_drho(const int ir0, const int it0, const int ic0,
     bool hi_bnd = (ic0 + 1 == nse_table_size::nye);
 
     for (int ii = 0; ii < 4; ++ii) {
-        int idx_r = std::max(1, std::min(ir0 - 1 + ii, nse_table_size::nden));
+        int idx_r = std::max(1, std::min(ir0 - 1 + ii, nden));
 
         for (int jj = 0; jj < 4; ++jj) {
-            int idx_t = std::max(1, std::min(it0 - 1 + jj, nse_table_size::ntemp));
+            int idx_t = std::max(1, std::min(it0 - 1 + jj, ntemp));
 
             const amrex::Real _d[] = {data(nse_idx(idx_r, idx_t, std::max(1, ic0-1))),
                                       data(nse_idx(idx_r, idx_t, ic0)),
                                       data(nse_idx(idx_r, idx_t, ic0+1)),
-                                      data(nse_idx(idx_r, idx_t, std::min(ic0+2, nse_table_size::nye)))};
+                                      data(nse_idx(idx_r, idx_t, std::min(ic0+2, nye)))};
 
             // note that the ye values are monotonically decreasing,
             // so the "dx" needs to be negative
