@@ -1,8 +1,14 @@
 #ifndef TABULAR_WEAK_RATES_H
 #define TABULAR_WEAK_RATES_H
 
+#include <cmath>
+
 #include <AMReX.H>
 
+#include <actual_network.H>
+#include <fundamental_constants.H>
+#include <network_properties.H>
+#include <rate_type.H>
 #include <table_rates.H>
 
 namespace tabular_weak_rates {
@@ -11,6 +17,91 @@ namespace tabular_weak_rates {
     using namespace Species;
 
     using namespace rate_tables;
+
+    template <typename T>
+    AMREX_GPU_DEVICE AMREX_INLINE
+    void rate_Na23_to_Ne23_electron_capture_weaktab(T& rate_eval, const amrex::Real temp, const amrex::Real log_temp, const amrex::Real log_rhoy, const amrex::Array1D<amrex::Real, 1, NumSpec>& Y) {
+
+        // Na23 --> Ne23
+
+        weak_rate_t table_values{};
+        constexpr int do_T_derivatives = std::is_same_v<T, rate_derivs_t>;
+        tabular_evaluate<do_T_derivatives>(j_Na23_Ne23_meta, j_Na23_Ne23_rhoy, j_Na23_Ne23_temp, j_Na23_Ne23_data,
+                                            log_rhoy, log_temp, temp, table_values);
+
+        rate_eval.screened_rates(k_Na23_to_Ne23_electron_capture_weaktab) = table_values.rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_Na23_to_Ne23_electron_capture_weaktab) = table_values.drate_dT;
+            rate_eval.denuc_weak_dY(Na23) += C::n_A * (table_values.enu + table_values.gamma);
+            rate_eval.denuc_weak_dT += C::n_A * Y(Na23) * table_values.denu_dT;
+        }
+
+        rate_eval.enuc_weak += C::n_A * Y(Na23) * (table_values.enu + table_values.gamma);
+    }
+
+    template <typename T>
+    AMREX_GPU_DEVICE AMREX_INLINE
+    void rate_Ne23_to_Na23_beta_neg_weaktab(T& rate_eval, const amrex::Real temp, const amrex::Real log_temp, const amrex::Real log_rhoy, const amrex::Array1D<amrex::Real, 1, NumSpec>& Y) {
+
+        // Ne23 --> Na23
+
+        weak_rate_t table_values{};
+        constexpr int do_T_derivatives = std::is_same_v<T, rate_derivs_t>;
+        tabular_evaluate<do_T_derivatives>(j_Ne23_Na23_meta, j_Ne23_Na23_rhoy, j_Ne23_Na23_temp, j_Ne23_Na23_data,
+                                            log_rhoy, log_temp, temp, table_values);
+
+        rate_eval.screened_rates(k_Ne23_to_Na23_beta_neg_weaktab) = table_values.rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_Ne23_to_Na23_beta_neg_weaktab) = table_values.drate_dT;
+            rate_eval.denuc_weak_dY(Ne23) += C::n_A * (table_values.enu + table_values.gamma);
+            rate_eval.denuc_weak_dT += C::n_A * Y(Ne23) * table_values.denu_dT;
+        }
+
+        rate_eval.enuc_weak += C::n_A * Y(Ne23) * (table_values.enu + table_values.gamma);
+    }
+
+    template <typename T>
+    AMREX_GPU_DEVICE AMREX_INLINE
+    void rate_n_to_p_beta_neg_weaktab(T& rate_eval, const amrex::Real temp, const amrex::Real log_temp, const amrex::Real log_rhoy, const amrex::Array1D<amrex::Real, 1, NumSpec>& Y) {
+
+        // n --> p
+
+        weak_rate_t table_values{};
+        constexpr int do_T_derivatives = std::is_same_v<T, rate_derivs_t>;
+        tabular_evaluate<do_T_derivatives>(j_n_p_meta, j_n_p_rhoy, j_n_p_temp, j_n_p_data,
+                                            log_rhoy, log_temp, temp, table_values);
+
+        rate_eval.screened_rates(k_n_to_p_beta_neg_weaktab) = table_values.rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_n_to_p_beta_neg_weaktab) = table_values.drate_dT;
+            rate_eval.denuc_weak_dY(N) += C::n_A * (table_values.enu + table_values.gamma);
+            rate_eval.denuc_weak_dT += C::n_A * Y(N) * table_values.denu_dT;
+        }
+
+        rate_eval.enuc_weak += C::n_A * Y(N) * (table_values.enu + table_values.gamma);
+    }
+
+    template <typename T>
+    AMREX_GPU_DEVICE AMREX_INLINE
+    void rate_p_to_n_electron_capture_weaktab(T& rate_eval, const amrex::Real temp, const amrex::Real log_temp, const amrex::Real log_rhoy, const amrex::Array1D<amrex::Real, 1, NumSpec>& Y) {
+
+        // p --> n
+
+        weak_rate_t table_values{};
+        constexpr int do_T_derivatives = std::is_same_v<T, rate_derivs_t>;
+        tabular_evaluate<do_T_derivatives>(j_p_n_meta, j_p_n_rhoy, j_p_n_temp, j_p_n_data,
+                                            log_rhoy, log_temp, temp, table_values);
+
+        rate_eval.screened_rates(k_p_to_n_electron_capture_weaktab) = table_values.rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_p_to_n_electron_capture_weaktab) = table_values.drate_dT;
+            rate_eval.denuc_weak_dY(H1) += C::n_A * (table_values.enu + table_values.gamma);
+            rate_eval.denuc_weak_dT += C::n_A * Y(H1) * table_values.denu_dT;
+        }
+
+        rate_eval.enuc_weak += C::n_A * Y(H1) * (table_values.enu + table_values.gamma);
+    }
+
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
@@ -23,44 +114,37 @@ namespace tabular_weak_rates {
 
         // Calculate tabular weak rates
 
-        [[maybe_unused]] amrex::Real rate, drate_dt, edot_nu, edot_gamma;
-
-        rate_eval.enuc_weak = 0.0_rt;
-
         const amrex::Real log_temp = std::log10(temp);
         const amrex::Real log_rhoy = std::log10(rhoy);
 
-        tabular_evaluate(j_Na23_Ne23_meta, j_Na23_Ne23_rhoy, j_Na23_Ne23_temp, j_Na23_Ne23_data,
-                         log_rhoy, log_temp, temp, rate, drate_dt, edot_nu, edot_gamma);
-        rate_eval.screened_rates(k_Na23_to_Ne23_electron_capture_weaktab) = rate;
-        if constexpr (std::is_same_v<T, rate_derivs_t>) {
-            rate_eval.dscreened_rates_dT(k_Na23_to_Ne23_electron_capture_weaktab) = drate_dt;
-        }
-        rate_eval.enuc_weak += C::n_A * Y(Na23) * (edot_nu + edot_gamma);
+        rate_eval.enuc_weak = 0.0_rt;
 
-        tabular_evaluate(j_Ne23_Na23_meta, j_Ne23_Na23_rhoy, j_Ne23_Na23_temp, j_Ne23_Na23_data,
-                         log_rhoy, log_temp, temp, rate, drate_dt, edot_nu, edot_gamma);
-        rate_eval.screened_rates(k_Ne23_to_Na23_beta_neg_weaktab) = rate;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
-            rate_eval.dscreened_rates_dT(k_Ne23_to_Na23_beta_neg_weaktab) = drate_dt;
+            rate_eval.denuc_weak_dT = 0.0_rt;
+            for (int n = 1; n <= NumSpec; ++n) {
+                rate_eval.denuc_weak_dY(n) = 0.0_rt;
+            }
         }
-        rate_eval.enuc_weak += C::n_A * Y(Ne23) * (edot_nu + edot_gamma);
 
-        tabular_evaluate(j_n_p_meta, j_n_p_rhoy, j_n_p_temp, j_n_p_data,
-                         log_rhoy, log_temp, temp, rate, drate_dt, edot_nu, edot_gamma);
-        rate_eval.screened_rates(k_n_to_p_beta_neg_weaktab) = rate;
-        if constexpr (std::is_same_v<T, rate_derivs_t>) {
-            rate_eval.dscreened_rates_dT(k_n_to_p_beta_neg_weaktab) = drate_dt;
+        {
+            // Na23_to_Ne23_electron_capture_weaktab
+            rate_Na23_to_Ne23_electron_capture_weaktab(rate_eval, temp, log_temp, log_rhoy, Y);
         }
-        rate_eval.enuc_weak += C::n_A * Y(N) * (edot_nu + edot_gamma);
 
-        tabular_evaluate(j_p_n_meta, j_p_n_rhoy, j_p_n_temp, j_p_n_data,
-                         log_rhoy, log_temp, temp, rate, drate_dt, edot_nu, edot_gamma);
-        rate_eval.screened_rates(k_p_to_n_electron_capture_weaktab) = rate;
-        if constexpr (std::is_same_v<T, rate_derivs_t>) {
-            rate_eval.dscreened_rates_dT(k_p_to_n_electron_capture_weaktab) = drate_dt;
+        {
+            // Ne23_to_Na23_beta_neg_weaktab
+            rate_Ne23_to_Na23_beta_neg_weaktab(rate_eval, temp, log_temp, log_rhoy, Y);
         }
-        rate_eval.enuc_weak += C::n_A * Y(H1) * (edot_nu + edot_gamma);
+
+        {
+            // n_to_p_beta_neg_weaktab
+            rate_n_to_p_beta_neg_weaktab(rate_eval, temp, log_temp, log_rhoy, Y);
+        }
+
+        {
+            // p_to_n_electron_capture_weaktab
+            rate_p_to_n_electron_capture_weaktab(rate_eval, temp, log_temp, log_rhoy, Y);
+        }
 
     }
 

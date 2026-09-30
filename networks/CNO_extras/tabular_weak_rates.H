@@ -32,6 +32,8 @@ namespace tabular_weak_rates {
         rate_eval.screened_rates(k_F17_to_O17_electron_capture_weaktab) = table_values.rate;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dscreened_rates_dT(k_F17_to_O17_electron_capture_weaktab) = table_values.drate_dT;
+            rate_eval.denuc_weak_dY(F17) += C::n_A * (table_values.enu + table_values.gamma);
+            rate_eval.denuc_weak_dT += C::n_A * Y(F17) * table_values.denu_dT;
         }
 
         rate_eval.enuc_weak += C::n_A * Y(F17) * (table_values.enu + table_values.gamma);
@@ -51,6 +53,8 @@ namespace tabular_weak_rates {
         rate_eval.screened_rates(k_O17_to_F17_beta_neg_weaktab) = table_values.rate;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dscreened_rates_dT(k_O17_to_F17_beta_neg_weaktab) = table_values.drate_dT;
+            rate_eval.denuc_weak_dY(O17) += C::n_A * (table_values.enu + table_values.gamma);
+            rate_eval.denuc_weak_dT += C::n_A * Y(O17) * table_values.denu_dT;
         }
 
         rate_eval.enuc_weak += C::n_A * Y(O17) * (table_values.enu + table_values.gamma);
@@ -70,6 +74,8 @@ namespace tabular_weak_rates {
         rate_eval.screened_rates(k_F18_to_Ne18_beta_neg_weaktab) = table_values.rate;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dscreened_rates_dT(k_F18_to_Ne18_beta_neg_weaktab) = table_values.drate_dT;
+            rate_eval.denuc_weak_dY(F18) += C::n_A * (table_values.enu + table_values.gamma);
+            rate_eval.denuc_weak_dT += C::n_A * Y(F18) * table_values.denu_dT;
         }
 
         rate_eval.enuc_weak += C::n_A * Y(F18) * (table_values.enu + table_values.gamma);
@@ -89,6 +95,8 @@ namespace tabular_weak_rates {
         rate_eval.screened_rates(k_F18_to_O18_electron_capture_weaktab) = table_values.rate;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dscreened_rates_dT(k_F18_to_O18_electron_capture_weaktab) = table_values.drate_dT;
+            rate_eval.denuc_weak_dY(F18) += C::n_A * (table_values.enu + table_values.gamma);
+            rate_eval.denuc_weak_dT += C::n_A * Y(F18) * table_values.denu_dT;
         }
 
         rate_eval.enuc_weak += C::n_A * Y(F18) * (table_values.enu + table_values.gamma);
@@ -108,6 +116,8 @@ namespace tabular_weak_rates {
         rate_eval.screened_rates(k_Ne18_to_F18_electron_capture_weaktab) = table_values.rate;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dscreened_rates_dT(k_Ne18_to_F18_electron_capture_weaktab) = table_values.drate_dT;
+            rate_eval.denuc_weak_dY(Ne18) += C::n_A * (table_values.enu + table_values.gamma);
+            rate_eval.denuc_weak_dT += C::n_A * Y(Ne18) * table_values.denu_dT;
         }
 
         rate_eval.enuc_weak += C::n_A * Y(Ne18) * (table_values.enu + table_values.gamma);
@@ -127,6 +137,8 @@ namespace tabular_weak_rates {
         rate_eval.screened_rates(k_O18_to_F18_beta_neg_weaktab) = table_values.rate;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dscreened_rates_dT(k_O18_to_F18_beta_neg_weaktab) = table_values.drate_dT;
+            rate_eval.denuc_weak_dY(O18) += C::n_A * (table_values.enu + table_values.gamma);
+            rate_eval.denuc_weak_dT += C::n_A * Y(O18) * table_values.denu_dT;
         }
 
         rate_eval.enuc_weak += C::n_A * Y(O18) * (table_values.enu + table_values.gamma);
@@ -146,6 +158,8 @@ namespace tabular_weak_rates {
         rate_eval.screened_rates(k_F19_to_Ne19_beta_neg_weaktab) = table_values.rate;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dscreened_rates_dT(k_F19_to_Ne19_beta_neg_weaktab) = table_values.drate_dT;
+            rate_eval.denuc_weak_dY(F19) += C::n_A * (table_values.enu + table_values.gamma);
+            rate_eval.denuc_weak_dT += C::n_A * Y(F19) * table_values.denu_dT;
         }
 
         rate_eval.enuc_weak += C::n_A * Y(F19) * (table_values.enu + table_values.gamma);
@@ -165,6 +179,8 @@ namespace tabular_weak_rates {
         rate_eval.screened_rates(k_Ne19_to_F19_electron_capture_weaktab) = table_values.rate;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dscreened_rates_dT(k_Ne19_to_F19_electron_capture_weaktab) = table_values.drate_dT;
+            rate_eval.denuc_weak_dY(Ne19) += C::n_A * (table_values.enu + table_values.gamma);
+            rate_eval.denuc_weak_dT += C::n_A * Y(Ne19) * table_values.denu_dT;
         }
 
         rate_eval.enuc_weak += C::n_A * Y(Ne19) * (table_values.enu + table_values.gamma);
@@ -186,6 +202,13 @@ namespace tabular_weak_rates {
         const amrex::Real log_rhoy = std::log10(rhoy);
 
         rate_eval.enuc_weak = 0.0_rt;
+
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.denuc_weak_dT = 0.0_rt;
+            for (int n = 1; n <= NumSpec; ++n) {
+                rate_eval.denuc_weak_dY(n) = 0.0_rt;
+            }
+        }
 
         {
             // F17_to_O17_electron_capture_weaktab
