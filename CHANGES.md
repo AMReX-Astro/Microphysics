@@ -39,7 +39,7 @@
     * make `burn_cell` respect `integrator.subtract_internal_energy` (#2088)
     * rename `test_nse_interp` to `nse_interp_check` + cleaning
       (#2091)
-    * `jac_cell` now repsects `correct_jacobian_for_const_e` (#2098)
+    * `jac_cell` now respects `correct_jacobian_for_const_e` (#2098)
 
   * infrastructure
 
