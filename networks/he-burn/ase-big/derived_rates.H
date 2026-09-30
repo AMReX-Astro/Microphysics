@@ -13,7 +13,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_N13_to_p_C12_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_N13_to_p_C12_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // N13 --> p + C12
 
@@ -99,7 +99,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_N14_to_p_C13_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_N14_to_p_C13_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // N14 --> p + C13
 
@@ -206,7 +206,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_N15_to_p_C14_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_N15_to_p_C14_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // N15 --> p + C14
 
@@ -292,7 +292,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_O16_to_p_N15_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_O16_to_p_N15_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // O16 --> p + N15
 
@@ -398,7 +398,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_O16_to_He4_C12_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_O16_to_He4_C12_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // O16 --> He4 + C12
 
@@ -483,7 +483,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_O18_to_He4_C14_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_O18_to_He4_C14_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // O18 --> He4 + C14
 
@@ -589,7 +589,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_F18_to_p_O17_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_F18_to_p_O17_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // F18 --> p + O17
 
@@ -694,7 +694,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_F18_to_He4_N14_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_F18_to_He4_N14_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // F18 --> He4 + N14
 
@@ -798,7 +798,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_F19_to_p_O18_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_F19_to_p_O18_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // F19 --> p + O18
 
@@ -924,7 +924,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_F19_to_He4_N15_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_F19_to_He4_N15_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // F19 --> He4 + N15
 
@@ -1051,7 +1051,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Ne20_to_p_F19_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Ne20_to_p_F19_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Ne20 --> p + F19
 
@@ -1158,7 +1158,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Ne20_to_He4_O16_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Ne20_to_He4_O16_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Ne20 --> He4 + O16
 
@@ -1263,7 +1263,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Ne21_to_He4_O17_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Ne21_to_He4_O17_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Ne21 --> He4 + O17
 
@@ -1370,7 +1370,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Ne22_to_He4_O18_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Ne22_to_He4_O18_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Ne22 --> He4 + O18
 
@@ -1494,7 +1494,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Na22_to_p_Ne21_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Na22_to_p_Ne21_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Na22 --> p + Ne21
 
@@ -1620,7 +1620,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Na22_to_He4_F18_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Na22_to_He4_F18_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Na22 --> He4 + F18
 
@@ -1681,7 +1681,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Na23_to_p_Ne22_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Na23_to_p_Ne22_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Na23 --> p + Ne22
 
@@ -1857,7 +1857,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Na23_to_He4_F19_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Na23_to_He4_F19_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Na23 --> He4 + F19
 
@@ -1918,7 +1918,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Mg24_to_p_Na23_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Mg24_to_p_Na23_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Mg24 --> p + Na23
 
@@ -2023,7 +2023,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Mg24_to_He4_Ne20_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Mg24_to_He4_Ne20_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Mg24 --> He4 + Ne20
 
@@ -2149,7 +2149,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Mg25_to_He4_Ne21_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Mg25_to_He4_Ne21_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Mg25 --> He4 + Ne21
 
@@ -2233,7 +2233,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Al26_to_p_Mg25_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Al26_to_p_Mg25_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Al26 --> p + Mg25
 
@@ -2338,7 +2338,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Al26_to_He4_Na22_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Al26_to_He4_Na22_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Al26 --> He4 + Na22
 
@@ -2399,7 +2399,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Al27_to_He4_Na23_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Al27_to_He4_Na23_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Al27 --> He4 + Na23
 
@@ -2460,7 +2460,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Si28_to_p_Al27_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Si28_to_p_Al27_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Si28 --> p + Al27
 
@@ -2567,7 +2567,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Si28_to_He4_Mg24_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Si28_to_He4_Mg24_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Si28 --> He4 + Mg24
 
@@ -2649,7 +2649,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Si29_to_He4_Mg25_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Si29_to_He4_Mg25_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Si29 --> He4 + Mg25
 
@@ -2710,7 +2710,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_P30_to_p_Si29_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_P30_to_p_Si29_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // P30 --> p + Si29
 
@@ -2815,7 +2815,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_P30_to_He4_Al26_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_P30_to_He4_Al26_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // P30 --> He4 + Al26
 
@@ -2876,7 +2876,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_P31_to_He4_Al27_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_P31_to_He4_Al27_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // P31 --> He4 + Al27
 
@@ -2937,7 +2937,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_S32_to_p_P31_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_S32_to_p_P31_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // S32 --> p + P31
 
@@ -3042,7 +3042,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_S32_to_He4_Si28_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_S32_to_He4_Si28_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // S32 --> He4 + Si28
 
@@ -3103,7 +3103,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_S33_to_He4_Si29_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_S33_to_He4_Si29_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // S33 --> He4 + Si29
 
@@ -3164,7 +3164,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Cl34_to_p_S33_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Cl34_to_p_S33_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Cl34 --> p + S33
 
@@ -3225,7 +3225,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Cl34_to_He4_P30_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Cl34_to_He4_P30_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Cl34 --> He4 + P30
 
@@ -3286,7 +3286,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Cl35_to_He4_P31_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Cl35_to_He4_P31_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Cl35 --> He4 + P31
 
@@ -3347,7 +3347,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Ar36_to_p_Cl35_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Ar36_to_p_Cl35_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Ar36 --> p + Cl35
 
@@ -3473,7 +3473,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Ar36_to_He4_S32_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Ar36_to_He4_S32_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Ar36 --> He4 + S32
 
@@ -3534,7 +3534,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Ar37_to_He4_S33_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Ar37_to_He4_S33_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Ar37 --> He4 + S33
 
@@ -3595,7 +3595,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_K38_to_p_Ar37_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_K38_to_p_Ar37_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // K38 --> p + Ar37
 
@@ -3656,7 +3656,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_K38_to_He4_Cl34_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_K38_to_He4_Cl34_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // K38 --> He4 + Cl34
 
@@ -3717,7 +3717,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_K39_to_He4_Cl35_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_K39_to_He4_Cl35_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // K39 --> He4 + Cl35
 
@@ -3778,7 +3778,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Ca40_to_p_K39_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Ca40_to_p_K39_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Ca40 --> p + K39
 
@@ -3885,7 +3885,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Ca40_to_He4_Ar36_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Ca40_to_He4_Ar36_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Ca40 --> He4 + Ar36
 
@@ -3946,7 +3946,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Ca41_to_He4_Ar37_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Ca41_to_He4_Ar37_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Ca41 --> He4 + Ar37
 
@@ -4007,7 +4007,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Sc42_to_p_Ca41_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Sc42_to_p_Ca41_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Sc42 --> p + Ca41
 
@@ -4068,7 +4068,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Sc42_to_He4_K38_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Sc42_to_He4_K38_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Sc42 --> He4 + K38
 
@@ -4129,7 +4129,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Sc43_to_He4_K39_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Sc43_to_He4_K39_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Sc43 --> He4 + K39
 
@@ -4190,7 +4190,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Ti44_to_p_Sc43_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Ti44_to_p_Sc43_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Ti44 --> p + Sc43
 
@@ -4251,7 +4251,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Ti44_to_He4_Ca40_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Ti44_to_He4_Ca40_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Ti44 --> He4 + Ca40
 
@@ -4312,7 +4312,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Ti45_to_He4_Ca41_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Ti45_to_He4_Ca41_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Ti45 --> He4 + Ca41
 
@@ -4373,7 +4373,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_V46_to_p_Ti45_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_V46_to_p_Ti45_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // V46 --> p + Ti45
 
@@ -4434,7 +4434,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_V46_to_He4_Sc42_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_V46_to_He4_Sc42_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // V46 --> He4 + Sc42
 
@@ -4495,7 +4495,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_V47_to_He4_Sc43_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_V47_to_He4_Sc43_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // V47 --> He4 + Sc43
 
@@ -4556,7 +4556,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Cr48_to_p_V47_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Cr48_to_p_V47_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Cr48 --> p + V47
 
@@ -4686,7 +4686,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Cr48_to_He4_Ti44_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Cr48_to_He4_Ti44_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Cr48 --> He4 + Ti44
 
@@ -4747,7 +4747,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Cr49_to_He4_Ti45_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Cr49_to_He4_Ti45_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Cr49 --> He4 + Ti45
 
@@ -4808,7 +4808,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Mn50_to_p_Cr49_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Mn50_to_p_Cr49_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Mn50 --> p + Cr49
 
@@ -4869,7 +4869,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Mn50_to_He4_V46_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Mn50_to_He4_V46_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Mn50 --> He4 + V46
 
@@ -4930,7 +4930,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Mn51_to_He4_V47_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Mn51_to_He4_V47_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Mn51 --> He4 + V47
 
@@ -4991,7 +4991,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Fe52_to_p_Mn51_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Fe52_to_p_Mn51_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Fe52 --> p + Mn51
 
@@ -5052,7 +5052,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Fe52_to_He4_Cr48_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Fe52_to_He4_Cr48_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Fe52 --> He4 + Cr48
 
@@ -5113,7 +5113,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Co55_to_He4_Mn51_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Co55_to_He4_Mn51_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Co55 --> He4 + Mn51
 
@@ -5174,7 +5174,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Ni56_to_p_Co55_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Ni56_to_p_Co55_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Ni56 --> p + Co55
 
@@ -5235,7 +5235,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Ni56_to_He4_Fe52_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Ni56_to_He4_Fe52_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Ni56 --> He4 + Fe52
 
@@ -5296,7 +5296,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_C12_to_3He4_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_C12_to_3He4_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // C12 --> 3 He4
 
@@ -5399,7 +5399,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_C12_He4_to_p_N15_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_C12_He4_to_p_N15_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // C12 + He4 --> p + N15
 
@@ -5545,7 +5545,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_N14_He4_to_p_O17_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_N14_He4_to_p_O17_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // N14 + He4 --> p + O17
 
@@ -5690,7 +5690,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_N15_He4_to_p_O18_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_N15_He4_to_p_O18_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // N15 + He4 --> p + O18
 
@@ -5835,7 +5835,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_O16_p_to_He4_N13_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_O16_p_to_He4_N13_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // O16 + p --> He4 + N13
 
@@ -5905,7 +5905,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_O16_He4_to_p_F19_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_O16_He4_to_p_F19_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // O16 + He4 --> p + F19
 
@@ -6074,7 +6074,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Ne20_He4_to_p_Na23_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_Ne20_He4_to_p_Na23_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Ne20 + He4 --> p + Na23
 
@@ -6193,7 +6193,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Ne20_He4_to_C12_C12_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_Ne20_He4_to_C12_C12_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Ne20 + He4 --> C12 + C12
 
@@ -6257,7 +6257,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Ne21_p_to_He4_F18_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_Ne21_p_to_He4_F18_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Ne21 + p --> He4 + F18
 
@@ -6326,7 +6326,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Ne22_p_to_He4_F19_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_Ne22_p_to_He4_F19_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Ne22 + p --> He4 + F19
 
@@ -6445,7 +6445,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Na23_p_to_C12_C12_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_Na23_p_to_C12_C12_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Na23 + p --> C12 + C12
 
@@ -6509,7 +6509,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Mg24_He4_to_p_Al27_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_Mg24_He4_to_p_Al27_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Mg24 + He4 --> p + Al27
 
@@ -6628,7 +6628,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Mg24_He4_to_C12_O16_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_Mg24_He4_to_C12_O16_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Mg24 + He4 --> C12 + O16
 
@@ -6697,7 +6697,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Mg25_p_to_He4_Na22_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_Mg25_p_to_He4_Na22_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Mg25 + p --> He4 + Na22
 
@@ -6766,7 +6766,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Al27_p_to_C12_O16_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_Al27_p_to_C12_O16_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Al27 + p --> C12 + O16
 
@@ -6835,7 +6835,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Si28_He4_to_p_P31_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_Si28_He4_to_p_P31_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Si28 + He4 --> p + P31
 
@@ -6954,7 +6954,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Si28_He4_to_C12_Ne20_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_Si28_He4_to_C12_Ne20_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Si28 + He4 --> C12 + Ne20
 
@@ -7023,7 +7023,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Si28_He4_to_O16_O16_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_Si28_He4_to_O16_O16_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Si28 + He4 --> O16 + O16
 
@@ -7086,7 +7086,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Si29_p_to_He4_Al26_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_Si29_p_to_He4_Al26_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Si29 + p --> He4 + Al26
 
@@ -7155,7 +7155,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_P31_p_to_C12_Ne20_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_P31_p_to_C12_Ne20_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // P31 + p --> C12 + Ne20
 
@@ -7224,7 +7224,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_P31_p_to_O16_O16_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_P31_p_to_O16_O16_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // P31 + p --> O16 + O16
 
@@ -7287,7 +7287,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_S32_He4_to_p_Cl35_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_S32_He4_to_p_Cl35_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // S32 + He4 --> p + Cl35
 
@@ -7431,7 +7431,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_S33_p_to_He4_P30_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_S33_p_to_He4_P30_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // S33 + p --> He4 + P30
 
@@ -7500,7 +7500,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Ar36_He4_to_p_K39_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_Ar36_He4_to_p_K39_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Ar36 + He4 --> p + K39
 
@@ -7569,7 +7569,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Ar37_p_to_He4_Cl34_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_Ar37_p_to_He4_Cl34_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Ar37 + p --> He4 + Cl34
 
@@ -7638,7 +7638,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Ca40_He4_to_p_Sc43_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_Ca40_He4_to_p_Sc43_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Ca40 + He4 --> p + Sc43
 
@@ -7707,7 +7707,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Ca41_p_to_He4_K38_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_Ca41_p_to_He4_K38_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Ca41 + p --> He4 + K38
 
@@ -7776,7 +7776,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Ti45_p_to_He4_Sc42_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_Ti45_p_to_He4_Sc42_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Ti45 + p --> He4 + Sc42
 
@@ -7845,7 +7845,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_V47_p_to_He4_Ti44_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_V47_p_to_He4_Ti44_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // V47 + p --> He4 + Ti44
 
@@ -7914,7 +7914,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Cr49_p_to_He4_V46_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_Cr49_p_to_He4_V46_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Cr49 + p --> He4 + V46
 
@@ -7983,7 +7983,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Mn51_p_to_He4_Cr48_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_Mn51_p_to_He4_Cr48_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Mn51 + p --> He4 + Cr48
 
@@ -8052,7 +8052,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Mn52_p_to_He4_Cr49_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_Mn52_p_to_He4_Cr49_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Mn52 + p --> He4 + Cr49
 
@@ -8121,7 +8121,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Co55_p_to_He4_Fe52_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_Co55_p_to_He4_Fe52_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Co55 + p --> He4 + Fe52
 
@@ -8190,7 +8190,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Mn51_to_n_Mn50_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Mn51_to_n_Mn50_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Mn51 --> n + Mn50
 
@@ -8251,7 +8251,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Mn52_to_n_Mn51_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Mn52_to_n_Mn51_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Mn52 --> n + Mn51
 
@@ -8312,7 +8312,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Fe53_to_n_Fe52_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Fe53_to_n_Fe52_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Fe53 --> n + Fe52
 
@@ -8373,7 +8373,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Fe53_to_p_Mn52_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Fe53_to_p_Mn52_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Fe53 --> p + Mn52
 
@@ -8434,7 +8434,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Fe54_to_n_Fe53_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Fe54_to_n_Fe53_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Fe54 --> n + Fe53
 
@@ -8495,7 +8495,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Fe55_to_n_Fe54_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Fe55_to_n_Fe54_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Fe55 --> n + Fe54
 
@@ -8556,7 +8556,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Fe56_to_n_Fe55_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Fe56_to_n_Fe55_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Fe56 --> n + Fe55
 
@@ -8617,7 +8617,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Co55_to_p_Fe54_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Co55_to_p_Fe54_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Co55 --> p + Fe54
 
@@ -8678,7 +8678,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Co56_to_n_Co55_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Co56_to_n_Co55_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Co56 --> n + Co55
 
@@ -8739,7 +8739,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Co56_to_p_Fe55_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Co56_to_p_Fe55_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Co56 --> p + Fe55
 
@@ -8800,7 +8800,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Co56_to_He4_Mn52_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Co56_to_He4_Mn52_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Co56 --> He4 + Mn52
 
@@ -8861,7 +8861,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Co57_to_n_Co56_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Co57_to_n_Co56_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Co57 --> n + Co56
 
@@ -8922,7 +8922,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Co57_to_p_Fe56_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Co57_to_p_Fe56_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Co57 --> p + Fe56
 
@@ -8983,7 +8983,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Ni57_to_n_Ni56_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Ni57_to_n_Ni56_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Ni57 --> n + Ni56
 
@@ -9044,7 +9044,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Ni57_to_p_Co56_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Ni57_to_p_Co56_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Ni57 --> p + Co56
 
@@ -9105,7 +9105,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Ni57_to_He4_Fe53_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Ni57_to_He4_Fe53_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Ni57 --> He4 + Fe53
 
@@ -9166,7 +9166,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Ni58_to_n_Ni57_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Ni58_to_n_Ni57_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Ni58 --> n + Ni57
 
@@ -9227,7 +9227,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Ni58_to_p_Co57_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Ni58_to_p_Co57_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Ni58 --> p + Co57
 
@@ -9288,7 +9288,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Ni58_to_He4_Fe54_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Ni58_to_He4_Fe54_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Ni58 --> He4 + Fe54
 
@@ -9349,7 +9349,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Cu59_to_p_Ni58_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Cu59_to_p_Ni58_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Cu59 --> p + Ni58
 
@@ -9410,7 +9410,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Cu59_to_He4_Co55_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Cu59_to_He4_Co55_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Cu59 --> He4 + Co55
 
@@ -9471,7 +9471,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Zn60_to_p_Cu59_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Zn60_to_p_Cu59_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Zn60 --> p + Cu59
 
@@ -9532,7 +9532,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Zn60_to_He4_Ni56_derived(T& rate_eval, const tf_t& tfactors, part_fun::pf_cache_t& pf_cache) {
+    void rate_Zn60_to_He4_Ni56_derived(T& rate_eval, const tf_t& tfactors, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Zn60 --> He4 + Ni56
 
@@ -9593,7 +9593,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Mn52_p_to_n_Fe52_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_Mn52_p_to_n_Fe52_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Mn52 + p --> n + Fe52
 
@@ -9662,7 +9662,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Mn52_He4_to_n_Co55_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_Mn52_He4_to_n_Co55_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Mn52 + He4 --> n + Co55
 
@@ -9731,7 +9731,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Fe53_p_to_He4_Mn50_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_Fe53_p_to_He4_Mn50_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Fe53 + p --> He4 + Mn50
 
@@ -9800,7 +9800,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Fe53_He4_to_n_Ni56_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_Fe53_He4_to_n_Ni56_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Fe53 + He4 --> n + Ni56
 
@@ -9869,7 +9869,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Fe54_p_to_He4_Mn51_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_Fe54_p_to_He4_Mn51_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Fe54 + p --> He4 + Mn51
 
@@ -9938,7 +9938,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Fe54_He4_to_n_Ni57_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_Fe54_He4_to_n_Ni57_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Fe54 + He4 --> n + Ni57
 
@@ -10007,7 +10007,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Fe54_He4_to_p_Co57_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_Fe54_He4_to_p_Co57_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Fe54 + He4 --> p + Co57
 
@@ -10076,7 +10076,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Fe55_p_to_n_Co55_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_Fe55_p_to_n_Co55_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Fe55 + p --> n + Co55
 
@@ -10145,7 +10145,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Fe55_p_to_He4_Mn52_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_Fe55_p_to_He4_Mn52_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Fe55 + p --> He4 + Mn52
 
@@ -10214,7 +10214,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Fe55_He4_to_n_Ni58_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_Fe55_He4_to_n_Ni58_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Fe55 + He4 --> n + Ni58
 
@@ -10283,7 +10283,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Fe56_p_to_n_Co56_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_Fe56_p_to_n_Co56_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Fe56 + p --> n + Co56
 
@@ -10352,7 +10352,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Co56_p_to_n_Ni56_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_Co56_p_to_n_Ni56_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Co56 + p --> n + Ni56
 
@@ -10421,7 +10421,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Co56_p_to_He4_Fe53_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_Co56_p_to_He4_Fe53_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Co56 + p --> He4 + Fe53
 
@@ -10490,7 +10490,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Co56_He4_to_n_Cu59_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_Co56_He4_to_n_Cu59_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Co56 + He4 --> n + Cu59
 
@@ -10559,7 +10559,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Co57_p_to_n_Ni57_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_Co57_p_to_n_Ni57_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Co57 + p --> n + Ni57
 
@@ -10628,7 +10628,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Ni56_He4_to_p_Cu59_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_Ni56_He4_to_p_Cu59_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Ni56 + He4 --> p + Cu59
 
@@ -10697,7 +10697,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Ni57_He4_to_n_Zn60_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_Ni57_He4_to_n_Zn60_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Ni57 + He4 --> n + Zn60
 
@@ -10766,7 +10766,7 @@ namespace derived_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void rate_Ni58_p_to_He4_Co55_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, part_fun::pf_cache_t& pf_cache) {
+    void rate_Ni58_p_to_He4_Co55_derived(T& rate_eval, const tf_t& tfactors, const amrex::Real log_scor, const amrex::Real dlog_scor_dT, [[maybe_unused]] part_fun::pf_cache_t& pf_cache) {
 
         // Ni58 + p --> He4 + Co55
 

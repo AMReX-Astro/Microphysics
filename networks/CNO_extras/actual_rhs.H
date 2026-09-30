@@ -509,6 +509,46 @@ void get_ydot_weak(const burn_t& state,
     const tf_t tfactors = evaluate_tfactors(state.T);
 
     {
+        // Ne19_3p_to_Mg22_beta_pos_modified
+        amrex::Real log_scor {0.0_rt};
+        amrex::Real dlog_scor_dT {0.0_rt};
+#ifdef SCREENING
+        log_scor = rate_eval.log_screen(k_p_Ne19);
+#endif
+        modified_rates::rate_Ne19_3p_to_Mg22_beta_pos_modified(rate_eval, tfactors, log_scor, dlog_scor_dT);
+    }
+
+    {
+        // p_p_p_to_He3_beta_pos_modified
+        amrex::Real log_scor {0.0_rt};
+        amrex::Real dlog_scor_dT {0.0_rt};
+#ifdef SCREENING
+        log_scor = rate_eval.log_screen(k_p_p);
+#endif
+        modified_rates::rate_p_p_p_to_He3_beta_pos_modified(rate_eval, tfactors, log_scor, dlog_scor_dT);
+    }
+
+    {
+        // p_p_p_to_He3_electron_capture_modified
+        amrex::Real log_scor {0.0_rt};
+        amrex::Real dlog_scor_dT {0.0_rt};
+#ifdef SCREENING
+        log_scor = rate_eval.log_screen(k_p_p);
+#endif
+        modified_rates::rate_p_p_p_to_He3_electron_capture_modified(rate_eval, tfactors, log_scor, dlog_scor_dT);
+    }
+
+    {
+        // He3_He4_p_to_He4_He4_beta_pos_modified
+        amrex::Real log_scor {0.0_rt};
+        amrex::Real dlog_scor_dT {0.0_rt};
+#ifdef SCREENING
+        log_scor = rate_eval.log_screen(k_He3_He4);
+#endif
+        modified_rates::rate_He3_He4_p_to_He4_He4_beta_pos_modified(rate_eval, tfactors, log_scor, dlog_scor_dT);
+    }
+
+    {
         // N13_to_C13_beta_pos_reaclib
         reaclib_rates::rate_N13_to_C13_beta_pos_reaclib(rate_eval, tfactors);
     }
@@ -551,46 +591,6 @@ void get_ydot_weak(const burn_t& state,
         log_scor = rate_eval.log_screen(k_p_He3);
 #endif
         reaclib_rates::rate_He3_p_to_He4_beta_pos_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
-    }
-
-    {
-        // Ne19_3p_to_Mg22_beta_pos_modified
-        amrex::Real log_scor {0.0_rt};
-        amrex::Real dlog_scor_dT {0.0_rt};
-#ifdef SCREENING
-        log_scor = rate_eval.log_screen(k_p_Ne19);
-#endif
-        modified_rates::rate_Ne19_3p_to_Mg22_beta_pos_modified(rate_eval, tfactors, log_scor, dlog_scor_dT);
-    }
-
-    {
-        // p_p_p_to_He3_beta_pos_modified
-        amrex::Real log_scor {0.0_rt};
-        amrex::Real dlog_scor_dT {0.0_rt};
-#ifdef SCREENING
-        log_scor = rate_eval.log_screen(k_p_p);
-#endif
-        modified_rates::rate_p_p_p_to_He3_beta_pos_modified(rate_eval, tfactors, log_scor, dlog_scor_dT);
-    }
-
-    {
-        // p_p_p_to_He3_electron_capture_modified
-        amrex::Real log_scor {0.0_rt};
-        amrex::Real dlog_scor_dT {0.0_rt};
-#ifdef SCREENING
-        log_scor = rate_eval.log_screen(k_p_p);
-#endif
-        modified_rates::rate_p_p_p_to_He3_electron_capture_modified(rate_eval, tfactors, log_scor, dlog_scor_dT);
-    }
-
-    {
-        // He3_He4_p_to_He4_He4_beta_pos_modified
-        amrex::Real log_scor {0.0_rt};
-        amrex::Real dlog_scor_dT {0.0_rt};
-#ifdef SCREENING
-        log_scor = rate_eval.log_screen(k_He3_He4);
-#endif
-        modified_rates::rate_He3_He4_p_to_He4_He4_beta_pos_modified(rate_eval, tfactors, log_scor, dlog_scor_dT);
     }
 
     tabular_weak_rates::fill_rates(state.T, rhoy, Y, rate_eval);
