@@ -1,4 +1,4 @@
-# test_nse_interp
+# `nse_interp_check`
 
 This is a simple test of the NSE cubic interpolation.
 
@@ -9,7 +9,10 @@ Then it does 1-d interpolation in each direction (rho, T, Ye)
 to make sure that the interpolation there works as expected.
 This is done just for Abar.
 
-Finally, it calls the full interface that does tricubic interpolation
+Next, it calls the full interface that does tricubic interpolation
 and prints out the interpolated state.
+
+Finally, it chooses a zone where cubic interpolation can violate
+monotonicity and interpolates neutrino energy.
 
 This is for the tabular NSE: `USE_NSE_TABLE=TRUE`
