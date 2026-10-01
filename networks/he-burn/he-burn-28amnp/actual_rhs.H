@@ -467,7 +467,7 @@ void evaluate_rates(const burn_t& state,
 
     reaclib_rates::fill_rates(tfactors, rate_eval);
 
-    tabular_weak_rates::fill_rates(state.T, rhoy, Y, rate_eval);
+    tabular_weak_rates::fill_rates(state.T, state.rho, rhoy, Y, rate_eval);
 
     temp_tabular::fill_rates(tfactors, rate_eval);
 
@@ -532,9 +532,8 @@ void get_ydot_weak(const burn_t& state,
 
     rate_t rate_eval;
 
-    constexpr int do_T_derivatives = 0;
     [[maybe_unused]] amrex::Real rate, drate_dT, edot_nu, edot_gamma;
-    [[maybe_unused]] amrex::Real rhoy = state.rho * state.y_e;
+    [[maybe_unused]] const amrex::Real rhoy = state.rho * state.y_e;
 
     rate_eval.enuc_weak = 0.0_rt;
 
@@ -567,7 +566,7 @@ void get_ydot_weak(const burn_t& state,
         modified_rates::rate_O16_p_p_to_N14_He4_beta_pos_modified(rate_eval, tfactors, log_scor, dlog_scor_dT);
     }
 
-    tabular_weak_rates::fill_rates(state.T, rhoy, Y, rate_eval);
+    tabular_weak_rates::fill_rates(state.T, state.rho, rhoy, Y, rate_eval);
 
     const auto& screened_rates = rate_eval.screened_rates;
 
@@ -936,6 +935,8 @@ void jac_nuc(const burn_t& state,
 
     amrex::Real scratch;
 
+    // n row
+
     scratch = -screened_rates(k_Co55_n_to_Co56_reaclib)*Y(Co55)*state.rho
               - screened_rates(k_Co56_n_to_Co57_reaclib)*Y(Co56)*state.rho
               - screened_rates(k_Co56_n_to_p_nse_Fe56_reaclib)*Y(Co56)*state.rho
@@ -1022,6 +1023,9 @@ void jac_nuc(const burn_t& state,
 
     scratch = 2.0*screened_rates(k_Ni58_to_Ni56_n_n_approx);
     jac.set(N, Ni58, scratch);
+
+
+    // p row
 
     scratch = screened_rates(k_n_to_p_beta_neg_weaktab);
     jac.set(H1, N, scratch);
@@ -1114,6 +1118,9 @@ void jac_nuc(const burn_t& state,
     jac.set(H1, Ni56, 0.0);
 
     jac.set(H1, Ni58, 0.0);
+
+
+    // p_nse row
 
     scratch = screened_rates(k_Co56_n_to_p_nse_Fe56_reaclib)*Y(Co56)*state.rho
               + screened_rates(k_Ni56_n_to_p_nse_Co56_reaclib)*Y(Ni56)*state.rho;
@@ -1213,6 +1220,9 @@ void jac_nuc(const burn_t& state,
     scratch = -screened_rates(k_Ni58_p_nse_to_He4_Co55_derived)*Y(P_nse)*state.rho
               + screened_rates(k_Ni58_to_p_nse_Co57_derived);
     jac.set(P_nse, Ni58, scratch);
+
+
+    // He4 row
 
     jac.set(He4, N, 0.0);
 
@@ -1355,6 +1365,9 @@ void jac_nuc(const burn_t& state,
               + screened_rates(k_Ni58_to_He4_Fe54_derived);
     jac.set(He4, Ni58, scratch);
 
+
+    // C12 row
+
     jac.set(C12, N, 0.0);
 
     scratch = -screened_rates(k_C12_p_to_N13_reaclib)*Y(C12)*state.rho;
@@ -1428,6 +1441,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(C12, Ni58, 0.0);
 
+
+    // N13 row
+
     jac.set(N13, N, 0.0);
 
     scratch = screened_rates(k_C12_p_to_N13_reaclib)*Y(C12)*state.rho
@@ -1491,6 +1507,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(N13, Ni58, 0.0);
 
+
+    // N14 row
+
     jac.set(N14, N, 0.0);
 
     scratch = screened_rates(k_O16_p_p_to_N14_He4_beta_pos_modified)*Y(O16)*state.rho;
@@ -1550,6 +1569,9 @@ void jac_nuc(const burn_t& state,
     jac.set(N14, Ni56, 0.0);
 
     jac.set(N14, Ni58, 0.0);
+
+
+    // O16 row
 
     jac.set(O16, N, 0.0);
 
@@ -1628,6 +1650,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(O16, Ni58, 0.0);
 
+
+    // Ne20 row
+
     jac.set(Ne20, N, 0.0);
 
     scratch = screened_rates(k_Na23_p_to_He4_Ne20_reaclib)*Y(Na23)*state.rho;
@@ -1697,6 +1722,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Ne20, Ni58, 0.0);
 
+
+    // Na23 row
+
     jac.set(Na23, N, 0.0);
 
     scratch = -screened_rates(k_Na23_p_to_He4_Ne20_reaclib)*Y(Na23)*state.rho
@@ -1760,6 +1788,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Na23, Ni56, 0.0);
 
     jac.set(Na23, Ni58, 0.0);
+
+
+    // Mg24 row
 
     jac.set(Mg24, N, 0.0);
 
@@ -1833,6 +1864,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Mg24, Ni58, 0.0);
 
+
+    // Al27 row
+
     jac.set(Al27, N, 0.0);
 
     scratch = -screened_rates(k_Al27_p_to_He4_Mg24_reaclib)*Y(Al27)*state.rho
@@ -1897,6 +1931,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Al27, Ni56, 0.0);
 
     jac.set(Al27, Ni58, 0.0);
+
+
+    // Si28 row
 
     jac.set(Si28, N, 0.0);
 
@@ -1970,6 +2007,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Si28, Ni58, 0.0);
 
+
+    // P31 row
+
     jac.set(P31, N, 0.0);
 
     scratch = -screened_rates(k_P31_p_to_He4_Si28_reaclib)*Y(P31)*state.rho
@@ -2033,6 +2073,9 @@ void jac_nuc(const burn_t& state,
     jac.set(P31, Ni56, 0.0);
 
     jac.set(P31, Ni58, 0.0);
+
+
+    // S32 row
 
     jac.set(S32, N, 0.0);
 
@@ -2100,6 +2143,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(S32, Ni58, 0.0);
 
+
+    // Ar36 row
+
     jac.set(Ar36, N, 0.0);
 
     jac.set(Ar36, H1, 0.0);
@@ -2161,6 +2207,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Ar36, Ni56, 0.0);
 
     jac.set(Ar36, Ni58, 0.0);
+
+
+    // Ca40 row
 
     jac.set(Ca40, N, 0.0);
 
@@ -2224,6 +2273,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Ca40, Ni58, 0.0);
 
+
+    // Ti44 row
+
     jac.set(Ti44, N, 0.0);
 
     jac.set(Ti44, H1, 0.0);
@@ -2285,6 +2337,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Ti44, Ni56, 0.0);
 
     jac.set(Ti44, Ni58, 0.0);
+
+
+    // Cr48 row
 
     jac.set(Cr48, N, 0.0);
 
@@ -2351,6 +2406,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Cr48, Ni56, 0.0);
 
     jac.set(Cr48, Ni58, 0.0);
+
+
+    // Mn51 row
 
     jac.set(Mn51, N, 0.0);
 
@@ -2421,6 +2479,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Mn51, Ni56, 0.0);
 
     jac.set(Mn51, Ni58, 0.0);
+
+
+    // Fe52 row
 
     scratch = -1.0*screened_rates(k_Fe52_n_n_to_Fe54_approx)*Y(Fe52)*Y(N)*amrex::Math::powi<2>(state.rho)
               - 0.5*Y(Fe52)*amrex::Math::powi<2>(Y(N))*amrex::Math::powi<2>(state.rho)*rate_eval.drate_Fe52_n_n_to_Fe54_approx_dYN
@@ -2495,6 +2556,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Fe52, Ni56, scratch);
 
     jac.set(Fe52, Ni58, 0.0);
+
+
+    // Fe54 row
 
     scratch = 1.0*screened_rates(k_Fe52_n_n_to_Fe54_approx)*Y(Fe52)*Y(N)*amrex::Math::powi<2>(state.rho)
               - 1.0*screened_rates(k_Fe54_n_n_to_Fe56_approx)*Y(Fe54)*Y(N)*amrex::Math::powi<2>(state.rho)
@@ -2576,6 +2640,9 @@ void jac_nuc(const burn_t& state,
     scratch = screened_rates(k_Ni58_to_He4_Fe54_derived);
     jac.set(Fe54, Ni58, scratch);
 
+
+    // Fe56 row
+
     scratch = screened_rates(k_Co56_n_to_p_nse_Fe56_reaclib)*Y(Co56)*state.rho
               + 1.0*screened_rates(k_Fe54_n_n_to_Fe56_approx)*Y(Fe54)*Y(N)*amrex::Math::powi<2>(state.rho)
               + 0.5*Y(Fe54)*amrex::Math::powi<2>(Y(N))*amrex::Math::powi<2>(state.rho)*rate_eval.drate_Fe54_n_n_to_Fe56_approx_dYN
@@ -2645,6 +2712,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Fe56, Ni56, 0.0);
 
     jac.set(Fe56, Ni58, 0.0);
+
+
+    // Co55 row
 
     scratch = -screened_rates(k_Co55_n_to_Co56_reaclib)*Y(Co55)*state.rho;
     jac.set(Co55, N, scratch);
@@ -2722,6 +2792,9 @@ void jac_nuc(const burn_t& state,
     scratch = screened_rates(k_Ni58_p_nse_to_He4_Co55_derived)*Y(P_nse)*state.rho;
     jac.set(Co55, Ni58, scratch);
 
+
+    // Co56 row
+
     scratch = screened_rates(k_Co55_n_to_Co56_reaclib)*Y(Co55)*state.rho
               - screened_rates(k_Co56_n_to_Co57_reaclib)*Y(Co56)*state.rho
               - screened_rates(k_Co56_n_to_p_nse_Fe56_reaclib)*Y(Co56)*state.rho
@@ -2796,6 +2869,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Co56, Ni58, 0.0);
 
+
+    // Co57 row
+
     scratch = screened_rates(k_Co56_n_to_Co57_reaclib)*Y(Co56)*state.rho;
     jac.set(Co57, N, scratch);
 
@@ -2864,6 +2940,9 @@ void jac_nuc(const burn_t& state,
 
     scratch = screened_rates(k_Ni58_to_p_nse_Co57_derived);
     jac.set(Co57, Ni58, scratch);
+
+
+    // Ni56 row
 
     scratch = -1.0*screened_rates(k_Ni56_n_n_to_Ni58_approx)*Y(Ni56)*Y(N)*amrex::Math::powi<2>(state.rho)
               - screened_rates(k_Ni56_n_to_p_nse_Co56_reaclib)*Y(Ni56)*state.rho
@@ -2938,6 +3017,9 @@ void jac_nuc(const burn_t& state,
     scratch = screened_rates(k_Ni58_to_Ni56_n_n_approx);
     jac.set(Ni56, Ni58, scratch);
 
+
+    // Ni58 row
+
     scratch = 1.0*screened_rates(k_Ni56_n_n_to_Ni58_approx)*Y(Ni56)*Y(N)*amrex::Math::powi<2>(state.rho)
               + 0.5*Y(Ni56)*amrex::Math::powi<2>(Y(N))*amrex::Math::powi<2>(state.rho)*rate_eval.drate_Ni56_n_n_to_Ni58_approx_dYN
               - Y(Ni58)*rate_eval.drate_Ni58_to_Ni56_n_n_approx_dYN;
@@ -3010,6 +3092,15 @@ void jac_nuc(const burn_t& state,
     jac.set(Ni58, Ni58, scratch);
 
 
+
+    // add ∂λ_weak / ∂Y_e terms now
+    // this uses ∂Y_e/∂Y_i = Z_i
+    for (int irow = 1; irow <= NumSpec; ++irow) {
+        for (int jcol = 1; jcol <= NumSpec; ++jcol) {
+            jac.add(irow, jcol, rate_eval.dweak_ydot_dYe(irow) * NetworkProperties::zion(jcol));
+        }
+    }
+
 }
 
 
@@ -3068,8 +3159,12 @@ void actual_jac(const burn_t& state, MatrixType& jac)
     }
 
     // Account for the weak rate neutrino losses
-    for (int j = 1; j <= NumSpec; ++j) {
-        jac.add(net_ienuc, j, rate_eval.denuc_weak_dY(j));
+    // There are two contributions here:
+    // ∂(ε_{ν,weak})/∂Y_j and ∂(ε_{ν,weak})/∂Y_e ∂Y_e/∂Y_j
+    for (int jcol = 1; jcol <= NumSpec; ++jcol) {
+        jac.add(net_ienuc, jcol,
+                rate_eval.denuc_weak_dY(jcol) +
+                rate_eval.denuc_weak_dYe * NetworkProperties::zion(jcol));
     }
 
     // Account for the thermal neutrino losses

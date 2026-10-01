@@ -3087,7 +3087,7 @@ void evaluate_rates(const burn_t& state,
 
     reaclib_rates::fill_rates(tfactors, rate_eval);
 
-    tabular_weak_rates::fill_rates(state.T, rhoy, Y, rate_eval);
+    tabular_weak_rates::fill_rates(state.T, state.rho, rhoy, Y, rate_eval);
 
     temp_tabular::fill_rates(tfactors, rate_eval);
 
@@ -3152,9 +3152,8 @@ void get_ydot_weak(const burn_t& state,
 
     rate_t rate_eval;
 
-    constexpr int do_T_derivatives = 0;
     [[maybe_unused]] amrex::Real rate, drate_dT, edot_nu, edot_gamma;
-    [[maybe_unused]] amrex::Real rhoy = state.rho * state.y_e;
+    [[maybe_unused]] const amrex::Real rhoy = state.rho * state.y_e;
 
     rate_eval.enuc_weak = 0.0_rt;
 
@@ -3279,7 +3278,7 @@ void get_ydot_weak(const burn_t& state,
         reaclib_rates::rate_He3_p_to_He4_beta_pos_reaclib(rate_eval, tfactors, log_scor, dlog_scor_dT);
     }
 
-    tabular_weak_rates::fill_rates(state.T, rhoy, Y, rate_eval);
+    tabular_weak_rates::fill_rates(state.T, state.rho, rhoy, Y, rate_eval);
 
     const auto& screened_rates = rate_eval.screened_rates;
 
@@ -6901,6 +6900,8 @@ void jac_nuc(const burn_t& state,
 
     amrex::Real scratch;
 
+    // n row
+
     scratch = -screened_rates(k_Al25_n_to_Al26_reaclib)*Y(Al25)*state.rho
               - screened_rates(k_Al25_n_to_He4_Na22_reaclib)*Y(Al25)*state.rho
               - screened_rates(k_Al25_n_to_p_Mg25_reaclib)*Y(Al25)*state.rho
@@ -8467,6 +8468,9 @@ void jac_nuc(const burn_t& state,
               - screened_rates(k_Ge64_n_to_p_Ga64_reaclib)*Y(N)*state.rho
               + screened_rates(k_Ge64_to_n_Ge63_reaclib);
     jac.set(N, Ge64, scratch);
+
+
+    // p row
 
     scratch = screened_rates(k_Al25_n_to_p_Mg25_reaclib)*Y(Al25)*state.rho
               + screened_rates(k_Al26_n_to_p_Mg26_reaclib)*Y(Al26)*state.rho
@@ -10060,6 +10064,9 @@ void jac_nuc(const burn_t& state,
               + screened_rates(k_Ge64_to_p_Ga63_reaclib);
     jac.set(H1, Ge64, scratch);
 
+
+    // d row
+
     scratch = screened_rates(k_Be7_n_to_d_Li6_reaclib)*Y(Be7)*state.rho
               + 2.0*screened_rates(k_He3_n_to_d_d_reaclib)*Y(He3)*state.rho
               + 0.5*screened_rates(k_He4_He4_n_to_d_Li7_reaclib)*amrex::Math::powi<2>(Y(He4))*amrex::Math::powi<2>(state.rho)
@@ -10432,6 +10439,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(H2, Ge64, 0.0);
 
+
+    // He3 row
+
     scratch = -screened_rates(k_He3_n_to_He4_reaclib)*Y(He3)*state.rho
               - screened_rates(k_He3_n_to_d_d_reaclib)*Y(He3)*state.rho
               + 0.5*screened_rates(k_He4_He4_p_n_to_He3_Li7_reaclib)*amrex::Math::powi<2>(Y(He4))*Y(H1)*amrex::Math::powi<3>(state.rho);
@@ -10785,6 +10795,9 @@ void jac_nuc(const burn_t& state,
     jac.set(He3, Ge63, 0.0);
 
     jac.set(He3, Ge64, 0.0);
+
+
+    // He4 row
 
     scratch = screened_rates(k_Al25_n_to_He4_Na22_reaclib)*Y(Al25)*state.rho
               + screened_rates(k_Al26_n_to_He4_Na23_reaclib)*Y(Al26)*state.rho
@@ -12456,6 +12469,9 @@ void jac_nuc(const burn_t& state,
               + screened_rates(k_Ge64_to_He4_Zn60_reaclib);
     jac.set(He4, Ge64, scratch);
 
+
+    // Li6 row
+
     scratch = screened_rates(k_Be7_n_to_d_Li6_reaclib)*Y(Be7)*state.rho
               + screened_rates(k_He4_p_n_to_Li6_reaclib)*Y(He4)*Y(H1)*amrex::Math::powi<2>(state.rho)
               - screened_rates(k_Li6_n_to_Li7_reaclib)*Y(Li6)*state.rho;
@@ -12808,6 +12824,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Li6, Ge64, 0.0);
 
+
+    // Li7 row
+
     scratch = screened_rates(k_B10_n_to_He4_Li7_reaclib)*Y(B10)*state.rho
               + screened_rates(k_Be7_n_to_p_Li7_reaclib)*Y(Be7)*state.rho
               + 0.5*screened_rates(k_He4_He4_n_to_d_Li7_reaclib)*amrex::Math::powi<2>(Y(He4))*amrex::Math::powi<2>(state.rho)
@@ -13158,6 +13177,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Li7, Ge63, 0.0);
 
     jac.set(Li7, Ge64, 0.0);
+
+
+    // Be7 row
 
     scratch = -screened_rates(k_Be7_n_to_He4_He4_reaclib)*Y(Be7)*state.rho
               - screened_rates(k_Be7_n_to_d_Li6_reaclib)*Y(Be7)*state.rho
@@ -13512,6 +13534,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Be7, Ge64, 0.0);
 
+
+    // Be9 row
+
     scratch = screened_rates(k_C12_n_to_He4_Be9_reaclib)*Y(C12)*state.rho
               + 0.5*screened_rates(k_He4_He4_n_to_Be9_reaclib)*amrex::Math::powi<2>(Y(He4))*amrex::Math::powi<2>(state.rho)
               + 0.5*screened_rates(k_He4_He4_p_n_to_p_Be9_reaclib)*amrex::Math::powi<2>(Y(He4))*Y(H1)*amrex::Math::powi<3>(state.rho);
@@ -13855,6 +13880,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Be9, Ge64, 0.0);
 
+
+    // B8 row
+
     scratch = -screened_rates(k_B8_n_to_p_He4_He4_reaclib)*Y(B8)*state.rho;
     jac.set(B8, N, scratch);
 
@@ -14182,6 +14210,9 @@ void jac_nuc(const burn_t& state,
     jac.set(B8, Ge63, 0.0);
 
     jac.set(B8, Ge64, 0.0);
+
+
+    // B10 row
 
     scratch = -screened_rates(k_B10_n_to_B11_reaclib)*Y(B10)*state.rho
               - screened_rates(k_B10_n_to_He4_Li7_reaclib)*Y(B10)*state.rho
@@ -14528,6 +14559,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(B10, Ge64, 0.0);
 
+
+    // B11 row
+
     scratch = screened_rates(k_B10_n_to_B11_reaclib)*Y(B10)*state.rho
               + screened_rates(k_N14_n_to_He4_B11_reaclib)*Y(N14)*state.rho;
     jac.set(B11, N, scratch);
@@ -14867,6 +14901,9 @@ void jac_nuc(const burn_t& state,
     jac.set(B11, Ge63, 0.0);
 
     jac.set(B11, Ge64, 0.0);
+
+
+    // C12 row
 
     scratch = -screened_rates(k_C12_n_to_C13_reaclib)*Y(C12)*state.rho
               - screened_rates(k_C12_n_to_He4_Be9_reaclib)*Y(C12)*state.rho
@@ -15239,6 +15276,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(C12, Ge64, 0.0);
 
+
+    // C13 row
+
     scratch = screened_rates(k_C12_n_to_C13_reaclib)*Y(C12)*state.rho
               - screened_rates(k_C13_n_to_C14_reaclib)*Y(C13)*state.rho
               + screened_rates(k_N13_n_to_p_C13_reaclib)*Y(N13)*state.rho
@@ -15584,6 +15624,9 @@ void jac_nuc(const burn_t& state,
     jac.set(C13, Ge63, 0.0);
 
     jac.set(C13, Ge64, 0.0);
+
+
+    // C14 row
 
     scratch = screened_rates(k_C13_n_to_C14_reaclib)*Y(C13)*state.rho
               + screened_rates(k_N14_n_to_p_C14_reaclib)*Y(N14)*state.rho
@@ -15931,6 +15974,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(C14, Ge64, 0.0);
 
+
+    // N13 row
+
     scratch = -screened_rates(k_N13_n_to_He4_B10_reaclib)*Y(N13)*state.rho
               - screened_rates(k_N13_n_to_N14_reaclib)*Y(N13)*state.rho
               - screened_rates(k_N13_n_to_p_C13_reaclib)*Y(N13)*state.rho;
@@ -16272,6 +16318,9 @@ void jac_nuc(const burn_t& state,
     jac.set(N13, Ge63, 0.0);
 
     jac.set(N13, Ge64, 0.0);
+
+
+    // N14 row
 
     scratch = screened_rates(k_F17_n_to_He4_N14_reaclib)*Y(F17)*state.rho
               + screened_rates(k_N13_n_to_N14_reaclib)*Y(N13)*state.rho
@@ -16634,6 +16683,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(N14, Ge64, 0.0);
 
+
+    // N15 row
+
     scratch = screened_rates(k_F18_n_to_He4_N15_reaclib)*Y(F18)*state.rho
               + screened_rates(k_N14_n_to_N15_reaclib)*Y(N14)*state.rho
               - screened_rates(k_N15_n_to_d_C14_reaclib)*Y(N15)*state.rho
@@ -16987,6 +17039,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(N15, Ge64, 0.0);
 
+
+    // O14 row
+
     scratch = -screened_rates(k_O14_n_to_O15_reaclib)*Y(O14)*state.rho
               - screened_rates(k_O14_n_to_p_N14_reaclib)*Y(O14)*state.rho;
     jac.set(O14, N, scratch);
@@ -17324,6 +17379,9 @@ void jac_nuc(const burn_t& state,
     jac.set(O14, Ge63, 0.0);
 
     jac.set(O14, Ge64, 0.0);
+
+
+    // O15 row
 
     scratch = screened_rates(k_Ne18_n_to_He4_O15_reaclib)*Y(Ne18)*state.rho
               + screened_rates(k_O14_n_to_O15_reaclib)*Y(O14)*state.rho
@@ -17673,6 +17731,9 @@ void jac_nuc(const burn_t& state,
     jac.set(O15, Ge63, 0.0);
 
     jac.set(O15, Ge64, 0.0);
+
+
+    // O16 row
 
     scratch = screened_rates(k_Ne19_n_to_He4_O16_reaclib)*Y(Ne19)*state.rho
               + screened_rates(k_O15_n_to_O16_reaclib)*Y(O15)*state.rho
@@ -18042,6 +18103,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(O16, Ge64, 0.0);
 
+
+    // O17 row
+
     scratch = screened_rates(k_F17_n_to_p_O17_reaclib)*Y(F17)*state.rho
               + screened_rates(k_Ne20_n_to_He4_O17_reaclib)*Y(Ne20)*state.rho
               + screened_rates(k_O16_n_to_O17_reaclib)*Y(O16)*state.rho
@@ -18391,6 +18455,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(O17, Ge64, 0.0);
 
+
+    // O18 row
+
     scratch = screened_rates(k_F18_n_to_p_O18_reaclib)*Y(F18)*state.rho
               + screened_rates(k_Ne21_n_to_He4_O18_reaclib)*Y(Ne21)*state.rho
               + screened_rates(k_O17_n_to_O18_reaclib)*Y(O17)*state.rho;
@@ -18735,6 +18802,9 @@ void jac_nuc(const burn_t& state,
     jac.set(O18, Ge63, 0.0);
 
     jac.set(O18, Ge64, 0.0);
+
+
+    // F17 row
 
     scratch = -screened_rates(k_F17_n_to_F18_reaclib)*Y(F17)*state.rho
               - screened_rates(k_F17_n_to_He4_N14_reaclib)*Y(F17)*state.rho
@@ -19084,6 +19154,9 @@ void jac_nuc(const burn_t& state,
     jac.set(F17, Ge63, 0.0);
 
     jac.set(F17, Ge64, 0.0);
+
+
+    // F18 row
 
     scratch = screened_rates(k_F17_n_to_F18_reaclib)*Y(F17)*state.rho
               - screened_rates(k_F18_n_to_F19_reaclib)*Y(F18)*state.rho
@@ -19449,6 +19522,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(F18, Ge64, 0.0);
 
+
+    // F19 row
+
     scratch = screened_rates(k_F18_n_to_F19_reaclib)*Y(F18)*state.rho
               + screened_rates(k_Na22_n_to_He4_F19_reaclib)*Y(Na22)*state.rho
               + screened_rates(k_Ne19_n_to_p_F19_reaclib)*Y(Ne19)*state.rho;
@@ -19801,6 +19877,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(F19, Ge64, 0.0);
 
+
+    // Ne18 row
+
     scratch = -screened_rates(k_Ne18_n_to_He4_O15_reaclib)*Y(Ne18)*state.rho
               - screened_rates(k_Ne18_n_to_Ne19_reaclib)*Y(Ne18)*state.rho
               - screened_rates(k_Ne18_n_to_p_F18_reaclib)*Y(Ne18)*state.rho;
@@ -20142,6 +20221,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Ne18, Ge63, 0.0);
 
     jac.set(Ne18, Ge64, 0.0);
+
+
+    // Ne19 row
 
     scratch = screened_rates(k_Ne18_n_to_Ne19_reaclib)*Y(Ne18)*state.rho
               - screened_rates(k_Ne19_n_to_He4_O16_reaclib)*Y(Ne19)*state.rho
@@ -20490,6 +20572,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Ne19, Ge63, 0.0);
 
     jac.set(Ne19, Ge64, 0.0);
+
+
+    // Ne20 row
 
     scratch = screened_rates(k_Mg23_n_to_He4_Ne20_reaclib)*Y(Mg23)*state.rho
               + screened_rates(k_Ne19_n_to_Ne20_reaclib)*Y(Ne19)*state.rho
@@ -20856,6 +20941,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Ne20, Ge64, 0.0);
 
+
+    // Ne21 row
+
     scratch = screened_rates(k_Mg24_n_to_He4_Ne21_reaclib)*Y(Mg24)*state.rho
               + screened_rates(k_Na21_n_to_p_Ne21_reaclib)*Y(Na21)*state.rho
               + screened_rates(k_Ne20_n_to_Ne21_reaclib)*Y(Ne20)*state.rho
@@ -21209,6 +21297,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Ne21, Ge64, 0.0);
 
+
+    // Ne22 row
+
     scratch = screened_rates(k_Mg25_n_to_He4_Ne22_reaclib)*Y(Mg25)*state.rho
               + screened_rates(k_Na22_n_to_p_Ne22_reaclib)*Y(Na22)*state.rho
               + screened_rates(k_Ne21_n_to_Ne22_reaclib)*Y(Ne21)*state.rho;
@@ -21554,6 +21645,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Ne22, Ge63, 0.0);
 
     jac.set(Ne22, Ge64, 0.0);
+
+
+    // Na21 row
 
     scratch = -screened_rates(k_Na21_n_to_He4_F18_reaclib)*Y(Na21)*state.rho
               - screened_rates(k_Na21_n_to_Na22_reaclib)*Y(Na21)*state.rho
@@ -21904,6 +21998,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Na21, Ge63, 0.0);
 
     jac.set(Na21, Ge64, 0.0);
+
+
+    // Na22 row
 
     scratch = screened_rates(k_Al25_n_to_He4_Na22_reaclib)*Y(Al25)*state.rho
               + screened_rates(k_Na21_n_to_Na22_reaclib)*Y(Na21)*state.rho
@@ -22265,6 +22362,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Na22, Ge64, 0.0);
 
+
+    // Na23 row
+
     scratch = screened_rates(k_Al26_n_to_He4_Na23_reaclib)*Y(Al26)*state.rho
               + screened_rates(k_Mg23_n_to_p_Na23_reaclib)*Y(Mg23)*state.rho
               + screened_rates(k_Na22_n_to_Na23_reaclib)*Y(Na22)*state.rho;
@@ -22621,6 +22721,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Na23, Ge64, 0.0);
 
+
+    // Mg23 row
+
     scratch = -screened_rates(k_Mg23_n_to_C12_C12_reaclib)*Y(Mg23)*state.rho
               - screened_rates(k_Mg23_n_to_He4_Ne20_reaclib)*Y(Mg23)*state.rho
               - screened_rates(k_Mg23_n_to_Mg24_reaclib)*Y(Mg23)*state.rho
@@ -22966,6 +23069,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Mg23, Ge63, 0.0);
 
     jac.set(Mg23, Ge64, 0.0);
+
+
+    // Mg24 row
 
     scratch = screened_rates(k_Mg23_n_to_Mg24_reaclib)*Y(Mg23)*state.rho
               - screened_rates(k_Mg24_n_to_He4_Ne21_reaclib)*Y(Mg24)*state.rho
@@ -23321,6 +23427,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Mg24, Ge64, 0.0);
 
+
+    // Mg25 row
+
     scratch = screened_rates(k_Al25_n_to_p_Mg25_reaclib)*Y(Al25)*state.rho
               + screened_rates(k_Mg24_n_to_Mg25_reaclib)*Y(Mg24)*state.rho
               - screened_rates(k_Mg25_n_to_He4_Ne22_reaclib)*Y(Mg25)*state.rho
@@ -23674,6 +23783,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Mg25, Ge64, 0.0);
 
+
+    // Mg26 row
+
     scratch = screened_rates(k_Al26_n_to_p_Mg26_reaclib)*Y(Al26)*state.rho
               + screened_rates(k_Mg25_n_to_Mg26_reaclib)*Y(Mg25)*state.rho
               + screened_rates(k_Si29_n_to_He4_Mg26_reaclib)*Y(Si29)*state.rho;
@@ -24020,6 +24132,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Mg26, Ge64, 0.0);
 
+
+    // Al25 row
+
     scratch = -screened_rates(k_Al25_n_to_Al26_reaclib)*Y(Al25)*state.rho
               - screened_rates(k_Al25_n_to_He4_Na22_reaclib)*Y(Al25)*state.rho
               - screened_rates(k_Al25_n_to_p_Mg25_reaclib)*Y(Al25)*state.rho;
@@ -24365,6 +24480,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Al25, Ge63, 0.0);
 
     jac.set(Al25, Ge64, 0.0);
+
+
+    // Al26 row
 
     scratch = screened_rates(k_Al25_n_to_Al26_reaclib)*Y(Al25)*state.rho
               - screened_rates(k_Al26_n_to_Al27_reaclib)*Y(Al26)*state.rho
@@ -24723,6 +24841,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Al26, Ge64, 0.0);
 
+
+    // Al27 row
+
     scratch = screened_rates(k_Al26_n_to_Al27_reaclib)*Y(Al26)*state.rho
               + screened_rates(k_P30_n_to_He4_Al27_reaclib)*Y(P30)*state.rho;
     jac.set(Al27, N, scratch);
@@ -25073,6 +25194,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Al27, Ge63, 0.0);
 
     jac.set(Al27, Ge64, 0.0);
+
+
+    // Si28 row
 
     scratch = -screened_rates(k_Si28_n_to_He4_Mg25_reaclib)*Y(Si28)*state.rho
               - screened_rates(k_Si28_n_to_Si29_reaclib)*Y(Si28)*state.rho;
@@ -25427,6 +25551,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Si28, Ge63, 0.0);
 
     jac.set(Si28, Ge64, 0.0);
+
+
+    // Si29 row
 
     scratch = screened_rates(k_P29_n_to_p_Si29_reaclib)*Y(P29)*state.rho
               + screened_rates(k_S32_n_to_He4_Si29_reaclib)*Y(S32)*state.rho
@@ -25785,6 +25912,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Si29, Ge64, 0.0);
 
+
+    // Si30 row
+
     scratch = screened_rates(k_P30_n_to_p_Si30_reaclib)*Y(P30)*state.rho
               + screened_rates(k_S33_n_to_He4_Si30_reaclib)*Y(S33)*state.rho
               + screened_rates(k_Si29_n_to_Si30_reaclib)*Y(Si29)*state.rho
@@ -26138,6 +26268,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Si30, Ge64, 0.0);
 
+
+    // Si31 row
+
     scratch = screened_rates(k_P31_n_to_p_Si31_reaclib)*Y(P31)*state.rho
               + screened_rates(k_S34_n_to_He4_Si31_reaclib)*Y(S34)*state.rho
               + screened_rates(k_Si30_n_to_Si31_reaclib)*Y(Si30)*state.rho
@@ -26480,6 +26613,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Si31, Ge64, 0.0);
 
+
+    // Si32 row
+
     scratch = screened_rates(k_P32_n_to_p_Si32_reaclib)*Y(P32)*state.rho
               + screened_rates(k_S35_n_to_He4_Si32_reaclib)*Y(S35)*state.rho
               + screened_rates(k_Si31_n_to_Si32_reaclib)*Y(Si31)*state.rho;
@@ -26818,6 +26954,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Si32, Ge63, 0.0);
 
     jac.set(Si32, Ge64, 0.0);
+
+
+    // P29 row
 
     scratch = -screened_rates(k_P29_n_to_He4_Al26_reaclib)*Y(P29)*state.rho
               - screened_rates(k_P29_n_to_P30_reaclib)*Y(P29)*state.rho
@@ -27164,6 +27303,9 @@ void jac_nuc(const burn_t& state,
     jac.set(P29, Ge63, 0.0);
 
     jac.set(P29, Ge64, 0.0);
+
+
+    // P30 row
 
     scratch = screened_rates(k_Cl33_n_to_He4_P30_reaclib)*Y(Cl33)*state.rho
               + screened_rates(k_P29_n_to_P30_reaclib)*Y(P29)*state.rho
@@ -27517,6 +27659,9 @@ void jac_nuc(const burn_t& state,
     jac.set(P30, Ge63, 0.0);
 
     jac.set(P30, Ge64, 0.0);
+
+
+    // P31 row
 
     scratch = screened_rates(k_Cl34_n_to_He4_P31_reaclib)*Y(Cl34)*state.rho
               + screened_rates(k_P30_n_to_P31_reaclib)*Y(P30)*state.rho
@@ -27881,6 +28026,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(P31, Ge64, 0.0);
 
+
+    // P32 row
+
     scratch = screened_rates(k_Cl35_n_to_He4_P32_reaclib)*Y(Cl35)*state.rho
               + screened_rates(k_P31_n_to_P32_reaclib)*Y(P31)*state.rho
               - screened_rates(k_P32_n_to_P33_reaclib)*Y(P32)*state.rho
@@ -28240,6 +28388,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(P32, Ge64, 0.0);
 
+
+    // P33 row
+
     scratch = screened_rates(k_Cl36_n_to_He4_P33_reaclib)*Y(Cl36)*state.rho
               + screened_rates(k_P32_n_to_P33_reaclib)*Y(P32)*state.rho
               + screened_rates(k_S33_n_to_p_P33_reaclib)*Y(S33)*state.rho;
@@ -28589,6 +28740,9 @@ void jac_nuc(const burn_t& state,
     jac.set(P33, Ge63, 0.0);
 
     jac.set(P33, Ge64, 0.0);
+
+
+    // S32 row
 
     scratch = -screened_rates(k_S32_n_to_He4_Si29_reaclib)*Y(S32)*state.rho
               - screened_rates(k_S32_n_to_S33_reaclib)*Y(S32)*state.rho
@@ -28942,6 +29096,9 @@ void jac_nuc(const burn_t& state,
     jac.set(S32, Ge63, 0.0);
 
     jac.set(S32, Ge64, 0.0);
+
+
+    // S33 row
 
     scratch = screened_rates(k_Ar36_n_to_He4_S33_reaclib)*Y(Ar36)*state.rho
               + screened_rates(k_Cl33_n_to_p_S33_reaclib)*Y(Cl33)*state.rho
@@ -29309,6 +29466,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(S33, Ge64, 0.0);
 
+
+    // S34 row
+
     scratch = screened_rates(k_Ar37_n_to_He4_S34_reaclib)*Y(Ar37)*state.rho
               + screened_rates(k_Cl34_n_to_p_S34_reaclib)*Y(Cl34)*state.rho
               + screened_rates(k_S33_n_to_S34_reaclib)*Y(S33)*state.rho
@@ -29669,6 +29829,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(S34, Ge64, 0.0);
 
+
+    // S35 row
+
     scratch = screened_rates(k_Ar38_n_to_He4_S35_reaclib)*Y(Ar38)*state.rho
               + screened_rates(k_Cl35_n_to_p_S35_reaclib)*Y(Cl35)*state.rho
               + screened_rates(k_S34_n_to_S35_reaclib)*Y(S34)*state.rho
@@ -30022,6 +30185,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(S35, Ge64, 0.0);
 
+
+    // S36 row
+
     scratch = screened_rates(k_Ar39_n_to_He4_S36_reaclib)*Y(Ar39)*state.rho
               + screened_rates(k_Cl36_n_to_p_S36_reaclib)*Y(Cl36)*state.rho
               + screened_rates(k_S35_n_to_S36_reaclib)*Y(S35)*state.rho;
@@ -30368,6 +30534,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(S36, Ge64, 0.0);
 
+
+    // Cl33 row
+
     scratch = -screened_rates(k_Cl33_n_to_Cl34_reaclib)*Y(Cl33)*state.rho
               - screened_rates(k_Cl33_n_to_He4_P30_reaclib)*Y(Cl33)*state.rho
               - screened_rates(k_Cl33_n_to_p_S33_reaclib)*Y(Cl33)*state.rho;
@@ -30713,6 +30882,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Cl33, Ge63, 0.0);
 
     jac.set(Cl33, Ge64, 0.0);
+
+
+    // Cl34 row
 
     scratch = screened_rates(k_Cl33_n_to_Cl34_reaclib)*Y(Cl33)*state.rho
               - screened_rates(k_Cl34_n_to_Cl35_reaclib)*Y(Cl34)*state.rho
@@ -31066,6 +31238,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Cl34, Ge63, 0.0);
 
     jac.set(Cl34, Ge64, 0.0);
+
+
+    // Cl35 row
 
     scratch = screened_rates(k_Cl34_n_to_Cl35_reaclib)*Y(Cl34)*state.rho
               - screened_rates(k_Cl35_n_to_Cl36_reaclib)*Y(Cl35)*state.rho
@@ -31426,6 +31601,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Cl35, Ge63, 0.0);
 
     jac.set(Cl35, Ge64, 0.0);
+
+
+    // Cl36 row
 
     scratch = screened_rates(k_Ar36_n_to_p_Cl36_reaclib)*Y(Ar36)*state.rho
               + screened_rates(k_Cl35_n_to_Cl36_reaclib)*Y(Cl35)*state.rho
@@ -31793,6 +31971,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Cl36, Ge64, 0.0);
 
+
+    // Cl37 row
+
     scratch = screened_rates(k_Ar37_n_to_p_Cl37_reaclib)*Y(Ar37)*state.rho
               + screened_rates(k_Cl36_n_to_Cl37_reaclib)*Y(Cl36)*state.rho
               + screened_rates(k_K40_n_to_He4_Cl37_reaclib)*Y(K40)*state.rho;
@@ -32146,6 +32327,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Cl37, Ge64, 0.0);
 
+
+    // Ar36 row
+
     scratch = -screened_rates(k_Ar36_n_to_Ar37_reaclib)*Y(Ar36)*state.rho
               - screened_rates(k_Ar36_n_to_He4_S33_reaclib)*Y(Ar36)*state.rho
               - screened_rates(k_Ar36_n_to_p_Cl36_reaclib)*Y(Ar36)*state.rho;
@@ -32498,6 +32682,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Ar36, Ge63, 0.0);
 
     jac.set(Ar36, Ge64, 0.0);
+
+
+    // Ar37 row
 
     scratch = screened_rates(k_Ar36_n_to_Ar37_reaclib)*Y(Ar36)*state.rho
               - screened_rates(k_Ar37_n_to_Ar38_reaclib)*Y(Ar37)*state.rho
@@ -32865,6 +33052,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Ar37, Ge64, 0.0);
 
+
+    // Ar38 row
+
     scratch = screened_rates(k_Ar37_n_to_Ar38_reaclib)*Y(Ar37)*state.rho
               - screened_rates(k_Ar38_n_to_Ar39_reaclib)*Y(Ar38)*state.rho
               - screened_rates(k_Ar38_n_to_He4_S35_reaclib)*Y(Ar38)*state.rho
@@ -33225,6 +33415,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Ar38, Ge64, 0.0);
 
+
+    // Ar39 row
+
     scratch = screened_rates(k_Ar38_n_to_Ar39_reaclib)*Y(Ar38)*state.rho
               - screened_rates(k_Ar39_n_to_Ar40_reaclib)*Y(Ar39)*state.rho
               - screened_rates(k_Ar39_n_to_He4_S36_reaclib)*Y(Ar39)*state.rho
@@ -33578,6 +33771,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Ar39, Ge64, 0.0);
 
+
+    // Ar40 row
+
     scratch = screened_rates(k_Ar39_n_to_Ar40_reaclib)*Y(Ar39)*state.rho
               + screened_rates(k_Ca43_n_to_He4_Ar40_reaclib)*Y(Ca43)*state.rho
               + screened_rates(k_K40_n_to_p_Ar40_reaclib)*Y(K40)*state.rho;
@@ -33924,6 +34120,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Ar40, Ge64, 0.0);
 
+
+    // K37 row
+
     scratch = -screened_rates(k_K37_n_to_He4_Cl34_reaclib)*Y(K37)*state.rho
               - screened_rates(k_K37_n_to_K38_reaclib)*Y(K37)*state.rho
               - screened_rates(k_K37_n_to_p_Ar37_reaclib)*Y(K37)*state.rho;
@@ -34266,6 +34465,9 @@ void jac_nuc(const burn_t& state,
     jac.set(K37, Ge63, 0.0);
 
     jac.set(K37, Ge64, 0.0);
+
+
+    // K38 row
 
     scratch = screened_rates(k_K37_n_to_K38_reaclib)*Y(K37)*state.rho
               - screened_rates(k_K38_n_to_He4_Cl35_reaclib)*Y(K38)*state.rho
@@ -34612,6 +34814,9 @@ void jac_nuc(const burn_t& state,
     jac.set(K38, Ge63, 0.0);
 
     jac.set(K38, Ge64, 0.0);
+
+
+    // K39 row
 
     scratch = screened_rates(k_K38_n_to_K39_reaclib)*Y(K38)*state.rho
               - screened_rates(k_K39_n_to_He4_Cl36_reaclib)*Y(K39)*state.rho
@@ -34968,6 +35173,9 @@ void jac_nuc(const burn_t& state,
     jac.set(K39, Ge63, 0.0);
 
     jac.set(K39, Ge64, 0.0);
+
+
+    // K40 row
 
     scratch = screened_rates(k_Ca40_n_to_p_K40_reaclib)*Y(Ca40)*state.rho
               + screened_rates(k_K39_n_to_K40_reaclib)*Y(K39)*state.rho
@@ -35335,6 +35543,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(K40, Ge64, 0.0);
 
+
+    // K41 row
+
     scratch = screened_rates(k_Ca41_n_to_p_K41_reaclib)*Y(Ca41)*state.rho
               + screened_rates(k_K40_n_to_K41_reaclib)*Y(K40)*state.rho
               + screened_rates(k_Sc44_n_to_He4_K41_reaclib)*Y(Sc44)*state.rho;
@@ -35688,6 +35899,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(K41, Ge64, 0.0);
 
+
+    // Ca40 row
+
     scratch = -screened_rates(k_Ca40_n_to_Ca41_reaclib)*Y(Ca40)*state.rho
               - screened_rates(k_Ca40_n_to_He4_Ar37_reaclib)*Y(Ca40)*state.rho
               - screened_rates(k_Ca40_n_to_p_K40_reaclib)*Y(Ca40)*state.rho;
@@ -36037,6 +36251,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Ca40, Ge63, 0.0);
 
     jac.set(Ca40, Ge64, 0.0);
+
+
+    // Ca41 row
 
     scratch = screened_rates(k_Ca40_n_to_Ca41_reaclib)*Y(Ca40)*state.rho
               - screened_rates(k_Ca41_n_to_Ca42_reaclib)*Y(Ca41)*state.rho
@@ -36395,6 +36612,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Ca41, Ge64, 0.0);
 
+
+    // Ca42 row
+
     scratch = screened_rates(k_Ca41_n_to_Ca42_reaclib)*Y(Ca41)*state.rho
               - screened_rates(k_Ca42_n_to_Ca43_reaclib)*Y(Ca42)*state.rho
               - screened_rates(k_Ca42_n_to_He4_Ar39_reaclib)*Y(Ca42)*state.rho
@@ -36748,6 +36968,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Ca42, Ge63, 0.0);
 
     jac.set(Ca42, Ge64, 0.0);
+
+
+    // Ca43 row
 
     scratch = screened_rates(k_Ca42_n_to_Ca43_reaclib)*Y(Ca42)*state.rho
               - screened_rates(k_Ca43_n_to_Ca44_reaclib)*Y(Ca43)*state.rho
@@ -37106,6 +37329,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Ca43, Ge64, 0.0);
 
+
+    // Ca44 row
+
     scratch = screened_rates(k_Ca43_n_to_Ca44_reaclib)*Y(Ca43)*state.rho
               - screened_rates(k_Ca44_n_to_Ca45_reaclib)*Y(Ca44)*state.rho
               + screened_rates(k_Sc44_n_to_p_Ca44_reaclib)*Y(Sc44)*state.rho
@@ -37459,6 +37685,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Ca44, Ge64, 0.0);
 
+
+    // Ca45 row
+
     scratch = screened_rates(k_Ca44_n_to_Ca45_reaclib)*Y(Ca44)*state.rho
               - screened_rates(k_Ca45_n_to_Ca46_reaclib)*Y(Ca45)*state.rho
               + screened_rates(k_Sc45_n_to_p_Ca45_reaclib)*Y(Sc45)*state.rho
@@ -37804,6 +38033,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Ca45, Ge63, 0.0);
 
     jac.set(Ca45, Ge64, 0.0);
+
+
+    // Ca46 row
 
     scratch = screened_rates(k_Ca45_n_to_Ca46_reaclib)*Y(Ca45)*state.rho
               - screened_rates(k_Ca46_n_to_Ca47_reaclib)*Y(Ca46)*state.rho
@@ -38151,6 +38383,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Ca46, Ge64, 0.0);
 
+
+    // Ca47 row
+
     scratch = screened_rates(k_Ca46_n_to_Ca47_reaclib)*Y(Ca46)*state.rho
               - screened_rates(k_Ca47_n_to_Ca48_reaclib)*Y(Ca47)*state.rho
               + screened_rates(k_Sc47_n_to_p_Ca47_reaclib)*Y(Sc47)*state.rho
@@ -38493,6 +38728,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Ca47, Ge64, 0.0);
 
+
+    // Ca48 row
+
     scratch = screened_rates(k_Ca47_n_to_Ca48_reaclib)*Y(Ca47)*state.rho
               + screened_rates(k_Sc48_n_to_p_Ca48_reaclib)*Y(Sc48)*state.rho
               + screened_rates(k_Ti51_n_to_He4_Ca48_reaclib)*Y(Ti51)*state.rho;
@@ -38828,6 +39066,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Ca48, Ge63, 0.0);
 
     jac.set(Ca48, Ge64, 0.0);
+
+
+    // Sc43 row
 
     scratch = -screened_rates(k_Sc43_n_to_He4_K40_reaclib)*Y(Sc43)*state.rho
               - screened_rates(k_Sc43_n_to_Sc44_reaclib)*Y(Sc43)*state.rho
@@ -39185,6 +39426,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Sc43, Ge63, 0.0);
 
     jac.set(Sc43, Ge64, 0.0);
+
+
+    // Sc44 row
 
     scratch = screened_rates(k_Sc43_n_to_Sc44_reaclib)*Y(Sc43)*state.rho
               - screened_rates(k_Sc44_n_to_He4_K41_reaclib)*Y(Sc44)*state.rho
@@ -39552,6 +39796,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Sc44, Ge64, 0.0);
 
+
+    // Sc45 row
+
     scratch = screened_rates(k_Sc44_n_to_Sc45_reaclib)*Y(Sc44)*state.rho
               - screened_rates(k_Sc45_n_to_Sc46_reaclib)*Y(Sc45)*state.rho
               - screened_rates(k_Sc45_n_to_p_Ca45_reaclib)*Y(Sc45)*state.rho
@@ -39914,6 +40161,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Sc45, Ge64, 0.0);
 
+
+    // Sc46 row
+
     scratch = screened_rates(k_Sc45_n_to_Sc46_reaclib)*Y(Sc45)*state.rho
               - screened_rates(k_Sc46_n_to_Sc47_reaclib)*Y(Sc46)*state.rho
               - screened_rates(k_Sc46_n_to_p_Ca46_reaclib)*Y(Sc46)*state.rho
@@ -40272,6 +40522,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Sc46, Ge63, 0.0);
 
     jac.set(Sc46, Ge64, 0.0);
+
+
+    // Sc47 row
 
     scratch = screened_rates(k_Sc46_n_to_Sc47_reaclib)*Y(Sc46)*state.rho
               - screened_rates(k_Sc47_n_to_Sc48_reaclib)*Y(Sc47)*state.rho
@@ -40632,6 +40885,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Sc47, Ge64, 0.0);
 
+
+    // Sc48 row
+
     scratch = screened_rates(k_Sc47_n_to_Sc48_reaclib)*Y(Sc47)*state.rho
               - screened_rates(k_Sc48_n_to_Sc49_reaclib)*Y(Sc48)*state.rho
               - screened_rates(k_Sc48_n_to_p_Ca48_reaclib)*Y(Sc48)*state.rho
@@ -40991,6 +41247,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Sc48, Ge64, 0.0);
 
+
+    // Sc49 row
+
     scratch = screened_rates(k_Sc48_n_to_Sc49_reaclib)*Y(Sc48)*state.rho
               + screened_rates(k_Ti49_n_to_p_Sc49_reaclib)*Y(Ti49)*state.rho
               + screened_rates(k_V52_n_to_He4_Sc49_reaclib)*Y(V52)*state.rho;
@@ -41333,6 +41592,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Sc49, Ge63, 0.0);
 
     jac.set(Sc49, Ge64, 0.0);
+
+
+    // Ti44 row
 
     scratch = -screened_rates(k_Ti44_n_to_He4_Ca41_reaclib)*Y(Ti44)*state.rho
               - screened_rates(k_Ti44_n_to_Ti45_reaclib)*Y(Ti44)*state.rho
@@ -41679,6 +41941,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Ti44, Ge63, 0.0);
 
     jac.set(Ti44, Ge64, 0.0);
+
+
+    // Ti45 row
 
     scratch = screened_rates(k_Cr48_n_to_He4_Ti45_reaclib)*Y(Cr48)*state.rho
               + screened_rates(k_Ti44_n_to_Ti45_reaclib)*Y(Ti44)*state.rho
@@ -42035,6 +42300,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Ti45, Ge63, 0.0);
 
     jac.set(Ti45, Ge64, 0.0);
+
+
+    // Ti46 row
 
     scratch = screened_rates(k_Cr49_n_to_He4_Ti46_reaclib)*Y(Cr49)*state.rho
               + screened_rates(k_Ti45_n_to_Ti46_reaclib)*Y(Ti45)*state.rho
@@ -42402,6 +42670,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Ti46, Ge64, 0.0);
 
+
+    // Ti47 row
+
     scratch = screened_rates(k_Cr50_n_to_He4_Ti47_reaclib)*Y(Cr50)*state.rho
               + screened_rates(k_Ti46_n_to_Ti47_reaclib)*Y(Ti46)*state.rho
               - screened_rates(k_Ti47_n_to_He4_Ca44_reaclib)*Y(Ti47)*state.rho
@@ -42767,6 +43038,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Ti47, Ge63, 0.0);
 
     jac.set(Ti47, Ge64, 0.0);
+
+
+    // Ti48 row
 
     scratch = screened_rates(k_Cr51_n_to_He4_Ti48_reaclib)*Y(Cr51)*state.rho
               + screened_rates(k_Ti47_n_to_Ti48_reaclib)*Y(Ti47)*state.rho
@@ -43134,6 +43408,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Ti48, Ge64, 0.0);
 
+
+    // Ti49 row
+
     scratch = screened_rates(k_Cr52_n_to_He4_Ti49_reaclib)*Y(Cr52)*state.rho
               + screened_rates(k_Ti48_n_to_Ti49_reaclib)*Y(Ti48)*state.rho
               - screened_rates(k_Ti49_n_to_He4_Ca46_reaclib)*Y(Ti49)*state.rho
@@ -43500,6 +43777,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Ti49, Ge64, 0.0);
 
+
+    // Ti50 row
+
     scratch = screened_rates(k_Cr53_n_to_He4_Ti50_reaclib)*Y(Cr53)*state.rho
               + screened_rates(k_Ti49_n_to_Ti50_reaclib)*Y(Ti49)*state.rho
               - screened_rates(k_Ti50_n_to_He4_Ca47_reaclib)*Y(Ti50)*state.rho
@@ -43856,6 +44136,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Ti50, Ge64, 0.0);
 
+
+    // Ti51 row
+
     scratch = screened_rates(k_Cr54_n_to_He4_Ti51_reaclib)*Y(Cr54)*state.rho
               + screened_rates(k_Ti50_n_to_Ti51_reaclib)*Y(Ti50)*state.rho
               - screened_rates(k_Ti51_n_to_He4_Ca48_reaclib)*Y(Ti51)*state.rho
@@ -44203,6 +44486,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Ti51, Ge64, 0.0);
 
+
+    // V46 row
+
     scratch = -screened_rates(k_V46_n_to_He4_Sc43_reaclib)*Y(V46)*state.rho
               - screened_rates(k_V46_n_to_V47_reaclib)*Y(V46)*state.rho
               - screened_rates(k_V46_n_to_p_Ti46_reaclib)*Y(V46)*state.rho;
@@ -44545,6 +44831,9 @@ void jac_nuc(const burn_t& state,
     jac.set(V46, Ge63, 0.0);
 
     jac.set(V46, Ge64, 0.0);
+
+
+    // V47 row
 
     scratch = screened_rates(k_Mn50_n_to_He4_V47_reaclib)*Y(Mn50)*state.rho
               + screened_rates(k_V46_n_to_V47_reaclib)*Y(V46)*state.rho
@@ -44905,6 +45194,9 @@ void jac_nuc(const burn_t& state,
     jac.set(V47, Ge63, 0.0);
 
     jac.set(V47, Ge64, 0.0);
+
+
+    // V48 row
 
     scratch = screened_rates(k_Cr48_n_to_p_V48_reaclib)*Y(Cr48)*state.rho
               + screened_rates(k_Mn51_n_to_He4_V48_reaclib)*Y(Mn51)*state.rho
@@ -45272,6 +45564,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(V48, Ge64, 0.0);
 
+
+    // V49 row
+
     scratch = screened_rates(k_Cr49_n_to_p_V49_reaclib)*Y(Cr49)*state.rho
               + screened_rates(k_Mn52_n_to_He4_V49_reaclib)*Y(Mn52)*state.rho
               + screened_rates(k_V48_n_to_V49_reaclib)*Y(V48)*state.rho
@@ -45637,6 +45932,9 @@ void jac_nuc(const burn_t& state,
     jac.set(V49, Ge63, 0.0);
 
     jac.set(V49, Ge64, 0.0);
+
+
+    // V50 row
 
     scratch = screened_rates(k_Cr50_n_to_p_V50_reaclib)*Y(Cr50)*state.rho
               + screened_rates(k_Mn53_n_to_He4_V50_reaclib)*Y(Mn53)*state.rho
@@ -46004,6 +46302,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(V50, Ge64, 0.0);
 
+
+    // V51 row
+
     scratch = screened_rates(k_Cr51_n_to_p_V51_reaclib)*Y(Cr51)*state.rho
               + screened_rates(k_Mn54_n_to_He4_V51_reaclib)*Y(Mn54)*state.rho
               + screened_rates(k_V50_n_to_V51_reaclib)*Y(V50)*state.rho
@@ -46370,6 +46671,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(V51, Ge64, 0.0);
 
+
+    // V52 row
+
     scratch = screened_rates(k_Cr52_n_to_p_V52_reaclib)*Y(Cr52)*state.rho
               + screened_rates(k_Mn55_n_to_He4_V52_reaclib)*Y(Mn55)*state.rho
               + screened_rates(k_V51_n_to_V52_reaclib)*Y(V51)*state.rho
@@ -46720,6 +47024,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(V52, Ge64, 0.0);
 
+
+    // Cr48 row
+
     scratch = -screened_rates(k_Cr48_n_to_Cr49_reaclib)*Y(Cr48)*state.rho
               - screened_rates(k_Cr48_n_to_He4_Ti45_reaclib)*Y(Cr48)*state.rho
               - screened_rates(k_Cr48_n_to_p_V48_reaclib)*Y(Cr48)*state.rho;
@@ -47065,6 +47372,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Cr48, Ge63, 0.0);
 
     jac.set(Cr48, Ge64, 0.0);
+
+
+    // Cr49 row
 
     scratch = screened_rates(k_Cr48_n_to_Cr49_reaclib)*Y(Cr48)*state.rho
               - screened_rates(k_Cr49_n_to_Cr50_reaclib)*Y(Cr49)*state.rho
@@ -47425,6 +47735,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Cr49, Ge63, 0.0);
 
     jac.set(Cr49, Ge64, 0.0);
+
+
+    // Cr50 row
 
     scratch = screened_rates(k_Cr49_n_to_Cr50_reaclib)*Y(Cr49)*state.rho
               - screened_rates(k_Cr50_n_to_Cr51_reaclib)*Y(Cr50)*state.rho
@@ -47792,6 +48105,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Cr50, Ge64, 0.0);
 
+
+    // Cr51 row
+
     scratch = screened_rates(k_Cr50_n_to_Cr51_reaclib)*Y(Cr50)*state.rho
               - screened_rates(k_Cr51_n_to_Cr52_reaclib)*Y(Cr51)*state.rho
               - screened_rates(k_Cr51_n_to_He4_Ti48_reaclib)*Y(Cr51)*state.rho
@@ -48157,6 +48473,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Cr51, Ge63, 0.0);
 
     jac.set(Cr51, Ge64, 0.0);
+
+
+    // Cr52 row
 
     scratch = screened_rates(k_Cr51_n_to_Cr52_reaclib)*Y(Cr51)*state.rho
               - screened_rates(k_Cr52_n_to_Cr53_reaclib)*Y(Cr52)*state.rho
@@ -48524,6 +48843,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Cr52, Ge64, 0.0);
 
+
+    // Cr53 row
+
     scratch = screened_rates(k_Cr52_n_to_Cr53_reaclib)*Y(Cr52)*state.rho
               - screened_rates(k_Cr53_n_to_Cr54_reaclib)*Y(Cr53)*state.rho
               - screened_rates(k_Cr53_n_to_He4_Ti50_reaclib)*Y(Cr53)*state.rho
@@ -48880,6 +49202,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Cr53, Ge64, 0.0);
 
+
+    // Cr54 row
+
     scratch = screened_rates(k_Cr53_n_to_Cr54_reaclib)*Y(Cr53)*state.rho
               - screened_rates(k_Cr54_n_to_He4_Ti51_reaclib)*Y(Cr54)*state.rho
               + screened_rates(k_Fe57_n_to_He4_Cr54_reaclib)*Y(Fe57)*state.rho
@@ -49230,6 +49555,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Cr54, Ge64, 0.0);
 
+
+    // Mn50 row
+
     scratch = screened_rates(k_Co53_n_to_He4_Mn50_reaclib)*Y(Co53)*state.rho
               - screened_rates(k_Mn50_n_to_He4_V47_reaclib)*Y(Mn50)*state.rho
               - screened_rates(k_Mn50_n_to_Mn51_reaclib)*Y(Mn50)*state.rho
@@ -49579,6 +49907,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Mn50, Ge63, 0.0);
 
     jac.set(Mn50, Ge64, 0.0);
+
+
+    // Mn51 row
 
     scratch = screened_rates(k_Co54_n_to_He4_Mn51_reaclib)*Y(Co54)*state.rho
               + screened_rates(k_Mn50_n_to_Mn51_reaclib)*Y(Mn50)*state.rho
@@ -49939,6 +50270,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Mn51, Ge63, 0.0);
 
     jac.set(Mn51, Ge64, 0.0);
+
+
+    // Mn52 row
 
     scratch = screened_rates(k_Co55_n_to_He4_Mn52_reaclib)*Y(Co55)*state.rho
               + screened_rates(k_Fe52_n_to_p_Mn52_reaclib)*Y(Fe52)*state.rho
@@ -50306,6 +50640,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Mn52, Ge64, 0.0);
 
+
+    // Mn53 row
+
     scratch = screened_rates(k_Co56_n_to_He4_Mn53_reaclib)*Y(Co56)*state.rho
               + screened_rates(k_Fe53_n_to_p_Mn53_reaclib)*Y(Fe53)*state.rho
               + screened_rates(k_Mn52_n_to_Mn53_reaclib)*Y(Mn52)*state.rho
@@ -50671,6 +51008,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Mn53, Ge63, 0.0);
 
     jac.set(Mn53, Ge64, 0.0);
+
+
+    // Mn54 row
 
     scratch = screened_rates(k_Co57_n_to_He4_Mn54_reaclib)*Y(Co57)*state.rho
               + screened_rates(k_Fe54_n_to_p_Mn54_reaclib)*Y(Fe54)*state.rho
@@ -51038,6 +51378,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Mn54, Ge64, 0.0);
 
+
+    // Mn55 row
+
     scratch = screened_rates(k_Co58_n_to_He4_Mn55_reaclib)*Y(Co58)*state.rho
               + screened_rates(k_Fe55_n_to_p_Mn55_reaclib)*Y(Fe55)*state.rho
               + screened_rates(k_Mn54_n_to_Mn55_reaclib)*Y(Mn54)*state.rho
@@ -51395,6 +51738,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Mn55, Ge64, 0.0);
 
+
+    // Fe52 row
+
     scratch = -screened_rates(k_Fe52_n_to_Fe53_reaclib)*Y(Fe52)*state.rho
               - screened_rates(k_Fe52_n_to_He4_Cr49_reaclib)*Y(Fe52)*state.rho
               - screened_rates(k_Fe52_n_to_p_Mn52_reaclib)*Y(Fe52)*state.rho;
@@ -51743,6 +52089,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Fe52, Ge63, 0.0);
 
     jac.set(Fe52, Ge64, 0.0);
+
+
+    // Fe53 row
 
     scratch = screened_rates(k_Co53_n_to_p_Fe53_reaclib)*Y(Co53)*state.rho
               + screened_rates(k_Fe52_n_to_Fe53_reaclib)*Y(Fe52)*state.rho
@@ -52110,6 +52459,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Fe53, Ge64, 0.0);
 
+
+    // Fe54 row
+
     scratch = screened_rates(k_Co54_n_to_p_Fe54_reaclib)*Y(Co54)*state.rho
               + screened_rates(k_Fe53_n_to_Fe54_reaclib)*Y(Fe53)*state.rho
               - screened_rates(k_Fe54_n_to_Fe55_reaclib)*Y(Fe54)*state.rho
@@ -52475,6 +52827,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Fe54, Ge63, 0.0);
 
     jac.set(Fe54, Ge64, 0.0);
+
+
+    // Fe55 row
 
     scratch = screened_rates(k_Co55_n_to_p_Fe55_reaclib)*Y(Co55)*state.rho
               + screened_rates(k_Fe54_n_to_Fe55_reaclib)*Y(Fe54)*state.rho
@@ -52842,6 +53197,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Fe55, Ge64, 0.0);
 
+
+    // Fe56 row
+
     scratch = screened_rates(k_Co56_n_to_p_Fe56_reaclib)*Y(Co56)*state.rho
               + screened_rates(k_Fe55_n_to_Fe56_reaclib)*Y(Fe55)*state.rho
               - screened_rates(k_Fe56_n_to_Fe57_reaclib)*Y(Fe56)*state.rho
@@ -53202,6 +53560,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Fe56, Ge64, 0.0);
 
+
+    // Fe57 row
+
     scratch = screened_rates(k_Co57_n_to_p_Fe57_reaclib)*Y(Co57)*state.rho
               + screened_rates(k_Fe56_n_to_Fe57_reaclib)*Y(Fe56)*state.rho
               - screened_rates(k_Fe57_n_to_Fe58_reaclib)*Y(Fe57)*state.rho
@@ -53555,6 +53916,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Fe57, Ge64, 0.0);
 
+
+    // Fe58 row
+
     scratch = screened_rates(k_Co58_n_to_p_Fe58_reaclib)*Y(Co58)*state.rho
               + screened_rates(k_Fe57_n_to_Fe58_reaclib)*Y(Fe57)*state.rho
               + screened_rates(k_Ni61_n_to_He4_Fe58_reaclib)*Y(Ni61)*state.rho;
@@ -53901,6 +54265,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Fe58, Ge64, 0.0);
 
+
+    // Co53 row
+
     scratch = -screened_rates(k_Co53_n_to_Co54_reaclib)*Y(Co53)*state.rho
               - screened_rates(k_Co53_n_to_He4_Mn50_reaclib)*Y(Co53)*state.rho
               - screened_rates(k_Co53_n_to_p_Fe53_reaclib)*Y(Co53)*state.rho;
@@ -54243,6 +54610,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Co53, Ge63, 0.0);
 
     jac.set(Co53, Ge64, 0.0);
+
+
+    // Co54 row
 
     scratch = screened_rates(k_Co53_n_to_Co54_reaclib)*Y(Co53)*state.rho
               - screened_rates(k_Co54_n_to_Co55_reaclib)*Y(Co54)*state.rho
@@ -54596,6 +54966,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Co54, Ge63, 0.0);
 
     jac.set(Co54, Ge64, 0.0);
+
+
+    // Co55 row
 
     scratch = screened_rates(k_Co54_n_to_Co55_reaclib)*Y(Co54)*state.rho
               - screened_rates(k_Co55_n_to_Co56_reaclib)*Y(Co55)*state.rho
@@ -54956,6 +55329,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Co55, Ge63, 0.0);
 
     jac.set(Co55, Ge64, 0.0);
+
+
+    // Co56 row
 
     scratch = screened_rates(k_Co55_n_to_Co56_reaclib)*Y(Co55)*state.rho
               - screened_rates(k_Co56_n_to_Co57_reaclib)*Y(Co56)*state.rho
@@ -55323,6 +55699,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Co56, Ge64, 0.0);
 
+
+    // Co57 row
+
     scratch = screened_rates(k_Co56_n_to_Co57_reaclib)*Y(Co56)*state.rho
               - screened_rates(k_Co57_n_to_Co58_reaclib)*Y(Co57)*state.rho
               - screened_rates(k_Co57_n_to_He4_Mn54_reaclib)*Y(Co57)*state.rho
@@ -55688,6 +56067,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Co57, Ge63, 0.0);
 
     jac.set(Co57, Ge64, 0.0);
+
+
+    // Co58 row
 
     scratch = screened_rates(k_Co57_n_to_Co58_reaclib)*Y(Co57)*state.rho
               - screened_rates(k_Co58_n_to_Co59_reaclib)*Y(Co58)*state.rho
@@ -56055,6 +56437,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Co58, Ge64, 0.0);
 
+
+    // Co59 row
+
     scratch = screened_rates(k_Co58_n_to_Co59_reaclib)*Y(Co58)*state.rho
               + screened_rates(k_Cu62_n_to_He4_Co59_reaclib)*Y(Cu62)*state.rho
               + screened_rates(k_Ni59_n_to_p_Co59_reaclib)*Y(Ni59)*state.rho;
@@ -56407,6 +56792,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Co59, Ge63, 0.0);
 
     jac.set(Co59, Ge64, 0.0);
+
+
+    // Ni56 row
 
     scratch = -screened_rates(k_Ni56_n_to_He4_Fe53_reaclib)*Y(Ni56)*state.rho
               - screened_rates(k_Ni56_n_to_Ni57_reaclib)*Y(Ni56)*state.rho
@@ -56764,6 +57152,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Ni56, Ge63, 0.0);
 
     jac.set(Ni56, Ge64, 0.0);
+
+
+    // Ni57 row
 
     scratch = screened_rates(k_Cu57_n_to_p_Ni57_reaclib)*Y(Cu57)*state.rho
               + screened_rates(k_Ni56_n_to_Ni57_reaclib)*Y(Ni56)*state.rho
@@ -57130,6 +57521,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Ni57, Ge63, 0.0);
 
     jac.set(Ni57, Ge64, 0.0);
+
+
+    // Ni58 row
 
     scratch = screened_rates(k_Cu58_n_to_p_Ni58_reaclib)*Y(Cu58)*state.rho
               + screened_rates(k_Ni57_n_to_Ni58_reaclib)*Y(Ni57)*state.rho
@@ -57498,6 +57892,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Ni58, Ge64, 0.0);
 
+
+    // Ni59 row
+
     scratch = screened_rates(k_Cu59_n_to_p_Ni59_reaclib)*Y(Cu59)*state.rho
               + screened_rates(k_Ni58_n_to_Ni59_reaclib)*Y(Ni58)*state.rho
               - screened_rates(k_Ni59_n_to_He4_Fe56_reaclib)*Y(Ni59)*state.rho
@@ -57864,6 +58261,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Ni59, Ge64, 0.0);
 
+
+    // Ni60 row
+
     scratch = screened_rates(k_Cu60_n_to_p_Ni60_reaclib)*Y(Cu60)*state.rho
               + screened_rates(k_Ni59_n_to_Ni60_reaclib)*Y(Ni59)*state.rho
               - screened_rates(k_Ni60_n_to_He4_Fe57_reaclib)*Y(Ni60)*state.rho
@@ -58224,6 +58624,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Ni60, Ge64, 0.0);
 
+
+    // Ni61 row
+
     scratch = screened_rates(k_Cu61_n_to_p_Ni61_reaclib)*Y(Cu61)*state.rho
               + screened_rates(k_Ni60_n_to_Ni61_reaclib)*Y(Ni60)*state.rho
               - screened_rates(k_Ni61_n_to_He4_Fe58_reaclib)*Y(Ni61)*state.rho
@@ -58581,6 +58984,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Ni61, Ge64, 0.0);
 
+
+    // Ni62 row
+
     scratch = screened_rates(k_Cu62_n_to_p_Ni62_reaclib)*Y(Cu62)*state.rho
               + screened_rates(k_Ni61_n_to_Ni62_reaclib)*Y(Ni61)*state.rho
               - screened_rates(k_Ni62_n_to_Ni63_reaclib)*Y(Ni62)*state.rho
@@ -58934,6 +59340,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Ni62, Ge64, 0.0);
 
+
+    // Ni63 row
+
     scratch = screened_rates(k_Cu63_n_to_p_Ni63_reaclib)*Y(Cu63)*state.rho
               + screened_rates(k_Ni62_n_to_Ni63_reaclib)*Y(Ni62)*state.rho
               - screened_rates(k_Ni63_n_to_Ni64_reaclib)*Y(Ni63)*state.rho
@@ -59273,6 +59682,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Ni63, Ge64, 0.0);
 
+
+    // Ni64 row
+
     scratch = screened_rates(k_Cu64_n_to_p_Ni64_reaclib)*Y(Cu64)*state.rho
               + screened_rates(k_Ni63_n_to_Ni64_reaclib)*Y(Ni63)*state.rho;
     jac.set(Ni64, N, scratch);
@@ -59604,6 +60016,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Ni64, Ge63, 0.0);
 
     jac.set(Ni64, Ge64, 0.0);
+
+
+    // Cu57 row
 
     scratch = -screened_rates(k_Cu57_n_to_Cu58_reaclib)*Y(Cu57)*state.rho
               - screened_rates(k_Cu57_n_to_He4_Co54_reaclib)*Y(Cu57)*state.rho
@@ -59947,6 +60362,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Cu57, Ge63, 0.0);
 
     jac.set(Cu57, Ge64, 0.0);
+
+
+    // Cu58 row
 
     scratch = screened_rates(k_Cu57_n_to_Cu58_reaclib)*Y(Cu57)*state.rho
               - screened_rates(k_Cu58_n_to_Cu59_reaclib)*Y(Cu58)*state.rho
@@ -60299,6 +60717,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Cu58, Ge63, 0.0);
 
     jac.set(Cu58, Ge64, 0.0);
+
+
+    // Cu59 row
 
     scratch = screened_rates(k_Cu58_n_to_Cu59_reaclib)*Y(Cu58)*state.rho
               - screened_rates(k_Cu59_n_to_Cu60_reaclib)*Y(Cu59)*state.rho
@@ -60664,6 +61085,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Cu59, Ge63, 0.0);
 
     jac.set(Cu59, Ge64, 0.0);
+
+
+    // Cu60 row
 
     scratch = screened_rates(k_Cu59_n_to_Cu60_reaclib)*Y(Cu59)*state.rho
               - screened_rates(k_Cu60_n_to_Cu61_reaclib)*Y(Cu60)*state.rho
@@ -61031,6 +61455,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Cu60, Ge64, 0.0);
 
+
+    // Cu61 row
+
     scratch = screened_rates(k_Cu60_n_to_Cu61_reaclib)*Y(Cu60)*state.rho
               - screened_rates(k_Cu61_n_to_Cu62_reaclib)*Y(Cu61)*state.rho
               - screened_rates(k_Cu61_n_to_He4_Co58_reaclib)*Y(Cu61)*state.rho
@@ -61394,6 +61821,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Cu61, Ge64, 0.0);
 
+
+    // Cu62 row
+
     scratch = screened_rates(k_Cu61_n_to_Cu62_reaclib)*Y(Cu61)*state.rho
               - screened_rates(k_Cu62_n_to_Cu63_reaclib)*Y(Cu62)*state.rho
               - screened_rates(k_Cu62_n_to_He4_Co59_reaclib)*Y(Cu62)*state.rho
@@ -61753,6 +62183,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Cu62, Ge64, 0.0);
 
+
+    // Cu63 row
+
     scratch = screened_rates(k_Cu62_n_to_Cu63_reaclib)*Y(Cu62)*state.rho
               - screened_rates(k_Cu63_n_to_Cu64_reaclib)*Y(Cu63)*state.rho
               - screened_rates(k_Cu63_n_to_p_Ni63_reaclib)*Y(Cu63)*state.rho
@@ -62108,6 +62541,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Cu63, Ge64, 0.0);
 
+
+    // Cu64 row
+
     scratch = screened_rates(k_Cu63_n_to_Cu64_reaclib)*Y(Cu63)*state.rho
               - screened_rates(k_Cu64_n_to_Cu65_reaclib)*Y(Cu64)*state.rho
               - screened_rates(k_Cu64_n_to_p_Ni64_reaclib)*Y(Cu64)*state.rho
@@ -62456,6 +62892,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Cu64, Ge64, 0.0);
 
+
+    // Cu65 row
+
     scratch = screened_rates(k_Cu64_n_to_Cu65_reaclib)*Y(Cu64)*state.rho
               + screened_rates(k_Zn65_n_to_p_Cu65_reaclib)*Y(Zn65)*state.rho;
     jac.set(Cu65, N, scratch);
@@ -62794,6 +63233,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Cu65, Ge63, 0.0);
 
     jac.set(Cu65, Ge64, 0.0);
+
+
+    // Zn59 row
 
     scratch = -screened_rates(k_Zn59_n_to_He4_Ni56_reaclib)*Y(Zn59)*state.rho
               - screened_rates(k_Zn59_n_to_Zn60_reaclib)*Y(Zn59)*state.rho
@@ -63137,6 +63579,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Zn59, Ge63, scratch);
 
     jac.set(Zn59, Ge64, 0.0);
+
+
+    // Zn60 row
 
     scratch = screened_rates(k_Ge63_n_to_He4_Zn60_reaclib)*Y(Ge63)*state.rho
               + screened_rates(k_Zn59_n_to_Zn60_reaclib)*Y(Zn59)*state.rho
@@ -63495,6 +63940,9 @@ void jac_nuc(const burn_t& state,
     scratch = screened_rates(k_Ge64_to_He4_Zn60_reaclib);
     jac.set(Zn60, Ge64, scratch);
 
+
+    // Zn61 row
+
     scratch = screened_rates(k_Ge64_n_to_He4_Zn61_reaclib)*Y(Ge64)*state.rho
               + screened_rates(k_Zn60_n_to_Zn61_reaclib)*Y(Zn60)*state.rho
               - screened_rates(k_Zn61_n_to_He4_Ni58_reaclib)*Y(Zn61)*state.rho
@@ -63852,6 +64300,9 @@ void jac_nuc(const burn_t& state,
     scratch = screened_rates(k_Ge64_n_to_He4_Zn61_reaclib)*Y(N)*state.rho;
     jac.set(Zn61, Ge64, scratch);
 
+
+    // Zn62 row
+
     scratch = screened_rates(k_Ga62_n_to_p_Zn62_reaclib)*Y(Ga62)*state.rho
               + screened_rates(k_Zn61_n_to_Zn62_reaclib)*Y(Zn61)*state.rho
               - screened_rates(k_Zn62_n_to_He4_Ni59_reaclib)*Y(Zn62)*state.rho
@@ -64206,6 +64657,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Zn62, Ge63, 0.0);
 
     jac.set(Zn62, Ge64, 0.0);
+
+
+    // Zn63 row
 
     scratch = screened_rates(k_Ga63_n_to_p_Zn63_reaclib)*Y(Ga63)*state.rho
               + screened_rates(k_Zn62_n_to_Zn63_reaclib)*Y(Zn62)*state.rho
@@ -64562,6 +65016,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Zn63, Ge64, 0.0);
 
+
+    // Zn64 row
+
     scratch = screened_rates(k_Ga64_n_to_p_Zn64_reaclib)*Y(Ga64)*state.rho
               + screened_rates(k_Zn63_n_to_Zn64_reaclib)*Y(Zn63)*state.rho
               - screened_rates(k_Zn64_n_to_He4_Ni61_reaclib)*Y(Zn64)*state.rho
@@ -64914,6 +65371,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Zn64, Ge64, 0.0);
 
+
+    // Zn65 row
+
     scratch = screened_rates(k_Zn64_n_to_Zn65_reaclib)*Y(Zn64)*state.rho
               - screened_rates(k_Zn65_n_to_He4_Ni62_reaclib)*Y(Zn65)*state.rho
               - screened_rates(k_Zn65_n_to_Zn66_reaclib)*Y(Zn65)*state.rho
@@ -65260,6 +65720,9 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Zn65, Ge64, 0.0);
 
+
+    // Zn66 row
+
     scratch = screened_rates(k_Zn65_n_to_Zn66_reaclib)*Y(Zn65)*state.rho
               - screened_rates(k_Zn66_n_to_He4_Ni63_reaclib)*Y(Zn66)*state.rho;
     jac.set(Zn66, N, scratch);
@@ -65596,6 +66059,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Zn66, Ge63, 0.0);
 
     jac.set(Zn66, Ge64, 0.0);
+
+
+    // Ga62 row
 
     scratch = -screened_rates(k_Ga62_n_to_Ga63_reaclib)*Y(Ga62)*state.rho
               - screened_rates(k_Ga62_n_to_He4_Cu59_reaclib)*Y(Ga62)*state.rho
@@ -65942,6 +66408,9 @@ void jac_nuc(const burn_t& state,
     jac.set(Ga62, Ge63, scratch);
 
     jac.set(Ga62, Ge64, 0.0);
+
+
+    // Ga63 row
 
     scratch = screened_rates(k_Ga62_n_to_Ga63_reaclib)*Y(Ga62)*state.rho
               - screened_rates(k_Ga63_n_to_Ga64_reaclib)*Y(Ga63)*state.rho
@@ -66297,6 +66766,9 @@ void jac_nuc(const burn_t& state,
     scratch = screened_rates(k_Ge64_to_p_Ga63_reaclib);
     jac.set(Ga63, Ge64, scratch);
 
+
+    // Ga64 row
+
     scratch = screened_rates(k_Ga63_n_to_Ga64_reaclib)*Y(Ga63)*state.rho
               - screened_rates(k_Ga64_n_to_He4_Cu61_reaclib)*Y(Ga64)*state.rho
               - screened_rates(k_Ga64_n_to_p_Zn64_reaclib)*Y(Ga64)*state.rho
@@ -66646,6 +67118,9 @@ void jac_nuc(const burn_t& state,
               + screened_rates(k_Ge64_to_Ga64_electron_capture_weaktab);
     jac.set(Ga64, Ge64, scratch);
 
+
+    // Ge63 row
+
     scratch = -screened_rates(k_Ge63_n_to_Ge64_reaclib)*Y(Ge63)*state.rho
               - screened_rates(k_Ge63_n_to_He4_Zn60_reaclib)*Y(Ge63)*state.rho
               - screened_rates(k_Ge63_n_to_p_Ga63_reaclib)*Y(Ge63)*state.rho;
@@ -66983,6 +67458,9 @@ void jac_nuc(const burn_t& state,
 
     scratch = screened_rates(k_Ge64_to_n_Ge63_reaclib);
     jac.set(Ge63, Ge64, scratch);
+
+
+    // Ge64 row
 
     scratch = screened_rates(k_Ge63_n_to_Ge64_reaclib)*Y(Ge63)*state.rho
               - screened_rates(k_Ge64_n_to_He4_Zn61_reaclib)*Y(Ge64)*state.rho
@@ -67324,6 +67802,15 @@ void jac_nuc(const burn_t& state,
     jac.set(Ge64, Ge64, scratch);
 
 
+
+    // add ∂λ_weak / ∂Y_e terms now
+    // this uses ∂Y_e/∂Y_i = Z_i
+    for (int irow = 1; irow <= NumSpec; ++irow) {
+        for (int jcol = 1; jcol <= NumSpec; ++jcol) {
+            jac.add(irow, jcol, rate_eval.dweak_ydot_dYe(irow) * NetworkProperties::zion(jcol));
+        }
+    }
+
 }
 
 
@@ -67382,8 +67869,12 @@ void actual_jac(const burn_t& state, MatrixType& jac)
     }
 
     // Account for the weak rate neutrino losses
-    for (int j = 1; j <= NumSpec; ++j) {
-        jac.add(net_ienuc, j, rate_eval.denuc_weak_dY(j));
+    // There are two contributions here:
+    // ∂(ε_{ν,weak})/∂Y_j and ∂(ε_{ν,weak})/∂Y_e ∂Y_e/∂Y_j
+    for (int jcol = 1; jcol <= NumSpec; ++jcol) {
+        jac.add(net_ienuc, jcol,
+                rate_eval.denuc_weak_dY(jcol) +
+                rate_eval.denuc_weak_dYe * NetworkProperties::zion(jcol));
     }
 
     // Account for the thermal neutrino losses

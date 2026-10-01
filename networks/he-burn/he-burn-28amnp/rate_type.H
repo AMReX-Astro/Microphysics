@@ -18,9 +18,11 @@ struct rate_derivs_t {
     amrex::Array1D<amrex::Real, 1, Rates::NumScreenPairs>  log_screen;
     amrex::Array1D<amrex::Real, 1, Rates::NumScreenPairs>  dlog_screen_dT;
 #endif
+    amrex::Array1D<amrex::Real, 1, NumSpec>  dweak_ydot_dYe;
     amrex::Real enuc_weak;
     amrex::Array1D<amrex::Real, 1, NumSpec> denuc_weak_dY;
     amrex::Real denuc_weak_dT;
+    amrex::Real denuc_weak_dYe;
     amrex::Real drate_Fe52_n_n_to_Fe54_approx_dYN{};
     amrex::Real drate_Fe54_to_Fe52_n_n_approx_dYN{};
     amrex::Real drate_Fe54_n_n_to_Fe56_approx_dYN{};
