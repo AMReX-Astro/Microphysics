@@ -3,3 +3,15 @@
 This is a unit test for the screening routines, using the templated network
 machinery to exercise all the rates in a network.
 
+The test also checks simultaneous T, M1=sum(Z_i Y_i), and M2=sum(Z_i^2 Y_i)
+derivatives against centered differences at several densities and temperatures.
+It checks both log enhancement and enhancement, and compares the temperature
+component with the original single-derivative interface. Repeat with
+SCREEN_METHOD=screen5, chugunov2007, chugunov2009, chabrier1998, or null.
+The runtime flags screening.enable_debye_huckel_skip and
+screening.enable_chabrier1998_quantum_corr exercise the optional branches.
+
+The Chugunov 2009 and Chabrier 1998 checks use stronger coupling and a
+0.5% derivative tolerance because fast_atan's existing autodiff rule uses
+the exact atan derivative while its value uses an approximation. Other
+methods use a 2e-5 relative derivative tolerance, with a roundoff floor.
