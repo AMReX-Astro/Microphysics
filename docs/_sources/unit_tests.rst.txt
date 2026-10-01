@@ -174,7 +174,7 @@ One-zone tests
 Infrastructure tests
 ====================
 
-.. index:: test_linear_algebra, test_nse_interp, test_parameters, test_sdc_vode_rhs
+.. index:: test_linear_algebra, nse_interp_check, test_parameters, test_sdc_vode_rhs
 
 * ``test_linear_algebra`` :
 
@@ -182,9 +182,9 @@ Infrastructure tests
   to get $b = Ax$, and then call the linear algebra routines to see if we
   we recover $x$ from $b$.
 
-* ``test_nse_interp`` :
+* ``nse_interp_check`` :
 
-  run various tests of the NSE interpolation routines.
+  run various tests of the tabular NSE interpolation routines.
 
 * ``test_parameters`` :
 

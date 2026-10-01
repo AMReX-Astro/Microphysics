@@ -492,7 +492,7 @@ flow is:
    .. math::
 
       \left . \frac{\partial q}{\partial X_k} \right |_{\rho, e, X_{j,j\ne k}} =
-             \left . \frac{\partial q}{\partial X_k} \right  |_{\rho, T, X_{j,j\ne k}} - \frac{e_{X_k}}{c_v} \left . \frac{\partial T}{\partial X_k} \right |_{\rho, e, X_{j,j\ne k}}
+             \left . \frac{\partial q}{\partial X_k} \right  |_{\rho, T, X_{j,j\ne k}} - \frac{e_{X_k}}{c_v} \left . \frac{\partial q}{\partial T} \right |_{\rho, X_k}
 
    where :math:`e_{X_k} = \partial e / \partial X_k |_{\rho, T, X_{j,j\ne k}}`.
 
