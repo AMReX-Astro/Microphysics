@@ -189,11 +189,12 @@ order :math:`(T, M_1, M_2)`, where
 
    M_1 = \sum_i Z_i Y_i, \qquad M_2 = \sum_i Z_i^2 Y_i.
 
-The sums include all plasma species.  Here, $M_1 = Y_e$, and $M_2$ is related to
-"z2bar", which is normally defined as :math:`\overline{Z^2} = \bar{A} \sum_i Z_i^2 Y_i`.  Density and the reacting pair's
-nuclear charges and masses are held fixed.  These two moments contain all
-composition dependence of the implemented screening methods; there is no
-independent dependence on :math:`\bar{A}`.
+The sums include all plasma species.  Here, $M_1 = Y_e$, and $M_2$ is
+related to "z2bar", which is normally defined as :math:`\overline{Z^2}
+= \bar{A} \sum_i Z_i^2 Y_i`.  Density and the reacting pair's nuclear
+charges and masses are held fixed.  These two moments contain all
+composition dependence of the implemented screening methods; there is
+no independent dependence on :math:`\bar{A}`.
 
 For example::
 

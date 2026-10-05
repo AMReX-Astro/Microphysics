@@ -102,8 +102,6 @@ void main_main ()
 
     screening_init();
 
-    test_screening_derivatives();
-
     amrex::Vector<std::string> names;
     plot_t vars = init_variables(names);
 
