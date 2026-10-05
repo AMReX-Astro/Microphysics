@@ -40,28 +40,33 @@ jobs:
 
       - name: Compare to stored output
         run: |
-          set -e
           cd unit_test/burn_cell_primordial_chem
-          line_numbers=(456 458 460 463 465 471 476)
-          threshold=0.01
-          error_found=false
-          for line_number in "${line_numbers[@]}"; do
+          python3 - <<'PYTHON'
+          import math
+          from pathlib import Path
 
-            value1=$(awk 'NR=='"$line_number"' {match($0, /[+-]?[0-9]+([.][0-9]+)?[eE]?[+-]?[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH); else print 0}' test.out)
-            value2=$(awk 'NR=='"$line_number"' {match($0, /[+-]?[0-9]+([.][0-9]+)?[eE]?[+-]?[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH)}' reference_solution.out)
+          def diagnostics(filename):
+              lines = Path(filename).read_text().splitlines()
+              assert "successful? 1" in lines, f"{filename}: burn failed"
+              result = {}
+              for label in ("T final", "Eint final", "rho final"):
+                  line = next(line for line in lines if line.startswith(label + " ="))
+                  result[label] = float(line.split("=", 1)[1])
+              start = lines.index("New number densities: ") + 1
+              species = ("E", "Hp", "H", "Hm", "Dp", "D", "H2p", "Dm",
+                         "H2", "HDp", "HD", "HEpp", "HEp", "HE")
+              # Helium ions start at the floor and remain negligible; their
+              # relative abundance is not a meaningful accuracy check.
+              for name, line in zip(species, lines[start:start + len(species)]):
+                  if name not in ("HEpp", "HEp"):
+                      result[name] = float(line)
+              return result
 
-            difference=$(awk -v val1="$value1" -v val2="$value2" 'BEGIN { printf "%.2f", (val1 - val2) / val2 }')
-
-            if (( $(echo "$difference > $threshold" | bc -l) )); then
-              echo "Line number: $line_number"
-              echo "Value in test.out: $value1"
-              echo "Value in reference_solution.out: $value2"
-              echo "Difference between test and reference value is more than allowed threshold of $threshold"
-              echo
-              error_found=true
-            fi
-          done
-          if [[ $error_found == true ]]; then
-            exit 1
-          fi
-
+          reference = diagnostics("reference_solution.out")
+          actual = diagnostics("test.out")
+          for name, expected in reference.items():
+              value = actual[name]
+              assert math.isfinite(value), f"{name}: nonfinite result"
+              error = abs(value - expected) / abs(expected)
+              assert error <= 0.01, f"{name}: relative error {error} exceeds 1%"
+          PYTHON
