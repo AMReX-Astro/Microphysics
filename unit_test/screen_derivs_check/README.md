@@ -1,7 +1,7 @@
 # ``screen_derivs_check``
 
 This is a simple unit test for the screening routines full set of
-derivatives: simultaneous T, M1=sum(Z_i Y_i), and M2=sum(Z_i^2 Y_i).
+derivatives: simultaneous T, M₁ = Σᵢ (Zᵢ Yᵢ), and M₂ = Σᵢ (Zᵢ² Yᵢ).
 We do a simple centered-difference and compare to the function call /
 autodiff for a few different states.
 
