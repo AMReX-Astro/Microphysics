@@ -50,7 +50,7 @@ void test_screening_derivatives()
         fill_plasma_state(state, temp, rho, y);
 
         // we'll do a single screening pair.  The derivatives are
-        // indepedent of the screening pair.
+        // independent of the screening pair.
         constexpr auto pair = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 6.0_rt, 12.0_rt);
 
         Real h, ht, h1, h2, f, ft, f1, f2;
@@ -83,7 +83,7 @@ void test_screening_derivatives()
             }
 
             // perturb the composition (if we are in that mode) The
-            // pertubations should be independent in terms of the
+            // perturbations should be independent in terms of the
             // moment, not composition.  With H and He, dY_H =
             // 2*dM1-dM2 and dY_He = (dM2-dM1)/2.  Do not renormalize:
             // these are partial derivatives.
