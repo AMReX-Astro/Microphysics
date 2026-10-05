@@ -1,3 +1,6 @@
+#ifndef SCREENING_DERIVS_H
+#define SCREENING_DERIVS_H
+
 #include <AMReX_Loop.H>
 #include <AMReX_MultiFab.H>
 
@@ -13,10 +16,6 @@ using namespace amrex;
 using namespace unit_test_rp;
 
 
-// Check the Check independent moment perturbations, rather than just
-// one composition direction.  With H and He, dY_H = 2*dM1-dM2 and
-// dY_He = (dM2-dM1)/2.  Do not renormalize: these are partial
-// derivatives.
 void test_screening_derivatives()
 {
     const int ih = network_spec_index("hydrogen-1") + 1;
@@ -39,6 +38,8 @@ void test_screening_derivatives()
 
         const Real rho = std::pow(10.0_rt, log_rho_min + 2.0_rt * (k % 4));
         const Real temp = std::pow(10.0_rt, 7.0_rt + (k / 4));
+
+        amrex::Print() << std::format("ρ = {:.3g}, T = {:.3g}:\n ", rho, temp);
 
         // initialize molar composition and plasma state
         Array1D<Real, 1, NumSpec> y{};
@@ -70,34 +71,93 @@ void test_screening_derivatives()
             // imode = 1: perturb M1, keep T and M2 fixed
             // imode = 2: perturb M2, keep T and M1 fixed
 
-            const Real step = 1.e-5_rt * (imode == 0 ? temp : 1.0_rt);
+            amrex::Print() << std::format("    imode = {}\n", imode);
+
+            // delta used for finite-difference
+
+            amrex::Real step{};
+            if (imode == 0) {
+                step = 1.e-5_rt * temp;
+            } else {
+                step = 1.e-5_rt;
+            }
+
+            // perturb the composition (if we are in that mode) The
+            // pertubations should be independent in terms of the
+            // moment, not composition.  With H and He, dY_H =
+            // 2*dM1-dM2 and dY_He = (dM2-dM1)/2.  Do not renormalize:
+            // these are partial derivatives.
 
             auto yp = y;
             auto ym = y;
             if (imode > 0) {
-                const Real dh = imode == 1 ? 2.0_rt * step : -step;
-                const Real dhe = imode == 1 ? -0.5_rt * step : 0.5_rt * step;
+                amrex::Real dh{};
+                amrex::Real dhe{};
+                if (imode == 1) {
+                    dh = 2.0_rt * step;
+                    dhe = -0.5_rt * step;
+                } else {
+                    dh = -step;
+                    dhe = 0.5_rt * step;
+                }
                 yp(ih) += dh; ym(ih) -= dh;
                 yp(ihe) += dhe; ym(ihe) -= dhe;
             }
 
             // compute the + and - plasma states with the perturbed
             // quantities
+
             plasma_state_t<amrex::Real> plus, minus;
             fill_plasma_state(plus, temp + (imode == 0 ? step : 0.0_rt), rho, yp);
             fill_plasma_state(minus, temp - (imode == 0 ? step : 0.0_rt), rho, ym);
 
-            // compute the screening factors
-            const Real hp = actual_log_screen(plus, pair);
-            const Real hm = actual_log_screen(minus, pair);
+            // compute the screening factors -- we do both h = log(f)
+            // and f directly.
 
-            const Real fp = actual_screen(plus, pair);
-            const Real fm = actual_screen(minus, pair);
+            const amrex::Real hp = actual_log_screen(plus, pair);
+            const amrex::Real hm = actual_log_screen(minus, pair);
+
+            const amrex::Real fp = actual_screen(plus, pair);
+            const amrex::Real fm = actual_screen(minus, pair);
 
             // get the quantity we are comparing to from our call to the
             // autodiff version of the screening interface
-            const Real h_deriv = imode == 0 ? ht : (imode == 1 ? h1 : h2);
-            const Real f_deriv = imode == 0 ? ft : (imode == 1 ? f1 : f2);
+
+            amrex::Real h_deriv{};
+            amrex::Real f_deriv{};
+
+            if (imode == 0) {
+                h_deriv = ht;
+                f_deriv = ft;
+            } else if (imode == 1) {
+                h_deriv = h1;
+                f_deriv = f1;
+            } else {
+                h_deriv = h2;
+                f_deriv = f2;
+            }
+
+            amrex::Real h_diff = (hp - hm) / (2.0_rt * step);
+            amrex::Real f_diff = (fp - fm) / (2.0_rt * step);
+
+            if (imode == 0) {
+                amrex::Print() << std::format("       ∂h/∂T |_auto = {:.5g}; ∂h/∂T |_f-d = {:.5g};\n",
+                                              ht, h_diff);
+                amrex::Print() << std::format("       ∂f/∂T |_auto = {:.5g}; ∂f/∂T |_f-d = {:.5g};\n\n",
+                                              ft, f_diff);
+
+            } else if (imode == 1) {
+                amrex::Print() << std::format("       ∂h/∂m₁ |_auto = {:.5g}; ∂h/∂m₁ |_f-d = {:.5g};\n",
+                                              h1, h_diff);
+                amrex::Print() << std::format("       ∂f/∂m₁ |_auto = {:.5g}; ∂f/∂m₁ |_f-d = {:.5g};\n\n",
+                                              f1, f_diff);
+
+            } else {
+                amrex::Print() << std::format("       ∂h/∂m₂ |_auto = {:.5g}; ∂h/∂m₂ |_f-d = {:.5g};\n",
+                                              h2, h_diff);
+                amrex::Print() << std::format("       ∂f/∂m₂ |_auto = {:.5g}; ∂f/∂m₂ |_f-d = {:.5g};\n\n",
+                                              f2, f_diff);
+            }
 
             // for a centered diff, we want (for log screening factor, h):
             //
@@ -123,3 +183,5 @@ void test_screening_derivatives()
 
     amrex::Print() << "Screening T, M1, M2 derivative checks passed" << std::endl;
 }
+
+#endif
