@@ -86,15 +86,23 @@ The options are:
   This includes the portion in the appendix that blends in the weak
   screening limit.
 
+.. index:: screening.enable_chabrier1998_quantum_corr
+
 * ``chabrier1998`` :
 
-  This implements the screening of :cite:`Chabrier_1998` as well as
-  the quantum corrections for strong screening according to screen5,
-  which is suggested in the appendix of :cite:`Calder_2007`.
-  This screening is compatible with NSE calculations unlike ``screen5``,
-  ``chugunov2007``, and ``chugunov2009``. This screening is valid in the
-  weak screening regime, :math:`\Gamma < 0.1`, and strong screening regime,
-  :math:`1 \lesssim \Gamma \lesssim 160`.
+  This implements the screening of :cite:`Chabrier_1998`, with
+  optional quantum corrections for strong screening according to
+  screen5 (as suggested in the appendix of :cite:`Calder_2007`).  This
+  screening is valid in the weak screening regime, :math:`\Gamma <
+  0.1`, and strong screening regime, :math:`1 \lesssim \Gamma \lesssim
+  160`.
+
+ .. note::
+
+     With quantum corrections disabled
+     (``screening.enable_chabrier1998_quantum_corr=0``, the default),
+     this screening is compatible with NSE calculations unlike
+     ``screen5``, ``chugunov2007``, and ``chugunov2009``.
 
 .. index:: screening.enable_debye_huckel_skip, screening.debye_huckel_skip_threshold
 
@@ -141,7 +149,8 @@ three-component autodiff gradient in the order :math:`(T, M_1, M_2)`, where
 
    M_1 = \sum_i Z_i Y_i, \qquad M_2 = \sum_i Z_i^2 Y_i.
 
-The sums include all plasma species.  Density and the reacting pair's
+The sums include all plasma species.  Here, $M_1 = Y_e$, and $M_2$ is related to
+"z2bar", which is normally defined as :math:`\overline{Z^2} = \bar{A} \sum_i Z_i^2 Y_i`.  Density and the reacting pair's
 nuclear charges and masses are held fixed.  These two moments contain all
 composition dependence of the implemented screening methods; there is no
 independent dependence on :math:`\bar{A}`.
@@ -168,6 +177,9 @@ Recover the derivative with respect to an individual molar abundance via
 
 For a screened rate :math:`\lambda=\lambda_0 e^h`, its screening
 contribution to the abundance derivative is
-:math:`\lambda\,\partial h/\partial Y_j`.  Networks must propagate these
-terms into their Jacobians explicitly.  Existing real-valued and
-single-temperature-derivative screening calls remain supported.
+:math:`\lambda\,\partial h/\partial Y_j`.
+
+.. note::
+
+   An alternate interface provides just the temperature derivative, by building
+   ``plasma_state_t<autodiff::dual>``.
