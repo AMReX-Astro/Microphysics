@@ -138,12 +138,52 @@ Runtime Options
   corrections.
 
 
+Screening Interface
+-------------------
+
+Before we call the screening routine, there are two data types we need
+to initialize.  The first is the ``screen_factors_t``---this is unique
+to the pair of nuclei that are considering and contains all of the
+common factors involving the charges, $Z_1$ and $Z_2$ of the nuclei.
+This is ``constexpr``, so the point is that we do this hard work at
+compile time.  An example is:
+
+.. code:: c++
+
+   constexpr auto pair = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 6.0_rt, 12.0_rt);
+
+This sets up the ``screen_factor_t`` for $\isotm{He}{4} + \isotm{C}{12}$.
+
+The next is the ``plasma_state_t``---this describes the plasma as a
+whole, and is independent of the screening pair.  ``plasma_state_t``
+is templated in a fashion that determines which derivatives will be
+returned by the screening functions.  Usually we want the screening
+factor and its temperature derivative, in which case we would do:
+
+.. code:: c++
+
+   autodiff::dual tt = temp;
+   autodiff::seed(tt);
+   plasma_state_t<autodiff::dual> plasma_state;
+   fill_plasma_state(plasma_state, tt, rho, y);
+
+This uses the C++ autodiff machinery described in :ref:`sec:autodiff`.
+
+We can then call the screening routine as:
+
+.. code:: c++
+
+   actual_log_screen(plasma_state, pair, h, dh_dT);
+
+
 Composition Derivatives
 -----------------------
 
-Use ``plasma_state_t<screening_dual_t>`` to compute temperature and
-composition derivatives together.  ``fill_plasma_state`` seeds a
-three-component autodiff gradient in the order :math:`(T, M_1, M_2)`, where
+If we want to get the composition derivatives of the screening factor,
+then we create our plasma state as:
+``plasma_state_t<screening_dual_t>`` In this case,
+``fill_plasma_state`` seeds a three-component autodiff gradient in the
+order :math:`(T, M_1, M_2)`, where
 
 .. math::
 
@@ -162,10 +202,11 @@ For example::
    amrex::Real h, dh_dT, dh_dM1, dh_dM2;
    actual_log_screen(pstate, scn_fac, h, dh_dT, dh_dM1, dh_dM2);
 
-Here ``h`` is the natural logarithm of the screening enhancement.  The
-same output arguments are available for ``actual_screen``, which returns
-the enhancement itself and its derivatives, including its output cap.
-The plasma state can be reused for every screening pair.
+where ``h`` (defined at the top of this page) is the natural logarithm
+of the screening enhancement.  The same output arguments are available
+for ``actual_screen``, which returns the enhancement itself and its
+derivatives, including its output cap.  The plasma state can be reused
+for every screening pair.
 
 Recover the derivative with respect to an individual molar abundance via
 
