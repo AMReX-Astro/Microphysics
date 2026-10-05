@@ -22,10 +22,19 @@ The equations we integrate to do a nuclear burn are:
 Here, :math:`X_k` is the mass fraction of species :math:`k`, :math:`e`
 is the specific nuclear energy created through reactions. Also needed
 are density :math:`\rho`, temperature :math:`T`, and the specific
-heat. The function :math:`\epsilon` provides the energy release from
-reactions and can often be expressed in terms of the instantaneous
-reaction terms, :math:`\dot{X}_k`. As noted in the previous section,
-this is implemented in a network-specific manner.
+heat. The function :math:`\epsilon` provides the energy release / loss
+from reactions and neutrinos.  In general, it is made up of 3 terms:
+
+.. math::
+
+   \epsilon = \epsilon_\mathrm{nuc} - \epsilon_{\nu,\mathrm{weak}} - \epsilon_{\nu,\mathrm{therm}}
+
+where $\epsilon_\mathrm{nuc}$ represents the energy release from the change in mass
+of the nuclei in the reaction, $\epsilon_{\nu,\mathrm{weak}}$ represents weak-rate
+neutrino losses, and $\epsilon_{\nu,\mathrm{therm}}$ represents the energy loss
+from thermal neutrino processes (see :ref:`neutrino_loss`).
+As noted in the previous section, $\epsilon_\mathrm{nuc}$ and $\epsilon_{\nu,\mathrm{weak}}$ are implemented in a
+network-specific manner.
 
 In this system, :math:`e` is equal to the total specific internal
 energy. This allows us to easily call the EOS during the burn to obtain the temperature.
