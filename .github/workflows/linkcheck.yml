@@ -18,7 +18,8 @@ jobs:
 
       - name: Install pandoc and doxygen
         run: |
-          sudo apt install pandoc doxygen
+          sudo apt-get update -y -qq
+          sudo apt-get install -y pandoc doxygen
 
       - name: Setup Python
         uses: actions/setup-python@v7
@@ -35,9 +36,9 @@ jobs:
           make SPHINXOPTS=-v linkcheck
 
       - name: Upload linkcheck report
+        if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v7
         with:
           name: linkcheck-output
           path: Docs/build/linkcheck/output.txt
           archive: false
-

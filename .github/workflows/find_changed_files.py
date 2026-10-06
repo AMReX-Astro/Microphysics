@@ -1,7 +1,6 @@
 import argparse
 import os
 import subprocess
-import sys
 from contextlib import contextmanager
 
 
@@ -21,14 +20,9 @@ def find_files(SHAs=None):
     if SHAs is not None:
         diff_command += SHAs
 
-    stdout, stderr = subprocess.Popen(diff_command,
-                                      stdout=subprocess.PIPE,
-                                      stderr=subprocess.STDOUT).communicate()
+    result = subprocess.run(diff_command, capture_output=True, text=True, check=True)
 
-    if stderr is not None:
-        raise Exception('git diff encountered an error')
-
-    files = [f for f in stdout.decode('utf-8').strip().split('\n')
+    files = [f for f in result.stdout.splitlines()
              if f.startswith('networks/')]
     print(files)
 
@@ -54,15 +48,13 @@ def run(SHAs=None, make_options=''):
     if len(networks) == 0:
         networks = ['aprox13']
 
-    GITHUB_WORKSPACE = os.environ.get('GITHUB_WORKSPACE')
-
-    for network in networks:
+    for network in sorted(networks):
         make_command = f'make {make_options} USE_MPI=FALSE USE_OMP=FALSE USE_CUDA=FALSE NETWORK_DIR={network}'
         if network == "general_null":
             make_command += " NETWORK_INPUTS=gammalaw.net"
         print(f'make command = {make_command}')
 
-        with cd(f'unit_test/burn_cell'):
+        with cd('unit_test/burn_cell'):
 
             print('::group::making unit_test/burn_cell')
 
@@ -79,7 +71,7 @@ def run(SHAs=None, make_options=''):
     # compile test_eos as well
     make_command = f'make {make_options} USE_MPI=FALSE USE_OMP=FALSE USE_CUDA=FALSE'
 
-    with cd(f'unit_test/test_eos'):
+    with cd('unit_test/test_eos'):
         print('::group::making unit_test/test_eos')
 
         subprocess.run('make clean'.split(), stdout=subprocess.DEVNULL, check=True)

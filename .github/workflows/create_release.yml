@@ -6,6 +6,9 @@ on:
 
 name: Create Release
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Create Release
@@ -14,23 +17,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v7
 
-      - name: Get the version
-        id: get_version
-        run: echo "VERSION=${GITHUB_REF/refs\/tags\//}"  >> $GITHUB_ENV
-
       - name: Set release text
-        id: release_txt
         run: |
-          python3 .github/workflows/get_release_txt.py ${{ env.VERSION }} >> $GITHUB_ENV
+          python3 .github/workflows/get_release_txt.py "$GITHUB_REF_NAME" > "$RUNNER_TEMP/release-notes.md"
 
       - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          body: ${{ env.RELEASE_TXT }}
-          draft: false
-          prerelease: false
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" --verify-tag \
+            --title "Release $GITHUB_REF_NAME" \
+            --notes-file "$RUNNER_TEMP/release-notes.md"
