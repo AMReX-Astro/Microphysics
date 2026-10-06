@@ -266,7 +266,7 @@ amrex::Real trilinear(const int ir1, const int it1, const int ic1,
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 amrex::Real trilinear_dT(const int ir1, const int it1, const int ic1,
-                         const amrex::Real rho, const amrex::Real temp, const amrex::Real ye,
+                         const amrex::Real rho, [[maybe_unused]] const amrex::Real temp, const amrex::Real ye,
                          const T& data) {
 
     // find the eight interpolation points in the 1D arrays
@@ -280,7 +280,6 @@ amrex::Real trilinear_dT(const int ir1, const int it1, const int ic1,
     int it2r2c1 = nse_idx(ir1+1, it1+1, ic1);
     int it2r2c2 = nse_idx(ir1+1, it1+1, ic1+1);
 
-    amrex::Real t0 = nse_table_logT(it1);
     amrex::Real r0 = nse_table_logrho(ir1);
     amrex::Real x0 = nse_table_ye(ic1);
 
@@ -308,7 +307,7 @@ amrex::Real trilinear_dT(const int ir1, const int it1, const int ic1,
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 amrex::Real trilinear_drho(const int ir1, const int it1, const int ic1,
-                           const amrex::Real rho, const amrex::Real temp, const amrex::Real ye,
+                           [[maybe_unused]] const amrex::Real rho, const amrex::Real temp, const amrex::Real ye,
                            const T& data) {
 
     // find the eight interpolation points in the 1D arrays
@@ -323,7 +322,6 @@ amrex::Real trilinear_drho(const int ir1, const int it1, const int ic1,
     int it2r2c2 = nse_idx(ir1+1, it1+1, ic1+1);
 
     amrex::Real t0 = nse_table_logT(it1);
-    amrex::Real r0 = nse_table_logrho(ir1);
     amrex::Real x0 = nse_table_ye(ic1);
 
     amrex::Real td = (temp - t0) * nse_table_size::inv_dlogT;
