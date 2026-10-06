@@ -39,8 +39,6 @@ int main(int argc, char *argv[]) {
   const Real rho_min_fac = 0.9_rt;
   const Real rho_max_fac = 10.0_rt;
   const int npts_ad = 150;
-  const int npts = 100;
-
 
   // set the unburned (fuel) state
 
@@ -94,7 +92,7 @@ int main(int argc, char *argv[]) {
 
   Real rho_min = rho_min_fac * eos_state_fuel.rho;
   Real rho_max = rho_max_fac * eos_state_fuel.rho;
-  Real dlogrho = (std::log10(rho_max) - std::log10(rho_min)) / static_cast<Real>(npts-1);
+  Real dlogrho = (std::log10(rho_max) - std::log10(rho_min)) / static_cast<Real>(npts_ad-1);
 
   // initial guess
 
