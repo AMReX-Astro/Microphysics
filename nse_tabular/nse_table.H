@@ -224,7 +224,8 @@ amrex::Real cubic_deriv(const amrex::Real* xs, const amrex::Real* fs, const amre
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 amrex::Real trilinear(const int ir1, const int it1, const int ic1,
-               const amrex::Real rho, const amrex::Real temp, const amrex::Real ye, const T& data) {
+                      const amrex::Real rho, const amrex::Real temp, const amrex::Real ye,
+                      const T& data) {
 
     // find the eight interpolation points in the 1D arrays
 
@@ -251,13 +252,95 @@ amrex::Real trilinear(const int ir1, const int it1, const int ic1,
     amrex::Real omxd = 1.0_rt - xd;
 
     amrex::Real val = data(it1r1c1) * omtd * omrd * omxd +
-               data(it1r1c2) * omtd * omrd * xd +
-               data(it1r2c1) * omtd * rd * omxd +
-               data(it1r2c2) * omtd * rd * xd +
-               data(it2r1c1) * td * omrd * omxd +
-               data(it2r1c2) * td * omrd * xd +
-               data(it2r2c1) * td * rd * omxd +
-               data(it2r2c2) * td * rd * xd;
+                      data(it1r1c2) * omtd * omrd * xd +
+                      data(it1r2c1) * omtd * rd * omxd +
+                      data(it1r2c2) * omtd * rd * xd +
+                      data(it2r1c1) * td * omrd * omxd +
+                      data(it2r1c2) * td * omrd * xd +
+                      data(it2r2c1) * td * rd * omxd +
+                      data(it2r2c2) * td * rd * xd;
+
+    return val;
+}
+
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+amrex::Real trilinear_dT(const int ir1, const int it1, const int ic1,
+                         const amrex::Real rho, [[maybe_unused]] const amrex::Real temp, const amrex::Real ye,
+                         const T& data) {
+
+    // find the eight interpolation points in the 1D arrays
+
+    int it1r1c1 = nse_idx(ir1,   it1,   ic1);
+    int it1r1c2 = nse_idx(ir1,   it1,   ic1+1);
+    int it1r2c1 = nse_idx(ir1+1, it1,   ic1);
+    int it1r2c2 = nse_idx(ir1+1, it1,   ic1+1);
+    int it2r1c1 = nse_idx(ir1,   it1+1, ic1);
+    int it2r1c2 = nse_idx(ir1,   it1+1, ic1+1);
+    int it2r2c1 = nse_idx(ir1+1, it1+1, ic1);
+    int it2r2c2 = nse_idx(ir1+1, it1+1, ic1+1);
+
+    amrex::Real r0 = nse_table_logrho(ir1);
+    amrex::Real x0 = nse_table_ye(ic1);
+
+    amrex::Real td_dT = nse_table_size::inv_dlogT;
+    amrex::Real rd = (rho - r0) * nse_table_size::inv_dlogrho;
+    amrex::Real xd = (x0 - ye) * nse_table_size::inv_dye;
+    xd = amrex::max(0.0_rt, xd);
+
+    amrex::Real omtd_dT = -td_dT;
+    amrex::Real omrd = 1.0_rt - rd;
+    amrex::Real omxd = 1.0_rt - xd;
+
+    amrex::Real val = data(it1r1c1) * omtd_dT * omrd * omxd +
+                      data(it1r1c2) * omtd_dT * omrd * xd +
+                      data(it1r2c1) * omtd_dT * rd * omxd +
+                      data(it1r2c2) * omtd_dT * rd * xd +
+                      data(it2r1c1) * td_dT * omrd * omxd +
+                      data(it2r1c2) * td_dT * omrd * xd +
+                      data(it2r2c1) * td_dT * rd * omxd +
+                      data(it2r2c2) * td_dT * rd * xd;
+
+    return val;
+}
+
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+amrex::Real trilinear_drho(const int ir1, const int it1, const int ic1,
+                           [[maybe_unused]] const amrex::Real rho, const amrex::Real temp, const amrex::Real ye,
+                           const T& data) {
+
+    // find the eight interpolation points in the 1D arrays
+
+    int it1r1c1 = nse_idx(ir1,   it1,   ic1);
+    int it1r1c2 = nse_idx(ir1,   it1,   ic1+1);
+    int it1r2c1 = nse_idx(ir1+1, it1,   ic1);
+    int it1r2c2 = nse_idx(ir1+1, it1,   ic1+1);
+    int it2r1c1 = nse_idx(ir1,   it1+1, ic1);
+    int it2r1c2 = nse_idx(ir1,   it1+1, ic1+1);
+    int it2r2c1 = nse_idx(ir1+1, it1+1, ic1);
+    int it2r2c2 = nse_idx(ir1+1, it1+1, ic1+1);
+
+    amrex::Real t0 = nse_table_logT(it1);
+    amrex::Real x0 = nse_table_ye(ic1);
+
+    amrex::Real td = (temp - t0) * nse_table_size::inv_dlogT;
+    amrex::Real rd_drho = nse_table_size::inv_dlogrho;
+    amrex::Real xd = (x0 - ye) * nse_table_size::inv_dye;
+    xd = amrex::max(0.0_rt, xd);
+
+    amrex::Real omtd = 1.0_rt - td;
+    amrex::Real omrd_drho = -rd_drho;
+    amrex::Real omxd = 1.0_rt - xd;
+
+    amrex::Real val = data(it1r1c1) * omtd * omrd_drho * omxd +
+                      data(it1r1c2) * omtd * omrd_drho * xd +
+                      data(it1r2c1) * omtd * rd_drho * omxd +
+                      data(it1r2c2) * omtd * rd_drho * xd +
+                      data(it2r1c1) * td * omrd_drho * omxd +
+                      data(it2r1c2) * td * omrd_drho * xd +
+                      data(it2r2c1) * td * rd_drho * omxd +
+                      data(it2r2c2) * td * rd_drho * xd;
 
     return val;
 }
@@ -569,23 +652,36 @@ nse_interp_dT(const amrex::Real temp, const amrex::Real rho, const amrex::Real y
         yet = amrex::Clamp(yet, yemin, yemax);
     }
 
-    int ir0 = nse_get_logrho_index(rholog) - 1;
-    ir0 = amrex::Clamp(ir0, 1, nse_table_size::nden-3);
+    if (nse_table_interp_linear) {
 
-    int it0 = nse_get_logT_index(tlog) - 1;
-    it0 = amrex::Clamp(it0, 1, nse_table_size::ntemp-3);
+        int ir0 = nse_get_logrho_index(rholog);
+        int it0 = nse_get_logT_index(tlog);
+        int ic0 = nse_get_ye_index(yet);
 
-    int ic0 = nse_get_ye_index(yet) - 1;
-    ic0 = amrex::Clamp(ic0, 1, nse_table_size::nye-3);
+        amrex::Real ddatadT = trilinear_dT(ir0, it0, ic0,
+                                           rholog, tlog, yet, data) / (M_LN10 * temp);
 
-    // note: this is returning the derivative wrt log10(T), so we need to
-    // convert to d/dT
+        return ddatadT;
 
-    amrex::Real ddatadT = tricubic_dT(ir0, it0, ic0, rholog, tlog, yet, data) / (M_LN10 * temp);
+    } else {
 
-    return ddatadT;
+        int ir0 = nse_get_logrho_index(rholog) - 1;
+        ir0 = amrex::Clamp(ir0, 1, nse_table_size::nden-3);
 
+        int it0 = nse_get_logT_index(tlog) - 1;
+        it0 = amrex::Clamp(it0, 1, nse_table_size::ntemp-3);
 
+        int ic0 = nse_get_ye_index(yet) - 1;
+        ic0 = amrex::Clamp(ic0, 1, nse_table_size::nye-3);
+
+        // note: this is returning the derivative wrt log10(T), so we need to
+        // convert to d/dT
+
+        amrex::Real ddatadT = tricubic_dT(ir0, it0, ic0, rholog, tlog, yet, data) / (M_LN10 * temp);
+
+        return ddatadT;
+
+    }
 }
 
 
@@ -622,21 +718,36 @@ nse_interp_drho(const amrex::Real temp, const amrex::Real rho, const amrex::Real
         yet = amrex::Clamp(yet, yemin, yemax);
     }
 
-    int ir0 = nse_get_logrho_index(rholog) - 1;
-    ir0 = amrex::Clamp(ir0, 1, nse_table_size::nden-3);
+    if (nse_table_interp_linear) {
 
-    int it0 = nse_get_logT_index(tlog) - 1;
-    it0 = amrex::Clamp(it0, 1, nse_table_size::ntemp-3);
+        int ir0 = nse_get_logrho_index(rholog);
+        int it0 = nse_get_logT_index(tlog);
+        int ic0 = nse_get_ye_index(yet);
 
-    int ic0 = nse_get_ye_index(yet) - 1;
-    ic0 = amrex::Clamp(ic0, 1, nse_table_size::nye-3);
+        amrex::Real ddatadrho = trilinear_drho(ir0, it0, ic0,
+                                               rholog, tlog, yet, data) / (M_LN10 * rho);
 
-    // note: this is returning the derivative wrt log10(rho), so we need to
-    // convert to d/drho
+        return ddatadrho;
 
-    amrex::Real ddatadrho = tricubic_drho(ir0, it0, ic0, rholog, tlog, yet, data) / (M_LN10 * rho);
+    } else {
 
-    return ddatadrho;
+        int ir0 = nse_get_logrho_index(rholog) - 1;
+        ir0 = amrex::Clamp(ir0, 1, nse_table_size::nden-3);
+
+        int it0 = nse_get_logT_index(tlog) - 1;
+        it0 = amrex::Clamp(it0, 1, nse_table_size::ntemp-3);
+
+        int ic0 = nse_get_ye_index(yet) - 1;
+        ic0 = amrex::Clamp(ic0, 1, nse_table_size::nye-3);
+
+        // note: this is returning the derivative wrt log10(rho), so we need to
+        // convert to d/drho
+
+        amrex::Real ddatadrho = tricubic_drho(ir0, it0, ic0, rholog, tlog, yet, data) / (M_LN10 * rho);
+
+        return ddatadrho;
+
+    }
 
 }
 
