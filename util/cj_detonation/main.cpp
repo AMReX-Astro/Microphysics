@@ -154,6 +154,7 @@ int main(int argc, char *argv[]) {
 
   hout.close();
 
+  amrex::Finalize();
   return 0;
 
 }
