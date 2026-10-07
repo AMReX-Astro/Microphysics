@@ -561,6 +561,11 @@ explicitly connecting the nuclei.
 The highlighted links in the figure above are the tabulated weak rates
 included.
 
+.. note::
+
+   We do not model H burning here, since we assume we are in the very late
+   stages of evolution and are focused on the convective burning shells
+   near the core.
 
 
 ``powerlaw``
