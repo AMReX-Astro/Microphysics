@@ -543,6 +543,30 @@ of (Graboske 1973) for weak screening and the work of (Alastuey 1978
 and Itoh 1979) for strong screening.
 
 
+Massive star networks
+=====================
+
+``massive-star-medium``
+-----------------------
+
+This is a network that tries to better capture O and Si burning for
+massive star convection leading up to core-collapse (as compared to
+``aprox21``).  It has 54 nuclei (+ 23 more nuclei approximated out,
+mostly via the double-n capture approximation) and 322 rates
+explicitly connecting the nuclei.
+
+.. figure:: ../../networks/massive-star-medium/massive-star-medium.png
+   :align: center
+
+The highlighted links in the figure above are the tabulated weak rates
+included.
+
+.. note::
+
+   We do not model H burning here, since we assume we are in the very late
+   stages of evolution and are focused on the convective burning shells
+   near the core.
+
 
 ``powerlaw``
 ============
