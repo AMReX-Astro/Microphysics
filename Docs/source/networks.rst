@@ -551,8 +551,8 @@ Massive star networks
 
 This is a network that tries to better capture O and Si burning for
 massive star convection leading up to core-collapse (as compared to
-``aprox21``).  It has 53 nuclei (+ 23 more nuclei approximated out,
-mostly via the double-n capture approximation) and 318 rates
+``aprox21``).  It has 54 nuclei (+ 23 more nuclei approximated out,
+mostly via the double-n capture approximation) and 322 rates
 explicitly connecting the nuclei.
 
 .. figure:: ../../networks/massive-star-medium/massive-star-medium.png

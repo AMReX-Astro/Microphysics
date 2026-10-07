@@ -8,7 +8,7 @@ def create_network(network_type="amrex"):
            "si27-30", "p29,31", "s30-34", "cl33,35",
            "ar34-38", "k37,39", "ca38-42", "sc41-43",
            "ti42-46", "v45-49", "cr46-52", "mn49-53",
-           "fe50-56", "co53-57", "ni56-58", "cu59"]
+           "fe50-56", "co53-57", "ni56-58", "cu59", "zn60"]
 
     net = pyna.network_helper(nuc, network_type=network_type)
 
