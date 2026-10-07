@@ -14,15 +14,8 @@ jobs:
 
       - name: Get AMReX
         run: |
-          mkdir external
-          cd external
-          git clone https://github.com/AMReX-Codes/amrex.git
-          cd amrex
-          git checkout development
-          echo 'AMREX_HOME=$(GITHUB_WORKSPACE)/external/amrex' >> $GITHUB_ENV
-          echo $AMREX_HOME
-          if [[ -n "${AMREX_HOME}" ]]; then exit 1; fi
-          cd ../..
+          git clone --branch development --depth 1 https://github.com/AMReX-Codes/amrex.git external/amrex
+          echo "AMREX_HOME=${GITHUB_WORKSPACE}/external/amrex" >> "$GITHUB_ENV"
 
       - name: Install dependencies
         run: |
@@ -32,4 +25,3 @@ jobs:
         run: |
           cd unit_test/burn_cell_sdc
           make USE_MPI=FALSE USE_CLANG_TIDY=TRUE CLANG_TIDY=clang-tidy-19 CLANG_TIDY_WARN_ERROR=TRUE -j 4
-

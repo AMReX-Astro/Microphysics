@@ -51,7 +51,6 @@ For example,
    make SCREEN_METHOD=screen5
 
 Any of the available screening methods can be used with any reaction network.
-
 The options are:
 
 * ``screen5`` :

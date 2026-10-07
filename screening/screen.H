@@ -41,6 +41,8 @@ constexpr std::string_view screen_name = "chugunov2007";
 constexpr std::string_view screen_name = "chugunov2009";
 #elif SCREEN_METHOD == SCREEN_METHOD_chabrier1998
 constexpr std::string_view screen_name = "chabrier1998";
+#elif SCREEN_METHOD == SCREEN_METHOD_debye_huckel
+constexpr std::string_view screen_name = "debye_huckel";
 #endif
 
 // Gradient components are (T, M1, M2), where M1 = sum(Z_i Y_i) and
