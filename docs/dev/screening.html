@@ -78,6 +78,8 @@
 <li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#screening-options">Screening Options</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#runtime-options">Runtime Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#screening-interface">Screening Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#composition-derivatives">Composition Derivatives</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="neutrinos.html">Neutrino Losses</a></li>
@@ -204,17 +206,27 @@ multi-component plasma (which is significantly more expensive)</p>
 <p>This includes the portion in the appendix that blends in the weak
 screening limit.</p>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">chabrier1998</span></code> :</p>
-<p>This implements the screening of <span class="bibtex-citation" id="id7">[<a class="reference internal" href="zreferences.html#id44" title="Gilles Chabrier and Alexander Y. Potekhin. Equation of state of fully ionized electron-ion plasmas. Physical Review E, 58(4):4941–4949, oct 1998. URL: https://doi.org/10.1103, doi:10.1103/physreve.58.4941.">39</a>]</span> as well as
-the quantum corrections for strong screening according to screen5,
-which is suggested in the appendix of <span class="bibtex-citation" id="id8">[<a class="reference internal" href="zreferences.html#id37" title="A. C. Calder, D. M. Townsley, I. R. Seitenzahl, F. Peng, O. E. B. Messer, N. Vladimirova, E. F. Brown, J. W. Truran, and D. Q. Lamb. Capturing the fire: flame energetics and neutronization for type ia supernova simulations. The Astrophysical Journal, 656(1):313–332, feb 2007. URL: https://doi.org/10.1086/510709, doi:10.1086/510709.">40</a>]</span>.
-This screening is compatible with NSE calculations unlike <code class="docutils literal notranslate"><span class="pre">screen5</span></code>,
-<code class="docutils literal notranslate"><span class="pre">chugunov2007</span></code>, and <code class="docutils literal notranslate"><span class="pre">chugunov2009</span></code>. This screening is valid in the
-weak screening regime, <span class="math notranslate nohighlight">\(\Gamma &lt; 0.1\)</span>, and strong screening regime,
-<span class="math notranslate nohighlight">\(1 \lesssim \Gamma \lesssim 160\)</span>.</p>
-</li>
 </ul>
 <ul id="index-1">
+<li><p><code class="docutils literal notranslate"><span class="pre">chabrier1998</span></code> :</p>
+<p>This implements the screening of <span class="bibtex-citation" id="id7">[<a class="reference internal" href="zreferences.html#id44" title="Gilles Chabrier and Alexander Y. Potekhin. Equation of state of fully ionized electron-ion plasmas. Physical Review E, 58(4):4941–4949, oct 1998. URL: https://doi.org/10.1103, doi:10.1103/physreve.58.4941.">39</a>]</span>, with
+optional quantum corrections for strong screening according to
+screen5 (as suggested in the appendix of <span class="bibtex-citation" id="id8">[<a class="reference internal" href="zreferences.html#id37" title="A. C. Calder, D. M. Townsley, I. R. Seitenzahl, F. Peng, O. E. B. Messer, N. Vladimirova, E. F. Brown, J. W. Truran, and D. Q. Lamb. Capturing the fire: flame energetics and neutronization for type ia supernova simulations. The Astrophysical Journal, 656(1):313–332, feb 2007. URL: https://doi.org/10.1086/510709, doi:10.1086/510709.">40</a>]</span>).  This
+screening is valid in the weak screening regime, <span class="math notranslate nohighlight">\(\Gamma &lt;
+0.1\)</span>, and strong screening regime, <span class="math notranslate nohighlight">\(1 \lesssim \Gamma \lesssim
+160\)</span>.</p>
+</li>
+</ul>
+<blockquote>
+<div><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>With quantum corrections disabled
+(<code class="docutils literal notranslate"><span class="pre">screening.enable_chabrier1998_quantum_corr=0</span></code>, the default),
+this screening is compatible with NSE calculations unlike
+<code class="docutils literal notranslate"><span class="pre">screen5</span></code>, <code class="docutils literal notranslate"><span class="pre">chugunov2007</span></code>, and <code class="docutils literal notranslate"><span class="pre">chugunov2009</span></code>.</p>
+</div>
+</div></blockquote>
+<ul id="index-2">
 <li><p><code class="docutils literal notranslate"><span class="pre">debye_huckel</span></code> :</p>
 <p>This is just the Debye-Hückel weak-screening limit from
 <span class="bibtex-citation" id="id9">[<a class="reference internal" href="zreferences.html#id36" title="A. I. Chugunov and H. E. Dewitt. Nuclear fusion reaction rates for strongly coupled ionic mixtures. PRC, 80(1):014611, July 2009. arXiv:0905.3844, doi:10.1103/PhysRevC.80.014611.">38</a>]</span>.</p>
@@ -235,7 +247,7 @@ enhancement factor.</p>
 </section>
 <section id="runtime-options">
 <h2>Runtime Options<a class="headerlink" href="#runtime-options" title="Link to this heading"></a></h2>
-<ul class="simple" id="index-2">
+<ul class="simple" id="index-3">
 <li><p><code class="docutils literal notranslate"><span class="pre">screening.enable_chabrier1998_quantum_corr</span> <span class="pre">=</span> <span class="pre">1</span></code> in the input file
 enables an additional quantum correction term added to the screening
 factor when <code class="docutils literal notranslate"><span class="pre">SCREEN_METHOD=chabrier1998</span></code>. This is disabled by
@@ -243,6 +255,76 @@ default since <code class="docutils literal notranslate"><span class="pre">chabr
 <code class="docutils literal notranslate"><span class="pre">USE_NSE_NET=TRUE</span></code>, and the NSE solver doesn’t include quantum
 corrections.</p></li>
 </ul>
+</section>
+<section id="screening-interface">
+<h2>Screening Interface<a class="headerlink" href="#screening-interface" title="Link to this heading"></a></h2>
+<p>Before we call the screening routine, there are two data types we need
+to initialize.  The first is the <code class="docutils literal notranslate"><span class="pre">screen_factors_t</span></code>—this is unique
+to the pair of nuclei that are considering and contains all of the
+common factors involving the charges, <span class="math notranslate nohighlight">\(Z_1\)</span> and <span class="math notranslate nohighlight">\(Z_2\)</span> of the nuclei.
+This is <code class="docutils literal notranslate"><span class="pre">constexpr</span></code>, so the point is that we do this hard work at
+compile time.  An example is:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">pair</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">scrn</span><span class="o">::</span><span class="n">calculate_screen_factor</span><span class="p">(</span><span class="mf">2.0</span><span class="n">_rt</span><span class="p">,</span><span class="w"> </span><span class="mf">4.0</span><span class="n">_rt</span><span class="p">,</span><span class="w"> </span><span class="mf">6.0</span><span class="n">_rt</span><span class="p">,</span><span class="w"> </span><span class="mf">12.0</span><span class="n">_rt</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>This sets up the <code class="docutils literal notranslate"><span class="pre">screen_factor_t</span></code> for <span class="math notranslate nohighlight">\(\isotm{He}{4} + \isotm{C}{12}\)</span>.</p>
+<p>The next is the <code class="docutils literal notranslate"><span class="pre">plasma_state_t</span></code>—this describes the plasma as a
+whole, and is independent of the screening pair.  <code class="docutils literal notranslate"><span class="pre">plasma_state_t</span></code>
+is templated in a fashion that determines which derivatives will be
+returned by the screening functions.  Usually we want the screening
+factor and its temperature derivative, in which case we would do:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">autodiff</span><span class="o">::</span><span class="n">dual</span><span class="w"> </span><span class="n">tt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">temp</span><span class="p">;</span>
+<span class="n">autodiff</span><span class="o">::</span><span class="n">seed</span><span class="p">(</span><span class="n">tt</span><span class="p">);</span>
+<span class="n">plasma_state_t</span><span class="o">&lt;</span><span class="n">autodiff</span><span class="o">::</span><span class="n">dual</span><span class="o">&gt;</span><span class="w"> </span><span class="n">plasma_state</span><span class="p">;</span>
+<span class="n">fill_plasma_state</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">,</span><span class="w"> </span><span class="n">tt</span><span class="p">,</span><span class="w"> </span><span class="n">rho</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>This uses the C++ autodiff machinery described in <a class="reference internal" href="autodiff.html#sec-autodiff"><span class="std std-ref">Automatic Differentiation</span></a>.</p>
+<p>We can then call the screening routine as:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">actual_log_screen</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">,</span><span class="w"> </span><span class="n">pair</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="p">,</span><span class="w"> </span><span class="n">dh_dT</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="composition-derivatives">
+<h2>Composition Derivatives<a class="headerlink" href="#composition-derivatives" title="Link to this heading"></a></h2>
+<p>If we want to get the composition derivatives of the screening factor,
+then we create our plasma state as:
+<code class="docutils literal notranslate"><span class="pre">plasma_state_t&lt;screening_dual_t&gt;</span></code> In this case,
+<code class="docutils literal notranslate"><span class="pre">fill_plasma_state</span></code> seeds a three-component autodiff gradient in the
+order <span class="math notranslate nohighlight">\((T, M_1, M_2)\)</span>, where</p>
+<div class="math notranslate nohighlight">
+\[M_1 = \sum_i Z_i Y_i, \qquad M_2 = \sum_i Z_i^2 Y_i.\]</div>
+<p>The sums include all plasma species.  Here, <span class="math notranslate nohighlight">\(M_1 = Y_e\)</span>, and <span class="math notranslate nohighlight">\(M_2\)</span> is
+related to “z2bar”, which is normally defined as <span class="math notranslate nohighlight">\(\overline{Z^2}
+= \bar{A} \sum_i Z_i^2 Y_i\)</span>.  Density and the reacting pair’s nuclear
+charges and masses are held fixed.  These two moments contain all
+composition dependence of the implemented screening methods; there is
+no independent dependence on <span class="math notranslate nohighlight">\(\bar{A}\)</span>.</p>
+<p>For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">plasma_state_t</span><span class="o">&lt;</span><span class="n">screening_dual_t</span><span class="o">&gt;</span> <span class="n">pstate</span><span class="p">;</span>
+<span class="n">fill_plasma_state</span><span class="p">(</span><span class="n">pstate</span><span class="p">,</span> <span class="n">temp</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">Y</span><span class="p">);</span>
+<span class="n">amrex</span><span class="p">::</span><span class="n">Real</span> <span class="n">h</span><span class="p">,</span> <span class="n">dh_dT</span><span class="p">,</span> <span class="n">dh_dM1</span><span class="p">,</span> <span class="n">dh_dM2</span><span class="p">;</span>
+<span class="n">actual_log_screen</span><span class="p">(</span><span class="n">pstate</span><span class="p">,</span> <span class="n">scn_fac</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">dh_dT</span><span class="p">,</span> <span class="n">dh_dM1</span><span class="p">,</span> <span class="n">dh_dM2</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">h</span></code> (defined at the top of this page) is the natural logarithm
+of the screening enhancement.  The same output arguments are available
+for <code class="docutils literal notranslate"><span class="pre">actual_screen</span></code>, which returns the enhancement itself and its
+derivatives, including its output cap.  The plasma state can be reused
+for every screening pair.</p>
+<p>Recover the derivative with respect to an individual molar abundance via</p>
+<div class="math notranslate nohighlight">
+\[\frac{\partial h}{\partial Y_j}
+= Z_j \frac{\partial h}{\partial M_1}
+  + Z_j^2 \frac{\partial h}{\partial M_2}.\]</div>
+<p>For a screened rate <span class="math notranslate nohighlight">\(\lambda=\lambda_0 e^h\)</span>, its screening
+contribution to the abundance derivative is
+<span class="math notranslate nohighlight">\(\lambda\,\partial h/\partial Y_j\)</span>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>An alternate interface provides just the temperature derivative, by building
+<code class="docutils literal notranslate"><span class="pre">plasma_state_t&lt;autodiff::dual&gt;</span></code>.</p>
+</div>
 </section>
 </section>
 

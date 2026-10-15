@@ -186,6 +186,10 @@ Infrastructure tests
 
   run various tests of the tabular NSE interpolation routines.
 
+* ``screen_derivs_check`` :
+
+  test the autodiff temperature and composition interfaces to the screening routines.
+
 * ``test_parameters`` :
 
   a simple setup that initializes the runtime parameters and can be
