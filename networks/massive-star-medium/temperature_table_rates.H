@@ -1,0 +1,33 @@
+#ifndef TEMPERATURE_TABLE_RATES_H
+#define TEMPERATURE_TABLE_RATES_H
+
+#include <AMReX_Array.H>
+
+#include <tfactors.H>
+#include <actual_network.H>
+#include <interp_tools.H>
+
+using namespace amrex::literals;
+
+
+namespace temp_tabular {
+
+    using namespace Rates;
+
+
+    template <typename T>
+    AMREX_GPU_DEVICE AMREX_INLINE
+    void
+    fill_rates([[maybe_unused]] const tf_t& tfactors,
+               [[maybe_unused]] T& rate_eval)
+    {
+
+        [[maybe_unused]] amrex::Real rate;
+        [[maybe_unused]] amrex::Real drate_dT;
+
+
+
+    }
+
+}
+#endif
