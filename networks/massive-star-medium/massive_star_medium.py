@@ -32,6 +32,12 @@ def doit():
 
     net.summary()
 
+    nuclei_list = net.unique_nuclei
+    print("[", end="")
+    for n in nuclei_list:
+        print(f'"{n}", ', end="")
+    print("]")
+
     fig = net.plot(rotated=True, size=(1300, 700),
                    node_size=500, node_font_size="9",
                    legend_coord=(4, 3),
