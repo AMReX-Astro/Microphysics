@@ -8,7 +8,8 @@ its CI benchmarks untouched. The skill ships it as `assets/harness/`
 
 ```bash
 git apply <skill>/assets/harness/test_react.patch
-cp <skill>/assets/harness/{loom_launch.H,loom_validate.H,loom_validate.cpp,loom_eos_params.H} unit_test/test_react/
+cp <skill>/assets/harness/{loom_launch.H,loom_validate.H,loom_validate.cpp,loom_eos_params.H,loom_case.H} unit_test/test_react/
+cp <skill>/assets/standalone/loom_case_format.H unit_test/test_react/
 cp <skill>/assets/harness/loom_params.H unit_test/test_react/   # then fill its PORT: lines
 ```
 
@@ -33,6 +34,7 @@ unit_test/test_react/
   loom_params.H        # per port, from the assets/harness template: host fill_* functions
                        # and loom_require_supported_settings(); shared by validators and launcher
   loom_launch.H        # host: load .hsaco, pack args, launch, compare
+  loom_case.H, loom_case_format.H   # standalone case file writer (loom_dump_case)
   loom_validate.H/.cpp # native validation hook (dispatches to the kernel dir's validate_*.H)
   GNUmakefile, Make.package, main.cpp, _parameters   # from test_react.patch
 
@@ -120,7 +122,8 @@ returns when `unit_test.loom_validate` is set.
 New `_parameters` entries (namespace `unit_test`): `loom_validate` (int,
 run the native validators instead of the burn), `loom_hsaco` (string,
 empty = stock path), `loom_kernel` (symbol), `loom_ncells` (compiled zone
-count), `loom_compare` (int, 0/1), `loom_repeats` (int).
+count), `loom_compare` (int, 0/1), `loom_repeats` (int), `loom_dump_case`
+(string, write a standalone case file before the burn; empty = off).
 
 ## Native validation (Phase 4)
 

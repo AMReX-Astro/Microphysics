@@ -374,6 +374,30 @@ If something fails, localize it first (native path? recipe math? ABI?
 layout?). Accepting a non-bit-exact result is the user's decision, with the
 evidence in front of them.
 
+**Standalone HIP reproducer** (`assets/standalone/README.md`). The same
+kernel tree also compiles with hipcc as an ordinary HIP kernel
+(`-DMPL_HIP_STANDALONE`), driven by a small `main.hip` with no Microphysics
+or AMReX. Make one for every port once Phase 4 passes, and always when a GPU
+result is in question:
+1. Write a case file from the HIP test_react build (same flags as above):
+   `./main3d.hip.HIP.ex inputs_<net> n_cell=16 max_grid_size=16
+   integrator.use_jacobian_caching=0 unit_test.loom_dump_case=<net>.case`
+   (inputs, `BurnParams`, tables and the stock HIP result of two identical
+   burns; run it from a scratch directory, not `unit_test/test_react/`).
+   Use the HIP build: a CPU build writes a CPU reference *and* slightly
+   different initial T/ρ (test_react computes them with `pow` on the
+   device), so it is not a bit-exact target for a GPU binary.
+2. `scripts/make_standalone.sh --tar unit_test/test_react/loom/<port> <out> <net>.case`
+   bundles the kernel tree, driver, math shim and case into one directory.
+3. On the GPU host: `make` (`MATH=ocml`, hipcc's device math, as the stock
+   build) and `make MATH=recipes` (the Loom path's f64 recipes), then
+   `./burn_standalone_ocml cases/<net>.case --hsaco loom_root.hsaco`.
+   Expect `hipcc_vs_reference` bit-exact for both math modes: that proves
+   the translation on the GPU independently of Loom, and `loom_vs_hipcc` then
+   isolates Loom. For a mismatch, `--zone I,J,K --write-subset one.case` cuts
+   a one-zone case; the bundle plus that file is what goes to a compiler
+   vendor (with the user's approval, as for any bug report).
+
 ## Phase 7 — performance (optional, only after Phase 6 passes)
 
 Read `references/performance.md`. Timing must be paired and interleaved
@@ -416,6 +440,7 @@ Check the time with `date` before writing any timestamp.
 - `scripts/hsaco_stats.py` — VGPR/SGPR/AGPR/scratch/kernarg sizes from `llvm-readelf` notes, plus spill/pressure keys from a `--compile-report` JSON.
 - `scripts/ship_test_react.sh` — detached HIP build of test_react with the Loom launcher; for a remote host it first stages the local test_react + kernel dir there and shows which files differ.
 - `scripts/loom_gpu_compare.sh` — Phase 6 on the GPU host (run it directly when local): production root compile, kernel-argument metadata, test_react compare runs.
+- `scripts/make_standalone.sh` — bundle a port's kernel tree, `assets/standalone/` and case files into a self-contained hipcc reproducer; checks every include resolves inside the bundle.
 
 ## Assets (`assets/README.md`)
 
@@ -428,6 +453,7 @@ Check the time with `date` before writing any timestamp.
 - `assets/smoke/` — smoke-compile kernels for `loom_smoke.sh`.
 - `assets/prompts/` — agent prompt templates (`_common.md` + per task).
 - `assets/f64-tests/` — host accuracy test of the OCML recipes; `ocml_gpu/` is the GPU bit check against hipcc's OCML.
+- `assets/standalone/` — standalone HIP reproducer: `main.hip` (burns a case file with the hipcc-compiled kernel tree and optionally a Loom code object, compares bit for bit), `loom_case_format.H`, `Makefile`, vendor-facing `README.md`; `harness/loom_case.H` writes case files from test_react.
 
 ## Patches (against hrx-system `7cf21edd85` = public main `4031286f0b` for the compiler; also apply to main `d70c407e5a`; local, not upstream)
 

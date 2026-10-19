@@ -21,6 +21,7 @@ update this README.
 | `smoke/` | Loom smoke-compile kernels for `scripts/loom_smoke.sh` |
 | `prompts/` | agent prompt templates: `_common.md` (prepend to every prompt) + per-task prompts |
 | `f64-tests/` | host accuracy test for the OCML recipes; `ocml_gpu/`: GPU bit check against hipcc's OCML |
+| `standalone/` | standalone HIP reproducer: `main.hip` driver, case file format, Makefile, vendor README (below) |
 
 ## modules/
 
@@ -138,6 +139,11 @@ Notes:
   selected by `-DLOOM_VALIDATE_<MODULE>`). Copy `loom_validate.H`,
   `loom_validate.cpp`, `loom_launch.H`, `loom_eos_params.H` and
   `loom_params.H` into `unit_test/test_react/`.
+- `loom_case.H` (copy as is, with `standalone/loom_case_format.H`): writes a
+  standalone case file (`unit_test.loom_dump_case=<file>`): `BurnParams`,
+  tables and initial state exactly as the launcher passes them, plus two
+  stock burns of the same state (they must agree) with per-zone success.
+  Needs one box on one rank. Built whenever `LOOM_KERNEL_DIR` is set.
 - `loom_eos_params.H` (copy as is): `fill_eos_params` / `fill_eos_tables`,
   network-independent; the only host header the EOS validator needs, so the
   EOS validates before any rates/network translation. `loom_params.H`
@@ -149,12 +155,32 @@ Notes:
   blocks (`LOOM_KERNEL_DIR` required; the kernel directory goes **last** on the
   include path, after `Make.unit_test`, so stock `eos.H`/`burner.H` keep
   winning), `Make.package` entries, the `unit_test.loom_*` runtime parameters,
-  and the two `main.cpp` hooks (validation after `network_init()`, the
-  `loom_burn_main` branch around the ParReduce). Network-neutral.
+  and the three `main.cpp` hooks (validation after `network_init()`, the
+  case dump before the burn, the `loom_burn_main` branch around the
+  ParReduce). Network-neutral.
 - `validate_dual.H` (copy into the kernel directory): the dual validator, primitive tests only (every `dual_*`
   / `dual3_*` function vs autodiff on edge and random values). A port adds
   its own section comparing whole stock rate, screening and rhs.H expressions
   against the guide's call sequences.
+
+## standalone/
+
+A HIP program that burns a port's kernel tree compiled by hipcc
+(`-DMPL_HIP_STANDALONE`, `kernel/support.H`), with no Microphysics or AMReX,
+and compares it bit for bit with a reference from a **case file**.
+`loom_case_format.H` defines the file (header, `BurnParams` bytes, the 14
+helmholtz tables, the initial state box, the reference state, `n_rhs`/`n_step`
+and per-zone success). test_react writes one with
+`unit_test.loom_dump_case=<file>` (`harness/loom_case.H`; stock CPU reference
+in a CPU build, stock HIP reference in a HIP build). `main.hip` reads it,
+launches `mpl::burn_zones` (and optionally a Loom code object of the same
+root, `--hsaco`), and reports per-component worst zones with hex bits;
+`--zone` cuts a one-zone reproducer. `scripts/make_standalone.sh` bundles a
+port with these files into a directory that builds with `make` anywhere ROCm
+is installed; `README.md` here is that bundle's README (written for someone
+who has never seen Microphysics). `MATH=ocml` uses hipcc's OCML like the stock
+HIP build; `MATH=recipes` uses `kernel/f64_math*.H` through
+`f64-tests/ocml_gpu/device_shim/`.
 
 ## f64-tests/
 

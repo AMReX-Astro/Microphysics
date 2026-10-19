@@ -1,10 +1,20 @@
 id: host-branch
 language: cpp
+# Code in a non-Loom branch of an `#if defined(__loom__)` / `#ifdef __loom__`
+# chain: its `#else`, or any `#elif` (e.g. `#elif defined(MPL_HIP_STANDALONE)`)
+# and the `#else` after it. The nearest enclosing #if decides, so a Loom
+# branch nested inside an outer #else is still checked.
 rule:
   inside:
-    kind: preproc_else
     stopBy: end
+    any:
+      - kind: preproc_else
+      - kind: preproc_elif
     inside:
+      stopBy:
+        any:
+          - kind: preproc_if
+          - kind: preproc_ifdef
       any:
         - kind: preproc_if
           has: { field: condition, regex: '^defined\s*\(?\s*__loom__' }

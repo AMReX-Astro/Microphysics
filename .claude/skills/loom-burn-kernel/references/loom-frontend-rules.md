@@ -82,7 +82,9 @@ The `no-stock-namespace` rule matters most for agents: validators include the
 stock headers, so a leftover `autodiff::`, `amrex::`, `RHS::` or `*_rp::` in
 kernel code still compiles and validates on the host, and only the lint or the
 Loom import catches it. Write native host fallbacks as the `#else` branch of
-`#if defined(__loom__)` (or `#ifdef __loom__`); the lint skips those. (The
+`#if defined(__loom__)` (or `#ifdef __loom__`), or as an `#elif` after it
+(e.g. `#elif defined(MPL_HIP_STANDALONE)` in `support.H`); the lint skips
+every branch of that chain except the first. (The
 lint is clean on the accepted chemistry kernel, adv-mi210-12's seed.)
 
 ## Works

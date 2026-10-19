@@ -27,10 +27,13 @@
 //
 // On the host (no __loom__), burn_zones is an ordinary inline function with
 // one extra trailing parameter, the zone index, so the native validator
-// (validate_kernel.H) runs exactly this body zone by zone.
+// (validate_kernel.H) runs exactly this body zone by zone. With hipcc and
+// -DMPL_HIP_STANDALONE (assets/standalone/main.hip) it is a HIP __global__
+// kernel with the same signature as the Loom root, launched with
+// blockDim.x = 128 and gridDim.x = ceil(nx * ny * nz / 128).
 #include "burner.H"
 
-#if defined(__loom__)
+#if defined(MPL_GPU_KERNEL)
 #define MPL_BURN_ZONE_INDEX_PARAM
 #else
 #define MPL_BURN_ZONE_INDEX_PARAM , int host_zone_index
@@ -55,7 +58,7 @@ MPL_KERNEL void burn_zones(const BurnParams* params,
     EosTables tab{f, dpdf, ef, xf, d, t, dt_sav, dt2_sav, dti_sav, dt2i_sav,
                   dd_sav, dd2_sav, ddi_sav, dd2i_sav};
 
-#if defined(__loom__)
+#if defined(MPL_GPU_KERNEL)
     const int idx = blockIdx.x * blockDim.x + threadIdx.x;
 #else
     const int idx = host_zone_index;
