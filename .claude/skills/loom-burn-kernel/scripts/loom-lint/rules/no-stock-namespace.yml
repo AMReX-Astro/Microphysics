@@ -1,0 +1,10 @@
+id: no-stock-namespace
+language: cpp
+severity: error
+message: 'Stock Microphysics/AMReX/autodiff name in kernel code. The Loom path has no AMReX, autodiff or gcem headers, and runtime-parameter namespaces are globals; use the translated mpl:: equivalent or a params field.'
+rule:
+  kind: qualified_identifier
+  has:
+    field: scope
+    regex: '^(amrex|autodiff|admath|gcem|microphysics_autodiff|ArrayUtil|RHS|helmholtz_rp|eos_rp|network_rp|integrator_rp|screening_rp|unit_test_rp|EOSData|NetworkProperties)$'
+  not: { matches: host-branch }

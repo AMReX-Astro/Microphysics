@@ -1,0 +1,76 @@
+diff --git a/loom/src/loom/codegen/low/allocation/interval_assignment.c b/loom/src/loom/codegen/low/allocation/interval_assignment.c
+index cdff8690ef..b9da2972fa 100644
+--- a/loom/src/loom/codegen/low/allocation/interval_assignment.c
++++ b/loom/src/loom/codegen/low/allocation/interval_assignment.c
+@@ -800,6 +800,56 @@ loom_low_allocation_interval_assignment_try_relocate_independent_assignment(
+   }
+   const uint32_t last_base =
+       iree_min(capacity.max_units - assignment->location_count, maximum_base);
++
++  // Conflicts with the other published assignments, precomputed per candidate
++  // base. Scanning every assignment of the function for every candidate base
++  // made each relocation O(bases x assignments), which dominated compile time
++  // for large single-function kernels (concat-source coalescing calls this for
++  // most 64-bit values). An assignment whose lifetime does not overlap the
++  // relocated one can never conflict at any base (the conflict test rejects
++  // such pairs before looking at locations), so one pass collects the
++  // overlapping assignments and evaluates the unchanged conflict test for each
++  // of them at each candidate base. The base loop below then visits the same
++  // bases in the same order with the same checks, so it accepts the same
++  // first base as before.
++  enum { LOOM_LOW_RELOCATION_MAX_PRECOMPUTED_BASES = 1024 };
++  bool base_blocked[LOOM_LOW_RELOCATION_MAX_PRECOMPUTED_BASES];
++  bool use_precomputed_conflicts = false;
++  if (base <= last_base) {
++    const uint32_t base_count = (last_base - base) / alignment + 1;
++    if (base_count <= LOOM_LOW_RELOCATION_MAX_PRECOMPUTED_BASES) {
++      use_precomputed_conflicts = true;
++      for (uint32_t k = 0; k < base_count; ++k) {
++        base_blocked[k] = false;
++      }
++      loom_low_allocation_assignment_t probe = *assignment;
++      for (iree_host_size_t i = 0; i < state->result.assignment_count; ++i) {
++        if (i == assignment_index) {
++          continue;
++        }
++        const loom_low_allocation_assignment_t* other =
++            &state->result.assignments[i];
++        if (probe.start_point >= other->end_point ||
++            other->start_point >= probe.end_point) {
++          continue;
++        }
++        for (uint32_t k = 0; k < base_count; ++k) {
++          if (base_blocked[k]) {
++            continue;
++          }
++          probe.location_base = base + k * alignment;
++          base_blocked[k] = loom_low_allocation_live_range_assignments_conflict(
++              state->context->target->descriptor_set,
++              state->unit_liveness.storage_segments.entries,
++              state->unit_liveness.start_points,
++              state->unit_liveness.end_points,
++              state->unit_liveness.point_count, &probe, other);
++        }
++      }
++    }
++  }
++  const uint32_t first_base = base;
++
+   while (base <= last_base) {
+     loom_low_allocation_assignment_t candidate = *assignment;
+     candidate.location_base = base;
+@@ -836,8 +886,13 @@ loom_low_allocation_interval_assignment_try_relocate_independent_assignment(
+             &candidate, /*ignored_value_ids=*/NULL,
+             /*ignored_value_count=*/0,
+             LOOM_LOW_ALLOCATION_STORAGE_RELEASE_FORBIDDEN);
++    if (!conflicts && use_precomputed_conflicts) {
++      conflicts = base_blocked[(base - first_base) / alignment];
++    }
+     for (iree_host_size_t i = 0;
+-         !conflicts && i < state->result.assignment_count; ++i) {
++         !conflicts && !use_precomputed_conflicts &&
++         i < state->result.assignment_count;
++         ++i) {
+       if (i == assignment_index) {
+         continue;
+       }

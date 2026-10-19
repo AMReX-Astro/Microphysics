@@ -1,0 +1,5 @@
+id: no-inheritance
+language: cpp
+severity: error
+message: Records with base classes do not import. Flatten the base into the struct.
+rule: { kind: base_class_clause, not: { matches: host-branch } }

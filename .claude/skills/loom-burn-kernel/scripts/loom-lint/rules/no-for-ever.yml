@@ -1,0 +1,7 @@
+id: no-for-ever
+language: cpp
+severity: error
+message: for (;;) does not import. Use while (true) with break.
+rule:
+  kind: for_statement
+  not: { any: [ { has: { field: condition, regex: '.' } }, { matches: host-branch } ] }

@@ -1,0 +1,75 @@
+diff --git a/loom/src/loom/codegen/low/frame.c b/loom/src/loom/codegen/low/frame.c
+index db04627620..d54191ccd5 100644
+--- a/loom/src/loom/codegen/low/frame.c
++++ b/loom/src/loom/codegen/low/frame.c
+@@ -6,6 +6,8 @@
+ 
+ #include "loom/codegen/low/frame.h"
+ 
++#include <stdio.h>
++#include <stdlib.h>
+ #include <string.h>
+ 
+ #include "loom/codegen/low/addressability.h"
+@@ -26,6 +28,18 @@
+ #include "loom/ops/low/ops.h"
+ #include "loom/rewrite/rewriter.h"
+ 
++// LOOM_TRACE_REPAIR=1 prints one line per spill-free repair round to stderr
++// (round, budget, function size, outcome, cumulative repair counters, round
++// time). Off by default; output and results are unchanged without it.
++static bool loom_low_emission_frame_trace_repair_enabled(void) {
++  static int enabled = -1;
++  if (enabled < 0) {
++    const char* value = getenv("LOOM_TRACE_REPAIR");
++    enabled = (value != NULL && value[0] != 0 && value[0] != '0') ? 1 : 0;
++  }
++  return enabled == 1;
++}
++
+ typedef struct loom_low_emission_frame_materialization_summary_t {
+   // Cumulative spill storage materialized while building the final frame.
+   uint64_t spill_storage_count;
+@@ -992,6 +1006,8 @@ static iree_status_t loom_low_emission_frame_build_spill_free_impl(
+   bool restore_frame_before_build = false;
+   loom_low_emission_frame_materialization_summary_t materialization_summary = {
+       0};
++  const bool trace_repair = loom_low_emission_frame_trace_repair_enabled();
++  iree_time_t trace_round_start = trace_repair ? iree_time_now() : 0;
+   for (;;) {
+     loom_low_emission_frame_record_memory_high_water(
+         frame_checkpoint, repair_arena, scratch_arena, statistics);
+@@ -1006,6 +1022,33 @@ static iree_status_t loom_low_emission_frame_build_spill_free_impl(
+         loom_low_placement_pair_use_list_empty(), required_register_values,
+         expanded_execution_values, rematerialization.per_user_values, arena,
+         statistics, &frame));
++    if (trace_repair) {
++      const iree_time_t now = iree_time_now();
++      fprintf(stderr,
++              "LOOM_REPAIR round=%llu limit=%llu values=%llu "
++              "schedule_errors=%llu allocation_errors=%llu spill_plans=%llu "
++              "rematerialized_operands=%llu split_operands=%llu "
++              "round_seconds=%.1f\n",
++              (unsigned long long)value_repair_iteration_count,
++              (unsigned long long)(value_repair_iteration_limit != 0
++                                       ? value_repair_iteration_limit
++                                       : frame.schedule.value_count),
++              (unsigned long long)frame.schedule.value_count,
++              (unsigned long long)frame.schedule.error_count,
++              (unsigned long long)frame.allocation.error_count,
++              (unsigned long long)frame.allocation.spill_plan_count,
++              (unsigned long long)(statistics != NULL
++                                       ? statistics->repair
++                                             .rematerialized_operand_count
++                                       : 0),
++              (unsigned long long)(statistics != NULL
++                                       ? statistics->repair
++                                             .live_range_split_operand_count
++                                       : 0),
++              (double)(now - trace_round_start) / 1e9);
++      fflush(stderr);
++      trace_round_start = now;
++    }
+     if (value_repair_iteration_limit == 0) {
+       // Use the initial function-local value population as the convergence
+       // budget. Allocation repair can retire a complete batch in one pass;

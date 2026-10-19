@@ -1,0 +1,7 @@
+id: no-host-only
+language: cpp
+severity: error
+message: Host-only construct (exceptions, new/delete) in kernel code.
+rule:
+  any: [ { kind: throw_statement }, { kind: try_statement }, { kind: new_expression }, { kind: delete_expression } ]
+  not: { matches: host-branch }

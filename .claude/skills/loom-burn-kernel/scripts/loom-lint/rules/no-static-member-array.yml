@@ -1,0 +1,10 @@
+id: no-static-member-array
+language: cpp
+severity: error
+message: static constexpr member arrays do not import. Use a local const array or a constexpr function.
+rule:
+  kind: field_declaration
+  has: { kind: storage_class_specifier, regex: '^static$' }
+  all:
+    - has: { kind: array_declarator, stopBy: end }
+  not: { matches: host-branch }

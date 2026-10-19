@@ -1,0 +1,5 @@
+id: no-reference
+language: cpp
+severity: warning
+message: C++ reference. Scalar reference parameters and scalar member slices import (#1993); references to structs, arrays, buffer elements, local bindings and returns do not. Use a pointer unless this is a scalar parameter.
+rule: { kind: reference_declarator, not: { matches: host-branch } }

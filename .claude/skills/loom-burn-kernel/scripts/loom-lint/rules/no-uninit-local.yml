@@ -1,0 +1,9 @@
+id: no-uninit-local
+language: cpp
+severity: error
+message: Scalar and struct locals require initializers. Write `double x = 0.0;` or `T x{};`.
+rule:
+  kind: declaration
+  inside: { kind: compound_statement }
+  has: { field: declarator, kind: identifier }   # uninitialized local arrays do import
+  not: { matches: host-branch }

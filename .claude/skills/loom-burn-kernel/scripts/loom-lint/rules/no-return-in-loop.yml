@@ -1,0 +1,10 @@
+id: no-return-in-loop
+language: cpp
+severity: error
+message: return inside a loop fails import (LOWERING/059). Set a result code, break, and return after the loop.
+rule:
+  kind: return_statement
+  inside:
+    any: [ { kind: for_statement }, { kind: while_statement }, { kind: do_statement } ]
+    stopBy: { kind: function_definition }
+  not: { matches: host-branch }

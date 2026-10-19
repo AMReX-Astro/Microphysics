@@ -1,0 +1,12 @@
+id: host-branch
+language: cpp
+rule:
+  inside:
+    kind: preproc_else
+    stopBy: end
+    inside:
+      any:
+        - kind: preproc_if
+          has: { field: condition, regex: '^defined\s*\(?\s*__loom__' }
+        - kind: preproc_ifdef
+          regex: '^#ifdef\s+__loom__'
