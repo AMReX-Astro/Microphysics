@@ -43,7 +43,10 @@ repository; the items below are the distilled result.
 - On Ubuntu the default `kernel.yama.ptrace_scope=1` stops `eu-stack -p`
   (`scripts/loom_stack_sampler.sh`) from attaching to a process that isn't
   its child: run it with sudo or set the sysctl to 0.
-- Work dirs default to `$HOME/loom-work` (`LOOM_REMOTE_BASE`).
+  In a container (Apple `container` under Rosetta in the E2E runs) `eu-stack`
+  showed no frames even with sudo and no `ptrace_scope` file: use the compile
+  log, `LOOM_TRACE_REPAIR=1` and RSS/CPU from `ps` instead.
+- Work dirs default to `$LOOM_WORK`, else `$HOME/loom-work` (`LOOM_REMOTE_BASE` overrides).
 - **Every clang uses the newest GCC installed.** After Setup's `g++-14`,
   ROCm's clang (hipcc, and the Loom tool build) uses libstdc++ 14 headers.
   Override per build with `--gcc-install-dir=/usr/lib/gcc/x86_64-linux-gnu/<N>`

@@ -65,7 +65,29 @@ import sys
 
 DEFAULT_LLVM = '/opt/homebrew/opt/llvm/bin'
 SKILL = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-ROOT = os.path.abspath(os.path.join(SKILL, '..', '..', '..'))
+def _microphysics_root():
+    """$MICROPHYSICS_HOME, else the repo this skill sits in
+    (<repo>/.claude/skills/<skill> or <repo>/.agents/skills/<skill>), else the
+    git checkout of the current directory (a user-level skill install)."""
+    def ok(d):
+        return d and os.path.isdir(os.path.join(d, 'unit_test', 'test_react'))
+    env = os.environ.get('MICROPHYSICS_HOME')
+    if ok(env):
+        return os.path.abspath(env)
+    here = os.path.abspath(os.path.join(SKILL, '..', '..', '..'))
+    if ok(here):
+        return here
+    try:
+        top = subprocess.run(['git', 'rev-parse', '--show-toplevel'], capture_output=True,
+                             text=True).stdout.strip()
+    except OSError:
+        top = ''
+    if ok(top):
+        return top
+    sys.exit('cannot find the Microphysics tree: set MICROPHYSICS_HOME or run from inside it')
+
+
+ROOT = _microphysics_root()
 
 
 def insights_llvm(insights):

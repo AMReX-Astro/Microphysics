@@ -24,6 +24,7 @@ unit_test/test_react/
     support.H, f64_math.H, f64_math_extra.H, dual.H   # from assets/kernel/
     eos.H, screen.H, network_rhs.H, vode.H, burner.H  # from assets/modules/ (BurnParams in burner.H)
     burn_kernel.cpp                                   # from assets/root/: root mpl::burn_zones
+    abi_layout.H                 # generated (scripts/gen_abi_layout.py): params sizeof/offsetof
     network_data.H, burn.H       # generated (scripts/gen_network_data.py)
     rates.H, network.H           # hand-translated per network (assets/NEW_NETWORK.md)
     validate_*.H                 # from assets/validators/ + harness/validate_dual.H;

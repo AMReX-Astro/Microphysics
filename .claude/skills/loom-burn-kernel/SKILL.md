@@ -90,7 +90,7 @@ host see `references/footguns.md`). Tested end to end on 2026-10-18 for
 sudo apt install build-essential git python3 python3.12-venv patch cmake ninja-build \
      g++-14 libstdc++-14-dev clang-20 clang-tools-20 llvm-20-dev libclang-20-dev \
      libmpfr-dev libgmp-dev elfutils
-sudo usermod -aG render,video "$USER"          # GPU access (log in again)
+sudo usermod -aG render,video "$(id -un)"     # GPU access (log in again); agent shells may lack $USER
 export ROCM_PATH=${ROCM_PATH:-/opt/rocm}
 export LLVM_BIN=/usr/lib/llvm-20/bin            # inventory.py, specialize.py, CXX=clang++
 export PATH=$ROCM_PATH/bin:$ROCM_PATH/llvm/bin:$LLVM_BIN:$PATH
@@ -123,7 +123,10 @@ Notes from the end-to-end run:
   LLVM 20 specialized all 99 functions. Its LLVM must be the `LLVM_BIN` one.
 - `dev.py cmake setup` may exit 1 in a semgrep step (`semgrep-core: unknown
   option '--disable-version-check'`); harmless if `hrx-system/.venv/bin/cmake`
-  and `.venv/bin/ninja` exist.
+  and `.venv/bin/ninja` exist (all three end-to-end runs). It is the
+  supported way to get hrx-system's pinned build tools; `build_loom_tools.sh`
+  also accepts the apt `cmake`/`ninja-build` on `PATH` when there is no
+  `.venv`, but that path has not been tested end to end.
 - No GPU on the box (a build-only VM): Phase 6 stops after the production
   root compile, the HIP build and the FMA audit (`loom_gpu_compare.sh` skips
   its compare runs when no GPU is visible, or with `COMPILE_ONLY=1`).
@@ -145,9 +148,13 @@ Rosetta); start it first.
 
 **Work order.** The phases are numbered by dependency, but the Loom tools
 are the long pole, so: start the tool build (Setup), then do Phase 0 → 2 →
-3 → 4 (all native, no Loom tools) while it runs, then Phase 1 (probes) and
-Phase 5 once the tools exist. If a probe then contradicts a translation
-choice, fix the translation before the smoke compiles.
+3 → 4 (all native, no Loom tools) while it runs. As soon as the tools exist,
+run Phase 1 (probes), then smoke-compile each module once its own native
+validator passes (EOS, then rates, then network; Phase 5 and NEW_NETWORK
+step 7), even while later validators still run; the full-burn smoke and the
+production root wait until the whole native suite has passed. If a probe
+contradicts a translation choice, fix the translation before the smoke
+compiles.
 
 ## Phase 0 — pin the configuration (no code yet)
 
@@ -164,7 +171,10 @@ Ask the user for anything else not given; do not guess these:
 - Where the GPU is: this machine (default) or a remote host (then its ssh
   alias and base dir; `references/footguns.md`, "Remote host").
 
-Then record, in a new `agent-notes/<NN>-loom-<network>-<integrator>.md`:
+Then record, in a new `$NOTES_DIR.md` (default
+`NOTES_DIR=agent-notes/<NN>-loom-<network>-<integrator>`; set it to keep
+notes elsewhere, and use `$NOTES_DIR/` wherever this file says
+`agent-notes/<NN>-loom-<network>-<integrator>/`):
 - Microphysics commit, AMReX commit, hrx-system commit
   (`git -C <hrx> rev-parse HEAD`), ROCm version (`cat /opt/rocm/core-*/.info/version
   /opt/rocm/.info/version 2>/dev/null; hipconfig --version`), GPU target, the
@@ -250,8 +260,12 @@ else (another EOS, integrator, NSE, pynucastro networks) read
 `references/microphysics-translation.md` and
 `references/loom-frontend-rules.md` first.
 
-Start each hand-translated function from its specialized form, not from the
-template source:
+When C++ Insights is installed (Setup, optional), start each hand-translated
+function from its specialized form rather than the template source. Without
+it, work from the source plus `dual.H`'s guide and the differential
+validators: all three end-to-end runs did that for triple_alpha (2 rates)
+without trouble; for a large network (dozens of rates, deep templates),
+install Insights first. The specialized form comes from:
 
 ```bash
 uv run --no-project <skill>/scripts/specialize.py \
@@ -310,7 +324,10 @@ Core rules:
   pointer to a struct of pointers. Runtime parameters arrive in one
   `const BurnParams*`; each table is its own pointer argument. Mirror every
   record that crosses the boundary on both sides and `static_assert` its
-  `sizeof`/`offsetof` in both the host and kernel builds.
+  `sizeof`/`offsetof` in both the host and kernel builds:
+  `scripts/gen_abi_layout.py` measures every `*Params` struct on the host and
+  writes `abi_layout.H`, which the shipped kernel root includes (the lint
+  allows `__builtin_offsetof`).
 
 ## Phase 4 — native validation (local, cheap, do it before any GPU work)
 
@@ -371,9 +388,13 @@ Check for FP contraction with `scripts/fma_audit.py --loom loom_root.loom
 lowers every f64 division to 5 `v_fma_f64` (with `v_div_scale`/`v_div_fmas`/
 `v_div_fixup`) and every f64 sqrt to a few more, on top of the recipes'
 explicit `fma` calls (triple_alpha: 32,866 total = 19,401 explicit + 5 x
-2,495 divisions + ~990 for 303 sqrts). The script does that accounting; if it
-reports unexplained FMAs (contraction under `--fp-model=precise`), stop and
-tell the user. Then, on the same GPU in the same process
+2,495 divisions + ~990 for 303 sqrts). The script does that accounting as a
+screening heuristic, not an exact attribution: it allows up to 8 remaining
+FMAs per sqrt and treats a negative remainder as constant folding, so a few
+contracted operations could hide in that slack. Report its result as "no
+sign of contraction", and rest the claim on the `m_fp_contract` probe
+(Phase 1: separate `v_mul_f64` + `v_add_f64`) together with it. If it reports
+unexplained FMAs, stop and tell the user. Then, on the same GPU in the same process
 (`scripts/loom_gpu_compare.sh`):
 1. run the stock burn, then the Loom burn, at least twice each, and check
    that each side repeats bit-identically;
@@ -448,8 +469,9 @@ Check the time with `date` before writing any timestamp.
 - `scripts/loom-lint/` — ast-grep rules for Loom-hostile constructs (`tests/selftest.sh`).
 - `scripts/build_loom_tools.sh` — build frozen `loom-import-cxx`/`loom-compile` from an hrx-system tree plus optional patches; writes `tools.md5`. Header has the fresh-machine prerequisites.
 - `scripts/compare_loom_tools.sh` — A/B two tool sets on smoke roots: byte-identical code objects and compile times.
-- `scripts/loom_smoke.sh` — launch/status/wait/fetch a Loom import + compile of a smoke kernel on the GPU host (`LOOM_HOST=local` by default; one ssh per call for a remote host). `wait` serializes compiles.
-- `scripts/fma_audit.py` — Phase 6 contraction check: accounts for every `v_fma_f64` (explicit recipe FMAs from the `.loom` IR, 5 per f64 division, the rest per sqrt).
+- `scripts/loom_smoke.sh` — launch/status/wait/fetch a Loom import + compile of a smoke kernel on the GPU host (`LOOM_HOST=local` by default; one ssh per call for a remote host). `wait` serializes compiles; `wait`/`status` exit 6 when an import or compile failed.
+- `scripts/gen_abi_layout.py` — Phase 3 ABI checks: host-measured `sizeof`/`offsetof` of every `*Params` record, written to the port's `abi_layout.H` (included by the kernel root).
+- `scripts/fma_audit.py` — Phase 6 contraction screen: explains the `v_fma_f64` count (explicit recipe FMAs from the `.loom` IR, 5 per f64 division, a bounded remainder per sqrt); a heuristic, paired with the `m_fp_contract` probe.
 - `scripts/loom_stack_sampler.sh` — `eu-stack` sample of a running `loom-compile` once a minute.
 - `scripts/repair_summary.py` — summarize a `LOOM_TRACE_REPAIR` trace: rounds, spill batches, batch starts, seconds, convergence.
 - `scripts/hsaco_stats.py` — VGPR/SGPR/AGPR/scratch/kernarg sizes from `llvm-readelf` notes, plus spill/pressure keys from a `--compile-report` JSON.

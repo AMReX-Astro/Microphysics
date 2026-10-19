@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
-"""Account for every v_fma_f64 in a Loom code object (SKILL.md Phase 6).
+"""Screen a Loom code object for FP contraction by accounting for its
+v_fma_f64 count (SKILL.md Phase 6).
+
+This is a heuristic, not an exact per-instruction attribution: the sqrt
+remainder is accepted up to --max-per-sqrt per sqrt, and a negative
+remainder is accepted as constant folding, so a few contracted operations
+could hide in that slack. Its "OK" means "no sign of contraction"; the
+`m_fp_contract` probe (probes/) is the direct evidence.
 
 A raw v_fma_f64 count says nothing about FP contraction: AMDGPU lowers each
 f64 division to 5 v_fma_f64 (next to v_div_scale/v_div_fmas/v_div_fixup) and

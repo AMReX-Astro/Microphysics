@@ -27,8 +27,15 @@ for opt in O2 O0; do
     "$here/test_ocml.cpp" $lib -lmpfr -lgmp \
     -o "$out/test_ocml_$opt"
 done
-"$out/test_ocml_O2" "${1:-1000000}"
-# The -O0 build must produce the same bits (output hash) as -O2.
-"$out/test_ocml_O0" 20000 | grep 'output hash' > "$out/h0"
-"$out/test_ocml_O2" 20000 | grep 'output hash' > "$out/h2"
-cmp "$out/h0" "$out/h2" && echo "O0/O2 output hashes agree: $(cat "$out/h2")"
+rc=0
+"$out/test_ocml_O2" "${1:-1000000}" || rc=$?
+# The -O0 build must produce the same bits (output hash) as -O2; checked even
+# when the sweep failed, so a failure report always comes with the hash result.
+"$out/test_ocml_O0" 20000 | grep 'output hash' > "$out/h0" || true
+"$out/test_ocml_O2" 20000 | grep 'output hash' > "$out/h2" || true
+if cmp -s "$out/h0" "$out/h2"; then
+  echo "O0/O2 output hashes agree: $(cat "$out/h2")"
+else
+  echo "O0/O2 OUTPUT HASHES DIFFER"; rc=1
+fi
+exit $rc

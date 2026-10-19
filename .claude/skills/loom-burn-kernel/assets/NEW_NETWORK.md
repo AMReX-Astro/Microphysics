@@ -99,7 +99,10 @@ template <int rate> MPL_DEVICE rate_t<Dual> evaluate_analytical_rate_d(const tf_
    `loom_require_supported_settings()` abort for every runtime setting the
    translation omits (`network.use_tables` is already rejected). The
    validators and the launcher all include it; never redefine a `fill_*`
-   function in a validator. Lint every kernel file except `validate_*`
+   function in a validator. Then generate the ABI checks the kernel root
+   includes: `python3 <skill>/scripts/gen_abi_layout.py --kernel-dir
+   unit_test/test_react/loom/<net>_vode` (writes `abi_layout.H`; rerun
+   whenever a `*Params` struct changes). Lint every kernel file except `validate_*`
    (SKILL.md Phase 3): `rates.H` and `network.H` must be clean; the 18
    `warning[no-reference]` hits from the shipped `eos.H` (13) and `vode.H`
    (5) are expected (scalar references the probes showed import).
@@ -116,7 +119,12 @@ template <int rate> MPL_DEVICE rate_t<Dual> evaluate_analytical_rate_d(const tf_
    `USE_LOOM_VALIDATE=TRUE LOOM_KERNEL_DIR=loom/<net>_vode` and
    `XTRA_CPPFLAGS="-DLOOM_VALIDATE_DUAL -DLOOM_VALIDATE_EOS -DLOOM_VALIDATE_RATES -DLOOM_VALIDATE_NETWORK -DLOOM_VALIDATE_INTEGRATOR -DLOOM_VALIDATE_KERNEL"`;
    adapt `validators/validate_integrator.H`'s zone setup only if the network
-   needs it. Zero mismatches.
+   needs it. Zero mismatches. The whole-burn validators (integrator, kernel)
+   take a while (triple_alpha under Rosetta: the whole six-validator run
+   takes 56 s with the bounded `ode_max_dt` variant, ~12 min before it); each variant prints a `start`
+   line, so a long gap inside one variant is work, not a hang. Don't stop
+   the run; if a variant is too slow for a port, bound it in that port's copy
+   and say so in the agent note.
 7. **Smoke-compile on the GPU host after each module validates**, not at the
    end: `scripts/loom_smoke.sh launch <name> <kernel dir> tests/import/<smoke>.cpp <roots>`
    with templates from `smoke/` (rates, network, full burn), one at a time:

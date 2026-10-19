@@ -10,11 +10,13 @@
 #   loom_smoke.sh status NAME
 #       Print the run's log (import result; per root: compile result, seconds,
 #       VGPR/AGPR/scratch from the code object notes; first error lines).
+#       Exit 6 if the finished run had an import/compile failure.
 #   loom_smoke.sh wait NAME [TIMEOUT]
 #       Block until the run finishes (or dies, or TIMEOUT seconds pass,
 #       default 7200), checking every 15 s on the GPU host inside ONE
 #       connection, then print its log like status. Exit 0 when it finished,
-#       4 when the job died, 5 on timeout. Use it to run compiles one at a
+#       4 when the job died, 5 on timeout, 6 when it finished but an import or
+#       compile failed (or the tools md5 didn't match). Use it to run compiles one at a
 #       time instead of hand-written polling (pgrep -f matches itself).
 #   loom_smoke.sh fetch NAME DEST
 #       Copy back the logs and compile reports (<root>.report.json; no IR, no
@@ -94,6 +96,7 @@ mkdir -p "\$TMPDIR"
 cd '$rroot/$name' || exit 1
 echo \$\$ > RUNNING   # job PID: status/launch detect a job killed without cleanup (e.g. host reboot)
 trap 'rm -f RUNNING' EXIT
+rm -f RESULT; fail=0   # RESULT: ok | fail, read by wait/status (a missing file = job died)
 R=\${ROCM_PATH:-/opt/rocm}
 L='${LOOM_LLVM:-}'; [ -n "\$L" ] || { L=\$R/llvm/bin; [ -x "\$L/llvm-readelf" ] || L=\$R/lib/llvm/bin; }
 TARGET='${LOOM_TARGET:-}'
@@ -101,13 +104,13 @@ TARGET='${LOOM_TARGET:-}'
 [ -n "\$TARGET" ] || { echo "# WARNING: no LOOM_TARGET and no GPU detected; falling back to gfx90a"; TARGET=gfx90a; }
 CPUS='${LOOM_CPUS:-}'; CPUS=\${CPUS:-0-\$(( \$(nproc) - 1 ))}
 echo "# \$(date) host=\$(hostname) target=\$TARGET cpus=\$CPUS source=$src"
-if [ -f "\$T/tools.md5" ]; then (cd "\$T" && md5sum -c --quiet tools.md5) || { echo "TOOLS MD5 MISMATCH"; exit 1; }; fi
+if [ -f "\$T/tools.md5" ]; then (cd "\$T" && md5sum -c --quiet tools.md5) || { echo "TOOLS MD5 MISMATCH"; echo fail > RESULT; exit 1; }; fi
 echo "# tools: \$(md5sum "\$T/loom-import-cxx" "\$T/loom-compile" | awk '{print \$1}' | tr '\n' ' ')"
 roots=""
 for r in $roots_cxx; do roots="\$roots --root=\$r"; done
 t0=\$(date +%s)
 if ! taskset -c "\$CPUS" timeout ${LOOM_IMPORT_TIMEOUT:-1800} "\$T/loom-import-cxx" --data-model=lp64 --fp-model=precise \$roots --output=kernel.loom "k/$src" > import.log 2>&1; then
-  echo "IMPORT FAIL (\$(( \$(date +%s) - t0 ))s)"; grep -m8 -E "error" import.log | cut -c1-300; exit 0
+  echo "IMPORT FAIL (\$(( \$(date +%s) - t0 ))s)"; grep -m8 -E "error" import.log | cut -c1-300; echo fail > RESULT; exit 0
 fi
 echo "import ok (\$(( \$(date +%s) - t0 ))s), \$(wc -l < kernel.loom) lines"
 for r in $roots_cxx; do
@@ -121,9 +124,11 @@ for r in $roots_cxx; do
     echo "\$r compile ok (\$(( \$(date +%s) - t0 ))s) \$n"
   else
     echo "\$r COMPILE FAIL (\$(( \$(date +%s) - t0 ))s)"; grep -m5 -E "error" \$f.compile.log | cut -c1-300
+    fail=1
   fi
 done
-echo "# done \$(date)"
+[ \$fail -eq 0 ] && echo ok > RESULT || echo fail > RESULT
+echo "# done \$(date) result=\$(cat RESULT)"
 EOF
     (cd "$stage" && COPYFILE_DISABLE=1 tar --no-xattrs -czf "$stage/payload.tgz" "$name")
     # One connection: refuse if a run of this NAME is still going, unpack in
@@ -135,7 +140,7 @@ if [ -e \"\$W/RUNNING\" ]; then
   if [ ! -s \"\$W/RUNNING\" ] || kill -0 \"\$(cat \"\$W/RUNNING\")\" 2>/dev/null; then echo \"BUSY: \$W has a running job (or a marker without PID)\"; exit 3; fi
   echo \"note: replacing stale RUNNING marker (job died; host up since \$(uptime -s))\"; rm -f \"\$W/RUNNING\"
 fi
-rm -rf \"\$W/k\" \"\$W\"/*.hsaco \"\$W/kernel.loom\"
+rm -rf \"\$W/k\" \"\$W\"/*.hsaco \"\$W/kernel.loom\" \"\$W/RESULT\"
 tar xzf - -C \"\$R\" || { echo TAR-FAILED; exit 7; }
 cd \"\$W\" || exit 8
 nohup setsid bash run.sh > run.log 2>&1 < /dev/null &
@@ -152,7 +157,8 @@ if [ -e RUNNING ]; then
   elif kill -0 \$(cat RUNNING) 2>/dev/null; then echo '(still running)'
   else echo \"(JOB DIED without finishing: host up since \$(uptime -s); relaunch with the same NAME)\"; fi
 fi
-cat run.log"
+cat run.log
+[ \"\$(cat RESULT 2>/dev/null)\" = fail ] && exit 6; exit 0"
     ;;
 wait)
     [ $# -ge 2 ] && [ $# -le 3 ] || usage
@@ -165,7 +171,9 @@ while [ -e RUNNING ]; do
   if [ \$(( \$(date +%s) - t0 )) -ge ${3:-7200} ]; then echo '(still running: wait timed out)'; rc=5; break; fi
   sleep 15
 done
-cat run.log; exit \$rc"
+cat run.log
+if [ \$rc -eq 0 ] && [ \"\$(cat RESULT 2>/dev/null)\" != ok ]; then echo '(finished with an IMPORT/COMPILE FAIL or tools md5 mismatch)'; rc=6; fi
+exit \$rc"
     ;;
 fetch)
     [ $# -eq 3 ] || usage

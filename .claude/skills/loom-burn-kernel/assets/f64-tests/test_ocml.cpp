@@ -174,6 +174,12 @@ static void unary_sweep(const char* fname, const char* name, long n, double (*re
     if (s.max_ulp > 2 || s.special_mismatch) g_fail = 1;
 }
 
+static double r_exp(double x) { return fm::exp(x); }
+static double r_log(double x) { return fm::log(x); }
+static double r_cbrt(double x) { return fm::cbrt(x); }
+static double l_exp(double x) { return std::exp(x); }
+static double l_log(double x) { return std::log(x); }
+static double l_cbrt(double x) { return std::cbrt(x); }
 static double r_log10(double x) { return fm::log10(x); }
 static double r_tanh(double x) { return fm::tanh(x); }
 static double l_log10(double x) { return std::log10(x); }
@@ -217,7 +223,13 @@ static void pow_special_grid() {
     if (exact_mismatch || s.max_ulp > 2 || s.special_mismatch) g_fail = 1;
 }
 
-static void unary_special(const char* fname, double (*recipe)(double), double (*libm)(double)) {
+// C/Annex F special cases (NaN, inf, zero results or arguments, +-1) must
+// match libm bit for bit. Other listed points (e.g. tiny |x| where tanh(x)
+// rounds to x) are judged against MPFR, not libm: glibc's tanh is 1 ulp off
+// at 0x1.fffffffffffffp-28 while the recipe is correctly rounded there
+// (Codex E2E run, 2026-10-19). A libm-only difference is reported, not failed.
+static void unary_special(const char* fname, double (*recipe)(double), double (*libm)(double),
+                          int (*mp)(mpfr_ptr, mpfr_srcptr, mpfr_rnd_t)) {
     const double inf = INFINITY, nan = NAN;
     std::vector<double> xs = {0.0, -0.0, 0x1p-1074, -0x1p-1074, 0x1p-1022, 1.0, -1.0, 10.0,
                               0.1, 1e-300, 1e300, 0x1.fffffffffffffp1023, inf, -inf, nan, -nan,
@@ -227,13 +239,24 @@ static void unary_special(const char* fname, double (*recipe)(double), double (*
     for (double x : xs) {
         double got = recipe(x), lib = libm(x);
         hash_add(got);
-        bool special = std::isnan(lib) || std::isinf(lib) || lib == 0.0 || x == 0.0 ||
-                       std::isinf(x) || std::isnan(x) || std::fabs(lib) == 1.0 ||
-                       std::fabs(x) < 0x1p-27;
+        bool annex_f = std::isnan(lib) || std::isinf(lib) || lib == 0.0 || x == 0.0 ||
+                       std::isinf(x) || std::isnan(x) || std::fabs(lib) == 1.0;
+        bool tiny = std::fabs(x) < 0x1p-27;
         bool same = (std::isnan(got) && std::isnan(lib)) || bits_of(got) == bits_of(lib);
         bool nan_sign_ok = !std::isnan(got) || std::signbit(got) == std::signbit(x) ||
                            std::strcmp(fname, "log10") == 0;
-        if ((special && !same) || !nan_sign_ok) {
+        bool ok = nan_sign_ok;
+        if (annex_f) {
+            ok = ok && same;
+        } else if (tiny) {
+            const double cr = cr_unary(x, mp);
+            ok = ok && bits_of(got) == bits_of(cr);
+            if (bits_of(lib) != bits_of(cr)) {
+                std::printf("  %s note: libm is not correctly rounded at x=%a (libm=%a cr=%a got=%a)\n",
+                            fname, x, lib, cr, got);
+            }
+        }
+        if (!ok) {
             ++mismatches;
             std::printf("  %s SPECIAL MISMATCH x=%a got=%a libm=%a\n", fname, x, got, lib);
         }
@@ -317,7 +340,7 @@ int main(int argc, char** argv) {
     }
 
     std::printf("== log10 ==\n");
-    unary_special("log10", r_log10, l_log10);
+    unary_special("log10", r_log10, l_log10, mpfr_log10);
     unary_sweep("log10", "bits_random_positive", N, r_log10, l_log10, mpfr_log10, [] {
         return from_bits(rng() & 0x7fefffffffffffffULL);
     });
@@ -342,7 +365,7 @@ int main(int argc, char** argv) {
     }
 
     std::printf("== tanh ==\n");
-    unary_special("tanh", r_tanh, l_tanh);
+    unary_special("tanh", r_tanh, l_tanh, mpfr_tanh);
     unary_sweep("tanh", "-25..25", N, r_tanh, l_tanh, mpfr_tanh, [] { return U(-25, 25); });
     unary_sweep("tanh", "small_2^-40..1", N, r_tanh, l_tanh, mpfr_tanh, [] {
         return (U(0, 1) < 0.5 ? -1.0 : 1.0) * std::exp2(-U(0, 40));
@@ -351,6 +374,26 @@ int main(int argc, char** argv) {
         uint64_t b = rng();
         if (((b >> 52) & 0x7ff) == 0x7ff) b &= ~(1ULL << 62);
         return from_bits(b);
+    });
+
+    // The base recipes from f64_math.H (exp, log, cbrt), swept directly; above
+    // they are only exercised inside pow/log10/tanh.
+    std::printf("== exp / log / cbrt (f64_math.H) ==\n");
+    unary_sweep("exp", "-745..710", N, r_exp, l_exp, mpfr_exp, [] { return U(-745, 710); });
+    unary_sweep("exp", "-1..1", N, r_exp, l_exp, mpfr_exp, [] { return U(-1, 1); });
+    unary_sweep("log", "bits_random_positive", N, r_log, l_log, mpfr_log, [] {
+        return from_bits(rng() & 0x7fefffffffffffffULL);
+    });
+    unary_sweep("log", "near_one", N, r_log, l_log, mpfr_log, [] {
+        return 1.0 + (U(0, 1) < 0.5 ? -1.0 : 1.0) * std::exp2(-U(1, 53));
+    });
+    unary_sweep("cbrt", "bits_random", N, r_cbrt, l_cbrt, mpfr_cbrt, [] {
+        uint64_t b = rng();
+        if (((b >> 52) & 0x7ff) == 0x7ff) b &= ~(1ULL << 62);
+        return from_bits(b);
+    });
+    unary_sweep("cbrt", "1e-30..1e30", N, r_cbrt, l_cbrt, mpfr_cbrt, [] {
+        return log_uniform(1e-30, 1e30);
     });
 
     std::printf("output hash: %016" PRIx64 "\n", g_hash);

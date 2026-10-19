@@ -7,5 +7,5 @@ rule:
   has:
     field: function
     regex: '^__builtin_'
-    not: { regex: '^__builtin_(bit_cast|assume|expect)$' }
+    not: { regex: '^__builtin_(bit_cast|assume|expect|offsetof)$' }
   not: { matches: host-branch }

@@ -32,6 +32,10 @@
 // kernel with the same signature as the Loom root, launched with
 // blockDim.x = 128 and gridDim.x = ceil(nx * ny * nz / 128).
 #include "burner.H"
+// sizeof/offsetof checks of every params record, generated per port by
+// scripts/gen_abi_layout.py (NEW_NETWORK.md step 5): host, hipcc and Loom
+// builds of this root all check the same layout
+#include "abi_layout.H"
 
 #if defined(MPL_GPU_KERNEL)
 #define MPL_BURN_ZONE_INDEX_PARAM

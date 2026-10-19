@@ -584,7 +584,10 @@ inline std::vector<Variant> burn_variants()
         {"no_corrector_validation", [] { ir::do_corrector_validation = false; }},
         {"no_const_e_corr", [] { ir::correct_jacobian_for_const_e = false; }},
         {"number_densities", [] { ir::use_number_densities = true; }},
-        {"ode_max_dt", [] { ir::ode_max_dt = 1.0e-8; }},
+        // dt cap active but bounded: >= 256 steps per zone (ode_max_dt = 1e-8
+        // with tmax = 1e-3 meant >= 1e5 steps per zone and ~10 min of silence
+        // under Rosetta; max_steps30 covers the step-limit failure path)
+        {"ode_max_dt", [] { ir::ode_max_dt = unit_test_rp::tmax / 256.0; ir::ode_max_steps = 4000; }},
         {"max_temp_3e9", [] { ir::MAX_TEMP = 3.0e9; }},
         {"x_reject_buffer", [] { ir::X_reject_buffer = 1.0e4; ir::species_failure_tolerance = 1.0e-4; }},
         {"loose_tols", [] { ir::rtol_spec = 1.0e-6; ir::atol_spec = 1.0e-6; ir::rtol_enuc = 1.0e-4; }},
@@ -637,6 +640,9 @@ inline long validate_integrator()
 
     // variants on the n_cell = 16 grid (every 3rd zone) + all hard zones
     for (const Variant& var : burn_variants()) {
+        // progress line first: some variants take minutes, which otherwise
+        // looks like a hang (E2E runs 2026-10-19)
+        amrex::Print() << "LOOM_VALIDATE integrator burn variant=" << var.name << " start\n";
         restore_globals(gbase);
         var.set();
         mpl::BurnParams bp{};

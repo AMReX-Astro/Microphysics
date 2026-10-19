@@ -74,9 +74,13 @@ the `loom::scalar` operations) and MPFR (macOS: `brew install mpfr`; Ubuntu:
 `apt install libmpfr-dev libgmp-dev clang`; override the prefixes with
 `MPFR_PREFIX`/`GMP_PREFIX` and the compiler with `CXX`; without a `clang++`
 on PATH it falls back to ROCm's `$ROCM_PATH/llvm/bin/clang++`), puts binaries in `$BUILD_DIR` (default
-`$TMPDIR/loom_ocml_test`), runs the sweeps, and checks that the `-O0` and
-`-O2` builds produce the same output bits (hash). It exits non-zero on a
-special-case mismatch or any error above 2 ulp.
+`$TMPDIR/loom_ocml_test`), runs the sweeps (pow, log10, tanh from
+`f64_math_extra.H`, and since 2026-10-19 also exp, log, cbrt from
+`f64_math.H` directly), and always checks that the `-O0` and `-O2` builds
+produce the same output bits (hash), even after a failed sweep. It exits
+non-zero on a special-case mismatch, any error above 2 ulp, or differing
+hashes. The hash depends on the C++ standard library's random distributions
+(libc++ vs libstdc++), so compare hashes only between builds on one machine.
 
 Each sweep reports the recipe's ulp distance from the correctly rounded
 result (MPFR, 53 bits, IEEE subnormals) as a histogram, the macOS libm's
@@ -88,11 +92,12 @@ subnormal, +-0.5, +-1, +-2, +-3, +-2.5, 10, 1 +- ulp, +-DBL_MAX, +-inf,
 integers near 2^53, 1023.5, +-1e300, +-2^-1074, +-1075, 1024, +-inf, +-NaN)
 checks every case C Annex F defines bitwise against libm.
 
-**On Linux the libm side is glibc, not macOS libm.** The results below and
-the strict special-value checks were recorded against macOS libm. glibc's
-pow/log10/tanh may differ from it in rare edge cases (near underflow,
-non-Annex-F inputs), so a libm-column difference or a non-Annex-F special
-mismatch on Linux is not by itself a recipe failure. The gate is the MPFR
+**On Linux the libm side is glibc, not macOS libm.** The results below were
+recorded against macOS libm. Only C Annex F special cases are checked
+bitwise against libm; other listed special points (tiny |x|) are checked
+against MPFR, and a libm that isn't correctly rounded there is printed as a
+`note:` line, not a failure (glibc's tanh at 0x1.fffffffffffffp-28 is 1 ulp
+off; the recipe is correctly rounded, Codex E2E run 2026-10-19). The gate is the MPFR
 column (at most 1 ulp, as below), the Annex F special cases, and the
 `-O0`/`-O2` hash; compare any libm-only mismatch against MPFR before
 blaming the recipe, and against the GPU bit check (`ocml_gpu/`), which is
