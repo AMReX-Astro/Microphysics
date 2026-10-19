@@ -136,11 +136,34 @@ for the validators to run (`assets/README.md`, "harness/"):
 cd unit_test/test_react
 make -j NETWORK_DIR=... EOS_DIR=... INTEGRATOR_DIR=... USE_NEUTRINOS=FALSE \
      XTRA_CXXFLAGS=-ffp-contract=off USE_LOOM_VALIDATE=TRUE LOOM_KERNEL_DIR=loom/<port> \
+     TMP_BUILD_DIR=tmp_val_<set> EBASE=loomval_<set> \
      XTRA_CPPFLAGS="-DLOOM_VALIDATE_DUAL -DLOOM_VALIDATE_EOS ..."
-./main3d.gnu.ex inputs_<net> n_cell=16 integrator.use_jacobian_caching=0 unit_test.loom_validate=1
+./loomval_<set>3d.gnu.ex inputs_<net> n_cell=16 integrator.use_jacobian_caching=0 unit_test.loom_validate=1
 ```
- The kernel root is an ordinary inline
-function there, called zone by zone.
+
+Use the default `COMP=gnu` for every native validation build (the same
+compiler as the stock CPU reference and CI), and one `TMP_BUILD_DIR`/`EBASE`
+per validator set: AMReX's make does not rebuild on flag changes. A fresh
+`TMP_BUILD_DIR` can fail once with "No rule to make target
+extern_parameters.cpp" under GNU make 3.81 (macOS); rerun make. The kernel
+root is an ordinary inline function there, called zone by zone.
+
+### Sensitivity check
+
+Each validator prints its own sensitivity line (a 1-ulp perturbation that
+must be detected). The manual check `prompts/_common.md` asks for is done in
+a copy, so the real port is never touched (E2E run 2026-10-19):
+
+```bash
+cp -r loom/<port> loom/<port>_sens
+# perturb ONE non-commutative operation in loom/<port>_sens, e.g. reassociate
+# a product: a * (b * c)  ->  (a * b) * c   (a + b -> b + a is a no-op)
+make -j NETWORK_DIR=... <same vars> LOOM_KERNEL_DIR=loom/<port>_sens \
+     TMP_BUILD_DIR=tmp_val_sens EBASE=loomval_sens XTRA_CPPFLAGS="-DLOOM_VALIDATE_<MODULE>"
+./loomval_sens3d.gnu.ex inputs_<net> unit_test.loom_validate=1 integrator.use_jacobian_caching=0
+# expect LOOM_MISMATCH lines for the perturbed function; then
+rm -rf loom/<port>_sens tmp_val_sens loomval_sens3d.gnu.ex
+```
 
 The CPU reference must take the HIP build's physics path. For VODE that means
 `-DALLOW_JACOBIAN_CACHING` (CPU only): run both the CPU reference and the

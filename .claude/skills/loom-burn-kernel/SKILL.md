@@ -33,6 +33,10 @@ that allows them, before Phase 0. The `assets/prompts/` files are task
 specs: with sub-agents, give one to each; without them, work through them
 in order yourself.
 
+**Never estimate the time.** Run `date -u` before every timestamp and every
+time-based decision; agents in both end-to-end runs wrote guessed times into
+their logs.
+
 ## What "done" means
 
 1. Kernel source that compiles two ways from one file: under Loom
@@ -91,15 +95,17 @@ export ROCM_PATH=${ROCM_PATH:-/opt/rocm}
 export LLVM_BIN=/usr/lib/llvm-20/bin            # inventory.py, specialize.py, CXX=clang++
 export PATH=$ROCM_PATH/bin:$ROCM_PATH/llvm/bin:$LLVM_BIN:$PATH
 GFX=$(amdgpu-arch | head -1); echo "${GFX:-no GPU: set GFX=gfx90a (or your target) by hand}"
-mkdir -p ~/loom-work && cd ~/loom-work
+export SKILL=$(realpath <skill>)                # absolute: the block below cd's away from the repo
+export LOOM_WORK=${LOOM_WORK:-$HOME/loom-work}  # every script's default base dir (LOOM_REMOTE_BASE)
+mkdir -p "$LOOM_WORK" && cd "$LOOM_WORK"
 python3 -m venv venv && venv/bin/pip install ast-grep-cli && export PATH=$PWD/venv/bin:$PATH
 git clone https://github.com/AMReX-Codes/amrex.git && export AMREX_HOME=$PWD/amrex
 git clone https://github.com/ROCm/hrx-system.git
 git -C hrx-system checkout 4031286f0b           # pinned compiler (Phase 1)
 (cd hrx-system && python3 dev.py cmake setup)   # .venv with cmake/ninja; see below if it exits 1
 SRC=$PWD/hrx-system OUT=$PWD/loom-tools/pinned TARGETS=$GFX \
-PATCHES=<skill>/patches/alloc-relocation-overlap.patch \
-  nohup setsid bash <skill>/scripts/build_loom_tools.sh > tools-build.log 2>&1 < /dev/null &
+PATCHES=$SKILL/patches/alloc-relocation-overlap.patch \
+  nohup setsid bash $SKILL/scripts/build_loom_tools.sh > tools-build.log 2>&1 < /dev/null &
 # optional, for specialize.py (not needed for small networks): C++ Insights, LLVM 20
 git clone https://github.com/andreasfertig/cppinsights.git && git -C cppinsights checkout v_20.1
 cmake -S cppinsights -B cppinsights/build -G Ninja -DCMAKE_CXX_COMPILER=$LLVM_BIN/clang++ \
@@ -118,7 +124,10 @@ Notes from the end-to-end run:
 - `dev.py cmake setup` may exit 1 in a semgrep step (`semgrep-core: unknown
   option '--disable-version-check'`); harmless if `hrx-system/.venv/bin/cmake`
   and `.venv/bin/ninja` exist.
-- No GPU on the box (a build-only VM): `amdgpu-arch` prints nothing. Set
+- No GPU on the box (a build-only VM): Phase 6 stops after the production
+  root compile, the HIP build and the FMA audit (`loom_gpu_compare.sh` skips
+  its compare runs when no GPU is visible, or with `COMPILE_ONLY=1`).
+  `amdgpu-arch` prints nothing. Set
   `GFX` by hand and pass it everywhere a target is asked for (`TARGETS`,
   `LOOM_TARGET`, `TARGET`, `ARCH`, `AMD_ARCH`); the scripts warn when they
   fall back to gfx90a.
@@ -157,7 +166,8 @@ Ask the user for anything else not given; do not guess these:
 
 Then record, in a new `agent-notes/<NN>-loom-<network>-<integrator>.md`:
 - Microphysics commit, AMReX commit, hrx-system commit
-  (`git -C <hrx> rev-parse HEAD`), ROCm version, GPU target, the
+  (`git -C <hrx> rev-parse HEAD`), ROCm version (`cat /opt/rocm/core-*/.info/version
+  /opt/rocm/.info/version 2>/dev/null; hipconfig --version`), GPU target, the
   exact make command line (including `USE_NEUTRINOS=FALSE` and
   `XTRA_CXXFLAGS=-ffp-contract=off`).
 - The fully resolved compile flags. Get them from the real build, not from
@@ -268,11 +278,14 @@ under a second; rules and caveats in `references/loom-frontend-rules.md`,
 "Lint"):
 
 ```bash
+K=unit_test/test_react/loom/<network>_<integrator>
 ast-grep scan -c <skill>/scripts/loom-lint/sgconfig.yml \
-  unit_test/test_react/loom/<network>_<integrator>/
+  $(ls $K/*.H $K/*.cpp | grep -v '/validate_')
 ```
 
-The shipped `vode.H` gives 18 `warning[no-reference]` hits (scalar
+Never lint the `validate_*.H` files: they are host-only and use std,
+lambdas and references on purpose (hundreds of hits). The shipped `eos.H`
+(13) and `vode.H` (5) give 18 `warning[no-reference]` hits (scalar
 references, which the probes showed import); those are expected. Your own
 files must have no errors.
 
@@ -346,7 +359,9 @@ Apply the host-side change described in `references/test-react-integration.md`
 test_react with `USE_HIP=TRUE AMD_ARCH=<target> USE_LOOM_BURN=TRUE
 LOOM_KERNEL_DIR=loom/<port> USE_NEUTRINOS=FALSE XTRA_CXXFLAGS=-ffp-contract=off`
 (`scripts/ship_test_react.sh --build loom/<port>` runs it detached, in
-place or on a remote host). For a network without intermediate rates on
+place or on a remote host; `ship_test_react.sh status` shows it, and the log
+is `$LOOM_REMOTE_BASE/ship/ship-last-build/build.log`, with the hipcc
+version and any `HIPCC_*_FLAGS_APPEND` at the top). For a network without intermediate rates on
 libstdc++ >= 13 (Ubuntu 24.04), the stock HIP build needs the
 `std::array<T, 0>` workaround in `references/footguns.md` until Microphysics
 PR #2116 is merged.

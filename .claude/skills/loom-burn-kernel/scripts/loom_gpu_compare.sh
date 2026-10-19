@@ -30,9 +30,11 @@
 #   IMPORT_TIMEOUT, COMPILE_TIMEOUT  seconds                      (default 1800, 3600)
 #   PROBE       optional managed-memory probe binary to run first
 #   GPU_WAIT    seconds to wait for other users' GPU processes    (default 900)
+#   COMPILE_ONLY  1: stop after the compile and the metadata dump (default: 1
+#               automatically when no GPU is visible to amdgpu-arch/rocminfo)
 #   OUT         summary file                                      (default $TEST_DIR/compare.summary)
 #   TMPDIR      kept if set; else $LOOM_REMOTE_BASE/tmp
-#   LOOM_REMOTE_BASE  base dir                                    (default $HOME/loom-work)
+#   LOOM_REMOTE_BASE  base dir                                    (default $LOOM_WORK, else $HOME/loom-work)
 #
 # Output: $OUT (default $TEST_DIR/compare.summary; one block per step) and
 # loom_root.report.json (the compile report) in TEST_DIR.
@@ -58,7 +60,7 @@ IMPORT_TIMEOUT=${IMPORT_TIMEOUT:-1800}
 COMPILE_TIMEOUT=${COMPILE_TIMEOUT:-3600}
 GPU_WAIT=${GPU_WAIT:-900}
 OUT=${OUT:-$(cd "$TEST_DIR" && pwd)/compare.summary}   # never next to this script: the skill dir may be read-only
-export TMPDIR=${TMPDIR:-${LOOM_REMOTE_BASE:-$HOME/loom-work}/tmp}
+export TMPDIR=${TMPDIR:-${LOOM_REMOTE_BASE:-${LOOM_WORK:-$HOME/loom-work}}/tmp}
 mkdir -p "$TMPDIR"
 say() { echo "$*" | tee -a "$OUT"; }
 : > "$OUT"
@@ -90,16 +92,36 @@ say "symbols: $("$LLVM/llvm-readelf" --syms loom_root.hsaco | awk '$4 == "FUNC" 
 say "kernel arguments (code-object metadata, in order):"
 "$LLVM/llvm-readelf" --notes loom_root.hsaco | awk '/\.args:/{on=1} on && /\.name:|\.offset:|\.size:|\.value_kind:/{gsub(/^ +-? */,""); printf "%s ", $0} on && /\.value_kind:/{print ""} /\.group_segment_fixed_size|\.kernarg_segment_size/{on=0}' | tee -a "$OUT"
 
+# no GPU (a build-only box) or COMPILE_ONLY=1: the compare runs can't run
+if [ -z "${COMPILE_ONLY:-}" ]; then
+    gpu=$({ "$ROCM_PATH/llvm/bin/amdgpu-arch" || "$ROCM_PATH/bin/rocminfo"; } 2>/dev/null | grep -m1 -o 'gfx[0-9a-f]*')
+    [ -n "$gpu" ] && COMPILE_ONLY=0 || COMPILE_ONLY=1
+fi
+if [ "$COMPILE_ONLY" = 1 ]; then
+    say "== compile only (COMPILE_ONLY=1 or no GPU visible): skipping the compare runs"
+    say "# done $(date)"
+    exit 0
+fi
+
 # 2. wait for other users' GPU processes (shared GPU; correctness only, but be polite)
-# (no test_react process of ours is running yet, so every listed PID is someone else's)
-waited=0 others="?"
-SMI=$(command -v rocm-smi || ls "$ROCM_PATH/bin/rocm-smi" 2>/dev/null)
-while [ -n "$SMI" ] && [ "$waited" -lt "$GPU_WAIT" ]; do
-    others=$("$SMI" --showpids 2>/dev/null | awk '/^[0-9]+/{print $1}' | wc -l)
-    [ "$others" -eq 0 ] && break
+# (no test_react process of ours is running yet, so every listed PID is someone
+# else's). ROCm 10 ships amd-smi, older ROCm rocm-smi.
+count_gpu_procs() {
+    if command -v amd-smi > /dev/null 2>&1; then
+        amd-smi process 2>/dev/null | grep -c '^ *PID:'
+    elif command -v rocm-smi > /dev/null 2>&1; then
+        rocm-smi --showpids 2>/dev/null | awk '/^[0-9]+/{print $1}' | wc -l
+    else
+        echo "?"
+    fi
+}
+PATH=$ROCM_PATH/bin:$PATH
+waited=0 others=$(count_gpu_procs)
+while [ "$others" != "?" ] && [ "$others" -gt 0 ] && [ "$waited" -lt "$GPU_WAIT" ]; do
     sleep 30; waited=$((waited + 30))
+    others=$(count_gpu_procs)
 done
-[ -n "$SMI" ] || others="? (rocm-smi not found)"
+[ "$others" = "?" ] && others="? (neither amd-smi nor rocm-smi found: not waiting)"
 say "== gpu: other processes after ${waited}s wait: $others"
 
 # 3. optional managed-memory probe

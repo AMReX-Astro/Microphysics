@@ -17,8 +17,11 @@ Translate `networks/{NETWORK}/actual_network.H`'s `postprocess_rate` and
 fields for every runtime parameter the network path reads (`network.use_tables`
 must be 0: not ported; the launcher rejects it).
 
-Write `validate_network.H` (per network; not kept in the skill): stock
-`RHS::rhs` and `RHS::jac` vs `actual_rhs`/`actual_jac` on every element, plus
-`dgefa`/`dgesl`, over realistic states built with the stock EOS (T 1e4..1e16,
-rho 1e2..1e12, test_react, random, sparse and single-species compositions),
-with every network switch toggled.
+Validate with the shipped `validators/validate_network.H` (network-neutral:
+stock `RHS::rhs` and `RHS::jac` vs `actual_rhs`/`actual_jac` on every
+element, plus `dgefa`/`dgesl`, over states built with the stock EOS,
+T 1e4..1e16, rho 1e2..1e12, compositions built from NumSpec, random states).
+Its per-network inputs are the `PORT:` hooks in `validators/validate_port.H`:
+every network switch as a parameter variant (shared with the rates
+validator). Add checks of your own only for paths the template doesn't
+reach.

@@ -207,6 +207,16 @@ This is the riskiest part of the translation:
   bit against hipcc's OCML on the GPU (`assets/f64-tests/`, `ocml_gpu/`). The
   shipped exp/log/cbrt/pow/log10/tanh recipes are bit-identical to OCML on
   gfx90a (2026-10-18).
+- **Calls with a constant argument** (e.g. `rate_c12ag`'s deboer17 branch:
+  `exp(24.1)`, `exp(7.4)`). hipcc may fold them at compile time, correctly
+  rounded, while the Loom kernel evaluates the OCML recipe at run time; the
+  two can differ in the last bit, which breaks bit-exactness only on that
+  path. In Phase 6, list every recipe call whose argument is a compile-time
+  constant, check the stock HIP code object's disassembly for each (a call
+  or inlined OCML sequence vs a literal), and include a GPU compare run with
+  the switch that reaches it turned on. If hipcc folds, the bit-exact fix is
+  to use the folded constant on the Loom side too: a non-statement-for-statement
+  rewrite that needs the user's approval and a note in the hand-off.
 
 ## NSE
 

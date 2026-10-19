@@ -26,7 +26,7 @@
 #   TOOLS_A, TOOLS_B  dirs with loom-import-cxx, loom-compile (+ tools.md5)   (required)
 #   KERNEL_DIR        dir with the kernel sources (headers next to them)      (required)
 #   SPECS             ';'-separated specs, used when no SPEC arguments are given
-#   LOOM_REMOTE_BASE  base dir for defaults                     (default $HOME/loom-work)
+#   LOOM_REMOTE_BASE  base dir for defaults                     (default $LOOM_WORK, else $HOME/loom-work)
 #   OUT               output dir                                (default $LOOM_REMOTE_BASE/loom-ab/<UTC timestamp>)
 #   TARGET            amdgpu target       (default: local GPU from amdgpu-arch/rocminfo, else gfx90a)
 #   CPUS              taskset CPU list                          (default: all CPUs)
@@ -39,7 +39,7 @@ set -u
 usage() { sed -n '2,/^set -u/p' "$0" | sed '$d'; exit "${1:-2}"; }
 case "${1:-}" in -h|--help) usage 0;; esac
 
-B=${LOOM_REMOTE_BASE:-$HOME/loom-work}
+B=${LOOM_REMOTE_BASE:-${LOOM_WORK:-$HOME/loom-work}}
 [ -n "${TOOLS_A:-}" ] && [ -n "${TOOLS_B:-}" ] && [ -n "${KERNEL_DIR:-}" ] || { echo "set TOOLS_A, TOOLS_B and KERNEL_DIR"; usage; }
 OUT=${OUT:-$B/loom-ab/$(date -u +%Y%m%dT%H%M%SZ)}
 ROCM_PATH=${ROCM_PATH:-/opt/rocm}

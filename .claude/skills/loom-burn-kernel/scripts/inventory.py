@@ -394,7 +394,10 @@ def write_summary(out, hits, reach, roots, flags, makevars, hipdiff=None):
     g = collections.Counter(h[4] for h in R if h[0] == 'global-var')
     s += [f'- `{v}` ({n})' for v, n in sorted(g.items())] or ['- none']
     s += ['', '## constexpr arrays read on reachable paths', '']
-    g = collections.Counter(h[4] for h in R if h[0] == 'constexpr-array')
+    # AMReX's terminal colour/font tables are read only by Print/Abort paths
+    noise = ('FGColor::', 'BGColor::', 'Font::', 'amrex::ResetDisplay')
+    g = collections.Counter(h[4] for h in R if h[0] == 'constexpr-array'
+                            and not h[4].startswith(noise))
     s += [f'- `{v}` ({n})' for v, n in sorted(g.items())] or ['- none']
     s += ['', '## Math calls on reachable paths (callee kind:name)', '']
     g = collections.Counter(f'{h[0][5:]} -> {h[4]}' for h in R if h[0].startswith('math:'))

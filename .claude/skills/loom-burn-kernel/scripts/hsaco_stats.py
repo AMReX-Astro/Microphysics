@@ -18,14 +18,19 @@ last: an older distro llvm-readelf may not decode newer AMDGPU code-object
 metadata. --notes-text parses a saved `llvm-readelf --notes` output instead
 of running it.
 
---report REPORT.json (written by loom-compile --compile-report=... with a
-JSON output) additionally prints every scalar whose flattened dotted path
-contains spill, scratch, register, pressure, time or second.
+--report REPORT.json (written by loom-compile --compile-report=summary
+--compile-report-output=FILE; .json or .json.gz) additionally prints every
+scalar whose flattened dotted path contains spill, scratch, register,
+pressure, time, second, occupancy, private, allocation, repair or limiting.
+Per-row tables (lists such as schedule_band_summary_rows: 58,483 rows for a
+full burn, an 84 MB report) are summarized as row counts unless --all is
+given. Gzip the report after reading it.
 
 Python 3 standard library only; meant to run on the GPU host as well.
 """
 import argparse
 import glob
+import gzip
 import json
 import os
 import re
@@ -180,7 +185,8 @@ def show_kernels(ks):
 
 # ------------------------------------------------------------ compile report
 
-REPORT_WORDS = ('spill', 'scratch', 'register', 'pressure', 'time', 'second')
+REPORT_WORDS = ('spill', 'scratch', 'register', 'pressure', 'time', 'second',
+                'occupancy', 'private', 'allocation', 'repair', 'limiting')
 
 
 def flatten(o, path=''):
@@ -194,10 +200,23 @@ def flatten(o, path=''):
         yield path, o
 
 
-def report_items(path):
-    with open(path) as f:
+def report_items(path, all_rows=False):
+    opener = gzip.open if path.endswith('.gz') else open
+    with opener(path, 'rt') as f:
         rep = json.load(f)
-    return [(p, v) for p, v in flatten(rep) if any(w in p.lower() for w in REPORT_WORDS)]
+    items = []
+    tables = {}
+    for p, v in flatten(rep):
+        if '[' in p and not all_rows:
+            # one entry of a per-row table: count the rows, don't print them
+            head = p[:p.index('[')]
+            tables.setdefault(head, set()).add(p[:p.index(']') + 1])
+            continue
+        if any(w in p.lower() for w in REPORT_WORDS):
+            items.append((p, v))
+    items += [(f'{head} (rows)', len(rows)) for head, rows in sorted(tables.items())
+              if len(rows) > 50]
+    return items
 
 
 def main():
@@ -207,7 +226,8 @@ def main():
     ap.add_argument('hsaco', nargs='?', help='code object (.hsaco)')
     ap.add_argument('--llvm', help='dir with llvm-readelf')
     ap.add_argument('--notes-text', help='saved `llvm-readelf --notes` output to parse instead')
-    ap.add_argument('--report', help='loom-compile JSON compile report')
+    ap.add_argument('--report', help='loom-compile JSON compile report (.json or .json.gz)')
+    ap.add_argument('--all', action='store_true', help='with --report: also print every per-row table entry')
     ap.add_argument('--json', action='store_true', help='print JSON')
     a = ap.parse_args()
     if not (a.hsaco or a.notes_text or a.report):
@@ -227,7 +247,7 @@ def main():
             text = r.stdout
         result['kernels'] = kernels(parse_yaml_docs(text))
     if a.report:
-        result['report'] = dict(report_items(a.report))
+        result['report'] = dict(report_items(a.report, a.all))
     if a.json:
         print(json.dumps(result, indent=2, default=str))
         return 0

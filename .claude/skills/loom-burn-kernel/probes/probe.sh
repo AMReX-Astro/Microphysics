@@ -30,8 +30,8 @@
 # Environment:
 #   TOOLS             dir with loom-import-cxx and loom-compile built from the
 #                     pinned hrx-system commit                        (required)
-#   LOOM_REMOTE_BASE  base dir for the defaults below                 (default $HOME/loom-work)
-#   W                 the shipped probes dir (contains src/)          (default $LOOM_REMOTE_BASE/mp-loom-probes)
+#   LOOM_REMOTE_BASE  base dir for the defaults below                 (default $LOOM_WORK, else $HOME/loom-work)
+#   W                 the probes dir (contains src/; writable)        (default: this script's dir)
 #   F64_INC           dir with f64_math.h for m_f64_math_h_recipes    (default $W/include; falls
 #                     back to ../assets/kernel/f64_math.H if the whole skill was shipped)
 #   HRX               hrx-system checkout, only to record its commit  (default $LOOM_REMOTE_BASE/hrx-system;
@@ -47,8 +47,10 @@ usage() { sed -n '2,/^set -u/p' "$0" | sed '$d'; exit "${1:-2}"; }
 case "${1:-}" in -h|--help) usage 0;; '') ;; *) usage;; esac
 [ -n "${TOOLS:-}" ] || { echo "set TOOLS to a dir with loom-import-cxx and loom-compile built from the pinned commit"; usage; }
 here=$(cd "$(dirname "$0")" && pwd)
-R=${LOOM_REMOTE_BASE:-$HOME/loom-work}
-W=${W:-$R/mp-loom-probes}
+R=${LOOM_REMOTE_BASE:-${LOOM_WORK:-$HOME/loom-work}}
+# default: the kit this script lives in (the copy in the port's agent-notes
+# dir, SKILL.md Phase 1); it must be writable (out/, probe-summary.txt)
+W=${W:-$here}
 HRX=${HRX:-$R/hrx-system}
 ROCM_PATH=${ROCM_PATH:-/opt/rocm}
 L=${L:-}

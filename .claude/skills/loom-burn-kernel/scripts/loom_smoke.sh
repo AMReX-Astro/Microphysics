@@ -29,7 +29,7 @@
 #                     steps on this machine without ssh          (default local)
 #   LOOM_SSH_OPTS     extra ssh options, word-split  (default: -o WarnWeakCrypto=no
 #                     if the local OpenSSH is >= 10.1, else none)
-#   LOOM_REMOTE_BASE  base dir on the GPU host (absolute)        (default $HOME/loom-work when
+#   LOOM_REMOTE_BASE  base dir on the GPU host (absolute)        (default $LOOM_WORK or $HOME/loom-work when
 #                     local; required for a remote host, e.g. /mnt/data/bwibking on moth)
 #   LOOM_REMOTE_ROOT  work dir on the GPU host, NAME/ inside     (default $LOOM_REMOTE_BASE/loom-smoke)
 #   LOOM_TOOLS        dir on the GPU host with loom-import-cxx, loom-compile and
@@ -47,7 +47,7 @@ set -u
 
 host=${LOOM_HOST:-local}
 if [ "$host" = local ]; then
-    base=${LOOM_REMOTE_BASE:-$HOME/loom-work}
+    base=${LOOM_REMOTE_BASE:-${LOOM_WORK:-$HOME/loom-work}}
 else
     base=${LOOM_REMOTE_BASE:-}
     if [ -z "$base" ] && [ -z "${LOOM_REMOTE_ROOT:-}" ]; then

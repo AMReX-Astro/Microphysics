@@ -99,9 +99,10 @@ template <int rate> MPL_DEVICE rate_t<Dual> evaluate_analytical_rate_d(const tf_
    `loom_require_supported_settings()` abort for every runtime setting the
    translation omits (`network.use_tables` is already rejected). The
    validators and the launcher all include it; never redefine a `fill_*`
-   function in a validator. Lint `rates.H` and `network.H` (SKILL.md Phase
-   3): they must be clean; the 18 `warning[no-reference]` hits in the
-   shipped `vode.H` are expected (scalar references the probes showed import).
+   function in a validator. Lint every kernel file except `validate_*`
+   (SKILL.md Phase 3): `rates.H` and `network.H` must be clean; the 18
+   `warning[no-reference]` hits from the shipped `eos.H` (13) and `vode.H`
+   (5) are expected (scalar references the probes showed import).
 6. **Validate everything**. Fill the `PORT:` lines of `validate_port.H`
    first (the network's runtime switches as parameter variants, every rate
    branch temperature, direct calls of rate functions that take a density).

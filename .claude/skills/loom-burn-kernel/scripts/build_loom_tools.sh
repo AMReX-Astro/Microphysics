@@ -25,7 +25,7 @@
 #   python3 dev.py cmake setup   # .venv with the pinned cmake/ninja (used below)
 #
 # Environment:
-#   LOOM_REMOTE_BASE  base dir for the defaults below      (default $HOME/loom-work)
+#   LOOM_REMOTE_BASE  base dir for the defaults below      (default $LOOM_WORK, else $HOME/loom-work)
 #   SRC            hrx-system source tree                 (default $LOOM_REMOTE_BASE/hrx-system)
 #   OUT            work dir; src/, build/, tools/ inside   (default $LOOM_REMOTE_BASE/loom-tools/<UTC timestamp>)
 #   PATCHES        space-separated patch files, applied in order with patch -p1 (default none)
@@ -47,7 +47,7 @@
 set -u
 case "${1:-}" in -h|--help) sed -n '2,/^set -u/p' "$0" | sed '$d'; exit 0;; '') ;; *) sed -n '2,/^set -u/p' "$0" | sed '$d'; exit 2;; esac
 
-B=${LOOM_REMOTE_BASE:-$HOME/loom-work}
+B=${LOOM_REMOTE_BASE:-${LOOM_WORK:-$HOME/loom-work}}
 SRC=${SRC:-$B/hrx-system}
 OUT=${OUT:-$B/loom-tools/$(date -u +%Y%m%dT%H%M%SZ)}
 PATCHES=${PATCHES:-}

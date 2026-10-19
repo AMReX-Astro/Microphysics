@@ -97,7 +97,11 @@ for the scripts that run there); the defaults are for a local GPU box.
 - **`pgrep -f` / `pkill -f` match their own command line.** A wait loop
   `while pgrep -f loomval_burn; do sleep 30; done` run through `bash -lc
   '...loomval_burn...'` finds itself and never ends (cost 8 min in the E2E
-  run). Use `pgrep -f '[l]oomval_burn'`, a PID file, or `loom_smoke.sh wait`.
+  run). The `[l]oomval_burn` bracket trick only helps when the name appears
+  nowhere else in the issuing command: `until pgrep -f "[l]oomval_sens" &&
+  test -e .../loomval_sens3d.gnu.ex` still matched itself through the path
+  (10 more min in the second run). Wait on a PID instead (`wait $pid`,
+  `kill -0 $(cat pidfile)`), or use `loom_smoke.sh wait` for Loom compiles.
 - **Never estimate the time.** An agent guessed 13:25 when it was 12:07 and
   quit 2 h early. Run `date` before any time-based decision or timestamp.
 - After an interrupted command, check for partial state (a rejected
@@ -117,6 +121,9 @@ for the scripts that run there); the defaults are for a local GPU box.
   per-sample validator function `__attribute__((noinline))` (the shipped
   templates do) or feed inputs through `volatile`. A standalone test that
   gives the same value on both sides is the tell.
+- **Constant-argument libm calls on the GPU.** hipcc can fold `exp(24.1)` at
+  compile time while Loom computes it at run time; see
+  `microphysics-translation.md`, "Math", for the Phase 6 check.
 - **FP contraction in reference builds.** hipcc
   (`-ffp-contract=fast-honor-pragmas`) and GCC fuse `a*b + c` by default;
   policy and flag in SKILL.md, "Fixed policies".

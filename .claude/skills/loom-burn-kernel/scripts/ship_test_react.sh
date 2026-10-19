@@ -31,7 +31,7 @@
 #   LOOM_HOST         ssh alias of the GPU host, or "local"      (default local)
 #   LOOM_SSH_OPTS     extra ssh options, word-split  (default: -o WarnWeakCrypto=no
 #                     if the local OpenSSH is >= 10.1, else none)
-#   LOOM_REMOTE_BASE  base dir on the GPU host (absolute)        (default $HOME/loom-work when
+#   LOOM_REMOTE_BASE  base dir on the GPU host (absolute)        (default $LOOM_WORK or $HOME/loom-work when
 #                     local; required for a remote host, e.g. /mnt/data/bwibking on moth)
 #   REMOTE_TREE       Microphysics checkout on the GPU host      (default: local: the git toplevel
 #                                                                 of cwd; remote: $LOOM_REMOTE_BASE/Microphysics)
@@ -46,6 +46,8 @@
 #                                                                 remote: $LOOM_REMOTE_BASE/amrex)
 #   REMOTE_TMPDIR     TMPDIR for the build                       (default $LOOM_REMOTE_BASE/tmp)
 #   EXTRA_MAKE        extra make arguments, word-split           (default none)
+#   HIPCC_COMPILE_FLAGS_APPEND, HIPCC_LINK_FLAGS_APPEND  passed into the build
+#                     (e.g. the libstdc++ 11 workaround, references/footguns.md)
 set -u
 usage() { sed -n '2,/^set -u/p' "$0" | sed '$d'; exit "${1:-2}"; }
 
@@ -65,7 +67,7 @@ fi
 ssh_cmd=(ssh $LOOM_SSH_OPTS "$host")
 if [ "$host" = local ]; then
     ssh_cmd=(bash -c)
-    B=${LOOM_REMOTE_BASE:-$HOME/loom-work}
+    B=${LOOM_REMOTE_BASE:-${LOOM_WORK:-$HOME/loom-work}}
     TREE=${REMOTE_TREE:-$(git rev-parse --show-toplevel 2>/dev/null)}
     AMREX_DEFAULT=${AMREX_HOME:-}
 else
@@ -150,6 +152,8 @@ trap 'rm -f "\$S/BUILDING"' EXIT
 export ROCM_PATH=$(q "${ROCM_PATH:-/opt/rocm}")
 export PATH="\$ROCM_PATH/bin:\$ROCM_PATH/llvm/bin:\$PATH"
 export AMREX_HOME=$(q "${AMREX_HOME:-$AMREX_DEFAULT}")
+$( [ -n "${HIPCC_COMPILE_FLAGS_APPEND:-}" ] && echo "export HIPCC_COMPILE_FLAGS_APPEND=$(q "$HIPCC_COMPILE_FLAGS_APPEND")" )
+$( [ -n "${HIPCC_LINK_FLAGS_APPEND:-}" ] && echo "export HIPCC_LINK_FLAGS_APPEND=$(q "$HIPCC_LINK_FLAGS_APPEND")" )
 ARCH=$(q "${ARCH:-}")
 [ -n "\$ARCH" ] || ARCH=\$({ amdgpu-arch || rocminfo; } 2>/dev/null | grep -m1 -o 'gfx[0-9a-f]*')
 [ -n "\$ARCH" ] || { echo "# WARNING: no ARCH given and no GPU detected; building for gfx90a"; ARCH=gfx90a; }
@@ -158,6 +162,8 @@ export TMPDIR=$(q "${REMOTE_TMPDIR:-$B/tmp}")
 mkdir -p "\$TMPDIR"
 cd "\$MICROPHYSICS_HOME/unit_test/test_react" || { echo "FAILED: no test_react in \$MICROPHYSICS_HOME"; exit 1; }
 echo "# \$(date) host=\$(hostname) dir=\$PWD arch=\$ARCH"
+echo "# hipcc: \$(hipcc --version 2>/dev/null | grep -m1 -i 'HIP version')"
+echo "# HIPCC_COMPILE_FLAGS_APPEND=\${HIPCC_COMPILE_FLAGS_APPEND:-} HIPCC_LINK_FLAGS_APPEND=\${HIPCC_LINK_FLAGS_APPEND:-}"
 t0=\$(date +%s)
 nice -n 10 make -j${JOBS:-\$(nproc)} USE_HIP=TRUE AMD_ARCH="\$ARCH" NETWORK_DIR=$(q "$NETWORK_DIR") \\
     EOS_DIR=$(q "$EOS_DIR") INTEGRATOR_DIR=$(q "$INTEGRATOR_DIR") USE_NEUTRINOS=FALSE \\

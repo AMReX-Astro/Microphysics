@@ -79,20 +79,23 @@ Validation (zero mismatches, bit for bit):
   (`unit_test/react_util.H`) plus random ones, and every runtime switch the
   code branches on (toggle the stock global, restore it).
 - Include a sensitivity check: perturb one operation, confirm mismatches,
-  revert, rerun clean.
+  revert, rerun clean. Do it in a copy of the kernel dir, never in the real
+  port (recipe: `references/test-react-integration.md`, "Sensitivity check").
 - Put each per-sample comparison in an `__attribute__((noinline))` function
   (the templates do). Otherwise g++ -O3 can constant-fold a stock libm call
   (exp, cbrt, pow) for a loop-peeled constant input with MPFR, correctly
   rounded, while the Loom side calls libm at run time: false 1-ulp mismatches
   at one sample (`references/footguns.md`, "GCC constant-folds libm calls").
 - Build in your OWN directories (other modules may build at the same time):
-  `make -j4 COMP=llvm CXX=clang++ CC=clang {MAKE_VARS} XTRA_CXXFLAGS=-ffp-contract=off
+  `make -j4 {MAKE_VARS} XTRA_CXXFLAGS=-ffp-contract=off
    USE_LOOM_VALIDATE=TRUE LOOM_KERNEL_DIR=loom/<port> XTRA_CPPFLAGS=-DLOOM_VALIDATE_<MODULE>
    TMP_BUILD_DIR=tmp_loom_<module> EBASE=loomval_<module>`
   (`LOOM_KERNEL_DIR` is `{KERNEL_DIR}` relative to `unit_test/test_react`;
   `-ffp-contract=off` is required: SKILL.md Phase 0; rerun make once if a fresh TMP_BUILD_DIR fails with "No rule to make target
   extern_parameters.cpp"), then
-  `./loomval_<module>3d.llvm.ex {INPUTS} unit_test.loom_validate=1 integrator.use_jacobian_caching=0`.
+  `./loomval_<module>3d.gnu.ex {INPUTS} unit_test.loom_validate=1 integrator.use_jacobian_caching=0`
+  (default `COMP=gnu`, the same compiler as the stock CPU reference and CI;
+  every native validation build uses it, `references/test-react-integration.md`).
 - Lint your kernel headers (not validators):
   `ast-grep scan -c <skill>/scripts/loom-lint/sgconfig.yml <files>`.
   Read the output: "Error: Cannot parse rule" means the scan didn't run.
