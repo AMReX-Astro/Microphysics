@@ -6,20 +6,24 @@ tool set on the GPU host and writes `probe-summary.txt`. See the header of
 `probe.sh` for how to ship and run it. Add probes for anything a port's
 inventory finds that is not covered here, and keep new probes in this kit.
 
-## Results at hrx-system 31bf125137 (gfx90a, run 2026-10-20)
+## Results at hrx-system fada6788a1 (gfx90a, run 2026-10-20)
 
-Public `ROCm/hrx-system` main `31bf125137` (2026-10-19), tools built with
+Public `ROCm/hrx-system` main `fada6788a1` (2026-10-20), tools built with
 `scripts/build_loom_tools.sh` and both `patches/` applied (`loom-import-cxx`
-md5 `b2b37cb9…`, `loom-compile` md5 `dcb29260…`; md5s differ with the build
-environment, so record yours). All 93 probes run in a few seconds. Rerun the
+md5 `e6d89e5b…`, `loom-compile` md5 `6179c3a7…`; md5s differ with the build
+environment, so record yours). All 106 probes run in a few seconds. Rerun the
 kit whenever the pinned commit changes and update this table.
 
-What changed since the previous pin (`4031286f0b`, 2026-10-18): hrx-system
-#2040 (ordinary C++ instance calls), #2077 (runtime C++ reference identity)
-and #2079 (deeply nested structured regions). o01, o02, r05, r06, r07, r09
-went from import-fail to ok; o10-o18, r16-r18, r20-r22 and f11 are new and ok (r14, r15, r19 new and failing). o16-o19 and r20-r24 cover the call shapes the shipped modules use. r03
-now fails with a different message, and r12 now imports but fails in the
-AMDGPU backend. Math, records, control flow and globals are unchanged.
+What changed since the previous pin (`31bf125137`, 2026-10-19): hrx-system
+#2105 (uninitialized scalar locals, conditionless `for`, signed counted
+loops, assumptions over derived expressions). d04, f04 went from import-fail
+to ok; d13, d15, f12, f13 are new and ok, d14 and f14 new and failing. f15
+(no assumptions) still fails SUBRANGE/026 and f16 (with them) compiles.
+f20-f23 are new: f20 guards a regression from #2074 that drops an assumed
+range when the index was loaded from a `short` field (VODE's `L`, `NQ`), which
+`patches/assume-cast-chain.patch` fixes (the unpatched tools fail f20 and the
+aprox13 full burn); f21-f23 pin down which multi-exit loops still need the
+single-exit form. Everything else is unchanged apart from a few VGPR counts.
 
 What these results decide:
 - **References:** scalar `double&`/`int&` parameters and scalar member slices
@@ -78,15 +82,28 @@ What these results decide:
   pointers themselves, not a pointer to a struct holding them.
 - **Records** must be plain aggregates: no constructors with arguments (o07),
   no bases (o06). Structured bindings fail (o08). Lambdas fail (l01).
-- The simple retry loop imports without `__builtin_assume` (f07), and the
-  isolated triangular loop compiles (f06), but real stage and LU loops still
-  needed `MPL_ASSUME` (`references/loom-frontend-rules.md`, SUBRANGE row).
+- **Uninitialized locals and `for (;;)`:** scalar and array locals may stay
+  uninitialized (d04, d13, d15) and conditionless `for` imports (f04, f12);
+  struct locals still need `T x{}` (d14).
+- **Bounds assumptions:** the simple retry loop imports without
+  `__builtin_assume` (f07), and the isolated triangular loop compiles (f06),
+  but an index derived from a struct field with runtime loop bounds still
+  fails SUBRANGE/026 without assumptions (f15) and compiles with them (f16).
+  Assumptions may now use arithmetic (`j + 1 <= n`, f13) but still not struct
+  fields (f14). With unpatched `fada6788a1` tools, an assumption on a local
+  loaded from a `short` field is dropped (f20): build with
+  `patches/assume-cast-chain.patch`.
+- **Loop exits:** `return` inside a loop still fails import (f03). A single
+  loop with several `break`s and a `continue` compiles (f21, the dvode step
+  loop's shape), but an inner loop with several `break`s inside an outer loop
+  fails the AMDGPU backend with TARGET/034 (f22); the single-exit form of the
+  inner loop compiles (f23).
 
 | Probe | Construct | Result | Detail |
 |---|---|---|---|
 | c00_control | baseline | ok | vgpr=8 scratch=0B |
-| c01_params_pod_ptr | `const Params*` runtime-param POD | ok | vgpr=10 scratch=0B |
-| c02_table_ptr_3d | helmholtz `f[j][i][9]` via pointer, clamp, local `fi[36]` | ok | vgpr=15 scratch=288B |
+| c01_params_pod_ptr | `const Params*` runtime-param POD | ok | vgpr=7 scratch=0B |
+| c02_table_ptr_3d | helmholtz `f[j][i][9]` via pointer, clamp, local `fi[36]` | ok | vgpr=16 scratch=288B |
 | c03_struct_of_ptrs_by_ptr | struct of table pointers passed by pointer (`t->a[i]`) | import-fail | error [LOWERING/059]: stored pointers and references require an object storage representation |
 | c04_struct_of_ptrs_by_value | struct of table pointers passed by value (`t.a[i]`) | ok | vgpr=6 scratch=0B |
 | c05_flat_table_offsets | one table buffer, compile-time offsets | ok | vgpr=6 scratch=0B |
@@ -94,7 +111,7 @@ What these results decide:
 | d01_ns_constexpr_array | `aion[]`, `zion[]`, `aion_inv[]` | import-fail | error [LOWERING/059]: constants require a numeric scalar type |
 | d02_local_const_array | local `const double t[N]` | ok | vgpr=16 scratch=104B |
 | d03_ns_mutable_global | runtime param global | import-fail | error [LOWERING/059]: global storage definitions require a global-storage projection |
-| d04_uninit_local | `bool converged;` | import-fail | error [LOWERING/059]: locals require initializers |
+| d04_uninit_local | `bool converged;` | ok | vgpr=8 scratch=0B |
 | d05_struct_default_init_braces | `T x{}` | ok | vgpr=8 scratch=0B |
 | d06_struct_copy_assign | `old{s}; s = old;` | ok | vgpr=4 scratch=0B |
 | d07_limits_and_nan | `__DBL_MAX__`, NaN via bit_cast | ok | vgpr=9 scratch=0B |
@@ -103,17 +120,30 @@ What these results decide:
 | d10_enum_u8_base | `enum : unsigned char` | import-fail | error [PARSE/036]: invalid operands of types 'double' and '::probe::Rates' to binary operator '+' |
 | d11_short_and_bool_arrays | `short pivot[14]`, `bool` arrays | ok | vgpr=10 scratch=42B |
 | d12_f64_to_int_conversion | `int(double)` | ok | vgpr=10 scratch=0B |
+| d13_uninit_local_double | `double r;` assigned on both branches | ok | vgpr=8 scratch=0B |
+| d14_uninit_local_struct | `Burn s;` without initializer | import-fail | error [LOWERING/059]: uninitialized locals require scalar or native vector object storage |
+| d15_uninit_local_array | `double a[14];` without initializer | ok | vgpr=6 scratch=112B |
 | f01_switch_runtime | runtime `switch` | import-fail | error [LOWERING/059]: unsupported statement: switch-statement |
 | f02_switch_in_constexpr_fn | `rhs_data(rate)` folded | import-fail | error [LOWERING/059]: unsupported C++ type: ::probe::RhsT |
 | f03_return_in_loop | `return` in `while(true)` | import-fail | error [LOWERING/059]: returns inside loops require a structured loop-exit projection |
-| f04_for_ever | `for(;;)` | import-fail | error [LOWERING/059]: for loops require a condition |
+| f04_for_ever | `for(;;)` | ok | vgpr=10 scratch=0B |
 | f05_vode_retry_shape | nested `while(true)`, result code | ok | vgpr=20 scratch=0B |
-| f06_runtime_triangular_loops | `for k=NQ..1, j=k..NQ` | ok | vgpr=11 scratch=672B |
+| f06_runtime_triangular_loops | `for k=NQ..1, j=k..NQ` | ok | vgpr=12 scratch=672B |
 | f07_retry_loop_no_assume | retry loop with break/continue, no `__builtin_assume` | ok | vgpr=12 scratch=0B |
 | f08_retry_loop_assume | same, with `__builtin_assume` | ok | vgpr=12 scratch=0B |
 | f09_newton_for_break | EOS Newton `for` + `break` | ok | vgpr=26 scratch=0B |
 | f10_early_return_outside_loop | sneut5 early return | ok | vgpr=8 scratch=0B |
 | f11_ternary_nest_40 | 40-deep nested ternary | ok | vgpr=86 scratch=240B |
+| f12_for_no_cond_continue | `for (m = 0;; ++m)` with `continue`/`break` | ok | vgpr=10 scratch=0B |
+| f13_assume_derived_expr | `__builtin_assume(j + 1 <= n)` | ok | vgpr=10 scratch=120B |
+| f14_assume_struct_field | `__builtin_assume(1 <= vs->L && vs->L <= 6)` | import-fail | error [LOWERING/059]: predicate member paths require direct non-static record fields |
+| f15_runtime_bound_index_no_assume | dvjust-shape runtime-bound loops and `vs->el[L]`, no assumptions | compile-fail | error [SUBRANGE/026]: view.load access byte end may reach 17179869192, exceeding storage root byte extent 848 |
+| f16_runtime_bound_index_assume | same as f15 with `__builtin_assume` on every index | ok | vgpr=10 scratch=848B |
+| f17_break_loop_private_index_no_assume | constant-bound loop with data-dependent `break`, no assumptions | ok | vgpr=12 scratch=112B |
+| f20_assume_short_field_member_index | `const int La = vs->L` (`short` field) assumed, indexes an `Array1D` member through a pointer | ok | vgpr=8 scratch=176B (with `patches/assume-cast-chain.patch`; unpatched: compile-fail SUBRANGE/026 "access byte end may reach 262152") |
+| f21_multi_exit_loop | dvode step-loop shape: `while (true)`, 4 `break`s + `continue` in data-dependent branches | ok | vgpr=20 scratch=64B |
+| f22_nested_multi_exit_loops | inner `while (true)` with 3 `break`s nested in a multi-exit outer loop (dvstep corrector shape) | compile-fail | error [TARGET/034]: rejected 'cfg.cond_br': branch lowering constraint 'masked_region_merge_vgpr_values' is not satisfied |
+| f23_nested_single_exit_form | f22 with both loops in the single-exit `done` form | ok | vgpr=18 scratch=64B |
 | l01_lambda_constexpr_for | lambdas | import-fail | error [LOWERING/059]: rvalue-reference parameters require consuming object identity |
 | l02_template_struct_unroll | template-struct recursion | ok | vgpr=30 scratch=0B |
 | m_f64_absf | f64 fabs | ok | vgpr=4 scratch=0B \| |
@@ -125,11 +155,11 @@ What these results decide:
 | m_f64_fmaf | f64 fma | ok | vgpr=8 scratch=0B \| v_fma_f64:1 |
 | m_f64_log10f | f64 log10 | compile-fail | error [TARGET/001]: has no target-low contrac |
 | m_f64_logf | f64 log | compile-fail | error [LOWERING/036]: legalize-math policy amdgpu-math rejected scalar.logf for logf in scalar lanes of f64 under math.element.f32 |
-| m_f64_math_h_recipes | existing exp/log/cbrt recipes | ok | vgpr=52 scratch=0B \| v_add_f64:49 v_fma_f64:36 v_mul_f64:19 v_div_scale_f64:4 v_cmp_lt_f64:3 v_rcp_f64:2 |
+| m_f64_math_h_recipes | existing exp/log/cbrt recipes | ok | vgpr=56 scratch=0B \| v_add_f64:49 v_fma_f64:36 v_mul_f64:19 v_div_scale_f64:4 v_cmp_lt_f64:3 v_rcp_f64:2 |
 | m_f64_powf | f64 pow (non-integer exponent) | compile-fail | error [LOWERING/036]: legalize-math policy amdgpu-math rejected scalar.powf for powf in scalar lanes of f64 under math.element.f32 |
 | m_f64_roundevenf | f64 rint (roundeven) | ok | vgpr=4 scratch=0B \| v_rndne_f64:1 |
 | m_f64_sinf | f64 sin | compile-fail | error [LOWERING/036]: legalize-math policy amdgpu-math rejected scalar.sinf for sinf in scalar lanes of f64 under math.element.f32 |
-| m_f64_sqrtf | f64 sqrt | ok | vgpr=12 scratch=0B \| v_fma_f64:7 v_mul_f64:2 v_ldexp_f64:2 v_rsq_f64:1 v_cmp_lt_f64:1 v_cmp_class_f64:1 |
+| m_f64_sqrtf | f64 sqrt | ok | vgpr=10 scratch=0B \| v_fma_f64:7 v_mul_f64:2 v_ldexp_f64:2 v_rsq_f64:1 v_cmp_lt_f64:1 v_cmp_class_f64:1 |
 | m_f64_tanhf | f64 tanh | compile-fail | error [LOWERING/036]: legalize-math policy amdgpu-math rejected scalar.tanhf for tanhf in scalar lanes of f64 under math.element.f32 |
 | m_f64_truncf | f64 trunc | ok | vgpr=4 scratch=0B \| v_trunc_f64:1 |
 | m_fp_contract | `a * b + c` under `--fp-model=precise` | ok | vgpr=8 scratch=0B \| v_mul_f64:1 v_add_f64:1 |

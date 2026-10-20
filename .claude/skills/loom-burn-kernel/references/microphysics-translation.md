@@ -26,7 +26,7 @@ code:
   reachable. Decide with the user whether such branches are ported or
   rejected at launch ("Runtime-gated paths" below).
 - It does not measure base classes (ternary nesting depth no longer
-  matters at `31bf125137`, probe f11).
+  matters at `fada6788a1`, probe f11).
 - Keep the matcher list in step with Phase 1 results.
 
 ## General method
@@ -50,7 +50,7 @@ code:
   small aggregates in the kernel namespace with the same 1-based
   `operator()` and the same storage order as AMReX's (an array member, no
   base class, no constructors), and keep the source's index expressions
-  unchanged: accessors import at `31bf125137` (probes o02, o11, o12, o15).
+  unchanged: accessors import at `fada6788a1` (probes o02, o11, o12, o15).
   This removes the hand-converted indices that were the easiest bug to
   introduce. `support.H` provides `mpl::Array1D` / `mpl::Array2D` (padded
   from index 0, row-major; no code may depend on AMReX's column-major
@@ -75,8 +75,11 @@ code:
   functions of these types may stay member functions (o01, o10, o14).
 - Control flow in the integrators (VODE `dvstep`, `dvnlsd`, `dvjac`; the
   Rosenbrock step/reject loop) uses `return` inside loops and multi-exit
-  loops. Rewrite with explicit `done`/`retry` flags and a result code,
-  preserving every exit point and its counter updates. Add `MPL_ASSUME`
+  loops. Each `return` inside a loop becomes a result code + `break`; inner
+  multi-exit loops get explicit `done`/`retry` flags (single-exit form),
+  while the outermost loop may keep the stock `break`s/`continue` (`vode.H`
+  `dvode`, probes f21-f23). Preserve every exit point and its counter
+  updates. Add `MPL_ASSUME`
   bounds on stage/retry counters and order-dependent indices
   (`loom-frontend-rules.md`, SUBRANGE row).
 - Keep the counters (`n_rhs`, `n_jac`, `n_step`) exactly as the source

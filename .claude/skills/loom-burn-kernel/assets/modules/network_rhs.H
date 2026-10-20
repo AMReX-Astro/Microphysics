@@ -1059,7 +1059,10 @@ MPL_DEVICE void actual_jac(const burn_t& burn_state, const NetParams& params, Ja
 // ---------------------------------------------------------------------------
 // networks/rhs.H:276 dgesl, :310 dgefa (RHS::, called by VODE dvjac/dvnlsd
 // for NEW_NETWORK_IMPLEMENTATION networks; no pivoting). Plain loops with the
-// constexpr_for bounds; a(i, j) and b(i), i, j = 1..neqs.
+// constexpr_for bounds written as strict upper bounds (`j < neqs + 1`, not
+// `j <= neqs`): Loom proves those counted-loop indices in range, so no
+// MPL_ASSUME is needed (with `<=`, dgesl's back substitution fails
+// SUBRANGE/026); a(i, j) and b(i), i, j = 1..neqs.
 // ---------------------------------------------------------------------------
 
 // from networks/rhs.H:276 dgesl
@@ -1067,25 +1070,21 @@ MPL_DEVICE void rhs_dgesl(const JacNetArray2D& a, Array1D<Real, 1, neqs>& b)
 {
     // solve a * x = b
     // first solve l * y = b
-    for (int k = 1; k <= neqs - 1; ++k) {
-        MPL_ASSUME(1 <= k && k <= neqs - 1);
+    for (int k = 1; k < neqs; ++k) {
         Real t = b(k);
-        for (int j = k + 1; j <= neqs; ++j) {
-            MPL_ASSUME(2 <= j && j <= neqs);
+        for (int j = k + 1; j < neqs + 1; ++j) {
             b(j) += t * a(j, k);
         }
     }
 
     // now solve u * x = y
-    for (int kb = 1; kb <= neqs; ++kb) {
+    for (int kb = 1; kb < neqs + 1; ++kb) {
         const int k = neqs + 1 - kb;
-        MPL_ASSUME(1 <= k && k <= neqs);
 
         b(k) = b(k) / a(k, k);
         Real t = -b(k);
 
-        for (int j = 1; j <= k - 1; ++j) {
-            MPL_ASSUME(1 <= j && j <= neqs - 1);
+        for (int j = 1; j < k; ++j) {
             b(j) += t * a(j, k);
         }
     }
@@ -1097,25 +1096,21 @@ MPL_DEVICE int rhs_dgefa(JacNetArray2D& a)
 {
     int info = 0;
 
-    for (int k = 1; k <= neqs - 1; ++k) {
-        MPL_ASSUME(1 <= k && k <= neqs - 1);
+    for (int k = 1; k < neqs; ++k) {
         // compute multipliers
         if (a(k, k) == 0.0) {
             info = k;
             // stock: `return;` from the constexpr_for body, i.e. continue
         } else {
             Real t = -1.0 / a(k, k);
-            for (int j = k + 1; j <= neqs; ++j) {
-                MPL_ASSUME(2 <= j && j <= neqs);
+            for (int j = k + 1; j < neqs + 1; ++j) {
                 a(j, k) *= t;
             }
 
             // row elimination with column indexing
-            for (int j = k + 1; j <= neqs; ++j) {
-                MPL_ASSUME(2 <= j && j <= neqs);
+            for (int j = k + 1; j < neqs + 1; ++j) {
                 t = a(k, j);
-                for (int i = k + 1; i <= neqs; ++i) {
-                    MPL_ASSUME(2 <= i && i <= neqs);
+                for (int i = k + 1; i < neqs + 1; ++i) {
                     a(i, j) += t * a(i, k);
                 }
             }

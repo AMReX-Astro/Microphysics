@@ -1538,16 +1538,11 @@ MPL_DEVICE int dvode(burn_t* state, dvode_t* vs,
 
     int result = IERR_SUCCESS;
 
-    // Single-exit form of the stock `while (true)` loop with its several
-    // `return`s and a `continue`: every exit sets `done` after the same side
-    // effects, and the code after it is guarded by `if (!done)`. A loop with
-    // multiple exits under divergent control fails AMDGPU branch lowering
-    // (TARGET/034 masked_region_exits_by_cfg).
-    bool done = false;
-
-    while (!done) {
-
-        bool too_many_steps = false;
+    // Stock loop shape; each stock `return` inside the loop is `result = ...;
+    // break;` (a return inside a loop does not import). A single loop with
+    // several exits compiles (probe f21); nested multi-exit loops still need
+    // the single-exit form (f22, f23).
+    while (true) {
 
         if (!skip_loop_start) {
 
@@ -1558,100 +1553,93 @@ MPL_DEVICE int dvode(burn_t* state, dvode_t* vs,
 
                 vs->t = vs->tn;
 
-                too_many_steps = true;
+                result = IERR_TOO_MANY_STEPS;
+                break;  // stock: return IERR_TOO_MANY_STEPS
             }
 
-            if (!too_many_steps) {
-                for (int i = 1; i <= NumSpec; ++i) {
-                    vs->ewt(i) = vs->rtol_spec * math::abs(vs->yh(i, 1)) + vs->atol_spec;
-                    vs->ewt(i) = 1.0 / vs->ewt(i);
-                }
-                vs->ewt(NumSpec+1) = vs->rtol_enuc * math::abs(vs->yh(NumSpec+1, 1)) + vs->atol_enuc;
-                vs->ewt(NumSpec+1) = 1.0 / vs->ewt(NumSpec+1);
+            for (int i = 1; i <= NumSpec; ++i) {
+                vs->ewt(i) = vs->rtol_spec * math::abs(vs->yh(i, 1)) + vs->atol_spec;
+                vs->ewt(i) = 1.0 / vs->ewt(i);
             }
+            vs->ewt(NumSpec+1) = vs->rtol_enuc * math::abs(vs->yh(NumSpec+1, 1)) + vs->atol_enuc;
+            vs->ewt(NumSpec+1) = 1.0 / vs->ewt(NumSpec+1);
+
         }
         else {
             skip_loop_start = false;
         }
 
-        if (too_many_steps) {
-            result = IERR_TOO_MANY_STEPS;
-            done = true;  // stock: return IERR_TOO_MANY_STEPS
+        Real TOLSF = 0.0;
+        for (int i = 1; i <= neqs; ++i) {
+            TOLSF += (vs->yh(i, 1) * vs->ewt(i)) * (vs->yh(i, 1) * vs->ewt(i));
         }
+        TOLSF = UROUND * math::sqrt(TOLSF / neqs);
 
-        if (!done) {
-            Real TOLSF = 0.0;
+        if (TOLSF > 1.0) {
+
+            if (vs->n_step == 0) {
+                result = IERR_TOO_MUCH_ACCURACY_REQUESTED;
+                break;  // stock: return
+            }
+
             for (int i = 1; i <= neqs; ++i) {
-                TOLSF += (vs->yh(i, 1) * vs->ewt(i)) * (vs->yh(i, 1) * vs->ewt(i));
+                vs->y(i) = vs->yh(i, 1);
             }
-            TOLSF = UROUND * math::sqrt(TOLSF / neqs);
 
-            if (TOLSF > 1.0) {
+            vs->t = vs->tn;
 
-                if (vs->n_step == 0) {
-                    result = IERR_TOO_MUCH_ACCURACY_REQUESTED;
-                    done = true;  // stock: return
-                }
-                else {
-                    for (int i = 1; i <= neqs; ++i) {
-                        vs->y(i) = vs->yh(i, 1);
-                    }
+            result = IERR_TOO_MUCH_ACCURACY_REQUESTED;
+            break;  // stock: return
 
-                    vs->t = vs->tn;
+        }
 
-                    result = IERR_TOO_MUCH_ACCURACY_REQUESTED;
-                    done = true;  // stock: return
-                }
+        int kflag = dvstep(state, vs, ip, ep, np, tab);
+
+        if (kflag == -1) {
+            for (int i = 1; i <= neqs; ++i) {
+                vs->y(i) = vs->yh(i, 1);
+            }
+
+            vs->t = vs->tn;
+            result = IERR_DT_UNDERFLOW;
+            break;  // stock: return
+
+        }
+        else if (kflag == -2) {
+            for (int i = 1; i <= neqs; ++i) {
+                vs->y(i) = vs->yh(i, 1);
+            }
+
+            vs->t = vs->tn;
+            result = IERR_CORRECTOR_CONVERGENCE;
+            break;  // stock: return
+
+        }
+
+        if ((vs->tn - vs->tout) * vs->H < 0.0) continue;
+
+        const int Ld = vs->L;
+        MPL_ASSUME(1 <= Ld && Ld <= VODE_LMAX);
+
+        for (int i = 1; i <= neqs; ++i) {
+            vs->y(i) = vs->yh(i, Ld);
+        }
+
+        S = (vs->tout - vs->tn) / vs->H;
+
+        for (int jb = 1; jb <= vs->NQ; ++jb) {
+            const int j = vs->NQ - jb;
+            MPL_ASSUME(0 <= j && j <= VODE_LMAX - 1);
+            for (int i = 1; i <= neqs; ++i) {
+                vs->y(i) = vs->yh(i, j+1) + S * vs->y(i);
             }
         }
 
-        if (!done) {
-            int kflag = dvstep(state, vs, ip, ep, np, tab);
+        vs->t = vs->tout;
 
-            if (kflag == -1) {
-                for (int i = 1; i <= neqs; ++i) {
-                    vs->y(i) = vs->yh(i, 1);
-                }
+        result = IERR_SUCCESS;
+        break;  // stock: return IERR_SUCCESS
 
-                vs->t = vs->tn;
-                result = IERR_DT_UNDERFLOW;
-                done = true;  // stock: return
-            }
-            else if (kflag == -2) {
-                for (int i = 1; i <= neqs; ++i) {
-                    vs->y(i) = vs->yh(i, 1);
-                }
-
-                vs->t = vs->tn;
-                result = IERR_CORRECTOR_CONVERGENCE;
-                done = true;  // stock: return
-            }
-            else if (!((vs->tn - vs->tout) * vs->H < 0.0)) {
-                // stock: `if ((tn - tout) * H < 0.0) continue;` then finish
-
-                const int Ld = vs->L;
-                MPL_ASSUME(1 <= Ld && Ld <= VODE_LMAX);
-
-                for (int i = 1; i <= neqs; ++i) {
-                    vs->y(i) = vs->yh(i, Ld);
-                }
-
-                S = (vs->tout - vs->tn) / vs->H;
-
-                for (int jb = 1; jb <= vs->NQ; ++jb) {
-                    const int j = vs->NQ - jb;
-                    MPL_ASSUME(0 <= j && j <= VODE_LMAX - 1);
-                    for (int i = 1; i <= neqs; ++i) {
-                        vs->y(i) = vs->yh(i, j+1) + S * vs->y(i);
-                    }
-                }
-
-                vs->t = vs->tout;
-
-                result = IERR_SUCCESS;
-                done = true;  // stock: return IERR_SUCCESS
-            }
-        }
     }
 
     return result;

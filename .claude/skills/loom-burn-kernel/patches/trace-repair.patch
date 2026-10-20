@@ -1,5 +1,5 @@
 diff --git a/loom/src/loom/codegen/low/frame.c b/loom/src/loom/codegen/low/frame.c
-index db04627620..d54191ccd5 100644
+index d19238fae4..a41950b0ff 100644
 --- a/loom/src/loom/codegen/low/frame.c
 +++ b/loom/src/loom/codegen/low/frame.c
 @@ -6,6 +6,8 @@
@@ -30,7 +30,7 @@ index db04627620..d54191ccd5 100644
  typedef struct loom_low_emission_frame_materialization_summary_t {
    // Cumulative spill storage materialized while building the final frame.
    uint64_t spill_storage_count;
-@@ -992,6 +1006,8 @@ static iree_status_t loom_low_emission_frame_build_spill_free_impl(
+@@ -1001,6 +1015,8 @@ static iree_status_t loom_low_emission_frame_build_spill_free_impl(
    bool restore_frame_before_build = false;
    loom_low_emission_frame_materialization_summary_t materialization_summary = {
        0};
@@ -39,10 +39,10 @@ index db04627620..d54191ccd5 100644
    for (;;) {
      loom_low_emission_frame_record_memory_high_water(
          frame_checkpoint, repair_arena, scratch_arena, statistics);
-@@ -1006,6 +1022,33 @@ static iree_status_t loom_low_emission_frame_build_spill_free_impl(
-         loom_low_placement_pair_use_list_empty(), required_register_values,
-         expanded_execution_values, rematerialization.per_user_values, arena,
-         statistics, &frame));
+@@ -1019,6 +1035,33 @@ static iree_status_t loom_low_emission_frame_build_spill_free_impl(
+       *out_frame = frame;
+       return iree_ok_status();
+     }
 +    if (trace_repair) {
 +      const iree_time_t now = iree_time_now();
 +      fprintf(stderr,

@@ -34,8 +34,8 @@ files by name (`network_data.H`, `burn.H`, `rates.H`, `network.H`); see
 |---|---|---|---|---|
 | `eos.H` | helmholtz EOS: composition, eos(), reset, override, prad limiter | 600.6M checks, 0 mismatches | compiles (smoke_eos) | pending |
 | `screen.H` | screen5, plasma state, generated screen factors | in rates validator: 11.7M checks, 0 mismatches | compiles (smoke_rates) | pending |
-| `network_rhs.H` | rhs.H: rhs, jac, construct_rate, intermediate rates, LU | 31.1M checks, 0 mismatches | compiles (smoke_net, after LU `MPL_ASSUME`s) | pending |
-| `vode.H` | VODE + Strang integrator glue (aion from generated lists; single-exit dvode loop) | whole burns: 11.6M checks, 0 mismatches | full burn compiles (smoke_burn, 32 min with the allocator patch; 256 VGPR, 212,836 B scratch) | pending |
+| `network_rhs.H` | rhs.H: rhs, jac, construct_rate, intermediate rates, LU | 31.1M checks, 0 mismatches | compiles (smoke_net; LU loops with strict `<` bounds, no `MPL_ASSUME`) | pending |
+| `vode.H` | VODE + Strang integrator glue (aion from generated lists; stock-shaped dvode loop, single-exit inner loops) | whole burns: 11.6M checks, 0 mismatches | full burn compiles (smoke_burn, 32 min with the allocator patch; 256 VGPR, 212,836 B scratch) | pending |
 | `root/burn_kernel.cpp` | kernel root | vs stock do_react: 1.86M checks, 0 mismatches (16^3, 32^3, sub-box, prad limiter on) | imports (1 s); production compile (burn_zones, 4096 zones) in progress | pending |
 | `burner.H` | burner, retry, `BurnParams` | (whole-burn validator) | as above | pending |
 
@@ -52,6 +52,21 @@ revalidated at hrx-system `31bf125137` (gfx90a):
 - Loom full burn (`smoke_burn`): aprox13 1396 s, 256 VGPR, 194,456 B scratch
   (unconverted modules at the same commit: 2016 s, 214,768 B);
   triple_alpha_plus_cago 458 s, 77,904 B (unconverted: 490 s, 77,616 B).
+
+2026-10-20, later: moved to hrx-system `fada6788a1` + `patches/` (now
+`assume-cast-chain.patch` and `trace-repair.patch`). `vode.H`'s `dvode` loop is
+back in the stock shape (stock `return`s as `result = ...; break;`), and the
+network LU in `network_rhs.H` uses strict `<` bounds with no `MPL_ASSUME`:
+- standalone hipcc build vs the stock HIP test_react reference: bit-exact
+  on 4096 zones for both networks, OCML and recipe math (every zone
+  succeeds, so the failure exits are checked by translation only);
+- Loom full burn (`smoke_burn`): triple_alpha_plus_cago 537 s, 256 VGPR,
+  78,952 B (HEAD modules at the same commit: 430 s, 75,544 B);
+- aprox13 does not fit gfx90a's private segment at any pin so far and is now
+  rejected by `loom-compile` (AMDGPU/053): see the known blocker in
+  `references/performance.md`.
+- host validators were not rerun: only control flow changed (`<=` → `<` with
+  the same iterations, `done` flags → `break`).
 
 ## Launcher (harness/loom_launch.H) and the per-network loom_params.H
 
@@ -123,8 +138,9 @@ Notes:
 - `MPL_ASSUME(cond)` is `__builtin_assume(cond)` under Loom and a no-op on
   the host, so it never changes validated host results. Put
   `MPL_ASSUME(lo <= i && i <= hi);` at the top of each loop body whose index
-  into a private array has runtime bounds (triangular LU loops, VODE order
-  loops); without it, compile fails with SUBRANGE/026. Rules for the
+  into a private array has runtime bounds (VODE order loops); without it,
+  compile fails with SUBRANGE/026. Counted loops with compile-time limits
+  (the network LU) need none when written with strict `<` bounds. Rules for the
   condition: `references/loom-frontend-rules.md`, SUBRANGE row.
 - The Loom side has no f64 exp/log/pow/log10/tanh/sin/cos/cbrt (probes); these
   recipes are the only path. sin/cos are not transcribed yet (only needed

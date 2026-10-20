@@ -152,14 +152,17 @@ for the scripts that run there); the defaults are for a local GPU box.
 
 ## Frontend and compiler traps (re-probe; some may be fixed)
 
-- `for (;;)` fails import; `while (true)` with `break` works.
 - `return` inside a loop fails (LOWERING/059). Use a result code and `break`.
 - SUBRANGE/026 at compile time means a missing bounds assumption:
-  `MPL_ASSUME` (`loom-frontend-rules.md`, SUBRANGE row).
+  `MPL_ASSUME` (`loom-frontend-rules.md`, SUBRANGE row). If the assumption
+  is there and the bound in the message is the whole `short` range
+  ("may reach 262152"), the tools were built without
+  `patches/assume-cast-chain.patch` (hrx-system #2074 regression, issue #2122, probe f20).
 - Nested ternaries deeper than 32 hit the verifier's region-nesting limit
-  before hrx-system #2079; at `31bf125137` 40 levels compile (probe f11), so
+  before hrx-system #2079; since `31bf125137` 40 levels compile (probe f11), so
   no outlining is needed.
-- Uninitialized locals (`double r;`) fail; initialize everything (`T x{}`).
+- Uninitialized struct locals (`burn_t s;`) fail; write `T x{}`. Scalar and
+  array locals may stay uninitialized (hrx-system #2105).
 - Text Loom modules over 65,535 lines were rejected (#1877).
 - BACKEND/005 `spill-traffic-register-exhausted` can appear from harmless-looking
   statement moves (#1879, #2016). Keep the failing source, reduce it, report it.
@@ -179,19 +182,13 @@ for the scripts that run there); the defaults are for a local GPU box.
   Jacobian + integrator land in one function (aprox13 + helmholtz + VODE:
   924k values growing to 1.33M). The spill-free frame build (`frame.c`) then
   loops schedule → allocate → rematerialize/split/materialize spills, each
-  round a whole-function schedule + allocation (20–40 s here); the round
-  budget is the value count, so it never times out on its own. Measured
-  (7cf21edd85 + allocator patch): 56 rounds in 19 spill batches, 1,458 s of
-  a 32-min compile. Unpatched 7cf21edd85 tools were still allocating when
-  stopped at 27 min, every stack sample in `try_relocate_independent_assignment`
-  (`interval_assignment.c`) rescans every assignment for every candidate
-  base, ~O(N²·bases). The local fix (precompute the lifetime-overlapping
-  blockers once per relocation; byte-identical code objects) is
-  `patches/alloc-relocation-overlap.patch` (local hrx-system branch
-  `loom/alloc-relocation-overlap`, not upstream); build tools with it
-  (`scripts/build_loom_tools.sh`) or an upstream equivalent for full burns,
-  and A/B tool sets with `scripts/compare_loom_tools.sh`. Small module
-  smokes are unaffected (under 1 min).
+  round a whole-function schedule + allocation; the round budget is the value
+  count, so it never times out on its own. Before hrx-system #2107 the
+  allocator's relocation rescanned every assignment for every candidate base
+  (`try_relocate_independent_assignment`, ~O(N²·bases)) and a full burn did
+  not finish without the local `alloc-relocation-overlap.patch`; #2107 fixed
+  it upstream and the patch was dropped at `fada6788a1`. A/B tool sets with
+  `scripts/compare_loom_tools.sh`. Small module smokes take under 1 min.
 - **Watch the repair loop, don't guess.** A long compile has no output until it
   finishes. `patches/trace-repair.patch` adds `LOOM_TRACE_REPAIR=1`, which
   prints one `LOOM_REPAIR round= ... spill_plans= ... round_seconds=` line
@@ -202,14 +199,19 @@ for the scripts that run there); the defaults are for a local GPU box.
   every repair counter identical for this kernel.
 - **Check scratch against the hardware limit before any GPU run.** gfx90a
   allows at most 131,056 B of private segment per lane ((2^13 - 1) KiB per
-  wave64). hipcc refuses to link anything larger; `loom-compile` (7cf21edd85)
-  writes the code object anyway, and the launch then fails with
+  wave64). hipcc refuses to link anything larger. Since hrx-system #2091
+  (in the `fada6788a1` pin) `loom-compile` does too, at the very end of the
+  compile: AMDGPU/053 "requires N private bytes per workitem, but processor
+  'gfx90a' supports at most 131056". Older tools (`31bf125137` and before)
+  wrote the code object anyway, and the launch then failed with
   `HSA_STATUS_ERROR_OUT_OF_RESOURCES` / "too many resources requested for
   launch" even with GB of free memory (hrx-system #2052). The first full
   aprox13 burn_zones build needed 185,864 B/lane: 122,752 B of it spill storage
   in 19,011 slots, because Loom gives every spill plan its own reservation and
-  never reuses slots. Read `.private_segment_fixed_size` (`scripts/hsaco_stats.py`)
-  right after the compile and stop if it is over the limit.
+  never reuses slots. With older tools read `.private_segment_fixed_size`
+  (`scripts/hsaco_stats.py`) right after the compile and stop if it is over
+  the limit. aprox13 + helmholtz + VODE is over it at every pin so far (known
+  blocker, `references/performance.md`).
 - **A smoke root's code object can't stand in for the production root.** The
   arguments, per-zone I/O and baked `workgroup_count` differ, so test_react
   can't launch it. Once the burn body compiles, start the production root

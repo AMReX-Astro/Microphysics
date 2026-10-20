@@ -6,6 +6,26 @@ from 2.41× slower than the original HIP kernel to about 0.86–0.89× of it,
 hypotheses for a new kernel, not rules; the compiler's response to source
 edits was often counter-intuitive.
 
+## Known blocker: aprox13 private segment over the gfx90a limit
+
+The aprox13 + helmholtz + VODE full burn does not fit gfx90a's 131,056 B of
+private segment per lane (`references/footguns.md`). Measured on the
+`smoke_burn` root:
+
+| hrx-system | Tools | Private bytes/lane | Result |
+|---|---|---|---|
+| `31bf125137` | + allocator patch | 194,456 | code object written (no limit check), unlaunchable |
+| `fada6788a1` | + `assume-cast-chain.patch` | 219,592 | AMDGPU/053 after 1509 s |
+| `fada6788a1` | same, network LU with strict `<` bounds and no `MPL_ASSUME` | 195,960 | AMDGPU/053 after 1550 s |
+| `fada6788a1` | same, stock-shaped `dvode` loop (LU unchanged) | 213,412 | AMDGPU/053 after 2027 s |
+
+Most of it is spill storage that Loom never reuses (hrx-system #2052). Until
+that is fixed upstream, or the kernel is restructured to spill less (the
+levers below), an aprox13 Loom kernel cannot run on gfx90a; validate a pin
+with a smaller network (triple_alpha_plus_cago: 77,904 B at `31bf125137`).
+This is performance work, not a correctness gap: the native and hipcc builds
+of the same source are bit-exact.
+
 ## Measurement rules
 
 - **Freeze the compiler.** Build the tools once from one hrx-system commit,

@@ -101,10 +101,10 @@ mkdir -p "$LOOM_WORK" && cd "$LOOM_WORK"
 python3 -m venv venv && venv/bin/pip install ast-grep-cli && export PATH=$PWD/venv/bin:$PATH
 git clone https://github.com/AMReX-Codes/amrex.git && export AMREX_HOME=$PWD/amrex
 git clone https://github.com/ROCm/hrx-system.git
-git -C hrx-system checkout 31bf125137           # pinned compiler (Phase 1)
+git -C hrx-system checkout fada6788a1           # pinned compiler (Phase 1)
 (cd hrx-system && python3 dev.py cmake setup)   # .venv with cmake/ninja; see below if it exits 1
 SRC=$PWD/hrx-system OUT=$PWD/loom-tools/pinned TARGETS=$GFX \
-PATCHES=$SKILL/patches/alloc-relocation-overlap.patch \
+PATCHES=$SKILL/patches/assume-cast-chain.patch \
   nohup setsid bash $SKILL/scripts/build_loom_tools.sh > tools-build.log 2>&1 < /dev/null &
 # optional, for specialize.py (not needed for small networks): C++ Insights, LLVM 20
 git clone https://github.com/andreasfertig/cppinsights.git && git -C cppinsights checkout v_20.1
@@ -200,14 +200,17 @@ probes with root `probe::k`, and `probe.sh`, which runs them all with one
 frozen tool set) into the port's agent-notes directory, add probes for
 anything the Phase 2 inventory found that the kit doesn't cover, and run it
 on the GPU host as its header describes. `probes/README.md` has the measured
-results at public hrx-system main `31bf125137` (2026-10-20, gfx90a), the
-commit to check out. Since the previous pin (`4031286f0b`) member functions,
-`operator()` accessors, `const` struct references, array reference
-parameters and deep ternaries import, so translations no longer rewrite
-them, and the shipped modules use them (`Array1D`/`Array2D` accessors with
-the stock indices, `const&` for everything read-only, pointers only for
-structs a function writes). If you
-use `31bf125137` on gfx90a, cite the table; on another commit or target,
+results at public hrx-system main `fada6788a1` (2026-10-20, gfx90a), the
+commit to check out, built with `patches/assume-cast-chain.patch` (without it
+a bounds assumption on an index loaded from a `short` field is dropped and
+the VODE burn fails SUBRANGE/026; probe f20). Member functions, `operator()`
+accessors, `const` struct references, array reference parameters and deep
+ternaries import, so translations don't rewrite them, and the shipped modules
+use them (`Array1D`/`Array2D` accessors with the stock indices, `const&` for
+everything read-only, pointers only for structs a function writes). Since
+the previous pin (`31bf125137`) uninitialized scalar and array locals and
+`for (;;)` import as well. If you
+use `fada6788a1` on gfx90a, cite the table; on another commit or target,
 rerun the kit and update it. Record the
 tool md5 and hrx-system commit in the agent note.
 
@@ -467,7 +470,7 @@ Check the time with `date` before writing any timestamp.
 - `references/microphysics-translation.md` — inventory limits, burn_t, runtime params and unported paths, tables, generated network data, autodiff, math, NSE.
 - `references/test-react-integration.md` — layout, kernel signature, host launcher, native validation, build/run and import/compile commands, comparison and NaN rule.
 - `references/performance.md` — measurement rules, kernel-side levers, FMA experiment.
-- `probes/README.md` — Phase 1 probe kit (`probe.sh`, `src/`) and results at `31bf125137`.
+- `probes/README.md` — Phase 1 probe kit (`probe.sh`, `src/`) and results at `fada6788a1`.
 
 ## Scripts
 
@@ -500,7 +503,7 @@ Check the time with `date` before writing any timestamp.
 - `assets/f64-tests/` — host accuracy test of the OCML recipes; `ocml_gpu/` is the GPU bit check against hipcc's OCML.
 - `assets/standalone/` — standalone HIP reproducer: `main.hip` (burns a case file with the hipcc-compiled kernel tree and optionally a Loom code object, compares bit for bit), `loom_case_format.H`, `Makefile`, vendor-facing `README.md`; `harness/loom_case.H` writes case files from test_react.
 
-## Patches (apply to hrx-system main `31bf125137` and the previous pin `4031286f0b`; local, not upstream)
+## Patches (apply to hrx-system main `fada6788a1`; local, not upstream)
 
-- `patches/alloc-relocation-overlap.patch` — allocator relocation fix; byte-identical code objects, makes a full-burn compile finish (~32 min).
+- `patches/assume-cast-chain.patch` — required: keeps `__builtin_assume` ranges on indices loaded from `short` fields (regression from hrx-system #2074, reported as #2122; VODE's `L`/`NQ`).
 - `patches/trace-repair.patch` — `LOOM_TRACE_REPAIR=1`: one trace line per register-repair round.

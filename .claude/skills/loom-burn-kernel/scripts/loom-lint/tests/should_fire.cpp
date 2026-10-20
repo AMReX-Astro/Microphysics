@@ -11,7 +11,8 @@ constexpr double arr[2] = {1, 2};
 void g(A& a) { a.v = 1.0; }
 void f(double& r, int k)
 {
-    double u;
+    D u;
+    double ok_scalar; Real ok_real; unsigned int ok_u; bool ok_b;
     auto lam = [](int x) { return x; };
     switch (k) { default: break; }
     for (;;) { if (k) return; }

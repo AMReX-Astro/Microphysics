@@ -52,21 +52,25 @@ Hard rules (each one cost a failed Loom import or compile at least once):
    the table pointers themselves.
 4. No lambdas/`constexpr_for` (template-struct recursion or plain loops), no
    `constexpr` locals of record type (bind each field to a `constexpr`
-   scalar), no namespace-scope arrays, no `switch`, no `return` or `for(;;)`
+   scalar), no namespace-scope arrays, no `switch`, no `return`
    inside loops (flags + `break`), no range-for, no structured bindings, no
-   constructors with arguments, no uninitialized scalar/struct locals, no
+   constructors with arguments, no uninitialized struct locals, no
    `std::`, no stock namespaces (`amrex::`, `autodiff::`, `admath::`, `gcem::`,
    `RHS::`, `*_rp::` ...): validators include the stock headers, so a
    leftover stock call still compiles and validates on the host and only the
    lint or Loom catches it.
-5. **Bounds assumptions**: every private-array index whose range the
-   compiler can't see needs an `MPL_ASSUME` (otherwise `loom-compile` fails
-   with SUBRANGE/026). Placement and form rules:
+5. **Bounds assumptions**: write counted loops with compile-time limits with
+   a strict `<` bound (`j < neqs + 1`), which Loom proves in range; every
+   other private-array index whose range the compiler can't see (runtime
+   bounds from struct fields) needs an `MPL_ASSUME` (otherwise `loom-compile`
+   fails with SUBRANGE/026). Placement and form rules:
    `references/loom-frontend-rules.md`.
 6. **Loops with several exits** (multiple `break`s, a `continue`, the
    `break`s that replace stock `return`s) can fail the AMDGPU backend with
-   TARGET/034 `masked_region_exits_by_cfg`. Prefer the single-exit form for
-   any loop with more than one exit: `bool done = false; while (!done) {...}`,
+   TARGET/034 (`masked_region_exits_by_cfg`, `masked_region_merge_vgpr_values`) when
+   one sits inside another (probes f21-f23). Use the single-exit form for
+   every inner loop with more than one exit (the outermost loop may keep the
+   stock `break`s, as `vode.H`'s `dvode` does): `bool done = false; while (!done) {...}`,
    each exit sets `done` after its side effects, later code in the body is
    guarded by `if (!done)`, and a `continue` becomes a guard (keep its exact
    predicate under `!(...)` so NaN behaviour is unchanged).

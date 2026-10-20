@@ -1,30 +1,37 @@
 # Local hrx-system patches
 
-Local patches, not upstream. Both apply cleanly to public hrx-system main
-`31bf125137` (the current pin, checked 2026-10-20) and to the previous pin
-`4031286f0b` (= fork commit `7cf21edd85`, where they were written). Apply at the repository root with `patch -p1 < FILE`. The usual way is to let
-`scripts/build_loom_tools.sh` copy the source tree and apply them:
+Local patches, not upstream, against public hrx-system main `fada6788a1`
+(the current pin, checked 2026-10-20). Apply at the repository root with
+`patch -p1 < FILE`. The usual way is to let `scripts/build_loom_tools.sh`
+copy the source tree and apply them:
 
 ```bash
 SRC=/path/to/hrx-system OUT=/path/to/tools-build \
-PATCHES="/path/to/patches/alloc-relocation-overlap.patch /path/to/patches/trace-repair.patch" \
+PATCHES="/path/to/patches/assume-cast-chain.patch /path/to/patches/trace-repair.patch" \
 nohup setsid bash build_loom_tools.sh > build.log 2>&1 < /dev/null &
 ```
 
-## alloc-relocation-overlap.patch
+`alloc-relocation-overlap.patch` (needed up to `31bf125137` to finish a
+full-burn compile) is gone: hrx-system #2107 (`b0ae10b7b6`) filters the
+assignment history once per relocation upstream, the same fix. The aprox13
+full burn compiles without it (see `assets/README.md`).
 
-`loom/src/loom/codegen/low/allocation/interval_assignment.c`,
-`try_relocate_independent_assignment`: precomputes the lifetime-overlapping
-blockers once per relocation into a bitmap over candidate bases (up to 1024
-bases; above that it falls back to the original per-base loop over all
-assignments). It visits the same bases in the same order with the same
-checks, so it picks the same base: code objects are byte-identical with and
-without the patch (verified on the smoke eos, math, rates and network
-kernels with `scripts/compare_loom_tools.sh`).
+## assume-cast-chain.patch (required)
 
-Why: each relocation was O(bases x assignments). The full fused burn kernel
-was still in allocation after more than 27 minutes without the patch; with it,
-the whole compile takes about 32 minutes.
+`loom/src/loom/transforms/{scalar,vector}/combine_patterns.c`: compose a
+cast chain only with the conversion that directly defines the outer cast's
+input. Since hrx-system #2074 (`68905de218`, bisected 2026-10-20) the combine
+found the inner cast through `loom_rewriter_value_defining_op`, which looks
+through value identities such as `scalar.assume`. For an index loaded from a
+`short` field, `extsi i16->i32` → `scalar.assume [1, 6]` → (accessor)
+`extsi i32->i64` then folded into one `extsi i16->i64` and the assumed range
+was lost, so `loom-compile` failed SUBRANGE/026 ("access byte end may reach
+262152", i.e. the whole `short` range) on VODE's `el(L)`, `tau(NQ)`. The
+imported IR is identical before and after #2074; the bug is in compile.
+Reproducer: probe `f20_assume_short_field_member_index` (fails without the
+patch, compiles with it). Probe results are otherwise identical with and
+without the patch. Reported upstream as hrx-system #2122; drop the patch
+once a fix is in the pinned commit (rerun f20 without it).
 
 ## trace-repair.patch
 

@@ -57,12 +57,10 @@
 // Value-range facts for the Loom bounds checker (SUBRANGE/026 "access byte
 // end may reach ..."): needed where a loop index into a private array has
 // data-dependent bounds. No-op on the host, so validated host code is unchanged.
-// Loom only accepts plain operands: compare LOCAL scalar variables with
-// constants, e.g. MPL_ASSUME(1 <= j && j <= N - 1). A struct field
+// Operands must be LOCAL scalar variables, constants and side-effect-free
+// arithmetic on them, e.g. MPL_ASSUME(1 <= j && j + 1 <= N). A struct field
 // (vs->L: "predicate member paths require direct non-static record fields")
-// or arithmetic on the variable side (j + 1 <= N: "predicate operands must be
-// retained scalar values or pure constants") fails import; copy the field into
-// a local first and move constants to the right-hand side.
+// fails import; copy the field into a local first.
 #if defined(__loom__)
 #define MPL_ASSUME(cond) __builtin_assume(cond)
 #else
