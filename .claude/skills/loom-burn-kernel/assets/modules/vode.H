@@ -5,7 +5,7 @@
 // xn_in in state_backup_t), no ALLOW_GPU_PRINTF.
 //
 // Translated:
-//   integration/VODE/vode_type.H        dvode_t (POD of flat arrays, by pointer)
+//   integration/VODE/vode_type.H        dvode_t (POD with Array1D/Array2D members, by pointer)
 //   integration/VODE/vode_dvode.H       dvode
 //   integration/VODE/vode_dvhin.H       dvhin
 //   integration/VODE/vode_dvstep.H      advance_nordsieck, retract_nordsieck, dvstep
@@ -107,13 +107,11 @@ constexpr int VODE_LMAX = VODE_MAXORD + 1;
 // network_properties.H aion[] / aion_inv[] are local const arrays where
 // needed (README rule 7), filled from the generated MPL_NET_*_LIST macros.
 
-// Nordsieck history yh(i, j), i = 1..neqs, j = 1..VODE_LMAX
-#define MPL_YH(i, j) MPL_IDX2((i), (j), (mpl::VODE_LMAX + 1))
-#define MPL_YH_SIZE ((mpl::neqs + 1) * (mpl::VODE_LMAX + 1))
-
 // from integration/VODE/vode_type.H:38 dvode_t<int_neqs = 14>
-// Array1D<.., 1, N> -> a[N + 1] (slot 0 unused); jac -> MPL_JAC (network.H);
-// yh -> MPL_YH. No jac_save (caching compiled out), no pivot (RHS::dgefa).
+// Same Array1D / Array2D members (support.H accessors, 1-based). Always
+// passed by pointer, const or not: calling a member's accessor through a
+// struct reference does not import, even a const one (probes r19, r23).
+// No jac_save (caching compiled out), no pivot (RHS::dgefa).
 struct dvode_t {
     Real CONP{};
     Real CRATE{};
@@ -146,9 +144,9 @@ struct dvode_t {
 
     short jacobian_type{};
 
-    Real el[VODE_LMAX + 1]{};
-    Real tau[VODE_LMAX + 1]{};
-    Real tq[5 + 1]{};
+    Array1D<Real, 1, VODE_LMAX> el{};
+    Array1D<Real, 1, VODE_LMAX> tau{};
+    Array1D<Real, 1, 5> tq{};
 
     Real rtol_spec{};
     Real atol_spec{};
@@ -158,16 +156,16 @@ struct dvode_t {
     Real t{};
     Real tout{};
 
-    Real y[neqs + 1]{};
+    Array1D<Real, 1, neqs> y{};
 
-    Real jac[MPL_JAC_SIZE]{};
+    JacNetArray2D jac{};
 
-    Real yh[MPL_YH_SIZE]{};
+    Array2D<Real, 1, neqs, 1, VODE_LMAX> yh{};
 
-    Real ewt[neqs + 1]{};
-    Real savf[neqs + 1]{};
+    Array1D<Real, 1, neqs> ewt{};
+    Array1D<Real, 1, neqs> savf{};
 
-    Real acor[neqs + 1]{};
+    Array1D<Real, 1, neqs> acor{};
 };
 
 // ---------------------------------------------------------------------------
@@ -175,11 +173,11 @@ struct dvode_t {
 // ---------------------------------------------------------------------------
 
 // from interfaces/burn_type.H:338 normalize_abundances_burn
-MPL_DEVICE void normalize_abundances_burn(burn_t* state, const IntegratorParams* ip)
+MPL_DEVICE void normalize_abundances_burn(burn_t* state, const IntegratorParams& ip)
 {
     Real sum = 0.0;
     for (int n = 0; n < NumSpec; ++n) {
-        state->xn[n] = math::max(ip->network_small_x, math::min(1.0, state->xn[n]));
+        state->xn[n] = math::max(ip.network_small_x, math::min(1.0, state->xn[n]));
         sum += state->xn[n];
     }
     for (int n = 0; n < NumSpec; ++n) {
@@ -192,15 +190,15 @@ MPL_DEVICE void normalize_abundances_burn(burn_t* state, const IntegratorParams*
 // ---------------------------------------------------------------------------
 
 // from integration/integrator_type_strang.H:10 integrator_to_burn
-MPL_DEVICE void integrator_to_burn(const dvode_t* vs, burn_t* state, const IntegratorParams* ip)
+MPL_DEVICE void integrator_to_burn(const dvode_t* vs, burn_t* state, const IntegratorParams& ip)
 {
     for (int n = 1; n <= NumSpec; ++n) {
-        state->xn[n-1] = vs->y[n];
+        state->xn[n-1] = vs->y(n);
     }
 
-    state->e = vs->y[net_ienuc];
+    state->e = vs->y(net_ienuc);
 
-    if (ip->integrator_scale_system) {
+    if (ip.integrator_scale_system) {
         state->e *= state->e_scale;
     }
 
@@ -208,64 +206,64 @@ MPL_DEVICE void integrator_to_burn(const dvode_t* vs, burn_t* state, const Integ
 }
 
 // from integration/integrator_type_strang.H:30 burn_to_integrator
-MPL_DEVICE void burn_to_integrator(const burn_t* state, dvode_t* vs, const IntegratorParams* ip)
+MPL_DEVICE void burn_to_integrator(const burn_t& state, dvode_t* vs, const IntegratorParams& ip)
 {
     for (int n = 1; n <= NumSpec; ++n) {
-        vs->y[n] = state->xn[n-1];
+        vs->y(n) = state.xn[n-1];
     }
 
-    vs->y[net_ienuc] = state->e;
+    vs->y(net_ienuc) = state.e;
 
-    if (ip->integrator_scale_system) {
-        vs->y[net_ienuc] /= state->e_scale;
+    if (ip.integrator_scale_system) {
+        vs->y(net_ienuc) /= state.e_scale;
     }
 }
 
 // from integration/integrator_type_strang.H:47 clean_state
-MPL_DEVICE void clean_state(const Real time, burn_t* state, dvode_t* vs, const IntegratorParams* ip)
+MPL_DEVICE void clean_state(const Real time, burn_t* state, dvode_t* vs, const IntegratorParams& ip)
 {
     (void) time;
     (void) state;
 
-    if (ip->integrator_do_species_clip) {
+    if (ip.integrator_do_species_clip) {
         for (int n = 1; n <= NumSpec; ++n) {
-            vs->y[n] = math::clamp(vs->y[n], ip->integrator_SMALL_X_SAFE, 1.0);
+            vs->y(n) = math::clamp(vs->y(n), ip.integrator_SMALL_X_SAFE, 1.0);
         }
     }
 
-    if (ip->integrator_use_number_densities) {
+    if (ip.integrator_use_number_densities) {
         for (int n = 1; n <= NumSpec; ++n) {
-            vs->y[n] = math::max(vs->y[n], ip->integrator_SMALL_X_SAFE);
+            vs->y(n) = math::max(vs->y(n), ip.integrator_SMALL_X_SAFE);
         }
     }
 
-    if (ip->integrator_renormalize_abundances) {
+    if (ip.integrator_renormalize_abundances) {
         Real sum = 0.0;
 
         for (int n = 1; n <= NumSpec; ++n) {
-            sum += vs->y[n];
+            sum += vs->y(n);
         }
 
         for (int n = 1; n <= NumSpec; ++n) {
-            vs->y[n] /= sum;
+            vs->y(n) /= sum;
         }
     }
 }
 
 // from integration/integrator_type.H:34 update_thermodynamics (no AUX_THERMO)
-MPL_DEVICE void update_thermodynamics(burn_t* state, const dvode_t* vs, const IntegratorParams* ip,
-                                      const EosParams* ep, EosTables tab)
+MPL_DEVICE void update_thermodynamics(burn_t* state, const dvode_t* vs, const IntegratorParams& ip,
+                                      const EosParams& ep, EosTables tab)
 {
     for (int n = 1; n <= NumSpec; ++n) {
-        state->xn[n-1] = vs->y[n];
+        state->xn[n-1] = vs->y(n);
     }
-    state->e = vs->y[net_ienuc];
+    state->e = vs->y(net_ienuc);
 
-    if (ip->integrator_scale_system) {
+    if (ip.integrator_scale_system) {
         state->e *= state->e_scale;
     }
 
-    if (ip->integrator_call_eos_in_rhs) {
+    if (ip.integrator_call_eos_in_rhs) {
         eos(eos_input_re, state, ep, tab);
     }
 
@@ -278,10 +276,10 @@ MPL_DEVICE void update_thermodynamics(burn_t* state, const dvode_t* vs, const In
 // integration/integrator_rhs_strang.H
 // ---------------------------------------------------------------------------
 
-// from integration/integrator_rhs_strang.H:24 rhs (ydot[1..neqs];
+// from integration/integrator_rhs_strang.H:24 rhs (ydot(1..neqs);
 // in_jacobian only feeds NONAKA_PLOT and is dropped)
-MPL_DEVICE void rhs(const Real time, burn_t* state, dvode_t* vs, Real* ydot,
-                    const IntegratorParams* ip, const EosParams* ep, const NetParams* np, EosTables tab)
+MPL_DEVICE void rhs(const Real time, burn_t* state, dvode_t* vs, Array1D<Real, 1, neqs>& ydot,
+                    const IntegratorParams& ip, const EosParams& ep, const NetParams& np, EosTables tab)
 {
     const Real aion[NumSpec] = {MPL_NET_AION_LIST};
 
@@ -289,10 +287,10 @@ MPL_DEVICE void rhs(const Real time, burn_t* state, dvode_t* vs, Real* ydot,
 
     update_thermodynamics(state, vs, ip, ep, tab);
 
-    if (state->T <= ep->EOSData_mintemp || state->T >= ip->integrator_MAX_TEMP) {
+    if (state->T <= ep.EOSData_mintemp || state->T >= ip.integrator_MAX_TEMP) {
 
         for (int n = 1; n <= neqs; ++n) {
-            ydot[n] = 0.0;
+            ydot(n) = 0.0;
         }
 
         return;
@@ -300,43 +298,43 @@ MPL_DEVICE void rhs(const Real time, burn_t* state, dvode_t* vs, Real* ydot,
 
     state->time = time;
 
-    actual_rhs(state, np, ydot);
+    actual_rhs(*state, np, ydot);
 
-    if (!ip->integrator_use_number_densities) {
+    if (!ip.integrator_use_number_densities) {
         for (int n = 1; n <= NumSpec; ++n) {
-            ydot[n] *= aion[n-1];
+            ydot(n) *= aion[n-1];
         }
     }
 
-    if (ip->integrator_scale_system) {
-        ydot[net_ienuc] /= state->e_scale;
+    if (ip.integrator_scale_system) {
+        ydot(net_ienuc) /= state->e_scale;
     }
 
-    if (!ip->integrator_integrate_energy) {
-        ydot[net_ienuc] = 0.0;
+    if (!ip.integrator_integrate_energy) {
+        ydot(net_ienuc) = 0.0;
     }
 
-    if (ip->integrator_react_boost > 0.0) {
+    if (ip.integrator_react_boost > 0.0) {
         for (int n = 1; n <= neqs; ++n) {
-            ydot[n] *= ip->integrator_react_boost;
+            ydot(n) *= ip.integrator_react_boost;
         }
     }
 }
 
-// from integration/integrator_rhs_strang.H:114 jac (pd[MPL_JAC(i, j)])
-MPL_DEVICE void jac(const Real time, burn_t* state, dvode_t* vs, Real* pd,
-                    const IntegratorParams* ip, const EosParams* ep, const NetParams* np, EosTables tab)
+// from integration/integrator_rhs_strang.H:114 jac (pd(i, j))
+MPL_DEVICE void jac(const Real time, burn_t* state, dvode_t* vs, JacNetArray2D& pd,
+                    const IntegratorParams& ip, const EosParams& ep, const NetParams& np, EosTables tab)
 {
     (void) time;
 
     const Real aion[NumSpec] = {MPL_NET_AION_LIST};
     const Real aion_inv[NumSpec] = {MPL_NET_AION_INV_LIST};
 
-    if (state->T <= ep->EOSData_mintemp || state->T >= ip->integrator_MAX_TEMP) {
+    if (state->T <= ep.EOSData_mintemp || state->T >= ip.integrator_MAX_TEMP) {
         // pd.zero()
         for (int i = 1; i <= neqs; ++i) {
             for (int j = 1; j <= neqs; ++j) {
-                pd[MPL_JAC(i, j)] = 0.0;
+                pd(i, j) = 0.0;
             }
         }
         return;
@@ -344,18 +342,18 @@ MPL_DEVICE void jac(const Real time, burn_t* state, dvode_t* vs, Real* pd,
 
     integrator_to_burn(vs, state, ip);
 
-    actual_jac(state, np, pd);
+    actual_jac(*state, np, pd);
 
-    if (!ip->integrator_use_number_densities) {
+    if (!ip.integrator_use_number_densities) {
         for (int j = 1; j <= NumSpec; ++j) {
             for (int i = 1; i <= neqs; ++i) {
-                pd[MPL_JAC(j, i)] *= aion[j-1];
-                pd[MPL_JAC(i, j)] *= aion_inv[j-1];
+                pd(j, i) *= aion[j-1];
+                pd(i, j) *= aion_inv[j-1];
             }
         }
     }
 
-    if (ip->integrator_correct_jacobian_for_const_e) {
+    if (ip.integrator_correct_jacobian_for_const_e) {
 
         eos_re_extra_t eos_state{};
         eos_state.rho = state->rho;
@@ -367,38 +365,37 @@ MPL_DEVICE void jac(const Real time, burn_t* state, dvode_t* vs, Real* pd,
 
         eos(eos_input_re, &eos_state, ep, tab);
 
-        eos_xderivs_t eos_xderivs{};
-        composition_derivatives(&eos_state, &eos_xderivs);
+        eos_xderivs_t eos_xderivs = composition_derivatives(eos_state);
 
         for (int jcol = 1; jcol <= NumSpec; ++jcol) {
             for (int irow = 1; irow <= neqs; ++irow) {
-                pd[MPL_JAC(irow, jcol)] -= eos_xderivs.dedX[jcol-1] * pd[MPL_JAC(irow, net_ienuc)];
+                pd(irow, jcol) -= eos_xderivs.dedX[jcol-1] * pd(irow, net_ienuc);
             }
         }
     }
 
-    if (ip->integrator_scale_system) {
+    if (ip.integrator_scale_system) {
         for (int j = 1; j <= neqs; ++j) {
-            pd[MPL_JAC(net_ienuc, j)] /= state->e_scale;
+            pd(net_ienuc, j) /= state->e_scale;
         }
 
         for (int i = 1; i <= neqs; ++i) {
-            pd[MPL_JAC(i, net_ienuc)] *= state->e_scale;
+            pd(i, net_ienuc) *= state->e_scale;
         }
     }
 
-    if (ip->integrator_react_boost > 0.0) {
+    if (ip.integrator_react_boost > 0.0) {
         // pd.mul(react_boost)
         for (int i = 1; i <= neqs; ++i) {
             for (int j = 1; j <= neqs; ++j) {
-                pd[MPL_JAC(i, j)] *= ip->integrator_react_boost;
+                pd(i, j) *= ip.integrator_react_boost;
             }
         }
     }
 
-    if (!ip->integrator_integrate_energy) {
+    if (!ip.integrator_integrate_energy) {
         for (int j = 1; j <= neqs; ++j) {
-            pd[MPL_JAC(net_ienuc, j)] = 0.0;
+            pd(net_ienuc, j) = 0.0;
         }
     }
 }
@@ -408,33 +405,33 @@ MPL_DEVICE void jac(const Real time, burn_t* state, dvode_t* vs, Real* pd,
 // ---------------------------------------------------------------------------
 
 // from integration/utils/numerical_jacobian.H:40 numerical_jac
-// jac_info.h -> h; jac[MPL_JAC(i, j)].
-MPL_DEVICE void numerical_jac(const burn_t* state, const Real h, Real* jac,
-                              const IntegratorParams* ip, const EosParams* ep, const NetParams* np,
+// jac_info.h -> h; jac(i, j).
+MPL_DEVICE void numerical_jac(const burn_t& state, const Real h, JacNetArray2D& jac,
+                              const IntegratorParams& ip, const EosParams& ep, const NetParams& np,
                               EosTables tab)
 {
     const Real aion[NumSpec] = {MPL_NET_AION_LIST};
 
-    Real ydotp[neqs + 1] = {};
-    Real ydotm[neqs + 1] = {};
+    Array1D<Real, 1, neqs> ydotp{};
+    Array1D<Real, 1, neqs> ydotm{};
 
-    burn_t state_delp = *state;
+    burn_t state_delp = state;
 
     actual_rhs(state, np, ydotm);
 
     for (int q = 1; q <= NumSpec; q++) {
-        ydotm[q] *= aion[q-1];
+        ydotm(q) *= aion[q-1];
     }
 
     Real fac = 0.0;
     Real w = 0.0;
     for (int i = 1; i <= NumSpec; i++) {
-        w = 1.0 / (ip->integrator_rtol_spec * math::abs(state->xn[i-1]) + ip->integrator_atol_spec);
-        fac += (ydotm[i] * w) * (ydotm[i] * w);
+        w = 1.0 / (ip.integrator_rtol_spec * math::abs(state.xn[i-1]) + ip.integrator_atol_spec);
+        fac += (ydotm(i) * w) * (ydotm(i) * w);
     }
 
-    w = 1.0 / (ip->integrator_rtol_enuc * math::abs(state->e) + ip->integrator_atol_enuc);
-    fac += (ydotm[net_ienuc] * w) * (ydotm[net_ienuc] * w);
+    w = 1.0 / (ip.integrator_rtol_enuc * math::abs(state.e) + ip.integrator_atol_enuc);
+    fac += (ydotm(net_ienuc) * w) * (ydotm(net_ienuc) * w);
     fac = math::sqrt(fac / neqs);
 
     Real r0 = 1000.0 * math::abs(h) * UROUND * neqs * fac;
@@ -445,36 +442,36 @@ MPL_DEVICE void numerical_jac(const burn_t* state, const Real h, Real* jac,
     for (int n = 1; n <= NumSpec; n++) {
         Real yj = state_delp.xn[n-1];
 
-        w = ip->integrator_rtol_spec * math::abs(yj) + ip->integrator_atol_spec;
+        w = ip.integrator_rtol_spec * math::abs(yj) + ip.integrator_atol_spec;
 
         Real dy = math::max(math::sqrt(UROUND) * math::abs(yj), r0 * w);
 
         state_delp.xn[n-1] += dy;
 
-        actual_rhs(&state_delp, np, ydotp);
+        actual_rhs(state_delp, np, ydotp);
 
         for (int q = 1; q <= NumSpec; q++) {
-            ydotp[q] *= aion[q-1];
+            ydotp(q) *= aion[q-1];
         }
 
         for (int m = 1; m <= neqs; m++) {
-            jac[MPL_JAC(m, n)] = (ydotp[m] - ydotm[m]) / dy;
+            jac(m, n) = (ydotp(m) - ydotm(m)) / dy;
         }
 
         state_delp.xn[n-1] = yj;
     }
 
-    w = ip->integrator_rtol_enuc * math::abs(state->T) + ip->integrator_atol_enuc;
+    w = ip.integrator_rtol_enuc * math::abs(state.T) + ip.integrator_atol_enuc;
 
-    Real dy = math::max(math::sqrt(UROUND) * math::abs(state->T), r0 * w);
+    Real dy = math::max(math::sqrt(UROUND) * math::abs(state.T), r0 * w);
 
     state_delp.T += dy;
 
-    if (state_delp.T <= ep->EOSData_mintemp || state_delp.T >= ip->integrator_MAX_TEMP) {
+    if (state_delp.T <= ep.EOSData_mintemp || state_delp.T >= ip.integrator_MAX_TEMP) {
         // jac.zero()
         for (int i = 1; i <= neqs; ++i) {
             for (int j = 1; j <= neqs; ++j) {
-                jac[MPL_JAC(i, j)] = 0.0;
+                jac(i, j) = 0.0;
             }
         }
         return;
@@ -482,60 +479,59 @@ MPL_DEVICE void numerical_jac(const burn_t* state, const Real h, Real* jac,
 
     eos(eos_input_rt, &state_delp, ep, tab);
 
-    actual_rhs(&state_delp, np, ydotp);
+    actual_rhs(state_delp, np, ydotp);
 
     for (int q = 1; q <= NumSpec; q++) {
-        ydotp[q] *= aion[q-1];
+        ydotp(q) *= aion[q-1];
     }
 
     for (int m = 1; m <= neqs; m++) {
-        jac[MPL_JAC(m, net_ienuc)] = (ydotp[m] - ydotm[m]) / dy;
+        jac(m, net_ienuc) = (ydotp(m) - ydotm(m)) / dy;
     }
 
     eos_re_extra_t eos_state{};
-    eos_state.rho = state->rho;
-    eos_state.T = state->T;
-    eos_state.e = state->e;
+    eos_state.rho = state.rho;
+    eos_state.T = state.T;
+    eos_state.e = state.e;
     for (int n = 0; n < NumSpec; n++) {
-        eos_state.xn[n] = state->xn[n];
+        eos_state.xn[n] = state.xn[n];
     }
 
     eos(eos_input_re, &eos_state, ep, tab);
 
-    eos_xderivs_t eos_xderivs{};
-    composition_derivatives(&eos_state, &eos_xderivs);
+    eos_xderivs_t eos_xderivs = composition_derivatives(eos_state);
 
     for (int m = 1; m <= neqs; m++) {
-        jac[MPL_JAC(m, net_ienuc)] *= 1.0 / eos_state.cv;
+        jac(m, net_ienuc) *= 1.0 / eos_state.cv;
     }
 
     for (int n = 1; n <= NumSpec; n++) {
         for (int m = 1; m <= neqs; m++) {
-            jac[MPL_JAC(m, n)] -= eos_xderivs.dedX[n-1] * jac[MPL_JAC(m, net_ienuc)];
+            jac(m, n) -= eos_xderivs.dedX[n-1] * jac(m, net_ienuc);
         }
     }
 
-    if (ip->integrator_scale_system) {
+    if (ip.integrator_scale_system) {
         for (int n = 1; n <= neqs; ++n) {
-            jac[MPL_JAC(net_ienuc, n)] /= state->e_scale;
+            jac(net_ienuc, n) /= state.e_scale;
         }
 
         for (int m = 1; m <= neqs; ++m) {
-            jac[MPL_JAC(m, net_ienuc)] *= state->e_scale;
+            jac(m, net_ienuc) *= state.e_scale;
         }
     }
 
-    if (ip->integrator_react_boost > 0.0) {
+    if (ip.integrator_react_boost > 0.0) {
         for (int i = 1; i <= neqs; ++i) {
             for (int j = 1; j <= neqs; ++j) {
-                jac[MPL_JAC(i, j)] *= ip->integrator_react_boost;
+                jac(i, j) *= ip.integrator_react_boost;
             }
         }
     }
 
-    if (!ip->integrator_integrate_energy) {
+    if (!ip.integrator_integrate_energy) {
         for (int n = 1; n <= neqs; ++n) {
-            jac[MPL_JAC(net_ienuc, n)] = 0.0;
+            jac(net_ienuc, n) = 0.0;
         }
     }
 }
@@ -555,11 +551,11 @@ MPL_DEVICE void dvset(dvode_t* vs)
 
     for (int i = 3; i <= vs->L; ++i) {
         MPL_ASSUME(3 <= i && i <= VODE_LMAX);
-        vs->el[i] = 0.0;
+        vs->el(i) = 0.0;
     }
 
-    vs->el[1] = 1.0;
-    vs->el[2] = 1.0;
+    vs->el(1) = 1.0;
+    vs->el(2) = 1.0;
     Real ALPH0 = -1.0;
     Real AHATN0 = -1.0;
     Real HSUM = vs->H;
@@ -569,26 +565,26 @@ MPL_DEVICE void dvset(dvode_t* vs)
     if (vs->NQ != 1) {
         for (int j = 1; j <= NQM2; ++j) {
             MPL_ASSUME(1 <= j && j <= VODE_MAXORD - 2);
-            HSUM += vs->tau[j];
+            HSUM += vs->tau(j);
             RXI = vs->H / HSUM;
             ALPH0 -= 1.0 / (j+1);
             for (int iback = 1; iback <= j+1; ++iback) {
                 const int i = (j + 3) - iback;
                 MPL_ASSUME(2 <= i && i <= VODE_LMAX);
-                vs->el[i] += vs->el[i-1] * RXI;
+                vs->el(i) += vs->el(i-1) * RXI;
             }
         }
 
         ALPH0 -= 1.0 / vs->NQ;
-        RXIS = -vs->el[2] - ALPH0;
+        RXIS = -vs->el(2) - ALPH0;
         MPL_ASSUME(1 <= NQM1 && NQM1 <= VODE_LMAX);
-        HSUM += vs->tau[NQM1];
+        HSUM += vs->tau(NQM1);
         RXI = vs->H / HSUM;
-        AHATN0 = -vs->el[2] - RXI;
+        AHATN0 = -vs->el(2) - RXI;
         for (int iback = 1; iback <= vs->NQ; ++iback) {
             const int i = (vs->NQ + 2) - iback;
             MPL_ASSUME(2 <= i && i <= VODE_LMAX);
-            vs->el[i] += vs->el[i-1] * RXIS;
+            vs->el(i) += vs->el(i-1) * RXIS;
         }
     }
 
@@ -600,24 +596,24 @@ MPL_DEVICE void dvset(dvode_t* vs)
 
     const Real T1 = 1.0 - AHATN0 + ALPH0;
     const Real T2 = 1.0 + vs->NQ * T1;
-    vs->tq[2] = math::abs(ALPH0 * T2 / T1);
-    vs->tq[5] = math::abs(T2 / (vs->el[La] * RXI / RXIS));
+    vs->tq(2) = math::abs(ALPH0 * T2 / T1);
+    vs->tq(5) = math::abs(T2 / (vs->el(La) * RXI / RXIS));
 
     if (vs->NQWAIT == 1) {
-        const Real CNQM1 = RXIS / vs->el[La];
+        const Real CNQM1 = RXIS / vs->el(La);
         const Real T3 = ALPH0 + 1.0 / vs->NQ;
         const Real T4 = AHATN0 + RXI;
         Real ELP = T3 / (1.0 - T4 + T3);
-        vs->tq[1] = math::abs(ELP / CNQM1);
-        HSUM += vs->tau[NQa];
+        vs->tq(1) = math::abs(ELP / CNQM1);
+        HSUM += vs->tau(NQa);
         RXI = vs->H / HSUM;
         const Real T5 = ALPH0 - 1.0 / (vs->NQ+1);
         const Real T6 = AHATN0 - RXI;
         ELP = T2 / (1.0 - T6 + T5);
-        vs->tq[3] = math::abs(ELP * RXI * (FLOTL + 1.0) * T5);
+        vs->tq(3) = math::abs(ELP * RXI * (FLOTL + 1.0) * T5);
     }
 
-    vs->tq[4] = CORTES * vs->tq[2];
+    vs->tq(4) = CORTES * vs->tq(2);
 }
 
 // from integration/VODE/vode_dvjust.H:7 dvjust
@@ -638,18 +634,18 @@ MPL_DEVICE void dvjust(int IORD, burn_t* state, dvode_t* vs)
 
         // Order decrease.
         for (int j = 1; j <= VODE_LMAX; ++j) {
-            vs->el[j] = 0.0;
+            vs->el(j) = 0.0;
         }
-        vs->el[3] = 1.0;
+        vs->el(3) = 1.0;
         Real HSUM = 0.0;
         for (int j = 1; j <= NQM2; ++j) {
             MPL_ASSUME(1 <= j && j <= VODE_MAXORD - 2);
-            HSUM += vs->tau[j];
+            HSUM += vs->tau(j);
             XI = HSUM / vs->HSCAL;
             for (int iback = 1; iback <= j+1; ++iback) {
                 const int i = (j + 4) - iback;
                 MPL_ASSUME(2 <= i && i <= VODE_LMAX);
-                vs->el[i] = vs->el[i] * XI + vs->el[i-1];
+                vs->el(i) = vs->el(i) * XI + vs->el(i-1);
             }
         }
 
@@ -658,7 +654,7 @@ MPL_DEVICE void dvjust(int IORD, burn_t* state, dvode_t* vs)
         for (int j = 3; j <= vs->NQ; ++j) {
             MPL_ASSUME(3 <= j && j <= VODE_LMAX);
             for (int i = 1; i <= neqs; ++i) {
-                vs->yh[MPL_YH(i, j)] -= vs->yh[MPL_YH(i, Lb)] * vs->el[j];
+                vs->yh(i, j) -= vs->yh(i, Lb) * vs->el(j);
             }
         }
 
@@ -667,10 +663,10 @@ MPL_DEVICE void dvjust(int IORD, burn_t* state, dvode_t* vs)
 
         // Order increase.
         for (int j = 1; j <= VODE_LMAX; ++j) {
-            vs->el[j] = 0.0;
+            vs->el(j) = 0.0;
         }
 
-        vs->el[3] = 1.0;
+        vs->el(3) = 1.0;
         Real ALPH0 = -1.0;
         Real ALPH1 = 1.0;
         Real PROD = 1.0;
@@ -680,7 +676,7 @@ MPL_DEVICE void dvjust(int IORD, burn_t* state, dvode_t* vs)
         if (vs->NQ != 1) {
             for (int j = 1; j <= NQM1; ++j) {
                 MPL_ASSUME(1 <= j && j <= VODE_MAXORD - 1);
-                HSUM += vs->tau[j+1];
+                HSUM += vs->tau(j+1);
                 XI = HSUM / vs->HSCAL;
                 PROD *= XI;
                 ALPH0 -= 1.0 / (j + 1);
@@ -688,7 +684,7 @@ MPL_DEVICE void dvjust(int IORD, burn_t* state, dvode_t* vs)
                 for (int iback = 1; iback <= j+1; ++iback) {
                     int i = (j + 4) - iback;
                     MPL_ASSUME(2 <= i && i <= VODE_LMAX);
-                    vs->el[i] = vs->el[i] * XIOLD + vs->el[i-1];
+                    vs->el(i) = vs->el(i) * XIOLD + vs->el(i-1);
                 }
                 XIOLD = XI;
             }
@@ -698,13 +694,13 @@ MPL_DEVICE void dvjust(int IORD, burn_t* state, dvode_t* vs)
         const int Lc = vs->L;
         MPL_ASSUME(1 <= Lc && Lc <= VODE_LMAX - 1);
         for (int i = 1; i <= neqs; ++i) {
-            vs->yh[MPL_YH(i, Lc+1)] = T1 * vs->yh[MPL_YH(i, VODE_LMAX)];
+            vs->yh(i, Lc+1) = T1 * vs->yh(i, VODE_LMAX);
         }
 
         for (int j = 3; j <= vs->NQ + 1; ++j) {
             MPL_ASSUME(3 <= j && j <= VODE_LMAX);
             for (int i = 1; i <= neqs; ++i) {
-                vs->yh[MPL_YH(i, j)] += vs->el[j] * vs->yh[MPL_YH(i, Lc+1)];
+                vs->yh(i, j) += vs->el(j) * vs->yh(i, Lc+1);
             }
         }
     }
@@ -720,7 +716,7 @@ MPL_DEVICE void advance_nordsieck(burn_t* state, dvode_t* vs)
         for (int j = k; j <= vs->NQ; ++j) {
             MPL_ASSUME(1 <= j && j <= VODE_LMAX - 1);
             for (int i = 1; i <= neqs; ++i) {
-                vs->yh[MPL_YH(i, j)] += vs->yh[MPL_YH(i, j+1)];
+                vs->yh(i, j) += vs->yh(i, j+1);
             }
         }
     }
@@ -736,7 +732,7 @@ MPL_DEVICE void retract_nordsieck(burn_t* state, dvode_t* vs)
         for (int j = k; j <= vs->NQ; ++j) {
             MPL_ASSUME(1 <= j && j <= VODE_LMAX - 1);
             for (int i = 1; i <= neqs; ++i) {
-                vs->yh[MPL_YH(i, j)] -= vs->yh[MPL_YH(i, j+1)];
+                vs->yh(i, j) -= vs->yh(i, j+1);
             }
         }
     }
@@ -752,7 +748,7 @@ MPL_DEVICE void dvstep_rescale_history(dvode_t* vs)
         MPL_ASSUME(2 <= j && j <= VODE_LMAX);
         R *= vs->ETA;
         for (int i = 1; i <= neqs; ++i) {
-            vs->yh[MPL_YH(i, j)] *= R;
+            vs->yh(i, j) *= R;
         }
     }
 }
@@ -760,7 +756,7 @@ MPL_DEVICE void dvstep_rescale_history(dvode_t* vs)
 // from integration/VODE/vode_dvjac.H:16 dvjac (no ALLOW_JACOBIAN_CACHING;
 // NEW_NETWORK_IMPLEMENTATION: RHS::dgefa)
 MPL_DEVICE void dvjac(int& IERPJ, burn_t* state, dvode_t* vs,
-                      const IntegratorParams* ip, const EosParams* ep, const NetParams* np, EosTables tab)
+                      const IntegratorParams& ip, const EosParams& ep, const NetParams& np, EosTables tab)
 {
     IERPJ = 0;
 
@@ -785,7 +781,7 @@ MPL_DEVICE void dvjac(int& IERPJ, burn_t* state, dvode_t* vs,
 
         Real fac = 0.0;
         for (int i = 1; i <= neqs; ++i) {
-            fac += (vs->savf[i] * vs->ewt[i]) * (vs->savf[i] * vs->ewt[i]);
+            fac += (vs->savf(i) * vs->ewt(i)) * (vs->savf(i) * vs->ewt(i));
         }
         fac = math::sqrt(fac / neqs);
 
@@ -795,18 +791,18 @@ MPL_DEVICE void dvjac(int& IERPJ, burn_t* state, dvode_t* vs,
         }
 
         for (int j = 1; j <= neqs; ++j) {
-            const Real yj = vs->y[j];
+            const Real yj = vs->y(j);
 
-            const Real R = math::max(math::sqrt(UROUND) * math::abs(yj), R0 / vs->ewt[j]);
-            vs->y[j] += R;
+            const Real R = math::max(math::sqrt(UROUND) * math::abs(yj), R0 / vs->ewt(j));
+            vs->y(j) += R;
             fac = 1.0 / R;
 
             rhs(vs->tn, state, vs, vs->acor, ip, ep, np, tab);
             for (int i = 1; i <= neqs; ++i) {
-                vs->jac[MPL_JAC(i, j)] = (vs->acor[i] - vs->savf[i]) * fac;
+                vs->jac(i, j) = (vs->acor(i) - vs->savf(i)) * fac;
             }
 
-            vs->y[j] = yj;
+            vs->y(j) = yj;
         }
 
         vs->n_rhs += neqs;
@@ -818,11 +814,11 @@ MPL_DEVICE void dvjac(int& IERPJ, burn_t* state, dvode_t* vs,
     // jac.mul(con); jac.add_identity()
     for (int i = 1; i <= neqs; ++i) {
         for (int j = 1; j <= neqs; ++j) {
-            vs->jac[MPL_JAC(i, j)] *= con;
+            vs->jac(i, j) *= con;
         }
     }
     for (int i = 1; i <= neqs; ++i) {
-        vs->jac[MPL_JAC(i, i)] += 1.0;
+        vs->jac(i, i) += 1.0;
     }
 
     int IER = rhs_dgefa(vs->jac);
@@ -835,7 +831,7 @@ MPL_DEVICE void dvjac(int& IERPJ, burn_t* state, dvode_t* vs,
 // from integration/VODE/vode_dvnlsd.H:11 dvnlsd
 // The three `return ACNRM;` exits inside the loops set `failed` and break.
 MPL_DEVICE Real dvnlsd(int& NFLAG, burn_t* state, dvode_t* vs,
-                       const IntegratorParams* ip, const EosParams* ep, const NetParams* np, EosTables tab)
+                       const IntegratorParams& ip, const EosParams& ep, const NetParams& np, EosTables tab)
 {
     Real ACNRM = 1.e10;
 
@@ -869,7 +865,7 @@ MPL_DEVICE Real dvnlsd(int& NFLAG, burn_t* state, dvode_t* vs,
         Real DELP = 0.0;
 
         for (int i = 1; i <= neqs; ++i) {
-            vs->y[i] = vs->yh[MPL_YH(i, 1)];
+            vs->y(i) = vs->yh(i, 1);
         }
 
         rhs(vs->tn, state, vs, vs->savf, ip, ep, np, tab);
@@ -896,15 +892,15 @@ MPL_DEVICE Real dvnlsd(int& NFLAG, burn_t* state, dvode_t* vs,
         }
 
         for (int i = 1; i <= neqs; ++i) {
-            vs->acor[i] = 0.0;
+            vs->acor(i) = 0.0;
         }
 
         // Corrector iteration loop.
         while (true) {
 
             for (int i = 1; i <= neqs; ++i) {
-                vs->y[i] = (vs->RL1 * vs->H) * vs->savf[i] -
-                           (vs->RL1 * vs->yh[MPL_YH(i, 2)] + vs->acor[i]);
+                vs->y(i) = (vs->RL1 * vs->H) * vs->savf(i) -
+                           (vs->RL1 * vs->yh(i, 2) + vs->acor(i));
             }
 
             rhs_dgesl(vs->jac, vs->y);
@@ -912,31 +908,31 @@ MPL_DEVICE Real dvnlsd(int& NFLAG, burn_t* state, dvode_t* vs,
             if (vs->RC != 1.0) {
                 const Real CSCALE = 2.0 / (1.0 + vs->RC);
                 for (int i = 1; i <= neqs; ++i) {
-                    vs->y[i] *= CSCALE;
+                    vs->y(i) *= CSCALE;
                 }
             }
 
             DEL = 0.0;
             for (int i = 1; i <= neqs; ++i) {
-                DEL += (vs->y[i] * vs->ewt[i]) * (vs->y[i] * vs->ewt[i]);
+                DEL += (vs->y(i) * vs->ewt(i)) * (vs->y(i) * vs->ewt(i));
             }
             DEL = math::sqrt(DEL / neqs);
 
             for (int i = 1; i <= neqs; ++i) {
-                vs->acor[i] += vs->y[i];
+                vs->acor(i) += vs->y(i);
             }
 
             for (int i = 1; i <= neqs; ++i) {
-                vs->y[i] = vs->yh[MPL_YH(i, 1)] + vs->acor[i];
+                vs->y(i) = vs->yh(i, 1) + vs->acor(i);
             }
 
-            if (ip->integrator_do_corrector_validation && !ip->integrator_use_number_densities) {
-                const Real thresh = ip->integrator_species_failure_tolerance;
+            if (ip.integrator_do_corrector_validation && !ip.integrator_use_number_densities) {
+                const Real thresh = ip.integrator_species_failure_tolerance;
                 bool fail = false;
                 for (int i = 1; i <= NumSpec; ++i) {
                     // loop with break: Loom can't bound i from the loop alone
                     MPL_ASSUME(1 <= i && i <= NumSpec);
-                    if (vs->y[i] < -thresh) {
+                    if (vs->y(i) < -thresh) {
                         fail = true;
                         break;
                     }
@@ -955,7 +951,7 @@ MPL_DEVICE Real dvnlsd(int& NFLAG, burn_t* state, dvode_t* vs,
                 vs->CRATE = math::max(CRDOWN * vs->CRATE, DEL / DELP);
             }
 
-            const Real DCON = DEL * math::min(1.0, vs->CRATE) / vs->tq[4];
+            const Real DCON = DEL * math::min(1.0, vs->CRATE) / vs->tq(4);
             if (DCON <= 1.0) {
                 converged = true;
                 break;
@@ -1009,7 +1005,7 @@ MPL_DEVICE Real dvnlsd(int& NFLAG, burn_t* state, dvode_t* vs,
     if (M > 0) {
         ACNRM = 0.0;
         for (int i = 1; i <= neqs; ++i) {
-            ACNRM += (vs->acor[i] * vs->ewt[i]) * (vs->acor[i] * vs->ewt[i]);
+            ACNRM += (vs->acor(i) * vs->ewt(i)) * (vs->acor(i) * vs->ewt(i));
         }
         ACNRM = math::sqrt(ACNRM / neqs);
     }
@@ -1020,7 +1016,7 @@ MPL_DEVICE Real dvnlsd(int& NFLAG, burn_t* state, dvode_t* vs,
 // from integration/VODE/vode_dvstep.H:52 dvstep (STRANG constraint block)
 // The four `return kflag;` exits inside the step loop set `finished` and break.
 MPL_DEVICE int dvstep(burn_t* state, dvode_t* vs,
-                      const IntegratorParams* ip, const EosParams* ep, const NetParams* np, EosTables tab)
+                      const IntegratorParams& ip, const EosParams& ep, const NetParams& np, EosTables tab)
 {
     constexpr int KFC = -3;
     constexpr int KFH = -7;
@@ -1069,9 +1065,9 @@ MPL_DEVICE int dvstep(burn_t* state, dvode_t* vs,
         vs->RC = vs->RC * vs->ETA;
     }
 
-    Real y_save[neqs + 1] = {};
+    Array1D<Real, 1, neqs> y_save{};
     for (int i = 1; i <= neqs; ++i) {
-        y_save[i] = vs->y[i];
+        y_save(i) = vs->y(i);
     }
 
     bool finished = false;
@@ -1084,7 +1080,7 @@ MPL_DEVICE int dvstep(burn_t* state, dvode_t* vs,
 
         dvset(vs);
 
-        vs->RL1 = 1.0 / vs->el[2];
+        vs->RL1 = 1.0 / vs->el(2);
         vs->RC *= (vs->RL1 / vs->PRL1);
         vs->PRL1 = vs->RL1;
 
@@ -1128,28 +1124,28 @@ MPL_DEVICE int dvstep(burn_t* state, dvode_t* vs,
             // loop with break: Loom can't bound i from the loop alone
             MPL_ASSUME(1 <= i && i <= NumSpec);
 
-            if (math::abs(y_save[i]) > ip->integrator_X_reject_buffer * vs->atol_spec &&
-                math::abs(vs->y[i]) > ip->integrator_X_reject_buffer * vs->atol_spec &&
-                (math::abs(vs->y[i]) > vode_increase_change_factor * math::abs(y_save[i]) ||
-                 math::abs(vs->y[i]) < vode_decrease_change_factor * math::abs(y_save[i]))) {
+            if (math::abs(y_save(i)) > ip.integrator_X_reject_buffer * vs->atol_spec &&
+                math::abs(vs->y(i)) > ip.integrator_X_reject_buffer * vs->atol_spec &&
+                (math::abs(vs->y(i)) > vode_increase_change_factor * math::abs(y_save(i)) ||
+                 math::abs(vs->y(i)) < vode_decrease_change_factor * math::abs(y_save(i)))) {
                 valid_update = false;
                 break;
             }
 
-            if (vs->y[i] < -ip->integrator_species_failure_tolerance) {
+            if (vs->y(i) < -ip.integrator_species_failure_tolerance) {
                 valid_update = false;
                 break;
             }
 
-            if (!ip->integrator_use_number_densities) {
-                if (vs->y[i] > 1.0 + ip->integrator_species_failure_tolerance) {
+            if (!ip.integrator_use_number_densities) {
+                if (vs->y(i) > 1.0 + ip.integrator_species_failure_tolerance) {
                     valid_update = false;
                     break;
                 }
             }
         }
 
-        DSM = ACNRM / vs->tq[2];
+        DSM = ACNRM / vs->tq(2);
         if (DSM <= 1.0 && valid_update) {
 
             kflag = 0;
@@ -1157,23 +1153,23 @@ MPL_DEVICE int dvstep(burn_t* state, dvode_t* vs,
             for (int iback = 1; iback <= vs->NQ; ++iback) {
                 const int i = vs->L - iback;
                 MPL_ASSUME(1 <= i && i <= VODE_LMAX - 1);
-                vs->tau[i+1] = vs->tau[i];
+                vs->tau(i+1) = vs->tau(i);
             }
 
-            vs->tau[1] = vs->H;
+            vs->tau(1) = vs->H;
             for (int j = 1; j <= vs->L; ++j) {
                 MPL_ASSUME(1 <= j && j <= VODE_LMAX);
                 for (int i = 1; i <= neqs; ++i) {
-                    vs->yh[MPL_YH(i, j)] += vs->el[j] * vs->acor[i];
+                    vs->yh(i, j) += vs->el(j) * vs->acor(i);
                 }
             }
 
             vs->NQWAIT -= 1;
             if ((vs->L != VODE_LMAX) && (vs->NQWAIT == 1)) {
                 for (int i = 1; i <= neqs; ++i) {
-                    vs->yh[MPL_YH(i, VODE_LMAX)] = vs->acor[i];
+                    vs->yh(i, VODE_LMAX) = vs->acor(i);
                 }
-                vs->CONP = vs->tq[5];
+                vs->CONP = vs->tq(5);
             }
 
             if (vs->ETAMAX != 1.0) {
@@ -1192,9 +1188,9 @@ MPL_DEVICE int dvstep(burn_t* state, dvode_t* vs,
                 vs->ETAMAX = ETAMX2;
             }
 
-            Real R = 1.0 / vs->tq[2];
+            Real R = 1.0 / vs->tq(2);
             for (int i = 1; i <= neqs; ++i) {
-                vs->acor[i] *= R;
+                vs->acor(i) *= R;
             }
 
             finished = true;
@@ -1258,11 +1254,11 @@ MPL_DEVICE int dvstep(burn_t* state, dvode_t* vs,
         vs->ETA = math::max(ETAMIN, HMIN / math::abs(vs->H));
         vs->H *= vs->ETA;
         vs->HSCAL = vs->H;
-        vs->tau[1] = vs->H;
+        vs->tau(1) = vs->H;
         rhs(vs->tn, state, vs, vs->savf, ip, ep, np, tab);
         vs->n_rhs += 1;
         for (int i = 1; i <= neqs; ++i) {
-            vs->yh[MPL_YH(i, 2)] = vs->H * vs->savf[i];
+            vs->yh(i, 2) = vs->H * vs->savf(i);
         }
 
         vs->NQWAIT = 10;
@@ -1286,9 +1282,9 @@ MPL_DEVICE int dvstep(burn_t* state, dvode_t* vs,
             const int Le = vs->L;
             MPL_ASSUME(1 <= Le && Le <= VODE_LMAX);
             for (int i = 1; i <= neqs; ++i) {
-                DDN += (vs->yh[MPL_YH(i, Le)] * vs->ewt[i]) * (vs->yh[MPL_YH(i, Le)] * vs->ewt[i]);
+                DDN += (vs->yh(i, Le) * vs->ewt(i)) * (vs->yh(i, Le) * vs->ewt(i));
             }
-            DDN = math::sqrt(DDN / neqs) / vs->tq[1];
+            DDN = math::sqrt(DDN / neqs) / vs->tq(1);
             ETAQM1 = 1.0 / (math::pow(BIAS1 * DDN, 1.0 / (FLOTL - 1.0)) + ADDON);
         }
 
@@ -1296,15 +1292,15 @@ MPL_DEVICE int dvstep(burn_t* state, dvode_t* vs,
 
         if (vs->L != VODE_LMAX) {
             // std::pow(Real, short L): the short promotes to double
-            Real CNQUOT = (vs->tq[5] / vs->CONP) * math::pow(vs->H / vs->tau[2], static_cast<Real>(vs->L));
+            Real CNQUOT = (vs->tq(5) / vs->CONP) * math::pow(vs->H / vs->tau(2), static_cast<Real>(vs->L));
             for (int i = 1; i <= neqs; ++i) {
-                vs->savf[i] = vs->acor[i] - CNQUOT * vs->yh[MPL_YH(i, VODE_LMAX)];
+                vs->savf(i) = vs->acor(i) - CNQUOT * vs->yh(i, VODE_LMAX);
             }
             Real DUP = 0.0;
             for (int i = 1; i <= neqs; ++i) {
-                DUP += (vs->savf[i] * vs->ewt[i]) * (vs->savf[i] * vs->ewt[i]);
+                DUP += (vs->savf(i) * vs->ewt(i)) * (vs->savf(i) * vs->ewt(i));
             }
-            DUP = math::sqrt(DUP / neqs) / vs->tq[3];
+            DUP = math::sqrt(DUP / neqs) / vs->tq(3);
             ETAQP1 = 1.0 / (math::pow(BIAS3 * DUP, 1.0 / (FLOTL + 1.0)) + ADDON);
         }
 
@@ -1313,7 +1309,7 @@ MPL_DEVICE int dvstep(burn_t* state, dvode_t* vs,
                 vs->ETA = ETAQP1;
                 vs->NEWQ = static_cast<short>(vs->NQ + 1);
                 for (int i = 1; i <= neqs; ++i) {
-                    vs->yh[MPL_YH(i, VODE_LMAX)] = vs->acor[i];
+                    vs->yh(i, VODE_LMAX) = vs->acor(i);
                 }
             }
             else {
@@ -1343,9 +1339,9 @@ MPL_DEVICE int dvstep(burn_t* state, dvode_t* vs,
         if (vs->n_step <= 10) {
             vs->ETAMAX = ETAMX2;
         }
-        Real R = 1.0 / vs->tq[2];
+        Real R = 1.0 / vs->tq(2);
         for (int i = 1; i <= neqs; ++i) {
-            vs->acor[i] *= R;
+            vs->acor(i) *= R;
         }
         return kflag;
     }
@@ -1357,9 +1353,9 @@ MPL_DEVICE int dvstep(burn_t* state, dvode_t* vs,
     if (vs->n_step <= 10) {
         vs->ETAMAX = ETAMX2;
     }
-    Real R = 1.0 / vs->tq[2];
+    Real R = 1.0 / vs->tq(2);
     for (int i = 1; i <= neqs; ++i) {
-        vs->acor[i] *= R;
+        vs->acor(i) *= R;
     }
 
     return kflag;
@@ -1367,7 +1363,7 @@ MPL_DEVICE int dvstep(burn_t* state, dvode_t* vs,
 
 // from integration/VODE/vode_dvhin.H:15 dvhin
 MPL_DEVICE void dvhin(burn_t* state, dvode_t* vs, Real& H0, int& NITER, int& IER,
-                      const IntegratorParams* ip, const EosParams* ep, const NetParams* np, EosTables tab)
+                      const IntegratorParams& ip, const EosParams& ep, const NetParams& np, EosTables tab)
 {
     constexpr Real PT1 = 0.1e0;
 
@@ -1386,8 +1382,8 @@ MPL_DEVICE void dvhin(burn_t* state, dvode_t* vs, Real& H0, int& NITER, int& IER
 
     for (int i = 1; i <= neqs; ++i) {
         const Real atol = i <= NumSpec ? vs->atol_spec : vs->atol_enuc;
-        const Real DELYI = PT1 * math::abs(vs->yh[MPL_YH(i, 1)]) + atol;
-        const Real AFI = math::abs(vs->yh[MPL_YH(i, 2)]);
+        const Real DELYI = PT1 * math::abs(vs->yh(i, 1)) + atol;
+        const Real AFI = math::abs(vs->yh(i, 2));
         if (AFI * HUB > DELYI) {
             HUB = DELYI / AFI;
         }
@@ -1410,7 +1406,7 @@ MPL_DEVICE void dvhin(burn_t* state, dvode_t* vs, Real& H0, int& NITER, int& IER
 
             const Real H = math::copysign(HG, vs->tout - vs->t);
             for (int i = 1; i <= neqs; ++i) {
-                vs->y[i] = vs->yh[MPL_YH(i, 1)] + H * vs->yh[MPL_YH(i, 2)];
+                vs->y(i) = vs->yh(i, 1) + H * vs->yh(i, 2);
             }
 
             const Real t1 = vs->t + H;
@@ -1418,12 +1414,12 @@ MPL_DEVICE void dvhin(burn_t* state, dvode_t* vs, Real& H0, int& NITER, int& IER
             rhs(t1, state, vs, vs->acor, ip, ep, np, tab);
 
             for (int i = 1; i <= neqs; ++i) {
-                vs->acor[i] = (vs->acor[i] - vs->yh[MPL_YH(i, 2)]) / H;
+                vs->acor(i) = (vs->acor(i) - vs->yh(i, 2)) / H;
             }
 
             Real YDDNRM = 0.0;
             for (int i = 1; i <= neqs; ++i) {
-                YDDNRM += (vs->acor[i] * vs->ewt[i]) * (vs->acor[i] * vs->ewt[i]);
+                YDDNRM += (vs->acor(i) * vs->ewt(i)) * (vs->acor(i) * vs->ewt(i));
             }
             YDDNRM = math::sqrt(YDDNRM / neqs);
 
@@ -1464,7 +1460,7 @@ MPL_DEVICE void dvhin(burn_t* state, dvode_t* vs, Real& H0, int& NITER, int& IER
 // from integration/VODE/vode_dvode.H:23 dvode
 // The `return`s inside the step loop set `result` and break.
 MPL_DEVICE int dvode(burn_t* state, dvode_t* vs,
-                     const IntegratorParams* ip, const EosParams* ep, const NetParams* np, EosTables tab)
+                     const IntegratorParams& ip, const EosParams& ep, const NetParams& np, EosTables tab)
 {
     Real H0 = 0.0;
     Real S = 0.0;
@@ -1473,7 +1469,7 @@ MPL_DEVICE int dvode(burn_t* state, dvode_t* vs,
 
     int istate = IERR_SUCCESS;
 
-    vs->HMXI = 1.0 / ip->integrator_ode_max_dt;
+    vs->HMXI = 1.0 / ip.integrator_ode_max_dt;
 
     if (vs->tout == vs->t) {
         return istate;
@@ -1485,29 +1481,29 @@ MPL_DEVICE int dvode(burn_t* state, dvode_t* vs,
     vs->n_jac = 0;
     vs->NSLJ = 0;
 
-    Real f_init[neqs + 1] = {};
+    Array1D<Real, 1, neqs> f_init{};
 
     rhs(vs->t, state, vs, f_init, ip, ep, np, tab);
 
     for (int i = 1; i <= neqs; ++i) {
-        vs->yh[MPL_YH(i, 2)] = f_init[i];
+        vs->yh(i, 2) = f_init(i);
     }
 
     vs->n_rhs = 1;
 
     for (int i = 1; i <= neqs; ++i) {
-        vs->yh[MPL_YH(i, 1)] = vs->y[i];
+        vs->yh(i, 1) = vs->y(i);
     }
 
     vs->NQ = 1;
     vs->H = 1.0;
 
     for (int i = 1; i <= NumSpec; ++i) {
-        vs->ewt[i] = vs->rtol_spec * math::abs(vs->yh[MPL_YH(i, 1)]) + vs->atol_spec;
-        vs->ewt[i] = 1.0 / vs->ewt[i];
+        vs->ewt(i) = vs->rtol_spec * math::abs(vs->yh(i, 1)) + vs->atol_spec;
+        vs->ewt(i) = 1.0 / vs->ewt(i);
     }
-    vs->ewt[NumSpec+1] = vs->rtol_enuc * math::abs(vs->yh[MPL_YH(NumSpec+1, 1)]) + vs->atol_enuc;
-    vs->ewt[NumSpec+1] = 1.0 / vs->ewt[NumSpec+1];
+    vs->ewt(NumSpec+1) = vs->rtol_enuc * math::abs(vs->yh(NumSpec+1, 1)) + vs->atol_enuc;
+    vs->ewt(NumSpec+1) = 1.0 / vs->ewt(NumSpec+1);
 
     H0 = 0.0;
     dvhin(state, vs, H0, NITER, IER, ip, ep, np, tab);
@@ -1518,17 +1514,17 @@ MPL_DEVICE int dvode(burn_t* state, dvode_t* vs,
         return istate;
     }
 
-    H0 = math::copysign(math::min(math::abs(H0), ip->integrator_ode_max_dt), H0);
+    H0 = math::copysign(math::min(math::abs(H0), ip.integrator_ode_max_dt), H0);
 
     vs->H = H0;
     for (int i = 1; i <= neqs; ++i) {
-        vs->yh[MPL_YH(i, 2)] *= H0;
+        vs->yh(i, 2) *= H0;
     }
 
     vs->NQ = 1;
     vs->NEWQ = 1;
     vs->L = 2;
-    vs->tau[1] = vs->H;
+    vs->tau(1) = vs->H;
     vs->PRL1 = 1.0;
     vs->RC = 0.0;
     vs->ETAMAX = 1.0e4;
@@ -1555,9 +1551,9 @@ MPL_DEVICE int dvode(burn_t* state, dvode_t* vs,
 
         if (!skip_loop_start) {
 
-            if (vs->n_step >= ip->integrator_ode_max_steps) {
+            if (vs->n_step >= ip.integrator_ode_max_steps) {
                 for (int i = 1; i <= neqs; ++i) {
-                    vs->y[i] = vs->yh[MPL_YH(i, 1)];
+                    vs->y(i) = vs->yh(i, 1);
                 }
 
                 vs->t = vs->tn;
@@ -1567,11 +1563,11 @@ MPL_DEVICE int dvode(burn_t* state, dvode_t* vs,
 
             if (!too_many_steps) {
                 for (int i = 1; i <= NumSpec; ++i) {
-                    vs->ewt[i] = vs->rtol_spec * math::abs(vs->yh[MPL_YH(i, 1)]) + vs->atol_spec;
-                    vs->ewt[i] = 1.0 / vs->ewt[i];
+                    vs->ewt(i) = vs->rtol_spec * math::abs(vs->yh(i, 1)) + vs->atol_spec;
+                    vs->ewt(i) = 1.0 / vs->ewt(i);
                 }
-                vs->ewt[NumSpec+1] = vs->rtol_enuc * math::abs(vs->yh[MPL_YH(NumSpec+1, 1)]) + vs->atol_enuc;
-                vs->ewt[NumSpec+1] = 1.0 / vs->ewt[NumSpec+1];
+                vs->ewt(NumSpec+1) = vs->rtol_enuc * math::abs(vs->yh(NumSpec+1, 1)) + vs->atol_enuc;
+                vs->ewt(NumSpec+1) = 1.0 / vs->ewt(NumSpec+1);
             }
         }
         else {
@@ -1586,7 +1582,7 @@ MPL_DEVICE int dvode(burn_t* state, dvode_t* vs,
         if (!done) {
             Real TOLSF = 0.0;
             for (int i = 1; i <= neqs; ++i) {
-                TOLSF += (vs->yh[MPL_YH(i, 1)] * vs->ewt[i]) * (vs->yh[MPL_YH(i, 1)] * vs->ewt[i]);
+                TOLSF += (vs->yh(i, 1) * vs->ewt(i)) * (vs->yh(i, 1) * vs->ewt(i));
             }
             TOLSF = UROUND * math::sqrt(TOLSF / neqs);
 
@@ -1598,7 +1594,7 @@ MPL_DEVICE int dvode(burn_t* state, dvode_t* vs,
                 }
                 else {
                     for (int i = 1; i <= neqs; ++i) {
-                        vs->y[i] = vs->yh[MPL_YH(i, 1)];
+                        vs->y(i) = vs->yh(i, 1);
                     }
 
                     vs->t = vs->tn;
@@ -1614,7 +1610,7 @@ MPL_DEVICE int dvode(burn_t* state, dvode_t* vs,
 
             if (kflag == -1) {
                 for (int i = 1; i <= neqs; ++i) {
-                    vs->y[i] = vs->yh[MPL_YH(i, 1)];
+                    vs->y(i) = vs->yh(i, 1);
                 }
 
                 vs->t = vs->tn;
@@ -1623,7 +1619,7 @@ MPL_DEVICE int dvode(burn_t* state, dvode_t* vs,
             }
             else if (kflag == -2) {
                 for (int i = 1; i <= neqs; ++i) {
-                    vs->y[i] = vs->yh[MPL_YH(i, 1)];
+                    vs->y(i) = vs->yh(i, 1);
                 }
 
                 vs->t = vs->tn;
@@ -1637,7 +1633,7 @@ MPL_DEVICE int dvode(burn_t* state, dvode_t* vs,
                 MPL_ASSUME(1 <= Ld && Ld <= VODE_LMAX);
 
                 for (int i = 1; i <= neqs; ++i) {
-                    vs->y[i] = vs->yh[MPL_YH(i, Ld)];
+                    vs->y(i) = vs->yh(i, Ld);
                 }
 
                 S = (vs->tout - vs->tn) / vs->H;
@@ -1646,7 +1642,7 @@ MPL_DEVICE int dvode(burn_t* state, dvode_t* vs,
                     const int j = vs->NQ - jb;
                     MPL_ASSUME(0 <= j && j <= VODE_LMAX - 1);
                     for (int i = 1; i <= neqs; ++i) {
-                        vs->y[i] = vs->yh[MPL_YH(i, j+1)] + S * vs->y[i];
+                        vs->y(i) = vs->yh(i, j+1) + S * vs->y(i);
                     }
                 }
 
@@ -1675,30 +1671,30 @@ struct state_backup_t {
 // (stock returns the value-initialized IntegratorT; here the caller passes a
 // value-initialized dvode_t)
 MPL_DEVICE void integrator_setup(burn_t* state, Real dt, bool is_retry, dvode_t* vs,
-                                 const IntegratorParams* ip, const EosParams* ep, EosTables tab)
+                                 const IntegratorParams& ip, const EosParams& ep, EosTables tab)
 {
     if (!is_retry) {
-        vs->atol_spec = ip->integrator_atol_spec;
-        vs->atol_enuc = ip->integrator_atol_enuc;
+        vs->atol_spec = ip.integrator_atol_spec;
+        vs->atol_enuc = ip.integrator_atol_enuc;
 
-        vs->rtol_spec = ip->integrator_rtol_spec;
-        vs->rtol_enuc = ip->integrator_rtol_enuc;
+        vs->rtol_spec = ip.integrator_rtol_spec;
+        vs->rtol_enuc = ip.integrator_rtol_enuc;
     } else {
-        vs->atol_spec = ip->integrator_retry_atol_spec > 0 ?
-            ip->integrator_retry_atol_spec : ip->integrator_atol_spec;
-        vs->atol_enuc = ip->integrator_retry_atol_enuc > 0 ?
-            ip->integrator_retry_atol_enuc : ip->integrator_atol_enuc;
+        vs->atol_spec = ip.integrator_retry_atol_spec > 0 ?
+            ip.integrator_retry_atol_spec : ip.integrator_atol_spec;
+        vs->atol_enuc = ip.integrator_retry_atol_enuc > 0 ?
+            ip.integrator_retry_atol_enuc : ip.integrator_atol_enuc;
 
-        vs->rtol_spec = ip->integrator_retry_rtol_spec > 0 ?
-            ip->integrator_retry_rtol_spec : ip->integrator_rtol_spec;
-        vs->rtol_enuc = ip->integrator_retry_rtol_enuc > 0 ?
-            ip->integrator_retry_rtol_enuc : ip->integrator_rtol_enuc;
+        vs->rtol_spec = ip.integrator_retry_rtol_spec > 0 ?
+            ip.integrator_retry_rtol_spec : ip.integrator_rtol_spec;
+        vs->rtol_enuc = ip.integrator_retry_rtol_enuc > 0 ?
+            ip.integrator_retry_rtol_enuc : ip.integrator_rtol_enuc;
     }
 
-    if (is_retry && ip->integrator_retry_swap_jacobian) {
-        vs->jacobian_type = (ip->integrator_jacobian == 1) ? 2 : 1;
+    if (is_retry && ip.integrator_retry_swap_jacobian) {
+        vs->jacobian_type = (ip.integrator_jacobian == 1) ? 2 : 1;
     } else {
-        vs->jacobian_type = static_cast<short>(ip->integrator_jacobian);
+        vs->jacobian_type = static_cast<short>(ip.integrator_jacobian);
     }
 
     state->success = true;
@@ -1714,20 +1710,20 @@ MPL_DEVICE void integrator_setup(burn_t* state, Real dt, bool is_retry, dvode_t*
 
     state->e_scale = state->e;
 
-    if (ip->integrator_scale_system) {
+    if (ip.integrator_scale_system) {
         vs->atol_enuc /= state->e_scale;
     }
 
-    burn_to_integrator(state, vs, ip);
+    burn_to_integrator(*state, vs, ip);
 }
 
 // from integration/integrator_setup_strang.H:101 integrator_backup
-MPL_DEVICE state_backup_t integrator_backup(const burn_t* state)
+MPL_DEVICE state_backup_t integrator_backup(const burn_t& state)
 {
     state_backup_t state_save{};
 
-    state_save.T_in = state->T;
-    state_save.e_in = state->e;
+    state_save.T_in = state.T;
+    state_save.e_in = state.e;
 
     return state_save;
 }
@@ -1735,19 +1731,19 @@ MPL_DEVICE state_backup_t integrator_backup(const burn_t* state)
 // from integration/integrator_setup_strang.H:120 integrator_cleanup
 // (no printing on GPU)
 MPL_DEVICE void integrator_cleanup(dvode_t* vs, burn_t* state, int istate,
-                                   const state_backup_t* state_save, Real dt,
+                                   const state_backup_t& state_save, Real dt,
                                    const Real final_state_species_failure_tolerance_factor,
-                                   const IntegratorParams* ip)
+                                   const IntegratorParams& ip)
 {
     (void) dt;
 
     integrator_to_burn(vs, state, ip);
 
-    if (ip->integrator_subtract_internal_energy) {
-        state->e -= state_save->e_in;
+    if (ip.integrator_subtract_internal_energy) {
+        state->e -= state_save.e_in;
     }
 
-    if (!ip->integrator_use_number_densities) {
+    if (!ip.integrator_use_number_densities) {
         normalize_abundances_burn(state, ip);
     }
 
@@ -1762,15 +1758,15 @@ MPL_DEVICE void integrator_cleanup(dvode_t* vs, burn_t* state, int istate,
     }
 
     const Real final_state_species_failure_tolerance =
-        final_state_species_failure_tolerance_factor * ip->integrator_species_failure_tolerance;
+        final_state_species_failure_tolerance_factor * ip.integrator_species_failure_tolerance;
 
     for (int n = 1; n <= NumSpec; ++n) {
-        if (vs->y[n] < -final_state_species_failure_tolerance) {
+        if (vs->y(n) < -final_state_species_failure_tolerance) {
             state->success = false;
         }
 
-        if (!ip->integrator_use_number_densities) {
-            if (vs->y[n] > 1.0 + ip->integrator_species_failure_tolerance) {
+        if (!ip.integrator_use_number_densities) {
+            if (vs->y(n) > 1.0 + ip.integrator_species_failure_tolerance) {
                 state->success = false;
             }
         }

@@ -1,8 +1,8 @@
 # Local hrx-system patches
 
-Local patches, not upstream. Both are against hrx-system **7cf21edd85**
-(`7cf21edd85` is a merge commit on the author's fork branch `react-kernels`; it changes nothing outside `experimental/`, so its compiler sources equal public `ROCm/hrx-system` main `4031286f0b`); both also apply cleanly to `ROCm/hrx-system` main as of
-2026-10-18 (`d70c407e5a`). Apply at the repository root with `patch -p1 < FILE`. The usual way is to let
+Local patches, not upstream. Both apply cleanly to public hrx-system main
+`31bf125137` (the current pin, checked 2026-10-20) and to the previous pin
+`4031286f0b` (= fork commit `7cf21edd85`, where they were written). Apply at the repository root with `patch -p1 < FILE`. The usual way is to let
 `scripts/build_loom_tools.sh` copy the source tree and apply them:
 
 ```bash

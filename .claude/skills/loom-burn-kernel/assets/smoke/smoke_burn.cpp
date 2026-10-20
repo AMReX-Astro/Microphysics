@@ -23,7 +23,7 @@ MPL_KERNEL void smoke_burn(const BurnParams* params,
         }
         s.e = 0.0;
         s.T_fixed = -1.0;
-        burner(&s, dt, params, tab);
+        burner(&s, dt, *params, tab);
         out[3 * idx] = s.e;
         out[3 * idx + 1] = s.T;
         out[3 * idx + 2] = static_cast<Real>(s.n_rhs) + (s.success ? 0.5 : 0.0);

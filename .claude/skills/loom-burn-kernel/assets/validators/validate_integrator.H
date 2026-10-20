@@ -195,20 +195,20 @@ inline void compare_dvode(LoomCheck& c, const std::string& tag, const dvode14& s
     ci(c, tag + ".NSLJ", s.NSLJ, m.NSLJ); ci(c, tag + ".NSLP", s.NSLP, m.NSLP);
     ci(c, tag + ".jacobian_type", s.jacobian_type, m.jacobian_type);
     for (int i = 1; i <= VODE_LMAX; ++i) {
-        cb(c, tag + ".el", s.el(i), m.el[i]);
-        cb(c, tag + ".tau", s.tau(i), m.tau[i]);
+        cb(c, tag + ".el", s.el(i), m.el(i));
+        cb(c, tag + ".tau", s.tau(i), m.tau(i));
     }
-    for (int i = 1; i <= 5; ++i) { cb(c, tag + ".tq", s.tq(i), m.tq[i]); }
+    for (int i = 1; i <= 5; ++i) { cb(c, tag + ".tq", s.tq(i), m.tq(i)); }
     cb(c, tag + ".rtol_spec", s.rtol_spec, m.rtol_spec); cb(c, tag + ".atol_spec", s.atol_spec, m.atol_spec);
     cb(c, tag + ".rtol_enuc", s.rtol_enuc, m.rtol_enuc); cb(c, tag + ".atol_enuc", s.atol_enuc, m.atol_enuc);
     cb(c, tag + ".t", s.t, m.t); cb(c, tag + ".tout", s.tout, m.tout);
     for (int i = 1; i <= INT_NEQS; ++i) {
-        cb(c, tag + ".y", s.y(i), m.y[i]);
-        cb(c, tag + ".ewt", s.ewt(i), m.ewt[i]);
-        cb(c, tag + ".savf", s.savf(i), m.savf[i]);
-        cb(c, tag + ".acor", s.acor(i), m.acor[i]);
-        for (int j = 1; j <= INT_NEQS; ++j) { cb(c, tag + ".jac", s.jac(i, j), m.jac[MPL_JAC(i, j)]); }
-        for (int j = 1; j <= VODE_LMAX; ++j) { cb(c, tag + ".yh", s.yh(i, j), m.yh[MPL_YH(i, j)]); }
+        cb(c, tag + ".y", s.y(i), m.y(i));
+        cb(c, tag + ".ewt", s.ewt(i), m.ewt(i));
+        cb(c, tag + ".savf", s.savf(i), m.savf(i));
+        cb(c, tag + ".acor", s.acor(i), m.acor(i));
+        for (int j = 1; j <= INT_NEQS; ++j) { cb(c, tag + ".jac", s.jac(i, j), m.jac(i, j)); }
+        for (int j = 1; j <= VODE_LMAX; ++j) { cb(c, tag + ".yh", s.yh(i, j), m.yh(i, j)); }
     }
 }
 
@@ -226,14 +226,14 @@ inline void copy_dvode(const dvode14& s, mpl::dvode_t* m)
     m->tn = s.tn; m->n_rhs = s.n_rhs; m->n_jac = s.n_jac; m->n_step = s.n_step;
     m->ICF = s.ICF; m->IPUP = s.IPUP; m->JCUR = s.JCUR; m->L = s.L; m->NEWH = s.NEWH; m->NEWQ = s.NEWQ;
     m->NQ = s.NQ; m->NQWAIT = s.NQWAIT; m->NSLJ = s.NSLJ; m->NSLP = s.NSLP; m->jacobian_type = s.jacobian_type;
-    for (int i = 1; i <= VODE_LMAX; ++i) { m->el[i] = s.el(i); m->tau[i] = s.tau(i); }
-    for (int i = 1; i <= 5; ++i) { m->tq[i] = s.tq(i); }
+    for (int i = 1; i <= VODE_LMAX; ++i) { m->el(i) = s.el(i); m->tau(i) = s.tau(i); }
+    for (int i = 1; i <= 5; ++i) { m->tq(i) = s.tq(i); }
     m->rtol_spec = s.rtol_spec; m->atol_spec = s.atol_spec; m->rtol_enuc = s.rtol_enuc; m->atol_enuc = s.atol_enuc;
     m->t = s.t; m->tout = s.tout;
     for (int i = 1; i <= INT_NEQS; ++i) {
-        m->y[i] = s.y(i); m->ewt[i] = s.ewt(i); m->savf[i] = s.savf(i); m->acor[i] = s.acor(i);
-        for (int j = 1; j <= INT_NEQS; ++j) { m->jac[MPL_JAC(i, j)] = s.jac(i, j); }
-        for (int j = 1; j <= VODE_LMAX; ++j) { m->yh[MPL_YH(i, j)] = s.yh(i, j); }
+        m->y(i) = s.y(i); m->ewt(i) = s.ewt(i); m->savf(i) = s.savf(i); m->acor(i) = s.acor(i);
+        for (int j = 1; j <= INT_NEQS; ++j) { m->jac(i, j) = s.jac(i, j); }
+        for (int j = 1; j <= VODE_LMAX; ++j) { m->yh(i, j) = s.yh(i, j); }
     }
 }
 
@@ -349,7 +349,7 @@ inline void run_pieces(LoomCheck& c)
         mpl::IntegratorParams ip{};
         fill_integrator_params(&ip);
         normalize_abundances_burn(s);
-        mpl::normalize_abundances_burn(&m, &ip);
+        mpl::normalize_abundances_burn(&m, ip);
         compare_burn(c, "normalize", s, m);
         restore_globals(g0);
     }
@@ -377,12 +377,12 @@ inline void run_pieces(LoomCheck& c)
                         mpl::burn_t m = to_mpl(s0); mpl::dvode_t mv{}; copy_dvode(v0, &mv);
                         RArray1D ydot;
                         for (int i = 1; i <= INT_NEQS; ++i) { ydot(i) = -7.0; }
-                        Real mydot[mpl::neqs + 1];
-                        for (int i = 0; i <= mpl::neqs; ++i) { mydot[i] = -7.0; }
+                        mpl::Array1D<Real, 1, mpl::neqs> mydot;
+                        for (int i = 0; i <= mpl::neqs; ++i) { mydot.arr[i] = -7.0; }
                         ::rhs(time, s, v, ydot);
-                        mpl::rhs(time, &m, &mv, mydot, &bp.integ, &bp.eos, &bp.net, tab);
+                        mpl::rhs(time, &m, &mv, mydot, bp.integ, bp.eos, bp.net, tab);
                         if (s.T <= EOSData::mintemp || s.T >= integrator_rp::MAX_TEMP) { ++g_rhs_zero_branch; }
-                        for (int i = 1; i <= INT_NEQS; ++i) { cb(c, tag + ".rhs.ydot", ydot(i), mydot[i]); }
+                        for (int i = 1; i <= INT_NEQS; ++i) { cb(c, tag + ".rhs.ydot", ydot(i), mydot(i)); }
                         compare_burn(c, tag + ".rhs.state", s, m);
                         compare_dvode(c, tag + ".rhs.vstate", v, mv);
                     }
@@ -393,7 +393,7 @@ inline void run_pieces(LoomCheck& c)
                         ::rhs(time, s, v, ydot);
                         mpl::burn_t m = to_mpl(s); mpl::dvode_t mv{}; copy_dvode(v, &mv);
                         ::jac(time, s, v, v.jac);
-                        mpl::jac(time, &m, &mv, mv.jac, &bp.integ, &bp.eos, &bp.net, tab);
+                        mpl::jac(time, &m, &mv, mv.jac, bp.integ, bp.eos, bp.net, tab);
                         if (s.T <= EOSData::mintemp || s.T >= integrator_rp::MAX_TEMP) { ++g_jac_zero_branch; }
                         compare_burn(c, tag + ".jac.state", s, m);
                         compare_dvode(c, tag + ".jac.vstate", v, mv);
@@ -407,7 +407,7 @@ inline void run_pieces(LoomCheck& c)
                         int ier_s = -5;
                         int ier_m = -5;
                         ::dvjac(ier_s, s, v);
-                        mpl::dvjac(ier_m, &m, &mv, &bp.integ, &bp.eos, &bp.net, tab);
+                        mpl::dvjac(ier_m, &m, &mv, bp.integ, bp.eos, bp.net, tab);
                         ci(c, tag + ".dvjac.IERPJ", ier_s, ier_m);
                         compare_burn(c, tag + ".dvjac.state", s, m);
                         compare_dvode(c, tag + ".dvjac.vstate", v, mv);
@@ -421,16 +421,16 @@ inline void run_pieces(LoomCheck& c)
                         for (int i = 1; i <= INT_NEQS; ++i) {
                             for (int j = 1; j <= INT_NEQS; ++j) { J(i, j) = -3.0; }
                         }
-                        Real mJ[MPL_JAC_SIZE];
-                        for (int i = 0; i < MPL_JAC_SIZE; ++i) { mJ[i] = -3.0; }
+                        mpl::JacNetArray2D mJ;
+                        for (int i = 0; i < (mpl::neqs + 1) * (mpl::neqs + 1); ++i) { mJ.arr[i] = -3.0; }
                         mpl::burn_t m = to_mpl(s);
                         ::numerical_jac(s, ji, J);
-                        mpl::numerical_jac(&m, ji.h, mJ, &bp.integ, &bp.eos, &bp.net, tab);
+                        mpl::numerical_jac(m, ji.h, mJ, bp.integ, bp.eos, bp.net, tab);
                         Real Tp = s.T + std::max(std::sqrt(U) * std::abs(s.T), 1.0);
                         if (Tp >= integrator_rp::MAX_TEMP) { ++g_numjac_zero_branch; }
                         for (int i = 1; i <= INT_NEQS; ++i) {
                             for (int j = 1; j <= INT_NEQS; ++j) {
-                                cb(c, tag + ".numerical_jac", J(i, j), mJ[MPL_JAC(i, j)]);
+                                cb(c, tag + ".numerical_jac", J(i, j), mJ(i, j));
                             }
                         }
                         compare_burn(c, tag + ".numerical_jac.state", s, m);
@@ -533,7 +533,7 @@ inline void run_burn(LoomCheck& c, const std::string& tag, const Zone& z, const 
 
     normalize_abundances_burn(s);
     mpl::IntegratorParams ip = bp->integ;
-    mpl::normalize_abundances_burn(&m, &ip);
+    mpl::normalize_abundances_burn(&m, ip);
     compare_burn(c, tag + ".normalized", s, m);
 
     // did the first attempt fail? (retry path taken)
@@ -544,7 +544,7 @@ inline void run_burn(LoomCheck& c, const std::string& tag, const Zone& z, const 
     }
 
     burner(s, z.dt);
-    mpl::burner(&m, z.dt, bp, tab);
+    mpl::burner(&m, z.dt, *bp, tab);
     compare_burn(c, tag, s, m);
 
     ++st.zones;

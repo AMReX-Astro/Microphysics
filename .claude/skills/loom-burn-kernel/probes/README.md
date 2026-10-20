@@ -6,25 +6,59 @@ tool set on the GPU host and writes `probe-summary.txt`. See the header of
 `probe.sh` for how to ship and run it. Add probes for anything a port's
 inventory finds that is not covered here, and keep new probes in this kit.
 
-## Results at hrx-system 7cf21edd85 (gfx90a, run 2026-10-18)
+## Results at hrx-system 31bf125137 (gfx90a, run 2026-10-20)
 
-`7cf21edd85` is a merge commit on the author's fork branch `react-kernels`; it changes nothing outside `experimental/`, so its compiler sources equal public `ROCm/hrx-system` main `4031286f0b` (the commit to check out in a fresh clone). Tools built from either should give the same probe results; their md5s differ with the build environment, so record yours.
+Public `ROCm/hrx-system` main `31bf125137` (2026-10-19), tools built with
+`scripts/build_loom_tools.sh` and both `patches/` applied (`loom-import-cxx`
+md5 `b2b37cb9…`, `loom-compile` md5 `dcb29260…`; md5s differ with the build
+environment, so record yours). All 93 probes run in a few seconds. Rerun the
+kit whenever the pinned commit changes and update this table.
 
-Tools: the adv-mi210-12 campaign's frozen build (`loom-import-cxx` md5
-`5f6207ac…`, `loom-compile` md5 `4aafb6f4…`). Raw summary and logs are kept
-in the first port's (untracked, local) agent-notes directory
-(`probes/results-7cf21edd85/`); they are not shipped.
-All 70 probes run in a few seconds. Rerun the kit whenever the pinned commit changes and
-update this table.
+What changed since the previous pin (`4031286f0b`, 2026-10-18): hrx-system
+#2040 (ordinary C++ instance calls), #2077 (runtime C++ reference identity)
+and #2079 (deeply nested structured regions). o01, o02, r05, r06, r07, r09
+went from import-fail to ok; o10-o18, r16-r18, r20-r22 and f11 are new and ok (r14, r15, r19 new and failing). o16-o19 and r20-r24 cover the call shapes the shipped modules use. r03
+now fails with a different message, and r12 now imports but fails in the
+AMDGPU backend. Math, records, control flow and globals are unchanged.
 
 What these results decide:
 - **References:** scalar `double&`/`int&` parameters and scalar member slices
-  (`f(s.T)`) import, in `static` *and* non-static `inline` functions (r01,
-  r02, r11, r13). A reference to a whole struct does not, even `static` and
-  `const` (r03, r05: "require an automatic SSA object"), and neither do
-  references to buffer elements, arrays, overlapping arguments, local
-  reference bindings or reference returns. So `burn_t&`, `dvode_t&` and
-  `rhs_state_t&` become pointers; scalar out-parameters can stay.
+  (`f(s.T)`) import (r01, r02, r04, r11, r13), as do `const` references to
+  whole structs (r05), references to buffer elements (r06), array reference
+  parameters (r09), reference-returning accessors (r07), and local references
+  to array elements (r17). Through a **mutable** reference to a whole struct,
+  only three kinds of write import: elements of a plain array member
+  (`s.xn[n] = ...`, r16), whole-struct assignment (`r = rate_t{...}`, r21),
+  and calls to the struct's own member functions, which may write any field
+  (`s.bump(dt)`, o13, o14). Everything else fails
+  with "mutation requires an owned automatic source binding": scalar fields
+  (`s.T = ...`, `+=`, `++s.n_rhs`; r03, r15), a member's accessor
+  (`vs.y(n) += ...`, r14, r19), or passing a member on to a mutating
+  reference; also with `static`, template, nested-call, buffer-element and
+  `*p` arguments. Through a pointer all of these work, including member
+  accessors (`vs->y(n) += ...`, o15). So `burn_t&`, `dvode_t&` and
+  `rhs_state_t&` that are written still become pointers; read-only
+  `const burn_t&` can stay. Calling a member's accessor through any struct
+  reference fails, the `const` overload included (`vs.y(n)` with
+  `const dvode_t& vs`, r23), while raw array members read fine (r24) and a
+  `const` pointer works (`vs->y(n)`, o19): structs with `Array1D`/`Array2D`
+  members always go by pointer. Still failing:
+  overlapping mutable arguments `f(s, s.T)` (r08), a local reference to a
+  scalar member `double& r = s.x` (r10), and a `const T&` return selecting
+  between two locals (`amrex::max`, r12: imports, then AMDGPU/023); make
+  min/max return by value (r18).
+- **Member functions and accessors:** member calls through `.` and `->` (o01,
+  o10) and `operator()` returning `T&`/`const T&` (o02) import. AMReX-style
+  `Array1D<T,1,N>`/`Array2D` structs (an array member plus 1-based
+  `operator()`) work as locals, by `&` and by `const&`, including writes
+  through the accessor such as an in-place LU (o11, o12), and as members of
+  a struct reached through a pointer (o15). Integrator and `rhs` state can
+  keep its 1-based accessors and source index expressions.
+- **Operator overloading** (`operator*`, `operator+`, free or member) still
+  fails (o03, o09): autodiff duals stay POD structs with free functions (o04,
+  o05, `assets/kernel/dual.H`).
+- **Nested ternaries:** 40 deep compiles (f11); the old 32-level verifier
+  limit is gone.
 - **Math:** f64 exp, log, cbrt, pow, log10, tanh, sin, cos all fail and need
   OCML recipes (`assets/kernel/f64_math.H`: exp/log/cbrt;
   `f64_math_extra.H`: pow/log10/tanh; sin/cos not transcribed yet). sqrt, fma, floor,
@@ -35,22 +69,15 @@ What these results decide:
   is fine. Bind each needed field to its own scalar instead:
   `constexpr int expA = rhs_data(rate).exponent_A;`.
 - **Enum in arithmetic with `double`** fails to parse (d10). That is correct
-  at the importer's default `--std=c++26` (P2864R2 made it ill-formed). The
-  pinned parser also rejects it under `--std=c++20`/`c++23`, where it is
-  valid but deprecated; reported fixed upstream as `0d27041f`, a commit not found in public
-  hrx-system history as of 2026-10-18 (the draft issue lives in the original
-  author's local notes); re-probe d10. Microphysics'
-  aprox13 configuration doesn't use the construct (no
-  `-Wdeprecated-enum-float-conversion` warnings); if a translation does, cast
-  to `int`.
+  at the importer's default `--std=c++26` (P2864R2 made it ill-formed); if a
+  translation uses it, cast to `int`. Microphysics' aprox13 configuration
+  doesn't use the construct.
 - **Pointers stored in structs** can't be read through a pointer to the
   struct (c03, c06): pass a tables struct **by value** (c04), or use one flat
   buffer with compile-time offsets (c05). Kernel arguments must be the table
-  pointers themselves, not a pointer to a struct holding them. (c03-c06 were
-  added 2026-10-18 after the EOS smoke import failed on `const EosTables*`.)
+  pointers themselves, not a pointer to a struct holding them.
 - **Records** must be plain aggregates: no constructors with arguments (o07),
-  no bases (o06). Structured bindings fail (o08). POD duals with free
-  functions work (o04, o05).
+  no bases (o06). Structured bindings fail (o08). Lambdas fail (l01).
 - The simple retry loop imports without `__builtin_assume` (f07), and the
   isolated triangular loop compiles (f06), but real stage and LU loops still
   needed `MPL_ASSUME` (`references/loom-frontend-rules.md`, SUBRANGE row).
@@ -60,6 +87,10 @@ What these results decide:
 | c00_control | baseline | ok | vgpr=8 scratch=0B |
 | c01_params_pod_ptr | `const Params*` runtime-param POD | ok | vgpr=10 scratch=0B |
 | c02_table_ptr_3d | helmholtz `f[j][i][9]` via pointer, clamp, local `fi[36]` | ok | vgpr=15 scratch=288B |
+| c03_struct_of_ptrs_by_ptr | struct of table pointers passed by pointer (`t->a[i]`) | import-fail | error [LOWERING/059]: stored pointers and references require an object storage representation |
+| c04_struct_of_ptrs_by_value | struct of table pointers passed by value (`t.a[i]`) | ok | vgpr=6 scratch=0B |
+| c05_flat_table_offsets | one table buffer, compile-time offsets | ok | vgpr=6 scratch=0B |
+| c06_ptr_member_of_kernel_arg_struct | kernel argument: pointer to a struct of pointers in device memory | import-fail | error [LOWERING/059]: stored pointers and references require an object storage representation |
 | d01_ns_constexpr_array | `aion[]`, `zion[]`, `aion_inv[]` | import-fail | error [LOWERING/059]: constants require a numeric scalar type |
 | d02_local_const_array | local `const double t[N]` | ok | vgpr=16 scratch=104B |
 | d03_ns_mutable_global | runtime param global | import-fail | error [LOWERING/059]: global storage definitions require a global-storage projection |
@@ -82,6 +113,7 @@ What these results decide:
 | f08_retry_loop_assume | same, with `__builtin_assume` | ok | vgpr=12 scratch=0B |
 | f09_newton_for_break | EOS Newton `for` + `break` | ok | vgpr=26 scratch=0B |
 | f10_early_return_outside_loop | sneut5 early return | ok | vgpr=8 scratch=0B |
+| f11_ternary_nest_40 | 40-deep nested ternary | ok | vgpr=86 scratch=240B |
 | l01_lambda_constexpr_for | lambdas | import-fail | error [LOWERING/059]: rvalue-reference parameters require consuming object identity |
 | l02_template_struct_unroll | template-struct recursion | ok | vgpr=30 scratch=0B |
 | m_f64_absf | f64 fabs | ok | vgpr=4 scratch=0B \| |
@@ -91,7 +123,7 @@ What these results decide:
 | m_f64_expf | f64 exp | compile-fail | error [LOWERING/036]: legalize-math policy amdgpu-math rejected scalar.expf for expf in scalar lanes of f64 under math.element.f32 |
 | m_f64_floorf | f64 floor | ok | vgpr=4 scratch=0B \| v_floor_f64:1 |
 | m_f64_fmaf | f64 fma | ok | vgpr=8 scratch=0B \| v_fma_f64:1 |
-| m_f64_log10f | f64 log10 | compile-fail | error [TARGET/001]: has no target-low contract |
+| m_f64_log10f | f64 log10 | compile-fail | error [TARGET/001]: has no target-low contrac |
 | m_f64_logf | f64 log | compile-fail | error [LOWERING/036]: legalize-math policy amdgpu-math rejected scalar.logf for logf in scalar lanes of f64 under math.element.f32 |
 | m_f64_math_h_recipes | existing exp/log/cbrt recipes | ok | vgpr=52 scratch=0B \| v_add_f64:49 v_fma_f64:36 v_mul_f64:19 v_div_scale_f64:4 v_cmp_lt_f64:3 v_rcp_f64:2 |
 | m_f64_powf | f64 pow (non-integer exponent) | compile-fail | error [LOWERING/036]: legalize-math policy amdgpu-math rejected scalar.powf for powf in scalar lanes of f64 under math.element.f32 |
@@ -102,28 +134,46 @@ What these results decide:
 | m_f64_truncf | f64 trunc | ok | vgpr=4 scratch=0B \| v_trunc_f64:1 |
 | m_fp_contract | `a * b + c` under `--fp-model=precise` | ok | vgpr=8 scratch=0B \| v_mul_f64:1 v_add_f64:1 |
 | m_powi_template | `powi<N>` recursion | ok | vgpr=8 scratch=0B \| v_mul_f64:5 v_add_f64:1 |
-| o01_member_fn_call | `a.add(x)` | import-fail | error [LOWERING/059]: void call must resolve to a function symbol |
-| o02_operator_call_index | `Array1D::operator()` | import-fail | error [LOWERING/059]: address-of requires an existing storage-backed element |
+| o01_member_fn_call | `a.add(x)` | ok | vgpr=6 scratch=0B |
+| o02_operator_call_index | `Array1D::operator()` | ok | vgpr=6 scratch=0B |
 | o03_dual_operator_overload | `operator*`/`operator+` on Dual | import-fail | error [LOWERING/059]: overloaded binary operation requires a Loom operation |
 | o04_dual_free_functions | POD Dual / Dual3 + free fns, by value | ok | vgpr=10 scratch=0B |
 | o05_dual3_array_free_functions | POD Dual / Dual3 + free fns, by value | ok | vgpr=12 scratch=96B |
 | o06_base_class | `Grad : Base` | import-fail | error [LOWERING/059]: record values require a complete aggregate without unions, bases or nontrivial lifecycle operations |
 | o07_ctor_with_args | `D x(1.0)` | import-fail | error [LOWERING/059]: record values require a complete aggregate without unions, bases or nontrivial lifecycle operations |
 | o08_structured_binding | `auto [f, r] = term(x)` | import-fail | error [LOWERING/059]: unsupported local declaration |
+| o09_dual_member_operators | member `operator*`/`operator+`/`operator+=` on Dual | import-fail | error [LOWERING/059]: overloaded binary operation requires a Loom operation |
+| o10_arrow_member_call | `a->add(x)`, `a.mean()` through a pointer to a local | ok | vgpr=14 scratch=0B |
+| o11_array1d_by_ref | `Array1D<T,1,N>` accessor, passed by `&` and `const auto&` | ok | vgpr=10 scratch=232B |
+| o12_array2d_lu | `Array2D` accessor, written in place through `&` (dgefa shape) | ok | vgpr=18 scratch=144B |
+| o13_member_fn_mutates_via_struct_ref | `s.bump(dt)` mutating scalar fields, `s` a `Burn&` | ok | vgpr=8 scratch=0B |
+| o14_struct_ref_member_fns | `vs.add_y(n, v); vs.tick(h)` through `Dvode&` | ok | vgpr=10 scratch=128B |
+| o15_ptr_member_accessor_write | `vs->y(n) +=`, `vs->t +=` through a pointer | ok | vgpr=10 scratch=128B |
+| o16_ptr_member_to_accessor_ref | `upd(vs->y)`: Array1D member through a pointer into `Array1D&`, written | ok | vgpr=10 scratch=1936B |
+| o17_array2d_member_lu_runtime_bounds | `dgefa(vs->jac, nn)` with runtime bounds + `__builtin_assume` | ok | vgpr=18 scratch=1936B |
+| o18_array1d_of_rate_dual | `Array1D<rate_t<Dual>, 1, N>` element assign/copy | ok | vgpr=20 scratch=0B |
+| o19_const_ptr_member_accessor_read | `vs->y(n)` through `const Dvode*` | ok | vgpr=8 scratch=248B |
 | r01_static_scalar_ref_out | `static f(double&)` on locals | ok | vgpr=8 scratch=0B |
 | r02_inline_external_ref | `inline` (AMREX_INLINE) non-static fn with scalar `double&` | ok | vgpr=6 scratch=0B |
-| r03_template_struct_ref | `template<class BurnT> inline f(BurnT&)` | import-fail | error [LOWERING/059]: runtime value-reference arguments require an automatic SSA object |
+| r03_template_struct_ref | `template<class BurnT> inline f(BurnT&)` | import-fail | error [LOWERING/059]: mutation requires an owned automatic source binding |
 | r04_anon_ns_ref | anon-namespace fn with scalar `double&` | ok | vgpr=6 scratch=0B |
-| r05_const_struct_ref_read | `static f(const Burn&)` | import-fail | error [LOWERING/059]: runtime value-reference arguments require an automatic SSA object |
-| r06_ref_to_buffer_element | `f(out[i])` | import-fail | error [LOWERING/059]: runtime value-reference arguments require an automatic SSA object |
-| r07_ref_return_accessor | `double& at(A&, int)` | import-fail | error [LOWERING/059]: address-of requires an existing storage-backed element |
+| r05_const_struct_ref_read | `static f(const Burn&)` | ok | vgpr=8 scratch=112B |
+| r06_ref_to_buffer_element | `f(out[i])` | ok | vgpr=6 scratch=0B |
+| r07_ref_return_accessor | `double& at(A&, int)` | ok | vgpr=4 scratch=0B |
 | r08_overlapping_mutable_refs | `f(s, s.T)` | import-fail | error [LOWERING/059]: mutable value-reference arguments must select nonoverlapping automatic objects or member slices |
-| r09_array_ref_param | `const double (&)[13]` | import-fail | error [LOWERING/059]: array reference parameters require addressable storage; pass a view or pointer instead |
-| r10_local_ref_binding | `double& r = s.x;` | import-fail | error [LOWERING/059]: unsupported C++ type: double& |
+| r09_array_ref_param | `const double (&)[13]` | ok | vgpr=6 scratch=0B |
+| r10_local_ref_binding | `double& r = s.x;` | import-fail | error [LOWERING/059]: address-of requires an existing storage-backed element |
 | r11_ref_chain | ref forwarded through 2 static calls | ok | vgpr=10 scratch=0B |
-| r12_const_ref_return_max | `amrex::max` returning `const T&` | import-fail | error [LOWERING/059]: runtime reference returns require object identity; return an admitted value instead |
+| r12_const_ref_return_max | `amrex::max` returning `const T&` | compile-fail | error [AMDGPU/023]: rejected 'view.load': source-to-low constraint 'memory_access.private_root' is not satisfied |
 | r13_struct_member_slice_ref | `bump(s.T)` | ok | vgpr=8 scratch=0B |
-| c03_struct_of_ptrs_by_ptr | struct of table pointers passed by pointer (`t->a[i]`) | import-fail | error [LOWERING/059]: stored pointers and references require an object storage representation |
-| c04_struct_of_ptrs_by_value | struct of table pointers passed by value (`t.a[i]`) | ok | |
-| c05_flat_table_offsets | one table buffer, compile-time offsets | ok | |
-| c06_ptr_member_of_kernel_arg_struct | kernel argument: pointer to a struct of pointers in device memory | import-fail | error [LOWERING/059]: stored pointers and references require an object storage representation |
+| r14_struct_ref_member_update | `dvode_t&` through 2 template layers: `vs.y(n) +=` and `vs.t +=` | import-fail | error [LOWERING/059]: mutation requires an owned automatic source binding |
+| r15_struct_ref_scalar_field_write | `s.T = ...` through `Burn&` | import-fail | error [LOWERING/059]: mutation requires an owned automatic source binding |
+| r16_struct_ref_array_member_write | `s.xn[n] = ...` through `Burn&` | ok | vgpr=8 scratch=128B |
+| r17_local_ref_array_elem | `double& r = a[2];` | ok | vgpr=4 scratch=0B |
+| r18_value_return_max | `max(const T&, const T&)` returning `T` by value | ok | vgpr=6 scratch=0B |
+| r19_struct_ref_member_accessor_write | `vs.y(n) += ...` through `Dvode&` | import-fail | error [LOWERING/059]: mutation requires an owned automatic source binding |
+| r20_const_ref_from_deref | `const Burn&` bound to `*p` | ok | vgpr=10 scratch=0B |
+| r21_whole_struct_assign_through_ref | `r = rate_t{...}` through `rate_t&` | ok | vgpr=6 scratch=0B |
+| r22_const_ref_to_kernel_arg_struct | `const BurnParams&` bound to `*params` (kernel argument) | ok | vgpr=12 scratch=0B |
+| r23_const_struct_ref_member_accessor_read | `vs.y(n)` through `const Dvode&` | import-fail | error [LOWERING/059]: mutation requires an owned automatic source binding |
+| r24_const_struct_ref_member_raw_array | `vs.y.arr[n]` through `const Dvode&` | ok | vgpr=8 scratch=248B |

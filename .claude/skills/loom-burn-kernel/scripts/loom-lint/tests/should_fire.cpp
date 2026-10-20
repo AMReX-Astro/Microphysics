@@ -4,8 +4,11 @@
 namespace t {
 struct B {};
 struct A : B { static constexpr double tab[2] = {1, 2}; };
+struct D { double v; };
+D operator*(D x, D y) { return D{x.v * y.v}; }
 double g;
 constexpr double arr[2] = {1, 2};
+void g(A& a) { a.v = 1.0; }
 void f(double& r, int k)
 {
     double u;
@@ -14,8 +17,6 @@ void f(double& r, int k)
     for (;;) { if (k) return; }
     for (int i : {1, 2}) { (void)i; }
     A a{};
-    a.m(1);
-    double v = a.operator()(1);
     double w = __builtin_exp(1.0) + std::exp(1.0) + amrex::Math::powi<2>(r) + integrator_rp::rtol_spec;
     throw 1;
 }

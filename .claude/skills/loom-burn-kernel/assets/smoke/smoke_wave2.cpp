@@ -10,8 +10,8 @@ namespace mpl {
 
 template <int rate>
 struct SmokeRates {
-    static MPL_DEVICE void run(const tf_t<Real>* tr, const tf_t<Dual>* td,
-                               const RatesParams* p, Real* acc)
+    static MPL_DEVICE void run(const tf_t<Real>& tr, const tf_t<Dual>& td,
+                               const RatesParams& p, Real* acc)
     {
         if constexpr (rate <= Rates::NumRates) {
             rate_t<Real> a = evaluate_analytical_rate_r<rate>(tr, p);
@@ -31,11 +31,11 @@ MPL_KERNEL void smoke_rates(const RatesParams* params, Real* out, const Real* in
         tf_t<Real> tr = get_tfactors_r(T);
         tf_t<Dual> td = get_tfactors_d(dual_seed(T));
         Real acc = 0.0;
-        SmokeRates<1>::run(&tr, &td, params, &acc);
+        SmokeRates<1>::run(tr, td, *params, &acc);
 
-        Real y[NumSpec + 1] = {};
+        NetYArray1D y{};
         for (int k = 1; k <= NumSpec; ++k) {
-            y[k] = 1.0 / (4.0 * k);
+            y(k) = 1.0 / (4.0 * k);
         }
         plasma_state_t<Real> pr{};
         plasma_state_t<Dual> pd{};
@@ -51,8 +51,8 @@ MPL_KERNEL void smoke_rates(const RatesParams* params, Real* out, const Real* in
                                 net_screen_z2_53(pair), net_screen_zs13(pair), net_screen_zs13inv(pair),
                                 net_screen_zhat(pair), net_screen_zhat2(pair), net_screen_lzav(pair),
                                 net_screen_aznut(pair)};
-            sr = actual_screen_r(&pr, &sf, params);
-            sd = actual_screen_d(&pd, &sf, params);
+            sr = actual_screen_r(pr, sf, *params);
+            sd = actual_screen_d(pd, sf, *params);
         }
         out[idx] = acc + sr + sd.val + sd.grad;
     }

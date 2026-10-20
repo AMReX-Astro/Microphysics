@@ -36,8 +36,17 @@ Hard rules (each one cost a failed Loom import or compile at least once):
 1. Same computation, same order, statement for statement. Follow the HIP/GPU
    branch of every `#ifdef` (`AMREX_USE_GPU` defined, no host printing, no
    `ALLOW_JACOBIAN_CACHING`).
-2. No references to structs, arrays or array elements; scalar `Real&`/`int&`
-   parameters are fine. Structs by pointer; small structs returned by value.
+2. A struct that a function writes through is passed by pointer (`burn_t*`,
+   `dvode_t*`): writing a scalar field or a member's accessor through a
+   mutable struct reference fails import. A struct with `Array1D`/`Array2D`
+   members always goes by pointer (`const dvode_t*` when read-only): calling
+   a member's accessor through any struct reference fails, `const` included.
+   Other `const` struct references, scalar
+   `Real&`/`int&` parameters, array references, references to array
+   elements, member function calls and `Array1D`/`Array2D`-style 1-based
+   `operator()` accessors all import: keep them and the source's index
+   expressions. Small structs are returned by value; `min`/`max` return by
+   value, not `const T&`.
 3. **A struct that holds pointers (tables) is passed BY VALUE, never through a
    pointer** (`const Tables* t; t->f[i]` fails import). Kernel arguments are
    the table pointers themselves.

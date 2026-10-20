@@ -69,13 +69,34 @@
 #define MPL_ASSUME(cond) ((void)0)
 #endif
 
-// Flat 2-D index for arrays that keep the source's 1-based indices:
-// element (i, j) of an array declared T a[(NROW + 1) * (NCOL + 1)].
-#define MPL_IDX2(i, j, NCOL_PLUS_1) ((i) * (NCOL_PLUS_1) + (j))
-
 namespace mpl {
 
 using Real = double;
+
+// amrex::Array1D / amrex::Array2D stand-ins with the same 1-based accessors,
+// so translated code keeps the source's index expressions (a(i), m(i, j)).
+// Loom imports them (probes o02, o11, o12, o15): pass them by reference, or
+// reach them as members through a pointer (vs->y(n)); calling a member's
+// accessor through a *struct reference* does not import, const or not
+// (r19, r23).
+// Storage is padded from index 0 (slot 0 unused for 1-based arrays) and
+// Array2D is row-major, a(i, j) = arr[i * (YHI + 1) + j]; this is NOT AMReX's
+// column-major layout, which no translated code depends on.
+template <typename T, int XLO, int XHI>
+struct Array1D {
+    static_assert(0 <= XLO && XLO <= XHI);
+    T arr[XHI + 1];
+    MPL_DEVICE T& operator()(int i) { return arr[i]; }
+    MPL_DEVICE const T& operator()(int i) const { return arr[i]; }
+};
+
+template <typename T, int XLO, int XHI, int YLO, int YHI>
+struct Array2D {
+    static_assert(0 <= XLO && XLO <= XHI && 0 <= YLO && YLO <= YHI);
+    T arr[(XHI + 1) * (YHI + 1)];
+    MPL_DEVICE T& operator()(int i, int j) { return arr[i * (YHI + 1) + j]; }
+    MPL_DEVICE const T& operator()(int i, int j) const { return arr[i * (YHI + 1) + j]; }
+};
 
 namespace math {
 

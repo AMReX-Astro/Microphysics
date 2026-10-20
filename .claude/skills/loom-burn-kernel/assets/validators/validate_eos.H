@@ -195,7 +195,7 @@ void run_eos(LoomCheck& c, const char* tag, int input, const S& init,
     M m{};
     copy_in(init, &m);
     eos(static_cast<eos_input_t>(input), s);
-    mpl::eos(input, &m, p, *t);
+    mpl::eos(input, &m, *p, *t);
     Ctx ctx{tag, input, init.rho, init.T, init.e};
     check_all(c, ctx, s, m);
 }
@@ -214,7 +214,7 @@ void run_reset(LoomCheck& c, const char* tag, int input, const S& init,
     bool hs = false;
     bool hm = false;
     reset_inputs(static_cast<eos_input_t>(input), s, hs);
-    mpl::reset_inputs(input, &m, hm, p, *t);
+    mpl::reset_inputs(input, &m, hm, *p, *t);
     Ctx ctx{tag, input, init.rho, init.T, init.e};
     check_all(c, ctx, s, m);
     loom_check_int(c, (std::string(tag) + ":has_been_reset").c_str(), hs ? 1 : 0, hm ? 1 : 0);
@@ -235,7 +235,7 @@ inline void run_pieces(LoomCheck& c, const Real* xn, Real rho, Real T, Real junk
     check_all(c, ctx, s, m);
 
     apply_radiation(s);
-    mpl::apply_radiation(&m, p);
+    mpl::apply_radiation(&m, *p);
     ctx.tag = "apply_radiation";
     check_all(c, ctx, s, m);
 
@@ -265,7 +265,7 @@ inline void run_pieces(LoomCheck& c, const Real* xn, Real rho, Real T, Real junk
 
     // finalize_state for the re mode
     finalize_state(eos_input_re, s, 1.25 * junk, 0.0, 0.0);
-    mpl::finalize_state(mpl::eos_input_re, &m, 1.25 * junk, 0.0, 0.0, p);
+    mpl::finalize_state(mpl::eos_input_re, &m, 1.25 * junk, 0.0, 0.0, *p);
     ctx.tag = "finalize_state";
     check_all(c, ctx, s, m);
 }
@@ -279,10 +279,9 @@ inline void run_xderivs(LoomCheck& c, const eos_re_extra_t& init,
     mpl::eos_re_extra_t m{};
     copy_in(init, &m);
     eos(eos_input_re, s);
-    mpl::eos(mpl::eos_input_re, &m, p, *t);
+    mpl::eos(mpl::eos_input_re, &m, *p, *t);
     eos_xderivs_t xs = composition_derivatives(s);
-    mpl::eos_xderivs_t xm{};
-    mpl::composition_derivatives(&m, &xm);
+    mpl::eos_xderivs_t xm = mpl::composition_derivatives(m);
     Ctx ctx{"composition_derivatives", mpl::eos_input_re, init.rho, init.T, init.e};
     for (int n = 0; n < NumSpec; ++n) {
         chk(c, ctx, "dedX", xs.dedX[n], xm.dedX[n]);

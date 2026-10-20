@@ -92,16 +92,16 @@ MPL_DEVICE screen_factors_t screen_factor()
 }
 
 // from screening/screen.H:115 fill_plasma_state (number_t = temp_t = Real)
-// y[1..NumSpec] (source indices, slot 0 unused)
+// y(1..NumSpec) = rhs_state.y
 MPL_DEVICE void fill_plasma_state_r(plasma_state_t<Real>* state, Real temp,
-                                    const Real dens, const Real* y)
+                                    const Real dens, const NetYArray1D& y)
 {
     // zion[] (network_properties.H), first NumSpec entries
     const Real zion_l[NumSpec] = {MPL_NET_ZION_LIST};
 
     Real sum = 0.0;
     for (int n = 1; n <= NumSpec; n++) {
-        sum += y[n];
+        sum += y(n);
     }
     Real abar = 1.0 / sum;
     Real ytot = sum;
@@ -109,8 +109,8 @@ MPL_DEVICE void fill_plasma_state_r(plasma_state_t<Real>* state, Real temp,
     Real m1 = 0.0;
     Real m2 = 0.0;
     for (int n = 1; n <= NumSpec; n++) {
-        m1 += zion_l[n-1]*y[n];
-        m2 += zion_l[n-1]*zion_l[n-1]*y[n];
+        m1 += zion_l[n-1]*y(n);
+        m2 += zion_l[n-1]*zion_l[n-1]*y(n);
     }
 
     Real temp_ad = temp;
@@ -148,13 +148,13 @@ MPL_DEVICE void fill_plasma_state_r(plasma_state_t<Real>* state, Real temp,
 
 // from screening/screen.H:115 fill_plasma_state (number_t = temp_t = autodiff::dual)
 MPL_DEVICE void fill_plasma_state_d(plasma_state_t<Dual>* state, Dual temp,
-                                    const Real dens, const Real* y)
+                                    const Real dens, const NetYArray1D& y)
 {
     const Real zion_l[NumSpec] = {MPL_NET_ZION_LIST};
 
     Real sum = 0.0;
     for (int n = 1; n <= NumSpec; n++) {
-        sum += y[n];
+        sum += y(n);
     }
     Real abar = 1.0 / sum;
     Real ytot = sum;
@@ -162,8 +162,8 @@ MPL_DEVICE void fill_plasma_state_d(plasma_state_t<Dual>* state, Dual temp,
     Dual m1 = dual_const(0.0);
     Dual m2 = dual_const(0.0);
     for (int n = 1; n <= NumSpec; n++) {
-        m1 = dual_add(m1, dual_const(zion_l[n-1]*y[n]));
-        m2 = dual_add(m2, dual_const(zion_l[n-1]*zion_l[n-1]*y[n]));
+        m1 = dual_add(m1, dual_const(zion_l[n-1]*y(n)));
+        m2 = dual_add(m2, dual_const(zion_l[n-1]*zion_l[n-1]*y(n)));
     }
 
     Dual temp_ad = temp;
@@ -198,13 +198,13 @@ MPL_DEVICE void fill_plasma_state_d(plasma_state_t<Dual>* state, Dual temp,
 }
 
 // from screening/screen.H:187 debye_huckel (number_t = Real)
-MPL_DEVICE Real debye_huckel_r(const plasma_state_t<Real>* state,
-                               const screen_factors_t* scn_fac)
+MPL_DEVICE Real debye_huckel_r(const plasma_state_t<Real>& state,
+                               const screen_factors_t& scn_fac)
 {
-    Real z1z2 = scn_fac->z1 * scn_fac->z2;
-    Real z_ratio = state->z2bar / state->zbar;
+    Real z1z2 = scn_fac.z1 * scn_fac.z2;
+    Real z_ratio = state.z2bar / state.zbar;
 
-    Real Gamma_e = state->gamma_e_fac / state->temp;
+    Real Gamma_e = state.gamma_e_fac / state.temp;
 
     Real h_DH = z1z2 * math::sqrt(3 * math::powi<3>(Gamma_e) * z_ratio);
 
@@ -212,13 +212,13 @@ MPL_DEVICE Real debye_huckel_r(const plasma_state_t<Real>* state,
 }
 
 // from screening/screen.H:187 debye_huckel (number_t = autodiff::dual)
-MPL_DEVICE Dual debye_huckel_d(const plasma_state_t<Dual>* state,
-                               const screen_factors_t* scn_fac)
+MPL_DEVICE Dual debye_huckel_d(const plasma_state_t<Dual>& state,
+                               const screen_factors_t& scn_fac)
 {
-    Real z1z2 = scn_fac->z1 * scn_fac->z2;
-    Dual z_ratio = dual_div(state->z2bar, state->zbar);
+    Real z1z2 = scn_fac.z1 * scn_fac.z2;
+    Dual z_ratio = dual_div(state.z2bar, state.zbar);
 
-    Dual Gamma_e = dual_div(state->gamma_e_fac, state->temp);
+    Dual Gamma_e = dual_div(state.gamma_e_fac, state.temp);
 
     // 3 * powi<3>(Gamma_e) is NDM(3, dual): the int 3 converts to 3.0
     Dual h_DH = dual_mul(dual_const(z1z2),
@@ -228,25 +228,25 @@ MPL_DEVICE Dual debye_huckel_d(const plasma_state_t<Dual>* state,
 }
 
 // from screening/screen.H:213 actual_screen5 (number_t = Real)
-MPL_DEVICE Real actual_screen5_r(const plasma_state_t<Real>* state,
-                                 const screen_factors_t* scn_fac)
+MPL_DEVICE Real actual_screen5_r(const plasma_state_t<Real>& state,
+                                 const screen_factors_t& scn_fac)
 {
     constexpr Real fact    = 1.25992104989487e0;
     constexpr Real gamefx  = 0.3e0;
     constexpr Real gamefs  = 0.8e0;
     constexpr Real inv_dg = 1.0 / (gamefs - gamefx);
 
-    const Real z1 = scn_fac->z1;
-    const Real z2 = scn_fac->z2;
+    const Real z1 = scn_fac.z1;
+    const Real z2 = scn_fac.z2;
 
     const Real bb = z1 * z2;
-    Real gamp = state->aa;
+    Real gamp = state.aa;
 
-    Real qq = fact * bb * scn_fac->zs13inv;
+    Real qq = fact * bb * scn_fac.zs13inv;
 
     Real gamef = qq * gamp;
 
-    Real tau12 = state->taufac * scn_fac->aznut;
+    Real tau12 = state.taufac * scn_fac.aznut;
 
     Real alph12 = gamef / tau12;
 
@@ -255,11 +255,11 @@ MPL_DEVICE Real actual_screen5_r(const plasma_state_t<Real>* state,
 
         gamef    = 1.6e0 * tau12;
 
-        qq = scn_fac->zs13/(fact * bb);
+        qq = scn_fac.zs13/(fact * bb);
         gamp = gamef * qq;
     }
 
-    const Real h12w = bb * state->qlam0z;
+    const Real h12w = bb * state.qlam0z;
 
     Real h12 = h12w;
 
@@ -267,9 +267,9 @@ MPL_DEVICE Real actual_screen5_r(const plasma_state_t<Real>* state,
 
         const Real gamp14 = math::sqrt(math::sqrt(gamp));
 
-        const Real cc = 0.896434e0 * gamp * scn_fac->zhat
-            - 3.44740e0 * gamp14 * scn_fac->zhat2
-            - 0.5551e0 * (math::log(gamp) + scn_fac->lzav)
+        const Real cc = 0.896434e0 * gamp * scn_fac.zhat
+            - 3.44740e0 * gamp14 * scn_fac.zhat2
+            - 0.5551e0 * (math::log(gamp) + scn_fac.lzav)
             - 2.996e0;
 
         const Real a3 = alph12 * alph12 * alph12;
@@ -302,25 +302,25 @@ MPL_DEVICE Real actual_screen5_r(const plasma_state_t<Real>* state,
 }
 
 // from screening/screen.H:213 actual_screen5 (number_t = autodiff::dual)
-MPL_DEVICE Dual actual_screen5_d(const plasma_state_t<Dual>* state,
-                                 const screen_factors_t* scn_fac)
+MPL_DEVICE Dual actual_screen5_d(const plasma_state_t<Dual>& state,
+                                 const screen_factors_t& scn_fac)
 {
     constexpr Real fact    = 1.25992104989487e0;
     constexpr Real gamefx  = 0.3e0;
     constexpr Real gamefs  = 0.8e0;
     constexpr Real inv_dg = 1.0 / (gamefs - gamefx);
 
-    const Real z1 = scn_fac->z1;
-    const Real z2 = scn_fac->z2;
+    const Real z1 = scn_fac.z1;
+    const Real z2 = scn_fac.z2;
 
     const Real bb = z1 * z2;
-    Dual gamp = state->aa;
+    Dual gamp = state.aa;
 
-    Real qq = fact * bb * scn_fac->zs13inv;
+    Real qq = fact * bb * scn_fac.zs13inv;
 
     Dual gamef = dual_mul_num(gamp, qq);
 
-    Dual tau12 = dual_mul_num(state->taufac, scn_fac->aznut);
+    Dual tau12 = dual_mul_num(state.taufac, scn_fac.aznut);
 
     Dual alph12 = dual_div(gamef, tau12);
 
@@ -329,11 +329,11 @@ MPL_DEVICE Dual actual_screen5_d(const plasma_state_t<Dual>* state,
 
         gamef    = dual_mul_num(tau12, 1.6e0);
 
-        qq = scn_fac->zs13/(fact * bb);
+        qq = scn_fac.zs13/(fact * bb);
         gamp = dual_mul_num(gamef, qq);
     }
 
-    const Dual h12w = dual_mul_num(state->qlam0z, bb);
+    const Dual h12w = dual_mul_num(state.qlam0z, bb);
 
     Dual h12 = h12w;
 
@@ -341,9 +341,9 @@ MPL_DEVICE Dual actual_screen5_d(const plasma_state_t<Dual>* state,
 
         const Dual gamp14 = dual_sqrt(dual_sqrt(gamp));
 
-        Dual s = dual_mul_num(dual_mul_num(gamp, 0.896434e0), scn_fac->zhat);
-        s = dual_sub(s, dual_mul_num(dual_mul_num(gamp14, 3.44740e0), scn_fac->zhat2));
-        s = dual_sub(s, dual_mul(dual_const(0.5551e0), dual_add_num(dual_log(gamp), scn_fac->lzav)));
+        Dual s = dual_mul_num(dual_mul_num(gamp, 0.896434e0), scn_fac.zhat);
+        s = dual_sub(s, dual_mul_num(dual_mul_num(gamp14, 3.44740e0), scn_fac.zhat2));
+        s = dual_sub(s, dual_mul(dual_const(0.5551e0), dual_add_num(dual_log(gamp), scn_fac.lzav)));
         const Dual cc = dual_add_num(s, -2.996e0);
 
         const Dual a3 = dual_mul(dual_mul(alph12, alph12), alph12);
@@ -377,15 +377,15 @@ MPL_DEVICE Dual actual_screen5_d(const plasma_state_t<Dual>* state,
 }
 
 // from screening/screen.H:656 actual_log_screen (number_t = Real)
-MPL_DEVICE Real actual_log_screen_r(const plasma_state_t<Real>* state,
-                                    const screen_factors_t* scn_fac,
-                                    const RatesParams* params)
+MPL_DEVICE Real actual_log_screen_r(const plasma_state_t<Real>& state,
+                                    const screen_factors_t& scn_fac,
+                                    const RatesParams& params)
 {
     Real log_scor = 0.0;
     bool done = false;
-    if (params->screening_enable_debye_huckel_skip) {
+    if (params.screening_enable_debye_huckel_skip) {
         log_scor = debye_huckel_r(state, scn_fac);
-        if (log_scor <= params->screening_debye_huckel_skip_threshold) {
+        if (log_scor <= params.screening_debye_huckel_skip_threshold) {
             done = true;
         }
     }
@@ -396,15 +396,15 @@ MPL_DEVICE Real actual_log_screen_r(const plasma_state_t<Real>* state,
 }
 
 // from screening/screen.H:656 actual_log_screen (number_t = autodiff::dual)
-MPL_DEVICE Dual actual_log_screen_d(const plasma_state_t<Dual>* state,
-                                    const screen_factors_t* scn_fac,
-                                    const RatesParams* params)
+MPL_DEVICE Dual actual_log_screen_d(const plasma_state_t<Dual>& state,
+                                    const screen_factors_t& scn_fac,
+                                    const RatesParams& params)
 {
     Dual log_scor = dual_const(0.0);
     bool done = false;
-    if (params->screening_enable_debye_huckel_skip) {
+    if (params.screening_enable_debye_huckel_skip) {
         log_scor = debye_huckel_d(state, scn_fac);
-        if (log_scor.val <= params->screening_debye_huckel_skip_threshold) {
+        if (log_scor.val <= params.screening_debye_huckel_skip_threshold) {
             done = true;
         }
     }
@@ -415,9 +415,9 @@ MPL_DEVICE Dual actual_log_screen_d(const plasma_state_t<Dual>* state,
 }
 
 // from screening/screen.H:708 actual_screen (number_t = Real)
-MPL_DEVICE Real actual_screen_r(const plasma_state_t<Real>* state,
-                                const screen_factors_t* scn_fac,
-                                const RatesParams* params)
+MPL_DEVICE Real actual_screen_r(const plasma_state_t<Real>& state,
+                                const screen_factors_t& scn_fac,
+                                const RatesParams& params)
 {
     Real log_scor = actual_log_screen_r(state, scn_fac, params);
     Real result = 1.0;
@@ -431,9 +431,9 @@ MPL_DEVICE Real actual_screen_r(const plasma_state_t<Real>* state,
 }
 
 // from screening/screen.H:708 actual_screen (number_t = autodiff::dual)
-MPL_DEVICE Dual actual_screen_d(const plasma_state_t<Dual>* state,
-                                const screen_factors_t* scn_fac,
-                                const RatesParams* params)
+MPL_DEVICE Dual actual_screen_d(const plasma_state_t<Dual>& state,
+                                const screen_factors_t& scn_fac,
+                                const RatesParams& params)
 {
     Dual log_scor = actual_log_screen_d(state, scn_fac, params);
     Dual result = dual_const(1.0);

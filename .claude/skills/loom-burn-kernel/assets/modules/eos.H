@@ -188,24 +188,28 @@ MPL_DEVICE void composition(T* state)
 
 // from EOS/eos_composition.H:82 composition_derivatives
 // (has_dpdA/has_dpdZ false -> dpdX = 0; has_dedA && has_dedZ true;
-//  has_pressure false -> dhdX = 0). Stock returns eos_xderivs_t by value.
+//  has_pressure false -> dhdX = 0).
 template <typename T>
-MPL_DEVICE void composition_derivatives(const T* state, eos_xderivs_t* state_xderivs)
+MPL_DEVICE eos_xderivs_t composition_derivatives(const T& state)
 {
+    eos_xderivs_t state_xderivs{};
+
     // network_properties.H aion[], zion[], aion_inv[] (network_data.H lists)
     const Real aion[eos_nspec] = {MPL_NET_AION_LIST};
     const Real zion[eos_nspec] = {MPL_NET_ZION_LIST};
     const Real aion_inv[eos_nspec] = {MPL_NET_AION_INV_LIST};
 
     for (int n = 0; n < eos_nspec; n++) {
-        state_xderivs->dpdX[n] = 0.0;
+        state_xderivs.dpdX[n] = 0.0;
 
-        state_xderivs->dedX[n] =
-            state->dedA * (state->abar * aion_inv[n]) * (aion[n] - state->abar) +
-            state->dedZ * (state->abar * aion_inv[n]) * (zion[n] - state->zbar);
+        state_xderivs.dedX[n] =
+            state.dedA * (state.abar * aion_inv[n]) * (aion[n] - state.abar) +
+            state.dedZ * (state.abar * aion_inv[n]) * (zion[n] - state.zbar);
 
-        state_xderivs->dhdX[n] = 0.0;
+        state_xderivs.dhdX[n] = 0.0;
     }
+
+    return state_xderivs;
 }
 
 // ---------------------------------------------------------------------------
@@ -563,7 +567,7 @@ MPL_DEVICE void apply_ions(T* state)
 // from EOS/helmholtz/actual_eos.H:533 apply_radiation (no RADIATION)
 // (has_entropy, has_pressure false: srad and the pressure set dropped)
 template <typename T>
-MPL_DEVICE void apply_radiation(T* state, const EosParams* params)
+MPL_DEVICE void apply_radiation(T* state, const EosParams& params)
 {
     constexpr Real clight  = 2.99792458e10;
     constexpr Real ssol    = 5.67051e-5;
@@ -577,8 +581,8 @@ MPL_DEVICE void apply_radiation(T* state, const EosParams* params)
 
     // optional smoothing of the radiation pressure at low density
     // (eos.prad_limiter_rho_c / eos.prad_limiter_delta_rho, default off)
-    if (params->eos_prad_limiter_rho_c > 0.0e0 && params->eos_prad_limiter_delta_rho > 0.0e0) {
-        prad = prad * 0.5e0 * (1.0e0 + math::tanh((state->rho - params->eos_prad_limiter_rho_c) / params->eos_prad_limiter_delta_rho));
+    if (params.eos_prad_limiter_rho_c > 0.0e0 && params.eos_prad_limiter_delta_rho > 0.0e0) {
+        prad = prad * 0.5e0 * (1.0e0 + math::tanh((state->rho - params.eos_prad_limiter_rho_c) / params.eos_prad_limiter_delta_rho));
     }
 
     Real dpraddd = 0.0e0;
@@ -765,7 +769,7 @@ MPL_DEVICE void apply_coulomb_corrections(T* state)
 // (only the eos_input_re branch has a live body for this trait set; the
 //  #ifndef AMREX_USE_GPU else-abort is dropped)
 template <typename T>
-MPL_DEVICE void prepare_for_iterations(int input, const T* state,
+MPL_DEVICE void prepare_for_iterations(int input, const T& state,
                                        bool& single_iter, Real& v_want, Real& v1_want, Real& v2_want,
                                        int& var, int& dvar, int& var1, int& var2)
 {
@@ -790,7 +794,7 @@ MPL_DEVICE void prepare_for_iterations(int input, const T* state,
     }
     else if (input == eos_input_re) {
         // has_energy
-        v_want = state->e;
+        v_want = state.e;
         var  = EOS::iener;
         dvar = EOS::itemp;
     }
@@ -809,7 +813,7 @@ MPL_DEVICE void prepare_for_iterations(int input, const T* state,
 // (only the iener branches have live bodies for this trait set)
 template <typename T>
 MPL_DEVICE void single_iter_update(T* state, int var, int dvar,
-                                   Real v_want, bool& converged, const EosParams* params)
+                                   Real v_want, bool& converged, const EosParams& params)
 {
     Real x = 0.0;
     Real v = 0.0;
@@ -820,8 +824,8 @@ MPL_DEVICE void single_iter_update(T* state, int var, int dvar,
     if (dvar == EOS::itemp) {
 
         x = state->T;
-        smallx = params->EOSData_mintemp;
-        xtol = params->helmholtz_ttol;
+        smallx = params.EOSData_mintemp;
+        xtol = params.helmholtz_ttol;
 
         if (var == EOS::ipres) {
             // has_pressure false
@@ -842,8 +846,8 @@ MPL_DEVICE void single_iter_update(T* state, int var, int dvar,
     {
 
         x = state->rho;
-        smallx = params->EOSData_mindens;
-        xtol = params->helmholtz_dtol;
+        smallx = params.EOSData_mindens;
+        xtol = params.helmholtz_dtol;
 
         if (var == EOS::ipres) {
             // has_pressure false
@@ -894,7 +898,7 @@ MPL_DEVICE void single_iter_update(T* state, int var, int dvar,
 template <typename T>
 MPL_DEVICE void double_iter_update(T* state, int var1, int var2,
                                    Real v1_want, Real v2_want, bool& converged,
-                                   const EosParams* params)
+                                   const EosParams& params)
 {
     Real v1 = 0.0, dv1dt = 0.0, dv1dr = 0.0, v2 = 0.0, dv2dt = 0.0, dv2dr = 0.0;
 
@@ -950,8 +954,8 @@ MPL_DEVICE void double_iter_update(T* state, int var1, int var2,
     rnew = math::clamp(rnew, 0.5e0 * rold, 2.0e0 * rold);
 
     // Don't let us freeze or evacuate
-    tnew = math::max(params->EOSData_mintemp, tnew);
-    rnew = math::max(params->EOSData_mindens, rnew);
+    tnew = math::max(params.EOSData_mintemp, tnew);
+    rnew = math::max(params.EOSData_mindens, rnew);
 
     // Store the new temperature and density
     state->rho = rnew;
@@ -961,7 +965,7 @@ MPL_DEVICE void double_iter_update(T* state, int var1, int var2,
     Real error1 = math::abs(rnew - rold);
     Real error2 = math::abs(tnew - told);
 
-    if (error1 < params->helmholtz_dtol * rold && error2 < params->helmholtz_ttol * told) converged = true;
+    if (error1 < params.helmholtz_dtol * rold && error2 < params.helmholtz_ttol * told) converged = true;
 }
 
 // from EOS/helmholtz/actual_eos.H:1137 finalize_state
@@ -969,7 +973,7 @@ MPL_DEVICE void double_iter_update(T* state, int var1, int var2,
 template <typename T>
 MPL_DEVICE void finalize_state(int input, T* state,
                                Real v_want, Real v1_want, Real v2_want,
-                               const EosParams* params)
+                               const EosParams& params)
 {
     (void) v1_want;
     (void) v2_want;
@@ -980,7 +984,7 @@ MPL_DEVICE void finalize_state(int input, T* state,
     // Specific heats (has_energy; Gamma_1 needs has_pressure)
     state->cv = state->dedT;
 
-    if (params->helmholtz_input_is_constant) {
+    if (params.helmholtz_input_is_constant) {
 
         if (input == eos_input_rh) {
             // has_enthalpy false
@@ -1010,7 +1014,7 @@ MPL_DEVICE void finalize_state(int input, T* state,
 
 // from EOS/helmholtz/actual_eos.H:1235 actual_eos
 template <typename T>
-MPL_DEVICE void actual_eos(int input, T* state, const EosParams* params, EosTables tab)
+MPL_DEVICE void actual_eos(int input, T* state, const EosParams& params, EosTables tab)
 {
     constexpr int max_newton = 100;
 
@@ -1022,7 +1026,7 @@ MPL_DEVICE void actual_eos(int input, T* state, const EosParams* params, EosTabl
     int var{}, dvar{}, var1{}, var2{};
     Real v_want{}, v1_want{}, v2_want{};
 
-    prepare_for_iterations(input, state, single_iter, v_want, v1_want, v2_want, var, dvar, var1, var2);
+    prepare_for_iterations(input, *state, single_iter, v_want, v1_want, v2_want, var, dvar, var1, var2);
 
     converged = false;
 
@@ -1044,7 +1048,7 @@ MPL_DEVICE void actual_eos(int input, T* state, const EosParams* params, EosTabl
 
         apply_electrons(state, tab);
 
-        if (params->helmholtz_do_coulomb) {
+        if (params.helmholtz_do_coulomb) {
             apply_coulomb_corrections(state);
         }
 
@@ -1078,10 +1082,10 @@ MPL_DEVICE void eos_override(T* state)
 
 // from interfaces/eos.H:70 eos_reset
 template <typename T>
-MPL_DEVICE void eos_reset(T* state, bool& has_been_reset, const EosParams* params, EosTables tab)
+MPL_DEVICE void eos_reset(T* state, bool& has_been_reset, const EosParams& params, EosTables tab)
 {
-    state->T = math::min(params->EOSData_maxtemp, math::max(params->EOSData_mintemp, state->T));
-    state->rho = math::min(params->EOSData_maxdens, math::max(params->EOSData_mindens, state->rho));
+    state->T = math::min(params.EOSData_maxtemp, math::max(params.EOSData_mintemp, state->T));
+    state->rho = math::min(params.EOSData_maxdens, math::max(params.EOSData_mindens, state->rho));
 
     actual_eos(eos_input_rt, state, params, tab);
 
@@ -1090,23 +1094,23 @@ MPL_DEVICE void eos_reset(T* state, bool& has_been_reset, const EosParams* param
 
 // from interfaces/eos.H:83 reset_rho
 template <typename T>
-MPL_DEVICE void reset_rho(T* state, const EosParams* params)
+MPL_DEVICE void reset_rho(T* state, const EosParams& params)
 {
-    state->rho = math::min(params->EOSData_maxdens, math::max(params->EOSData_mindens, state->rho));
+    state->rho = math::min(params.EOSData_maxdens, math::max(params.EOSData_mindens, state->rho));
 }
 
 // from interfaces/eos.H:91 reset_T
 template <typename T>
-MPL_DEVICE void reset_T(T* state, const EosParams* params)
+MPL_DEVICE void reset_T(T* state, const EosParams& params)
 {
-    state->T = math::min(params->EOSData_maxtemp, math::max(params->EOSData_mintemp, state->T));
+    state->T = math::min(params.EOSData_maxtemp, math::max(params.EOSData_mintemp, state->T));
 }
 
 // from interfaces/eos.H:98 reset_e (has_energy)
 template <typename T>
-MPL_DEVICE void reset_e(T* state, bool& has_been_reset, const EosParams* params, EosTables tab)
+MPL_DEVICE void reset_e(T* state, bool& has_been_reset, const EosParams& params, EosTables tab)
 {
-    if (state->e < params->EOSData_mine || state->e > params->EOSData_maxe) {
+    if (state->e < params.EOSData_mine || state->e > params.EOSData_maxe) {
         eos_reset(state, has_been_reset, params, tab);
     }
 }
@@ -1118,7 +1122,7 @@ MPL_DEVICE void reset_e(T* state, bool& has_been_reset, const EosParams* params,
 // from interfaces/eos.H:142 reset_inputs (runtime switch -> if/else chain)
 template <typename T>
 MPL_DEVICE void reset_inputs(int input, T* state, bool& has_been_reset,
-                             const EosParams* params, EosTables tab)
+                             const EosParams& params, EosTables tab)
 {
     // Reset the input quantities to valid values. For inputs other than rho and T,
     // this will evolve an EOS call, which will negate the need to do the main EOS call.
@@ -1158,7 +1162,7 @@ MPL_DEVICE void reset_inputs(int input, T* state, bool& has_been_reset,
 // from interfaces/eos.H:396 eos
 // (the #ifndef AMREX_USE_GPU initialized check is dropped)
 template <typename T>
-MPL_DEVICE void eos(int input, T* state, const EosParams* params, EosTables tab)
+MPL_DEVICE void eos(int input, T* state, const EosParams& params, EosTables tab)
 {
     bool has_been_reset = false;
 

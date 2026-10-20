@@ -156,8 +156,9 @@ for the scripts that run there); the defaults are for a local GPU box.
 - `return` inside a loop fails (LOWERING/059). Use a result code and `break`.
 - SUBRANGE/026 at compile time means a missing bounds assumption:
   `MPL_ASSUME` (`loom-frontend-rules.md`, SUBRANGE row).
-- Nested ternaries deeper than 32 hit the verifier's region-nesting limit;
-  outline them into small helpers that keep lazy evaluation.
+- Nested ternaries deeper than 32 hit the verifier's region-nesting limit
+  before hrx-system #2079; at `31bf125137` 40 levels compile (probe f11), so
+  no outlining is needed.
 - Uninitialized locals (`double r;`) fail; initialize everything (`T x{}`).
 - Text Loom modules over 65,535 lines were rejected (#1877).
 - BACKEND/005 `spill-traffic-register-exhausted` can appear from harmless-looking

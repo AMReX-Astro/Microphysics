@@ -101,7 +101,7 @@ mkdir -p "$LOOM_WORK" && cd "$LOOM_WORK"
 python3 -m venv venv && venv/bin/pip install ast-grep-cli && export PATH=$PWD/venv/bin:$PATH
 git clone https://github.com/AMReX-Codes/amrex.git && export AMREX_HOME=$PWD/amrex
 git clone https://github.com/ROCm/hrx-system.git
-git -C hrx-system checkout 4031286f0b           # pinned compiler (Phase 1)
+git -C hrx-system checkout 31bf125137           # pinned compiler (Phase 1)
 (cd hrx-system && python3 dev.py cmake setup)   # .venv with cmake/ninja; see below if it exits 1
 SRC=$PWD/hrx-system OUT=$PWD/loom-tools/pinned TARGETS=$GFX \
 PATCHES=$SKILL/patches/alloc-relocation-overlap.patch \
@@ -195,15 +195,20 @@ Loom's C++ importer changes weekly (e.g. #1993 added non-escaping value
 references after the campaigns had rewritten every reference away). Do not
 trust any list of "unsupported" constructs, including the one in
 `references/loom-frontend-rules.md`, until you have re-probed it at the
-commit you are using. Copy the skill's `probes/` kit (70 one-construct
+commit you are using. Copy the skill's `probes/` kit (93 one-construct
 probes with root `probe::k`, and `probe.sh`, which runs them all with one
 frozen tool set) into the port's agent-notes directory, add probes for
 anything the Phase 2 inventory found that the kit doesn't cover, and run it
 on the GPU host as its header describes. `probes/README.md` has the measured
-results at hrx-system `7cf21edd85` (2026-10-18, gfx90a). That commit is only on
-the author's fork; its compiler sources are identical to public main
-`4031286f0b`, the commit to check out. If you use `4031286f0b` on gfx90a,
-cite the table; on another commit or target, rerun the kit and update it. Record the
+results at public hrx-system main `31bf125137` (2026-10-20, gfx90a), the
+commit to check out. Since the previous pin (`4031286f0b`) member functions,
+`operator()` accessors, `const` struct references, array reference
+parameters and deep ternaries import, so translations no longer rewrite
+them, and the shipped modules use them (`Array1D`/`Array2D` accessors with
+the stock indices, `const&` for everything read-only, pointers only for
+structs a function writes). If you
+use `31bf125137` on gfx90a, cite the table; on another commit or target,
+rerun the kit and update it. Record the
 tool md5 and hrx-system commit in the agent note.
 
 The kit includes the f64 math probes (`m_f64_*`; Phase 2 tells you which
@@ -282,7 +287,8 @@ operator calls spelled out. Two cautions:
   lines). Take loop structure from the original source; use the specialized
   form for types, branches and constants.
 - Call sites still hide types (`a.operator()(i, j)` doesn't say whether `a`
-  is a 1-based `Array2D`), so index translation needs the declarations.
+  is a 1-based `Array2D`); read the declarations before changing any
+  indexing (keeping the accessors avoids index translation altogether).
 - Floating literals are printed through the host's `long double`, which is
   80-bit on x86-64: take every constant's spelling from the original source,
   never from the specialized output.
@@ -298,10 +304,12 @@ ast-grep scan -c <skill>/scripts/loom-lint/sgconfig.yml \
 ```
 
 Never lint the `validate_*.H` files: they are host-only and use std,
-lambdas and references on purpose (hundreds of hits). The shipped `eos.H`
-(13) and `vode.H` (5) give 18 `warning[no-reference]` hits (scalar
-references, which the probes showed import); those are expected. Your own
-files must have no errors.
+lambdas and references on purpose (hundreds of hits). The shipped
+`network_rhs.H` gives 9 `warning[no-reference]` hits (the `rate_t&` outputs
+of `fill_additional_rates`, written only by whole-struct assignment, which
+imports); those are expected. Your own files must have no errors, and every
+`no-reference` warning in them must be a reference the probes showed
+import.
 
 Core rules:
 
@@ -459,7 +467,7 @@ Check the time with `date` before writing any timestamp.
 - `references/microphysics-translation.md` — inventory limits, burn_t, runtime params and unported paths, tables, generated network data, autodiff, math, NSE.
 - `references/test-react-integration.md` — layout, kernel signature, host launcher, native validation, build/run and import/compile commands, comparison and NaN rule.
 - `references/performance.md` — measurement rules, kernel-side levers, FMA experiment.
-- `probes/README.md` — Phase 1 probe kit (`probe.sh`, `src/`) and results at `7cf21edd85`.
+- `probes/README.md` — Phase 1 probe kit (`probe.sh`, `src/`) and results at `31bf125137`.
 
 ## Scripts
 
@@ -492,7 +500,7 @@ Check the time with `date` before writing any timestamp.
 - `assets/f64-tests/` — host accuracy test of the OCML recipes; `ocml_gpu/` is the GPU bit check against hipcc's OCML.
 - `assets/standalone/` — standalone HIP reproducer: `main.hip` (burns a case file with the hipcc-compiled kernel tree and optionally a Loom code object, compares bit for bit), `loom_case_format.H`, `Makefile`, vendor-facing `README.md`; `harness/loom_case.H` writes case files from test_react.
 
-## Patches (against hrx-system `7cf21edd85` = public main `4031286f0b` for the compiler; also apply to main `d70c407e5a`; local, not upstream)
+## Patches (apply to hrx-system main `31bf125137` and the previous pin `4031286f0b`; local, not upstream)
 
 - `patches/alloc-relocation-overlap.patch` — allocator relocation fix; byte-identical code objects, makes a full-burn compile finish (~32 min).
 - `patches/trace-repair.patch` — `LOOM_TRACE_REPAIR=1`: one trace line per register-repair round.

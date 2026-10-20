@@ -1,5 +1,15 @@
 id: no-reference
 language: cpp
 severity: warning
-message: C++ reference. Scalar reference parameters and scalar member slices import (#1993); references to structs, arrays, buffer elements, local bindings and returns do not. Use a pointer unless this is a scalar parameter.
-rule: { kind: reference_declarator, not: { matches: host-branch } }
+message: Mutable struct reference or reference local. Writing a scalar field or a member accessor through a mutable struct reference fails import (r15, r19), and so does T& r = s.field (r10); use a pointer. Fine through it - array-member elements, whole-struct assignment, its member functions. See loom-frontend-rules.md.
+rule:
+  kind: reference_declarator
+  not: { matches: host-branch }
+  any:
+    - inside:
+        kind: parameter_declaration
+        not:
+          any:
+            - has: { kind: type_qualifier, regex: '^const$' }
+            - has: { field: type, regex: '^(mpl::)?(Real|double|float|int|short|long|bool|unsigned|Array1D|Array2D|JacNetArray2D|NetYArray1D|net_inter_t)\b' }
+    - inside: { kind: declaration }

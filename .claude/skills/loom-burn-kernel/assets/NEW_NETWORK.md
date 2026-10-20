@@ -48,15 +48,24 @@ template <typename T> struct tf_t { T temp, t9, ..., lnt9; };  // interfaces/tfa
 MPL_DEVICE tf_t<Real> get_tfactors_r(Real temp);
 MPL_DEVICE tf_t<Dual> get_tfactors_d(Dual temp);
 // one pair per stock rate function reached, e.g. rate_c12ag(tf, den, fr, rr):
-MPL_DEVICE rate_t<Real> rate_<name>_r(const tf_t<Real>* tf, const Real den[, const RatesParams* params]);
-MPL_DEVICE rate_t<Dual> rate_<name>_d(const tf_t<Dual>* tf, const Real den[, const RatesParams* params]);
+MPL_DEVICE rate_t<Real> rate_<name>_r(const tf_t<Real>& tf, const Real den[, const RatesParams& params]);
+MPL_DEVICE rate_t<Dual> rate_<name>_d(const tf_t<Dual>& tf, const Real den[, const RatesParams& params]);
 // the network's RHS::evaluate_analytical_rate<rate>, den = 1.0 inside as in the stock call:
-template <int rate> MPL_DEVICE rate_t<Real> evaluate_analytical_rate_r(const tf_t<Real>* tf, const RatesParams* params);
-template <int rate> MPL_DEVICE rate_t<Dual> evaluate_analytical_rate_d(const tf_t<Dual>* tf, const RatesParams* params);
+template <int rate> MPL_DEVICE rate_t<Real> evaluate_analytical_rate_r(const tf_t<Real>& tf, const RatesParams& params);
+template <int rate> MPL_DEVICE rate_t<Dual> evaluate_analytical_rate_d(const tf_t<Dual>& tf, const RatesParams& params);
 ```
 
 `params` is passed to a rate function only if it reads one;
 `evaluate_analytical_rate_{r,d}` always take it.
+
+Ports written before 2026-10-20 pass `tf`, `RatesParams`, `NetParams` and
+`burn_t` to these functions and hooks by `const` pointer, and `y` as
+`const Real*`. To use them with the current modules, regenerate `burn.H`
+(it now defines `JacNetArray2D` and `NetYArray1D`) and change those
+parameters to `const&` (`tf->` → `tf.`, `y[n]` → `y(n)`); in
+`get_tfactors_{r,d}` fill a local `tf_t` and return it, instead of writing
+through a pointer to it. `postprocess_rate_{r,d}` keeps its `rate_t*`
+arguments.
 
 ## Steps
 
@@ -103,9 +112,9 @@ template <int rate> MPL_DEVICE rate_t<Dual> evaluate_analytical_rate_d(const tf_
    includes: `python3 <skill>/scripts/gen_abi_layout.py --kernel-dir
    unit_test/test_react/loom/<net>_vode` (writes `abi_layout.H`; rerun
    whenever a `*Params` struct changes). Lint every kernel file except `validate_*`
-   (SKILL.md Phase 3): `rates.H` and `network.H` must be clean; the 18
-   `warning[no-reference]` hits from the shipped `eos.H` (13) and `vode.H`
-   (5) are expected (scalar references the probes showed import).
+   (SKILL.md Phase 3): `rates.H` and `network.H` must be clean; the 9
+   `warning[no-reference]` hits from the shipped `network_rhs.H` are
+   expected (`rate_t&` outputs written by whole-struct assignment).
 6. **Validate everything**. Fill the `PORT:` lines of `validate_port.H`
    first (the network's runtime switches as parameter variants, every rate
    branch temperature, direct calls of rate functions that take a density).

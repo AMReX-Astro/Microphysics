@@ -41,6 +41,18 @@ files by name (`network_data.H`, `burn.H`, `rates.H`, `network.H`); see
 
 Update the status columns when a port moves a module forward.
 
+2026-10-20: the modules were converted to the accessor/reference style
+(`Array1D`/`Array2D` with stock indices, `const&` for read-only data,
+pointers for written structs and structs with accessor members) and
+revalidated at hrx-system `31bf125137` (gfx90a):
+- host, all six validators: aprox13 948M checks, triple_alpha_plus_cago
+  411M checks, 0 mismatches (same check counts as before the conversion);
+- standalone hipcc build vs the stock HIP test_react reference: bit-exact
+  on 4096 zones for both networks, OCML and recipe math;
+- Loom full burn (`smoke_burn`): aprox13 1396 s, 256 VGPR, 194,456 B scratch
+  (unconverted modules at the same commit: 2016 s, 214,768 B);
+  triple_alpha_plus_cago 458 s, 77,904 B (unconverted: 490 s, 77,616 B).
+
 ## Launcher (harness/loom_launch.H) and the per-network loom_params.H
 
 `loom_launch.H` loads the Loom code object with `hipModuleLoad`, fills
@@ -102,7 +114,7 @@ the prad-limiter run with
 
 | File | What | Validation status |
 |---|---|---|
-| `support.H` | Platform layer: `MPL_DEVICE`/`MPL_KERNEL`, `Real`, `mpl::math` bindings (host = the std call stock code makes, Loom = Loom op or OCML recipe), `powi` with AMReX's grouping, `min/max/clamp` with std semantics, `MPL_IDX2`, `MPL_ASSUME` | Bindings checked through the module validators |
+| `support.H` | Platform layer: `MPL_DEVICE`/`MPL_KERNEL`, `Real`, `mpl::math` bindings (host = the std call stock code makes, Loom = Loom op or OCML recipe), `powi` with AMReX's grouping, `min/max/clamp` with std semantics, `Array1D`/`Array2D` (1-based accessors), `MPL_ASSUME` | Bindings checked through the module validators |
 | `f64_math.H` | OCML f64 `exp`, `log`, `cbrt` (from hrx-system `experimental/loom-codegen-comparison`, `7cf21edd85`) | Used by the chemistry campaigns on gfx90a/gfx942; bit-identical to hipcc's OCML on gfx90a (`f64-tests/ocml_gpu/`) |
 | `f64_math_extra.H` | OCML f64 `pow`, `log10`, `tanh` (llvm-project `amd/device-libs` `d366fa84f3fd`, same revision) | Host: max 1 ulp vs MPFR in every sweep, all C Annex F special cases match libm (`f64-tests/`). GPU (moth gfx90a, 2026-10-18, `f64-tests/ocml_gpu/`): pow/log10/tanh and `f64_math.H`'s exp/log/cbrt bit-identical to hipcc's OCML over ~1M samples per sweep; only 3 cbrt NaN-payload differences (irrelevant under the NaN rule) |
 | `dual.H` | POD `Dual` (= `autodiff::dual`) and `Dual3` (= `dual_array<1,3>`) with free functions that reproduce autodiff's expression-template evaluation bit for bit under `AUTODIFF_STRICT_ASSOCIATIVITY`; its header comment is the translation guide (expression shape → call sequence, ~40 worked examples) | 24.9M checks, 0 mismatches against autodiff (`harness/validate_dual.H`) |

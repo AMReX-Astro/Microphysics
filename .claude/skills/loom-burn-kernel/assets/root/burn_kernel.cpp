@@ -90,7 +90,7 @@ MPL_KERNEL void burn_zones(const BurnParams* params,
         }
 
         const IntegratorParams ip = params->integ;
-        normalize_abundances_burn(&burn_state, &ip);
+        normalize_abundances_burn(&burn_state, ip);
 
         // the integrator doesn't actually care about the initial internal
         // energy.
@@ -102,7 +102,7 @@ MPL_KERNEL void burn_zones(const BurnParams* params,
 
         burn_state.T_fixed = -1.0;
 
-        burner(&burn_state, dt, params, tab);
+        burner(&burn_state, dt, *params, tab);
 
         for (int n = 0; n < NumSpec; ++n) {
             state[cell + static_cast<long>(ispec + n) * nstride] = burn_state.xn[n];

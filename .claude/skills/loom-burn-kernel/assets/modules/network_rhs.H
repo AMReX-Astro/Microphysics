@@ -8,19 +8,22 @@
 // network_data.H (rd_* = rhs_data fields, net_intermediate_index, aion_inv,
 // zion, screen factors), and every network-specific function from hooks the
 // including network.H defines BEFORE including this file:
-//   struct NetParams; RatesParams net_rates_params(const NetParams*)
-//   template <int rate> rate_t<Real> net_analytical_rate_r(const burn_t*, const Real* y,
-//                                                            const tf_t<Real>*, const RatesParams*)
+//   struct NetParams; RatesParams net_rates_params(const NetParams&)
+//   template <int rate> rate_t<Real> net_analytical_rate_r(const burn_t&, const NetYArray1D& y,
+//                                                            const tf_t<Real>&, const RatesParams&)
 //   template <int rate> rate_t<Dual> net_analytical_rate_d(same, tf_t<Dual>)
 //       actual_network.H evaluate_analytical_rate
-//   template <int rate> void postprocess_rate_r(const burn_t*, const Real* y, rate_t<Real>* rates,
+//   template <int rate> void postprocess_rate_r(const burn_t&, const NetYArray1D& y, rate_t<Real>* rates,
 //                                               rate_t<Real>* rates1, rate_t<Real>* rates2,
 //                                               rate_t<Real>* rates3)   (and _d with rate_t<Dual>)
-//       actual_network.H postprocess_rate
-//   template <int spec> Real ener_gener_rate(const burn_t*, const Real dydt)
+//       actual_network.H postprocess_rate (rates by pointer: it writes their
+//       fields, which a mutable struct reference does not import)
+//   template <int spec> Real ener_gener_rate(const burn_t&, const Real dydt)
 //       actual_network.H ener_gener_rate
-// rhs_state_t is not materialized: its fields are burn_state->rho / y_e /
-// eta (the stock code copies them from burn_state), y[1..NumSpec], tf and
+// NetYArray1D (rhs_state.y, Array1D<Real, 1, NumSpec>) and JacNetArray2D come
+// from the generated burn.H, so network.H can use them.
+// rhs_state_t is not materialized: its fields are burn_state.rho / y_e /
+// eta (the stock code copies them from burn_state), y(1..NumSpec), tf and
 // pstate, passed separately.
 //
 // Not ported: network.use_tables (rate_tab_t, ttab, rattab, tabulate_rates,
@@ -30,17 +33,16 @@
 // NSE are refused at compile time.
 //
 // Entry points (called by the integrator module):
-//   actual_rhs(const burn_t* state, const NetParams* params, Real* ydot)
-//       RHS::rhs<neqs>: ydot[1..neqs] (1-based, ydot[0] untouched), Y/s and
-//       erg/g/s, exactly as stock (before integrator scaling).
-//   actual_jac(const burn_t* state, const NetParams* params, Real* jac)
-//       RHS::jac: jac[MPL_JAC(i, j)] = stock jac(i, j), i, j = 1..neqs.
-//   rhs_dgefa(Real* a) -> info     RHS::dgefa (LU without pivoting)
-//   rhs_dgesl(const Real* a, Real* b)   RHS::dgesl, b[1..neqs]
+//   actual_rhs(const burn_t& state, const NetParams& params, Array1D<Real, 1, neqs>& ydot)
+//       RHS::rhs<neqs>: ydot(1..neqs), Y/s and erg/g/s, exactly as stock
+//       (before integrator scaling).
+//   actual_jac(const burn_t& state, const NetParams& params, JacNetArray2D& jac)
+//       RHS::jac: jac(i, j), i, j = 1..neqs.
+//   rhs_dgefa(JacNetArray2D& a) -> info     RHS::dgefa (LU without pivoting)
+//   rhs_dgesl(const JacNetArray2D& a, Array1D<Real, 1, neqs>& b)   RHS::dgesl
 //
-// Jacobian layout: MathArray2D<jac_t, 1, neqs, 1, neqs> becomes a flat
-// `Real jac[MPL_JAC_SIZE]` indexed by MPL_JAC(i, j) (README rule 4: 1-based,
-// row-major with the row/column 0 padding unused).
+// Arrays keep the stock 1-based accessors (support.H Array1D / Array2D);
+// JacNetArray2D = MathArray2D<jac_t, 1, neqs, 1, neqs>.
 //
 // Loops over rates/species: stock amrex::constexpr_for lambdas become
 // template-struct recursion (README rule 5) in the stock order: rates
@@ -63,10 +65,6 @@
 #if MPL_GEN_NSE || MPL_GEN_NSE_NET
 #error "network_rhs.H: NSE / NSE_NET builds are not ported"
 #endif
-
-// MathArray2D<jac_t, 1, neqs, 1, neqs>(i, j), i, j = 1..neqs
-#define MPL_JAC(i, j) MPL_IDX2((i), (j), (mpl::neqs + 1))
-#define MPL_JAC_SIZE ((mpl::neqs + 1) * (mpl::neqs + 1))
 
 namespace mpl {
 
@@ -125,50 +123,12 @@ MPL_DEVICE constexpr int density_exponent_reverse(int rate)
     return exponent;
 }
 
-// ---------------------------------------------------------------------------
-// Intermediate-rate storage: amrex::Array1D<rate_t<T>, 1, 17> as scalar
-// arrays (index 1..17, slot 0 unused).
-// ---------------------------------------------------------------------------
+// networks/rhs.H:1251 "We cannot have a zero-sized array, so just set the
+// array size to 1 in that case."
+constexpr int net_intermediate_array_size = net_num_intermediate > 0 ? net_num_intermediate : 1;
 
-struct net_inter_r_t {
-    Real fr[net_num_intermediate + 1];
-    Real rr[net_num_intermediate + 1];
-};
-
-struct net_inter_d_t {
-    Real fr_val[net_num_intermediate + 1];
-    Real fr_grad[net_num_intermediate + 1];
-    Real rr_val[net_num_intermediate + 1];
-    Real rr_grad[net_num_intermediate + 1];
-};
-
-MPL_DEVICE rate_t<Real> net_inter_get_r(const net_inter_r_t* s, int index)
-{
-    rate_t<Real> r{s->fr[index], s->rr[index]};
-    return r;
-}
-
-MPL_DEVICE void net_inter_set_r(net_inter_r_t* s, int index, rate_t<Real> r)
-{
-    s->fr[index] = r.fr;
-    s->rr[index] = r.rr;
-}
-
-MPL_DEVICE rate_t<Dual> net_inter_get_d(const net_inter_d_t* s, int index)
-{
-    Dual fr{s->fr_val[index], s->fr_grad[index]};
-    Dual rr{s->rr_val[index], s->rr_grad[index]};
-    rate_t<Dual> r{fr, rr};
-    return r;
-}
-
-MPL_DEVICE void net_inter_set_d(net_inter_d_t* s, int index, rate_t<Dual> r)
-{
-    s->fr_val[index] = r.fr.val;
-    s->fr_grad[index] = r.fr.grad;
-    s->rr_val[index] = r.rr.val;
-    s->rr_grad[index] = r.rr.grad;
-}
+template <typename T>
+using net_inter_t = Array1D<rate_t<T>, 1, net_intermediate_array_size>;
 
 // ---------------------------------------------------------------------------
 // networks/rhs.H:410 apply_density_scaling, :450 apply_screening,
@@ -247,8 +207,8 @@ MPL_DEVICE void apply_density_scaling_d(const Real rho, rate_t<Dual>* rates)
 #if MPL_GEN_SCREENING
 // from networks/rhs.H:450 apply_screening (number_t = Real)
 template <int rate>
-MPL_DEVICE void apply_screening_r(const plasma_state_t<Real>* pstate, rate_t<Real>* rates,
-                                  const RatesParams* rp)
+MPL_DEVICE void apply_screening_r(const plasma_state_t<Real>& pstate, rate_t<Real>* rates,
+                                  const RatesParams& rp)
 {
     constexpr int screen_fwd = rd_screen_forward_reaction(rate);
     constexpr int screen_rev = rd_screen_reverse_reaction(rate);
@@ -270,7 +230,7 @@ MPL_DEVICE void apply_screening_r(const plasma_state_t<Real>* pstate, rate_t<Rea
 
             const screen_factors_t scn_fac = screen_factor<Z1, A1, Z2, A2>();
 
-            const Real sc = actual_screen_r(pstate, &scn_fac, rp);
+            const Real sc = actual_screen_r(pstate, scn_fac, rp);
 
             if constexpr (screen_fwd == 1) {
                 rates->fr *= sc;
@@ -287,7 +247,7 @@ MPL_DEVICE void apply_screening_r(const plasma_state_t<Real>* pstate, rate_t<Rea
 
             const screen_factors_t scn_fac = screen_factor<Z1, A1, Z1, A1>();
 
-            const Real sc = actual_screen_r(pstate, &scn_fac, rp);
+            const Real sc = actual_screen_r(pstate, scn_fac, rp);
 
             if constexpr (screen_fwd == 1) {
                 rates->fr *= sc;
@@ -304,11 +264,11 @@ MPL_DEVICE void apply_screening_r(const plasma_state_t<Real>* pstate, rate_t<Rea
 
             const screen_factors_t scn_fac1 = screen_factor<Z1, A1, Z1, A1>();
 
-            const Real sc1 = actual_screen_r(pstate, &scn_fac1, rp);
+            const Real sc1 = actual_screen_r(pstate, scn_fac1, rp);
 
             const screen_factors_t scn_fac2 = screen_factor<Z1, A1, 2 * Z1, 2 * A1>();
 
-            const Real sc2 = actual_screen_r(pstate, &scn_fac2, rp);
+            const Real sc2 = actual_screen_r(pstate, scn_fac2, rp);
 
             const Real sc = sc1 * sc2;
 
@@ -324,8 +284,8 @@ MPL_DEVICE void apply_screening_r(const plasma_state_t<Real>* pstate, rate_t<Rea
 
 // from networks/rhs.H:450 apply_screening (number_t = autodiff::dual)
 template <int rate>
-MPL_DEVICE void apply_screening_d(const plasma_state_t<Dual>* pstate, rate_t<Dual>* rates,
-                                  const RatesParams* rp)
+MPL_DEVICE void apply_screening_d(const plasma_state_t<Dual>& pstate, rate_t<Dual>* rates,
+                                  const RatesParams& rp)
 {
     constexpr int screen_fwd = rd_screen_forward_reaction(rate);
     constexpr int screen_rev = rd_screen_reverse_reaction(rate);
@@ -345,7 +305,7 @@ MPL_DEVICE void apply_screening_d(const plasma_state_t<Dual>* pstate, rate_t<Dua
 
             const screen_factors_t scn_fac = screen_factor<Z1, A1, Z2, A2>();
 
-            const Dual sc = actual_screen_d(pstate, &scn_fac, rp);
+            const Dual sc = actual_screen_d(pstate, scn_fac, rp);
 
             if constexpr (screen_fwd == 1) {
                 rates->fr = dual_mul(rates->fr, sc);
@@ -361,7 +321,7 @@ MPL_DEVICE void apply_screening_d(const plasma_state_t<Dual>* pstate, rate_t<Dua
 
             const screen_factors_t scn_fac = screen_factor<Z1, A1, Z1, A1>();
 
-            const Dual sc = actual_screen_d(pstate, &scn_fac, rp);
+            const Dual sc = actual_screen_d(pstate, scn_fac, rp);
 
             if constexpr (screen_fwd == 1) {
                 rates->fr = dual_mul(rates->fr, sc);
@@ -377,11 +337,11 @@ MPL_DEVICE void apply_screening_d(const plasma_state_t<Dual>* pstate, rate_t<Dua
 
             const screen_factors_t scn_fac1 = screen_factor<Z1, A1, Z1, A1>();
 
-            const Dual sc1 = actual_screen_d(pstate, &scn_fac1, rp);
+            const Dual sc1 = actual_screen_d(pstate, scn_fac1, rp);
 
             const screen_factors_t scn_fac2 = screen_factor<Z1, A1, 2 * Z1, 2 * A1>();
 
-            const Dual sc2 = actual_screen_d(pstate, &scn_fac2, rp);
+            const Dual sc2 = actual_screen_d(pstate, scn_fac2, rp);
 
             const Dual sc = dual_mul(sc1, sc2);
 
@@ -429,8 +389,8 @@ MPL_DEVICE void apply_branching_d(rate_t<Dual>* rates)
 
 // from networks/rhs.H:1129 construct_rate (number_t = Real; analytic branch only)
 template <int rate>
-MPL_DEVICE rate_t<Real> construct_rate_r(const burn_t* burn_state, const Real* y, const tf_t<Real>* tf,
-                                         const plasma_state_t<Real>* pstate, const RatesParams* rp)
+MPL_DEVICE rate_t<Real> construct_rate_r(const burn_t& burn_state, const NetYArray1D& y, const tf_t<Real>& tf,
+                                         const plasma_state_t<Real>& pstate, const RatesParams& rp)
 {
     rate_t<Real> rates{0.0, 0.0};
 
@@ -438,7 +398,7 @@ MPL_DEVICE rate_t<Real> construct_rate_r(const burn_t* burn_state, const Real* y
     rates = net_analytical_rate_r<rate>(burn_state, y, tf, rp);
 
     // Set the density dependence
-    apply_density_scaling_r<rate>(burn_state->rho, &rates);
+    apply_density_scaling_r<rate>(burn_state.rho, &rates);
 
 #if MPL_GEN_SCREENING
     // Screen
@@ -453,14 +413,14 @@ MPL_DEVICE rate_t<Real> construct_rate_r(const burn_t* burn_state, const Real* y
 
 // from networks/rhs.H:1129 construct_rate (number_t = autodiff::dual; analytic branch only)
 template <int rate>
-MPL_DEVICE rate_t<Dual> construct_rate_d(const burn_t* burn_state, const Real* y, const tf_t<Dual>* tf,
-                                         const plasma_state_t<Dual>* pstate, const RatesParams* rp)
+MPL_DEVICE rate_t<Dual> construct_rate_d(const burn_t& burn_state, const NetYArray1D& y, const tf_t<Dual>& tf,
+                                         const plasma_state_t<Dual>& pstate, const RatesParams& rp)
 {
     rate_t<Dual> rates{dual_const(0.0), dual_const(0.0)};
 
     rates = net_analytical_rate_d<rate>(burn_state, y, tf, rp);
 
-    apply_density_scaling_d<rate>(burn_state->rho, &rates);
+    apply_density_scaling_d<rate>(burn_state.rho, &rates);
 
 #if MPL_GEN_SCREENING
     apply_screening_d<rate>(pstate, &rates, rp);
@@ -473,8 +433,8 @@ MPL_DEVICE rate_t<Dual> construct_rate_d(const burn_t* burn_state, const Real* y
 
 // from networks/rhs.H:1163 fill_additional_rates (number_t = Real)
 template <int rate>
-MPL_DEVICE void fill_additional_rates_r(const net_inter_r_t* intermediate_rates, rate_t<Real>* rates1,
-                                        rate_t<Real>* rates2, rate_t<Real>* rates3)
+MPL_DEVICE void fill_additional_rates_r(const net_inter_t<Real>& intermediate_rates, rate_t<Real>& rates1,
+                                        rate_t<Real>& rates2, rate_t<Real>& rates3)
 {
     constexpr int rate1 = rd_additional_reaction(rate, 1);
     constexpr int rate2 = rd_additional_reaction(rate, 2);
@@ -483,30 +443,24 @@ MPL_DEVICE void fill_additional_rates_r(const net_inter_r_t* intermediate_rates,
     if constexpr (rate1 >= 0) {
         constexpr int index = net_intermediate_index(rate1);
         static_assert(index >= 1 && index <= net_num_intermediate);
-        const rate_t<Real> r = net_inter_get_r(intermediate_rates, index);
-        rates1->fr = r.fr;
-        rates1->rr = r.rr;
+        rates1 = intermediate_rates(index);
     }
     if constexpr (rate2 >= 0) {
         constexpr int index = net_intermediate_index(rate2);
         static_assert(index >= 1 && index <= net_num_intermediate);
-        const rate_t<Real> r = net_inter_get_r(intermediate_rates, index);
-        rates2->fr = r.fr;
-        rates2->rr = r.rr;
+        rates2 = intermediate_rates(index);
     }
     if constexpr (rate3 >= 0) {
         constexpr int index = net_intermediate_index(rate3);
         static_assert(index >= 1 && index <= net_num_intermediate);
-        const rate_t<Real> r = net_inter_get_r(intermediate_rates, index);
-        rates3->fr = r.fr;
-        rates3->rr = r.rr;
+        rates3 = intermediate_rates(index);
     }
 }
 
 // from networks/rhs.H:1163 fill_additional_rates (number_t = autodiff::dual)
 template <int rate>
-MPL_DEVICE void fill_additional_rates_d(const net_inter_d_t* intermediate_rates, rate_t<Dual>* rates1,
-                                        rate_t<Dual>* rates2, rate_t<Dual>* rates3)
+MPL_DEVICE void fill_additional_rates_d(const net_inter_t<Dual>& intermediate_rates, rate_t<Dual>& rates1,
+                                        rate_t<Dual>& rates2, rate_t<Dual>& rates3)
 {
     constexpr int rate1 = rd_additional_reaction(rate, 1);
     constexpr int rate2 = rd_additional_reaction(rate, 2);
@@ -515,30 +469,24 @@ MPL_DEVICE void fill_additional_rates_d(const net_inter_d_t* intermediate_rates,
     if constexpr (rate1 >= 0) {
         constexpr int index = net_intermediate_index(rate1);
         static_assert(index >= 1 && index <= net_num_intermediate);
-        const rate_t<Dual> r = net_inter_get_d(intermediate_rates, index);
-        rates1->fr = r.fr;
-        rates1->rr = r.rr;
+        rates1 = intermediate_rates(index);
     }
     if constexpr (rate2 >= 0) {
         constexpr int index = net_intermediate_index(rate2);
         static_assert(index >= 1 && index <= net_num_intermediate);
-        const rate_t<Dual> r = net_inter_get_d(intermediate_rates, index);
-        rates2->fr = r.fr;
-        rates2->rr = r.rr;
+        rates2 = intermediate_rates(index);
     }
     if constexpr (rate3 >= 0) {
         constexpr int index = net_intermediate_index(rate3);
         static_assert(index >= 1 && index <= net_num_intermediate);
-        const rate_t<Dual> r = net_inter_get_d(intermediate_rates, index);
-        rates3->fr = r.fr;
-        rates3->rr = r.rr;
+        rates3 = intermediate_rates(index);
     }
 }
 
 // from integration/utils/jacobian_utilities.H:18 temperature_to_energy_jacobian
-MPL_DEVICE Real temperature_to_energy_jacobian(const burn_t* state, const Real jac_T)
+MPL_DEVICE Real temperature_to_energy_jacobian(const burn_t& state, const Real jac_T)
 {
-    Real jac_e = jac_T / state->cv;
+    Real jac_e = jac_T / state.cv;
     return jac_e;
 }
 
@@ -557,14 +505,14 @@ struct net_terms_t {
 // The per-species factor of rhs_term: Y**exponent / exponent!
 // (networks/rhs.H:678-697 for A; B..F identical)
 template <int rate, int slot>
-MPL_DEVICE Real rhs_term_factor(const burn_t* state)
+MPL_DEVICE Real rhs_term_factor(const burn_t& state)
 {
     constexpr int sp = rd_species(rate, slot);
     constexpr int exponent = rd_exponent(rate, slot);
     constexpr int ipf = rd_apply_identical_particle_factor(rate);
     constexpr Real ainv = net_aion_inv(sp);
 
-    Real Y = state->xn[sp - 1] * ainv;
+    Real Y = state.xn[sp - 1] * ainv;
 
     static_assert(exponent <= 3);
 
@@ -588,7 +536,7 @@ MPL_DEVICE Real rhs_term_factor(const burn_t* state)
 
 // from networks/rhs.H:662 rhs_term<species, rate, number_t>
 template <int species, int rate>
-MPL_DEVICE net_terms_t rhs_term(const burn_t* state, const Real fr, const Real rr)
+MPL_DEVICE net_terms_t rhs_term(const burn_t& state, const Real fr, const Real rr)
 {
     constexpr int sA = rd_species(rate, 0);
     constexpr int sB = rd_species(rate, 1);
@@ -666,14 +614,14 @@ MPL_DEVICE net_terms_t rhs_term(const burn_t* state, const Real fr, const Real r
 // identical): d/dY(spec2) of Y**exponent / exponent! when spec2 is this
 // species, Y**exponent / exponent! otherwise.
 template <int spec2, int rate, int slot>
-MPL_DEVICE Real jac_term_factor(const burn_t* state)
+MPL_DEVICE Real jac_term_factor(const burn_t& state)
 {
     constexpr int sp = rd_species(rate, slot);
     constexpr int exponent = rd_exponent(rate, slot);
     constexpr int ipf = rd_apply_identical_particle_factor(rate);
     constexpr Real ainv = net_aion_inv(sp);
 
-    Real Y = state->xn[sp - 1] * ainv;
+    Real Y = state.xn[sp - 1] * ainv;
 
     constexpr int exp = (spec2 == sp) ? exponent - 1 : exponent;
 
@@ -703,7 +651,7 @@ MPL_DEVICE Real jac_term_factor(const burn_t* state)
 
 // from networks/rhs.H:875 jac_term<spec1, spec2, rate>
 template <int spec1, int spec2, int rate>
-MPL_DEVICE Real jac_term(const burn_t* state, const Real fr_val, const Real rr_val)
+MPL_DEVICE Real jac_term(const burn_t& state, const Real fr_val, const Real rr_val)
 {
     constexpr int sA = rd_species(rate, 0);
     constexpr int sB = rd_species(rate, 1);
@@ -792,14 +740,14 @@ MPL_DEVICE Real jac_term(const burn_t* state, const Real fr_val, const Real rr_v
 // rhs.H:1257 "Fill all intermediate rates first" (number_t = Real)
 template <int rate>
 struct NetInterR {
-    static MPL_DEVICE void run(const burn_t* burn_state, const Real* y, const tf_t<Real>* tf,
-                               const plasma_state_t<Real>* pstate, const RatesParams* rp,
-                               net_inter_r_t* intermediate_rates)
+    static MPL_DEVICE void run(const burn_t& burn_state, const NetYArray1D& y, const tf_t<Real>& tf,
+                               const plasma_state_t<Real>& pstate, const RatesParams& rp,
+                               net_inter_t<Real>& intermediate_rates)
     {
         if constexpr (rate <= Rates::NumRates) {
             constexpr int index = net_intermediate_index(rate);
             if constexpr (index >= 1) {
-                net_inter_set_r(intermediate_rates, index, construct_rate_r<rate>(burn_state, y, tf, pstate, rp));
+                intermediate_rates(index) = construct_rate_r<rate>(burn_state, y, tf, pstate, rp);
             }
             NetInterR<rate + 1>::run(burn_state, y, tf, pstate, rp, intermediate_rates);
         }
@@ -809,12 +757,12 @@ struct NetInterR {
 // rhs.H:1300 species loop of one rate (nrhs == neqs)
 template <int species, int rate>
 struct NetRhsSpecies {
-    static MPL_DEVICE void run(const burn_t* burn_state, const rate_t<Real> rates, Real* ydot)
+    static MPL_DEVICE void run(const burn_t& burn_state, const rate_t<Real> rates, Array1D<Real, 1, neqs>& ydot)
     {
         if constexpr (species <= NumSpec) {
             if constexpr (is_rate_used(species, rate) != 0) {
                 const net_terms_t t = rhs_term<species, rate>(burn_state, rates.fr, rates.rr);
-                ydot[species] += t.forward_term + t.reverse_term;
+                ydot(species) += t.forward_term + t.reverse_term;
             }
             NetRhsSpecies<species + 1, rate>::run(burn_state, rates, ydot);
         }
@@ -824,9 +772,9 @@ struct NetRhsSpecies {
 // rhs.H:1270 loop over all rates
 template <int rate>
 struct NetRhsRate {
-    static MPL_DEVICE void run(const burn_t* burn_state, const Real* y, const tf_t<Real>* tf,
-                               const plasma_state_t<Real>* pstate, const RatesParams* rp,
-                               const net_inter_r_t* intermediate_rates, Real* ydot)
+    static MPL_DEVICE void run(const burn_t& burn_state, const NetYArray1D& y, const tf_t<Real>& tf,
+                               const plasma_state_t<Real>& pstate, const RatesParams& rp,
+                               const net_inter_t<Real>& intermediate_rates, Array1D<Real, 1, neqs>& ydot)
     {
         if constexpr (rate <= Rates::NumRates) {
             rate_t<Real> rates{0.0, 0.0};
@@ -835,14 +783,14 @@ struct NetRhsRate {
             if constexpr (index < 0) {
                 rates = construct_rate_r<rate>(burn_state, y, tf, pstate, rp);
             } else {
-                rates = net_inter_get_r(intermediate_rates, index);
+                rates = intermediate_rates(index);
             }
 
             rate_t<Real> rates1{0.0, 0.0};
             rate_t<Real> rates2{0.0, 0.0};
             rate_t<Real> rates3{0.0, 0.0};
 
-            fill_additional_rates_r<rate>(intermediate_rates, &rates1, &rates2, &rates3);
+            fill_additional_rates_r<rate>(intermediate_rates, rates1, rates2, rates3);
 
             postprocess_rate_r<rate>(burn_state, y, &rates, &rates1, &rates2, &rates3);
 
@@ -856,18 +804,18 @@ struct NetRhsRate {
 // rhs.H:1344 energy RHS term
 template <int species>
 struct NetRhsEner {
-    static MPL_DEVICE void run(const burn_t* burn_state, Real* ydot)
+    static MPL_DEVICE void run(const burn_t& burn_state, Array1D<Real, 1, neqs>& ydot)
     {
         if constexpr (species <= NumSpec) {
-            ydot[net_ienuc] += ener_gener_rate<species>(burn_state, ydot[species]);
+            ydot(net_ienuc) += ener_gener_rate<species>(burn_state, ydot(species));
             NetRhsEner<species + 1>::run(burn_state, ydot);
         }
     }
 };
 
 // from networks/rhs.H:1216 rhs<nrhs = neqs> (RHS::rhs, actual_rhs)
-// ydot[1..neqs]
-MPL_DEVICE void actual_rhs(const burn_t* burn_state, const NetParams* params, Real* ydot)
+// ydot(1..neqs)
+MPL_DEVICE void actual_rhs(const burn_t& burn_state, const NetParams& params, Array1D<Real, 1, neqs>& ydot)
 {
     const RatesParams rp = net_rates_params(params);
 
@@ -877,39 +825,39 @@ MPL_DEVICE void actual_rhs(const burn_t* burn_state, const NetParams* params, Re
     const Real aion_inv[NumSpec] = {MPL_NET_AION_INV_LIST};
 
     // Convert X to Y.
-    Real y[NumSpec + 1] = {};
+    NetYArray1D y{};
     for (int n = 1; n <= NumSpec; ++n) {
-        y[n] = burn_state->xn[n-1] * aion_inv[n-1];
+        y(n) = burn_state.xn[n-1] * aion_inv[n-1];
     }
 
     // Set up the state data, which is the same for all screening factors.
     plasma_state_t<Real> pstate{};
 #if MPL_GEN_SCREENING
-    fill_plasma_state_r(&pstate, burn_state->T, burn_state->rho, y);
+    fill_plasma_state_r(&pstate, burn_state.T, burn_state.rho, y);
 #endif
 
     // Initialize the rate temperature term.
-    const tf_t<Real> tf = get_tfactors_r(burn_state->T);
+    const tf_t<Real> tf = get_tfactors_r(burn_state.T);
 
     // Initialize the RHS terms.
     for (int n = 1; n <= neqs; ++n) {
-        ydot[n] = 0.0;
+        ydot(n) = 0.0;
     }
 
-    net_inter_r_t intermediate_rates{};
+    net_inter_t<Real> intermediate_rates{};
 
     // Fill all intermediate rates first.
-    NetInterR<1>::run(burn_state, y, &tf, &pstate, &rp, &intermediate_rates);
+    NetInterR<1>::run(burn_state, y, tf, pstate, rp, intermediate_rates);
 
     // Loop over all rates, and then loop over all species, and if the
     // rate affects that given species, add its contribution to the RHS.
-    NetRhsRate<1>::run(burn_state, y, &tf, &pstate, &rp, &intermediate_rates, ydot);
+    NetRhsRate<1>::run(burn_state, y, tf, pstate, rp, intermediate_rates, ydot);
 
     // Evaluate the neutrino cooling (NEUTRINOS off).
     Real sneut = 0.0;
 
     // Compute the energy RHS term.
-    ydot[net_ienuc] = -sneut;
+    ydot(net_ienuc) = -sneut;
 
     NetRhsEner<1>::run(burn_state, ydot);
 }
@@ -921,14 +869,14 @@ MPL_DEVICE void actual_rhs(const burn_t* burn_state, const NetParams* params, Re
 // rhs.H:1407 "Fill all intermediate rates first" (number_t = autodiff::dual)
 template <int rate>
 struct NetInterD {
-    static MPL_DEVICE void run(const burn_t* burn_state, const Real* y, const tf_t<Dual>* tf,
-                               const plasma_state_t<Dual>* pstate, const RatesParams* rp,
-                               net_inter_d_t* intermediate_rates)
+    static MPL_DEVICE void run(const burn_t& burn_state, const NetYArray1D& y, const tf_t<Dual>& tf,
+                               const plasma_state_t<Dual>& pstate, const RatesParams& rp,
+                               net_inter_t<Dual>& intermediate_rates)
     {
         if constexpr (rate <= Rates::NumRates) {
             constexpr int index = net_intermediate_index(rate);
             if constexpr (index >= 1) {
-                net_inter_set_d(intermediate_rates, index, construct_rate_d<rate>(burn_state, y, tf, pstate, rp));
+                intermediate_rates(index) = construct_rate_d<rate>(burn_state, y, tf, pstate, rp);
             }
             NetInterD<rate + 1>::run(burn_state, y, tf, pstate, rp, intermediate_rates);
         }
@@ -939,10 +887,10 @@ struct NetInterD {
 // is_rate_used<spec1, rate>, which the stock code tests per element)
 template <int spec1, int spec2, int rate>
 struct NetJacCol {
-    static MPL_DEVICE void run(const burn_t* burn_state, const rate_t<Dual> rates, Real* jac)
+    static MPL_DEVICE void run(const burn_t& burn_state, const rate_t<Dual> rates, JacNetArray2D& jac)
     {
         if constexpr (spec2 <= NumSpec) {
-            jac[MPL_JAC(spec1, spec2)] += jac_term<spec1, spec2, rate>(burn_state, rates.fr.val, rates.rr.val);
+            jac(spec1, spec2) += jac_term<spec1, spec2, rate>(burn_state, rates.fr.val, rates.rr.val);
             NetJacCol<spec1, spec2 + 1, rate>::run(burn_state, rates, jac);
         }
     }
@@ -951,7 +899,7 @@ struct NetJacCol {
 // rhs.H:1448 species Jacobian elements with respect to other species
 template <int spec1, int rate>
 struct NetJacRow {
-    static MPL_DEVICE void run(const burn_t* burn_state, const rate_t<Dual> rates, Real* jac)
+    static MPL_DEVICE void run(const burn_t& burn_state, const rate_t<Dual> rates, JacNetArray2D& jac)
     {
         if constexpr (spec1 <= NumSpec) {
             if constexpr (is_rate_used(spec1, rate) != 0) {
@@ -965,12 +913,12 @@ struct NetJacRow {
 // rhs.H:1464 Jacobian elements with respect to temperature
 template <int species, int rate>
 struct NetJacTemp {
-    static MPL_DEVICE void run(const burn_t* burn_state, const rate_t<Dual> rates, Real* jac)
+    static MPL_DEVICE void run(const burn_t& burn_state, const rate_t<Dual> rates, JacNetArray2D& jac)
     {
         if constexpr (species <= NumSpec) {
             if constexpr (is_rate_used(species, rate) != 0) {
                 const net_terms_t t = rhs_term<species, rate>(burn_state, rates.fr.grad, rates.rr.grad);
-                jac[MPL_JAC(species, net_ienuc)] += t.forward_term + t.reverse_term;
+                jac(species, net_ienuc) += t.forward_term + t.reverse_term;
             }
             NetJacTemp<species + 1, rate>::run(burn_state, rates, jac);
         }
@@ -981,10 +929,10 @@ struct NetJacTemp {
 // (rates1..3 live in jac(), outside the loop, as in the stock code)
 template <int rate>
 struct NetJacRate {
-    static MPL_DEVICE void run(const burn_t* burn_state, const Real* y, const tf_t<Dual>* tf,
-                               const plasma_state_t<Dual>* pstate, const RatesParams* rp,
-                               const net_inter_d_t* intermediate_rates, rate_t<Dual>* rates1,
-                               rate_t<Dual>* rates2, rate_t<Dual>* rates3, Real* jac)
+    static MPL_DEVICE void run(const burn_t& burn_state, const NetYArray1D& y, const tf_t<Dual>& tf,
+                               const plasma_state_t<Dual>& pstate, const RatesParams& rp,
+                               const net_inter_t<Dual>& intermediate_rates, rate_t<Dual>& rates1,
+                               rate_t<Dual>& rates2, rate_t<Dual>& rates3, JacNetArray2D& jac)
     {
         if constexpr (rate <= Rates::NumRates) {
             rate_t<Dual> rates{dual_const(0.0), dual_const(0.0)};
@@ -993,12 +941,12 @@ struct NetJacRate {
             if constexpr (index < 0) {
                 rates = construct_rate_d<rate>(burn_state, y, tf, pstate, rp);
             } else {
-                rates = net_inter_get_d(intermediate_rates, index);
+                rates = intermediate_rates(index);
             }
 
             fill_additional_rates_d<rate>(intermediate_rates, rates1, rates2, rates3);
 
-            postprocess_rate_d<rate>(burn_state, y, &rates, rates1, rates2, rates3);
+            postprocess_rate_d<rate>(burn_state, y, &rates, &rates1, &rates2, &rates3);
 
             NetJacRow<1, rate>::run(burn_state, rates, jac);
 
@@ -1013,10 +961,10 @@ struct NetJacRate {
 // rhs.H:1500 jac(net_ienuc, species) += ener_gener_rate<s>(rhs_state, jac(s, species)), s = 1..NumSpec
 template <int s, int species>
 struct NetJacEnerRow {
-    static MPL_DEVICE void run(const burn_t* burn_state, Real* jac)
+    static MPL_DEVICE void run(const burn_t& burn_state, JacNetArray2D& jac)
     {
         if constexpr (s <= NumSpec) {
-            jac[MPL_JAC(net_ienuc, species)] += ener_gener_rate<s>(burn_state, jac[MPL_JAC(s, species)]);
+            jac(net_ienuc, species) += ener_gener_rate<s>(burn_state, jac(s, species));
             NetJacEnerRow<s + 1, species>::run(burn_state, jac);
         }
     }
@@ -1025,24 +973,24 @@ struct NetJacEnerRow {
 // rhs.H:1488 energy generation rate Jacobian elements
 template <int species>
 struct NetJacEner {
-    static MPL_DEVICE void run(const burn_t* burn_state, const Real dsnuda, const Real dsnudz, Real* jac)
+    static MPL_DEVICE void run(const burn_t& burn_state, const Real dsnuda, const Real dsnudz, JacNetArray2D& jac)
     {
         if constexpr (species <= NumSpec) {
             constexpr Real zion = net_zion(species);
 
             // Energy generation rate Jacobian elements with respect to species.
-            Real b1 = (-burn_state->abar * burn_state->abar * dsnuda +
-                       (zion - burn_state->zbar) * burn_state->abar * dsnudz);
-            jac[MPL_JAC(net_ienuc, species)] = -b1;
+            Real b1 = (-burn_state.abar * burn_state.abar * dsnuda +
+                       (zion - burn_state.zbar) * burn_state.abar * dsnudz);
+            jac(net_ienuc, species) = -b1;
 
             NetJacEnerRow<1, species>::run(burn_state, jac);
 
             // Convert previously computed terms from d/dT to d/de.
-            jac[MPL_JAC(species, net_ienuc)] =
-                temperature_to_energy_jacobian(burn_state, jac[MPL_JAC(species, net_ienuc)]);
+            jac(species, net_ienuc) =
+                temperature_to_energy_jacobian(burn_state, jac(species, net_ienuc));
 
             // Compute df(e) / de term.
-            jac[MPL_JAC(net_ienuc, net_ienuc)] += ener_gener_rate<species>(burn_state, jac[MPL_JAC(species, net_ienuc)]);
+            jac(net_ienuc, net_ienuc) += ener_gener_rate<species>(burn_state, jac(species, net_ienuc));
 
             NetJacEner<species + 1>::run(burn_state, dsnuda, dsnudz, jac);
         }
@@ -1050,8 +998,8 @@ struct NetJacEner {
 };
 
 // from networks/rhs.H:1360 jac (RHS::jac, actual_jac)
-// jac[MPL_JAC(i, j)], i, j = 1..neqs
-MPL_DEVICE void actual_jac(const burn_t* burn_state, const NetParams* params, Real* jac)
+// jac(i, j), i, j = 1..neqs
+MPL_DEVICE void actual_jac(const burn_t& burn_state, const NetParams& params, JacNetArray2D& jac)
 {
     const RatesParams rp = net_rates_params(params);
 
@@ -1061,18 +1009,18 @@ MPL_DEVICE void actual_jac(const burn_t* burn_state, const NetParams* params, Re
     const Real aion_inv[NumSpec] = {MPL_NET_AION_INV_LIST};
 
     // Convert X to Y.
-    Real y[NumSpec + 1] = {};
+    NetYArray1D y{};
     for (int n = 1; n <= NumSpec; ++n) {
-        y[n] = burn_state->xn[n-1] * aion_inv[n-1];
+        y(n) = burn_state.xn[n-1] * aion_inv[n-1];
     }
 
     // seed the dual number for temperature before calculating anything with it
-    const Dual dual_temp = dual_seed(burn_state->T);
+    const Dual dual_temp = dual_seed(burn_state.T);
 
     // Set up the state data, which is the same for all screening factors.
     plasma_state_t<Dual> pstate{};
 #if MPL_GEN_SCREENING
-    fill_plasma_state_d(&pstate, dual_temp, burn_state->rho, y);
+    fill_plasma_state_d(&pstate, dual_temp, burn_state.rho, y);
 #endif
 
     // Initialize the rate temperature term.
@@ -1081,29 +1029,29 @@ MPL_DEVICE void actual_jac(const burn_t* burn_state, const NetParams* params, Re
     // Initialize the Jacobian terms.
     for (int i = 1; i <= neqs; ++i) {
         for (int j = 1; j <= neqs; ++j) {
-            jac[MPL_JAC(i, j)] = 0.0;
+            jac(i, j) = 0.0;
         }
     }
 
-    net_inter_d_t intermediate_rates{};
+    net_inter_t<Dual> intermediate_rates{};
 
     rate_t<Dual> rates1{};
     rate_t<Dual> rates2{};
     rate_t<Dual> rates3{};
 
     // Fill all intermediate rates first.
-    NetInterD<1>::run(burn_state, y, &tf, &pstate, &rp, &intermediate_rates);
+    NetInterD<1>::run(burn_state, y, tf, pstate, rp, intermediate_rates);
 
     // Loop over rates and compute Jacobian terms.
-    NetJacRate<1>::run(burn_state, y, &tf, &pstate, &rp, &intermediate_rates,
-                       &rates1, &rates2, &rates3, jac);
+    NetJacRate<1>::run(burn_state, y, tf, pstate, rp, intermediate_rates,
+                       rates1, rates2, rates3, jac);
 
     // Evaluate the neutrino cooling (NEUTRINOS off).
     Real dsneutdt = 0.0;
     Real dsnuda = 0.0;
     Real dsnudz = 0.0;
 
-    jac[MPL_JAC(net_ienuc, net_ienuc)] = -temperature_to_energy_jacobian(burn_state, dsneutdt);
+    jac(net_ienuc, net_ienuc) = -temperature_to_energy_jacobian(burn_state, dsneutdt);
 
     NetJacEner<1>::run(burn_state, dsnuda, dsnudz, jac);
 }
@@ -1111,20 +1059,20 @@ MPL_DEVICE void actual_jac(const burn_t* burn_state, const NetParams* params, Re
 // ---------------------------------------------------------------------------
 // networks/rhs.H:276 dgesl, :310 dgefa (RHS::, called by VODE dvjac/dvnlsd
 // for NEW_NETWORK_IMPLEMENTATION networks; no pivoting). Plain loops with the
-// constexpr_for bounds; a is MPL_JAC-indexed, b[1..neqs].
+// constexpr_for bounds; a(i, j) and b(i), i, j = 1..neqs.
 // ---------------------------------------------------------------------------
 
 // from networks/rhs.H:276 dgesl
-MPL_DEVICE void rhs_dgesl(const Real* a, Real* b)
+MPL_DEVICE void rhs_dgesl(const JacNetArray2D& a, Array1D<Real, 1, neqs>& b)
 {
     // solve a * x = b
     // first solve l * y = b
     for (int k = 1; k <= neqs - 1; ++k) {
         MPL_ASSUME(1 <= k && k <= neqs - 1);
-        Real t = b[k];
+        Real t = b(k);
         for (int j = k + 1; j <= neqs; ++j) {
             MPL_ASSUME(2 <= j && j <= neqs);
-            b[j] += t * a[MPL_JAC(j, k)];
+            b(j) += t * a(j, k);
         }
     }
 
@@ -1133,42 +1081,42 @@ MPL_DEVICE void rhs_dgesl(const Real* a, Real* b)
         const int k = neqs + 1 - kb;
         MPL_ASSUME(1 <= k && k <= neqs);
 
-        b[k] = b[k] / a[MPL_JAC(k, k)];
-        Real t = -b[k];
+        b(k) = b(k) / a(k, k);
+        Real t = -b(k);
 
         for (int j = 1; j <= k - 1; ++j) {
             MPL_ASSUME(1 <= j && j <= neqs - 1);
-            b[j] += t * a[MPL_JAC(j, k)];
+            b(j) += t * a(j, k);
         }
     }
 }
 
 // from networks/rhs.H:310 dgefa: LU factorization in place without pivoting.
 // Returns info (the last k with a zero pivot, 0 if none).
-MPL_DEVICE int rhs_dgefa(Real* a)
+MPL_DEVICE int rhs_dgefa(JacNetArray2D& a)
 {
     int info = 0;
 
     for (int k = 1; k <= neqs - 1; ++k) {
         MPL_ASSUME(1 <= k && k <= neqs - 1);
         // compute multipliers
-        if (a[MPL_JAC(k, k)] == 0.0) {
+        if (a(k, k) == 0.0) {
             info = k;
             // stock: `return;` from the constexpr_for body, i.e. continue
         } else {
-            Real t = -1.0 / a[MPL_JAC(k, k)];
+            Real t = -1.0 / a(k, k);
             for (int j = k + 1; j <= neqs; ++j) {
                 MPL_ASSUME(2 <= j && j <= neqs);
-                a[MPL_JAC(j, k)] *= t;
+                a(j, k) *= t;
             }
 
             // row elimination with column indexing
             for (int j = k + 1; j <= neqs; ++j) {
                 MPL_ASSUME(2 <= j && j <= neqs);
-                t = a[MPL_JAC(k, j)];
+                t = a(k, j);
                 for (int i = k + 1; i <= neqs; ++i) {
                     MPL_ASSUME(2 <= i && i <= neqs);
-                    a[MPL_JAC(i, j)] += t * a[MPL_JAC(i, k)];
+                    a(i, j) += t * a(i, k);
                 }
             }
         }

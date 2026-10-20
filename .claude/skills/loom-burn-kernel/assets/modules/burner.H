@@ -4,10 +4,12 @@
 // STRANG, HIP branches (see vode.H).
 //
 // Entry point:
-//   MPL_DEVICE void burner(burn_t* state, Real dt, const BurnParams* params, EosTables tab)
+//   MPL_DEVICE void burner(burn_t* state, Real dt, const BurnParams& params, EosTables tab)
 // mirrors stock burner(state, dt). BurnParams aggregates the scalar-only
-// per-module params structs (read through a const pointer); the helmholtz
-// tables stay a by-value EosTables (README rule 8).
+// per-module params structs (read through const references); the helmholtz
+// tables stay a by-value EosTables (README rule 8). burn_t is passed by
+// pointer because it is written (a mutable struct reference that writes
+// scalar fields does not import, probe r15).
 #ifndef MPL_BURNER_H
 #define MPL_BURNER_H
 
@@ -28,24 +30,24 @@ struct BurnParams {
 
 // from integration/VODE/actual_integrator.H:14 actual_integrator
 MPL_DEVICE void actual_integrator(burn_t* state, Real dt, bool is_retry,
-                                  const IntegratorParams* ip, const EosParams* ep,
-                                  const NetParams* np, EosTables tab)
+                                  const IntegratorParams& ip, const EosParams& ep,
+                                  const NetParams& np, EosTables tab)
 {
     dvode_t vode_state{};
     integrator_setup(state, dt, is_retry, &vode_state, ip, ep, tab);
-    state_backup_t state_save = integrator_backup(state);
+    state_backup_t state_save = integrator_backup(*state);
 
     int istate = dvode(state, &vode_state, ip, ep, np, tab);
 
-    integrator_cleanup(&vode_state, state, istate, &state_save, dt,
+    integrator_cleanup(&vode_state, state, istate, state_save, dt,
                        vode_final_state_species_failure_tolerance_factor, ip);
 }
 
 // from integration/integrator.H:11 integrator_wrapper
 template <int enable_retry>
 MPL_DEVICE void integrator_wrapper(burn_t* state, Real dt,
-                                   const IntegratorParams* ip, const EosParams* ep,
-                                   const NetParams* np, EosTables tab)
+                                   const IntegratorParams& ip, const EosParams& ep,
+                                   const NetParams& np, EosTables tab)
 {
     if constexpr (enable_retry != 0) {
         burn_t old_state = *state;
@@ -64,10 +66,10 @@ MPL_DEVICE void integrator_wrapper(burn_t* state, Real dt,
 
 // from integration/integrator.H:33 integrator
 MPL_DEVICE void integrator(burn_t* state, Real dt,
-                           const IntegratorParams* ip, const EosParams* ep,
-                           const NetParams* np, EosTables tab)
+                           const IntegratorParams& ip, const EosParams& ep,
+                           const NetParams& np, EosTables tab)
 {
-    if (ip->integrator_use_burn_retry) {
+    if (ip.integrator_use_burn_retry) {
         integrator_wrapper<1>(state, dt, ip, ep, np, tab);
     } else {
         integrator_wrapper<0>(state, dt, ip, ep, np, tab);
@@ -75,15 +77,15 @@ MPL_DEVICE void integrator(burn_t* state, Real dt,
 }
 
 // from interfaces/burner.H:25 burner (no NSE: integrator(state, dt))
-// The params sub-structs are copied to locals once so that everything below
-// takes the address of a local, never of a member reached through a pointer.
-MPL_DEVICE void burner(burn_t* state, Real dt, const BurnParams* params, EosTables tab)
+// The params sub-structs are copied to locals once, so everything below
+// reads locals rather than the kernel-argument buffer.
+MPL_DEVICE void burner(burn_t* state, Real dt, const BurnParams& params, EosTables tab)
 {
-    const EosParams ep = params->eos;
-    const NetParams np = params->net;
-    const IntegratorParams ip = params->integ;
+    const EosParams ep = params.eos;
+    const NetParams np = params.net;
+    const IntegratorParams ip = params.integ;
 
-    integrator(state, dt, &ip, &ep, &np, tab);
+    integrator(state, dt, ip, ep, np, tab);
 }
 
 } // namespace mpl

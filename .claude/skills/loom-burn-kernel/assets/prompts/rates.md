@@ -12,9 +12,9 @@ Declare exactly the interface in `assets/NEW_NETWORK.md` ("The generic
 modules include ..."): `RatesParams` (with the two `screening_*` fields
 `screen.H` reads, plus one field per runtime switch the rates read),
 `rate_t<T>`, `tf_t<T>`, `get_tfactors_{r,d}`,
-`rate_<name>_{r,d}(const tf_t<T>*, const Real den[, const RatesParams*])`
+`rate_<name>_{r,d}(const tf_t<T>&, const Real den[, const RatesParams&])`
 returning `rate_t<T>` by value, and the 2-argument
-`evaluate_analytical_rate_{r,d}<rate>(const tf_t<T>*, const RatesParams*)`
+`evaluate_analytical_rate_{r,d}<rate>(const tf_t<T>&, const RatesParams&)`
 with den = 1 inside. Indices and constants come from the generated
 `network_data.H` (`Rates::`, `NumRates`); don't hand-write them.
 

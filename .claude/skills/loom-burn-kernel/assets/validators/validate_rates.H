@@ -67,7 +67,7 @@ inline void cmp_dispatch(LoomCheck& c, Real T, Real T_loom, const mpl::RatesPara
     RHS::rate_t<Real> ar{0.0, 0.0};
     RHS::evaluate_analytical_rate<rate>(sr, ar);
     const mpl::tf_t<Real> lt = mpl::get_tfactors_r(T_loom);
-    const mpl::rate_t<Real> lr = mpl::evaluate_analytical_rate_r<rate>(&lt, rp);
+    const mpl::rate_t<Real> lr = mpl::evaluate_analytical_rate_r<rate>(lt, *rp);
     loom_check_bits(c, "eval_r.fr", ar.fr, lr.fr);
     loom_check_bits(c, "eval_r.rr", ar.rr, lr.rr);
 
@@ -80,7 +80,7 @@ inline void cmp_dispatch(LoomCheck& c, Real T, Real T_loom, const mpl::RatesPara
     ad.rr = 0.0_rt;
     RHS::evaluate_analytical_rate<rate>(sd, ad);
     const mpl::tf_t<Dual> ltd = mpl::get_tfactors_d(mpl::dual_seed(T_loom));
-    const mpl::rate_t<Dual> ld = mpl::evaluate_analytical_rate_d<rate>(&ltd, rp);
+    const mpl::rate_t<Dual> ld = mpl::evaluate_analytical_rate_d<rate>(ltd, *rp);
     cmp_dual(c, "eval_d.fr", ad.fr, ld.fr);
     cmp_dual(c, "eval_d.rr", ad.rr, ld.rr);
 }
@@ -114,7 +114,7 @@ __attribute__((noinline)) void one_T(LoomCheck& c, Real T)
     cmp_tf_d(c, std_, ltd);
 
     DispatchAll<1>::run(c, T, T, &rp);
-    loomval_port::direct_rate_checks(c, st, std_, &lt, &ltd, &rp);
+    loomval_port::direct_rate_checks(c, st, std_, lt, ltd, rp);
 }
 
 __attribute__((noinline)) void screen_one(LoomCheck& c, Real T, Real rho, const std::vector<Real>& X)
@@ -123,10 +123,10 @@ __attribute__((noinline)) void screen_one(LoomCheck& c, Real T, Real rho, const 
     fill_rates_params(&rp);
 
     amrex::Array1D<Real, 1, NumSpec> ys;
-    Real yl[NumSpec + 1] = {};
+    mpl::NetYArray1D yl{};
     for (int n = 1; n <= NumSpec; ++n) {
         ys(n) = X[n - 1] * aion_inv[n - 1];
-        yl[n] = ys(n);
+        yl(n) = ys(n);
     }
 
     plasma_state_t<Real> ps;
@@ -161,8 +161,8 @@ __attribute__((noinline)) void screen_one(LoomCheck& c, Real T, Real rho, const 
         loom_check_bits(c, "scnfac.zhat", sf.zhat, lf.zhat);
         loom_check_bits(c, "scnfac.lzav", sf.lzav, lf.lzav);
         loom_check_bits(c, "scnfac.aznut", sf.aznut, lf.aznut);
-        loom_check_bits(c, "screen_r", actual_screen(ps, sf), mpl::actual_screen_r(&pl, &lf, &rp));
-        cmp_dual(c, "screen_d", actual_screen(psd, sf), mpl::actual_screen_d(&pld, &lf, &rp));
+        loom_check_bits(c, "screen_r", actual_screen(ps, sf), mpl::actual_screen_r(pl, lf, rp));
+        cmp_dual(c, "screen_d", actual_screen(psd, sf), mpl::actual_screen_d(pld, lf, rp));
     }
 }
 

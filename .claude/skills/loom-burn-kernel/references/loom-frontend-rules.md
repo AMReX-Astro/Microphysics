@@ -1,7 +1,7 @@
 # Loom C++ frontend: construct → rewrite
 
-Status as of hrx-system `7cf21edd85` (react-kernels, 2026-10-18; compiler
-sources identical to public main `4031286f0b`), measured
+Status as of public hrx-system main `31bf125137` (2026-10-19; probed
+2026-10-20 on gfx90a), measured
 with this skill's `probes/` kit (results and probe names in
 `probes/README.md`). **Re-probe at your commit** (SKILL.md Phase 1):
 rows marked "changed recently" or anything older than the commit you use
@@ -34,17 +34,19 @@ Under `__loom__`, `#include <hip/hip_runtime.h>` gives `__global__`,
 | f64 rint/floor/trunc | work natively (`roundevenf` → `v_rndne_f64`) | — (`f64_math.H`'s rint emulation and its comment predate this; swapping it is numerically identical but cost 1.2% once through register allocation) |
 | f64 ldexp/frexp | no op | bit-level helpers, as in `f64_math.H` |
 | Scalar reference parameters (`double&`, `int&`) and scalar member slices (`f(s.T)`) | import, `static` or not (r01, r02, r04, r11, r13; #1993) | Keep them |
-| Reference to a whole struct (`burn_t&`, `const Burn&`, `template<class T> f(T&)`) | fails even `static`/`const` (r03, r05: "require an automatic SSA object") | Pointers (`burn_t*`) |
-| References to buffer elements (`f(out[i])`), array refs (`const double (&)[N]`), overlapping mutable refs (`f(s, s.T)`), local reference bindings (`double& r = s.x`), reference returns (incl. `amrex::max`'s `const T&`) | fail (r06-r10, r12) | Pointers, by-value returns, explicit copies |
-| Member function calls, `operator()`, `operator[]` | fail | Free functions taking a pointer; flat arrays with explicit index math |
-| `Array1D/Array2D` (ref-returning accessors, base classes) | fail | Plain `Real a[N]`, `Real m[N*N]` row-major, 0-based |
+| `const` reference to a whole struct (`const burn_t&`, `const T&` template parameters) | imports (r05), but calling a member's accessor through it does not, even the `const` overload (`vs.y(n)` with `const dvode_t& vs`, r23: "mutation requires an owned automatic source binding"); plain fields and raw array members read fine (r24) | Keep it for structs without accessor members; a struct with `Array1D`/`Array2D` members goes by (const) pointer (`vs->y(n)`, o19) |
+| Mutable reference to a whole struct (`burn_t&`, `dvode_t&`, `template<class T> f(T&)`) | imports when every write through it is to a plain array member's elements (`s.xn[n] = ...`, r16), a whole-struct assignment (`r = rate_t{...}`, r21), or inside the struct's own member functions (`s.bump(dt)`, o13, o14); fails for scalar-field writes (`s.T = ...`, `+=`, `++`; r03, r15) and for writes through a member's accessor (`vs.y(n) += ...`, r14, r19): "mutation requires an owned automatic source binding" | Pointer (`burn_t*`, `dvode_t*`) for any function that writes through it; member accessors work through the pointer (`vs->y(n) += ...`, o15). Keep `&` for read-only use |
+| References to buffer elements (`f(out[i])`), array reference parameters (`const double (&)[N]`), reference-returning free accessors (`double& at(A&, int)`), local references to array elements (`double& r = a[2]`) | import (r06, r07, r09, r17; hrx-system #2077) | Keep them |
+| Overlapping mutable refs (`f(s, s.T)`), local reference to a scalar member (`double& r = s.x`), a `const T&` return that selects between two locals (`amrex::max`/`min`) | fail (r08, r10 at import; r12 imports, then AMDGPU/023 `memory_access.private_root`) | Pointers or explicit copies; min/max return by value (r18) |
+| Member function calls (`a.f(x)`, `p->f(x)`), `operator()` returning `T&`/`const T&` | import (o01, o02, o10; hrx-system #2040) | Keep them |
+| `Array1D/Array2D`-style structs (array member + 1-based `operator()`; no base class) | import by value, `&` and `const&`, with writes through the accessor (o11, o12) | Keep the 1-based accessor and the source's index expressions; write a local aggregate of the same shape in the kernel namespace (the kernel cannot include AMReX) |
 | Lambdas (`constexpr_for`, `ParallelFor`) | fail | Indexed loops; template-struct recursion for compile-time unrolling |
 | `switch` | fails at runtime (folds if `constexpr`) | if/else chain |
 | range-for, `for (;;)` | fail | Indexed loops; `while (true)` + `break` |
 | `return` in a loop | fails (LOWERING/059) | `done`/result code + `break`, return after the loop |
 | Loop with several exits (`break`s/`continue` inside branches) under divergent control | may import and then fail the AMDGPU backend: TARGET/034 "branch lowering constraint 'masked_region_exits_by_cfg' is not satisfied" (VODE's dvode step loop, 2026-10-18) | Single-exit form: `bool done = false; while (!done) { ... }`, each former exit sets `done` after the same side effects, later code guarded by `if (!done)`, a `continue` becomes a guard on the rest of the body (keep its exact predicate, negated with `!(...)` so NaNs behave the same) |
 | Uninitialized locals | fail | Initialize every local; `T x{}` for structs |
-| Base classes, operator overloading (autodiff `dual`) | fail | POD dual structs with free functions (see translation guide, "Autodiff") |
+| Base classes; overloaded arithmetic operators, free or member (autodiff `dual`) | fail (o06; o03, o09: "overloaded binary operation requires a Loom operation") | Flatten bases; POD dual structs with free functions (see translation guide, "Autodiff") |
 | Constructors with arguments (`D x(1.0)`) | fail (o07: records must be complete aggregates) | Aggregate init `D x{1.0, 0.0}` |
 | Structured bindings (`auto [f, r] = rhs_term(...)`) | fail (o08) | Return a 2-field struct; read `.first`/`.second` |
 | `constexpr` local of record type (`constexpr rhs_t data = rhs_data(rate);`) | fails (f02: "unsupported C++ type"), though the `constexpr` function with a `switch` is fine | One `constexpr` scalar per field used: `constexpr int expA = rhs_data(rate).exponent_A;` |
@@ -53,7 +55,7 @@ Under `__loom__`, `#include <hip/hip_runtime.h>` gives `__global__`,
 | Namespace-scope non-constexpr globals (runtime params, tables) | fail | Kernel arguments: a params POD pointer and table pointers |
 | Pointer stored in a struct, read through a pointer to that struct (`const Tables* t; t->f[i]`), including a kernel argument pointing at a struct of pointers | fails (c03, c06: "stored pointers and references require an object storage representation") | Pass the tables struct **by value** (c04) or one flat buffer with compile-time offsets (c05); kernel takes the table pointers as separate arguments |
 | Namespace-scope `constexpr` *arrays*, `static constexpr` member arrays | fail | Local `const Real t[N] = {...}` inside the function, or an if-chain/`constexpr` function; scalar `constexpr` is fine |
-| Ternaries nested > 32 deep | fail (region nesting limit) | Outline into helpers preserving lazy evaluation |
+| Ternaries nested > 32 deep | import and compile (f11, 40 deep; hrx-system #2079) | — |
 | Stage loops with break/continue | a simple retry loop imports without help (f07); complex stage loops hit SUBRANGE/026 in the campaigns | `MPL_ASSUME(0 <= i && i < N)` on the counter (next row) |
 | Private-array index with data-dependent loop bounds (triangular LU loops, VODE order loops), an index read from a struct field (`vs->el[vs->L]`), or a loop with `break` (its compound condition hides the bound, even with constant limits) | imports, then **compile** fails SUBRANGE/026 "access byte end may reach ..." even though probe f06 passed in isolation (network LU, 2026-10-18) | `MPL_ASSUME(lo <= i && i <= hi)` (support.H: `__builtin_assume` under Loom, no-op on host) at the top of each loop body / after each derived index, using the array's true static bounds; loops with compile-time bounds don't need it. Operands must be local scalars and constants: no struct fields (`vs->L` fails: "predicate member paths ..."; copy it into a `const int` local and index with that), no arithmetic on the variable (`j + 1 <= N` fails: "predicate operands must be retained scalar values ..."; move the constant to the other side). Rely on the smoke compile, not the isolated probe |
 
@@ -90,7 +92,9 @@ lint is clean on the accepted chemistry kernel, adv-mi210-12's seed.)
 ## Works
 
 `if constexpr`; recursive `powi<N>` templates; static member function
-templates; `enum class`; anonymous namespaces; structs with arrays by value;
+templates; member functions called with `.` or `->` (non-virtual);
+`operator()` accessors returning `T&`/`const T&` (`Array1D`/`Array2D` shape);
+`enum class`; anonymous namespaces; structs with arrays by value;
 large automatic structs with default member initializers; local 2-D arrays
 and pivoted LU; pointers to local structs passed to helpers; struct return by
 value; `break`/`continue`; `while (true)`; GCC `__atomic_*` builtins;

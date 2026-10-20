@@ -20,22 +20,22 @@ MPL_KERNEL void smoke_net(const NetParams* params, Real* out, const Real* in, in
         for (int k = 0; k < NumSpec; ++k) {
             s.xn[k] = 1.0 / NumSpec;
         }
-        Real ydot[neqs + 1] = {};
-        Real jac[MPL_JAC_SIZE] = {};
-        actual_rhs(&s, params, ydot);
-        actual_jac(&s, params, jac);
-        Real a[MPL_JAC_SIZE] = {};
+        Array1D<Real, 1, neqs> ydot{};
+        JacNetArray2D jac{};
+        actual_rhs(s, *params, ydot);
+        actual_jac(s, *params, jac);
+        JacNetArray2D a{};
         for (int i = 1; i <= neqs; ++i) {
             for (int j = 1; j <= neqs; ++j) {
                 Real ident = (i == j) ? 1.0 : 0.0;
-                a[MPL_JAC(i, j)] = ident - 1.0e-6 * jac[MPL_JAC(i, j)];
+                a(i, j) = ident - 1.0e-6 * jac(i, j);
             }
         }
         int info = rhs_dgefa(a);
         rhs_dgesl(a, ydot);
         Real acc = static_cast<Real>(info);
         for (int i = 1; i <= neqs; ++i) {
-            acc = acc + ydot[i];
+            acc = acc + ydot(i);
         }
         out[idx] = acc;
     }

@@ -27,10 +27,10 @@ MPL_KERNEL void smoke_eos(const EosParams* params,
         for (int k = 0; k < NumSpec; ++k) {
             s.xn[k] = 1.0 / NumSpec;
         }
-        eos(eos_input_rt, &s, params, tab);
+        eos(eos_input_rt, &s, *params, tab);
         out[4 * idx] = s.e;
         out[4 * idx + 1] = s.cv;
-        eos(eos_input_re, &s, params, tab);
+        eos(eos_input_re, &s, *params, tab);
         out[4 * idx + 2] = s.T;
     }
 }

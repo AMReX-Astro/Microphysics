@@ -6,11 +6,14 @@ The generic `rhs.H` machinery is already translated:
 `<skill>/assets/modules/network_rhs.H` (copy it into
 the kernel directory unchanged). Its header comment lists the hooks the
 per-network `network.H` must define BEFORE including it: `struct NetParams`,
-`RatesParams net_rates_params(const NetParams*)`,
+`RatesParams net_rates_params(const NetParams&)`,
 `net_analytical_rate_{r,d}<rate>` (the network's `evaluate_analytical_rate`),
 `postprocess_rate_{r,d}<rate>` and `ener_gener_rate<spec>`, all taking
-`(const burn_t*, const Real* y, ...)` because several networks read rho, y,
-eta, y_e there.
+`(const burn_t& state, const NetYArray1D& y, ...)` (`y(1..NumSpec)` is
+`rhs_state.y`, `NetYArray1D` comes from the generated `burn.H`) because
+several networks read rho, y, eta, y_e there. `postprocess_rate` takes its
+`rate_t` arguments by pointer: it writes their fields, which a mutable
+struct reference does not import.
 
 Translate `networks/{NETWORK}/actual_network.H`'s `postprocess_rate` and
 `ener_gener_rate` (both instantiations where templated) and the NetParams

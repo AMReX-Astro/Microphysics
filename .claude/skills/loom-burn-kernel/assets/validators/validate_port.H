@@ -62,8 +62,8 @@ inline void branch_temperatures(std::vector<Real>& t) { (void) t; }
 //   }
 template <typename StockTf, typename StockTfD>
 inline void direct_rate_checks(LoomCheck& c, const StockTf& st, const StockTfD& std_,
-                               const mpl::tf_t<Real>* lt, const mpl::tf_t<mpl::Dual>* ltd,
-                               const mpl::RatesParams* rp)
+                               const mpl::tf_t<Real>& lt, const mpl::tf_t<mpl::Dual>& ltd,
+                               const mpl::RatesParams& rp)
 {
     (void) c; (void) st; (void) std_; (void) lt; (void) ltd; (void) rp;
 }

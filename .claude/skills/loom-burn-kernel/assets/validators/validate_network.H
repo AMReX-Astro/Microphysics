@@ -76,31 +76,31 @@ __attribute__((noinline)) void one(LoomCheck& c, const burn_t& s, const mpl::Net
     amrex::Array1D<Real, 1, neqs> ydot;
     for (int i = 1; i <= neqs; ++i) { ydot(i) = 0.0; }
     RHS::rhs<neqs>(s, ydot);
-    Real ly[mpl::neqs + 1] = {};
-    mpl::actual_rhs(&m, np, ly);
+    mpl::Array1D<Real, 1, mpl::neqs> ly{};
+    mpl::actual_rhs(m, *np, ly);
     for (int i = 1; i <= neqs; ++i) {
-        loom_check_bits(c, "rhs", ydot(i), ly[i]);
+        loom_check_bits(c, "rhs", ydot(i), ly(i));
     }
 
     JacNetArray2D jac;
     jac.zero();
     RHS::jac(s, jac);
-    Real lj[MPL_JAC_SIZE] = {};
-    mpl::actual_jac(&m, np, lj);
+    mpl::JacNetArray2D lj{};
+    mpl::actual_jac(m, *np, lj);
     for (int i = 1; i <= neqs; ++i) {
         for (int j = 1; j <= neqs; ++j) {
-            loom_check_bits(c, "jac", jac(i, j), lj[MPL_JAC(i, j)]);
+            loom_check_bits(c, "jac", jac(i, j), lj(i, j));
         }
     }
 
     // LU on I - gamma*J (the shape VODE factors), then a solve
     for (Real gamma : {1.0e-12, 1.0e-6, 1.0e-2}) {
         RArray2D a;
-        Real la[MPL_JAC_SIZE] = {};
+        mpl::JacNetArray2D la{};
         for (int i = 1; i <= neqs; ++i) {
             for (int j = 1; j <= neqs; ++j) {
                 a(i, j) = (i == j ? 1.0 : 0.0) - gamma * jac(i, j);
-                la[MPL_JAC(i, j)] = a(i, j);
+                la(i, j) = a(i, j);
             }
         }
         const int info_s = RHS::dgefa(a);
@@ -108,15 +108,15 @@ __attribute__((noinline)) void one(LoomCheck& c, const burn_t& s, const mpl::Net
         loom_check_int(c, "dgefa.info", info_s, info_l);
         for (int i = 1; i <= neqs; ++i) {
             for (int j = 1; j <= neqs; ++j) {
-                loom_check_bits(c, "dgefa", a(i, j), la[MPL_JAC(i, j)]);
+                loom_check_bits(c, "dgefa", a(i, j), la(i, j));
             }
         }
         RArray1D b;
-        Real lb[mpl::neqs + 1] = {};
-        for (int i = 1; i <= neqs; ++i) { b(i) = ydot(i); lb[i] = ydot(i); }
+        mpl::Array1D<Real, 1, mpl::neqs> lb{};
+        for (int i = 1; i <= neqs; ++i) { b(i) = ydot(i); lb(i) = ydot(i); }
         RHS::dgesl(a, b);
         mpl::rhs_dgesl(la, lb);
-        for (int i = 1; i <= neqs; ++i) { loom_check_bits(c, "dgesl", b(i), lb[i]); }
+        for (int i = 1; i <= neqs; ++i) { loom_check_bits(c, "dgesl", b(i), lb(i)); }
     }
 }
 

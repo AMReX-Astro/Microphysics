@@ -12,9 +12,10 @@ the stock headers with one build's flags, runs it, and writes
                   index table, the screen factors of every pair the network's
                   apply_screening folds, constants the glue uses, and
                   MPL_GEN_* configuration macros.
-  burn.H          neqs, net_ienuc, S* indices and the burn_t mirror (same
-                  fields, order and defaults as interfaces/burn_type.H for
-                  this configuration).
+  burn.H          neqs, net_ienuc, S* indices, JacNetArray2D and NetYArray1D
+                  (rhs_state_t::y) on support.H's Array2D/Array1D, and the
+                  burn_t mirror (same fields, order and defaults as
+                  interfaces/burn_type.H for this configuration).
 
 Both are Loom-compatible (README rules 6/7: constexpr scalar functions with
 if-chains, no namespace-scope arrays) and every floating-point literal is the
@@ -501,6 +502,9 @@ class Gen:
         for n in ('neqs', 'net_ienuc', 'SFS', 'SEINT', 'SFX', 'SRHO', 'SMX', 'SMY', 'SMZ',
                   'SEDEN', 'SVAR', 'SVAR_EVOLVE'):
             L.append(f'constexpr int {n} = {cfg[n]};')
+        L += ['', '// interfaces/burn_type.H JacNetArray2D (jac_t = Real) and rhs_type.H rhs_state_t::y',
+              'using JacNetArray2D = Array2D<Real, 1, neqs, 1, neqs>;',
+              'using NetYArray1D = Array1D<Real, 1, NumSpec>;']
         L += ['', 'struct burn_t', '{']
         for t, n, arr, dflt in self.burn_fields():
             L.append(f'    {t} {n}' + (f'[{arr}]' if arr else '') + '{' + dflt + '};')

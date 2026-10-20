@@ -1,8 +1,0 @@
-id: no-member-call
-language: cpp
-severity: error
-message: Member function calls do not import. Use a free function taking a pointer.
-rule:
-  kind: call_expression
-  has: { field: function, kind: field_expression }
-  not: { matches: host-branch }

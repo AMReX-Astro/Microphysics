@@ -1,5 +1,10 @@
 id: no-operator-overload
 language: cpp
 severity: error
-message: Overloaded operators (definitions or explicit operator() calls) do not import. Use free functions and flat arrays.
-rule: { kind: operator_name, not: { matches: host-branch } }
+message: Overloaded operators other than operator() do not import (probes o03, o09). Use free functions (dual.H). operator() accessors returning T& / const T& import (o02, o11, o12).
+rule:
+  kind: operator_name
+  not:
+    any:
+      - regex: '^operator\s*\(\s*\)$'
+      - matches: host-branch

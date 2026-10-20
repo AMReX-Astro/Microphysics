@@ -25,7 +25,8 @@ code:
 - Code reachable only through a runtime flag (`use_tables`, `jacobian`) is
   reachable. Decide with the user whether such branches are ported or
   rejected at launch ("Runtime-gated paths" below).
-- It does not measure ternary nesting depth or base classes.
+- It does not measure base classes (ternary nesting depth no longer
+  matters at `31bf125137`, probe f11).
 - Keep the matcher list in step with Phase 1 results.
 
 ## General method
@@ -45,24 +46,33 @@ code:
 - **`amrex::Real` → `Real`.** The kernel cannot include AMReX, so define
   `using Real = double;` in the kernel namespace and `static_assert`
   (host side) that `amrex::Real` is `double` (`PRECISION=DOUBLE`).
-- **1-based arrays.** `Array1D<T,1,N>` and `Array2D<T,1,N,1,N>` become
-  0-based flat arrays; translate index expressions mechanically
-  (`a(i)` → `a[i-1]`, `m(i,j)` → `m[(i-1)*N + (j-1)]`). Do this in one place
-  (a generator or a macro) because hand-converted indices are the easiest
-  bug to introduce and the hardest to see. Note Array2D's storage order and
-  keep row-major *consistently* in the translation.
+- **1-based arrays.** Keep `Array1D<T,1,N>` and `Array2D<T,1,N,1,N>` as
+  small aggregates in the kernel namespace with the same 1-based
+  `operator()` and the same storage order as AMReX's (an array member, no
+  base class, no constructors), and keep the source's index expressions
+  unchanged: accessors import at `31bf125137` (probes o02, o11, o12, o15).
+  This removes the hand-converted indices that were the easiest bug to
+  introduce. `support.H` provides `mpl::Array1D` / `mpl::Array2D` (padded
+  from index 0, row-major; no code may depend on AMReX's column-major
+  layout), the generated `burn.H` provides `JacNetArray2D` and
+  `NetYArray1D`, and the shipped modules use them throughout.
 
 ## burn_t and the integrator state
 
 - Keep `burn_t` as a struct with the same fields (drop only fields that are
-  `#ifdef`'d out for the configuration). Pass `burn_t*` everywhere a
-  `burn_t&` was.
+  `#ifdef`'d out for the configuration). A function that only reads it can
+  keep `const burn_t&` (probe r05); one that writes through it takes
+  `burn_t*`, because writes to scalar fields or through a member's accessor
+  via a mutable struct reference still fail import (r03, r15, r19; rule in
+  `loom-frontend-rules.md`).
 - Integrator types (`dvode_t` in `integration/VODE/vode_type.H`,
   the Rosenbrock type in `integration/Rosenbrock/rosenbrock_type.H`) hold
-  `Array1D/Array2D` members and are used through member functions. Turn them
-  into structs of flat arrays plus free functions taking a pointer. The
-  chemistry kernel's `ScratchView` (a struct of pointers into one scratch
-  record) is the pattern that imported cleanly.
+  `Array1D/Array2D` members. Keep the struct and its accessor-style members
+  (`vs->y(n)`, `vs->jac(i, j)`) and pass it by pointer, `const dvode_t*`
+  where it is only read: a member's accessor called through a struct
+  reference fails import even when the reference is `const` (r23; o15, o19
+  for the pointer forms); member
+  functions of these types may stay member functions (o01, o10, o14).
 - Control flow in the integrators (VODE `dvstep`, `dvnlsd`, `dvjac`; the
   Rosenbrock step/reject loop) uses `return` inside loops and multi-exit
   loops. Rewrite with explicit `done`/`retry` flags and a result code,
