@@ -26,7 +26,7 @@ code:
   reachable. Decide with the user whether such branches are ported or
   rejected at launch ("Runtime-gated paths" below).
 - It does not measure base classes (ternary nesting depth no longer
-  matters at `fada6788a1`, probe f11).
+  matters at `fa8eba4554`, probe f11).
 - Keep the matcher list in step with Phase 1 results.
 
 ## General method
@@ -50,7 +50,7 @@ code:
   small aggregates in the kernel namespace with the same 1-based
   `operator()` and the same storage order as AMReX's (an array member, no
   base class, no constructors), and keep the source's index expressions
-  unchanged: accessors import at `fada6788a1` (probes o02, o11, o12, o15).
+  unchanged: accessors import at `fa8eba4554` (probes o02, o11, o12, o15).
   This removes the hand-converted indices that were the easiest bug to
   introduce. `support.H` provides `mpl::Array1D` / `mpl::Array2D` (padded
   from index 0, row-major; no code may depend on AMReX's column-major
@@ -75,12 +75,11 @@ code:
   functions of these types may stay member functions (o01, o10, o14).
 - Control flow in the integrators (VODE `dvstep`, `dvnlsd`, `dvjac`; the
   Rosenbrock step/reject loop) uses `return` inside loops and multi-exit
-  loops. Each `return` inside a loop becomes a result code + `break`; inner
-  multi-exit loops get explicit `done`/`retry` flags (single-exit form),
-  while the outermost loop may keep the stock `break`s/`continue` (`vode.H`
-  `dvode`, probes f21-f23). Preserve every exit point and its counter
-  updates. Add `MPL_ASSUME`
-  bounds on stage/retry counters and order-dependent indices
+  loops. Each `return` inside a loop becomes a result code + `break`;
+  multi-exit loops, nested or not, otherwise keep the stock `break`s and
+  `continue`s (`vode.H`; probes f21, f22). Preserve every exit point and its
+  counter updates. Add `MPL_ASSUME`
+  bounds on order-dependent indices
   (`loom-frontend-rules.md`, SUBRANGE row).
 - Keep the counters (`n_rhs`, `n_jac`, `n_step`) exactly as the source
   increments them; test_react writes `n_rhs` and `n_step` out and you will
@@ -138,11 +137,14 @@ inputs file sets, or that a production code relies on, has to be ported.
   `AMREX_GPU_MANAGED` table addresses directly; they are device-readable.
   Index arithmetic for `f[jmax][imax][9]`
   must match the C array layout exactly; validate one lookup natively.
-- **`constexpr` arrays** (`aion`, `zion`, `bion`, rate coefficient tables,
-  partition-function grids) fail at namespace or `static constexpr` member
-  scope. Use a `constexpr` function with an if-chain (folds when the index
-  is constant), or a local `const Real t[N] = {...}` inside the function that
-  uses it. Scalar `constexpr` constants are fine.
+- **`constexpr` arrays** (`aion`, `zion`, rate coefficient tables,
+  partition-function grids) import at namespace scope, including
+  `inline constexpr` and anonymous-namespace tables like stock
+  `network_properties.H` under HIP (probes d01, d16-d20, d23). As
+  `static constexpr` members or block-scope `static`s they still fail (d09,
+  d22): move such a table to namespace scope. Tables that are not `constexpr`
+  (filled at startup, `AMREX_GPU_MANAGED`) are runtime data and go through
+  kernel arguments.
 
 ## Generated network data (`rhs.H` networks)
 

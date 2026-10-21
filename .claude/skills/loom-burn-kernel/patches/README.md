@@ -1,37 +1,26 @@
 # Local hrx-system patches
 
-Local patches, not upstream, against public hrx-system main `fada6788a1`
-(the current pin, checked 2026-10-20). Apply at the repository root with
+Local patches, not upstream, against public hrx-system main `fa8eba4554`
+(the current pin, checked 2026-10-21). Apply at the repository root with
 `patch -p1 < FILE`. The usual way is to let `scripts/build_loom_tools.sh`
 copy the source tree and apply them:
 
 ```bash
 SRC=/path/to/hrx-system OUT=/path/to/tools-build \
-PATCHES="/path/to/patches/assume-cast-chain.patch /path/to/patches/trace-repair.patch" \
+PATCHES=/path/to/patches/trace-repair.patch \
 nohup setsid bash build_loom_tools.sh > build.log 2>&1 < /dev/null &
 ```
 
-`alloc-relocation-overlap.patch` (needed up to `31bf125137` to finish a
-full-burn compile) is gone: hrx-system #2107 (`b0ae10b7b6`) filters the
-assignment history once per relocation upstream, the same fix. The aprox13
-full burn compiles without it (see `assets/README.md`).
-
-## assume-cast-chain.patch (required)
-
-`loom/src/loom/transforms/{scalar,vector}/combine_patterns.c`: compose a
-cast chain only with the conversion that directly defines the outer cast's
-input. Since hrx-system #2074 (`68905de218`, bisected 2026-10-20) the combine
-found the inner cast through `loom_rewriter_value_defining_op`, which looks
-through value identities such as `scalar.assume`. For an index loaded from a
-`short` field, `extsi i16->i32` → `scalar.assume [1, 6]` → (accessor)
-`extsi i32->i64` then folded into one `extsi i16->i64` and the assumed range
-was lost, so `loom-compile` failed SUBRANGE/026 ("access byte end may reach
-262152", i.e. the whole `short` range) on VODE's `el(L)`, `tau(NQ)`. The
-imported IR is identical before and after #2074; the bug is in compile.
-Reproducer: probe `f20_assume_short_field_member_index` (fails without the
-patch, compiles with it). Probe results are otherwise identical with and
-without the patch. Reported upstream as hrx-system #2122; drop the patch
-once a fix is in the pinned commit (rerun f20 without it).
+No patch is required at `fa8eba4554`; `trace-repair.patch` is a diagnostic.
+Dropped patches:
+- `assume-cast-chain.patch` (required at `fada6788a1`): hrx-system #2135
+  (`653fe783ec`) fixes #2122 upstream; producer matching in the combine now
+  returns the operand's own SSA definition, so an assumed range on an index
+  loaded from a `short` field survives. Probe
+  `f20_assume_short_field_member_index` compiles with unpatched tools.
+- `alloc-relocation-overlap.patch` (needed up to `31bf125137`): hrx-system
+  #2107 (`b0ae10b7b6`) filters the assignment history once per relocation
+  upstream, the same fix.
 
 ## trace-repair.patch
 

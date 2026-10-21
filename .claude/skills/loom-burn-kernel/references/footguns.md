@@ -156,11 +156,15 @@ for the scripts that run there); the defaults are for a local GPU box.
 - SUBRANGE/026 at compile time means a missing bounds assumption:
   `MPL_ASSUME` (`loom-frontend-rules.md`, SUBRANGE row). If the assumption
   is there and the bound in the message is the whole `short` range
-  ("may reach 262152"), the tools were built without
-  `patches/assume-cast-chain.patch` (hrx-system #2074 regression, issue #2122, probe f20).
+  ("may reach 262152"), the tools predate hrx-system #2135 (the #2074
+  regression, issue #2122, probe f20: `fada6788a1` needed a local patch).
 - Nested ternaries deeper than 32 hit the verifier's region-nesting limit
   before hrx-system #2079; since `31bf125137` 40 levels compile (probe f11), so
   no outlining is needed.
+- A `return` inside an `if` nested in another `if`, with code after both
+  (stock `actual_log_screen`'s Debye-Hückel skip), fails import:
+  "conditional returns require at most one fallthrough arm" (probe f24; a
+  single-level early return imports, f10, f25). Keep a `done` flag there.
 - Uninitialized struct locals (`burn_t s;`) fail; write `T x{}`. Scalar and
   array locals may stay uninitialized (hrx-system #2105).
 - Text Loom modules over 65,535 lines were rejected (#1877).
@@ -200,7 +204,7 @@ for the scripts that run there); the defaults are for a local GPU box.
 - **Check scratch against the hardware limit before any GPU run.** gfx90a
   allows at most 131,056 B of private segment per lane ((2^13 - 1) KiB per
   wave64). hipcc refuses to link anything larger. Since hrx-system #2091
-  (in the `fada6788a1` pin) `loom-compile` does too, at the very end of the
+  (in the pin since `fada6788a1`) `loom-compile` does too, at the very end of the
   compile: AMDGPU/053 "requires N private bytes per workitem, but processor
   'gfx90a' supports at most 131056". Older tools (`31bf125137` and before)
   wrote the code object anyway, and the launch then failed with
@@ -210,8 +214,8 @@ for the scripts that run there); the defaults are for a local GPU box.
   in 19,011 slots, because Loom gives every spill plan its own reservation and
   never reuses slots. With older tools read `.private_segment_fixed_size`
   (`scripts/hsaco_stats.py`) right after the compile and stop if it is over
-  the limit. aprox13 + helmholtz + VODE is over it at every pin so far (known
-  blocker, `references/performance.md`).
+  the limit. aprox13 + helmholtz + VODE was over it up to `fada6788a1` and
+  fits since `fa8eba4554` (72,536 B; `references/performance.md`).
 - **A smoke root's code object can't stand in for the production root.** The
   arguments, per-zone I/O and baked `workgroup_count` differ, so test_react
   can't launch it. Once the burn body compiles, start the production root

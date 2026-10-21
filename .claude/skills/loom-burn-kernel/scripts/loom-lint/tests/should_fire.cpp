@@ -7,11 +7,12 @@ struct A : B { static constexpr double tab[2] = {1, 2}; };
 struct D { double v; };
 D operator*(D x, D y) { return D{x.v * y.v}; }
 double g;
-constexpr double arr[2] = {1, 2};
+constexpr double arr[2] = {1, 2};  // allowed: namespace-scope constexpr table
 void g(A& a) { a.v = 1.0; }
 void f(double& r, int k)
 {
     D u;
+    static constexpr double lt[2] = {1, 2};
     double ok_scalar; Real ok_real; unsigned int ok_u; bool ok_b;
     auto lam = [](int x) { return x; };
     switch (k) { default: break; }

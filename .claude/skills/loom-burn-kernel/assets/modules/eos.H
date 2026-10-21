@@ -170,10 +170,6 @@ struct eos_xderivs_t {
 template <typename T>
 MPL_DEVICE void composition(T* state)
 {
-    // network_properties.H zion[], aion_inv[] (network_data.H lists)
-    const Real zion[eos_nspec] = {MPL_NET_ZION_LIST};
-    const Real aion_inv[eos_nspec] = {MPL_NET_AION_INV_LIST};
-
     state->y_e = 0.0;
     state->abar = 0.0;
     for (int n = 0; n < eos_nspec; n++) {
@@ -193,11 +189,6 @@ template <typename T>
 MPL_DEVICE eos_xderivs_t composition_derivatives(const T& state)
 {
     eos_xderivs_t state_xderivs{};
-
-    // network_properties.H aion[], zion[], aion_inv[] (network_data.H lists)
-    const Real aion[eos_nspec] = {MPL_NET_AION_LIST};
-    const Real zion[eos_nspec] = {MPL_NET_ZION_LIST};
-    const Real aion_inv[eos_nspec] = {MPL_NET_AION_INV_LIST};
 
     for (int n = 0; n < eos_nspec; n++) {
         state_xderivs.dpdX[n] = 0.0;

@@ -1,13 +1,11 @@
 id: no-global-storage
 language: cpp
 severity: error
-message: Namespace-scope variables other than constexpr scalars are rejected even when unreachable (LOWERING/059). Pass data as kernel arguments; put constant tables in a local const array.
+message: Namespace-scope variables other than constexpr scalars and constexpr arrays are rejected even when unreachable (LOWERING/059). Pass runtime data as kernel arguments; make constant tables constexpr.
 rule:
   kind: declaration
   matches: namespace-scope
   not:
     any:
       - matches: host-branch
-      - all:
-          - has: { kind: type_qualifier, regex: '^constexpr$' }
-          - not: { has: { kind: array_declarator, stopBy: end } }
+      - has: { kind: type_qualifier, regex: '^constexpr$' }

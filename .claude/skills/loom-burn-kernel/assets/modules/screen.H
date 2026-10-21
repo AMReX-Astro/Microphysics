@@ -96,9 +96,6 @@ MPL_DEVICE screen_factors_t screen_factor()
 MPL_DEVICE void fill_plasma_state_r(plasma_state_t<Real>* state, Real temp,
                                     const Real dens, const NetYArray1D& y)
 {
-    // zion[] (network_properties.H), first NumSpec entries
-    const Real zion_l[NumSpec] = {MPL_NET_ZION_LIST};
-
     Real sum = 0.0;
     for (int n = 1; n <= NumSpec; n++) {
         sum += y(n);
@@ -109,8 +106,8 @@ MPL_DEVICE void fill_plasma_state_r(plasma_state_t<Real>* state, Real temp,
     Real m1 = 0.0;
     Real m2 = 0.0;
     for (int n = 1; n <= NumSpec; n++) {
-        m1 += zion_l[n-1]*y(n);
-        m2 += zion_l[n-1]*zion_l[n-1]*y(n);
+        m1 += zion[n-1]*y(n);
+        m2 += zion[n-1]*zion[n-1]*y(n);
     }
 
     Real temp_ad = temp;
@@ -150,8 +147,6 @@ MPL_DEVICE void fill_plasma_state_r(plasma_state_t<Real>* state, Real temp,
 MPL_DEVICE void fill_plasma_state_d(plasma_state_t<Dual>* state, Dual temp,
                                     const Real dens, const NetYArray1D& y)
 {
-    const Real zion_l[NumSpec] = {MPL_NET_ZION_LIST};
-
     Real sum = 0.0;
     for (int n = 1; n <= NumSpec; n++) {
         sum += y(n);
@@ -162,8 +157,8 @@ MPL_DEVICE void fill_plasma_state_d(plasma_state_t<Dual>* state, Dual temp,
     Dual m1 = dual_const(0.0);
     Dual m2 = dual_const(0.0);
     for (int n = 1; n <= NumSpec; n++) {
-        m1 = dual_add(m1, dual_const(zion_l[n-1]*y(n)));
-        m2 = dual_add(m2, dual_const(zion_l[n-1]*zion_l[n-1]*y(n)));
+        m1 = dual_add(m1, dual_const(zion[n-1]*y(n)));
+        m2 = dual_add(m2, dual_const(zion[n-1]*zion[n-1]*y(n)));
     }
 
     Dual temp_ad = temp;

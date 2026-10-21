@@ -35,7 +35,7 @@ files by name (`network_data.H`, `burn.H`, `rates.H`, `network.H`); see
 | `eos.H` | helmholtz EOS: composition, eos(), reset, override, prad limiter | 600.6M checks, 0 mismatches | compiles (smoke_eos) | pending |
 | `screen.H` | screen5, plasma state, generated screen factors | in rates validator: 11.7M checks, 0 mismatches | compiles (smoke_rates) | pending |
 | `network_rhs.H` | rhs.H: rhs, jac, construct_rate, intermediate rates, LU | 31.1M checks, 0 mismatches | compiles (smoke_net; LU loops with strict `<` bounds, no `MPL_ASSUME`) | pending |
-| `vode.H` | VODE + Strang integrator glue (aion from generated lists; stock-shaped dvode loop, single-exit inner loops) | whole burns: 11.6M checks, 0 mismatches | full burn compiles (smoke_burn, 32 min with the allocator patch; 256 VGPR, 212,836 B scratch) | pending |
+| `vode.H` | VODE + Strang integrator glue (`aion`/`aion_inv` from `network_data.H`; stock-shaped loops) | whole burns: 11.6M checks, 0 mismatches | full burn compiles (smoke_burn at `fa8eba4554`: aprox13 1272 s, 72,536 B; triple_alpha_plus_cago 559 s, 43,140 B; 256 VGPR) | aprox13 and triple_alpha_plus_cago: bit-exact (burn_zones, 4096 zones, 2026-10-21) |
 | `root/burn_kernel.cpp` | kernel root | vs stock do_react: 1.86M checks, 0 mismatches (16^3, 32^3, sub-box, prad limiter on) | imports (1 s); production compile (burn_zones, 4096 zones) in progress | pending |
 | `burner.H` | burner, retry, `BurnParams` | (whole-burn validator) | as above | pending |
 
@@ -67,6 +67,32 @@ network LU in `network_rhs.H` uses strict `<` bounds with no `MPL_ASSUME`:
   `references/performance.md`.
 - host validators were not rerun: only control flow changed (`<=` → `<` with
   the same iterations, `done` flags → `break`).
+
+2026-10-21: moved to hrx-system `fa8eba4554` (no patch required; see
+`patches/README.md`). `network_data.H` now emits `aion`, `aion_inv`, `zion`
+as namespace-scope `constexpr` arrays (anonymous namespace, `NumSpecTotal`
+entries) as the stock HIP build does, and `eos.H`, `screen.H`,
+`network_rhs.H`, `vode.H` read them directly instead of local copies built
+from the old `MPL_NET_*_LIST` macros (now gone):
+- `gen_network_data.py` for both networks: the generated tables match the
+  stock arrays entry by entry (its host check);
+- standalone hipcc build vs the stock HIP test_react reference: bit-exact
+  on 4096 zones for both networks, OCML and recipe math;
+- Loom full burn (`smoke_burn`): triple_alpha_plus_cago 559 s, 256 VGPR,
+  43,140 B (old modules at the same commit: 627 s, 47,428 B); aprox13
+  1272 s, 72,536 B (old modules: 2268 s, 89,400 B), now under gfx90a's
+  131,056 B limit;
+- Loom production root (`burn_zones`, 32 workgroups): triple_alpha_plus_cago
+  497 s, 43,976 B; aprox13 1546 s, 70,952 B. Launched by the standalone
+  harness (`--hsaco`), each is bit-exact against both the stock HIP
+  reference and the hipcc build on 4096 zones (`n_rhs`, `n_step`, success
+  included);
+- tried and reverted: removing the two `MPL_ASSUME`s on VODE's species loops
+  with `break` (SUBRANGE/026 in the full burn, although probe f17 passes),
+  and restoring `actual_log_screen`'s stock early return (fails import,
+  probe f24);
+- host validators were not rerun: the table values are unchanged (checked by
+  the generator) and only their storage moved.
 
 ## Launcher (harness/loom_launch.H) and the per-network loom_params.H
 

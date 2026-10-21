@@ -1,9 +1,13 @@
 id: no-static-member-array
 language: cpp
 severity: error
-message: static constexpr member arrays do not import. Use a local const array or a constexpr function.
+message: static arrays (static constexpr members, block-scope statics) do not import. Move the table to namespace scope as a constexpr array.
 rule:
-  kind: field_declaration
+  any:
+    - kind: field_declaration
+    - all:
+        - kind: declaration
+        - inside: { kind: function_definition, stopBy: end }
   has: { kind: storage_class_specifier, regex: '^static$' }
   all:
     - has: { kind: array_declarator, stopBy: end }

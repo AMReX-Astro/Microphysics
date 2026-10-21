@@ -52,7 +52,8 @@ Hard rules (each one cost a failed Loom import or compile at least once):
    the table pointers themselves.
 4. No lambdas/`constexpr_for` (template-struct recursion or plain loops), no
    `constexpr` locals of record type (bind each field to a `constexpr`
-   scalar), no namespace-scope arrays, no `switch`, no `return`
+   scalar), no `static` arrays (member or block scope; namespace-scope
+   `constexpr` tables are fine), no `switch`, no `return`
    inside loops (flags + `break`), no range-for, no structured bindings, no
    constructors with arguments, no uninitialized struct locals, no
    `std::`, no stock namespaces (`amrex::`, `autodiff::`, `admath::`, `gcem::`,
@@ -66,14 +67,8 @@ Hard rules (each one cost a failed Loom import or compile at least once):
    fails with SUBRANGE/026). Placement and form rules:
    `references/loom-frontend-rules.md`.
 6. **Loops with several exits** (multiple `break`s, a `continue`, the
-   `break`s that replace stock `return`s) can fail the AMDGPU backend with
-   TARGET/034 (`masked_region_exits_by_cfg`, `masked_region_merge_vgpr_values`) when
-   one sits inside another (probes f21-f23). Use the single-exit form for
-   every inner loop with more than one exit (the outermost loop may keep the
-   stock `break`s, as `vode.H`'s `dvode` does): `bool done = false; while (!done) {...}`,
-   each exit sets `done` after its side effects, later code in the body is
-   guarded by `if (!done)`, and a `continue` becomes a guard (keep its exact
-   predicate under `!(...)` so NaN behaviour is unchanged).
+   `break`s that replace stock `return`s) keep the stock shape, nested or
+   not (probes f21, f22); don't add `done` flags.
 7. Math only through `mpl::math`; never substitute identities
    (`pow = exp(y*log x)`); integer powers through `math::powi<N>`.
 8. Runtime parameters through a params struct of scalars (`const P*`), fields

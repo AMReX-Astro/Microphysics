@@ -104,8 +104,8 @@ constexpr Real vode_final_state_species_failure_tolerance_factor = 1.5;
 constexpr int VODE_MAXORD = 5;
 constexpr int VODE_LMAX = VODE_MAXORD + 1;
 
-// network_properties.H aion[] / aion_inv[] are local const arrays where
-// needed (README rule 7), filled from the generated MPL_NET_*_LIST macros.
+// network_properties.H aion[] / aion_inv[] come from network_data.H
+// (namespace-scope constexpr arrays, as in the stock HIP build).
 
 // from integration/VODE/vode_type.H:38 dvode_t<int_neqs = 14>
 // Same Array1D / Array2D members (support.H accessors, 1-based). Always
@@ -281,8 +281,6 @@ MPL_DEVICE void update_thermodynamics(burn_t* state, const dvode_t* vs, const In
 MPL_DEVICE void rhs(const Real time, burn_t* state, dvode_t* vs, Array1D<Real, 1, neqs>& ydot,
                     const IntegratorParams& ip, const EosParams& ep, const NetParams& np, EosTables tab)
 {
-    const Real aion[NumSpec] = {MPL_NET_AION_LIST};
-
     clean_state(time, state, vs, ip);
 
     update_thermodynamics(state, vs, ip, ep, tab);
@@ -326,9 +324,6 @@ MPL_DEVICE void jac(const Real time, burn_t* state, dvode_t* vs, JacNetArray2D& 
                     const IntegratorParams& ip, const EosParams& ep, const NetParams& np, EosTables tab)
 {
     (void) time;
-
-    const Real aion[NumSpec] = {MPL_NET_AION_LIST};
-    const Real aion_inv[NumSpec] = {MPL_NET_AION_INV_LIST};
 
     if (state->T <= ep.EOSData_mintemp || state->T >= ip.integrator_MAX_TEMP) {
         // pd.zero()
@@ -410,8 +405,6 @@ MPL_DEVICE void numerical_jac(const burn_t& state, const Real h, JacNetArray2D& 
                               const IntegratorParams& ip, const EosParams& ep, const NetParams& np,
                               EosTables tab)
 {
-    const Real aion[NumSpec] = {MPL_NET_AION_LIST};
-
     Array1D<Real, 1, neqs> ydotp{};
     Array1D<Real, 1, neqs> ydotm{};
 
@@ -1539,9 +1532,8 @@ MPL_DEVICE int dvode(burn_t* state, dvode_t* vs,
     int result = IERR_SUCCESS;
 
     // Stock loop shape; each stock `return` inside the loop is `result = ...;
-    // break;` (a return inside a loop does not import). A single loop with
-    // several exits compiles (probe f21); nested multi-exit loops still need
-    // the single-exit form (f22, f23).
+    // break;` (a return inside a loop does not import). Multi-exit loops,
+    // nested or not, compile (probes f21, f22).
     while (true) {
 
         if (!skip_loop_start) {

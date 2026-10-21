@@ -7,7 +7,7 @@ rprox, triple_alpha_plus_cago) this compiles extract_network_data.cpp against
 the stock headers with one build's flags, runs it, and writes
 
   network_data.H  namespace mpl: NumSpec/NumAux, Species::/Rates:: indices,
-                  zion/aion/aion_inv/bion/mion, the rhs_data fields as
+                  the zion/aion/aion_inv arrays, bion/mion, the rhs_data fields as
                   constexpr if-chain functions (rd_*), the intermediate-rate
                   index table, the screen factors of every pair the network's
                   apply_screening folds, constants the glue uses, and
@@ -18,7 +18,8 @@ the stock headers with one build's flags, runs it, and writes
                   interfaces/burn_type.H for this configuration).
 
 Both are Loom-compatible (README rules 6/7: constexpr scalar functions with
-if-chains, no namespace-scope arrays) and every floating-point literal is the
+if-chains; namespace-scope arrays only as internal-linkage constexpr tables)
+and every floating-point literal is the
 shortest decimal that round-trips to the stock bits.
 
 usage (from anywhere; paths are resolved against the Microphysics root):
@@ -313,9 +314,9 @@ class Gen:
         L += ['//',
               '// Generic code (network_rhs.H, screen.H, eos.H, burn.H) reads everything',
               '// network-specific through this header; rhs_data(rate) is split into one',
-              '// constexpr if-chain function per rhs_t field (README rule 6), and arrays',
-              '// are exposed as constexpr functions or MPL_NET_*_LIST initializer macros',
-              '// for local arrays (rule 7).',
+              '// constexpr if-chain function per rhs_t field (README rule 6); aion[],',
+              '// zion[], aion_inv[] are namespace-scope constexpr arrays as in the stock',
+              '// HIP build (rule 7).',
               f'#ifndef {guard}', f'#define {guard}', '', '#include "support.H"', '']
         sm = d['screen_method'] or 'none'
         L += [f'#define MPL_GEN_NETWORK_NAME "{d["network"]}"',
@@ -330,18 +331,21 @@ class Gen:
               f'#define MPL_GEN_TRUE_SDC {d["def"]["TRUE_SDC"]}',
               f'#define MPL_GEN_HAVE_BION_MION {d["def"]["HAVE_BION_MION"]}',
               '']
-        # initializer lists for local arrays (first NumSpec entries, 0-based)
         ion = d['ion']
-        L += ['// network_properties.H aion[] / zion[] / aion_inv[], first NumSpec entries,',
-              '// for local arrays: `const Real zion[NumSpec] = {MPL_NET_ZION_LIST};`',
-              '#define MPL_NET_AION_LIST ' + ', '.join(lit(ion[s][2]) for s in range(1, self.nspec + 1)),
-              '#define MPL_NET_ZION_LIST ' + ', '.join(lit(ion[s][3]) for s in range(1, self.nspec + 1)),
-              '#define MPL_NET_AION_INV_LIST ' + ', '.join(lit(ion[s][4]) for s in range(1, self.nspec + 1)),
-              '', 'namespace mpl {', '',
+        def table(name, k):
+            return [f'constexpr Real {name}[NumSpec + NumSpecExtra] = {{',
+                    '    ' + ', '.join(lit(ion[s][k]) for s in range(1, self.ntot + 1)), '};']
+        L += ['namespace mpl {', '',
               '// network_properties.H',
               f'constexpr int NumSpec = {self.nspec};',
               f'constexpr int NumSpecExtra = {d["cfg"]["NumSpecExtra"]};',
               f'constexpr int NumAux = {self.naux};', '',
+              '// network_properties.H aion[] / aion_inv[] / zion[] (0-based, NumSpecTotal',
+              '// entries): HIP_CONSTEXPR arrays in an anonymous namespace, as in the stock',
+              '// HIP build (namespace-scope constexpr arrays import, probes d01, d16)',
+              'namespace {']
+        L += table('aion', 2) + table('aion_inv', 4) + table('zion', 3)
+        L += ['} // namespace', '',
               '// network_properties.H namespace Species (NumSpecTotal = last species)',
               'namespace Species {']
         L += [f'constexpr int {n} = {v};' for n, v in d['species']]
@@ -567,10 +571,9 @@ class Gen:
                          f'network::mion<{s}>() == mpl::net_mion({s}));')
         L += ['// aion[] / zion[] / aion_inv[] are runtime arrays on the CPU build: checked in main()',
               'int main()', '{', '    int bad = 0;',
-              '    const double a[] = {MPL_NET_AION_LIST};', '    const double z[] = {MPL_NET_ZION_LIST};',
-              '    const double ai[] = {MPL_NET_AION_INV_LIST};',
-              '    for (int n = 0; n < NumSpec; ++n) {',
-              '        bad += (a[n] != aion[n]) + (z[n] != zion[n]) + (ai[n] != aion_inv[n]);',
+              '    for (int n = 0; n < NumSpecTotal; ++n) {',
+              '        bad += (mpl::aion[n] != aion[n]) + (mpl::zion[n] != zion[n]) +',
+              '               (mpl::aion_inv[n] != aion_inv[n]);',
               '    }',
               '    for (int s = 1; s <= NumSpecTotal; ++s) {',
               '        bad += (mpl::net_aion_inv(s) != aion_inv[s - 1]);',

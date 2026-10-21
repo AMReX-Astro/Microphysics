@@ -821,9 +821,6 @@ MPL_DEVICE void actual_rhs(const burn_t& burn_state, const NetParams& params, Ar
 
     // rhs_state_t<amrex::Real>: rho, eta, y_e are burn_state's; y below
 
-    // network_properties.H aion_inv[0..NumSpec-1]
-    const Real aion_inv[NumSpec] = {MPL_NET_AION_INV_LIST};
-
     // Convert X to Y.
     NetYArray1D y{};
     for (int n = 1; n <= NumSpec; ++n) {
@@ -1004,9 +1001,6 @@ MPL_DEVICE void actual_jac(const burn_t& burn_state, const NetParams& params, Ja
     const RatesParams rp = net_rates_params(params);
 
     // rhs_state_t<autodiff::dual>: rho, eta, y_e are burn_state's; y below
-
-    // network_properties.H aion_inv[0..NumSpec-1]
-    const Real aion_inv[NumSpec] = {MPL_NET_AION_INV_LIST};
 
     // Convert X to Y.
     NetYArray1D y{};

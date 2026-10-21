@@ -140,8 +140,8 @@ arguments.
    `loom_smoke.sh wait <name>` blocks until a run finishes. A fused full
    burn compiles in 9 min (triple_alpha, Rosetta) to ~30 min (aprox13),
    nearly all of it in register repair (see
-   `references/footguns.md`); use Loom tools built with the skill's patches
-   (`scripts/build_loom_tools.sh` with `patches/assume-cast-chain.patch`).
+   `references/footguns.md`); use Loom tools built from the pinned commit
+   (`scripts/build_loom_tools.sh`; `patches/README.md` lists any local patches).
    SUBRANGE/026 errors: see `MPL_ASSUME` in `references/loom-frontend-rules.md`.
 8. **Kernel root, launcher, GPU comparison** (SKILL.md Phases 5-6).
 

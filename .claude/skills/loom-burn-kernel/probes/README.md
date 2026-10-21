@@ -6,24 +6,30 @@ tool set on the GPU host and writes `probe-summary.txt`. See the header of
 `probe.sh` for how to ship and run it. Add probes for anything a port's
 inventory finds that is not covered here, and keep new probes in this kit.
 
-## Results at hrx-system fada6788a1 (gfx90a, run 2026-10-20)
+## Results at hrx-system fa8eba4554 (gfx90a, run 2026-10-21)
 
-Public `ROCm/hrx-system` main `fada6788a1` (2026-10-20), tools built with
-`scripts/build_loom_tools.sh` and both `patches/` applied (`loom-import-cxx`
-md5 `e6d89e5b…`, `loom-compile` md5 `6179c3a7…`; md5s differ with the build
-environment, so record yours). All 106 probes run in a few seconds. Rerun the
-kit whenever the pinned commit changes and update this table.
+Public `ROCm/hrx-system` main `fa8eba4554` (2026-10-20), tools built with
+`scripts/build_loom_tools.sh` and `patches/trace-repair.patch` (a diagnostic
+only; `loom-import-cxx` md5 `427f8f72…`, `loom-compile` md5 `35d03eb7…`;
+md5s differ with the build environment, so record yours). All 116 probes run
+in a few seconds. Rerun the kit whenever the pinned commit changes and update
+this table.
 
-What changed since the previous pin (`31bf125137`, 2026-10-19): hrx-system
-#2105 (uninitialized scalar locals, conditionless `for`, signed counted
-loops, assumptions over derived expressions). d04, f04 went from import-fail
-to ok; d13, d15, f12, f13 are new and ok, d14 and f14 new and failing. f15
-(no assumptions) still fails SUBRANGE/026 and f16 (with them) compiles.
-f20-f23 are new: f20 guards a regression from #2074 that drops an assumed
-range when the index was loaded from a `short` field (VODE's `L`, `NQ`), which
-`patches/assume-cast-chain.patch` fixes (the unpatched tools fail f20 and the
-aprox13 full burn); f21-f23 pin down which multi-exit loops still need the
-single-exit form. Everything else is unchanged apart from a few VGPR counts.
+What changed since the previous pin (`fada6788a1`, 2026-10-20):
+- hrx-system #2158/#2163 import namespace-scope immutable objects as
+  read-only data: d01 (`aion[]`) went from import-fail to ok, and the new
+  d16-d20, d23 (inline, 2-D, array-of-aggregates, loop-indexed, unreachable
+  and `extern const` tables) are ok. `static constexpr` member arrays (d09)
+  and block-scope `static constexpr` arrays (d22, new) still fail, and so do
+  mutable globals, even unreachable ones (d03, d21 new).
+- hrx-system #2135 fixes #2122: f20 compiles with unpatched tools, so
+  `assume-cast-chain.patch` is gone.
+- f22 (an inner loop with three `break`s inside a multi-exit outer loop) now
+  compiles; it failed TARGET/034 at `fada6788a1`.
+- f24/f25 (new) pin down early returns: a `return` in an `if` nested inside
+  another `if` with code after both fails import; a single-level one imports.
+- Everything else is unchanged apart from a few VGPR counts (d02, f05, f16,
+  f21, o12, r16).
 
 What these results decide:
 - **References:** scalar `double&`/`int&` parameters and scalar member slices
@@ -82,6 +88,10 @@ What these results decide:
   pointers themselves, not a pointer to a struct holding them.
 - **Records** must be plain aggregates: no constructors with arguments (o07),
   no bases (o06). Structured bindings fail (o08). Lambdas fail (l01).
+- **Tables:** namespace-scope `constexpr` arrays import with runtime indices
+  (d01, d16-d20, d23), so `aion[]`, `zion[]`, `aion_inv[]` and rate tables keep
+  the stock namespace-scope form; `static` arrays (member or block scope)
+  still fail (d09, d22) and move to namespace scope.
 - **Uninitialized locals and `for (;;)`:** scalar and array locals may stay
   uninitialized (d04, d13, d15) and conditionless `for` imports (f04, f12);
   struct locals still need `T x{}` (d14).
@@ -90,14 +100,19 @@ What these results decide:
   but an index derived from a struct field with runtime loop bounds still
   fails SUBRANGE/026 without assumptions (f15) and compiles with them (f16).
   Assumptions may now use arithmetic (`j + 1 <= n`, f13) but still not struct
-  fields (f14). With unpatched `fada6788a1` tools, an assumption on a local
-  loaded from a `short` field is dropped (f20): build with
-  `patches/assume-cast-chain.patch`.
-- **Loop exits:** `return` inside a loop still fails import (f03). A single
-  loop with several `break`s and a `continue` compiles (f21, the dvode step
-  loop's shape), but an inner loop with several `break`s inside an outer loop
-  fails the AMDGPU backend with TARGET/034 (f22); the single-exit form of the
-  inner loop compiles (f23).
+  fields (f14). f17 (a `break` loop over a private local array) passes
+  without assumptions, but the same loop over `vs->y(i)` in the full VODE
+  burn still fails SUBRANGE/026 at `fa8eba4554`, so VODE keeps those
+  `MPL_ASSUME`s. An assumption on a local loaded from a `short` field holds
+  (f20; at `fada6788a1` it needed a local patch).
+- **Loop exits:** `return` inside a loop still fails import (f03). Loops
+  with several `break`s and a `continue` compile, alone (f21, the dvode step
+  loop's shape) or nested (f22, the dvstep corrector shape), so they keep the
+  stock shape.
+- **Early returns:** a `return` outside loops imports when it sits in a
+  single `if` (f10, f25), but not inside an `if` nested in another `if` with
+  code after both (f24: "conditional returns require at most one fallthrough
+  arm"); `screen.H`'s `actual_log_screen` keeps a `done` flag for that.
 
 | Probe | Construct | Result | Detail |
 |---|---|---|---|
@@ -108,8 +123,8 @@ What these results decide:
 | c04_struct_of_ptrs_by_value | struct of table pointers passed by value (`t.a[i]`) | ok | vgpr=6 scratch=0B |
 | c05_flat_table_offsets | one table buffer, compile-time offsets | ok | vgpr=6 scratch=0B |
 | c06_ptr_member_of_kernel_arg_struct | kernel argument: pointer to a struct of pointers in device memory | import-fail | error [LOWERING/059]: stored pointers and references require an object storage representation |
-| d01_ns_constexpr_array | `aion[]`, `zion[]`, `aion_inv[]` | import-fail | error [LOWERING/059]: constants require a numeric scalar type |
-| d02_local_const_array | local `const double t[N]` | ok | vgpr=16 scratch=104B |
+| d01_ns_constexpr_array | `aion[]`, `zion[]`, `aion_inv[]` | ok | vgpr=14 scratch=0B |
+| d02_local_const_array | local `const double t[N]` | ok | vgpr=28 scratch=104B |
 | d03_ns_mutable_global | runtime param global | import-fail | error [LOWERING/059]: global storage definitions require a global-storage projection |
 | d04_uninit_local | `bool converged;` | ok | vgpr=8 scratch=0B |
 | d05_struct_default_init_braces | `T x{}` | ok | vgpr=8 scratch=0B |
@@ -123,11 +138,19 @@ What these results decide:
 | d13_uninit_local_double | `double r;` assigned on both branches | ok | vgpr=8 scratch=0B |
 | d14_uninit_local_struct | `Burn s;` without initializer | import-fail | error [LOWERING/059]: uninitialized locals require scalar or native vector object storage |
 | d15_uninit_local_array | `double a[14];` without initializer | ok | vgpr=6 scratch=112B |
+| d16_ns_inline_constexpr_array | `inline constexpr double aion[N]` at namespace scope | ok | vgpr=14 scratch=0B |
+| d17_ns_constexpr_2d_array | namespace-scope `constexpr` 2-D table, two runtime indices | ok | vgpr=8 scratch=0B |
+| d18_ns_constexpr_struct_array | namespace-scope `constexpr` array of aggregates, runtime index | ok | vgpr=10 scratch=0B |
+| d19_ns_constexpr_array_loop_index | `aion[n]`, `zion[n]` read in a constant-bound loop | ok | vgpr=20 scratch=0B |
+| d20_ns_constexpr_array_unreachable | namespace-scope `constexpr` array the root never reads | ok | vgpr=6 scratch=0B |
+| d21_ns_mutable_global_unreachable | mutable namespace-scope global the root never reads | import-fail | error [LOWERING/059]: global storage definitions require a global-storage projection |
+| d22_fn_static_constexpr_array | block-scope `static constexpr` array in a device function | import-fail | error [LOWERING/059]: local storage duration must be automatic or __shared__ |
+| d23_extern_const_array_defined | `extern const` array declared, then defined in the TU | ok | vgpr=14 scratch=0B |
 | f01_switch_runtime | runtime `switch` | import-fail | error [LOWERING/059]: unsupported statement: switch-statement |
 | f02_switch_in_constexpr_fn | `rhs_data(rate)` folded | import-fail | error [LOWERING/059]: unsupported C++ type: ::probe::RhsT |
 | f03_return_in_loop | `return` in `while(true)` | import-fail | error [LOWERING/059]: returns inside loops require a structured loop-exit projection |
 | f04_for_ever | `for(;;)` | ok | vgpr=10 scratch=0B |
-| f05_vode_retry_shape | nested `while(true)`, result code | ok | vgpr=20 scratch=0B |
+| f05_vode_retry_shape | nested `while(true)`, result code | ok | vgpr=22 scratch=0B |
 | f06_runtime_triangular_loops | `for k=NQ..1, j=k..NQ` | ok | vgpr=12 scratch=672B |
 | f07_retry_loop_no_assume | retry loop with break/continue, no `__builtin_assume` | ok | vgpr=12 scratch=0B |
 | f08_retry_loop_assume | same, with `__builtin_assume` | ok | vgpr=12 scratch=0B |
@@ -138,17 +161,19 @@ What these results decide:
 | f13_assume_derived_expr | `__builtin_assume(j + 1 <= n)` | ok | vgpr=10 scratch=120B |
 | f14_assume_struct_field | `__builtin_assume(1 <= vs->L && vs->L <= 6)` | import-fail | error [LOWERING/059]: predicate member paths require direct non-static record fields |
 | f15_runtime_bound_index_no_assume | dvjust-shape runtime-bound loops and `vs->el[L]`, no assumptions | compile-fail | error [SUBRANGE/026]: view.load access byte end may reach 17179869192, exceeding storage root byte extent 848 |
-| f16_runtime_bound_index_assume | same as f15 with `__builtin_assume` on every index | ok | vgpr=10 scratch=848B |
+| f16_runtime_bound_index_assume | same as f15 with `__builtin_assume` on every index | ok | vgpr=12 scratch=848B |
 | f17_break_loop_private_index_no_assume | constant-bound loop with data-dependent `break`, no assumptions | ok | vgpr=12 scratch=112B |
-| f20_assume_short_field_member_index | `const int La = vs->L` (`short` field) assumed, indexes an `Array1D` member through a pointer | ok | vgpr=8 scratch=176B (with `patches/assume-cast-chain.patch`; unpatched: compile-fail SUBRANGE/026 "access byte end may reach 262152") |
-| f21_multi_exit_loop | dvode step-loop shape: `while (true)`, 4 `break`s + `continue` in data-dependent branches | ok | vgpr=20 scratch=64B |
-| f22_nested_multi_exit_loops | inner `while (true)` with 3 `break`s nested in a multi-exit outer loop (dvstep corrector shape) | compile-fail | error [TARGET/034]: rejected 'cfg.cond_br': branch lowering constraint 'masked_region_merge_vgpr_values' is not satisfied |
+| f20_assume_short_field_member_index | `const int La = vs->L` (`short` field) assumed, indexes an `Array1D` member through a pointer | ok | vgpr=8 scratch=176B |
+| f21_multi_exit_loop | dvode step-loop shape: `while (true)`, 4 `break`s + `continue` in data-dependent branches | ok | vgpr=22 scratch=64B |
+| f22_nested_multi_exit_loops | inner `while (true)` with 3 `break`s nested in a multi-exit outer loop (dvstep corrector shape) | ok | vgpr=20 scratch=64B |
 | f23_nested_single_exit_form | f22 with both loops in the single-exit `done` form | ok | vgpr=18 scratch=64B |
+| f24_nested_conditional_return | `return` in an `if` nested in a runtime `if`, code after both (`actual_log_screen`) | import-fail | error [LOWERING/059]: conditional returns require at most one fallthrough arm; shared continuations need a scoped exit projectio |
+| f25_single_level_conditional_return | f24 with the conditions merged into one `if` | ok | vgpr=8 scratch=0B |
 | l01_lambda_constexpr_for | lambdas | import-fail | error [LOWERING/059]: rvalue-reference parameters require consuming object identity |
 | l02_template_struct_unroll | template-struct recursion | ok | vgpr=30 scratch=0B |
-| m_f64_absf | f64 fabs | ok | vgpr=4 scratch=0B \| |
+| m_f64_absf | f64 fabs | ok | vgpr=4 scratch=0B |
 | m_f64_cbrtf | f64 cbrt | compile-fail | error [TARGET/001]: has no target-low contract |
-| m_f64_copysignf | f64 copysign | ok | vgpr=6 scratch=0B \| |
+| m_f64_copysignf | f64 copysign | ok | vgpr=6 scratch=0B |
 | m_f64_cosf | f64 cos | compile-fail | error [LOWERING/036]: legalize-math policy amdgpu-math rejected scalar.cosf for cosf in scalar lanes of f64 under math.element.f32 |
 | m_f64_expf | f64 exp | compile-fail | error [LOWERING/036]: legalize-math policy amdgpu-math rejected scalar.expf for expf in scalar lanes of f64 under math.element.f32 |
 | m_f64_floorf | f64 floor | ok | vgpr=4 scratch=0B \| v_floor_f64:1 |
@@ -175,7 +200,7 @@ What these results decide:
 | o09_dual_member_operators | member `operator*`/`operator+`/`operator+=` on Dual | import-fail | error [LOWERING/059]: overloaded binary operation requires a Loom operation |
 | o10_arrow_member_call | `a->add(x)`, `a.mean()` through a pointer to a local | ok | vgpr=14 scratch=0B |
 | o11_array1d_by_ref | `Array1D<T,1,N>` accessor, passed by `&` and `const auto&` | ok | vgpr=10 scratch=232B |
-| o12_array2d_lu | `Array2D` accessor, written in place through `&` (dgefa shape) | ok | vgpr=18 scratch=144B |
+| o12_array2d_lu | `Array2D` accessor, written in place through `&` (dgefa shape) | ok | vgpr=14 scratch=144B |
 | o13_member_fn_mutates_via_struct_ref | `s.bump(dt)` mutating scalar fields, `s` a `Burn&` | ok | vgpr=8 scratch=0B |
 | o14_struct_ref_member_fns | `vs.add_y(n, v); vs.tick(h)` through `Dvode&` | ok | vgpr=10 scratch=128B |
 | o15_ptr_member_accessor_write | `vs->y(n) +=`, `vs->t +=` through a pointer | ok | vgpr=10 scratch=128B |
@@ -194,11 +219,11 @@ What these results decide:
 | r09_array_ref_param | `const double (&)[13]` | ok | vgpr=6 scratch=0B |
 | r10_local_ref_binding | `double& r = s.x;` | import-fail | error [LOWERING/059]: address-of requires an existing storage-backed element |
 | r11_ref_chain | ref forwarded through 2 static calls | ok | vgpr=10 scratch=0B |
-| r12_const_ref_return_max | `amrex::max` returning `const T&` | compile-fail | error [AMDGPU/023]: rejected 'view.load': source-to-low constraint 'memory_access.private_root' is not satisfied |
+| r12_const_ref_return_max | `amrex::max` returning `const T&` | compile-fail | error [AMDGPU/023]: reject |
 | r13_struct_member_slice_ref | `bump(s.T)` | ok | vgpr=8 scratch=0B |
 | r14_struct_ref_member_update | `dvode_t&` through 2 template layers: `vs.y(n) +=` and `vs.t +=` | import-fail | error [LOWERING/059]: mutation requires an owned automatic source binding |
 | r15_struct_ref_scalar_field_write | `s.T = ...` through `Burn&` | import-fail | error [LOWERING/059]: mutation requires an owned automatic source binding |
-| r16_struct_ref_array_member_write | `s.xn[n] = ...` through `Burn&` | ok | vgpr=8 scratch=128B |
+| r16_struct_ref_array_member_write | `s.xn[n] = ...` through `Burn&` | ok | vgpr=10 scratch=128B |
 | r17_local_ref_array_elem | `double& r = a[2];` | ok | vgpr=4 scratch=0B |
 | r18_value_return_max | `max(const T&, const T&)` returning `T` by value | ok | vgpr=6 scratch=0B |
 | r19_struct_ref_member_accessor_write | `vs.y(n) += ...` through `Dvode&` | import-fail | error [LOWERING/059]: mutation requires an owned automatic source binding |

@@ -1,7 +1,7 @@
 # Loom C++ frontend: construct → rewrite
 
-Status as of public hrx-system main `fada6788a1` (2026-10-20; probed
-2026-10-20 on gfx90a), measured
+Status as of public hrx-system main `fa8eba4554` (2026-10-20; probed
+2026-10-21 on gfx90a), measured
 with this skill's `probes/` kit (results and probe names in
 `probes/README.md`). **Re-probe at your commit** (SKILL.md Phase 1):
 rows marked "changed recently" or anything older than the commit you use
@@ -15,8 +15,9 @@ Command lines for import and compile are in `test-react-integration.md`
 The probes and the campaigns used the default.
 
 Only code reachable from `--root` is lowered, so host-only code in the same
-TU only has to parse. Namespace-scope global *definitions* are an exception:
-they are rejected even when unreachable (LOWERING/059).
+TU only has to parse. Namespace-scope *mutable* global definitions are an
+exception: they are rejected even when unreachable (LOWERING/059, d21).
+Unreachable `constexpr` tables are fine (d20).
 
 Under `__loom__`, `#include <hip/hip_runtime.h>` gives `__global__`,
 `__device__`, `blockIdx`/`threadIdx`/`blockDim`, but no math and no atomics.
@@ -45,7 +46,8 @@ Under `__loom__`, `#include <hip/hip_runtime.h>` gives `__global__`,
 | range-for | fails | Indexed loops |
 | `for (;;)`, `for (init;; step)` | imports (f04, f12; hrx-system #2105) | — |
 | `return` in a loop | fails (LOWERING/059) | `done`/result code + `break`, return after the loop |
-| Loop with several exits (`break`s/`continue` inside branches) under divergent control | a single loop compiles (f21); nested loops with several exits fail the AMDGPU backend with TARGET/034, "branch lowering constraint 'masked_region_merge_vgpr_values'" (f22) or "'masked_region_exits_by_cfg'" (VODE's dvode step loop, 2026-10-18, before dvstep's inner loops were rewritten); unchanged at `fada6788a1`. With the inner loops in single-exit form, the stock-shaped dvode loop (5 `break`s + `continue`, dvstep inlined) compiles (2026-10-20, both networks) | Single-exit form for the **inner** multi-exit loops (dvstep, dvnlsd shapes; f23 compiles); the outermost loop may keep the stock `break`s/`continue` (f21, `vode.H` `dvode`). The form: `bool done = false; while (!done) { ... }`, each former exit sets `done` after the same side effects, later code guarded by `if (!done)`, a `continue` becomes a guard on the rest of the body (keep its exact predicate, negated with `!(...)` so NaNs behave the same) |
+| Early `return` in an `if` nested inside another `if`, with code after both (stock `actual_log_screen`) | fails import (f24: "conditional returns require at most one fallthrough arm"); a single-level early return imports (f10, f25) | `bool done` flag, later code under `if (!done)`, one return at the end (`screen.H`) |
+| Loop with several exits (`break`s/`continue` inside branches) under divergent control | compiles, single (f21) or nested (f22, the dvstep corrector shape: fails TARGET/034 `masked_region_merge_vgpr_values` at `fada6788a1` and before, compiles at `fa8eba4554`) | Keep the stock loop shape; only a `return` inside the loop needs rewriting (previous row) |
 | Uninitialized locals | scalar and array locals import (`double r;`, `bool converged;`, `double a[14];`: d04, d13, d15; hrx-system #2105); struct and pointer locals fail (d14: "uninitialized locals require scalar or native vector object storage") | `T x{}` for structs; scalars and arrays may stay uninitialized as in the source |
 | Base classes; overloaded arithmetic operators, free or member (autodiff `dual`) | fail (o06; o03, o09: "overloaded binary operation requires a Loom operation") | Flatten bases; POD dual structs with free functions (see translation guide, "Autodiff") |
 | Constructors with arguments (`D x(1.0)`) | fail (o07: records must be complete aggregates) | Aggregate init `D x{1.0, 0.0}` |
@@ -55,10 +57,11 @@ Under `__loom__`, `#include <hip/hip_runtime.h>` gives `__global__`,
 | Floating-point contraction | none: `a * b + c` → `v_mul_f64` + `v_add_f64` under `--fp-model=precise` (m_fp_contract) | — |
 | Namespace-scope non-constexpr globals (runtime params, tables) | fail | Kernel arguments: a params POD pointer and table pointers |
 | Pointer stored in a struct, read through a pointer to that struct (`const Tables* t; t->f[i]`), including a kernel argument pointing at a struct of pointers | fails (c03, c06: "stored pointers and references require an object storage representation") | Pass the tables struct **by value** (c04) or one flat buffer with compile-time offsets (c05); kernel takes the table pointers as separate arguments |
-| Namespace-scope `constexpr` *arrays*, `static constexpr` member arrays | fail | Local `const Real t[N] = {...}` inside the function, or an if-chain/`constexpr` function; scalar `constexpr` is fine |
+| Namespace-scope `constexpr` arrays (`aion[]`, `zion[]`, rate tables; also `inline constexpr`, 2-D, arrays of aggregates, `extern const` with its definition in the TU) | import with runtime indices since hrx-system #2158/#2163 (d01, d16-d20, d23); stored as read-only data, read with global loads | Keep them at namespace scope as the stock HIP build does (`network_data.H` emits `aion`/`aion_inv`/`zion` this way) |
+| `static constexpr` member arrays; block-scope `static constexpr` arrays | fail (d09: "member-dependent initialization ..."; d22: "local storage duration must be automatic or __shared__") | Move the table to namespace scope (row above), or a local `const Real t[N] = {...}` |
 | Ternaries nested > 32 deep | import and compile (f11, 40 deep; hrx-system #2079) | — |
-| Stage loops with break/continue | a simple retry loop imports without help (f07); complex stage loops hit SUBRANGE/026 in the campaigns | `MPL_ASSUME(0 <= i && i < N)` on the counter (next row) |
-| Private-array index with data-dependent loop bounds (triangular LU loops, VODE order loops), an index read from a struct field (`vs->el[vs->L]`), or a loop with `break` (its compound condition hides the bound, even with constant limits) | imports, then **compile** fails SUBRANGE/026 "access byte end may reach ..." even though probe f06 passed in isolation (network LU, 2026-10-18) | First choice for counted loops with compile-time limits: write the bound as a strict `<` (`for (int j = k + 1; j < neqs + 1; ++j)`, `for (int j = 1; j < k; ++j)` with `k` from another such loop); Loom proves those indices in range and no assumption is needed (network LU, `network_rhs.H`; with `<=`, dgesl's back substitution fails SUBRANGE/026; also at `31bf125137`). Otherwise (runtime bounds from struct fields, as in VODE): `MPL_ASSUME(lo <= i && i <= hi)` (support.H: `__builtin_assume` under Loom, no-op on host) at the top of each loop body / after each derived index, using the array's true static bounds. Operands must be local scalars, constants and side-effect-free arithmetic on them (`j + 1 <= n` imports since hrx-system #2105, f13); no struct fields (`vs->L` fails: "predicate member paths ..."; copy it into a `const int` local and index with that, f14). Rely on the smoke compile, not the isolated probe |
+| Stage loops with break/continue | a simple retry loop imports without help (f07), and so does a constant-bound loop with a `break` over a private local array (f17); the same loop over a struct member read through a pointer (`vs->y(i)` in VODE's species checks) still fails SUBRANGE/026 at `fa8eba4554` | `MPL_ASSUME(0 <= i && i < N)` on the counter (next row) |
+| Private-array index with data-dependent loop bounds (triangular LU loops, VODE order loops), an index read from a struct field (`vs->el[vs->L]`), or a loop with `break` over a member array reached through a pointer (its compound condition hides the bound, even with constant limits) | imports, then **compile** fails SUBRANGE/026 "access byte end may reach ..." even though probe f06 passed in isolation (network LU, 2026-10-18) | First choice for counted loops with compile-time limits: write the bound as a strict `<` (`for (int j = k + 1; j < neqs + 1; ++j)`, `for (int j = 1; j < k; ++j)` with `k` from another such loop); Loom proves those indices in range and no assumption is needed (network LU, `network_rhs.H`; with `<=`, dgesl's back substitution fails SUBRANGE/026; also at `31bf125137`). Otherwise (runtime bounds from struct fields, as in VODE): `MPL_ASSUME(lo <= i && i <= hi)` (support.H: `__builtin_assume` under Loom, no-op on host) at the top of each loop body / after each derived index, using the array's true static bounds. Operands must be local scalars, constants and side-effect-free arithmetic on them (`j + 1 <= n` imports since hrx-system #2105, f13); no struct fields (`vs->L` fails: "predicate member paths ..."; copy it into a `const int` local and index with that, f14). Rely on the smoke compile, not the isolated probe |
 
 This table is the authoritative place for `MPL_ASSUME`/SUBRANGE/026; other
 files point here.
