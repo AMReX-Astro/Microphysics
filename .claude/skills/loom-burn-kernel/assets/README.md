@@ -94,6 +94,23 @@ from the old `MPL_NET_*_LIST` macros (now gone):
 - host validators were not rerun: the table values are unchanged (checked by
   the generator) and only their storage moved.
 
+2026-10-21, later: `f64_math.H`/`f64_math_extra.H` call native rint
+(`roundevenf`), ldexp and frexp (hrx-system #2131) wherever OCML calls its
+builtins, so they now differ from OCML only in `MATH_FAST_RCP`/`MATH_FAST_DIV`
+(IEEE division: Loom has no raw `v_rcp_f64`). The bit-built exponent
+emulation, the exp/epexpep shift trick and tanh's input clamp are gone:
+- `f64-tests/ocml_gpu`: bit-identical to hipcc's OCML at 4,194,304 samples
+  per sweep for all six functions (only the known 3 `cbrt` NaN payloads
+  differ); host MPFR test passes;
+- standalone hipcc (OCML and recipes) and Loom `burn_zones` bit-exact against
+  the stock HIP reference on 4096 zones for both networks (Loom scratch:
+  triple_alpha_plus_cago 42,520 B, was 43,976; aprox13 72,232 B, was 70,952);
+- paired timing on moth (7 interleaved rounds, warm-up dropped): Loom burn
+  6.9% faster for triple_alpha_plus_cago and 7.6% for aprox13; hipcc with
+  the recipes 4.9% / 5.5% faster, now within 1-3% of hipcc with OCML. Loom
+  stays about 7.4x slower than hipcc on the same source (256 VGPR and 42-72 KB
+  of spills vs hipcc's 408-492 registers including AGPRs, 2.4-6 KB).
+
 ## Launcher (harness/loom_launch.H) and the per-network loom_params.H
 
 `loom_launch.H` loads the Loom code object with `hipModuleLoad`, fills

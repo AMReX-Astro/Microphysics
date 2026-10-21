@@ -66,3 +66,9 @@ Bit-identical to hipcc's OCML for `pow`, `log10`, `tanh`, `exp`, `log` and
 `cbrt` over about 1M samples per sweep. The only differences were 3 `cbrt`
 results with different NaN payloads (`nan_payload_diff=3`), which the policy
 ignores, so the run ends in `FAIL: only NaN payloads differ`.
+
+2026-10-21, after the recipes switched to native rint/ldexp/frexp (OCML's
+own builtins; only `MATH_FAST_RCP`/`MATH_FAST_DIV` remain IEEE division):
+the same result at 4,194,304 samples per sweep (bit-identical everywhere,
+the same 3 `cbrt` NaN payloads), and the `rcp` diagnostic found no input
+where IEEE `1/x` differs from `v_rcp_f64` + 2 Newton steps.

@@ -210,7 +210,11 @@ This is the riskiest part of the translation:
   `atan`, `erf`, ...): transcribe the matching OCML
   routine (ROCm-Device-Libs `ocml/src/*D*.cl`) statement for statement in the
   same style, with explicit `fma`, one operation per statement, and the same
-  special-case handling. Do **not** substitute identities like
+  special-case handling. Map OCML's builtins to the helpers in `f64_math.H`:
+  `BUILTIN_RINT_F64/F32` → `rint`/`rintf` (`roundevenf`),
+  `BUILTIN_FLDEXP_F64` → `ldexp`, `BUILTIN_FREXP_MANT/EXP_F64` →
+  `frexp_mant`/`frexp_exp`; `MATH_FAST_RCP`/`MATH_FAST_DIV` become IEEE
+  division (no raw `v_rcp_f64` in Loom). Do **not** substitute identities like
   `pow(x,y) = exp(y*log(x))` or `log10(x) = log(x)/ln10`: they are not the
   functions the HIP reference calls, and the error grows with `|y log x|`.
 - `amrex::Math::powi<N>` / integer powers: keep the template recursion and its

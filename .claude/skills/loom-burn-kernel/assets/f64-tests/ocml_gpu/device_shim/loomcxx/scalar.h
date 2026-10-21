@@ -7,12 +7,18 @@
 //
 //   fmaf(double)              __builtin_fma        llvm.fma.f64   v_fma_f64
 //   truncf(double)            __builtin_trunc      llvm.trunc.f64 v_trunc_f64
+//   roundevenf(double/float)  __builtin_roundeven  llvm.roundeven v_rndne_f64/f32
+//   ldexpf(double)            __builtin_ldexp      llvm.ldexp     v_ldexp_f64
+//   frexpf(double)            __builtin_frexp      llvm.frexp     v_frexp_mant_f64,
+//                                                                 v_frexp_exp_i32_f64
 //   approximate::log2f(float) __builtin_amdgcn_logf  llvm.amdgcn.log.f32  v_log_f32
 //   approximate::exp2f(float) __builtin_amdgcn_exp2f llvm.amdgcn.exp2.f32 v_exp_f32
 //
-// fma and trunc are exact IEEE operations; any correct lowering gives the same
-// bits. The approximate f32 log2/exp2 (only f64_math.H's cbrt uses them, for
-// its seed) are the uncertain part: OCML's cbrtD.cl uses
+// fma, trunc, roundeven and ldexp are exact IEEE operations and frexp is an
+// exact decomposition; any correct lowering gives the same bits. These are
+// also the builtins OCML itself calls for BUILTIN_FMA/RINT/FLDEXP/FREXP_*.
+// The approximate f32 log2/exp2 (only f64_math.H's cbrt uses them, for its
+// seed) are the uncertain part: OCML's cbrtD.cl uses
 // BUILTIN_AMDGPU_LOG2_F32/BUILTIN_AMDGPU_EXP2_F32, i.e. the raw instructions,
 // which is what the default variant here emits. If Loom instead emits
 // llvm.log2.f32/llvm.exp2.f32 with the afn flag, the AMDGPU backend still
@@ -27,8 +33,8 @@
 //                llvm.log2.f32 / llvm.exp2.f32 lowering; NOT what OCML uses,
 //                for diagnosis only)
 //
-// The other operations the host shim provides (absf, copysignf, sqrtf,
-// floorf, roundevenf) are not used by these recipes; they are mapped to the
+// The other operations the host shim provides (sqrtf, floorf) are not used by
+// these recipes; they are mapped to the
 // corresponding llvm intrinsics for completeness (llvm.sqrt.f64 is the
 // correctly rounded lowering, v_sqrt_f64 plus refinement).
 //
@@ -57,6 +63,18 @@ __device__ inline double copysignf(double x, double y) { return __builtin_copysi
 __device__ inline double sqrtf(double x) { return __builtin_sqrt(x); }
 __device__ inline double floorf(double x) { return __builtin_floor(x); }
 __device__ inline double roundevenf(double x) { return __builtin_roundeven(x); }
+__device__ inline float roundevenf(float x) { return __builtin_roundevenf(x); }
+__device__ inline float absf(float x) { return __builtin_fabsf(x); }
+__device__ inline double ldexpf(double x, int n) { return __builtin_ldexp(x, n); }
+template <class Float> struct frexpf_result {
+    Float fraction;
+    int exponent;
+};
+__device__ inline frexpf_result<double> frexpf(double x) {
+    int e;
+    const double m = __builtin_frexp(x, &e);
+    return {m, e};
+}
 
 namespace approximate {
 __device__ inline float log2f(float x) {

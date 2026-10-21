@@ -11,7 +11,7 @@ inventory finds that is not covered here, and keep new probes in this kit.
 Public `ROCm/hrx-system` main `fa8eba4554` (2026-10-20), tools built with
 `scripts/build_loom_tools.sh` and `patches/trace-repair.patch` (a diagnostic
 only; `loom-import-cxx` md5 `427f8f72…`, `loom-compile` md5 `35d03eb7…`;
-md5s differ with the build environment, so record yours). All 116 probes run
+md5s differ with the build environment, so record yours). All 124 probes run
 in a few seconds. Rerun the kit whenever the pinned commit changes and update
 this table.
 
@@ -26,6 +26,13 @@ What changed since the previous pin (`fada6788a1`, 2026-10-20):
   `assume-cast-chain.patch` is gone.
 - f22 (an inner loop with three `break`s inside a multi-exit outer loop) now
   compiles; it failed TARGET/034 at `fada6788a1`.
+- hrx-system #2131 adds f64 frexp/ldexp: `loom::scalar::frexpf`/`ldexpf`
+  and `__builtin_frexp`/`__builtin_ldexp` lower to `v_frexp_mant_f64`,
+  `v_frexp_exp_i32_f64`, `v_ldexp_f64` (new m_f64_frexpf, m_f64_ldexpf,
+  m_f64_builtin_frexp_ldexp). There is still no raw f64 reciprocal
+  (m_f64_amdgcn_rcp; afn/arcp division is a full IEEE division,
+  m_f64_div_afn, m_f64_divide_reciprocal), and `__builtin_rint` doesn't
+  import (use `roundevenf`, m_f32_roundevenf).
 - f24/f25 (new) pin down early returns: a `return` in an `if` nested inside
   another `if` with code after both fails import; a single-level one imports.
 - Everything else is unchanged apart from a few VGPR counts (d02, f05, f16,
@@ -72,7 +79,9 @@ What these results decide:
 - **Math:** f64 exp, log, cbrt, pow, log10, tanh, sin, cos all fail and need
   OCML recipes (`assets/kernel/f64_math.H`: exp/log/cbrt;
   `f64_math_extra.H`: pow/log10/tanh; sin/cos not transcribed yet). sqrt, fma, floor,
-  trunc, rint and copysign are native.
+  trunc, rint (`roundevenf`), copysign, ldexp and frexp are native, so the
+  recipes call the same instructions as OCML; only OCML's fast reciprocal
+  (`v_rcp_f64` + Newton steps) is replaced by IEEE division.
 - **No contraction:** `a * b + c` compiles to `v_mul_f64` + `v_add_f64`.
 - **`constexpr RhsT d = rhs_data(rate)` fails** (f02): a constexpr local of
   record type is unsupported, though the constexpr function with a `switch`
@@ -171,16 +180,24 @@ What these results decide:
 | f25_single_level_conditional_return | f24 with the conditions merged into one `if` | ok | vgpr=8 scratch=0B |
 | l01_lambda_constexpr_for | lambdas | import-fail | error [LOWERING/059]: rvalue-reference parameters require consuming object identity |
 | l02_template_struct_unroll | template-struct recursion | ok | vgpr=30 scratch=0B |
+| m_f32_roundevenf | f32 `loom::scalar::roundevenf` (OCML `BUILTIN_RINT_F32`, cbrt) | ok | vgpr=2 scratch=0B \| v_rndne_f32:1 |
 | m_f64_absf | f64 fabs | ok | vgpr=4 scratch=0B |
+| m_f64_amdgcn_rcp | `__builtin_amdgcn_rcp` on f64 (OCML `MATH_FAST_RCP` seed) | import-fail | error [PARSE/036]: unknown builtin function '__builtin_amdgcn_rcp' |
+| m_f64_builtin_frexp_ldexp | `__builtin_frexp` with an `int*` out-parameter, then `__builtin_ldexp` (OCML spelling) | ok | vgpr=5 scratch=0B \| v_ldexp_f64:1 v_frexp_mant_f64:1 v_frexp_exp_i32_f64:1 |
+| m_f64_builtin_rint | `__builtin_rint` on f64 (OCML `BUILTIN_RINT_F64`) | import-fail | error [LOWERING/059]: call requires a concrete namespace-scope function declaration |
 | m_f64_cbrtf | f64 cbrt | compile-fail | error [TARGET/001]: has no target-low contract |
 | m_f64_copysignf | f64 copysign | ok | vgpr=6 scratch=0B |
 | m_f64_cosf | f64 cos | compile-fail | error [LOWERING/036]: legalize-math policy amdgpu-math rejected scalar.cosf for cosf in scalar lanes of f64 under math.element.f32 |
+| m_f64_div_afn | f64 `loom::scalar::approximate::divf` (afn) | ok | vgpr=14 scratch=0B \| v_fma_f64:5 v_div_scale_f64:2 v_rcp_f64:1 v_mul_f64:1 v_div_fmas_f64:1 v_div_fixup_f64:1 |
+| m_f64_divide_reciprocal | f64 `loom::divide_reciprocal` (arcp, hrx-system #2131) | ok | vgpr=14 scratch=0B \| v_fma_f64:3 v_div_scale_f64:2 v_rcp_f64:1 v_mul_f64:1 v_div_fmas_f64:1 v_div_fixup_f64:1 |
 | m_f64_expf | f64 exp | compile-fail | error [LOWERING/036]: legalize-math policy amdgpu-math rejected scalar.expf for expf in scalar lanes of f64 under math.element.f32 |
 | m_f64_floorf | f64 floor | ok | vgpr=4 scratch=0B \| v_floor_f64:1 |
 | m_f64_fmaf | f64 fma | ok | vgpr=8 scratch=0B \| v_fma_f64:1 |
+| m_f64_frexpf | f64 `loom::scalar::frexpf` (hrx-system #2131) | ok | vgpr=6 scratch=0B \| v_frexp_mant_f64:1 v_frexp_exp_i32_f64:1 |
+| m_f64_ldexpf | f64 `loom::scalar::ldexpf` (hrx-system #2131) | ok | vgpr=4 scratch=0B \| v_ldexp_f64:1 |
 | m_f64_log10f | f64 log10 | compile-fail | error [TARGET/001]: has no target-low contrac |
 | m_f64_logf | f64 log | compile-fail | error [LOWERING/036]: legalize-math policy amdgpu-math rejected scalar.logf for logf in scalar lanes of f64 under math.element.f32 |
-| m_f64_math_h_recipes | existing exp/log/cbrt recipes | ok | vgpr=56 scratch=0B \| v_add_f64:49 v_fma_f64:36 v_mul_f64:19 v_div_scale_f64:4 v_cmp_lt_f64:3 v_rcp_f64:2 |
+| m_f64_math_h_recipes | `f64_math.H` exp/log/cbrt recipes | ok | vgpr=50 scratch=0B \| v_add_f64:47 v_fma_f64:36 v_mul_f64:11 v_ldexp_f64:6 v_div_scale_f64:4 v_cmp_lt_f64:3 |
 | m_f64_powf | f64 pow (non-integer exponent) | compile-fail | error [LOWERING/036]: legalize-math policy amdgpu-math rejected scalar.powf for powf in scalar lanes of f64 under math.element.f32 |
 | m_f64_roundevenf | f64 rint (roundeven) | ok | vgpr=4 scratch=0B \| v_rndne_f64:1 |
 | m_f64_sinf | f64 sin | compile-fail | error [LOWERING/036]: legalize-math policy amdgpu-math rejected scalar.sinf for sinf in scalar lanes of f64 under math.element.f32 |

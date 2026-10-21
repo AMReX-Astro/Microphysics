@@ -7,19 +7,27 @@
 // ocml/src/expD_base.h, logD_base.h with ep.h, and cbrtD.cl at llvm-project
 // amd/device-libs d366fa84f3fd). They use f64 add/sub/mul/div, explicit fma,
 // f32 approximate log2/exp2, conversions, and integer and bitcast operations.
-// Loom has no f64 rint, ldexp, frexp, or fast reciprocal, so the transcription
-// substitutes:
-//   rint(v)      (v + 0x1.8p52) - 0x1.8p52, exact for |v| < 2^51.
-//   ldexp(v, n)  Multiplication by powers of two built from exponent bits,
-//                split so that only the final multiplication can round.
-//   frexp(v)     The exponent and mantissa fields, after scaling subnormals by
-//                2^54.
+// OCML's rint, ldexp and frexp builtins map to the Loom scalar operations that
+// lower to the same AMDGPU instructions (hrx-system #2131; probes
+// m_f64_frexpf, m_f64_ldexpf, m_f64_roundevenf, m_f32_roundevenf):
+//   BUILTIN_RINT_F64/F32     roundevenf   v_rndne_f64 / v_rndne_f32
+//   BUILTIN_FLDEXP_F64       ldexpf       v_ldexp_f64
+//   BUILTIN_FREXP_MANT_F64,
+//   BUILTIN_FREXP_EXP_F64    frexpf       v_frexp_mant_f64, v_frexp_exp_i32_f64
+// One substitution remains, because Loom exposes no raw v_rcp_f64 (its afn and
+// arcp divisions are full IEEE divisions; probes m_f64_div_afn,
+// m_f64_divide_reciprocal, m_f64_amdgcn_rcp):
 //   MATH_FAST_RCP and MATH_FAST_DIV
-//                IEEE f64 division.
+//                IEEE f64 division. OCML refines v_rcp_f64 with two fma
+//                Newton steps (and MATH_FAST_DIV one more fma correction),
+//                which matches the correctly rounded result except possibly
+//                in rare cases; ocml_gpu decides whether any input differs.
 // One operation per statement keeps OCML's evaluation order and prevents
 // contraction. Every conditional selects between values that are already
 // computed. Remove this file and bind math::exp/log/cbrt back to the scalar
-// operations once Loom lowers them for f64.
+// operations once Loom lowers them for f64. exp's (int)dn, as in OCML, relies
+// on the GPU's clamping f64-to-i32 conversion for |x| > 1024, where the final
+// selects discard the result.
 //
 // The algorithms and coefficients are adapted from ROCm-Device-Libs, which
 // carries the following license.
@@ -75,6 +83,29 @@ DEVICE double fma(double a, double b, double c) {
     return loom::scalar::fmaf(a, b, c);
 }
 
+// BUILTIN_RINT_F64 and BUILTIN_RINT_F32 (v_rndne_f64, v_rndne_f32).
+DEVICE double rint(double x) {
+    return loom::scalar::roundevenf(x);
+}
+DEVICE float rintf(float x) {
+    return loom::scalar::roundevenf(x);
+}
+
+// BUILTIN_FLDEXP_F64 (v_ldexp_f64).
+DEVICE double ldexp(double x, int n) {
+    return loom::scalar::ldexpf(x, n);
+}
+
+// BUILTIN_FREXP_MANT_F64 and BUILTIN_FREXP_EXP_F64 (v_frexp_mant_f64,
+// v_frexp_exp_i32_f64): mantissa in [0.5, 1) with the sign of x; zeros,
+// infinities and NaNs return x and exponent 0.
+DEVICE double frexp_mant(double x) {
+    return loom::scalar::frexpf(x).fraction;
+}
+DEVICE int frexp_exp(double x) {
+    return loom::scalar::frexpf(x).exponent;
+}
+
 // BUILTIN_AMDGPU_LOG2_F32 and BUILTIN_AMDGPU_EXP2_F32 (v_log_f32, v_exp_f32).
 DEVICE float amdgpu_log2(float x) {
     return loom::scalar::approximate::log2f(x);
@@ -85,15 +116,8 @@ DEVICE float amdgpu_exp2(float x) {
 
 // expD_base.h
 DEVICE double exp(double x) {
-    // dn = rint(x * log2(e)). The low 32 bits of the integer-valued shifted
-    // double encode (int)dn. This avoids a target-unsupported f64-to-i32
-    // conversion.
-    const double shift = 0x1.8p52;
     const double scaled_input = x * 0x1.71547652b82fep+0;
-    const double shifted = scaled_input + shift;
-    const double dn = shifted - shift;
-    const int n = (int)__builtin_bit_cast(u64, shifted);
-
+    const double dn = rint(scaled_input);
     const double negative_dn = -dn;
     const double t_hi = fma(negative_dn, 0x1.62e42fefa39efp-1, x);
     const double t = fma(negative_dn, 0x1.abc9e3b39803fp-56, t_hi);
@@ -110,25 +134,9 @@ DEVICE double exp(double x) {
     const double p1 = fma(t, p2, 1.0);
     const double p = fma(t, p1, 1.0);
 
-    // z = ldexp(p, n). Unclamped inputs give n in [-1551, 1477] and p in
-    // [0.7, 1.42]. Moving 1000 of the exponent into the second factor keeps
-    // the first product exact, so only the second product rounds, overflows,
-    // or becomes subnormal.
-    const bool scale_down = n < -1000;
-    const bool scale_up = n > 1000;
-    const int down_exponent = n + 1000;
-    const int up_exponent = n - 1000;
-    const int up_or_exact_exponent = scale_up ? up_exponent : n;
-    const int exact_exponent = scale_down ? down_exponent : up_or_exact_exponent;
-    const double up_or_unit_scale = scale_up ? 0x1p1000 : 1.0;
-    const double rounding_scale = scale_down ? 0x1p-1000 : up_or_unit_scale;
-    const int exact_biased_exponent = exact_exponent + 1023;
-    const u64 exact_scale_bits = (u64)exact_biased_exponent << 52;
-    const double exact_scale = __builtin_bit_cast(double, exact_scale_bits);
-    const double exact_product = p * exact_scale;
-    const double z = exact_product * rounding_scale;
+    const int n = (int)dn;
+    const double z = ldexp(p, n);
 
-    // NaN inputs propagate through the arithmetic above.
     const double infinity = __builtin_bit_cast(double, 0x7ff0000000000000ULL);
     const bool overflows = x > 1024.0;
     const bool underflows = x < -1075.0;
@@ -138,29 +146,12 @@ DEVICE double exp(double x) {
 
 // logD_base.h, with the ep.h double-double helpers expanded in place.
 DEVICE double log(double a) {
-    const u64 bits = __builtin_bit_cast(u64, a);
-    const u64 magnitude = bits & 0x7fffffffffffffffULL;
-
-    // m = frexp_mant(a) in [0.5, 1) and its exponent. Signed, zero, and
-    // non-finite inputs produce unused values that the selects below replace.
-    const bool subnormal = magnitude < 0x0010000000000000ULL;
-    const double scaled_subnormal = a * 0x1p54;
-    const double normalized_input = subnormal ? scaled_subnormal : a;
-    const u64 normalized_bits = __builtin_bit_cast(u64, normalized_input);
-    const u64 shifted_exponent = normalized_bits >> 52;
-    const u64 exponent_bits = shifted_exponent & 2047;
-    const int biased_exponent = (int)exponent_bits;
-    const int exponent_offset = subnormal ? 1076 : 1022;
-    const int frexp_exponent = biased_exponent - exponent_offset;
-    const u64 mantissa_bits = normalized_bits & 0x000fffffffffffffULL;
-    const u64 half_mantissa_bits = mantissa_bits | 0x3fe0000000000000ULL;
-    const double frexp_mantissa = __builtin_bit_cast(double, half_mantissa_bits);
-
-    // b = m < 2/3; m = ldexp(m, b); e = frexp_exp(a) - b.
+    // m = frexp_mant(a); b = m < 2/3; m = ldexp(m, b); e = frexp_exp(a) - b.
+    const double frexp_mantissa = frexp_mant(a);
     const bool below_two_thirds = frexp_mantissa < 0x1.5555555555555p-1;
-    const double doubled_mantissa = frexp_mantissa * 2.0;
-    const double m = below_two_thirds ? doubled_mantissa : frexp_mantissa;
     const int b = below_two_thirds ? 1 : 0;
+    const double m = ldexp(frexp_mantissa, b);
+    const int frexp_exponent = frexp_exp(a);
     const int e = frexp_exponent - b;
 
     // x = div(m - 1.0, fadd(1.0, m))
@@ -168,6 +159,7 @@ DEVICE double log(double a) {
     const double denominator_hi = 1.0 + m;
     const double denominator_hi_minus_one = denominator_hi - 1.0;
     const double denominator_lo = m - denominator_hi_minus_one;
+    // RCP (MATH_FAST_RCP)
     const double reciprocal = 1.0 / denominator_hi;
     const double q_hi = numerator * reciprocal;
     const double product_hi = q_hi * denominator_hi;
@@ -197,8 +189,8 @@ DEVICE double log(double a) {
     const double p = fma(s, p1, 0x1.5555555555780p-1);
 
     // r = fadd(ldx(x, 1), s * x.hi * p)
-    const double twice_x_hi = x_hi * 2.0;
-    const double twice_x_lo = x_lo * 2.0;
+    const double twice_x_hi = ldexp(x_hi, 1);
+    const double twice_x_lo = ldexp(x_lo, 1);
     const double s_x_hi = s * x_hi;
     const double tail = s_x_hi * p;
     const double sum_hi = twice_x_hi + tail;
@@ -240,57 +232,31 @@ DEVICE double log(double a) {
     const double total_lo = total_lo_lo + low_error;
     const double result = total_hi + total_lo;
 
-    // OCML's NaN result comes from propagation through frexp. Setting the
-    // quiet bit produces the same value without it.
+    // NaN inputs propagate through frexp and the arithmetic above.
+    const u64 bits = __builtin_bit_cast(u64, a);
+    const u64 magnitude = bits & 0x7fffffffffffffffULL;
     const bool is_infinite = magnitude == 0x7ff0000000000000ULL;
-    const bool is_nan = magnitude > 0x7ff0000000000000ULL;
     const bool negative = a < 0.0;
     const bool is_zero = a == 0.0;
     const double negative_infinity =
         __builtin_bit_cast(double, 0xfff0000000000000ULL);
     const double canonical_nan =
         __builtin_bit_cast(double, 0x7ff8000000000000ULL);
-    const double quiet_nan =
-        __builtin_bit_cast(double, bits | 0x0008000000000000ULL);
     const double with_infinity = is_infinite ? a : result;
     const double with_negative = negative ? canonical_nan : with_infinity;
-    const double with_zero = is_zero ? negative_infinity : with_negative;
-    return is_nan ? quiet_nan : with_zero;
+    return is_zero ? negative_infinity : with_negative;
 }
 
 // cbrtD.cl
 DEVICE double cbrt(double x) {
-    const u64 bits = __builtin_bit_cast(u64, x);
-    const u64 magnitude = bits & 0x7fffffffffffffffULL;
-    const double a = __builtin_bit_cast(double, magnitude);
-
-    // e3 = frexp_exp(a)
-    const bool subnormal = magnitude < 0x0010000000000000ULL;
-    const double scaled_subnormal = a * 0x1p54;
-    const double normalized_value = subnormal ? scaled_subnormal : a;
-    const u64 normalized = __builtin_bit_cast(u64, normalized_value);
-    const u64 exponent_bits = normalized >> 52;
-    const int biased_exponent = (int)exponent_bits;
-    const int exponent_offset = subnormal ? 1076 : 1022;
-    const int e3 = biased_exponent - exponent_offset;
-
-    // e = rint(e3 / 3). e3 / 3 is never a tie, so this is
-    // floor((e3 + 1) / 3). Adding 3 * 359 keeps the dividend in [2, 2102],
-    // where (n * 43691) >> 17 is exactly floor(n / 3).
-    const int biased_dividend = e3 + 1078;
-    const int reciprocal_product = biased_dividend * 43691;
-    const int biased_quotient = reciprocal_product >> 17;
-    const int e = biased_quotient - 359;
-
-    // a = ldexp(a, -3 * e): the frexp mantissa times 2^(e3 - 3 * e), where
-    // e3 - 3 * e is -1, 0, or 1.
-    const int three_e = 3 * e;
-    const int reduced_exponent = e3 - three_e;
-    const int reduced_biased_exponent = reduced_exponent + 1022;
-    const u64 reduced_exponent_bits = (u64)reduced_biased_exponent << 52;
-    const u64 mantissa_bits = normalized & 0x000fffffffffffffULL;
-    const u64 reduced_bits = mantissa_bits | reduced_exponent_bits;
-    const double reduced = __builtin_bit_cast(double, reduced_bits);
+    const double a = loom::scalar::absf(x);
+    const int e3 = frexp_exp(a);
+    const float e3_f32 = (float)e3;
+    const float third_e3 = 0x1.555556p-2f * e3_f32;
+    const float rounded_third_e3 = rintf(third_e3);
+    const int e = (int)rounded_third_e3;
+    const int negative_three_e = -3 * e;
+    const double reduced = ldexp(a, negative_three_e);
 
     const float reduced_f32 = (float)reduced;
     const float log2_reduced = amdgpu_log2(reduced_f32);
@@ -302,26 +268,19 @@ DEVICE double cbrt(double x) {
     const double residual = fma(negative_c, c2, reduced);
     const double twice_c = c + c;
     const double denominator = fma(twice_c, c2, reduced);
+    // MATH_FAST_DIV
     const double correction = residual / denominator;
     const double root = fma(c, correction, c);
-
-    // c = ldexp(c, e). e is in [-358, 341], so 2^e is normal and the product
-    // is exact.
-    const int scale_exponent = e + 1023;
-    const u64 scale_bits = (u64)scale_exponent << 52;
-    const double scale = __builtin_bit_cast(double, scale_bits);
-    const double scaled_root = root * scale;
+    const double scaled_root = ldexp(root, e);
 
     // Zeros, infinities, and NaNs return x unchanged.
-    const bool is_nonzero = magnitude != 0;
+    const u64 bits = __builtin_bit_cast(u64, x);
+    const u64 magnitude = bits & 0x7fffffffffffffffULL;
+    const bool is_nonzero = x != 0.0;
     const bool is_finite = magnitude < 0x7ff0000000000000ULL;
     const bool is_regular = is_nonzero ? is_finite : is_nonzero;
     const double unsigned_result = is_regular ? scaled_root : x;
-    const u64 unsigned_bits = __builtin_bit_cast(u64, unsigned_result);
-    const u64 result_magnitude = unsigned_bits & 0x7fffffffffffffffULL;
-    const u64 sign_bits = bits & 0x8000000000000000ULL;
-    const u64 result_bits = result_magnitude | sign_bits;
-    return __builtin_bit_cast(double, result_bits);
+    return loom::scalar::copysignf(unsigned_result, x);
 }
 } // namespace f64_math
 } // namespace chemistry

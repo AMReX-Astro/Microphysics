@@ -195,7 +195,7 @@ Loom's C++ importer changes weekly (e.g. #1993 added non-escaping value
 references after the campaigns had rewritten every reference away). Do not
 trust any list of "unsupported" constructs, including the one in
 `references/loom-frontend-rules.md`, until you have re-probed it at the
-commit you are using. Copy the skill's `probes/` kit (116 one-construct
+commit you are using. Copy the skill's `probes/` kit (124 one-construct
 probes with root `probe::k`, and `probe.sh`, which runs them all with one
 frozen tool set) into the port's agent-notes directory, add probes for
 anything the Phase 2 inventory found that the kit doesn't cover, and run it

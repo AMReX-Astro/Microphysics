@@ -54,7 +54,7 @@ if hipcc "${flags[@]}" --offload-device-only -S "$here/ocml_gpu_check.hip" -o "$
    hipcc "${flags[@]}" --cuda-device-only -S "$here/ocml_gpu_check.hip" -o "$asm" 2>/dev/null; then
     echo "device asm: $asm"
     for ins in v_log_f32 v_exp_f32 v_rcp_f64 v_div_scale_f64 v_trunc_f64 v_rndne_f64 \
-               v_ldexp_f64 'swappc'; do
+               v_ldexp_f64 v_frexp_mant_f64 v_frexp_exp_i32_f64 'swappc'; do
         printf '  %-16s %s\n' "$ins" "$(grep -c "$ins" "$asm" || true)"
     done
 else

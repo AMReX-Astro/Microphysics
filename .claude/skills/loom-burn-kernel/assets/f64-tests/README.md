@@ -44,7 +44,10 @@ the promotion to `pow(double, int)`), which calls
 
 - **`MATH_FAST_RCP`** (`ep.h` `div`, `rcp`, `fdiv` in `epln`, `log10`, `tanh`):
   OCML refines the hardware `v_rcp_f64` with two fma Newton steps. The
-  recipes use IEEE division, as `f64_math.H` does. Two Newton steps from
+  recipes use IEEE division, as `f64_math.H` does: Loom exposes no raw
+  `v_rcp_f64` (probes m_f64_div_afn, m_f64_divide_reciprocal,
+  m_f64_amdgcn_rcp). This is the only substitution left; rint, ldexp and
+  frexp use the same native instructions as OCML (hrx-system #2131). Two Newton steps from
   `v_rcp_f64` give the correctly rounded reciprocal in essentially every case;
   the GPU bit check (`ocml_gpu/`) found no difference on gfx90a.
 - No f32 approximate instructions (`v_log_f32`, `v_exp_f32`) are used by
