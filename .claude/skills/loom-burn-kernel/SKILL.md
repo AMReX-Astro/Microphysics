@@ -470,6 +470,7 @@ Check the time with `date` before writing any timestamp.
 - `references/microphysics-translation.md` — inventory limits, burn_t, runtime params and unported paths, tables, generated network data, autodiff, math, NSE.
 - `references/test-react-integration.md` — layout, kernel signature, host launcher, native validation, build/run and import/compile commands, comparison and NaN rule.
 - `references/performance.md` — measurement rules, kernel-side levers, FMA experiment.
+- `references/seven-dwarfs.md` — seven verified test_react configurations (network, integrator, screening, neutrinos) for exercising Loom, why each was chosen, and how to check stiffness before using RKC.
 - `probes/README.md` — Phase 1 probe kit (`probe.sh`, `src/`) and results at `fa8eba4554`.
 
 ## Scripts
