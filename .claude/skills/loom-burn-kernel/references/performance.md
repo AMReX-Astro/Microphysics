@@ -23,8 +23,8 @@ Since `fa8eba4554` (spill-storage reuse across disjoint lifetimes, hrx-system
 | `fa8eba4554` | same, namespace-scope `constexpr` `aion`/`zion`/`aion_inv` instead of local copies (shipped modules) | 72,536 | compiles, 1272 s |
 
 The production root (`burn_zones`, 4096 zones) of the shipped modules needs
-70,952 B, compiles in 1546 s, and runs bit-exact against the stock HIP
-reference (2026-10-21).
+72,232 B (70,952 B before the native-exponent recipes), compiles in about
+1400-1550 s, and runs bit-exact against the stock HIP reference (2026-10-21).
 
 Most of the earlier excess was spill storage that Loom never reused
 (hrx-system #2052). triple_alpha_plus_cago went from 78,952 B (`fada6788a1`)
@@ -32,6 +32,57 @@ to 47,428 B with the same modules and 43,140 B with the shipped ones. On an
 older pin, or a bigger network, check `.private_segment_fixed_size` against
 the limit before any GPU run, and validate the pin with a smaller network
 first if the big one doesn't fit.
+
+## Baseline timing: Loom vs hipcc at `fa8eba4554` (2026-10-21)
+
+The first Loom full-burn timings, on moth's MI210 (gfx90a). They show where a
+port starts before any performance work.
+
+Setup: the standalone reproducer (`assets/standalone/`) burns a test_react
+case of 4096 zones (16^3, one box) in one kernel launch, timed with HIP
+events around the launch only. The cases hold stock HIP test_react inputs
+and references, and every build compared below is bit-exact against them.
+Each build ran in its own process with 4 burns (the first dropped as
+warm-up), pinned to the GPU's NUMA node (`taskset -c 24-47`), over 7 rounds
+with the order alternated each round. Ratios are per round, then the median.
+`amd-smi` telemetry: 1700 MHz peak clock, unthrottled, under 72 °C.
+
+Median ms per burn, current shipped source (native frexp/ldexp/rint recipes):
+
+| Build | triple_alpha_plus_cago | aprox13 |
+|---|---|---|
+| hipcc, OCML | 168 | 642 |
+| hipcc, the f64 recipes Loom uses | 173 | 646 |
+| Loom `burn_zones` | 1278 | 4827 |
+| **Loom / hipcc, same source and recipes** | **7.36×** (7.12–7.45) | **7.48×** (7.33–7.57) |
+
+- A/A noise (hipcc OCML run twice per round): median deviation 1.9%
+  (triple_alpha_plus_cago) and 0.7% (aprox13), so the bar for a kept change
+  is about 1.04 and 1.02.
+- Recipes vs OCML in hipcc: +2.8% and +0.8% (rounds range from -1% to +7%).
+  Before the native-exponent recipes it was +7.4% for both networks.
+- The native-exponent recipes made the Loom burn 6.9% (triple_alpha_plus_cago)
+  and 7.6% (aprox13) faster than the bit-emulated ones, and hipcc with the
+  recipes 4.9% and 5.5% faster; every round agreed.
+- Likely cause of the gap: register spills. Not profiled yet.
+
+  | | hipcc registers / scratch per lane | Loom registers / scratch per lane |
+  |---|---|---|
+  | triple_alpha_plus_cago | 408 / 2,400 B | 256 / 42,520 B |
+  | aprox13 | 492 / 6,012 B | 256 / 72,232 B |
+
+  hipcc uses the AGPRs as extra storage (the 408/492 above include them) and
+  spills nothing. Loom uses no AGPRs, caps at 256 VGPRs and moves the rest to
+  scratch.
+- Low occupancy: 4096 zones are 32 workgroups of 128 lanes on 104 CUs, and
+  board power stayed at 67-78 W. Time larger zone counts before trusting the
+  ratio at production size.
+
+To repeat it, copy the standalone bundle and a Loom `burn_zones` code object
+compiled for the case's zone count (`--loom-blocks`), then time the
+`burn_standalone_ocml`, `burn_standalone_recipes` and
+`burn_standalone_ocml --no-hip --hsaco burn.hsaco` runs in interleaved
+processes, following the measurement rules below.
 
 ## Measurement rules
 
