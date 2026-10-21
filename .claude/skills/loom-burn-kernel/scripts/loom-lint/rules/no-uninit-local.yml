@@ -1,0 +1,14 @@
+id: no-uninit-local
+language: cpp
+severity: error
+message: Struct and pointer locals require initializers. Write `T x{};`. Uninitialized scalar locals (`double x;`, `bool b;`) import since hrx-system #2105.
+rule:
+  kind: declaration
+  inside: { kind: compound_statement }
+  has: { field: declarator, kind: identifier }   # uninitialized local arrays do import
+  not:
+    any:
+      - { has: { field: type, kind: primitive_type } }          # double, int, bool
+      - { has: { field: type, kind: sized_type_specifier } }    # unsigned int, long long
+      - { has: { field: type, regex: '^(amrex::)?Real$' } }     # scalar typedef
+      - { matches: host-branch }

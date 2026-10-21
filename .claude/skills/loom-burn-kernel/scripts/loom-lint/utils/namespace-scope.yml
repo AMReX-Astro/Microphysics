@@ -1,0 +1,9 @@
+id: namespace-scope
+language: cpp
+rule:
+  all:
+    - inside:
+        any: [{ kind: translation_unit }, { kind: declaration_list },
+              { kind: preproc_if }, { kind: preproc_else }, { kind: preproc_ifdef }]
+    - not: { inside: { kind: function_definition, stopBy: end } }
+    - not: { has: { field: declarator, kind: function_declarator } }

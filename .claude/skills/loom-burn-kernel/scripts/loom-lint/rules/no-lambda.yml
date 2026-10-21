@@ -1,0 +1,5 @@
+id: no-lambda
+language: cpp
+severity: error
+message: Lambdas do not import. Use an indexed loop, or template-struct recursion for compile-time unrolling.
+rule: { kind: lambda_expression, not: { matches: host-branch } }

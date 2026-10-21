@@ -1,0 +1,10 @@
+# ast-grep lint for translated Loom kernel sources (see ../../references/loom-frontend-rules.md).
+#   ast-grep scan -c <skill>/scripts/loom-lint/sgconfig.yml <kernel files...>
+# Syntax only: it cannot see types or the preprocessor's choices. Code in the
+# #else branch of `#if defined(__loom__)` / `#ifdef __loom__` (the native host
+# fallback) is skipped. A clean lint does not mean Loom imports the file; it
+# catches the known failures before spending a remote import on them.
+ruleDirs: [rules]
+utilDirs: [utils]
+languageGlobs:
+  cpp: ['*.h', '*.H', '*.inc', '*.hpp', '*.cpp']
