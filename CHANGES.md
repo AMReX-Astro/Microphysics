@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+  * unit tests
+
+    * initialize primordial chemistry with physical D/H, partial chemical
+      steady-state trace abundances, and tolerances that resolve deuterium
+
 ## 26.10
 
   * networks

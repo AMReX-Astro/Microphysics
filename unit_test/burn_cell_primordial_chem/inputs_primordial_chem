@@ -10,21 +10,25 @@ unit_test.nsteps = 1000
 unit_test.tmax = 7.e20
 # initial temperature
 unit_test.temperature = 1e2
-# initial number densities
-unit_test.primary_species_1 = 1e-4
-unit_test.primary_species_2 = 1e-4
-unit_test.primary_species_3 = 1e0
-unit_test.primary_species_4 = 1e-40
-unit_test.primary_species_5 = 1e-40
-unit_test.primary_species_6 = 1e-40
-unit_test.primary_species_7 = 1e-40
-unit_test.primary_species_8 = 1e-40
-unit_test.primary_species_9 = 1e-6
-unit_test.primary_species_10 = 1e-40
-unit_test.primary_species_11 = 1e-40
-unit_test.primary_species_12 = 1e-40
-unit_test.primary_species_13 = 1e-40
-unit_test.primary_species_14 = 0.0775e0
+# Initial number densities: partial chemical steady state at 100 K.
+# Keep H+ = 1e-4 and H2 = 1e-6; balance H-, H2+, D+, D-, HD+, HD.
+# Preserve H nuclei = 1.000102, He = 0.0775 cm^-3 and charge neutrality.
+# Total D/H = 2.527e-5 (Cooke et al. 2018, arXiv:1710.11129).
+# Helium ions start at the numerical floor; this is not full chemical equilibrium.
+unit_test.primary_species_1 = 1.00001633666901144e-04  # E
+unit_test.primary_species_2 = 1.00000000000000005e-04  # Hp
+unit_test.primary_species_3 = 9.99999997302731147e-01  # H
+unit_test.primary_species_4 = 2.22387334522172759e-12  # Hm
+unit_test.primary_species_5 = 1.63587717321169866e-09  # Dp
+unit_test.primary_species_6 = 2.52682466448420312e-05  # D
+unit_test.primary_species_7 = 1.36862152378319083e-14  # H2p
+unit_test.primary_species_8 = 8.56281988960556757e-17  # Dm
+unit_test.primary_species_9 = 9.99999999999999955e-07  # H2
+unit_test.primary_species_10 = 6.97440265217393542e-19  # HDp
+unit_test.primary_species_11 = 2.69501789843036173e-09  # HD
+unit_test.primary_species_12 = 1.00000000000000002e-100  # HEpp
+unit_test.primary_species_13 = 1.00000000000000002e-100  # HEp
+unit_test.primary_species_14 = 7.74999999999999994e-02  # HE
 
 # integrator runtime parameters
 # are we using primordial chemistry? then we use number densities
@@ -46,9 +50,11 @@ integrator.X_reject_buffer = 1e100
 integrator.jacobian = 1
 # do you want to normalize abundances within VODE? (you don't!)
 integrator.renormalize_abundances = 0
-# tolerances
-integrator.rtol_spec = 1.0e-4
-integrator.atol_spec = 1.0e-4
+# Resolve the trace species; atol_spec is a number density in cm^-3.
+integrator.rtol_spec = 1.0e-6
+integrator.atol_spec = 1.0e-20
+integrator.rtol_enuc = 1.0e-8
+integrator.atol_enuc = 1.0e-6
 
 #assumed redshift for Pop III star formation
 network.redshift = 30.0

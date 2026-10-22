@@ -127,6 +127,12 @@ One-zone tests
 * ``burn_cell_primordial_chem`` :
 
   similar to ``burn_cell`` except specific for the primordial chemistry network.
+  The supplied collapse inputs use total nuclei D/H = 2.527e-5 and a partial
+  chemical steady state at 100 K for H-, H2+, D+, D-, HD+ and HD, while
+  retaining H+ = 1e-4 and H2 = 1e-6 cm^-3. Neutral reservoirs and electrons
+  enforce elemental totals and charge neutrality; helium ions start at the
+  numerical floor. See the test's README for the initialization assumptions
+  and tolerances.
 
 * ``burn_cell_sdc`` :
 

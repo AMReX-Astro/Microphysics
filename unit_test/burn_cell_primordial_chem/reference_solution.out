@@ -1,20 +1,21 @@
-AMReX (23.05-10-g1e2154f614e5) initialized
+Initializing AMReX (26.06)...
+AMReX (26.06) initialized
 starting the single zone burn...
 Maximum Time (s): 7e+20
 State Temperature (K): 100
-Number Density input (E): 0.0001
+Number Density input (E): 0.0001000016337
 Number Density input (Hp): 0.0001
-Number Density input (H): 1
-Number Density input (Hm): 1e-40
-Number Density input (Dp): 1e-40
-Number Density input (D): 1e-40
-Number Density input (H2p): 1e-40
-Number Density input (Dm): 1e-40
+Number Density input (H): 0.9999999973
+Number Density input (Hm): 2.223873345e-12
+Number Density input (Dp): 1.635877173e-09
+Number Density input (D): 2.526824664e-05
+Number Density input (H2p): 1.368621524e-14
+Number Density input (Dm): 8.56281989e-17
 Number Density input (H2): 1e-06
-Number Density input (HDp): 1e-40
-Number Density input (HD): 1e-40
-Number Density input (HEpp): 1e-40
-Number Density input (HEp): 1e-40
+Number Density input (HDp): 6.974402652e-19
+Number Density input (HD): 2.695017898e-09
+Number Density input (HEpp): 1e-100
+Number Density input (HEp): 1e-100
 Number Density input (HE): 0.0775
 step 0 done
 step 1 done
@@ -453,25 +454,25 @@ step 432 done
 successful? 1
 ------------------------------------
 T initial = 100
-T final =   3032.996043
-Eint initial = 1.025450408e+10
-Eint final =   2.721844122e+11
-rho initial = 2.192338259e-24
-rho final =   1.836285633e-06
+T final =   3023.763812
+Eint initial = 1.025433862e+10
+Eint final =   2.711247156e+11
+rho initial = 2.192422822e-24
+rho final =   1.836356462e-06
 ------------------------------------
 New number densities: 
-19919.8081
-19905.40886
-1.61922269e+17
-1.781134345
-1e-100
-1.44999796
-16.18037372
-1.48979141e-17
-3.378777297e+17
-1e-100
-13.87559962
-2.615599603e-60
-6.366378203e-12
-6.491340305e+16
-AMReX (23.05-10-g1e2154f614e5) finalized
+19721.95167
+19707.15708
+1.579638138e+17
+1.746402909
+0.3764835649
+1.949626614e+12
+16.16452818
+2.013102852e-05
+3.398473484e+17
+3.149221921e-08
+1.921848962e+13
+9.558262061e-79
+5.699869737e-12
+6.49134029e+16
+AMReX (26.06) finalized
