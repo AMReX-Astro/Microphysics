@@ -1,0 +1,1 @@
+pynucastro version: 3.1.0-49-g00ada78f7
