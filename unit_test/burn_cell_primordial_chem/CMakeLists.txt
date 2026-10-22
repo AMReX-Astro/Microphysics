@@ -15,3 +15,20 @@ if(AMReX_GPU_BACKEND MATCHES "CUDA")
 endif(AMReX_GPU_BACKEND MATCHES "CUDA")
 
 add_test(NAME burn_cell_primordial_chem COMMAND test_burn_cell_primordial_chem inputs_primordial_chem WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(AMReX_GPU_BACKEND MATCHES "CUDA" AND MICROPHYSICS_INTEGRATOR STREQUAL "Rosenbrock")
+    enable_language(CUDA)
+    add_executable(test_primordial_rodas5p_hopper
+                   hopper_compare.cpp
+                   ${CMAKE_CURRENT_SOURCE_DIR}/../../integration/Rosenbrock/primordial_rodas5p_hopper.cu
+                   ${primordial_chem_sources})
+    target_include_directories(test_primordial_rodas5p_hopper PUBLIC
+                               ${CMAKE_CURRENT_SOURCE_DIR}
+                               ${CMAKE_CURRENT_SOURCE_DIR}/../
+                               ${CMAKE_BINARY_DIR})
+    target_compile_definitions(test_primordial_rodas5p_hopper PUBLIC NAUX_NET STRANG)
+    setup_target_for_cuda_compilation(test_primordial_rodas5p_hopper)
+    add_test(NAME primordial_rodas5p_hopper
+             COMMAND test_primordial_rodas5p_hopper inputs_primordial_chem integrator.rosenbrock_tableau=0
+             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+endif()
