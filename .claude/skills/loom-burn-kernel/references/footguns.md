@@ -156,11 +156,8 @@ for the scripts that run there); the defaults are for a local GPU box.
 - SUBRANGE/026 at compile time means a missing bounds assumption:
   `MPL_ASSUME` (`loom-frontend-rules.md`, SUBRANGE row). If the assumption
   is there and the bound in the message is the whole `short` range
-  ("may reach 262152"), the tools predate hrx-system #2135 (the #2074
-  regression, issue #2122, probe f20: `fada6788a1` needed a local patch).
-- Nested ternaries deeper than 32 hit the verifier's region-nesting limit
-  before hrx-system #2079; since `31bf125137` 40 levels compile (probe f11), so
-  no outlining is needed.
+  ("may reach 262152"), the tools predate hrx-system #2135 (issue #2122,
+  probe f20).
 - A `return` inside an `if` nested in another `if`, with code after both
   (stock `actual_log_screen`'s Debye-Hückel skip), fails import:
   "conditional returns require at most one fallthrough arm" (probe f24; a
@@ -187,11 +184,7 @@ for the scripts that run there); the defaults are for a local GPU box.
   924k values growing to 1.33M). The spill-free frame build (`frame.c`) then
   loops schedule → allocate → rematerialize/split/materialize spills, each
   round a whole-function schedule + allocation; the round budget is the value
-  count, so it never times out on its own. Before hrx-system #2107 the
-  allocator's relocation rescanned every assignment for every candidate base
-  (`try_relocate_independent_assignment`, ~O(N²·bases)) and a full burn did
-  not finish without the local `alloc-relocation-overlap.patch`; #2107 fixed
-  it upstream and the patch was dropped at `fada6788a1`. A/B tool sets with
+  count, so it never times out on its own. A/B tool sets with
   `scripts/compare_loom_tools.sh`. Small module smokes take under 1 min.
 - **Watch the repair loop, don't guess.** A long compile has no output until it
   finishes. `patches/trace-repair.patch` adds `LOOM_TRACE_REPAIR=1`, which
@@ -203,19 +196,12 @@ for the scripts that run there); the defaults are for a local GPU box.
   every repair counter identical for this kernel.
 - **Check scratch against the hardware limit before any GPU run.** gfx90a
   allows at most 131,056 B of private segment per lane ((2^13 - 1) KiB per
-  wave64). hipcc refuses to link anything larger. Since hrx-system #2091
-  (in the pin since `fada6788a1`) `loom-compile` does too, at the very end of the
-  compile: AMDGPU/053 "requires N private bytes per workitem, but processor
-  'gfx90a' supports at most 131056". Older tools (`31bf125137` and before)
-  wrote the code object anyway, and the launch then failed with
-  `HSA_STATUS_ERROR_OUT_OF_RESOURCES` / "too many resources requested for
-  launch" even with GB of free memory (hrx-system #2052). The first full
-  aprox13 burn_zones build needed 185,864 B/lane: 122,752 B of it spill storage
-  in 19,011 slots, because Loom gives every spill plan its own reservation and
-  never reuses slots. With older tools read `.private_segment_fixed_size`
-  (`scripts/hsaco_stats.py`) right after the compile and stop if it is over
-  the limit. aprox13 + helmholtz + VODE was over it up to `fada6788a1` and
-  fits since `fa8eba4554` (72,536 B; `references/performance.md`).
+  wave64). hipcc refuses to link anything larger. `loom-compile` does too (hrx-system
+  #2091), at the very end of the compile: AMDGPU/053 "requires N private bytes
+  per workitem, but processor 'gfx90a' supports at most 131056". (Tools
+  without #2091 write the code object anyway and the launch fails with
+  `HSA_STATUS_ERROR_OUT_OF_RESOURCES`.) aprox13 + helmholtz + VODE fits at the
+  pin (about 72 KB).
 - **A smoke root's code object can't stand in for the production root.** The
   arguments, per-zone I/O and baked `workgroup_count` differ, so test_react
   can't launch it. Once the burn body compiles, start the production root

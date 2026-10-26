@@ -52,7 +52,7 @@ for f in "$port"/*.H; do
 done
 cp "$port/burn_kernel.cpp" "$out/"
 # driver, format, build, docs
-cp "$skill/assets/standalone/main.hip" "$skill/assets/standalone/loom_case_format.H" \
+cp "$skill/assets/standalone/main.hip" "$skill/assets/harness/loom_case_format.H" \
    "$skill/assets/standalone/Makefile" "$skill/assets/standalone/README.md" "$out/"
 cp "$skill/assets/f64-tests/ocml_gpu/device_shim/loomcxx/scalar.h" "$out/shim/loomcxx/"
 for c in "$@"; do

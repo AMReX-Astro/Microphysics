@@ -8,8 +8,7 @@ its CI benchmarks untouched. The skill ships it as `assets/harness/`
 
 ```bash
 git apply <skill>/assets/harness/test_react.patch
-cp <skill>/assets/harness/{loom_launch.H,loom_validate.H,loom_validate.cpp,loom_eos_params.H,loom_case.H} unit_test/test_react/
-cp <skill>/assets/standalone/loom_case_format.H unit_test/test_react/
+cp <skill>/assets/harness/{loom_launch.H,loom_validate.H,loom_validate.cpp,loom_eos_params.H,loom_case.H,loom_case_format.H} unit_test/test_react/
 cp <skill>/assets/harness/loom_params.H unit_test/test_react/   # then fill its PORT: lines
 ```
 
@@ -221,8 +220,8 @@ reserved for timing. The import takes seconds; a full burn's compile takes
 about 30 min and 8+ GB, so give it a 3600 s timeout (why, and how to watch
 it: `footguns.md`, "A full fused burn takes ~30 min"). (The kernel's
 includes are all `"..."` next to the source, so no `--I` is needed.)
-Historical measurement (moth, 2026-10-18) for aprox13 + helmholtz + VODE on gfx90a: 256 VGPR, 102 SGPR, 212,836 B scratch
-per lane, a 13.7 MB code object.
+At the pin, aprox13 + helmholtz + VODE on gfx90a uses 256 VGPR and about 72 KB of
+scratch per lane.
 
 Keep from every build: the `.loom` IR (gzip), the compile report (without
 `--compile-report-output` the JSON goes to stderr and makes the log ~84 MB;

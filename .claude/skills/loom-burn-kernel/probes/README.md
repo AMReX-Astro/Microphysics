@@ -15,29 +15,6 @@ md5s differ with the build environment, so record yours). All 124 probes run
 in a few seconds. Rerun the kit whenever the pinned commit changes and update
 this table.
 
-What changed since the previous pin (`fada6788a1`, 2026-10-20):
-- hrx-system #2158/#2163 import namespace-scope immutable objects as
-  read-only data: d01 (`aion[]`) went from import-fail to ok, and the new
-  d16-d20, d23 (inline, 2-D, array-of-aggregates, loop-indexed, unreachable
-  and `extern const` tables) are ok. `static constexpr` member arrays (d09)
-  and block-scope `static constexpr` arrays (d22, new) still fail, and so do
-  mutable globals, even unreachable ones (d03, d21 new).
-- hrx-system #2135 fixes #2122: f20 compiles with unpatched tools, so
-  `assume-cast-chain.patch` is gone.
-- f22 (an inner loop with three `break`s inside a multi-exit outer loop) now
-  compiles; it failed TARGET/034 at `fada6788a1`.
-- hrx-system #2131 adds f64 frexp/ldexp: `loom::scalar::frexpf`/`ldexpf`
-  and `__builtin_frexp`/`__builtin_ldexp` lower to `v_frexp_mant_f64`,
-  `v_frexp_exp_i32_f64`, `v_ldexp_f64` (new m_f64_frexpf, m_f64_ldexpf,
-  m_f64_builtin_frexp_ldexp). There is still no raw f64 reciprocal
-  (m_f64_amdgcn_rcp; afn/arcp division is a full IEEE division,
-  m_f64_div_afn, m_f64_divide_reciprocal), and `__builtin_rint` doesn't
-  import (use `roundevenf`, m_f32_roundevenf).
-- f24/f25 (new) pin down early returns: a `return` in an `if` nested inside
-  another `if` with code after both fails import; a single-level one imports.
-- Everything else is unchanged apart from a few VGPR counts (d02, f05, f16,
-  f21, o12, r16).
-
 ## Re-probe at upstream main `970d39ac1e` (2026-10-26; run 2026-10-27)
 
 Stock tools (`scripts/build_loom_tools.sh`, no patches; `loom-import-cxx` md5 `d17c52ef…`, `loom-compile` md5 `0a017359…`), gfx90a, all 124 probes; last column of the table below. The pin stays `fa8eba4554`:
@@ -82,8 +59,7 @@ What these results decide (at `fa8eba4554`):
 - **Operator overloading** (`operator*`, `operator+`, free or member) still
   fails (o03, o09): autodiff duals stay POD structs with free functions (o04,
   o05, `assets/kernel/dual.H`).
-- **Nested ternaries:** 40 deep compiles (f11); the old 32-level verifier
-  limit is gone.
+- **Nested ternaries:** 40 deep compiles (f11).
 - **Math:** f64 exp, log, cbrt, pow, log10, tanh, sin, cos all fail and need
   OCML recipes (`assets/kernel/f64_math.H`: exp/log/cbrt;
   `f64_math_extra.H`: pow/log10/tanh; sin/cos not transcribed yet). sqrt, fma, floor,
@@ -121,7 +97,7 @@ What these results decide (at `fa8eba4554`):
   without assumptions, but the same loop over `vs->y(i)` in the full VODE
   burn still fails SUBRANGE/026 at `fa8eba4554`, so VODE keeps those
   `MPL_ASSUME`s. An assumption on a local loaded from a `short` field holds
-  (f20; at `fada6788a1` it needed a local patch).
+  (f20).
 - **Loop exits:** `return` inside a loop still fails import (f03). Loops
   with several `break`s and a `continue` compile, alone (f21, the dvode step
   loop's shape) or nested (f22, the dvstep corrector shape), so they keep the

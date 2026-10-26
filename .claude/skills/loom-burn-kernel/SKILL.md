@@ -206,10 +206,10 @@ adds a diagnostic). Member functions, `operator()`
 accessors, `const` struct references, array reference parameters and deep
 ternaries import, so translations don't rewrite them, and the shipped modules
 use them (`Array1D`/`Array2D` accessors with the stock indices, `const&` for
-everything read-only, pointers only for structs a function writes). Since
-`31bf125137` uninitialized scalar and array locals and `for (;;)` import;
-since the previous pin (`fada6788a1`) namespace-scope `constexpr` tables
-(`aion[]`, rate tables) import and nested multi-exit loops compile. If you
+everything read-only, pointers only for structs a function writes).
+Uninitialized scalar and array locals, `for (;;)`, namespace-scope
+`constexpr` tables (`aion[]`, rate tables) and nested multi-exit loops work
+too. If you
 use `fa8eba4554` on gfx90a, cite the table; on another commit or target,
 rerun the kit and update it. Record the
 tool md5 and hrx-system commit in the agent note.

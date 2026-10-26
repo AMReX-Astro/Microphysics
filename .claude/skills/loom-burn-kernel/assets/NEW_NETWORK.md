@@ -25,7 +25,7 @@ minutes (parallel agents), followed by several rounds of Loom compile fixes. Mos
 | `loom_eos_params.H` (host `fill_eos_params`, `fill_eos_tables`) | as is | `harness/` |
 | `loom_params.H` (the other host fill_* functions) | template; fill the `PORT:` lines | `harness/` |
 | validators | network-neutral templates for dual (`harness/validate_dual.H`), EOS, rates, network, integrator and kernel; the only per-network part is `validators/validate_port.H` (parameter variants, rate branch temperatures, direct rate-function checks: fill the `PORT:` lines). `validate_network.H` also holds the `burn_t` layout `static_assert`s that `validate_integrator.H` relies on | `validators/`, `harness/` |
-| test_react wiring | `harness/test_react.patch` (GNUmakefile, Make.package, _parameters, main.cpp), plus `loom_launch.H`, `loom_validate.H/.cpp`, `loom_eos_params.H`, `loom_case.H` and `standalone/loom_case_format.H` as is | `harness/`, `standalone/` |
+| test_react wiring | `harness/test_react.patch` (GNUmakefile, Make.package, _parameters, main.cpp), plus `loom_launch.H`, `loom_validate.H/.cpp`, `loom_eos_params.H`, `loom_case.H` and `loom_case_format.H` as is | `harness/`, `standalone/` |
 | standalone HIP reproducer | `main.hip`, `Makefile`, `README.md` as is; bundled from the port by `scripts/make_standalone.sh` (no per-network part) | `standalone/` |
 | smoke kernels | templates | `smoke/` |
 
@@ -83,7 +83,7 @@ arguments.
    validation commands). Wire test_react if it isn't wired yet: from the repo
    root `git apply <skill>/assets/harness/test_react.patch`,
    and copy `harness/loom_launch.H`, `loom_validate.H`, `loom_validate.cpp`,
-   `loom_eos_params.H`, `loom_case.H` and `standalone/loom_case_format.H`
+   `loom_eos_params.H`, `loom_case.H` and `loom_case_format.H`
    into `unit_test/test_react/`. Every validate or
    Loom build then passes `LOOM_KERNEL_DIR=loom/<net>_vode` to make; the
    harness headers reach the kernel's `eos.H`, `burner.H` and
