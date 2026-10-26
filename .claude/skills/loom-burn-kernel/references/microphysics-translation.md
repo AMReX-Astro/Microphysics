@@ -223,9 +223,9 @@ This is the riskiest part of the translation:
   unordered comparisons (not minnum/maxnum).
 - Validate every recipe against MPFR/host libm over a sweep that covers the
   argument ranges the burn actually sees (record max ulp error), and bit for
-  bit against hipcc's OCML on the GPU (`assets/f64-tests/`, `ocml_gpu/`). The
-  shipped exp/log/cbrt/pow/log10/tanh recipes are bit-identical to OCML on
-  gfx90a (2026-10-18).
+  bit against hipcc's OCML on the GPU (the test harnesses are in
+  the `loom-burn-kernel-tools` follow-up). The shipped exp/log/cbrt/pow/log10/tanh recipes are
+  bit-identical to OCML on gfx90a.
 - **Calls with a constant argument** (e.g. `rate_c12ag`'s deboer17 branch:
   `exp(24.1)`, `exp(7.4)`). hipcc may fold them at compile time, correctly
   rounded, while the Loom kernel evaluates the OCML recipe at run time; the

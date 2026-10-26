@@ -1,9 +1,9 @@
 // Write a standalone case file (loom_case_format.H) from test_react: the
 // burn inputs exactly as the Loom launcher would pass them (BurnParams,
 // helmholtz tables, the initial state box) plus the stock Microphysics
-// result of the same burn. The standalone reproducer (the skill's
-// assets/standalone/main.hip, bundled by scripts/make_standalone.sh) reads
-// it and needs nothing else from Microphysics or AMReX.
+// result of the same burn. The standalone reproducer (in the
+// loom-burn-kernel-tools follow-up) reads it and needs nothing else from
+// Microphysics or AMReX.
 //
 // Runtime parameter: unit_test.loom_dump_case=<file> (empty = off). Built
 // whenever LOOM_KERNEL_DIR is set (USE_LOOM_VALIDATE=TRUE on the CPU, or

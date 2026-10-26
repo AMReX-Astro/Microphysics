@@ -1,6 +1,6 @@
 #!/bin/bash
 # Build a frozen loom-import-cxx + loom-compile pair from an hrx-system source
-# tree, optionally with local patches (see ../patches/README.md).
+# tree, optionally with local patches (none are required at the pin).
 #
 # Runs on the GPU host (locally, or there over one ssh connection), detached;
 # keep the backgrounded command on its own line, stdin from /dev/null:

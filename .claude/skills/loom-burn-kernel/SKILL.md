@@ -50,8 +50,7 @@ their logs.
    configuration, same GPU, same inputs, bit for bit.
 5. A hand-off note in `agent-notes/` (see Phase 8).
 
-Performance work comes after all of that and is optional
-(`references/performance.md`). A fast kernel that is not proven correct was
+Performance work comes after all of that and is optional (Phase 7). A fast kernel that is not proven correct was
 the single most expensive failure mode of the campaigns.
 
 ## Fixed policies (user decisions, 2026-10-18; don't ask about them)
@@ -66,8 +65,7 @@ the single most expensive failure mode of the campaigns.
   hipcc build of the kernel source) adds `XTRA_CXXFLAGS=-ffp-contract=off`.
   hipcc and GCC fuse multiply-adds by default, so without it the references
   don't compute what the source says and won't agree bit for bit. FMA may be
-  enabled only in Phase 7, as an explicit optional experiment
-  (`references/performance.md`, "FMA contraction").
+  enabled only in Phase 7, as an explicit optional experiment.
 - **Bit-exact is the target**, on the host and on the GPU. Fall back to
   "close to machine precision" only where reassociation makes bit-exact
   impossible, and only with the user's approval and per-zone evidence. Any
@@ -88,11 +86,10 @@ host see `references/footguns.md`). Tested end to end on 2026-10-18 for
 
 ```bash
 sudo apt install build-essential git python3 python3.12-venv patch cmake ninja-build \
-     g++-14 libstdc++-14-dev clang-20 clang-tools-20 llvm-20-dev libclang-20-dev \
-     libmpfr-dev libgmp-dev elfutils
+     g++-14 libstdc++-14-dev clang-20 clang-tools-20 llvm-20-dev libclang-20-dev
 sudo usermod -aG render,video "$(id -un)"     # GPU access (log in again); agent shells may lack $USER
 export ROCM_PATH=${ROCM_PATH:-/opt/rocm}
-export LLVM_BIN=/usr/lib/llvm-20/bin            # inventory.py, specialize.py, CXX=clang++
+export LLVM_BIN=/usr/lib/llvm-20/bin            # inventory.py, CXX=clang++
 export PATH=$ROCM_PATH/bin:$ROCM_PATH/llvm/bin:$LLVM_BIN:$PATH
 GFX=$(amdgpu-arch | head -1); echo "${GFX:-no GPU: set GFX=gfx90a (or your target) by hand}"
 export SKILL=$(realpath <skill>)                # absolute: the block below cd's away from the repo
@@ -104,12 +101,7 @@ git clone https://github.com/ROCm/hrx-system.git
 git -C hrx-system checkout fa8eba4554           # pinned compiler (Phase 1); not 1468c06034+ (#2337)
 (cd hrx-system && python3 dev.py cmake setup)   # .venv with cmake/ninja; see below if it exits 1
 SRC=$PWD/hrx-system OUT=$PWD/loom-tools/pinned TARGETS=$GFX \
-PATCHES=$SKILL/patches/trace-repair.patch \
   nohup setsid bash $SKILL/scripts/build_loom_tools.sh > tools-build.log 2>&1 < /dev/null &
-# optional, for specialize.py (not needed for small networks): C++ Insights, LLVM 20
-git clone https://github.com/andreasfertig/cppinsights.git && git -C cppinsights checkout v_20.1
-cmake -S cppinsights -B cppinsights/build -G Ninja -DCMAKE_CXX_COMPILER=$LLVM_BIN/clang++ \
-      -DINSIGHTS_LLVM_CONFIG=$LLVM_BIN/llvm-config && ninja -C cppinsights/build insights
 ```
 
 Notes from the end-to-end run:
@@ -118,9 +110,6 @@ Notes from the end-to-end run:
   Ubuntu has no uv, pipx or npm by default, hence the venv for ast-grep.
 - Ubuntu's `clang-20` installs `clang++` only under `$LLVM_BIN`, so keep it on
   `PATH` (`gen_network_data.py` runs `CXX=clang++`).
-- cppinsights `main` needs LLVM >= 21 and tag `v_17.0` does not work against
-  Ubuntu's LLVM 18 (link failure, then a crash on `main.cpp`); `v_20.1` with
-  LLVM 20 specialized all 99 functions. Its LLVM must be the `LLVM_BIN` one.
 - `dev.py cmake setup` may exit 1 in a semgrep step (`semgrep-core: unknown
   option '--disable-version-check'`); harmless if `hrx-system/.venv/bin/cmake`
   and `.venv/bin/ninja` exist (all three end-to-end runs). It is the
@@ -165,8 +154,8 @@ Ask the user for anything else not given; do not guess these:
 - GPU target: detect it (`amdgpu-arch`) and use it for both `AMD_ARCH` and
   `loom-compile --target`. `gfx90a` (MI210) is the proven target and
   `gfx942` (MI300X) was also used; anything else (e.g. wave32 RDNA) is
-  unproven, so tell the user, rerun the OCML GPU bit check
-  (`assets/f64-tests/ocml_gpu/`) and watch per-lane scratch (~213 KB for
+  unproven, so tell the user, rerun the OCML GPU bit check (in
+  the `loom-burn-kernel-tools` follow-up) and watch per-lane scratch (~213 KB for
   aprox13). CDNA1/gfx908 is out of scope.
 - Where the GPU is: this machine (default) or a remote host (then its ssh
   alias and base dir; `references/footguns.md`, "Remote host").
@@ -201,8 +190,7 @@ frozen tool set) into the port's agent-notes directory, add probes for
 anything the Phase 2 inventory found that the kit doesn't cover, and run it
 on the GPU host as its header describes. `probes/README.md` has the measured
 results at public hrx-system main `fa8eba4554` (2026-10-20, gfx90a), the
-commit to check out (no patch is required; `patches/trace-repair.patch` only
-adds a diagnostic). Member functions, `operator()`
+commit to check out (no patch is required). Member functions, `operator()`
 accessors, `const` struct references, array reference parameters and deep
 ternaries import, so translations don't rewrite them, and the shipped modules
 use them (`Array1D`/`Array2D` accessors with the stock indices, `const&` for
@@ -221,8 +209,7 @@ add, not `v_fma_f64`). Whatever math does not lower natively for f64 needs a
 source recipe (`references/microphysics-translation.md`, "Math").
 
 Build the frozen tools with `scripts/build_loom_tools.sh` (writes
-`tools.md5`); `patches/` lists the local patches for the pinned commit
-(none required at `fa8eba4554`).
+`tools.md5`); no local patch is required at `fa8eba4554`.
 
 ## Phase 2 — map the reachable code
 
@@ -268,33 +255,9 @@ else (another EOS, integrator, NSE, pynucastro networks) read
 `references/microphysics-translation.md` and
 `references/loom-frontend-rules.md` first.
 
-When C++ Insights is installed (Setup, optional), start each hand-translated
-function from its specialized form rather than the template source. Without
-it, work from the source plus `dual.H`'s guide and the differential
-validators: all three end-to-end runs did that for triple_alpha (2 rates)
-without trouble; for a large network (dozens of rates, deep templates),
-install Insights first. The specialized form comes from:
-
-```bash
-uv run --no-project <skill>/scripts/specialize.py \
-  --inv agent-notes/<NN>-loom-<network>-<integrator>/inventory
-```
-
-This runs C++ Insights (`insights`; Homebrew `cppinsights`, or built from
-source on Linux, see Setup) on `main.cpp`
-with the inventory's flags and writes `specialized/<function>.cpp` with every
-concrete instantiation of each reachable Microphysics function: templates,
-`if constexpr`, `auto`, literals and implicit conversions resolved, and
-operator calls spelled out. Two cautions:
-- `constexpr_for` loops come out fully unrolled (aprox13's `jac` is ~93k
-  lines). Take loop structure from the original source; use the specialized
-  form for types, branches and constants.
-- Call sites still hide types (`a.operator()(i, j)` doesn't say whether `a`
-  is a 1-based `Array2D`); read the declarations before changing any
-  indexing (keeping the accessors avoids index translation altogether).
-- Floating literals are printed through the host's `long double`, which is
-  80-bit on x86-64: take every constant's spelling from the original source,
-  never from the specialized output.
+Work from the source plus `dual.H`'s guide and the differential validators.
+For a large network (dozens of rates, deep templates), C++ Insights'
+specialized source helps (`specialize.py`, in the `loom-burn-kernel-tools` follow-up).
 
 Lint every translated file before any Loom import (local, well
 under a second; rules and caveats in `references/loom-frontend-rules.md`,
@@ -357,7 +320,7 @@ dual validators need only the copied modules, the generated
 `network_data.H` and `harness/loom_eos_params.H`, so they pass before any
 rates or network code is written (`assets/NEW_NETWORK.md`, step 3). Zero mismatches is the bar. The f64 math
 recipes use host libm on the native path, so they are validated separately
-(`assets/f64-tests/`, host accuracy and GPU bit check).
+(host accuracy and GPU bit check, in the `loom-burn-kernel-tools` follow-up).
 
 ## Phase 5 — import and compile on the GPU host
 
@@ -421,36 +384,20 @@ If something fails, localize it first (native path? recipe math? ABI?
 layout?). Accepting a non-bit-exact result is the user's decision, with the
 evidence in front of them.
 
-**Standalone HIP reproducer** (`assets/standalone/README.md`). The same
-kernel tree also compiles with hipcc as an ordinary HIP kernel
-(`-DMPL_HIP_STANDALONE`), driven by a small `main.hip` with no Microphysics
-or AMReX. Make one for every port once Phase 4 passes, and always when a GPU
-result is in question:
-1. Write a case file from the HIP test_react build (same flags as above):
-   `./main3d.hip.HIP.ex inputs_<net> n_cell=16 max_grid_size=16
-   integrator.use_jacobian_caching=0 unit_test.loom_dump_case=<net>.case`
-   (inputs, `BurnParams`, tables and the stock HIP result of two identical
-   burns; run it from a scratch directory, not `unit_test/test_react/`).
-   Use the HIP build: a CPU build writes a CPU reference *and* slightly
-   different initial T/ρ (test_react computes them with `pow` on the
-   device), so it is not a bit-exact target for a GPU binary.
-2. `scripts/make_standalone.sh --tar unit_test/test_react/loom/<port> <out> <net>.case`
-   bundles the kernel tree, driver, math shim and case into one directory.
-3. On the GPU host: `make` (`MATH=ocml`, hipcc's device math, as the stock
-   build) and `make MATH=recipes` (the Loom path's f64 recipes), then
-   `./burn_standalone_ocml cases/<net>.case --hsaco loom_root.hsaco`.
-   Expect `hipcc_vs_reference` bit-exact for both math modes: that proves
-   the translation on the GPU independently of Loom, and `loom_vs_hipcc` then
-   isolates Loom. For a mismatch, `--zone I,J,K --write-subset one.case` cuts
-   a one-zone case; the bundle plus that file is what goes to a compiler
-   vendor (with the user's approval, as for any bug report).
+**Standalone HIP reproducer.** The kernel tree also compiles with hipcc as an
+ordinary HIP kernel (`-DMPL_HIP_STANDALONE`, `support.H`), and test_react
+writes a case file of inputs plus the stock result
+(`unit_test.loom_dump_case=<file>`, `harness/loom_case.H`). The driver that
+burns a case file outside Microphysics and bundles a vendor reproducer is in
+the `loom-burn-kernel-tools` follow-up.
 
 ## Phase 7 — performance (optional, only after Phase 6 passes)
 
-Read `references/performance.md`. Timing must be paired and interleaved
-against the reference on the same GPU, with clock/temperature telemetry; a
-single "Run time" line from test_react is not evidence. FMA contraction is
-tried only here (`references/performance.md`, "FMA contraction").
+Timing must be paired and interleaved against the reference on the same
+GPU, with clock/temperature telemetry; a single "Run time" line from
+test_react is not evidence. FMA contraction is tried only here. The
+performance guide and the compiler-diagnostic tools are in
+the `loom-burn-kernel-tools` follow-up.
 
 ## Phase 8 — hand-off
 
@@ -469,27 +416,20 @@ Check the time with `date` before writing any timestamp.
 - `references/loom-frontend-rules.md` — construct → rewrite table as of the last probes, `MPL_ASSUME`/SUBRANGE, lint, kernel root shape.
 - `references/microphysics-translation.md` — inventory limits, burn_t, runtime params and unported paths, tables, generated network data, autodiff, math, NSE.
 - `references/test-react-integration.md` — layout, kernel signature, host launcher, native validation, build/run and import/compile commands, comparison and NaN rule.
-- `references/performance.md` — measurement rules, kernel-side levers, FMA experiment.
-- `references/seven-dwarfs.md` — seven verified test_react configurations (network, integrator, screening, neutrinos) for exercising Loom, why each was chosen, and how to check stiffness before using RKC.
 - `probes/README.md` — Phase 1 probe kit (`probe.sh`, `src/`) and results at `fa8eba4554`.
 
 ## Scripts
 
 - `scripts/inventory.py` (+ `reachable.py`) — Phase 2 call-graph closure and construct inventory.
-- `scripts/specialize.py` — Phase 3 C++ Insights output per reachable function.
 - `scripts/gen_network_data.py` + `extract_network_data.cpp` — generate `network_data.H` / `burn.H` for `rhs.H`-framework networks, checked against the stock source.
 - `scripts/loom-lint/` — ast-grep rules for Loom-hostile constructs (`tests/selftest.sh`).
 - `scripts/build_loom_tools.sh` — build frozen `loom-import-cxx`/`loom-compile` from an hrx-system tree plus optional patches; writes `tools.md5`. Header has the fresh-machine prerequisites.
-- `scripts/compare_loom_tools.sh` — A/B two tool sets on smoke roots: byte-identical code objects and compile times.
 - `scripts/loom_smoke.sh` — launch/status/wait/fetch a Loom import + compile of a smoke kernel on the GPU host (`LOOM_HOST=local` by default; one ssh per call for a remote host). `wait` serializes compiles; `wait`/`status` exit 6 when an import or compile failed.
 - `scripts/gen_abi_layout.py` — Phase 3 ABI checks: host-measured `sizeof`/`offsetof` of every `*Params` record, written to the port's `abi_layout.H` (included by the kernel root).
 - `scripts/fma_audit.py` — Phase 6 contraction screen: explains the `v_fma_f64` count (explicit recipe FMAs from the `.loom` IR, 5 per f64 division, a bounded remainder per sqrt); a heuristic, paired with the `m_fp_contract` probe.
-- `scripts/loom_stack_sampler.sh` — `eu-stack` sample of a running `loom-compile` once a minute.
-- `scripts/repair_summary.py` — summarize a `LOOM_TRACE_REPAIR` trace: rounds, spill batches, batch starts, seconds, convergence.
 - `scripts/hsaco_stats.py` — VGPR/SGPR/AGPR/scratch/kernarg sizes from `llvm-readelf` notes, plus spill/pressure keys from a `--compile-report` JSON.
 - `scripts/ship_test_react.sh` — detached HIP build of test_react with the Loom launcher; for a remote host it first stages the local test_react + kernel dir there and shows which files differ.
 - `scripts/loom_gpu_compare.sh` — Phase 6 on the GPU host (run it directly when local): production root compile, kernel-argument metadata, test_react compare runs.
-- `scripts/make_standalone.sh` — bundle a port's kernel tree, `assets/standalone/` and case files into a self-contained hipcc reproducer; checks every include resolves inside the bundle.
 
 ## Assets (`assets/README.md`)
 
@@ -501,9 +441,11 @@ Check the time with `date` before writing any timestamp.
 - `assets/validators/` — network-neutral validator templates (EOS, rates, network, whole-burn integrator, kernel root) and `validate_port.H` (per-port hooks).
 - `assets/smoke/` — smoke-compile kernels for `loom_smoke.sh`.
 - `assets/prompts/` — agent prompt templates (`_common.md` + per task).
-- `assets/f64-tests/` — host accuracy test of the OCML recipes; `ocml_gpu/` is the GPU bit check against hipcc's OCML.
-- `assets/standalone/` — standalone HIP reproducer: `main.hip` (burns a case file with the hipcc-compiled kernel tree and optionally a Loom code object, compares bit for bit), `loom_case_format.H`, `Makefile`, vendor-facing `README.md`; `harness/loom_case.H` writes case files from test_react.
 
-## Patches (apply to hrx-system main `fa8eba4554`; local, not upstream)
+## Moved to the follow-up
 
-- `patches/trace-repair.patch` — `LOOM_TRACE_REPAIR=1`: one trace line per register-repair round.
+The `loom-burn-kernel-tools` follow-up holds the optional tooling: the standalone HIP
+reproducer (`make_standalone.sh`), the f64 recipe accuracy tests, the
+performance guide, compiler diagnostics (`trace-repair.patch`,
+`repair_summary.py`, `loom_stack_sampler.sh`, `compare_loom_tools.sh`),
+`specialize.py` (C++ Insights) and the seven-dwarfs test configurations.

@@ -25,8 +25,7 @@ minutes (parallel agents), followed by several rounds of Loom compile fixes. Mos
 | `loom_eos_params.H` (host `fill_eos_params`, `fill_eos_tables`) | as is | `harness/` |
 | `loom_params.H` (the other host fill_* functions) | template; fill the `PORT:` lines | `harness/` |
 | validators | network-neutral templates for dual (`harness/validate_dual.H`), EOS, rates, network, integrator and kernel; the only per-network part is `validators/validate_port.H` (parameter variants, rate branch temperatures, direct rate-function checks: fill the `PORT:` lines). `validate_network.H` also holds the `burn_t` layout `static_assert`s that `validate_integrator.H` relies on | `validators/`, `harness/` |
-| test_react wiring | `harness/test_react.patch` (GNUmakefile, Make.package, _parameters, main.cpp), plus `loom_launch.H`, `loom_validate.H/.cpp`, `loom_eos_params.H`, `loom_case.H` and `loom_case_format.H` as is | `harness/`, `standalone/` |
-| standalone HIP reproducer | `main.hip`, `Makefile`, `README.md` as is; bundled from the port by `scripts/make_standalone.sh` (no per-network part) | `standalone/` |
+| test_react wiring | `harness/test_react.patch` (GNUmakefile, Make.package, _parameters, main.cpp), plus `loom_launch.H`, `loom_validate.H/.cpp`, `loom_eos_params.H`, `loom_case.H` and `loom_case_format.H` as is | `harness/` |
 | smoke kernels | templates | `smoke/` |
 
 The generic modules include the per-network files by name (`network_data.H`,
@@ -71,7 +70,7 @@ arguments.
 
 1. **Configure and inventory** (SKILL.md Phases 0 and 2):
    `uv run --no-project <skill>/scripts/inventory.py --out <notes>/inventory -- NETWORK_DIR=<net> EOS_DIR=helmholtz INTEGRATOR_DIR=VODE USE_NEUTRINOS=FALSE XTRA_CXXFLAGS=-ffp-contract=off`
-   then `scripts/specialize.py --inv <notes>/inventory`. Check the "CPU vs HIP
+   Check the "CPU vs HIP
    defines" section and the per-function table for constructs the modules
    don't handle yet (other screen methods, NSE, aux species).
 2. **Kernel directory**: `unit_test/test_react/loom/<net>_vode/`. Copy
@@ -141,7 +140,7 @@ arguments.
    burn compiles in 9 min (triple_alpha, Rosetta) to ~30 min (aprox13),
    nearly all of it in register repair (see
    `references/footguns.md`); use Loom tools built from the pinned commit
-   (`scripts/build_loom_tools.sh`; `patches/README.md` lists any local patches).
+   (`scripts/build_loom_tools.sh`).
    SUBRANGE/026 errors: see `MPL_ASSUME` in `references/loom-frontend-rules.md`.
 8. **Kernel root, launcher, GPU comparison** (SKILL.md Phases 5-6).
 

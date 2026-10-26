@@ -20,8 +20,6 @@ update this README.
 | `harness/` | test_react validation hook, dual validator, `loom_launch.H` (HIP launcher for test_react), `loom_params.H` template |
 | `smoke/` | Loom smoke-compile kernels for `scripts/loom_smoke.sh` |
 | `prompts/` | agent prompt templates: `_common.md` (prepend to every prompt) + per-task prompts |
-| `f64-tests/` | host accuracy test for the OCML recipes; `ocml_gpu/`: GPU bit check against hipcc's OCML |
-| `standalone/` | standalone HIP reproducer: `main.hip` driver, case file format, Makefile, vendor README (below) |
 
 ## modules/
 
@@ -116,8 +114,8 @@ the prad-limiter run with
 | File | What | Validation status |
 |---|---|---|
 | `support.H` | Platform layer: `MPL_DEVICE`/`MPL_KERNEL`, `Real`, `mpl::math` bindings (host = the std call stock code makes, Loom = Loom op or OCML recipe), `powi` with AMReX's grouping, `min/max/clamp` with std semantics, `Array1D`/`Array2D` (1-based accessors), `MPL_ASSUME` | Bindings checked through the module validators |
-| `f64_math.H` | OCML f64 `exp`, `log`, `cbrt` (from hrx-system `experimental/loom-codegen-comparison`, `7cf21edd85`) | Used by the chemistry campaigns on gfx90a/gfx942; bit-identical to hipcc's OCML on gfx90a (`f64-tests/ocml_gpu/`) |
-| `f64_math_extra.H` | OCML f64 `pow`, `log10`, `tanh` (llvm-project `amd/device-libs` `d366fa84f3fd`, same revision) | Host: max 1 ulp vs MPFR in every sweep, all C Annex F special cases match libm (`f64-tests/`). GPU (moth gfx90a, 2026-10-18, `f64-tests/ocml_gpu/`): pow/log10/tanh and `f64_math.H`'s exp/log/cbrt bit-identical to hipcc's OCML over ~1M samples per sweep; only 3 cbrt NaN-payload differences (irrelevant under the NaN rule) |
+| `f64_math.H` | OCML f64 `exp`, `log`, `cbrt` (from hrx-system `experimental/loom-codegen-comparison`, `7cf21edd85`) | Used by the chemistry campaigns on gfx90a/gfx942; bit-identical to hipcc's OCML on gfx90a |
+| `f64_math_extra.H` | OCML f64 `pow`, `log10`, `tanh` (llvm-project `amd/device-libs` `d366fa84f3fd`, same revision) | Host: max 1 ulp vs MPFR in every sweep, all C Annex F special cases match libm. GPU (gfx90a): pow/log10/tanh and `f64_math.H`'s exp/log/cbrt bit-identical to hipcc's OCML over ~1M samples per sweep; only 3 cbrt NaN-payload differences (irrelevant under the NaN rule) |
 | `dual.H` | POD `Dual` (= `autodiff::dual`) and `Dual3` (= `dual_array<1,3>`) with free functions that reproduce autodiff's expression-template evaluation bit for bit under `AUTODIFF_STRICT_ASSOCIATIVITY`; its header comment is the translation guide (expression shape → call sequence, ~40 worked examples) | 24.9M checks, 0 mismatches against autodiff (`harness/validate_dual.H`) |
 
 Notes:
@@ -177,30 +175,6 @@ Notes:
   its own section comparing whole stock rate, screening and rhs.H expressions
   against the guide's call sequences.
 
-## standalone/
-
-A HIP program that burns a port's kernel tree compiled by hipcc
-(`-DMPL_HIP_STANDALONE`, `kernel/support.H`), with no Microphysics or AMReX,
-and compares it bit for bit with a reference from a **case file**.
-`loom_case_format.H` defines the file (header, `BurnParams` bytes, the 14
-helmholtz tables, the initial state box, the reference state, `n_rhs`/`n_step`
-and per-zone success). test_react writes one with
-`unit_test.loom_dump_case=<file>` (`harness/loom_case.H`; stock CPU reference
-in a CPU build, stock HIP reference in a HIP build). `main.hip` reads it,
-launches `mpl::burn_zones` (and optionally a Loom code object of the same
-root, `--hsaco`), and reports per-component worst zones with hex bits;
-`--zone` cuts a one-zone reproducer. `scripts/make_standalone.sh` bundles a
-port with these files into a directory that builds with `make` anywhere ROCm
-is installed; `README.md` here is that bundle's README (written for someone
-who has never seen Microphysics). `MATH=ocml` uses hipcc's OCML like the stock
-HIP build; `MATH=recipes` uses `kernel/f64_math*.H` through
-`f64-tests/ocml_gpu/device_shim/`.
-
-## f64-tests/
-
-Host test for `f64_math_extra.H` (needs MPFR/GMP: Ubuntu `libmpfr-dev libgmp-dev`, macOS Homebrew `mpfr`):
-`bash f64-tests/run.sh [samples]` prints per-sweep ulp histograms and
-`PASS`; `-O0` and `-O2` builds must give the same output hash.
-`host_shim/loomcxx/scalar.h` models the Loom scalar ops on the host.
-`ocml_gpu/` is the GPU bit check of all six recipes against hipcc's OCML
-(see its own instructions); rerun it when a recipe or the target changes.
+The recipe accuracy tests (host MPFR sweep, GPU bit check against hipcc's
+OCML) and the standalone HIP reproducer that reads `loom_case.H`'s case files
+are in the `loom-burn-kernel-tools` follow-up.

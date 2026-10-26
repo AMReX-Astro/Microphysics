@@ -28,7 +28,7 @@
 // On the host (no __loom__), burn_zones is an ordinary inline function with
 // one extra trailing parameter, the zone index, so the native validator
 // (validate_kernel.H) runs exactly this body zone by zone. With hipcc and
-// -DMPL_HIP_STANDALONE (assets/standalone/main.hip) it is a HIP __global__
+// -DMPL_HIP_STANDALONE (the standalone reproducer) it is a HIP __global__
 // kernel with the same signature as the Loom root, launched with
 // blockDim.x = 128 and gridDim.x = ceil(nx * ny * nz / 128).
 #include "burner.H"

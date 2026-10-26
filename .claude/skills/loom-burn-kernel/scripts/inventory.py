@@ -7,7 +7,7 @@ usage (from the Microphysics root or anywhere):
   --llvm: LLVM bin dir with clang++/clang-query (default $LLVM_BIN, else the
   dir of clang-query on PATH, else the newest /usr/lib/llvm-*/bin with
   clang-query (Ubuntu: apt install clang-N clang-tools-N), else Homebrew's
-  /opt/homebrew/opt/llvm/bin; specialize.py instead follows insights' LLVM)
+  /opt/homebrew/opt/llvm/bin)
   --test-dir: relative paths that don't exist from the cwd are taken relative
   to the Microphysics root (the repo holding this skill).
 

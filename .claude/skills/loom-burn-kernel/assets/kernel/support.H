@@ -7,12 +7,12 @@
 //  - with the host compiler (native validation): math calls exactly what the
 //    stock Microphysics code calls (std:: functions), so results compare bit
 //    for bit against the stock burner;
-//  - with hipcc and -DMPL_HIP_STANDALONE (the standalone reproducer,
-//    assets/standalone/): an ordinary HIP __global__ kernel. Math calls the
+//  - with hipcc and -DMPL_HIP_STANDALONE (the standalone reproducer, in
+//    the loom-burn-kernel-tools follow-up): an ordinary HIP __global__ kernel. Math calls the
 //    std:: functions, which hipcc lowers to its OCML like the stock HIP
 //    build, or, with -DMPL_HIP_MATH_RECIPES, the same f64 recipes as the
-//    Loom path (their <loomcxx/scalar.h> is then the device shim in
-//    assets/f64-tests/ocml_gpu/device_shim/).
+//    Loom path (their <loomcxx/scalar.h> is then a device shim, also in
+//    that follow-up).
 //    It is opt-in, not keyed on __HIPCC__: the test_react HIP build also
 //    compiles these headers with hipcc (loom_launch.H) and needs the host
 //    forms.

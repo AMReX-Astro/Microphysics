@@ -26,11 +26,7 @@ Read first:
   `references/microphysics-translation.md`.
 - `{KERNEL_DIR}/dual.H` header comment: the only allowed way to write
   autodiff arithmetic.
-- Reachability and specialized source:
-  `{INVENTORY_DIR}/` (`summary.md`, `hits.tsv`, `specialized/*.cpp` from
-  C++ Insights). `constexpr_for` loops appear fully unrolled there: take loop
-  structure from the original source and use the specialized form for
-  resolved types, branches and constants.
+- Reachability: `{INVENTORY_DIR}/` (`summary.md`, `hits.tsv`).
 
 Hard rules (each one cost a failed Loom import or compile at least once):
 1. Same computation, same order, statement for statement. Follow the HIP/GPU

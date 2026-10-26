@@ -40,12 +40,6 @@ repository; the items below are the distilled result.
   `loom-compile --target`, or `hipModuleLoad` fails.
 - Your user must be in the `render` and `video` groups to open the GPU
   (`rocminfo` errors otherwise).
-- On Ubuntu the default `kernel.yama.ptrace_scope=1` stops `eu-stack -p`
-  (`scripts/loom_stack_sampler.sh`) from attaching to a process that isn't
-  its child: run it with sudo or set the sysctl to 0.
-  In a container (Apple `container` under Rosetta in the E2E runs) `eu-stack`
-  showed no frames even with sudo and no `ptrace_scope` file: use the compile
-  log, `LOOM_TRACE_REPAIR=1` and RSS/CPU from `ps` instead.
 - Work dirs default to `$LOOM_WORK`, else `$HOME/loom-work` (`LOOM_REMOTE_BASE` overrides).
 - **Every clang uses the newest GCC installed.** After Setup's `g++-14`,
   ROCm's clang (hipcc, and the Loom tool build) uses libstdc++ 14 headers.
@@ -184,16 +178,10 @@ for the scripts that run there); the defaults are for a local GPU box.
   924k values growing to 1.33M). The spill-free frame build (`frame.c`) then
   loops schedule → allocate → rematerialize/split/materialize spills, each
   round a whole-function schedule + allocation; the round budget is the value
-  count, so it never times out on its own. A/B tool sets with
-  `scripts/compare_loom_tools.sh`. Small module smokes take under 1 min.
+  count, so it never times out on its own. Small module smokes take under 1 min.
 - **Watch the repair loop, don't guess.** A long compile has no output until it
-  finishes. `patches/trace-repair.patch` adds `LOOM_TRACE_REPAIR=1`, which
-  prints one `LOOM_REPAIR round= ... spill_plans= ... round_seconds=` line
-  per round on stderr; `round=0` starts a new spill batch, and
-  `spill_plans=0` means the allocation converged (`scripts/repair_summary.py`
-  summarizes a trace). `scripts/loom_stack_sampler.sh` runs `eu-stack -p
-  <pid>` once a minute (one ssh session) to show the phase. Scheduler-only fixes such as hrx-system PR #2047 left
-  every repair counter identical for this kernel.
+  finishes. The compiler-diagnostic tools in the `loom-burn-kernel-tools` follow-up print one line per
+  register-repair round and sample the compiler's stack.
 - **Check scratch against the hardware limit before any GPU run.** gfx90a
   allows at most 131,056 B of private segment per lane ((2^13 - 1) KiB per
   wave64). hipcc refuses to link anything larger. `loom-compile` does too (hrx-system

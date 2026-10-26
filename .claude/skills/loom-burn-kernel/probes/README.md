@@ -9,8 +9,8 @@ inventory finds that is not covered here, and keep new probes in this kit.
 ## Results at hrx-system fa8eba4554 (gfx90a, run 2026-10-21)
 
 Public `ROCm/hrx-system` main `fa8eba4554` (2026-10-20), tools built with
-`scripts/build_loom_tools.sh` and `patches/trace-repair.patch` (a diagnostic
-only; `loom-import-cxx` md5 `427f8f72…`, `loom-compile` md5 `35d03eb7…`;
+`scripts/build_loom_tools.sh` and a diagnostic-only patch (`trace-repair.patch`,
+in the `loom-burn-kernel-tools` follow-up; `loom-import-cxx` md5 `427f8f72…`, `loom-compile` md5 `35d03eb7…`;
 md5s differ with the build environment, so record yours). All 124 probes run
 in a few seconds. Rerun the kit whenever the pinned commit changes and update
 this table.
