@@ -101,7 +101,7 @@ mkdir -p "$LOOM_WORK" && cd "$LOOM_WORK"
 python3 -m venv venv && venv/bin/pip install ast-grep-cli && export PATH=$PWD/venv/bin:$PATH
 git clone https://github.com/AMReX-Codes/amrex.git && export AMREX_HOME=$PWD/amrex
 git clone https://github.com/ROCm/hrx-system.git
-git -C hrx-system checkout fa8eba4554           # pinned compiler (Phase 1)
+git -C hrx-system checkout fa8eba4554           # pinned compiler (Phase 1); not 1468c06034+ (#2337)
 (cd hrx-system && python3 dev.py cmake setup)   # .venv with cmake/ninja; see below if it exits 1
 SRC=$PWD/hrx-system OUT=$PWD/loom-tools/pinned TARGETS=$GFX \
 PATCHES=$SKILL/patches/trace-repair.patch \

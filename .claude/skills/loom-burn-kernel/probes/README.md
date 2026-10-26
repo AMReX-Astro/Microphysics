@@ -38,7 +38,15 @@ What changed since the previous pin (`fada6788a1`, 2026-10-20):
 - Everything else is unchanged apart from a few VGPR counts (d02, f05, f16,
   f21, o12, r16).
 
-What these results decide:
+## Re-probe at upstream main `970d39ac1e` (2026-10-26; run 2026-10-27)
+
+Stock tools (`scripts/build_loom_tools.sh`, no patches; `loom-import-cxx` md5 `d17c52ef…`, `loom-compile` md5 `0a017359…`), gfx90a, all 124 probes; last column of the table below. The pin stays `fa8eba4554`:
+
+- **Don't build burn kernels with hrx-system `1468c06034` or later** (including main `970d39ac1e`): it miscompiles the aprox13 burn. The burned state stays bit-identical, but `zone_success` is lost in every lane that leaves VODE's step loop before the last lane of its wavefront (ROCm/hrx-system#2337). `964249c20e` (2026-10-24) was bit-exact on the full burn with stock tools. Wait for a fix before moving the pin.
+- Three rewrites become unnecessary there: a runtime `switch` (f01), `return` inside a loop (f03; hrx-system #2318 and the commits before it) and an early `return` nested two `if`s deep (f24) import and compile.
+- Everything else is unchanged apart from two VGPR counts (d08, o17).
+
+What these results decide (at `fa8eba4554`):
 - **References:** scalar `double&`/`int&` parameters and scalar member slices
   (`f(s.T)`) import (r01, r02, r04, r11, r13), as do `const` references to
   whole structs (r05), references to buffer elements (r06), array reference
@@ -123,129 +131,129 @@ What these results decide:
   code after both (f24: "conditional returns require at most one fallthrough
   arm"); `screen.H`'s `actual_log_screen` keeps a `done` flag for that.
 
-| Probe | Construct | Result | Detail |
-|---|---|---|---|
-| c00_control | baseline | ok | vgpr=8 scratch=0B |
-| c01_params_pod_ptr | `const Params*` runtime-param POD | ok | vgpr=7 scratch=0B |
-| c02_table_ptr_3d | helmholtz `f[j][i][9]` via pointer, clamp, local `fi[36]` | ok | vgpr=16 scratch=288B |
-| c03_struct_of_ptrs_by_ptr | struct of table pointers passed by pointer (`t->a[i]`) | import-fail | error [LOWERING/059]: stored pointers and references require an object storage representation |
-| c04_struct_of_ptrs_by_value | struct of table pointers passed by value (`t.a[i]`) | ok | vgpr=6 scratch=0B |
-| c05_flat_table_offsets | one table buffer, compile-time offsets | ok | vgpr=6 scratch=0B |
-| c06_ptr_member_of_kernel_arg_struct | kernel argument: pointer to a struct of pointers in device memory | import-fail | error [LOWERING/059]: stored pointers and references require an object storage representation |
-| d01_ns_constexpr_array | `aion[]`, `zion[]`, `aion_inv[]` | ok | vgpr=14 scratch=0B |
-| d02_local_const_array | local `const double t[N]` | ok | vgpr=28 scratch=104B |
-| d03_ns_mutable_global | runtime param global | import-fail | error [LOWERING/059]: global storage definitions require a global-storage projection |
-| d04_uninit_local | `bool converged;` | ok | vgpr=8 scratch=0B |
-| d05_struct_default_init_braces | `T x{}` | ok | vgpr=8 scratch=0B |
-| d06_struct_copy_assign | `old{s}; s = old;` | ok | vgpr=4 scratch=0B |
-| d07_limits_and_nan | `__DBL_MAX__`, NaN via bit_cast | ok | vgpr=9 scratch=0B |
-| d08_large_struct_runtime_index | dvode_t-sized local struct | ok | vgpr=10 scratch=2872B |
-| d09_static_constexpr_member_array | `static constexpr` member array | import-fail | error [LOWERING/059]: member-dependent initialization requires source object initialization semantics |
-| d10_enum_u8_base | `enum : unsigned char` | import-fail | error [PARSE/036]: invalid operands of types 'double' and '::probe::Rates' to binary operator '+' |
-| d11_short_and_bool_arrays | `short pivot[14]`, `bool` arrays | ok | vgpr=10 scratch=42B |
-| d12_f64_to_int_conversion | `int(double)` | ok | vgpr=10 scratch=0B |
-| d13_uninit_local_double | `double r;` assigned on both branches | ok | vgpr=8 scratch=0B |
-| d14_uninit_local_struct | `Burn s;` without initializer | import-fail | error [LOWERING/059]: uninitialized locals require scalar or native vector object storage |
-| d15_uninit_local_array | `double a[14];` without initializer | ok | vgpr=6 scratch=112B |
-| d16_ns_inline_constexpr_array | `inline constexpr double aion[N]` at namespace scope | ok | vgpr=14 scratch=0B |
-| d17_ns_constexpr_2d_array | namespace-scope `constexpr` 2-D table, two runtime indices | ok | vgpr=8 scratch=0B |
-| d18_ns_constexpr_struct_array | namespace-scope `constexpr` array of aggregates, runtime index | ok | vgpr=10 scratch=0B |
-| d19_ns_constexpr_array_loop_index | `aion[n]`, `zion[n]` read in a constant-bound loop | ok | vgpr=20 scratch=0B |
-| d20_ns_constexpr_array_unreachable | namespace-scope `constexpr` array the root never reads | ok | vgpr=6 scratch=0B |
-| d21_ns_mutable_global_unreachable | mutable namespace-scope global the root never reads | import-fail | error [LOWERING/059]: global storage definitions require a global-storage projection |
-| d22_fn_static_constexpr_array | block-scope `static constexpr` array in a device function | import-fail | error [LOWERING/059]: local storage duration must be automatic or __shared__ |
-| d23_extern_const_array_defined | `extern const` array declared, then defined in the TU | ok | vgpr=14 scratch=0B |
-| f01_switch_runtime | runtime `switch` | import-fail | error [LOWERING/059]: unsupported statement: switch-statement |
-| f02_switch_in_constexpr_fn | `rhs_data(rate)` folded | import-fail | error [LOWERING/059]: unsupported C++ type: ::probe::RhsT |
-| f03_return_in_loop | `return` in `while(true)` | import-fail | error [LOWERING/059]: returns inside loops require a structured loop-exit projection |
-| f04_for_ever | `for(;;)` | ok | vgpr=10 scratch=0B |
-| f05_vode_retry_shape | nested `while(true)`, result code | ok | vgpr=22 scratch=0B |
-| f06_runtime_triangular_loops | `for k=NQ..1, j=k..NQ` | ok | vgpr=12 scratch=672B |
-| f07_retry_loop_no_assume | retry loop with break/continue, no `__builtin_assume` | ok | vgpr=12 scratch=0B |
-| f08_retry_loop_assume | same, with `__builtin_assume` | ok | vgpr=12 scratch=0B |
-| f09_newton_for_break | EOS Newton `for` + `break` | ok | vgpr=26 scratch=0B |
-| f10_early_return_outside_loop | sneut5 early return | ok | vgpr=8 scratch=0B |
-| f11_ternary_nest_40 | 40-deep nested ternary | ok | vgpr=86 scratch=240B |
-| f12_for_no_cond_continue | `for (m = 0;; ++m)` with `continue`/`break` | ok | vgpr=10 scratch=0B |
-| f13_assume_derived_expr | `__builtin_assume(j + 1 <= n)` | ok | vgpr=10 scratch=120B |
-| f14_assume_struct_field | `__builtin_assume(1 <= vs->L && vs->L <= 6)` | import-fail | error [LOWERING/059]: predicate member paths require direct non-static record fields |
-| f15_runtime_bound_index_no_assume | dvjust-shape runtime-bound loops and `vs->el[L]`, no assumptions | compile-fail | error [SUBRANGE/026]: view.load access byte end may reach 17179869192, exceeding storage root byte extent 848 |
-| f16_runtime_bound_index_assume | same as f15 with `__builtin_assume` on every index | ok | vgpr=12 scratch=848B |
-| f17_break_loop_private_index_no_assume | constant-bound loop with data-dependent `break`, no assumptions | ok | vgpr=12 scratch=112B |
-| f20_assume_short_field_member_index | `const int La = vs->L` (`short` field) assumed, indexes an `Array1D` member through a pointer | ok | vgpr=8 scratch=176B |
-| f21_multi_exit_loop | dvode step-loop shape: `while (true)`, 4 `break`s + `continue` in data-dependent branches | ok | vgpr=22 scratch=64B |
-| f22_nested_multi_exit_loops | inner `while (true)` with 3 `break`s nested in a multi-exit outer loop (dvstep corrector shape) | ok | vgpr=20 scratch=64B |
-| f23_nested_single_exit_form | f22 with both loops in the single-exit `done` form | ok | vgpr=18 scratch=64B |
-| f24_nested_conditional_return | `return` in an `if` nested in a runtime `if`, code after both (`actual_log_screen`) | import-fail | error [LOWERING/059]: conditional returns require at most one fallthrough arm; shared continuations need a scoped exit projectio |
-| f25_single_level_conditional_return | f24 with the conditions merged into one `if` | ok | vgpr=8 scratch=0B |
-| l01_lambda_constexpr_for | lambdas | import-fail | error [LOWERING/059]: rvalue-reference parameters require consuming object identity |
-| l02_template_struct_unroll | template-struct recursion | ok | vgpr=30 scratch=0B |
-| m_f32_roundevenf | f32 `loom::scalar::roundevenf` (OCML `BUILTIN_RINT_F32`, cbrt) | ok | vgpr=2 scratch=0B \| v_rndne_f32:1 |
-| m_f64_absf | f64 fabs | ok | vgpr=4 scratch=0B |
-| m_f64_amdgcn_rcp | `__builtin_amdgcn_rcp` on f64 (OCML `MATH_FAST_RCP` seed) | import-fail | error [PARSE/036]: unknown builtin function '__builtin_amdgcn_rcp' |
-| m_f64_builtin_frexp_ldexp | `__builtin_frexp` with an `int*` out-parameter, then `__builtin_ldexp` (OCML spelling) | ok | vgpr=5 scratch=0B \| v_ldexp_f64:1 v_frexp_mant_f64:1 v_frexp_exp_i32_f64:1 |
-| m_f64_builtin_rint | `__builtin_rint` on f64 (OCML `BUILTIN_RINT_F64`) | import-fail | error [LOWERING/059]: call requires a concrete namespace-scope function declaration |
-| m_f64_cbrtf | f64 cbrt | compile-fail | error [TARGET/001]: has no target-low contract |
-| m_f64_copysignf | f64 copysign | ok | vgpr=6 scratch=0B |
-| m_f64_cosf | f64 cos | compile-fail | error [LOWERING/036]: legalize-math policy amdgpu-math rejected scalar.cosf for cosf in scalar lanes of f64 under math.element.f32 |
-| m_f64_div_afn | f64 `loom::scalar::approximate::divf` (afn) | ok | vgpr=14 scratch=0B \| v_fma_f64:5 v_div_scale_f64:2 v_rcp_f64:1 v_mul_f64:1 v_div_fmas_f64:1 v_div_fixup_f64:1 |
-| m_f64_divide_reciprocal | f64 `loom::divide_reciprocal` (arcp, hrx-system #2131) | ok | vgpr=14 scratch=0B \| v_fma_f64:3 v_div_scale_f64:2 v_rcp_f64:1 v_mul_f64:1 v_div_fmas_f64:1 v_div_fixup_f64:1 |
-| m_f64_expf | f64 exp | compile-fail | error [LOWERING/036]: legalize-math policy amdgpu-math rejected scalar.expf for expf in scalar lanes of f64 under math.element.f32 |
-| m_f64_floorf | f64 floor | ok | vgpr=4 scratch=0B \| v_floor_f64:1 |
-| m_f64_fmaf | f64 fma | ok | vgpr=8 scratch=0B \| v_fma_f64:1 |
-| m_f64_frexpf | f64 `loom::scalar::frexpf` (hrx-system #2131) | ok | vgpr=6 scratch=0B \| v_frexp_mant_f64:1 v_frexp_exp_i32_f64:1 |
-| m_f64_ldexpf | f64 `loom::scalar::ldexpf` (hrx-system #2131) | ok | vgpr=4 scratch=0B \| v_ldexp_f64:1 |
-| m_f64_log10f | f64 log10 | compile-fail | error [TARGET/001]: has no target-low contrac |
-| m_f64_logf | f64 log | compile-fail | error [LOWERING/036]: legalize-math policy amdgpu-math rejected scalar.logf for logf in scalar lanes of f64 under math.element.f32 |
-| m_f64_math_h_recipes | `f64_math.H` exp/log/cbrt recipes | ok | vgpr=50 scratch=0B \| v_add_f64:47 v_fma_f64:36 v_mul_f64:11 v_ldexp_f64:6 v_div_scale_f64:4 v_cmp_lt_f64:3 |
-| m_f64_powf | f64 pow (non-integer exponent) | compile-fail | error [LOWERING/036]: legalize-math policy amdgpu-math rejected scalar.powf for powf in scalar lanes of f64 under math.element.f32 |
-| m_f64_roundevenf | f64 rint (roundeven) | ok | vgpr=4 scratch=0B \| v_rndne_f64:1 |
-| m_f64_sinf | f64 sin | compile-fail | error [LOWERING/036]: legalize-math policy amdgpu-math rejected scalar.sinf for sinf in scalar lanes of f64 under math.element.f32 |
-| m_f64_sqrtf | f64 sqrt | ok | vgpr=10 scratch=0B \| v_fma_f64:7 v_mul_f64:2 v_ldexp_f64:2 v_rsq_f64:1 v_cmp_lt_f64:1 v_cmp_class_f64:1 |
-| m_f64_tanhf | f64 tanh | compile-fail | error [LOWERING/036]: legalize-math policy amdgpu-math rejected scalar.tanhf for tanhf in scalar lanes of f64 under math.element.f32 |
-| m_f64_truncf | f64 trunc | ok | vgpr=4 scratch=0B \| v_trunc_f64:1 |
-| m_fp_contract | `a * b + c` under `--fp-model=precise` | ok | vgpr=8 scratch=0B \| v_mul_f64:1 v_add_f64:1 |
-| m_powi_template | `powi<N>` recursion | ok | vgpr=8 scratch=0B \| v_mul_f64:5 v_add_f64:1 |
-| o01_member_fn_call | `a.add(x)` | ok | vgpr=6 scratch=0B |
-| o02_operator_call_index | `Array1D::operator()` | ok | vgpr=6 scratch=0B |
-| o03_dual_operator_overload | `operator*`/`operator+` on Dual | import-fail | error [LOWERING/059]: overloaded binary operation requires a Loom operation |
-| o04_dual_free_functions | POD Dual / Dual3 + free fns, by value | ok | vgpr=10 scratch=0B |
-| o05_dual3_array_free_functions | POD Dual / Dual3 + free fns, by value | ok | vgpr=12 scratch=96B |
-| o06_base_class | `Grad : Base` | import-fail | error [LOWERING/059]: record values require a complete aggregate without unions, bases or nontrivial lifecycle operations |
-| o07_ctor_with_args | `D x(1.0)` | import-fail | error [LOWERING/059]: record values require a complete aggregate without unions, bases or nontrivial lifecycle operations |
-| o08_structured_binding | `auto [f, r] = term(x)` | import-fail | error [LOWERING/059]: unsupported local declaration |
-| o09_dual_member_operators | member `operator*`/`operator+`/`operator+=` on Dual | import-fail | error [LOWERING/059]: overloaded binary operation requires a Loom operation |
-| o10_arrow_member_call | `a->add(x)`, `a.mean()` through a pointer to a local | ok | vgpr=14 scratch=0B |
-| o11_array1d_by_ref | `Array1D<T,1,N>` accessor, passed by `&` and `const auto&` | ok | vgpr=10 scratch=232B |
-| o12_array2d_lu | `Array2D` accessor, written in place through `&` (dgefa shape) | ok | vgpr=14 scratch=144B |
-| o13_member_fn_mutates_via_struct_ref | `s.bump(dt)` mutating scalar fields, `s` a `Burn&` | ok | vgpr=8 scratch=0B |
-| o14_struct_ref_member_fns | `vs.add_y(n, v); vs.tick(h)` through `Dvode&` | ok | vgpr=10 scratch=128B |
-| o15_ptr_member_accessor_write | `vs->y(n) +=`, `vs->t +=` through a pointer | ok | vgpr=10 scratch=128B |
-| o16_ptr_member_to_accessor_ref | `upd(vs->y)`: Array1D member through a pointer into `Array1D&`, written | ok | vgpr=10 scratch=1936B |
-| o17_array2d_member_lu_runtime_bounds | `dgefa(vs->jac, nn)` with runtime bounds + `__builtin_assume` | ok | vgpr=18 scratch=1936B |
-| o18_array1d_of_rate_dual | `Array1D<rate_t<Dual>, 1, N>` element assign/copy | ok | vgpr=20 scratch=0B |
-| o19_const_ptr_member_accessor_read | `vs->y(n)` through `const Dvode*` | ok | vgpr=8 scratch=248B |
-| r01_static_scalar_ref_out | `static f(double&)` on locals | ok | vgpr=8 scratch=0B |
-| r02_inline_external_ref | `inline` (AMREX_INLINE) non-static fn with scalar `double&` | ok | vgpr=6 scratch=0B |
-| r03_template_struct_ref | `template<class BurnT> inline f(BurnT&)` | import-fail | error [LOWERING/059]: mutation requires an owned automatic source binding |
-| r04_anon_ns_ref | anon-namespace fn with scalar `double&` | ok | vgpr=6 scratch=0B |
-| r05_const_struct_ref_read | `static f(const Burn&)` | ok | vgpr=8 scratch=112B |
-| r06_ref_to_buffer_element | `f(out[i])` | ok | vgpr=6 scratch=0B |
-| r07_ref_return_accessor | `double& at(A&, int)` | ok | vgpr=4 scratch=0B |
-| r08_overlapping_mutable_refs | `f(s, s.T)` | import-fail | error [LOWERING/059]: mutable value-reference arguments must select nonoverlapping automatic objects or member slices |
-| r09_array_ref_param | `const double (&)[13]` | ok | vgpr=6 scratch=0B |
-| r10_local_ref_binding | `double& r = s.x;` | import-fail | error [LOWERING/059]: address-of requires an existing storage-backed element |
-| r11_ref_chain | ref forwarded through 2 static calls | ok | vgpr=10 scratch=0B |
-| r12_const_ref_return_max | `amrex::max` returning `const T&` | compile-fail | error [AMDGPU/023]: reject |
-| r13_struct_member_slice_ref | `bump(s.T)` | ok | vgpr=8 scratch=0B |
-| r14_struct_ref_member_update | `dvode_t&` through 2 template layers: `vs.y(n) +=` and `vs.t +=` | import-fail | error [LOWERING/059]: mutation requires an owned automatic source binding |
-| r15_struct_ref_scalar_field_write | `s.T = ...` through `Burn&` | import-fail | error [LOWERING/059]: mutation requires an owned automatic source binding |
-| r16_struct_ref_array_member_write | `s.xn[n] = ...` through `Burn&` | ok | vgpr=10 scratch=128B |
-| r17_local_ref_array_elem | `double& r = a[2];` | ok | vgpr=4 scratch=0B |
-| r18_value_return_max | `max(const T&, const T&)` returning `T` by value | ok | vgpr=6 scratch=0B |
-| r19_struct_ref_member_accessor_write | `vs.y(n) += ...` through `Dvode&` | import-fail | error [LOWERING/059]: mutation requires an owned automatic source binding |
-| r20_const_ref_from_deref | `const Burn&` bound to `*p` | ok | vgpr=10 scratch=0B |
-| r21_whole_struct_assign_through_ref | `r = rate_t{...}` through `rate_t&` | ok | vgpr=6 scratch=0B |
-| r22_const_ref_to_kernel_arg_struct | `const BurnParams&` bound to `*params` (kernel argument) | ok | vgpr=12 scratch=0B |
-| r23_const_struct_ref_member_accessor_read | `vs.y(n)` through `const Dvode&` | import-fail | error [LOWERING/059]: mutation requires an owned automatic source binding |
-| r24_const_struct_ref_member_raw_array | `vs.y.arr[n]` through `const Dvode&` | ok | vgpr=8 scratch=248B |
+| Probe | Construct | Result | Detail | At main `970d39ac1e` |
+|---|---|---|---|---|
+| c00_control | baseline | ok | vgpr=8 scratch=0B | same |
+| c01_params_pod_ptr | `const Params*` runtime-param POD | ok | vgpr=7 scratch=0B | same |
+| c02_table_ptr_3d | helmholtz `f[j][i][9]` via pointer, clamp, local `fi[36]` | ok | vgpr=16 scratch=288B | same |
+| c03_struct_of_ptrs_by_ptr | struct of table pointers passed by pointer (`t->a[i]`) | import-fail | error [LOWERING/059]: stored pointers and references require an object storage representation | same |
+| c04_struct_of_ptrs_by_value | struct of table pointers passed by value (`t.a[i]`) | ok | vgpr=6 scratch=0B | same |
+| c05_flat_table_offsets | one table buffer, compile-time offsets | ok | vgpr=6 scratch=0B | same |
+| c06_ptr_member_of_kernel_arg_struct | kernel argument: pointer to a struct of pointers in device memory | import-fail | error [LOWERING/059]: stored pointers and references require an object storage representation | same |
+| d01_ns_constexpr_array | `aion[]`, `zion[]`, `aion_inv[]` | ok | vgpr=14 scratch=0B | same |
+| d02_local_const_array | local `const double t[N]` | ok | vgpr=28 scratch=104B | same |
+| d03_ns_mutable_global | runtime param global | import-fail | error [LOWERING/059]: global storage definitions require a global-storage projection | same |
+| d04_uninit_local | `bool converged;` | ok | vgpr=8 scratch=0B | same |
+| d05_struct_default_init_braces | `T x{}` | ok | vgpr=8 scratch=0B | same |
+| d06_struct_copy_assign | `old{s}; s = old;` | ok | vgpr=4 scratch=0B | same |
+| d07_limits_and_nan | `__DBL_MAX__`, NaN via bit_cast | ok | vgpr=9 scratch=0B | same |
+| d08_large_struct_runtime_index | dvode_t-sized local struct | ok | vgpr=10 scratch=2872B | vgpr=12 scratch=2872B |
+| d09_static_constexpr_member_array | `static constexpr` member array | import-fail | error [LOWERING/059]: member-dependent initialization requires source object initialization semantics | same |
+| d10_enum_u8_base | `enum : unsigned char` | import-fail | error [PARSE/036]: invalid operands of types 'double' and '::probe::Rates' to binary operator '+' | same |
+| d11_short_and_bool_arrays | `short pivot[14]`, `bool` arrays | ok | vgpr=10 scratch=42B | same |
+| d12_f64_to_int_conversion | `int(double)` | ok | vgpr=10 scratch=0B | same |
+| d13_uninit_local_double | `double r;` assigned on both branches | ok | vgpr=8 scratch=0B | same |
+| d14_uninit_local_struct | `Burn s;` without initializer | import-fail | error [LOWERING/059]: uninitialized locals require scalar or native vector object storage | same |
+| d15_uninit_local_array | `double a[14];` without initializer | ok | vgpr=6 scratch=112B | same |
+| d16_ns_inline_constexpr_array | `inline constexpr double aion[N]` at namespace scope | ok | vgpr=14 scratch=0B | same |
+| d17_ns_constexpr_2d_array | namespace-scope `constexpr` 2-D table, two runtime indices | ok | vgpr=8 scratch=0B | same |
+| d18_ns_constexpr_struct_array | namespace-scope `constexpr` array of aggregates, runtime index | ok | vgpr=10 scratch=0B | same |
+| d19_ns_constexpr_array_loop_index | `aion[n]`, `zion[n]` read in a constant-bound loop | ok | vgpr=20 scratch=0B | same |
+| d20_ns_constexpr_array_unreachable | namespace-scope `constexpr` array the root never reads | ok | vgpr=6 scratch=0B | same |
+| d21_ns_mutable_global_unreachable | mutable namespace-scope global the root never reads | import-fail | error [LOWERING/059]: global storage definitions require a global-storage projection | same |
+| d22_fn_static_constexpr_array | block-scope `static constexpr` array in a device function | import-fail | error [LOWERING/059]: local storage duration must be automatic or __shared__ | same |
+| d23_extern_const_array_defined | `extern const` array declared, then defined in the TU | ok | vgpr=14 scratch=0B | same |
+| f01_switch_runtime | runtime `switch` | import-fail | error [LOWERING/059]: unsupported statement: switch-statement | **ok** vgpr=8 scratch=0B |
+| f02_switch_in_constexpr_fn | `rhs_data(rate)` folded | import-fail | error [LOWERING/059]: unsupported C++ type: ::probe::RhsT | same |
+| f03_return_in_loop | `return` in `while(true)` | import-fail | error [LOWERING/059]: returns inside loops require a structured loop-exit projection | **ok** vgpr=9 scratch=8B |
+| f04_for_ever | `for(;;)` | ok | vgpr=10 scratch=0B | same |
+| f05_vode_retry_shape | nested `while(true)`, result code | ok | vgpr=22 scratch=0B | same |
+| f06_runtime_triangular_loops | `for k=NQ..1, j=k..NQ` | ok | vgpr=12 scratch=672B | same |
+| f07_retry_loop_no_assume | retry loop with break/continue, no `__builtin_assume` | ok | vgpr=12 scratch=0B | same |
+| f08_retry_loop_assume | same, with `__builtin_assume` | ok | vgpr=12 scratch=0B | same |
+| f09_newton_for_break | EOS Newton `for` + `break` | ok | vgpr=26 scratch=0B | same |
+| f10_early_return_outside_loop | sneut5 early return | ok | vgpr=8 scratch=0B | same |
+| f11_ternary_nest_40 | 40-deep nested ternary | ok | vgpr=86 scratch=240B | same |
+| f12_for_no_cond_continue | `for (m = 0;; ++m)` with `continue`/`break` | ok | vgpr=10 scratch=0B | same |
+| f13_assume_derived_expr | `__builtin_assume(j + 1 <= n)` | ok | vgpr=10 scratch=120B | same |
+| f14_assume_struct_field | `__builtin_assume(1 <= vs->L && vs->L <= 6)` | import-fail | error [LOWERING/059]: predicate member paths require direct non-static record fields | same |
+| f15_runtime_bound_index_no_assume | dvjust-shape runtime-bound loops and `vs->el[L]`, no assumptions | compile-fail | error [SUBRANGE/026]: view.load access byte end may reach 17179869192, exceeding storage root byte extent 848 | same |
+| f16_runtime_bound_index_assume | same as f15 with `__builtin_assume` on every index | ok | vgpr=12 scratch=848B | same |
+| f17_break_loop_private_index_no_assume | constant-bound loop with data-dependent `break`, no assumptions | ok | vgpr=12 scratch=112B | same |
+| f20_assume_short_field_member_index | `const int La = vs->L` (`short` field) assumed, indexes an `Array1D` member through a pointer | ok | vgpr=8 scratch=176B | same |
+| f21_multi_exit_loop | dvode step-loop shape: `while (true)`, 4 `break`s + `continue` in data-dependent branches | ok | vgpr=22 scratch=64B | same |
+| f22_nested_multi_exit_loops | inner `while (true)` with 3 `break`s nested in a multi-exit outer loop (dvstep corrector shape) | ok | vgpr=20 scratch=64B | same |
+| f23_nested_single_exit_form | f22 with both loops in the single-exit `done` form | ok | vgpr=18 scratch=64B | same |
+| f24_nested_conditional_return | `return` in an `if` nested in a runtime `if`, code after both (`actual_log_screen`) | import-fail | error [LOWERING/059]: conditional returns require at most one fallthrough arm; shared continuations need a scoped exit projectio | **ok** vgpr=8 scratch=0B |
+| f25_single_level_conditional_return | f24 with the conditions merged into one `if` | ok | vgpr=8 scratch=0B | same |
+| l01_lambda_constexpr_for | lambdas | import-fail | error [LOWERING/059]: rvalue-reference parameters require consuming object identity | same |
+| l02_template_struct_unroll | template-struct recursion | ok | vgpr=30 scratch=0B | same |
+| m_f32_roundevenf | f32 `loom::scalar::roundevenf` (OCML `BUILTIN_RINT_F32`, cbrt) | ok | vgpr=2 scratch=0B \| v_rndne_f32:1 | same |
+| m_f64_absf | f64 fabs | ok | vgpr=4 scratch=0B | same |
+| m_f64_amdgcn_rcp | `__builtin_amdgcn_rcp` on f64 (OCML `MATH_FAST_RCP` seed) | import-fail | error [PARSE/036]: unknown builtin function '__builtin_amdgcn_rcp' | same |
+| m_f64_builtin_frexp_ldexp | `__builtin_frexp` with an `int*` out-parameter, then `__builtin_ldexp` (OCML spelling) | ok | vgpr=5 scratch=0B \| v_ldexp_f64:1 v_frexp_mant_f64:1 v_frexp_exp_i32_f64:1 | same |
+| m_f64_builtin_rint | `__builtin_rint` on f64 (OCML `BUILTIN_RINT_F64`) | import-fail | error [LOWERING/059]: call requires a concrete namespace-scope function declaration | same |
+| m_f64_cbrtf | f64 cbrt | compile-fail | error [TARGET/001]: has no target-low contract | same |
+| m_f64_copysignf | f64 copysign | ok | vgpr=6 scratch=0B | same |
+| m_f64_cosf | f64 cos | compile-fail | error [LOWERING/036]: legalize-math policy amdgpu-math rejected scalar.cosf for cosf in scalar lanes of f64 under math.element.f32 | same |
+| m_f64_div_afn | f64 `loom::scalar::approximate::divf` (afn) | ok | vgpr=14 scratch=0B \| v_fma_f64:5 v_div_scale_f64:2 v_rcp_f64:1 v_mul_f64:1 v_div_fmas_f64:1 v_div_fixup_f64:1 | same |
+| m_f64_divide_reciprocal | f64 `loom::divide_reciprocal` (arcp, hrx-system #2131) | ok | vgpr=14 scratch=0B \| v_fma_f64:3 v_div_scale_f64:2 v_rcp_f64:1 v_mul_f64:1 v_div_fmas_f64:1 v_div_fixup_f64:1 | same |
+| m_f64_expf | f64 exp | compile-fail | error [LOWERING/036]: legalize-math policy amdgpu-math rejected scalar.expf for expf in scalar lanes of f64 under math.element.f32 | same |
+| m_f64_floorf | f64 floor | ok | vgpr=4 scratch=0B \| v_floor_f64:1 | same |
+| m_f64_fmaf | f64 fma | ok | vgpr=8 scratch=0B \| v_fma_f64:1 | same |
+| m_f64_frexpf | f64 `loom::scalar::frexpf` (hrx-system #2131) | ok | vgpr=6 scratch=0B \| v_frexp_mant_f64:1 v_frexp_exp_i32_f64:1 | same |
+| m_f64_ldexpf | f64 `loom::scalar::ldexpf` (hrx-system #2131) | ok | vgpr=4 scratch=0B \| v_ldexp_f64:1 | same |
+| m_f64_log10f | f64 log10 | compile-fail | error [TARGET/001]: has no target-low contrac | same |
+| m_f64_logf | f64 log | compile-fail | error [LOWERING/036]: legalize-math policy amdgpu-math rejected scalar.logf for logf in scalar lanes of f64 under math.element.f32 | same |
+| m_f64_math_h_recipes | `f64_math.H` exp/log/cbrt recipes | ok | vgpr=50 scratch=0B \| v_add_f64:47 v_fma_f64:36 v_mul_f64:11 v_ldexp_f64:6 v_div_scale_f64:4 v_cmp_lt_f64:3 | same |
+| m_f64_powf | f64 pow (non-integer exponent) | compile-fail | error [LOWERING/036]: legalize-math policy amdgpu-math rejected scalar.powf for powf in scalar lanes of f64 under math.element.f32 | same |
+| m_f64_roundevenf | f64 rint (roundeven) | ok | vgpr=4 scratch=0B \| v_rndne_f64:1 | same |
+| m_f64_sinf | f64 sin | compile-fail | error [LOWERING/036]: legalize-math policy amdgpu-math rejected scalar.sinf for sinf in scalar lanes of f64 under math.element.f32 | same |
+| m_f64_sqrtf | f64 sqrt | ok | vgpr=10 scratch=0B \| v_fma_f64:7 v_mul_f64:2 v_ldexp_f64:2 v_rsq_f64:1 v_cmp_lt_f64:1 v_cmp_class_f64:1 | same |
+| m_f64_tanhf | f64 tanh | compile-fail | error [LOWERING/036]: legalize-math policy amdgpu-math rejected scalar.tanhf for tanhf in scalar lanes of f64 under math.element.f32 | same |
+| m_f64_truncf | f64 trunc | ok | vgpr=4 scratch=0B \| v_trunc_f64:1 | same |
+| m_fp_contract | `a * b + c` under `--fp-model=precise` | ok | vgpr=8 scratch=0B \| v_mul_f64:1 v_add_f64:1 | same |
+| m_powi_template | `powi<N>` recursion | ok | vgpr=8 scratch=0B \| v_mul_f64:5 v_add_f64:1 | same |
+| o01_member_fn_call | `a.add(x)` | ok | vgpr=6 scratch=0B | same |
+| o02_operator_call_index | `Array1D::operator()` | ok | vgpr=6 scratch=0B | same |
+| o03_dual_operator_overload | `operator*`/`operator+` on Dual | import-fail | error [LOWERING/059]: overloaded binary operation requires a Loom operation | same |
+| o04_dual_free_functions | POD Dual / Dual3 + free fns, by value | ok | vgpr=10 scratch=0B | same |
+| o05_dual3_array_free_functions | POD Dual / Dual3 + free fns, by value | ok | vgpr=12 scratch=96B | same |
+| o06_base_class | `Grad : Base` | import-fail | error [LOWERING/059]: record values require a complete aggregate without unions, bases or nontrivial lifecycle operations | same |
+| o07_ctor_with_args | `D x(1.0)` | import-fail | error [LOWERING/059]: record values require a complete aggregate without unions, bases or nontrivial lifecycle operations | same |
+| o08_structured_binding | `auto [f, r] = term(x)` | import-fail | error [LOWERING/059]: unsupported local declaration | same |
+| o09_dual_member_operators | member `operator*`/`operator+`/`operator+=` on Dual | import-fail | error [LOWERING/059]: overloaded binary operation requires a Loom operation | same |
+| o10_arrow_member_call | `a->add(x)`, `a.mean()` through a pointer to a local | ok | vgpr=14 scratch=0B | same |
+| o11_array1d_by_ref | `Array1D<T,1,N>` accessor, passed by `&` and `const auto&` | ok | vgpr=10 scratch=232B | same |
+| o12_array2d_lu | `Array2D` accessor, written in place through `&` (dgefa shape) | ok | vgpr=14 scratch=144B | same |
+| o13_member_fn_mutates_via_struct_ref | `s.bump(dt)` mutating scalar fields, `s` a `Burn&` | ok | vgpr=8 scratch=0B | same |
+| o14_struct_ref_member_fns | `vs.add_y(n, v); vs.tick(h)` through `Dvode&` | ok | vgpr=10 scratch=128B | same |
+| o15_ptr_member_accessor_write | `vs->y(n) +=`, `vs->t +=` through a pointer | ok | vgpr=10 scratch=128B | same |
+| o16_ptr_member_to_accessor_ref | `upd(vs->y)`: Array1D member through a pointer into `Array1D&`, written | ok | vgpr=10 scratch=1936B | same |
+| o17_array2d_member_lu_runtime_bounds | `dgefa(vs->jac, nn)` with runtime bounds + `__builtin_assume` | ok | vgpr=18 scratch=1936B | vgpr=19 scratch=1936B |
+| o18_array1d_of_rate_dual | `Array1D<rate_t<Dual>, 1, N>` element assign/copy | ok | vgpr=20 scratch=0B | same |
+| o19_const_ptr_member_accessor_read | `vs->y(n)` through `const Dvode*` | ok | vgpr=8 scratch=248B | same |
+| r01_static_scalar_ref_out | `static f(double&)` on locals | ok | vgpr=8 scratch=0B | same |
+| r02_inline_external_ref | `inline` (AMREX_INLINE) non-static fn with scalar `double&` | ok | vgpr=6 scratch=0B | same |
+| r03_template_struct_ref | `template<class BurnT> inline f(BurnT&)` | import-fail | error [LOWERING/059]: mutation requires an owned automatic source binding | same |
+| r04_anon_ns_ref | anon-namespace fn with scalar `double&` | ok | vgpr=6 scratch=0B | same |
+| r05_const_struct_ref_read | `static f(const Burn&)` | ok | vgpr=8 scratch=112B | same |
+| r06_ref_to_buffer_element | `f(out[i])` | ok | vgpr=6 scratch=0B | same |
+| r07_ref_return_accessor | `double& at(A&, int)` | ok | vgpr=4 scratch=0B | same |
+| r08_overlapping_mutable_refs | `f(s, s.T)` | import-fail | error [LOWERING/059]: mutable value-reference arguments must select nonoverlapping automatic objects or member slices | same |
+| r09_array_ref_param | `const double (&)[13]` | ok | vgpr=6 scratch=0B | same |
+| r10_local_ref_binding | `double& r = s.x;` | import-fail | error [LOWERING/059]: address-of requires an existing storage-backed element | same |
+| r11_ref_chain | ref forwarded through 2 static calls | ok | vgpr=10 scratch=0B | same |
+| r12_const_ref_return_max | `amrex::max` returning `const T&` | compile-fail | error [AMDGPU/023]: reject | same |
+| r13_struct_member_slice_ref | `bump(s.T)` | ok | vgpr=8 scratch=0B | same |
+| r14_struct_ref_member_update | `dvode_t&` through 2 template layers: `vs.y(n) +=` and `vs.t +=` | import-fail | error [LOWERING/059]: mutation requires an owned automatic source binding | same |
+| r15_struct_ref_scalar_field_write | `s.T = ...` through `Burn&` | import-fail | error [LOWERING/059]: mutation requires an owned automatic source binding | same |
+| r16_struct_ref_array_member_write | `s.xn[n] = ...` through `Burn&` | ok | vgpr=10 scratch=128B | same |
+| r17_local_ref_array_elem | `double& r = a[2];` | ok | vgpr=4 scratch=0B | same |
+| r18_value_return_max | `max(const T&, const T&)` returning `T` by value | ok | vgpr=6 scratch=0B | same |
+| r19_struct_ref_member_accessor_write | `vs.y(n) += ...` through `Dvode&` | import-fail | error [LOWERING/059]: mutation requires an owned automatic source binding | same |
+| r20_const_ref_from_deref | `const Burn&` bound to `*p` | ok | vgpr=10 scratch=0B | same |
+| r21_whole_struct_assign_through_ref | `r = rate_t{...}` through `rate_t&` | ok | vgpr=6 scratch=0B | same |
+| r22_const_ref_to_kernel_arg_struct | `const BurnParams&` bound to `*params` (kernel argument) | ok | vgpr=12 scratch=0B | same |
+| r23_const_struct_ref_member_accessor_read | `vs.y(n)` through `const Dvode&` | import-fail | error [LOWERING/059]: mutation requires an owned automatic source binding | same |
+| r24_const_struct_ref_member_raw_array | `vs.y.arr[n]` through `const Dvode&` | ok | vgpr=8 scratch=248B | same |

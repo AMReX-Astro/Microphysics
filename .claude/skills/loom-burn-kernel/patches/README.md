@@ -12,6 +12,7 @@ nohup setsid bash build_loom_tools.sh > build.log 2>&1 < /dev/null &
 ```
 
 No patch is required at `fa8eba4554`; `trace-repair.patch` is a diagnostic.
+It also applies cleanly at main `970d39ac1e` (checked 2026-10-27).
 Dropped patches:
 - `assume-cast-chain.patch` (required at `fada6788a1`): hrx-system #2135
   (`653fe783ec`) fixes #2122 upstream; producer matching in the combine now

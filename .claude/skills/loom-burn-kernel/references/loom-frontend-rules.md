@@ -7,6 +7,8 @@ with this skill's `probes/` kit (results and probe names in
 rows marked "changed recently" or anything older than the commit you use
 may be stale.
 
+Re-probed 2026-10-27 at main `970d39ac1e`: the rows marked **At main `970d39ac1e`** need no rewrite there. **Don't build burn kernels with hrx-system `1468c06034` or later** (including main `970d39ac1e`): it miscompiles the aprox13 burn. The burned state stays bit-identical, but `zone_success` is lost in every lane that leaves VODE's step loop before the last lane of its wavefront (ROCm/hrx-system#2337). `964249c20e` (2026-10-24) was bit-exact on the full burn with stock tools. So keep these rewrites until the pin moves past a fix.
+
 ## Import invocation
 
 Command lines for import and compile are in `test-react-integration.md`
@@ -44,11 +46,11 @@ Under `__loom__`, `#include <hip/hip_runtime.h>` gives `__global__`,
 | Member function calls (`a.f(x)`, `p->f(x)`), `operator()` returning `T&`/`const T&` | import (o01, o02, o10; hrx-system #2040) | Keep them |
 | `Array1D/Array2D`-style structs (array member + 1-based `operator()`; no base class) | import by value, `&` and `const&`, with writes through the accessor (o11, o12) | Keep the 1-based accessor and the source's index expressions; write a local aggregate of the same shape in the kernel namespace (the kernel cannot include AMReX) |
 | Lambdas (`constexpr_for`, `ParallelFor`) | fail | Indexed loops; template-struct recursion for compile-time unrolling |
-| `switch` | fails at runtime (folds if `constexpr`) | if/else chain |
+| `switch` | fails at runtime (folds if `constexpr`) | if/else chain. **At main `970d39ac1e`:** imports and compiles (f01) |
 | range-for | fails | Indexed loops |
 | `for (;;)`, `for (init;; step)` | imports (f04, f12; hrx-system #2105) | — |
-| `return` in a loop | fails (LOWERING/059) | `done`/result code + `break`, return after the loop |
-| Early `return` in an `if` nested inside another `if`, with code after both (stock `actual_log_screen`) | fails import (f24: "conditional returns require at most one fallthrough arm"); a single-level early return imports (f10, f25) | `bool done` flag, later code under `if (!done)`, one return at the end (`screen.H`) |
+| `return` in a loop | fails (LOWERING/059) | `done`/result code + `break`, return after the loop. **At main `970d39ac1e`:** imports and compiles (f03) |
+| Early `return` in an `if` nested inside another `if`, with code after both (stock `actual_log_screen`) | fails import (f24: "conditional returns require at most one fallthrough arm"); a single-level early return imports (f10, f25) | `bool done` flag, later code under `if (!done)`, one return at the end (`screen.H`). **At main `970d39ac1e`:** imports and compiles (f24) |
 | Loop with several exits (`break`s/`continue` inside branches) under divergent control | compiles, single (f21) or nested (f22, the dvstep corrector shape: fails TARGET/034 `masked_region_merge_vgpr_values` at `fada6788a1` and before, compiles at `fa8eba4554`) | Keep the stock loop shape; only a `return` inside the loop needs rewriting (previous row) |
 | Uninitialized locals | scalar and array locals import (`double r;`, `bool converged;`, `double a[14];`: d04, d13, d15; hrx-system #2105); struct and pointer locals fail (d14: "uninitialized locals require scalar or native vector object storage") | `T x{}` for structs; scalars and arrays may stay uninitialized as in the source |
 | Base classes; overloaded arithmetic operators, free or member (autodiff `dual`) | fail (o06; o03, o09: "overloaded binary operation requires a Loom operation") | Flatten bases; POD dual structs with free functions (see translation guide, "Autodiff") |
