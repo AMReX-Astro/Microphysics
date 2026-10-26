@@ -12,7 +12,7 @@ Re-probed 2026-10-27 at main `970d39ac1e`: the rows marked **At main `970d39ac1e
 ## Import invocation
 
 Command lines for import and compile are in `test-react-integration.md`
-("Remote import/compile commands"). The importer defaults to
+("Import/compile commands"). The importer defaults to
 `--std=c++26`, while Microphysics is C++20; a few rules differ between them (e.g. enum/floating arithmetic became ill-formed).
 The probes and the campaigns used the default.
 

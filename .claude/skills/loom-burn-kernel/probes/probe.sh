@@ -14,40 +14,32 @@
 # includes "f64_math.h"):
 #   mkdir -p <probes dir>/include
 #   cp <skill>/assets/kernel/f64_math.H <probes dir>/include/f64_math.h
-# then run it on the GPU host. Locally (this machine has the GPU):
+# then run it on the GPU host:
 #   W=<probes dir> TOOLS=... bash <probes dir>/probe.sh > probe-run.log 2>&1
-# Remote (one ssh connection each, spaced out; never run Loom tools on a laptop):
-#   rsync -rlpc --delete <probes dir>/ <host>:<W>/
-#   ssh <host> 'cd <W> || exit 1
-#             TOOLS=... nohup setsid bash probe.sh > probe-run.log 2>&1 < /dev/null &'
-# (keep the backgrounded command on its own line: a trailing & backgrounds a
-# whole && list, and its stdin becomes /dev/null.)
-#   ... later, one session:  ssh <host> 'cat <W>/probe-summary.txt'
-# (rsync is fine; never repack with macOS tar, see references/footguns.md.)
 #
 # Check m_fp_contract: it must show v_mul_f64 + v_add_f64 and no v_fma_f64.
 #
 # Environment:
 #   TOOLS             dir with loom-import-cxx and loom-compile built from the
 #                     pinned hrx-system commit                        (required)
-#   LOOM_REMOTE_BASE  base dir for the defaults below                 (default $LOOM_WORK, else $HOME/loom-work)
+#   LOOM_WORK         base dir for the defaults below                 (default $HOME/loom-work)
 #   W                 the probes dir (contains src/; writable)        (default: this script's dir)
 #   F64_INC           dir with f64_math.h for m_f64_math_h_recipes    (default $W/include; falls
 #                     back to ../assets/kernel/f64_math.H if the whole skill was shipped)
-#   HRX               hrx-system checkout, only to record its commit  (default $LOOM_REMOTE_BASE/hrx-system;
+#   HRX               hrx-system checkout, only to record its commit  (default $LOOM_WORK/hrx-system;
 #                     $TOOLS/SOURCE from build_loom_tools.sh is used first)
 #   TARGET            amdgpu target     (default: local GPU from amdgpu-arch/rocminfo, else gfx90a)
 #   CPUS              taskset CPU list away from timing cores         (default: all CPUs)
 #   ROCM_PATH         ROCm install                                    (default /opt/rocm)
 #   L                 dir with llvm-readelf, llvm-objdump (default $ROCM_PATH/llvm/bin, else
 #                     $ROCM_PATH/lib/llvm/bin)
-#   TMPDIR            kept if set, else $LOOM_REMOTE_BASE/tmp
+#   TMPDIR            kept if set, else $LOOM_WORK/tmp
 set -u
 usage() { sed -n '2,/^set -u/p' "$0" | sed '$d'; exit "${1:-2}"; }
 case "${1:-}" in -h|--help) usage 0;; '') ;; *) usage;; esac
 [ -n "${TOOLS:-}" ] || { echo "set TOOLS to a dir with loom-import-cxx and loom-compile built from the pinned commit"; usage; }
 here=$(cd "$(dirname "$0")" && pwd)
-R=${LOOM_REMOTE_BASE:-${LOOM_WORK:-$HOME/loom-work}}
+R=${LOOM_WORK:-$HOME/loom-work}
 # default: the kit this script lives in (the copy in the port's agent-notes
 # dir, SKILL.md Phase 1); it must be writable (out/, probe-summary.txt)
 W=${W:-$here}

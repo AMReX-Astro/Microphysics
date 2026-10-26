@@ -1,10 +1,10 @@
 #!/bin/bash
-# Loom import + compile smoke test of kernel sources on the GPU host (this
-# machine with LOOM_HOST=local, or a remote host over ssh).
+# Loom import + compile smoke test of kernel sources on this machine (the GPU
+# host).
 #
 #   loom_smoke.sh launch NAME KERNEL_DIR SOURCE ROOT [ROOT ...]
-#       Ship KERNEL_DIR (a directory of headers; SOURCE is a .cpp inside it)
-#       and start, detached on the remote host: loom-import-cxx of SOURCE with
+#       Copy KERNEL_DIR (a directory of headers; SOURCE is a .cpp inside it)
+#       to the run directory and start, detached: loom-import-cxx of SOURCE with
 #       the given C++ roots (e.g. mpl::smoke_burn), then loom-compile of each
 #       root for $LOOM_TARGET. Returns at once.
 #   loom_smoke.sh status NAME
@@ -13,8 +13,7 @@
 #       Exit 6 if the finished run had an import/compile failure.
 #   loom_smoke.sh wait NAME [TIMEOUT]
 #       Block until the run finishes (or dies, or TIMEOUT seconds pass,
-#       default 7200), checking every 15 s on the GPU host inside ONE
-#       connection, then print its log like status. Exit 0 when it finished,
+#       default 7200), checking every 15 s, then print its log like status. Exit 0 when it finished,
 #       4 when the job died, 5 on timeout, 6 when it finished but an import or
 #       compile failed (or the tools md5 didn't match). Use it to run compiles one at a
 #       time instead of hand-written polling (pgrep -f matches itself).
@@ -22,24 +21,15 @@
 #       Copy back the logs and compile reports (<root>.report.json; no IR, no
 #       code objects).
 #
-# Remote: every subcommand makes exactly ONE ssh connection (remote host
-# etiquette: no bursts, see references/footguns.md). Space the status checks
-# out (a full burn kernel took minutes); never poll in a tight loop.
-#
 # Environment:
-#   LOOM_HOST         ssh alias of the GPU host, or "local" to run the same
-#                     steps on this machine without ssh          (default local)
-#   LOOM_SSH_OPTS     extra ssh options, word-split  (default: -o WarnWeakCrypto=no
-#                     if the local OpenSSH is >= 10.1, else none)
-#   LOOM_REMOTE_BASE  base dir on the GPU host (absolute)        (default $LOOM_WORK or $HOME/loom-work when
-#                     local; required for a remote host, e.g. /mnt/data/bwibking on moth)
-#   LOOM_REMOTE_ROOT  work dir on the GPU host, NAME/ inside     (default $LOOM_REMOTE_BASE/loom-smoke)
-#   LOOM_TOOLS        dir on the GPU host with loom-import-cxx, loom-compile and
-#                     optionally tools.md5, built from the pinned commit (required)
-#   LOOM_TARGET       amdgpu target         (default: the host's GPU from amdgpu-arch/rocminfo, else gfx90a)
-#   LOOM_CPUS         taskset CPU list away from timing cores    (default: all CPUs of the host)
-#   ROCM_PATH         ROCm on the GPU host                       (default /opt/rocm)
-#   LOOM_LLVM         llvm-readelf dir on the GPU host           (default $ROCM_PATH/llvm/bin, else
+#   LOOM_WORK         base dir                                   (default $HOME/loom-work)
+#   LOOM_SMOKE_ROOT   run dirs, NAME/ inside                     (default $LOOM_WORK/loom-smoke)
+#   LOOM_TOOLS        dir with loom-import-cxx, loom-compile and optionally
+#                     tools.md5, built from the pinned commit    (required)
+#   LOOM_TARGET       amdgpu target         (default: the GPU from amdgpu-arch/rocminfo, else gfx90a)
+#   LOOM_CPUS         taskset CPU list away from timing cores    (default: all CPUs)
+#   ROCM_PATH         ROCm install                               (default /opt/rocm)
+#   LOOM_LLVM         llvm-readelf dir                           (default $ROCM_PATH/llvm/bin, else
 #                                                                 $ROCM_PATH/lib/llvm/bin)
 #   LOOM_IMPORT_TIMEOUT, LOOM_COMPILE_TIMEOUT  seconds           (default 1800, 3600)
 #
@@ -47,30 +37,8 @@
 # host with enough memory (8+ GB per compile) is fine.
 set -u
 
-host=${LOOM_HOST:-local}
-if [ "$host" = local ]; then
-    base=${LOOM_REMOTE_BASE:-${LOOM_WORK:-$HOME/loom-work}}
-else
-    base=${LOOM_REMOTE_BASE:-}
-    if [ -z "$base" ] && [ -z "${LOOM_REMOTE_ROOT:-}" ]; then
-        echo "set LOOM_REMOTE_BASE (absolute dir on $host) or LOOM_REMOTE_ROOT"; exit 2
-    fi
-fi
-rroot=${LOOM_REMOTE_ROOT:-$base/loom-smoke}
-# ssh options: LOOM_SSH_OPTS if set (may be empty); otherwise silence the
-# weak-crypto warning only where the option exists (OpenSSH >= 10.1; older
-# clients reject -o WarnWeakCrypto).
-if [ -z "${LOOM_SSH_OPTS+x}" ]; then
-    LOOM_SSH_OPTS=""
-    read -r ssh_maj ssh_min <<< "$(ssh -V 2>&1 | sed -n 's/^OpenSSH_\([0-9]*\)\.\([0-9]*\).*/\1 \2/p')"
-    if [ "${ssh_maj:-0}" -gt 10 ] || { [ "${ssh_maj:-0}" -eq 10 ] && [ "${ssh_min:-0}" -ge 1 ]; }; then
-        LOOM_SSH_OPTS="-o WarnWeakCrypto=no"
-    fi
-fi
-# word-split on purpose; bash 3.2 (macOS) rejects "${empty[@]}" under set -u
-# shellcheck disable=SC2206
-ssh_cmd=(ssh $LOOM_SSH_OPTS "$host")
-[ "$host" = local ] && ssh_cmd=(bash -c)
+rroot=${LOOM_SMOKE_ROOT:-${LOOM_WORK:-$HOME/loom-work}/loom-smoke}
+run=(bash -c)
 
 usage() { sed -n '2,/^set -u/p' "$0" | sed '$d'; exit "${1:-2}"; }
 
@@ -78,7 +46,7 @@ case "${1:-}" in
 launch)
     [ $# -ge 5 ] || usage
     name=$2; kdir=$(cd "$3" && pwd) || exit 1; src=$4; shift 4
-    : "${LOOM_TOOLS:?set LOOM_TOOLS to the remote dir with the frozen loom tools}"
+    : "${LOOM_TOOLS:?set LOOM_TOOLS to the dir with the frozen loom tools}"
     case "$name" in *[!A-Za-z0-9._-]*|'') echo "bad NAME"; exit 2;; esac
     [ -f "$kdir/$src" ] || [ -f "$src" ] || { echo "SOURCE must be a file inside KERNEL_DIR"; exit 2; }
     case "$src" in /*) src=${src#"$kdir"/};; esac
@@ -131,10 +99,10 @@ done
 echo "# done \$(date) result=\$(cat RESULT)"
 EOF
     (cd "$stage" && COPYFILE_DISABLE=1 tar --no-xattrs -czf "$stage/payload.tgz" "$name")
-    # One connection: refuse if a run of this NAME is still going, unpack in
-    # the FOREGROUND (a trailing & would background the whole && list and give
-    # tar /dev/null as stdin), then background only the job on its own line.
-    "${ssh_cmd[@]}" "R='$rroot'; W=\"\$R/$name\"
+    # Refuse if a run of this NAME is still going, unpack in the FOREGROUND (a
+    # trailing & would background the whole && list and give tar /dev/null as
+    # stdin), then background only the job on its own line.
+    "${run[@]}" "R='$rroot'; W=\"\$R/$name\"
 mkdir -p \"\$R\" || exit 1
 if [ -e \"\$W/RUNNING\" ]; then
   if [ ! -s \"\$W/RUNNING\" ] || kill -0 \"\$(cat \"\$W/RUNNING\")\" 2>/dev/null; then echo \"BUSY: \$W has a running job (or a marker without PID)\"; exit 3; fi
@@ -151,7 +119,7 @@ sleep 1; echo \"launched $name at \$(date)\"" < "$stage/payload.tgz"
     ;;
 status)
     [ $# -eq 2 ] || usage
-    "${ssh_cmd[@]}" "cd '$rroot/$2' 2>/dev/null || { echo 'no such run'; exit 1; }
+    "${run[@]}" "cd '$rroot/$2' 2>/dev/null || { echo 'no such run'; exit 1; }
 if [ -e RUNNING ]; then
   if [ ! -s RUNNING ]; then echo '(marker has no PID: launched by an older loom_smoke.sh; check ps for loom-compile)'
   elif kill -0 \$(cat RUNNING) 2>/dev/null; then echo '(still running)'
@@ -162,7 +130,7 @@ cat run.log
     ;;
 wait)
     [ $# -ge 2 ] && [ $# -le 3 ] || usage
-    "${ssh_cmd[@]}" "cd '$rroot/$2' 2>/dev/null || { echo 'no such run'; exit 1; }
+    "${run[@]}" "cd '$rroot/$2' 2>/dev/null || { echo 'no such run'; exit 1; }
 t0=\$(date +%s); rc=0
 while [ -e RUNNING ]; do
   if [ ! -s RUNNING ] || ! kill -0 \$(cat RUNNING) 2>/dev/null; then
@@ -178,7 +146,7 @@ exit \$rc"
 fetch)
     [ $# -eq 3 ] || usage
     mkdir -p "$3"
-    "${ssh_cmd[@]}" "cd '$rroot/$2' && tar czf - run.log run.sh import.log *.compile.log *.report.json 2>/dev/null" | tar xzf - -C "$3"
+    "${run[@]}" "cd '$rroot/$2' && tar czf - run.log run.sh import.log *.compile.log *.report.json 2>/dev/null" | tar xzf - -C "$3"
     ls "$3"
     ;;
 -h|--help)

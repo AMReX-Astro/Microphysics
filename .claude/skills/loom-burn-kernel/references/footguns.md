@@ -11,22 +11,10 @@ repository; the items below are the distilled result.
   size takes several GB (8+ GB for a full burn); parallel local compiles
   panicked a Mac (2026-10-15). Forward-differentiating one large function made
   `loom-import-cxx` run 8+ minutes and was the likely memory hog. Import and
-  compile the real kernel only on the GPU host: when that is the machine
-  you are on (a Linux box or VM with ROCm and the GPU), use the scripts'
-  `LOOM_HOST=local` mode (the default), check `free -g` first, and still run
-  one full compile at a time. On a laptop without the GPU, tiny one-construct
+  compile the real kernel only on the GPU host (a Linux box or VM with ROCm
+  and the GPU): check `free -g` first, and still run one full compile at a
+  time. On a laptop without the GPU, tiny one-construct
   probes may run locally, one at a time, if the user agrees.
-- **Remote host etiquette (moth; skip when the GPU is local).** Use only the plain `ssh moth` alias, one
-  connection at a time, spaced out. Bursts of connections got sshd to refuse
-  sessions for ~5 min and look like probing. Long work goes under `nohup`
-  with a log; check on it with one long-lived session, not repeated
-  reconnects. Never ask to bypass the firewall or jump through another host.
-- **moth reboots for kernel updates** (e.g. 2026-10-18 08:47 AEDT, mid-compile;
-  `last -x` shows the kernel version changing at each reboot). A job killed
-  this way leaves no result. `scripts/loom_smoke.sh status` reports
-  "JOB DIED ... host up since ..." and `launch` replaces the stale marker;
-  relaunch. Before blaming your job for a reboot, check whether the kernel
-  version changed.
 - **The GPU is shared.** Check for other users' GPU processes before timing,
   and wait; never record a baseline under contention.
 
@@ -40,7 +28,7 @@ repository; the items below are the distilled result.
   `loom-compile --target`, or `hipModuleLoad` fails.
 - Your user must be in the `render` and `video` groups to open the GPU
   (`rocminfo` errors otherwise).
-- Work dirs default to `$LOOM_WORK`, else `$HOME/loom-work` (`LOOM_REMOTE_BASE` overrides).
+- Work dirs default to `$LOOM_WORK`, else `$HOME/loom-work`.
 - **Every clang uses the newest GCC installed.** After Setup's `g++-14`,
   ROCm's clang (hipcc, and the Loom tool build) uses libstdc++ 14 headers.
   Override per build with `--gcc-install-dir=/usr/lib/gcc/x86_64-linux-gnu/<N>`
@@ -56,41 +44,14 @@ repository; the items below are the distilled result.
   it locally or build against libstdc++ 11, which compiles it (GCC 13 doesn't):
   `export HIPCC_COMPILE_FLAGS_APPEND=--gcc-install-dir=/usr/lib/gcc/x86_64-linux-gnu/11
   HIPCC_LINK_FLAGS_APPEND=--gcc-install-dir=/usr/lib/gcc/x86_64-linux-gnu/11`
-  before `ship_test_react.sh --build`. Record which one in the agent note.
-
-## Remote host facts (moth, gfx90a MI210)
-
-Only when the GPU is on a remote host: set `LOOM_HOST=moth
-LOOM_REMOTE_BASE=/mnt/data/bwibking` (and `ROCM_PATH=/opt/rocm/core-10.1`
-for the scripts that run there); the defaults are for a local GPU box.
-
-- Work under `/mnt/data/bwibking/` (home is a full NFS quota).
-- ROCm 10.1 at `/opt/rocm/core-10.1`; set
-  `IREE_HAL_AMDGPU_LIBHSA_PATH=/opt/rocm/core-10.1/lib/libhsa-runtime64.so.1`
-  for HRX, or it picks up an older libhsa.
-- `loom-import-cxx` needs C++23 libstdc++: build with conda GCC 14 at
-  `/mnt/data/bwibking/gcc14` (`--gcc-install-dir=...`, rpath to its lib),
-  `-DLOOM_IMPORT_CXX=ON`; tools from `/mnt/data/bwibking/venv-py312/bin`.
-- Ship source with `git archive` piped over ssh into a staging dir, then
-  `rsync -rlpc --delete --exclude=/build/`. Never repack with macOS `tar`
-  (AppleDouble `._*` files broke CMake configure); if you must, set
-  `COPYFILE_DISABLE=1`.
-- Don't multiplex two payloads through one ssh stdin. A trailing `&`
-  backgrounds the *whole* `&&` list, and a background job's stdin is
-  `/dev/null`: `ssh host 'tar xzf - && cd d && nohup job &' < payload.tgz`
-  gives tar an empty stream (it happened again on 2026-10-18). Unpack in the
-  foreground, then background only the job on its own line:
-  `tar xzf - -C dir || exit 1` newline `nohup setsid bash job.sh > log 2>&1 < /dev/null &`.
-- Small payloads can go over ssh stdin as a tarball; build it with
-  `COPYFILE_DISABLE=1 tar --no-xattrs czf ...` on macOS, or GNU tar on the
-  remote end prints a warning per file for `com.apple.provenance` headers.
+  before `build_test_react.sh`. Record which one in the agent note.
 
 ## Shell and scripts
 
 - **Use bash scripts for anything with flags in variables.** The user's shell
   is zsh, which does not word-split `$FLAGS` and expands `=word`; this broke
   importer probes and an orchestrator's cutoff check. Put waits, retries and
-  chained remote steps in a `bash` script file, not inline.
+  chained steps in a `bash` script file, not inline.
 - **`pgrep -f` / `pkill -f` match their own command line.** A wait loop
   `while pgrep -f loomval_burn; do sleep 30; done` run through `bash -lc
   '...loomval_burn...'` finds itself and never ends (cost 8 min in the E2E

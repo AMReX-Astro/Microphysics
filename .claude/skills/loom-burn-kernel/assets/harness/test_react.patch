@@ -48,7 +48,7 @@ diff -ruN a/unit_test/test_react/GNUmakefile b/unit_test/test_react/GNUmakefile
 diff -ruN a/unit_test/test_react/Make.package b/unit_test/test_react/Make.package
 --- a/unit_test/test_react/Make.package
 +++ b/unit_test/test_react/Make.package
-@@ -6,3 +6,20 @@
+@@ -6,3 +6,16 @@
  CEXE_sources += variables.cpp
  CEXE_headers += react_zones.H
  
@@ -58,21 +58,17 @@ diff -ruN a/unit_test/test_react/Make.package b/unit_test/test_react/Make.packag
 +  CEXE_headers += loom_validate.H
 +  CEXE_headers += loom_eos_params.H
 +  CEXE_headers += loom_params.H
-+  CEXE_headers += loom_case.H
-+  CEXE_headers += loom_case_format.H
 +endif
 +
 +ifeq ($(USE_LOOM_BURN), TRUE)
 +  CEXE_headers += loom_launch.H
 +  CEXE_headers += loom_eos_params.H
 +  CEXE_headers += loom_params.H
-+  CEXE_headers += loom_case.H
-+  CEXE_headers += loom_case_format.H
 +endif
 diff -ruN a/unit_test/test_react/_parameters b/unit_test/test_react/_parameters
 --- a/unit_test/test_react/_parameters
 +++ b/unit_test/test_react/_parameters
-@@ -7,3 +7,21 @@
+@@ -7,3 +7,18 @@
  
  tmax          real       0.1e0
  
@@ -91,13 +87,10 @@ diff -ruN a/unit_test/test_react/_parameters b/unit_test/test_react/_parameters
 +loom_compare  int        0
 +# number of Loom burns (or stock/Loom pairs with loom_compare, at least 2)
 +loom_repeats  int        1
-+# write a standalone reproducer case file (inputs + stock result) before the
-+# burn; needs a build with LOOM_KERNEL_DIR set (loom_case.H). Empty = off.
-+loom_dump_case string    ""
 diff -ruN a/unit_test/test_react/main.cpp b/unit_test/test_react/main.cpp
 --- a/unit_test/test_react/main.cpp
 +++ b/unit_test/test_react/main.cpp
-@@ -18,6 +18,19 @@
+@@ -18,6 +18,12 @@
  #include <variables.H>
  #include <unit_test.H>
  #include <react_util.H>
@@ -107,17 +100,10 @@ diff -ruN a/unit_test/test_react/main.cpp b/unit_test/test_react/main.cpp
 +#ifdef MICROPHYSICS_LOOM
 +#include <loom_launch.H>
 +#endif
-+// The case writer needs the port's loom_params.H (and through it the whole
-+// translated burner), so it is compiled in only once that exists: the early
-+// EOS/dual validation build (NEW_NETWORK.md step 3) has no rates.H/network.H.
-+#if defined(LOOM_KERNEL_DIR_PATH) && __has_include(<loom_params.H>)
-+#define LOOM_CASE_DUMP
-+#include <loom_case.H>
-+#endif
  
  int main (int argc, char* argv[])
  {
-@@ -110,6 +123,16 @@
+@@ -110,6 +116,16 @@
      // C++ Network, RHS, screening, rates initialization
      network_init();
  
@@ -134,26 +120,7 @@ diff -ruN a/unit_test/test_react/main.cpp b/unit_test/test_react/main.cpp
      plot_t vars;
      vars = init_variables();
      amrex::Vector<std::string> names;
-@@ -184,6 +207,18 @@
-     // so we can manually do the reductions (for GPU)
-     iMultiFab integrator_n_rhs(ba, dm, 2, Nghost);
- 
-+#ifdef LOOM_CASE_DUMP
-+    // standalone reproducer case file: inputs + stock result (loom_case.H)
-+    if (!unit_test_rp::loom_dump_case.empty()) {
-+        loom_dump_case(unit_test_rp::loom_dump_case, state, vars);
-+    }
-+#else
-+    if (!unit_test_rp::loom_dump_case.empty()) {
-+        amrex::Abort("unit_test.loom_dump_case needs a build with LOOM_KERNEL_DIR set "
-+                     "and the port's loom_params.H in test_react");
-+    }
-+#endif
-+
-     // What time is it now?  We'll use this to compute total react time.
-     Real strt_time = ParallelDescriptor::second();
- 
-@@ -193,6 +228,14 @@
+@@ -193,6 +209,14 @@
  
      ValLocPair<int, burn_t> r;
  

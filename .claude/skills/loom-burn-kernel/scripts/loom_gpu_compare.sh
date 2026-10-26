@@ -3,8 +3,7 @@
 # zone count, check its argument metadata, and run test_react in compare mode
 # (stock HIP burn vs Loom burn, same process, bit-for-bit) for each run spec.
 #
-# Run on the GPU host (locally, or there over one ssh connection: unpack in
-# the foreground, background only this script; footguns.md), detached:
+# Run on the GPU host, detached:
 #   nohup setsid bash loom_gpu_compare.sh > compare.log 2>&1 < /dev/null &
 #
 # Usage: loom_gpu_compare.sh        (all configuration via environment)
@@ -33,8 +32,8 @@
 #   COMPILE_ONLY  1: stop after the compile and the metadata dump (default: 1
 #               automatically when no GPU is visible to amdgpu-arch/rocminfo)
 #   OUT         summary file                                      (default $TEST_DIR/compare.summary)
-#   TMPDIR      kept if set; else $LOOM_REMOTE_BASE/tmp
-#   LOOM_REMOTE_BASE  base dir                                    (default $LOOM_WORK, else $HOME/loom-work)
+#   TMPDIR      kept if set; else $LOOM_WORK/tmp
+#   LOOM_WORK   base dir                                          (default $HOME/loom-work)
 #
 # Output: $OUT (default $TEST_DIR/compare.summary; one block per step) and
 # loom_root.report.json (the compile report) in TEST_DIR.
@@ -60,7 +59,7 @@ IMPORT_TIMEOUT=${IMPORT_TIMEOUT:-1800}
 COMPILE_TIMEOUT=${COMPILE_TIMEOUT:-3600}
 GPU_WAIT=${GPU_WAIT:-900}
 OUT=${OUT:-$(cd "$TEST_DIR" && pwd)/compare.summary}   # never next to this script: the skill dir may be read-only
-export TMPDIR=${TMPDIR:-${LOOM_REMOTE_BASE:-${LOOM_WORK:-$HOME/loom-work}}/tmp}
+export TMPDIR=${TMPDIR:-${LOOM_WORK:-$HOME/loom-work}/tmp}
 mkdir -p "$TMPDIR"
 say() { echo "$*" | tee -a "$OUT"; }
 : > "$OUT"

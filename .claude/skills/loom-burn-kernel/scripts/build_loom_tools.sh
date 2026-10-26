@@ -2,8 +2,8 @@
 # Build a frozen loom-import-cxx + loom-compile pair from an hrx-system source
 # tree, optionally with local patches (none are required at the pin).
 #
-# Runs on the GPU host (locally, or there over one ssh connection), detached;
-# keep the backgrounded command on its own line, stdin from /dev/null:
+# Runs on the GPU host, detached; keep the backgrounded command on its own
+# line, stdin from /dev/null:
 #   SRC=... OUT=... PATCHES="a.patch b.patch" \
 #   nohup setsid bash build_loom_tools.sh > build.log 2>&1 < /dev/null &
 # The full build takes tens of minutes; check build.log or the BUILDING marker.
@@ -25,9 +25,9 @@
 #   python3 dev.py cmake setup   # .venv with the pinned cmake/ninja (used below)
 #
 # Environment:
-#   LOOM_REMOTE_BASE  base dir for the defaults below      (default $LOOM_WORK, else $HOME/loom-work)
-#   SRC            hrx-system source tree                 (default $LOOM_REMOTE_BASE/hrx-system)
-#   OUT            work dir; src/, build/, tools/ inside   (default $LOOM_REMOTE_BASE/loom-tools/<UTC timestamp>)
+#   LOOM_WORK      base dir for the defaults below        (default $HOME/loom-work)
+#   SRC            hrx-system source tree                 (default $LOOM_WORK/hrx-system)
+#   OUT            work dir; src/, build/, tools/ inside   (default $LOOM_WORK/loom-tools/<UTC timestamp>)
 #   PATCHES        space-separated patch files, applied in order with patch -p1 (default none)
 #   ROCM           ROCm install with llvm/bin/clang        (default $ROCM_PATH, else /opt/rocm)
 #   PYVENV         bin dir with cmake, ninja, python3      (default $SRC/.venv/bin from `dev.py cmake
@@ -42,12 +42,10 @@
 #   CPUS           taskset CPU list for the build          (default all CPUs)
 #   TMPDIR         temporary dir                           (default $OUT/tmp)
 #
-# moth: LOOM_REMOTE_BASE=/mnt/data/bwibking ROCM=/opt/rocm/core-10.1
-#       PYVENV=$LOOM_REMOTE_BASE/venv-py312/bin GCC_TOOLCHAIN=$LOOM_REMOTE_BASE/gcc14
 set -u
 case "${1:-}" in -h|--help) sed -n '2,/^set -u/p' "$0" | sed '$d'; exit 0;; '') ;; *) sed -n '2,/^set -u/p' "$0" | sed '$d'; exit 2;; esac
 
-B=${LOOM_REMOTE_BASE:-${LOOM_WORK:-$HOME/loom-work}}
+B=${LOOM_WORK:-$HOME/loom-work}
 SRC=${SRC:-$B/hrx-system}
 OUT=${OUT:-$B/loom-tools/$(date -u +%Y%m%dT%H%M%SZ)}
 PATCHES=${PATCHES:-}

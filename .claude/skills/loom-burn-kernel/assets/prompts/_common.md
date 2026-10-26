@@ -105,8 +105,7 @@ Validation (zero mismatches, bit for bit):
   Read the output: "Error: Cannot parse rule" means the scan didn't run.
   0 errors required.
 
-As a sub-agent: never run `loom-import-cxx`, `loom-compile` or any Loom tool,
-and never ssh; whoever coordinates the port smoke-compiles your module on
+As a sub-agent: never run `loom-import-cxx`, `loom-compile` or any Loom tool; whoever coordinates the port smoke-compiles your module on
 the GPU host with `scripts/loom_smoke.sh` as soon as it validates (one Loom
 compile at a time). Working alone, do that smoke compile yourself, on the
 GPU host only, with `loom_smoke.sh` (`wait` before the next one). Never `make clean` or

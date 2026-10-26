@@ -151,11 +151,6 @@ Notes:
   selected by `-DLOOM_VALIDATE_<MODULE>`). Copy `loom_validate.H`,
   `loom_validate.cpp`, `loom_launch.H`, `loom_eos_params.H` and
   `loom_params.H` into `unit_test/test_react/`.
-- `loom_case.H` and `loom_case_format.H` (copy as is): write a
-  standalone case file (`unit_test.loom_dump_case=<file>`): `BurnParams`,
-  tables and initial state exactly as the launcher passes them, plus two
-  stock burns of the same state (they must agree) with per-zone success.
-  Needs one box on one rank. Built whenever `LOOM_KERNEL_DIR` is set.
 - `loom_eos_params.H` (copy as is): `fill_eos_params` / `fill_eos_tables`,
   network-independent; the only host header the EOS validator needs, so the
   EOS validates before any rates/network translation. `loom_params.H`
@@ -167,8 +162,8 @@ Notes:
   blocks (`LOOM_KERNEL_DIR` required; the kernel directory goes **last** on the
   include path, after `Make.unit_test`, so stock `eos.H`/`burner.H` keep
   winning), `Make.package` entries, the `unit_test.loom_*` runtime parameters,
-  and the three `main.cpp` hooks (validation after `network_init()`, the
-  case dump before the burn, the `loom_burn_main` branch around the
+  and the two `main.cpp` hooks (validation after `network_init()`, the
+  `loom_burn_main` branch around the
   ParReduce). Network-neutral.
 - `validate_dual.H` (copy into the kernel directory): the dual validator, primitive tests only (every `dual_*`
   / `dual3_*` function vs autodiff on edge and random values). A port adds
@@ -176,5 +171,5 @@ Notes:
   against the guide's call sequences.
 
 The recipe accuracy tests (host MPFR sweep, GPU bit check against hipcc's
-OCML) and the standalone HIP reproducer that reads `loom_case.H`'s case files
-are in the `loom-burn-kernel-tools` follow-up.
+OCML) and the standalone HIP reproducer with its case-file writer are in
+the `loom-burn-kernel-tools` follow-up.

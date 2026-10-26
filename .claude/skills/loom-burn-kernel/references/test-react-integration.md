@@ -8,7 +8,7 @@ its CI benchmarks untouched. The skill ships it as `assets/harness/`
 
 ```bash
 git apply <skill>/assets/harness/test_react.patch
-cp <skill>/assets/harness/{loom_launch.H,loom_validate.H,loom_validate.cpp,loom_eos_params.H,loom_case.H,loom_case_format.H} unit_test/test_react/
+cp <skill>/assets/harness/{loom_launch.H,loom_validate.H,loom_validate.cpp,loom_eos_params.H} unit_test/test_react/
 cp <skill>/assets/harness/loom_params.H unit_test/test_react/   # then fill its PORT: lines
 ```
 
@@ -34,7 +34,6 @@ unit_test/test_react/
   loom_params.H        # per port, from the assets/harness template: host fill_* functions
                        # and loom_require_supported_settings(); shared by validators and launcher
   loom_launch.H        # host: load .hsaco, pack args, launch, compare
-  loom_case.H, loom_case_format.H   # standalone case file writer (loom_dump_case)
   loom_validate.H/.cpp # native validation hook (dispatches to the kernel dir's validate_*.H)
   GNUmakefile, Make.package, main.cpp, _parameters   # from test_react.patch
 
@@ -82,7 +81,7 @@ GNUmakefile stops with an error without it, or if the path contains
 1. After `network_init()`, fill `BurnParams` from the `*_rp::` namespaces and
    copy it to an `amrex::The_Arena()` allocation. The helmholtz tables are
    `AMREX_GPU_MANAGED`, so their addresses are passed directly (worked on
-   moth's MI210 with XNACK off). The launcher aborts if
+   an MI210 with XNACK off). The launcher aborts if
    `hipDeviceAttributeManagedMemory` is 0; a device-copy fallback is not
    implemented (the stock HIP burn needs managed memory too).
 2. `hipModuleLoad` the code object and `hipModuleGetFunction` with
@@ -122,8 +121,7 @@ returns when `unit_test.loom_validate` is set.
 New `_parameters` entries (namespace `unit_test`): `loom_validate` (int,
 run the native validators instead of the burn), `loom_hsaco` (string,
 empty = stock path), `loom_kernel` (symbol), `loom_ncells` (compiled zone
-count), `loom_compare` (int, 0/1), `loom_repeats` (int), `loom_dump_case`
-(string, write a standalone case file before the burn; empty = off).
+count), `loom_compare` (int, 0/1), `loom_repeats` (int).
 
 ## Native validation (Phase 4)
 
@@ -186,9 +184,8 @@ make -j USE_HIP=TRUE AMD_ARCH=$GFX NETWORK_DIR=... EOS_DIR=... INTEGRATOR_DIR=..
      unit_test.loom_hsaco=burn.hsaco unit_test.loom_ncells=4096 unit_test.loom_compare=1
 ```
 
-(Flag policy: SKILL.md, "Fixed policies".) `scripts/ship_test_react.sh`
-runs this build detached (in place with `LOOM_HOST=local`, or after staging
-the local tree on a remote GPU host); `scripts/loom_gpu_compare.sh`
+(Flag policy: SKILL.md, "Fixed policies".) `scripts/build_test_react.sh`
+runs this build detached; `scripts/loom_gpu_compare.sh`
 compiles the root and runs the compare runs.
 
 Runtime library: by default run on ROCm's `libamdhip64` (AMReX's managed
@@ -200,7 +197,7 @@ Record which runtime each result used.
 
 ## Import/compile commands
 
-Run on the GPU host only (this machine, or a remote one), from a bash script, with tools built once from the
+Run on the GPU host only, from a bash script, with tools built once from the
 pinned hrx-system commit (`scripts/build_loom_tools.sh`, which records
 `tools.md5`):
 
@@ -225,7 +222,7 @@ scratch per lane.
 
 Keep from every build: the `.loom` IR (gzip), the compile report (without
 `--compile-report-output` the JSON goes to stderr and makes the log ~84 MB;
-gzip it), the disassembly, and VGPR/SGPR/scratch (`scripts/hsaco_stats.py`).
+gzip it), the disassembly, and VGPR/AGPR/scratch (`llvm-readelf --notes`).
 
 ## Comparing outputs
 

@@ -44,7 +44,7 @@ their logs.
    native path is how you prove the translation is right without a GPU.
 2. Native differential validation: the native kernel matches the stock
    Microphysics burner zone by zone on the test_react grid, bit for bit.
-3. Import + compile on the GPU host (this machine or a remote one) with
+3. Import + compile on the GPU host (this machine) with
    frozen, md5-recorded tools.
 4. GPU correctness inside test_react: Loom vs the stock HIP build of the same
    configuration, same GPU, same inputs, bit for bit.
@@ -80,8 +80,8 @@ the single most expensive failure mode of the campaigns.
 ## Setup — a fresh machine (once)
 
 The skill assumes nothing is installed beyond ROCm. On a fresh Ubuntu 24.04
-VM with ROCm (the scripts' default `LOOM_HOST=local` mode; for a remote GPU
-host see `references/footguns.md`). Tested end to end on 2026-10-18 for
+VM with ROCm. Everything runs on the GPU host itself; remote-host tooling is
+in the `loom-burn-kernel-tools` follow-up. Tested end to end on 2026-10-18 for
 `triple_alpha_plus_cago` (agent-notes `03-loom-e2e-container`):
 
 ```bash
@@ -93,7 +93,7 @@ export LLVM_BIN=/usr/lib/llvm-20/bin            # inventory.py, CXX=clang++
 export PATH=$ROCM_PATH/bin:$ROCM_PATH/llvm/bin:$LLVM_BIN:$PATH
 GFX=$(amdgpu-arch | head -1); echo "${GFX:-no GPU: set GFX=gfx90a (or your target) by hand}"
 export SKILL=$(realpath <skill>)                # absolute: the block below cd's away from the repo
-export LOOM_WORK=${LOOM_WORK:-$HOME/loom-work}  # every script's default base dir (LOOM_REMOTE_BASE)
+export LOOM_WORK=${LOOM_WORK:-$HOME/loom-work}  # every script's base dir
 mkdir -p "$LOOM_WORK" && cd "$LOOM_WORK"
 python3 -m venv venv && venv/bin/pip install ast-grep-cli && export PATH=$PWD/venv/bin:$PATH
 git clone https://github.com/AMReX-Codes/amrex.git && export AMREX_HOME=$PWD/amrex
@@ -157,8 +157,8 @@ Ask the user for anything else not given; do not guess these:
   unproven, so tell the user, rerun the OCML GPU bit check (in
   the `loom-burn-kernel-tools` follow-up) and watch per-lane scratch (~213 KB for
   aprox13). CDNA1/gfx908 is out of scope.
-- Where the GPU is: this machine (default) or a remote host (then its ssh
-  alias and base dir; `references/footguns.md`, "Remote host").
+- The GPU must be on this machine; if it isn't, tell the user (remote-host
+  tooling is in the `loom-burn-kernel-tools` follow-up).
 
 Then record, in a new `$NOTES_DIR.md` (default
 `NOTES_DIR=agent-notes/<NN>-loom-<network>-<integrator>`; set it to keep
@@ -326,17 +326,15 @@ recipes use host libm on the native path, so they are validated separately
 
 Only send sources that pass the Phase 3 lint. Run full-kernel
 `loom-import-cxx`/`loom-compile` only on the GPU host, one at a time: a full
-burn needs 8+ GB, and parallel compiles on a Mac caused a kernel panic. When
-the GPU host is this machine, the scripts run there directly
-(`LOOM_HOST=local`, the default). For a remote host, use one ssh session per
-step. Drive every import/compile through the scripts:
+burn needs 8+ GB, and parallel compiles on a Mac caused a kernel panic.
+Drive every import/compile through the scripts:
 `scripts/loom_smoke.sh launch|status|wait|fetch` smoke-compiles each
 module as soon as it validates (templates in `assets/smoke/`; `wait` keeps
 compiles one at a time), and `scripts/loom_gpu_compare.sh` compiles the
 production root. Commands and flags are in
 `references/test-react-integration.md`. Keep the compile report (the scripts
-write it to `<root>.report.json`, not the log) and VGPR/SGPR/scratch stats
-from every build (`scripts/hsaco_stats.py --report`). A fused full burn
+write it to `<root>.report.json`, not the log) and VGPR/AGPR/scratch
+from every build (`llvm-readelf --notes`; the scripts print them). A fused full burn
 compiles in 9 min (triple_alpha) to about 30 min (aprox13), almost all in
 register repair:
 use tools built from the pinned commit and start the production root compile as
@@ -349,9 +347,9 @@ Apply the host-side change described in `references/test-react-integration.md`
 `assets/harness/loom_launch.H` and the `loom_params.H` template). Build
 test_react with `USE_HIP=TRUE AMD_ARCH=<target> USE_LOOM_BURN=TRUE
 LOOM_KERNEL_DIR=loom/<port> USE_NEUTRINOS=FALSE XTRA_CXXFLAGS=-ffp-contract=off`
-(`scripts/ship_test_react.sh --build loom/<port>` runs it detached, in
-place or on a remote host; `ship_test_react.sh status` shows it, and the log
-is `$LOOM_REMOTE_BASE/ship/ship-last-build/build.log`, with the hipcc
+(`scripts/build_test_react.sh loom/<port>` runs it detached;
+`build_test_react.sh status` shows it, and the log
+is `$LOOM_WORK/test_react-build/last/build.log`, with the hipcc
 version and any `HIPCC_*_FLAGS_APPEND` at the top). For a network without intermediate rates on
 libstdc++ >= 13 (Ubuntu 24.04), the stock HIP build needs the
 `std::array<T, 0>` workaround in `references/footguns.md` until Microphysics
@@ -385,11 +383,9 @@ layout?). Accepting a non-bit-exact result is the user's decision, with the
 evidence in front of them.
 
 **Standalone HIP reproducer.** The kernel tree also compiles with hipcc as an
-ordinary HIP kernel (`-DMPL_HIP_STANDALONE`, `support.H`), and test_react
-writes a case file of inputs plus the stock result
-(`unit_test.loom_dump_case=<file>`, `harness/loom_case.H`). The driver that
-burns a case file outside Microphysics and bundles a vendor reproducer is in
-the `loom-burn-kernel-tools` follow-up.
+ordinary HIP kernel (`-DMPL_HIP_STANDALONE`, `support.H`). The case-file
+writer for test_react, the driver that burns a case file outside
+Microphysics and the vendor-reproducer bundler are in the `loom-burn-kernel-tools` follow-up.
 
 ## Phase 7 — performance (optional, only after Phase 6 passes)
 
@@ -412,7 +408,7 @@ Check the time with `date` before writing any timestamp.
 
 ## References
 
-- `references/footguns.md` — read first. Process, remote-host and compiler hazards (incl. compile time / register repair).
+- `references/footguns.md` — read first. Process, machine and compiler hazards (incl. compile time / register repair).
 - `references/loom-frontend-rules.md` — construct → rewrite table as of the last probes, `MPL_ASSUME`/SUBRANGE, lint, kernel root shape.
 - `references/microphysics-translation.md` — inventory limits, burn_t, runtime params and unported paths, tables, generated network data, autodiff, math, NSE.
 - `references/test-react-integration.md` — layout, kernel signature, host launcher, native validation, build/run and import/compile commands, comparison and NaN rule.
@@ -424,11 +420,10 @@ Check the time with `date` before writing any timestamp.
 - `scripts/gen_network_data.py` + `extract_network_data.cpp` — generate `network_data.H` / `burn.H` for `rhs.H`-framework networks, checked against the stock source.
 - `scripts/loom-lint/` — ast-grep rules for Loom-hostile constructs (`tests/selftest.sh`).
 - `scripts/build_loom_tools.sh` — build frozen `loom-import-cxx`/`loom-compile` from an hrx-system tree plus optional patches; writes `tools.md5`. Header has the fresh-machine prerequisites.
-- `scripts/loom_smoke.sh` — launch/status/wait/fetch a Loom import + compile of a smoke kernel on the GPU host (`LOOM_HOST=local` by default; one ssh per call for a remote host). `wait` serializes compiles; `wait`/`status` exit 6 when an import or compile failed.
+- `scripts/loom_smoke.sh` — launch/status/wait/fetch a Loom import + compile of a smoke kernel on the GPU host. `wait` serializes compiles; `wait`/`status` exit 6 when an import or compile failed.
 - `scripts/gen_abi_layout.py` — Phase 3 ABI checks: host-measured `sizeof`/`offsetof` of every `*Params` record, written to the port's `abi_layout.H` (included by the kernel root).
 - `scripts/fma_audit.py` — Phase 6 contraction screen: explains the `v_fma_f64` count (explicit recipe FMAs from the `.loom` IR, 5 per f64 division, a bounded remainder per sqrt); a heuristic, paired with the `m_fp_contract` probe.
-- `scripts/hsaco_stats.py` — VGPR/SGPR/AGPR/scratch/kernarg sizes from `llvm-readelf` notes, plus spill/pressure keys from a `--compile-report` JSON.
-- `scripts/ship_test_react.sh` — detached HIP build of test_react with the Loom launcher; for a remote host it first stages the local test_react + kernel dir there and shows which files differ.
+- `scripts/build_test_react.sh` — detached HIP build of test_react with the Loom launcher, in place; `status` shows the log tail.
 - `scripts/loom_gpu_compare.sh` — Phase 6 on the GPU host (run it directly when local): production root compile, kernel-argument metadata, test_react compare runs.
 
 ## Assets (`assets/README.md`)
@@ -444,8 +439,10 @@ Check the time with `date` before writing any timestamp.
 
 ## Moved to the follow-up
 
-The `loom-burn-kernel-tools` follow-up holds the optional tooling: the standalone HIP
-reproducer (`make_standalone.sh`), the f64 recipe accuracy tests, the
-performance guide, compiler diagnostics (`trace-repair.patch`,
-`repair_summary.py`, `loom_stack_sampler.sh`, `compare_loom_tools.sh`),
+The `loom-burn-kernel-tools` follow-up holds the optional tooling:
+remote-GPU-host support (`LOOM_HOST`, `ship_test_react.sh`), the standalone
+HIP reproducer and its test_react case-file writer (`make_standalone.sh`,
+`loom_case.H`), the f64 recipe accuracy tests, the performance guide,
+compiler diagnostics (`trace-repair.patch`, `repair_summary.py`,
+`loom_stack_sampler.sh`, `compare_loom_tools.sh`, `hsaco_stats.py`),
 `specialize.py` (C++ Insights) and the seven-dwarfs test configurations.

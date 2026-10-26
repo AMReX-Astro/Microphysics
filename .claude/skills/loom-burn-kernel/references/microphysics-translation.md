@@ -133,7 +133,7 @@ inputs file sets, or that a production code relies on, has to be ported.
   table: a pointer to a struct of pointers does not import (probes c03/c06).
   The kernel root rebuilds the tables struct by value from them (c04), as
   `assets/root/burn_kernel.cpp` does for the 14 helmholtz tables
-  (`EosTables`). On moth (MI210, XNACK off) the host passes the
+  (`EosTables`). On an MI210 with XNACK off the host passes the
   `AMREX_GPU_MANAGED` table addresses directly; they are device-readable.
   Index arithmetic for `f[jmax][imax][9]`
   must match the C array layout exactly; validate one lookup natively.
