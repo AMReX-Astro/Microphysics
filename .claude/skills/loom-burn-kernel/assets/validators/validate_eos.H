@@ -12,6 +12,7 @@
 #include <type_traits>
 #include <vector>
 
+#include <AMReX_Math.H>
 #include <extern_parameters.H>
 #include <eos.H>            // stock (interfaces/eos.H; the kernel dir is last on -I)
 #include <react_util.H>
@@ -376,7 +377,7 @@ inline std::vector<std::vector<Real>> make_compositions(std::mt19937_64& rng, in
             Real w = u(rng);
             // sparse and very small abundances too
             if (r % 3 == 1 && u(rng) < 0.5) w = 0.0;
-            if (r % 3 == 2) w = std::pow(w, 8.0);
+            if (r % 3 == 2) w = amrex::Math::powi<8>(w);
             xn[n] = w;
             sum += w;
         }
