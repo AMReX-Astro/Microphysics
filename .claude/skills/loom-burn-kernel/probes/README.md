@@ -16,11 +16,12 @@ kit whenever the pinned commit changes and update this table; its last column
 holds the result at the previous pin, `fa8eba4554`.
 
 The full aprox13 + helmholtz + VODE burn (neutrinos off, 4096 zones) built
-with these tools is bit-exact against stock HIP on the same GPU: state,
-`n_rhs`/`n_step` and success in every zone, for the default inputs, the prad
-limiter and `unit_test.tmax=1.e-15`. That includes the `zone_success`
-miscompile from `1468c06034` through `970d39ac1e` (ROCm/hrx-system#2337),
-which is fixed here; don't use tools from that range.
+with these tools from the shipped modules is bit-exact against the stock HIP
+reference: state, `n_rhs`/`n_step` and success in every zone (default
+inputs). An older aprox13 port (flat arrays) is also bit-exact in test_react
+with the prad limiter on and with `unit_test.tmax=1.e-15`. The `zone_success`
+miscompile from `1468c06034` through `970d39ac1e` (ROCm/hrx-system#2337) is
+fixed here; don't use tools from that range.
 
 Changes from `fa8eba4554` (the shipped modules were written for that pin and
 still import and validate unchanged; the rewrites below are no longer
@@ -98,8 +99,8 @@ What these results decide (at `5e6af0ec1a`):
   Assumptions may now use arithmetic (`j + 1 <= n`, f13) but still not struct
   fields (f14). f17 (a `break` loop over a private local array) passes
   without assumptions, but the same loop over `vs->y(i)` in the full VODE
-  burn failed SUBRANGE/026 at `fa8eba4554` (not re-checked since), so VODE
-  keeps those `MPL_ASSUME`s. An assumption on a local loaded from a `short` field holds
+  burn still fails SUBRANGE/026 at `5e6af0ec1a` (re-checked 2026-10-27 by
+  removing both), so VODE keeps those `MPL_ASSUME`s. An assumption on a local loaded from a `short` field holds
   (f20).
 - **Loop exits:** `return` inside a loop imports (f03), and so does a
   runtime `switch` (f01). Loops

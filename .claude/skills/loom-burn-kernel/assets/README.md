@@ -37,11 +37,13 @@ files by name (`network_data.H`, `burn.H`, `rates.H`, `network.H`); see
 | `root/burn_kernel.cpp` | kernel root | vs stock do_react: 1.86M checks, 0 mismatches (16^3, 32^3, sub-box, prad limiter on) |
 | `burner.H` | burner, retry, `BurnParams` | (whole-burn validator) |
 
-At the pin `5e6af0ec1a` (gfx90a, 2026-10-27), aprox13's Loom production root
-is bit-exact against the stock HIP test_react reference (`n_rhs`, `n_step`
-and success included; default inputs, prad limiter, `tmax=1e-15`), with 256
-VGPR and 26,928 B scratch; triple_alpha_plus_cago was not rerun there.
-The modules were unchanged by the pin move.
+At the pin `5e6af0ec1a` (gfx90a, 2026-10-27), aprox13 built from these
+modules is bit-exact against the stock HIP reference on the test_react
+4096-zone case (`n_rhs`, `n_step` and success included; standalone driver,
+case file from the stock build), with 256 VGPR and 70,360 B scratch
+(compile 761 s); triple_alpha_plus_cago was not rerun there. The modules
+were unchanged by the pin move. VODE's species-loop `MPL_ASSUME`s are still
+required there: without them the burn fails SUBRANGE/026.
 
 Status at the previous pin (`fa8eba4554`, gfx90a), for aprox13 and triple_alpha_plus_cago:
 - host, all six validators: 0 mismatches (aprox13 948M checks,
@@ -54,9 +56,10 @@ Status at the previous pin (`fa8eba4554`, gfx90a), for aprox13 and triple_alpha_
   checked by translation only;
 - Loom is about 7.4x slower than hipcc on the same source (256 VGPR and
   42-72 KB of spills vs hipcc's 408-492 registers including AGPRs, 2.4-6 KB);
-- two rewrites remain: `MPL_ASSUME` on VODE's species loops with `break`
-  (SUBRANGE/026 in the full burn, although probe f17 passes) and
-  `actual_log_screen`'s `done` flag (probe f24).
+- two rewrites remained: `MPL_ASSUME` on VODE's species loops with `break`
+  (SUBRANGE/026 in the full burn, although probe f17 passes; still required
+  at `5e6af0ec1a`) and `actual_log_screen`'s `done` flag (probe f24; no
+  longer required at `5e6af0ec1a`).
 
 Update this section when a port moves a module forward.
 
