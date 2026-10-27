@@ -98,7 +98,7 @@ mkdir -p "$LOOM_WORK" && cd "$LOOM_WORK"
 python3 -m venv venv && venv/bin/pip install ast-grep-cli && export PATH=$PWD/venv/bin:$PATH
 git clone https://github.com/AMReX-Codes/amrex.git && export AMREX_HOME=$PWD/amrex
 git clone https://github.com/ROCm/hrx-system.git
-git -C hrx-system checkout fa8eba4554           # pinned compiler (Phase 1); not 1468c06034+ (#2337)
+git -C hrx-system checkout 5e6af0ec1a           # pinned compiler (Phase 1); never 1468c06034..970d39ac1e (#2337)
 (cd hrx-system && python3 dev.py cmake setup)   # .venv with cmake/ninja; see below if it exits 1
 SRC=$PWD/hrx-system OUT=$PWD/loom-tools/pinned TARGETS=$GFX \
   nohup setsid bash $SKILL/scripts/build_loom_tools.sh > tools-build.log 2>&1 < /dev/null &
@@ -189,16 +189,17 @@ probes with root `probe::k`, and `probe.sh`, which runs them all with one
 frozen tool set) into the port's agent-notes directory, add probes for
 anything the Phase 2 inventory found that the kit doesn't cover, and run it
 on the GPU host as its header describes. `probes/README.md` has the measured
-results at public hrx-system main `fa8eba4554` (2026-10-20, gfx90a), the
+results at public hrx-system main `5e6af0ec1a` (2026-10-27, gfx90a), the
 commit to check out (no patch is required). Member functions, `operator()`
-accessors, `const` struct references, array reference parameters and deep
-ternaries import, so translations don't rewrite them, and the shipped modules
-use them (`Array1D`/`Array2D` accessors with the stock indices, `const&` for
-everything read-only, pointers only for structs a function writes).
+accessors, struct references (`const` or mutable), array reference
+parameters and deep ternaries import, so translations don't rewrite them,
+and the shipped modules use them (`Array1D`/`Array2D` accessors with the
+stock indices, `const&` for everything read-only; they pass structs a
+function writes by pointer, as the previous pin `fa8eba4554` required).
 Uninitialized scalar and array locals, `for (;;)`, namespace-scope
-`constexpr` tables (`aion[]`, rate tables) and nested multi-exit loops work
-too. If you
-use `fa8eba4554` on gfx90a, cite the table; on another commit or target,
+`constexpr` tables (`aion[]`, rate tables), runtime `switch`, `return`
+inside loops and nested multi-exit loops work too. If you
+use `5e6af0ec1a` on gfx90a, cite the table; on another commit or target,
 rerun the kit and update it. Record the
 tool md5 and hrx-system commit in the agent note.
 
@@ -209,7 +210,7 @@ add, not `v_fma_f64`). Whatever math does not lower natively for f64 needs a
 source recipe (`references/microphysics-translation.md`, "Math").
 
 Build the frozen tools with `scripts/build_loom_tools.sh` (writes
-`tools.md5`); no local patch is required at `fa8eba4554`.
+`tools.md5`); no local patch is required at `5e6af0ec1a`.
 
 ## Phase 2 — map the reachable code
 
@@ -270,12 +271,11 @@ ast-grep scan -c <skill>/scripts/loom-lint/sgconfig.yml \
 ```
 
 Never lint the `validate_*.H` files: they are host-only and use std,
-lambdas and references on purpose (hundreds of hits). The shipped
-`network_rhs.H` gives 9 `warning[no-reference]` hits (the `rate_t&` outputs
-of `fill_additional_rates`, written only by whole-struct assignment, which
-imports); those are expected. Your own files must have no errors, and every
-`no-reference` warning in them must be a reference the probes showed
-import.
+lambdas and references on purpose (hundreds of hits). The shipped modules
+lint clean. Your own files must have no errors, and every
+`no-reference` warning in them (a reference local) must be a form the
+probes showed import (`T& r = a[i]` does, r17; `T& r = s.field` does not,
+r10).
 
 Core rules:
 
@@ -412,7 +412,7 @@ Check the time with `date` before writing any timestamp.
 - `references/loom-frontend-rules.md` — construct → rewrite table as of the last probes, `MPL_ASSUME`/SUBRANGE, lint, kernel root shape.
 - `references/microphysics-translation.md` — inventory limits, burn_t, runtime params and unported paths, tables, generated network data, autodiff, math, NSE.
 - `references/test-react-integration.md` — layout, kernel signature, host launcher, native validation, build/run and import/compile commands, comparison and NaN rule.
-- `probes/README.md` — Phase 1 probe kit (`probe.sh`, `src/`) and results at `fa8eba4554`.
+- `probes/README.md` — Phase 1 probe kit (`probe.sh`, `src/`) and results at `5e6af0ec1a`.
 
 ## Scripts
 

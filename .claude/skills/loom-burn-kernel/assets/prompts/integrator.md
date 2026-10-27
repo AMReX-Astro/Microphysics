@@ -9,9 +9,9 @@ Scope: `interfaces/burner.H`, `integration/integrator.H` (incl. burn retry),
 `integration/utils/` the path really reaches (check: VODE computes its
 numerical Jacobian inline, so `numerical_jacobian.H` was dead code for it).
 Integrator state stays a POD struct (its `Array1D`/`Array2D` members as
-1-based accessor aggregates, source indices unchanged) passed by pointer; every `return` inside a loop becomes a result code + `break` with each
-exit's side effects preserved; loops otherwise keep the stock shape,
-`break`s and `continue`s included (as in `vode.H`); `MPL_ASSUME` on every
+1-based accessor aggregates, source indices unchanged), passed by pointer as
+in `vode.H` (references import too); loops keep the stock shape, `return`s,
+`break`s and `continue`s included, with each exit's side effects preserved; `MPL_ASSUME` on every
 loop over the runtime method order and every loop with a `break`; read order/size fields into
 `const int` locals before indexing. Entry point:
 `burner(burn_t*, Real dt, const BurnParams&, EosTables)`; follow `vode.H` for the conventions (`const&` for read-only structs and params, pointers for written structs, `Array1D`/`Array2D` members).

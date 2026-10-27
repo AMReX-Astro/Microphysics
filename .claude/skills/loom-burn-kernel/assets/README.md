@@ -37,7 +37,13 @@ files by name (`network_data.H`, `burn.H`, `rates.H`, `network.H`); see
 | `root/burn_kernel.cpp` | kernel root | vs stock do_react: 1.86M checks, 0 mismatches (16^3, 32^3, sub-box, prad limiter on) |
 | `burner.H` | burner, retry, `BurnParams` | (whole-burn validator) |
 
-Status at the pin (`fa8eba4554`, gfx90a), for aprox13 and triple_alpha_plus_cago:
+At the pin `5e6af0ec1a` (gfx90a, 2026-10-27), aprox13's Loom production root
+is bit-exact against the stock HIP test_react reference (`n_rhs`, `n_step`
+and success included; default inputs, prad limiter, `tmax=1e-15`), with 256
+VGPR and 26,928 B scratch; triple_alpha_plus_cago was not rerun there.
+The modules were unchanged by the pin move.
+
+Status at the previous pin (`fa8eba4554`, gfx90a), for aprox13 and triple_alpha_plus_cago:
 - host, all six validators: 0 mismatches (aprox13 948M checks,
   triple_alpha_plus_cago 411M); rerun them after any module change;
 - Loom production root (`burn_zones`, 32 workgroups, 4096 zones): bit-exact

@@ -6,45 +6,47 @@ tool set on the GPU host and writes `probe-summary.txt`. See the header of
 `probe.sh` for how to ship and run it. Add probes for anything a port's
 inventory finds that is not covered here, and keep new probes in this kit.
 
-## Results at hrx-system fa8eba4554 (gfx90a, run 2026-10-21)
+## Results at hrx-system 5e6af0ec1a (gfx90a, run 2026-10-27)
 
-Public `ROCm/hrx-system` main `fa8eba4554` (2026-10-20), tools built with
-`scripts/build_loom_tools.sh` and a diagnostic-only patch (`trace-repair.patch`,
-in the `loom-burn-kernel-tools` follow-up; `loom-import-cxx` md5 `427f8f72…`, `loom-compile` md5 `35d03eb7…`;
-md5s differ with the build environment, so record yours). All 124 probes run
-in a few seconds. Rerun the kit whenever the pinned commit changes and update
-this table.
+Public `ROCm/hrx-system` main `5e6af0ec1a` (2026-10-27), stock tools built
+with `scripts/build_loom_tools.sh` and no patches (`loom-import-cxx` md5
+`986c76d4…`, `loom-compile` md5 `a0f2186a…`; md5s differ with the build
+environment, so record yours). All 124 probes run in a few seconds. Rerun the
+kit whenever the pinned commit changes and update this table; its last column
+holds the result at the previous pin, `fa8eba4554`.
 
-## Re-probe at upstream main `970d39ac1e` (2026-10-26; run 2026-10-27)
+The full aprox13 + helmholtz + VODE burn (neutrinos off, 4096 zones) built
+with these tools is bit-exact against stock HIP on the same GPU: state,
+`n_rhs`/`n_step` and success in every zone, for the default inputs, the prad
+limiter and `unit_test.tmax=1.e-15`. That includes the `zone_success`
+miscompile from `1468c06034` through `970d39ac1e` (ROCm/hrx-system#2337),
+which is fixed here; don't use tools from that range.
 
-Stock tools (`scripts/build_loom_tools.sh`, no patches; `loom-import-cxx` md5 `d17c52ef…`, `loom-compile` md5 `0a017359…`), gfx90a, all 124 probes; last column of the table below. The pin stays `fa8eba4554`:
+Changes from `fa8eba4554` (the shipped modules were written for that pin and
+still import and validate unchanged; the rewrites below are no longer
+required for new code):
+- Writes through a **mutable reference to a whole struct** import: scalar
+  fields (r15), member accessors (r14, r19) and template `BurnT&` parameters
+  (r03). A member accessor through a `const` struct reference imports too
+  (r23).
+- Free operator overloads on a POD dual import (o03); member operators still
+  fail (o09, with a new message).
+- A runtime `switch` (f01), `return` inside a loop (f03) and an early
+  `return` nested two `if`s deep (f24) import and compile.
+- Two VGPR counts moved by one or two (d08, o17); nothing else changed.
 
-- **Don't build burn kernels with hrx-system `1468c06034` or later** (including main `970d39ac1e`): it miscompiles the aprox13 burn. The burned state stays bit-identical, but `zone_success` is lost in every lane that leaves VODE's step loop before the last lane of its wavefront (ROCm/hrx-system#2337). `964249c20e` (2026-10-24) was bit-exact on the full burn with stock tools. Wait for a fix before moving the pin.
-- Three rewrites become unnecessary there: a runtime `switch` (f01), `return` inside a loop (f03; hrx-system #2318 and the commits before it) and an early `return` nested two `if`s deep (f24) import and compile.
-- Everything else is unchanged apart from two VGPR counts (d08, o17).
-
-What these results decide (at `fa8eba4554`):
+What these results decide (at `5e6af0ec1a`):
 - **References:** scalar `double&`/`int&` parameters and scalar member slices
   (`f(s.T)`) import (r01, r02, r04, r11, r13), as do `const` references to
   whole structs (r05), references to buffer elements (r06), array reference
   parameters (r09), reference-returning accessors (r07), and local references
   to array elements (r17). Through a **mutable** reference to a whole struct,
-  only three kinds of write import: elements of a plain array member
-  (`s.xn[n] = ...`, r16), whole-struct assignment (`r = rate_t{...}`, r21),
-  and calls to the struct's own member functions, which may write any field
-  (`s.bump(dt)`, o13, o14). Everything else fails
-  with "mutation requires an owned automatic source binding": scalar fields
-  (`s.T = ...`, `+=`, `++s.n_rhs`; r03, r15), a member's accessor
-  (`vs.y(n) += ...`, r14, r19), or passing a member on to a mutating
-  reference; also with `static`, template, nested-call, buffer-element and
-  `*p` arguments. Through a pointer all of these work, including member
-  accessors (`vs->y(n) += ...`, o15). So `burn_t&`, `dvode_t&` and
-  `rhs_state_t&` that are written still become pointers; read-only
-  `const burn_t&` can stay. Calling a member's accessor through any struct
-  reference fails, the `const` overload included (`vs.y(n)` with
-  `const dvode_t& vs`, r23), while raw array members read fine (r24) and a
-  `const` pointer works (`vs->y(n)`, o19): structs with `Array1D`/`Array2D`
-  members always go by pointer. Still failing:
+  writes to scalar fields (`s.T = ...`, r15), array members (r16), member
+  accessors (`vs.y(n) += ...`, r14, r19), whole-struct assignment (r21) and
+  member-function calls (o13, o14) all import, through plain and template
+  parameters (r03), and so does a member's accessor read through a `const`
+  struct reference (r23). Pointers work as well (o15, o19), so the shipped
+  modules' pointer parameters for written structs can stay. Still failing:
   overlapping mutable arguments `f(s, s.T)` (r08), a local reference to a
   scalar member `double& r = s.x` (r10), and a `const T&` return selecting
   between two locals (`amrex::max`, r12: imports, then AMDGPU/023); make
@@ -56,9 +58,10 @@ What these results decide (at `fa8eba4554`):
   through the accessor such as an in-place LU (o11, o12), and as members of
   a struct reached through a pointer (o15). Integrator and `rhs` state can
   keep its 1-based accessors and source index expressions.
-- **Operator overloading** (`operator*`, `operator+`, free or member) still
-  fails (o03, o09): autodiff duals stay POD structs with free functions (o04,
-  o05, `assets/kernel/dual.H`).
+- **Operator overloading:** free `operator*`/`operator+` on a POD dual
+  import (o03); member operators still fail (o09). The shipped autodiff
+  duals keep POD structs with free functions (o04, o05,
+  `assets/kernel/dual.H`).
 - **Nested ternaries:** 40 deep compiles (f11).
 - **Math:** f64 exp, log, cbrt, pow, log10, tanh, sin, cos all fail and need
   OCML recipes (`assets/kernel/f64_math.H`: exp/log/cbrt;
@@ -95,19 +98,20 @@ What these results decide (at `fa8eba4554`):
   Assumptions may now use arithmetic (`j + 1 <= n`, f13) but still not struct
   fields (f14). f17 (a `break` loop over a private local array) passes
   without assumptions, but the same loop over `vs->y(i)` in the full VODE
-  burn still fails SUBRANGE/026 at `fa8eba4554`, so VODE keeps those
-  `MPL_ASSUME`s. An assumption on a local loaded from a `short` field holds
+  burn failed SUBRANGE/026 at `fa8eba4554` (not re-checked since), so VODE
+  keeps those `MPL_ASSUME`s. An assumption on a local loaded from a `short` field holds
   (f20).
-- **Loop exits:** `return` inside a loop still fails import (f03). Loops
+- **Loop exits:** `return` inside a loop imports (f03), and so does a
+  runtime `switch` (f01). Loops
   with several `break`s and a `continue` compile, alone (f21, the dvode step
   loop's shape) or nested (f22, the dvstep corrector shape), so they keep the
   stock shape.
-- **Early returns:** a `return` outside loops imports when it sits in a
-  single `if` (f10, f25), but not inside an `if` nested in another `if` with
-  code after both (f24: "conditional returns require at most one fallthrough
-  arm"); `screen.H`'s `actual_log_screen` keeps a `done` flag for that.
+- **Early returns:** a `return` outside loops imports in a single `if` (f10,
+  f25) and inside an `if` nested in another `if` with code after both (f24).
+  `screen.H`'s `actual_log_screen` keeps the `done` flag it needed at
+  `fa8eba4554`.
 
-| Probe | Construct | Result | Detail | At main `970d39ac1e` |
+| Probe | Construct | Result | Detail | At previous pin `fa8eba4554` |
 |---|---|---|---|---|
 | c00_control | baseline | ok | vgpr=8 scratch=0B | same |
 | c01_params_pod_ptr | `const Params*` runtime-param POD | ok | vgpr=7 scratch=0B | same |
@@ -123,7 +127,7 @@ What these results decide (at `fa8eba4554`):
 | d05_struct_default_init_braces | `T x{}` | ok | vgpr=8 scratch=0B | same |
 | d06_struct_copy_assign | `old{s}; s = old;` | ok | vgpr=4 scratch=0B | same |
 | d07_limits_and_nan | `__DBL_MAX__`, NaN via bit_cast | ok | vgpr=9 scratch=0B | same |
-| d08_large_struct_runtime_index | dvode_t-sized local struct | ok | vgpr=10 scratch=2872B | vgpr=12 scratch=2872B |
+| d08_large_struct_runtime_index | dvode_t-sized local struct | ok | vgpr=12 scratch=2872B | vgpr=10 scratch=2872B |
 | d09_static_constexpr_member_array | `static constexpr` member array | import-fail | error [LOWERING/059]: member-dependent initialization requires source object initialization semantics | same |
 | d10_enum_u8_base | `enum : unsigned char` | import-fail | error [PARSE/036]: invalid operands of types 'double' and '::probe::Rates' to binary operator '+' | same |
 | d11_short_and_bool_arrays | `short pivot[14]`, `bool` arrays | ok | vgpr=10 scratch=42B | same |
@@ -139,9 +143,9 @@ What these results decide (at `fa8eba4554`):
 | d21_ns_mutable_global_unreachable | mutable namespace-scope global the root never reads | import-fail | error [LOWERING/059]: global storage definitions require a global-storage projection | same |
 | d22_fn_static_constexpr_array | block-scope `static constexpr` array in a device function | import-fail | error [LOWERING/059]: local storage duration must be automatic or __shared__ | same |
 | d23_extern_const_array_defined | `extern const` array declared, then defined in the TU | ok | vgpr=14 scratch=0B | same |
-| f01_switch_runtime | runtime `switch` | import-fail | error [LOWERING/059]: unsupported statement: switch-statement | **ok** vgpr=8 scratch=0B |
+| f01_switch_runtime | runtime `switch` | **ok** | vgpr=8 scratch=0B | import-fail: error [LOWERING/059]: unsupported statement: switch-statement |
 | f02_switch_in_constexpr_fn | `rhs_data(rate)` folded | import-fail | error [LOWERING/059]: unsupported C++ type: ::probe::RhsT | same |
-| f03_return_in_loop | `return` in `while(true)` | import-fail | error [LOWERING/059]: returns inside loops require a structured loop-exit projection | **ok** vgpr=9 scratch=8B |
+| f03_return_in_loop | `return` in `while(true)` | **ok** | vgpr=9 scratch=8B | import-fail: error [LOWERING/059]: returns inside loops require a structured loop-exit projection |
 | f04_for_ever | `for(;;)` | ok | vgpr=10 scratch=0B | same |
 | f05_vode_retry_shape | nested `while(true)`, result code | ok | vgpr=22 scratch=0B | same |
 | f06_runtime_triangular_loops | `for k=NQ..1, j=k..NQ` | ok | vgpr=12 scratch=672B | same |
@@ -160,7 +164,7 @@ What these results decide (at `fa8eba4554`):
 | f21_multi_exit_loop | dvode step-loop shape: `while (true)`, 4 `break`s + `continue` in data-dependent branches | ok | vgpr=22 scratch=64B | same |
 | f22_nested_multi_exit_loops | inner `while (true)` with 3 `break`s nested in a multi-exit outer loop (dvstep corrector shape) | ok | vgpr=20 scratch=64B | same |
 | f23_nested_single_exit_form | f22 with both loops in the single-exit `done` form | ok | vgpr=18 scratch=64B | same |
-| f24_nested_conditional_return | `return` in an `if` nested in a runtime `if`, code after both (`actual_log_screen`) | import-fail | error [LOWERING/059]: conditional returns require at most one fallthrough arm; shared continuations need a scoped exit projectio | **ok** vgpr=8 scratch=0B |
+| f24_nested_conditional_return | `return` in an `if` nested in a runtime `if`, code after both (`actual_log_screen`) | **ok** | vgpr=8 scratch=0B | import-fail: error [LOWERING/059]: conditional returns require at most one fallthrough arm; shared continuations need a scoped exit projectio |
 | f25_single_level_conditional_return | f24 with the conditions merged into one `if` | ok | vgpr=8 scratch=0B | same |
 | l01_lambda_constexpr_for | lambdas | import-fail | error [LOWERING/059]: rvalue-reference parameters require consuming object identity | same |
 | l02_template_struct_unroll | template-struct recursion | ok | vgpr=30 scratch=0B | same |
@@ -192,13 +196,13 @@ What these results decide (at `fa8eba4554`):
 | m_powi_template | `powi<N>` recursion | ok | vgpr=8 scratch=0B \| v_mul_f64:5 v_add_f64:1 | same |
 | o01_member_fn_call | `a.add(x)` | ok | vgpr=6 scratch=0B | same |
 | o02_operator_call_index | `Array1D::operator()` | ok | vgpr=6 scratch=0B | same |
-| o03_dual_operator_overload | `operator*`/`operator+` on Dual | import-fail | error [LOWERING/059]: overloaded binary operation requires a Loom operation | same |
+| o03_dual_operator_overload | `operator*`/`operator+` on Dual | **ok** | vgpr=10 scratch=0B | import-fail: error [LOWERING/059]: overloaded binary operation requires a Loom operation |
 | o04_dual_free_functions | POD Dual / Dual3 + free fns, by value | ok | vgpr=10 scratch=0B | same |
 | o05_dual3_array_free_functions | POD Dual / Dual3 + free fns, by value | ok | vgpr=12 scratch=96B | same |
 | o06_base_class | `Grad : Base` | import-fail | error [LOWERING/059]: record values require a complete aggregate without unions, bases or nontrivial lifecycle operations | same |
 | o07_ctor_with_args | `D x(1.0)` | import-fail | error [LOWERING/059]: record values require a complete aggregate without unions, bases or nontrivial lifecycle operations | same |
 | o08_structured_binding | `auto [f, r] = term(x)` | import-fail | error [LOWERING/059]: unsupported local declaration | same |
-| o09_dual_member_operators | member `operator*`/`operator+`/`operator+=` on Dual | import-fail | error [LOWERING/059]: overloaded binary operation requires a Loom operation | same |
+| o09_dual_member_operators | member `operator*`/`operator+`/`operator+=` on Dual | import-fail | error [LOWERING/059]: addressed operator must return an lvalue reference | import-fail: error [LOWERING/059]: overloaded binary operation requires a Loom operation |
 | o10_arrow_member_call | `a->add(x)`, `a.mean()` through a pointer to a local | ok | vgpr=14 scratch=0B | same |
 | o11_array1d_by_ref | `Array1D<T,1,N>` accessor, passed by `&` and `const auto&` | ok | vgpr=10 scratch=232B | same |
 | o12_array2d_lu | `Array2D` accessor, written in place through `&` (dgefa shape) | ok | vgpr=14 scratch=144B | same |
@@ -206,12 +210,12 @@ What these results decide (at `fa8eba4554`):
 | o14_struct_ref_member_fns | `vs.add_y(n, v); vs.tick(h)` through `Dvode&` | ok | vgpr=10 scratch=128B | same |
 | o15_ptr_member_accessor_write | `vs->y(n) +=`, `vs->t +=` through a pointer | ok | vgpr=10 scratch=128B | same |
 | o16_ptr_member_to_accessor_ref | `upd(vs->y)`: Array1D member through a pointer into `Array1D&`, written | ok | vgpr=10 scratch=1936B | same |
-| o17_array2d_member_lu_runtime_bounds | `dgefa(vs->jac, nn)` with runtime bounds + `__builtin_assume` | ok | vgpr=18 scratch=1936B | vgpr=19 scratch=1936B |
+| o17_array2d_member_lu_runtime_bounds | `dgefa(vs->jac, nn)` with runtime bounds + `__builtin_assume` | ok | vgpr=19 scratch=1936B | vgpr=18 scratch=1936B |
 | o18_array1d_of_rate_dual | `Array1D<rate_t<Dual>, 1, N>` element assign/copy | ok | vgpr=20 scratch=0B | same |
 | o19_const_ptr_member_accessor_read | `vs->y(n)` through `const Dvode*` | ok | vgpr=8 scratch=248B | same |
 | r01_static_scalar_ref_out | `static f(double&)` on locals | ok | vgpr=8 scratch=0B | same |
 | r02_inline_external_ref | `inline` (AMREX_INLINE) non-static fn with scalar `double&` | ok | vgpr=6 scratch=0B | same |
-| r03_template_struct_ref | `template<class BurnT> inline f(BurnT&)` | import-fail | error [LOWERING/059]: mutation requires an owned automatic source binding | same |
+| r03_template_struct_ref | `template<class BurnT> inline f(BurnT&)` | **ok** | vgpr=12 scratch=128B | import-fail: error [LOWERING/059]: mutation requires an owned automatic source binding |
 | r04_anon_ns_ref | anon-namespace fn with scalar `double&` | ok | vgpr=6 scratch=0B | same |
 | r05_const_struct_ref_read | `static f(const Burn&)` | ok | vgpr=8 scratch=112B | same |
 | r06_ref_to_buffer_element | `f(out[i])` | ok | vgpr=6 scratch=0B | same |
@@ -222,14 +226,14 @@ What these results decide (at `fa8eba4554`):
 | r11_ref_chain | ref forwarded through 2 static calls | ok | vgpr=10 scratch=0B | same |
 | r12_const_ref_return_max | `amrex::max` returning `const T&` | compile-fail | error [AMDGPU/023]: reject | same |
 | r13_struct_member_slice_ref | `bump(s.T)` | ok | vgpr=8 scratch=0B | same |
-| r14_struct_ref_member_update | `dvode_t&` through 2 template layers: `vs.y(n) +=` and `vs.t +=` | import-fail | error [LOWERING/059]: mutation requires an owned automatic source binding | same |
-| r15_struct_ref_scalar_field_write | `s.T = ...` through `Burn&` | import-fail | error [LOWERING/059]: mutation requires an owned automatic source binding | same |
+| r14_struct_ref_member_update | `dvode_t&` through 2 template layers: `vs.y(n) +=` and `vs.t +=` | **ok** | vgpr=10 scratch=128B | import-fail: error [LOWERING/059]: mutation requires an owned automatic source binding |
+| r15_struct_ref_scalar_field_write | `s.T = ...` through `Burn&` | **ok** | vgpr=10 scratch=0B | import-fail: error [LOWERING/059]: mutation requires an owned automatic source binding |
 | r16_struct_ref_array_member_write | `s.xn[n] = ...` through `Burn&` | ok | vgpr=10 scratch=128B | same |
 | r17_local_ref_array_elem | `double& r = a[2];` | ok | vgpr=4 scratch=0B | same |
 | r18_value_return_max | `max(const T&, const T&)` returning `T` by value | ok | vgpr=6 scratch=0B | same |
-| r19_struct_ref_member_accessor_write | `vs.y(n) += ...` through `Dvode&` | import-fail | error [LOWERING/059]: mutation requires an owned automatic source binding | same |
+| r19_struct_ref_member_accessor_write | `vs.y(n) += ...` through `Dvode&` | **ok** | vgpr=10 scratch=128B | import-fail: error [LOWERING/059]: mutation requires an owned automatic source binding |
 | r20_const_ref_from_deref | `const Burn&` bound to `*p` | ok | vgpr=10 scratch=0B | same |
 | r21_whole_struct_assign_through_ref | `r = rate_t{...}` through `rate_t&` | ok | vgpr=6 scratch=0B | same |
 | r22_const_ref_to_kernel_arg_struct | `const BurnParams&` bound to `*params` (kernel argument) | ok | vgpr=12 scratch=0B | same |
-| r23_const_struct_ref_member_accessor_read | `vs.y(n)` through `const Dvode&` | import-fail | error [LOWERING/059]: mutation requires an owned automatic source binding | same |
+| r23_const_struct_ref_member_accessor_read | `vs.y(n)` through `const Dvode&` | **ok** | vgpr=8 scratch=248B | import-fail: error [LOWERING/059]: mutation requires an owned automatic source binding |
 | r24_const_struct_ref_member_raw_array | `vs.y.arr[n]` through `const Dvode&` | ok | vgpr=8 scratch=248B | same |

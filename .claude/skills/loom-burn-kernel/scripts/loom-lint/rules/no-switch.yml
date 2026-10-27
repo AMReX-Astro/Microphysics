@@ -1,5 +1,0 @@
-id: no-switch
-language: cpp
-severity: error
-message: switch does not import at runtime. Use an if/else chain. At main 970d39ac1e (2026-10-27 probes), a runtime switch imports and compiles (f01). Keep the rewrite, since tools from 1468c06034 on miscompile burn kernels (hrx-system#2337).
-rule: { kind: switch_statement, not: { matches: host-branch } }

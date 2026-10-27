@@ -107,16 +107,14 @@ repository; the items below are the distilled result.
 
 ## Frontend and compiler traps (re-probe; some may be fixed)
 
-- `return` inside a loop fails (LOWERING/059). Use a result code and `break`.
+- Tools from hrx-system `1468c06034` through `970d39ac1e` lose `zone_success`
+  in lanes that leave VODE's step loop early (ROCm/hrx-system#2337; state and
+  counters still match). Fixed at the pin `5e6af0ec1a`; don't use that range.
 - SUBRANGE/026 at compile time means a missing bounds assumption:
   `MPL_ASSUME` (`loom-frontend-rules.md`, SUBRANGE row). If the assumption
   is there and the bound in the message is the whole `short` range
   ("may reach 262152"), the tools predate hrx-system #2135 (issue #2122,
   probe f20).
-- A `return` inside an `if` nested in another `if`, with code after both
-  (stock `actual_log_screen`'s Debye-Hückel skip), fails import:
-  "conditional returns require at most one fallthrough arm" (probe f24; a
-  single-level early return imports, f10, f25). Keep a `done` flag there.
 - Uninitialized struct locals (`burn_t s;`) fail; write `T x{}`. Scalar and
   array locals may stay uninitialized (hrx-system #2105).
 - Text Loom modules over 65,535 lines were rejected (#1877).

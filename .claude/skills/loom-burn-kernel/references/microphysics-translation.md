@@ -26,7 +26,7 @@ code:
   reachable. Decide with the user whether such branches are ported or
   rejected at launch ("Runtime-gated paths" below).
 - It does not measure base classes (ternary nesting depth no longer
-  matters at `fa8eba4554`, probe f11).
+  matters since `fa8eba4554`, probe f11).
 - Keep the matcher list in step with Phase 1 results.
 
 ## General method
@@ -50,7 +50,7 @@ code:
   small aggregates in the kernel namespace with the same 1-based
   `operator()` and the same storage order as AMReX's (an array member, no
   base class, no constructors), and keep the source's index expressions
-  unchanged: accessors import at `fa8eba4554` (probes o02, o11, o12, o15).
+  unchanged: accessors import (probes o02, o11, o12, o15).
   This removes the hand-converted indices that were the easiest bug to
   introduce. `support.H` provides `mpl::Array1D` / `mpl::Array2D` (padded
   from index 0, row-major; no code may depend on AMReX's column-major
@@ -60,24 +60,23 @@ code:
 ## burn_t and the integrator state
 
 - Keep `burn_t` as a struct with the same fields (drop only fields that are
-  `#ifdef`'d out for the configuration). A function that only reads it can
-  keep `const burn_t&` (probe r05); one that writes through it takes
-  `burn_t*`, because writes to scalar fields or through a member's accessor
-  via a mutable struct reference still fail import (r03, r15, r19; rule in
-  `loom-frontend-rules.md`).
+  `#ifdef`'d out for the configuration). `const burn_t&` (probe r05) and,
+  since `5e6af0ec1a`, mutable `burn_t&` with scalar-field and accessor
+  writes (r03, r15, r19) import, so the source's reference parameters can
+  stay. The shipped modules pass written structs as `burn_t*`, which
+  `fa8eba4554` required; that form also imports.
 - Integrator types (`dvode_t` in `integration/VODE/vode_type.H`,
   the Rosenbrock type in `integration/Rosenbrock/rosenbrock_type.H`) hold
   `Array1D/Array2D` members. Keep the struct and its accessor-style members
-  (`vs->y(n)`, `vs->jac(i, j)`) and pass it by pointer, `const dvode_t*`
-  where it is only read: a member's accessor called through a struct
-  reference fails import even when the reference is `const` (r23; o15, o19
-  for the pointer forms); member
+  (`vs->y(n)`, `vs->jac(i, j)`; by reference, `vs.y(n)`, r14, r19, r23,
+  since `5e6af0ec1a`; the shipped `vode.H` passes `dvode_t*` /
+  `const dvode_t*`, o15, o19); member
   functions of these types may stay member functions (o01, o10, o14).
 - Control flow in the integrators (VODE `dvstep`, `dvnlsd`, `dvjac`; the
   Rosenbrock step/reject loop) uses `return` inside loops and multi-exit
-  loops. Each `return` inside a loop becomes a result code + `break`;
-  multi-exit loops, nested or not, otherwise keep the stock `break`s and
-  `continue`s (`vode.H`; probes f21, f22). Preserve every exit point and its
+  loops. Both import since `5e6af0ec1a` (probes f03, f21, f22), so keep the
+  stock shape; the shipped `vode.H` still turns each `return` inside a loop
+  into a result code + `break`, which `fa8eba4554` required. Preserve every exit point and its
   counter updates. Add `MPL_ASSUME`
   bounds on order-dependent indices
   (`loom-frontend-rules.md`, SUBRANGE row).

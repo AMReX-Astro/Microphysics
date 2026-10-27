@@ -4,10 +4,7 @@
 # #else branch of `#if defined(__loom__)` / `#ifdef __loom__` (the native host
 # fallback) is skipped. A clean lint does not mean Loom imports the file; it
 # catches the known failures before spending a remote import on them.
-# Severities follow the pinned hrx-system commit (fa8eba4554). At main
-# 970d39ac1e no-switch and no-return-in-loop no longer apply
-# (--off=no-switch --off=no-return-in-loop), but tools from 1468c06034 on
-# miscompile burn kernels (hrx-system#2337): use them for probing only.
+# Rules and severities follow the pinned hrx-system commit (5e6af0ec1a).
 ruleDirs: [rules]
 utilDirs: [utils]
 languageGlobs:

@@ -4,7 +4,7 @@
 namespace t {
 struct B {};
 struct A : B { static constexpr double tab[2] = {1, 2}; };
-struct D { double v; };
+struct D { double v; D operator+(D o) const { return D{v + o.v}; } };
 D operator*(D x, D y) { return D{x.v * y.v}; }
 double g;
 constexpr double arr[2] = {1, 2};  // allowed: namespace-scope constexpr table
@@ -19,6 +19,7 @@ void f(double& r, int k)
     for (;;) { if (k) return; }
     for (int i : {1, 2}) { (void)i; }
     A a{};
+    double& ra = a.v;
     double w = __builtin_exp(1.0) + std::exp(1.0) + amrex::Math::powi<2>(r) + integrator_rp::rtol_spec;
     throw 1;
 }

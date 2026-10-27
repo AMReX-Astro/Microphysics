@@ -32,12 +32,10 @@ Hard rules (each one cost a failed Loom import or compile at least once):
 1. Same computation, same order, statement for statement. Follow the HIP/GPU
    branch of every `#ifdef` (`AMREX_USE_GPU` defined, no host printing, no
    `ALLOW_JACOBIAN_CACHING`).
-2. A struct that a function writes through is passed by pointer (`burn_t*`,
-   `dvode_t*`): writing a scalar field or a member's accessor through a
-   mutable struct reference fails import. A struct with `Array1D`/`Array2D`
-   members always goes by pointer (`const dvode_t*` when read-only): calling
-   a member's accessor through any struct reference fails, `const` included.
-   Other `const` struct references, scalar
+2. Struct references, mutable or `const`, import with writes to scalar
+   fields and through member accessors (probes r14, r15, r19, r23), and so
+   do pointers; the shipped modules pass written structs by pointer
+   (`burn_t*`, `dvode_t*`). Follow the module you extend. Scalar
    `Real&`/`int&` parameters, array references, references to array
    elements, member function calls and `Array1D`/`Array2D`-style 1-based
    `operator()` accessors all import: keep them and the source's index
@@ -49,8 +47,7 @@ Hard rules (each one cost a failed Loom import or compile at least once):
 4. No lambdas/`constexpr_for` (template-struct recursion or plain loops), no
    `constexpr` locals of record type (bind each field to a `constexpr`
    scalar), no `static` arrays (member or block scope; namespace-scope
-   `constexpr` tables are fine), no `switch`, no `return`
-   inside loops (flags + `break`), no range-for, no structured bindings, no
+   `constexpr` tables are fine), no range-for, no structured bindings, no
    constructors with arguments, no uninitialized struct locals, no
    `std::`, no stock namespaces (`amrex::`, `autodiff::`, `admath::`, `gcem::`,
    `RHS::`, `*_rp::` ...): validators include the stock headers, so a
@@ -62,9 +59,9 @@ Hard rules (each one cost a failed Loom import or compile at least once):
    bounds from struct fields) needs an `MPL_ASSUME` (otherwise `loom-compile`
    fails with SUBRANGE/026). Placement and form rules:
    `references/loom-frontend-rules.md`.
-6. **Loops with several exits** (multiple `break`s, a `continue`, the
-   `break`s that replace stock `return`s) keep the stock shape, nested or
-   not (probes f21, f22); don't add `done` flags.
+6. **Loops with several exits** (multiple `break`s, a `continue`,
+   `return`s inside loops) keep the stock shape, nested or not (probes f03,
+   f21, f22), and so do runtime `switch`es (f01); don't add `done` flags.
 7. Math only through `mpl::math`; never substitute identities
    (`pow = exp(y*log x)`); integer powers through `math::powi<N>`.
 8. Runtime parameters through a params struct of scalars (`const P*`), fields

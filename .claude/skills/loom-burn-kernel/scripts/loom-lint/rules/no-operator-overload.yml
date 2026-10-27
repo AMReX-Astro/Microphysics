@@ -1,9 +1,10 @@
 id: no-operator-overload
 language: cpp
 severity: error
-message: Overloaded operators other than operator() do not import (probes o03, o09). Use free functions (dual.H). operator() accessors returning T& / const T& import (o02, o11, o12).
+message: Member operators other than operator() do not import (probe o09). Free operator overloads on aggregates import (o03), and so do operator() accessors returning T& / const T& (o02, o11, o12).
 rule:
   kind: operator_name
+  inside: { kind: field_declaration_list, stopBy: end }
   not:
     any:
       - regex: '^operator\s*\(\s*\)$'

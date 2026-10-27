@@ -4,8 +4,7 @@ Prepend `_common.md`. Module name for builds: `eos`. (helmholtz is done:
 `assets/modules/eos.H`, network data from the generated `network_data.H`.)
 
 Scope: everything the burn reaches in `EOS/{EOS}/`, `EOS/eos_composition.H`,
-`interfaces/eos.H` (eos(), reset_inputs and reset_* helpers: the runtime
-switch becomes an if/else chain), `interfaces/eos_override.H`, and the state
+`interfaces/eos.H` (eos(), reset_inputs and reset_* helpers), `interfaces/eos_override.H`, and the state
 types/input modes the integrator actually instantiates (check
 `integration/integrator_setup_*.H`, `integrator_type*.H`). Tables become a
 `struct EosTables` of `const Real*` passed BY VALUE with index macros matching

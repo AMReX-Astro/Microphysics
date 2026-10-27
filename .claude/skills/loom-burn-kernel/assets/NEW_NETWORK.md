@@ -110,9 +110,8 @@ arguments.
    includes: `python3 <skill>/scripts/gen_abi_layout.py --kernel-dir
    unit_test/test_react/loom/<net>_vode` (writes `abi_layout.H`; rerun
    whenever a `*Params` struct changes). Lint every kernel file except `validate_*`
-   (SKILL.md Phase 3): `rates.H` and `network.H` must be clean; the 9
-   `warning[no-reference]` hits from the shipped `network_rhs.H` are
-   expected (`rate_t&` outputs written by whole-struct assignment).
+   (SKILL.md Phase 3): `rates.H` and `network.H` must be clean, like the
+   shipped modules.
 6. **Validate everything**. Fill the `PORT:` lines of `validate_port.H`
    first (the network's runtime switches as parameter variants, every rate
    branch temperature, direct calls of rate functions that take a density).
