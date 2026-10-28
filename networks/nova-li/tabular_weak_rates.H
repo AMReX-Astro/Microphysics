@@ -1,8 +1,14 @@
 #ifndef TABULAR_WEAK_RATES_H
 #define TABULAR_WEAK_RATES_H
 
+#include <cmath>
+
 #include <AMReX.H>
 
+#include <actual_network.H>
+#include <fundamental_constants.H>
+#include <network_properties.H>
+#include <rate_type.H>
 #include <table_rates.H>
 
 namespace tabular_weak_rates {
@@ -14,8 +20,134 @@ namespace tabular_weak_rates {
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
+    void rate_F17_to_O17_electron_capture_weaktab(T& rate_eval, const amrex::Real temp, const amrex::Real log_temp, const amrex::Real rho, const amrex::Real rhoy, const amrex::Real log_rhoy, const amrex::Array1D<amrex::Real, 1, NumSpec>& Y) {
+
+        // F17 --> O17
+
+        weak_rate_t table_values{};
+        constexpr int do_T_derivatives = std::is_same_v<T, rate_derivs_t>;
+        tabular_evaluate<do_T_derivatives>(j_F17_O17_meta, j_F17_O17_rhoy, j_F17_O17_temp, j_F17_O17_data,
+                                            log_rhoy, rhoy, log_temp, temp, table_values);
+
+        rate_eval.screened_rates(k_F17_to_O17_electron_capture_weaktab) = table_values.rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_F17_to_O17_electron_capture_weaktab) = table_values.drate_dT;
+
+            // accumulate ∂/∂Y_e contributions to F17 and O17
+            // this is the derivative of ∂Y(F17)/∂t = -Y(F17) λ and
+            //                           ∂Y(O17)/∂t = +Y(F17) λ
+            rate_eval.dweak_ydot_dYe(F17) -= rho * Y(F17) * table_values.drate_drhoye;
+            rate_eval.dweak_ydot_dYe(O17) += rho * Y(F17) * table_values.drate_drhoye;
+
+            // also accumulate the derivatives of ε_{ν,weak} with respect to T and Y
+            rate_eval.denuc_weak_dY(F17) += C::n_A * (table_values.enu + table_values.gamma);
+            rate_eval.denuc_weak_dT += C::n_A * Y(F17) * table_values.denu_dT;
+            // finally the derivatives of ε_{ν,weak} with respect to Ye
+            rate_eval.denuc_weak_dYe += C::n_A * rho * Y(F17) * table_values.denu_drhoye;
+        }
+
+        rate_eval.enuc_weak += C::n_A * Y(F17) * (table_values.enu + table_values.gamma);
+    }
+
+    template <typename T>
+    AMREX_GPU_DEVICE AMREX_INLINE
+    void rate_F18_to_O18_electron_capture_weaktab(T& rate_eval, const amrex::Real temp, const amrex::Real log_temp, const amrex::Real rho, const amrex::Real rhoy, const amrex::Real log_rhoy, const amrex::Array1D<amrex::Real, 1, NumSpec>& Y) {
+
+        // F18 --> O18
+
+        weak_rate_t table_values{};
+        constexpr int do_T_derivatives = std::is_same_v<T, rate_derivs_t>;
+        tabular_evaluate<do_T_derivatives>(j_F18_O18_meta, j_F18_O18_rhoy, j_F18_O18_temp, j_F18_O18_data,
+                                            log_rhoy, rhoy, log_temp, temp, table_values);
+
+        rate_eval.screened_rates(k_F18_to_O18_electron_capture_weaktab) = table_values.rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_F18_to_O18_electron_capture_weaktab) = table_values.drate_dT;
+
+            // accumulate ∂/∂Y_e contributions to F18 and O18
+            // this is the derivative of ∂Y(F18)/∂t = -Y(F18) λ and
+            //                           ∂Y(O18)/∂t = +Y(F18) λ
+            rate_eval.dweak_ydot_dYe(F18) -= rho * Y(F18) * table_values.drate_drhoye;
+            rate_eval.dweak_ydot_dYe(O18) += rho * Y(F18) * table_values.drate_drhoye;
+
+            // also accumulate the derivatives of ε_{ν,weak} with respect to T and Y
+            rate_eval.denuc_weak_dY(F18) += C::n_A * (table_values.enu + table_values.gamma);
+            rate_eval.denuc_weak_dT += C::n_A * Y(F18) * table_values.denu_dT;
+            // finally the derivatives of ε_{ν,weak} with respect to Ye
+            rate_eval.denuc_weak_dYe += C::n_A * rho * Y(F18) * table_values.denu_drhoye;
+        }
+
+        rate_eval.enuc_weak += C::n_A * Y(F18) * (table_values.enu + table_values.gamma);
+    }
+
+    template <typename T>
+    AMREX_GPU_DEVICE AMREX_INLINE
+    void rate_Ne18_to_F18_electron_capture_weaktab(T& rate_eval, const amrex::Real temp, const amrex::Real log_temp, const amrex::Real rho, const amrex::Real rhoy, const amrex::Real log_rhoy, const amrex::Array1D<amrex::Real, 1, NumSpec>& Y) {
+
+        // Ne18 --> F18
+
+        weak_rate_t table_values{};
+        constexpr int do_T_derivatives = std::is_same_v<T, rate_derivs_t>;
+        tabular_evaluate<do_T_derivatives>(j_Ne18_F18_meta, j_Ne18_F18_rhoy, j_Ne18_F18_temp, j_Ne18_F18_data,
+                                            log_rhoy, rhoy, log_temp, temp, table_values);
+
+        rate_eval.screened_rates(k_Ne18_to_F18_electron_capture_weaktab) = table_values.rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_Ne18_to_F18_electron_capture_weaktab) = table_values.drate_dT;
+
+            // accumulate ∂/∂Y_e contributions to Ne18 and F18
+            // this is the derivative of ∂Y(Ne18)/∂t = -Y(Ne18) λ and
+            //                           ∂Y(F18)/∂t = +Y(Ne18) λ
+            rate_eval.dweak_ydot_dYe(Ne18) -= rho * Y(Ne18) * table_values.drate_drhoye;
+            rate_eval.dweak_ydot_dYe(F18) += rho * Y(Ne18) * table_values.drate_drhoye;
+
+            // also accumulate the derivatives of ε_{ν,weak} with respect to T and Y
+            rate_eval.denuc_weak_dY(Ne18) += C::n_A * (table_values.enu + table_values.gamma);
+            rate_eval.denuc_weak_dT += C::n_A * Y(Ne18) * table_values.denu_dT;
+            // finally the derivatives of ε_{ν,weak} with respect to Ye
+            rate_eval.denuc_weak_dYe += C::n_A * rho * Y(Ne18) * table_values.denu_drhoye;
+        }
+
+        rate_eval.enuc_weak += C::n_A * Y(Ne18) * (table_values.enu + table_values.gamma);
+    }
+
+    template <typename T>
+    AMREX_GPU_DEVICE AMREX_INLINE
+    void rate_Ne19_to_F19_electron_capture_weaktab(T& rate_eval, const amrex::Real temp, const amrex::Real log_temp, const amrex::Real rho, const amrex::Real rhoy, const amrex::Real log_rhoy, const amrex::Array1D<amrex::Real, 1, NumSpec>& Y) {
+
+        // Ne19 --> F19
+
+        weak_rate_t table_values{};
+        constexpr int do_T_derivatives = std::is_same_v<T, rate_derivs_t>;
+        tabular_evaluate<do_T_derivatives>(j_Ne19_F19_meta, j_Ne19_F19_rhoy, j_Ne19_F19_temp, j_Ne19_F19_data,
+                                            log_rhoy, rhoy, log_temp, temp, table_values);
+
+        rate_eval.screened_rates(k_Ne19_to_F19_electron_capture_weaktab) = table_values.rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_Ne19_to_F19_electron_capture_weaktab) = table_values.drate_dT;
+
+            // accumulate ∂/∂Y_e contributions to Ne19 and F19
+            // this is the derivative of ∂Y(Ne19)/∂t = -Y(Ne19) λ and
+            //                           ∂Y(F19)/∂t = +Y(Ne19) λ
+            rate_eval.dweak_ydot_dYe(Ne19) -= rho * Y(Ne19) * table_values.drate_drhoye;
+            rate_eval.dweak_ydot_dYe(F19) += rho * Y(Ne19) * table_values.drate_drhoye;
+
+            // also accumulate the derivatives of ε_{ν,weak} with respect to T and Y
+            rate_eval.denuc_weak_dY(Ne19) += C::n_A * (table_values.enu + table_values.gamma);
+            rate_eval.denuc_weak_dT += C::n_A * Y(Ne19) * table_values.denu_dT;
+            // finally the derivatives of ε_{ν,weak} with respect to Ye
+            rate_eval.denuc_weak_dYe += C::n_A * rho * Y(Ne19) * table_values.denu_drhoye;
+        }
+
+        rate_eval.enuc_weak += C::n_A * Y(Ne19) * (table_values.enu + table_values.gamma);
+    }
+
+
+    template <typename T>
+    AMREX_GPU_DEVICE AMREX_INLINE
     void
     fill_rates([[maybe_unused]] const amrex::Real temp,
+               [[maybe_unused]] const amrex::Real rho,
                [[maybe_unused]] const amrex::Real rhoy,
                [[maybe_unused]] const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
                [[maybe_unused]] T& rate_eval)
@@ -23,44 +155,40 @@ namespace tabular_weak_rates {
 
         // Calculate tabular weak rates
 
-        [[maybe_unused]] amrex::Real rate, drate_dt, edot_nu, edot_gamma;
+        [[maybe_unused]] const amrex::Real log_temp = std::log10(temp);
+        [[maybe_unused]] const amrex::Real log_rhoy = std::log10(rhoy);
 
         rate_eval.enuc_weak = 0.0_rt;
 
-        const amrex::Real log_temp = std::log10(temp);
-        const amrex::Real log_rhoy = std::log10(rhoy);
-
-        tabular_evaluate(j_F17_O17_meta, j_F17_O17_rhoy, j_F17_O17_temp, j_F17_O17_data,
-                         log_rhoy, log_temp, temp, rate, drate_dt, edot_nu, edot_gamma);
-        rate_eval.screened_rates(k_F17_to_O17_electron_capture_weaktab) = rate;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
-            rate_eval.dscreened_rates_dT(k_F17_to_O17_electron_capture_weaktab) = drate_dt;
-        }
-        rate_eval.enuc_weak += C::n_A * Y(F17) * (edot_nu + edot_gamma);
+            for (int n = 1; n <= NumSpec; ++n) {
+                rate_eval.dweak_ydot_dYe(n) = 0.0_rt;
+                rate_eval.denuc_weak_dY(n) = 0.0_rt;
+            }
+            rate_eval.denuc_weak_dT = 0.0_rt;
+            rate_eval.denuc_weak_dYe = 0.0_rt;
 
-        tabular_evaluate(j_F18_O18_meta, j_F18_O18_rhoy, j_F18_O18_temp, j_F18_O18_data,
-                         log_rhoy, log_temp, temp, rate, drate_dt, edot_nu, edot_gamma);
-        rate_eval.screened_rates(k_F18_to_O18_electron_capture_weaktab) = rate;
-        if constexpr (std::is_same_v<T, rate_derivs_t>) {
-            rate_eval.dscreened_rates_dT(k_F18_to_O18_electron_capture_weaktab) = drate_dt;
         }
-        rate_eval.enuc_weak += C::n_A * Y(F18) * (edot_nu + edot_gamma);
 
-        tabular_evaluate(j_Ne18_F18_meta, j_Ne18_F18_rhoy, j_Ne18_F18_temp, j_Ne18_F18_data,
-                         log_rhoy, log_temp, temp, rate, drate_dt, edot_nu, edot_gamma);
-        rate_eval.screened_rates(k_Ne18_to_F18_electron_capture_weaktab) = rate;
-        if constexpr (std::is_same_v<T, rate_derivs_t>) {
-            rate_eval.dscreened_rates_dT(k_Ne18_to_F18_electron_capture_weaktab) = drate_dt;
+        {
+            // F17_to_O17_electron_capture_weaktab
+            rate_F17_to_O17_electron_capture_weaktab(rate_eval, temp, log_temp, rho, rhoy, log_rhoy, Y);
         }
-        rate_eval.enuc_weak += C::n_A * Y(Ne18) * (edot_nu + edot_gamma);
 
-        tabular_evaluate(j_Ne19_F19_meta, j_Ne19_F19_rhoy, j_Ne19_F19_temp, j_Ne19_F19_data,
-                         log_rhoy, log_temp, temp, rate, drate_dt, edot_nu, edot_gamma);
-        rate_eval.screened_rates(k_Ne19_to_F19_electron_capture_weaktab) = rate;
-        if constexpr (std::is_same_v<T, rate_derivs_t>) {
-            rate_eval.dscreened_rates_dT(k_Ne19_to_F19_electron_capture_weaktab) = drate_dt;
+        {
+            // F18_to_O18_electron_capture_weaktab
+            rate_F18_to_O18_electron_capture_weaktab(rate_eval, temp, log_temp, rho, rhoy, log_rhoy, Y);
         }
-        rate_eval.enuc_weak += C::n_A * Y(Ne19) * (edot_nu + edot_gamma);
+
+        {
+            // Ne18_to_F18_electron_capture_weaktab
+            rate_Ne18_to_F18_electron_capture_weaktab(rate_eval, temp, log_temp, rho, rhoy, log_rhoy, Y);
+        }
+
+        {
+            // Ne19_to_F19_electron_capture_weaktab
+            rate_Ne19_to_F19_electron_capture_weaktab(rate_eval, temp, log_temp, rho, rhoy, log_rhoy, Y);
+        }
 
     }
 

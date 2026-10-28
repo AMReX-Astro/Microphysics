@@ -1,10 +1,8 @@
 #!/usr/bin/env bash
 
-if [[ $# -eq 2 ]]; then
-  CVER=$1
-else
-  CVER=4.8
-fi
+set -eu -o pipefail
+
+CVER=${1:-4.8}
 
 wget https://github.com/ccache/ccache/releases/download/v${CVER}/ccache-${CVER}-linux-x86_64.tar.xz
 tar xvf ccache-${CVER}-linux-x86_64.tar.xz
