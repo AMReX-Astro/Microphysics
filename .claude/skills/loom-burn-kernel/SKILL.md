@@ -95,16 +95,28 @@ GFX=$(amdgpu-arch | head -1); echo "${GFX:-no GPU: set GFX=gfx90a (or your targe
 export SKILL=$(realpath <skill>)                # absolute: the block below cd's away from the repo
 export LOOM_WORK=${LOOM_WORK:-$HOME/loom-work}  # every script's base dir
 mkdir -p "$LOOM_WORK" && cd "$LOOM_WORK"
-python3 -m venv venv && venv/bin/pip install ast-grep-cli hrx-loom==0.1.0 && export PATH=$PWD/venv/bin:$PATH
-export LOOM_TOOLS=$PWD/venv/bin                 # pinned Loom 0.1.0 (Phase 1): TOOLS / LOOM_TOOLS for the scripts
-(cd venv/bin && md5sum loom-import-cxx loom-compile > tools.md5)
+python3 -m venv venv && venv/bin/pip install ast-grep-cli && export PATH=$PWD/venv/bin:$PATH
 git clone https://github.com/AMReX-Codes/amrex.git && export AMREX_HOME=$PWD/amrex
+ldd --version | head -1                         # glibc >= 2.39: install the wheel; older: source build below
+venv/bin/pip install hrx-loom==0.1.0            # pinned Loom 0.1.0 (Phase 1)
+export LOOM_TOOLS=$PWD/venv/bin                 # TOOLS / LOOM_TOOLS for the scripts
+(cd venv/bin && md5sum loom-import-cxx loom-compile > tools.md5)
 ```
 
 The `hrx-loom` wheel (Loom 0.1.0, hrx-system tag `v0.1.0` = `d01d1c18b1`)
 needs Python ≥ 3.12, glibc ≥ 2.39 and `GLIBCXX_3.4.31` (Ubuntu 24.04 has
-all three). On an older host (e.g. Rocky 9, glibc 2.34) build the same
-tools from the tag instead; this takes 15–30 min (13 min at `-j8` under
+all three).
+
+**Fallback: build from source if the host glibc is too old.** If `ldd
+--version` reports glibc older than 2.39 (e.g. Rocky 9 / RHEL 9 have 2.34),
+pip refuses the wheel ("No matching distribution found for
+hrx-loom==0.1.0"), or the installed `loom-import-cxx` fails to start with
+`` version `GLIBC_2.38' not found ``, skip the pip install and
+`LOOM_TOOLS` lines above and build the same tools from the `v0.1.0` tag
+instead; probe results and code objects match the wheel's
+(`probes/README.md`). The build needs a C++23 libstdc++ from GCC ≥ 14; where
+the distro's GCC is older, point `GCC_TOOLCHAIN` at one (e.g. a conda
+`gcc` 14; `build_loom_tools.sh -h`). The build takes 15–30 min (13 min at `-j8` under
 Rosetta), so start it first:
 
 ```bash
