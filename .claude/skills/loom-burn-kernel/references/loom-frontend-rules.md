@@ -1,7 +1,7 @@
 # Loom C++ frontend: construct → rewrite
 
-Status as of public hrx-system main `5e6af0ec1a` (2026-10-27; probed
-2026-10-27 on gfx90a), measured
+Status as of the pinned Loom 0.1.0 (hrx-system tag `v0.1.0`, `d01d1c18b1`;
+probed 2026-10-29 on gfx90a, identical to main `5e6af0ec1a`), measured
 with this skill's `probes/` kit (results and probe names in
 `probes/README.md`). **Re-probe at your commit** (SKILL.md Phase 1):
 rows marked "changed recently" or anything older than the commit you use
@@ -11,8 +11,8 @@ Since the previous pin (`fa8eba4554`), mutable struct references, a runtime
 `switch`, `return` inside a loop, nested early returns and free operator
 overloads import; the shipped modules still use the older rewrites, which
 remain valid. Tools from `1468c06034` through `970d39ac1e` miscompile burn
-kernels (`zone_success` lost, ROCm/hrx-system#2337, fixed at `5e6af0ec1a`);
-don't use them.
+kernels (`zone_success` lost, ROCm/hrx-system#2337, fixed at `5e6af0ec1a`
+and in 0.1.0); don't use them.
 
 ## Import invocation
 
@@ -69,7 +69,7 @@ Under `__loom__`, `#include <hip/hip_runtime.h>` gives `__global__`,
 | Namespace-scope `constexpr` arrays (`aion[]`, `zion[]`, rate tables; also `inline constexpr`, 2-D, arrays of aggregates, `extern const` with its definition in the TU) | import with runtime indices since hrx-system #2158/#2163 (d01, d16-d20, d23); stored as read-only data, read with global loads | Keep them at namespace scope as the stock HIP build does (`network_data.H` emits `aion`/`aion_inv`/`zion` this way) |
 | `static constexpr` member arrays; block-scope `static constexpr` arrays | fail (d09: "member-dependent initialization ..."; d22: "local storage duration must be automatic or __shared__") | Move the table to namespace scope (row above), or a local `const Real t[N] = {...}` |
 | Ternaries nested > 32 deep | import and compile (f11, 40 deep; hrx-system #2079) | — |
-| Stage loops with break/continue | a simple retry loop imports without help (f07), and so does a constant-bound loop with a `break` over a private local array (f17); the same loop over a struct member read through a pointer (`vs->y(i)` in VODE's species checks) still fails SUBRANGE/026 at `5e6af0ec1a` (full burn without the two assumptions, 2026-10-27) | `MPL_ASSUME(0 <= i && i < N)` on the counter (next row) |
+| Stage loops with break/continue | a simple retry loop imports without help (f07), and so does a constant-bound loop with a `break` over a private local array (f17); the same loop over a struct member read through a pointer (`vs->y(i)` in VODE's species checks) still fails SUBRANGE/026 in Loom 0.1.0 (full burn without the two assumptions, 2026-10-29) | `MPL_ASSUME(0 <= i && i < N)` on the counter (next row) |
 | Private-array index with data-dependent loop bounds (triangular LU loops, VODE order loops), an index read from a struct field (`vs->el[vs->L]`), or a loop with `break` over a member array reached through a pointer (its compound condition hides the bound, even with constant limits) | imports, then **compile** fails SUBRANGE/026 "access byte end may reach ..." even though probe f06 passed in isolation (network LU, 2026-10-18) | First choice for counted loops with compile-time limits: write the bound as a strict `<` (`for (int j = k + 1; j < neqs + 1; ++j)`, `for (int j = 1; j < k; ++j)` with `k` from another such loop); Loom proves those indices in range and no assumption is needed (network LU, `network_rhs.H`; with `<=`, dgesl's back substitution fails SUBRANGE/026). Otherwise (runtime bounds from struct fields, as in VODE): `MPL_ASSUME(lo <= i && i <= hi)` (support.H: `__builtin_assume` under Loom, no-op on host) at the top of each loop body / after each derived index, using the array's true static bounds. Operands must be local scalars, constants and side-effect-free arithmetic on them (`j + 1 <= n` imports since hrx-system #2105, f13); no struct fields (`vs->L` fails: "predicate member paths ..."; copy it into a `const int` local and index with that, f14). Rely on the smoke compile, not the isolated probe |
 
 This table is the authoritative place for `MPL_ASSUME`/SUBRANGE/026; other

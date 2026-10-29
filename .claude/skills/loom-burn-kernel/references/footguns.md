@@ -109,7 +109,8 @@ repository; the items below are the distilled result.
 
 - Tools from hrx-system `1468c06034` through `970d39ac1e` lose `zone_success`
   in lanes that leave VODE's step loop early (ROCm/hrx-system#2337; state and
-  counters still match). Fixed at the pin `5e6af0ec1a`; don't use that range.
+  counters still match). Fixed at `5e6af0ec1a` and in the pinned Loom 0.1.0;
+  don't use that range.
 - SUBRANGE/026 at compile time means a missing bounds assumption:
   `MPL_ASSUME` (`loom-frontend-rules.md`, SUBRANGE row). If the assumption
   is there and the bound in the message is the whole `short` range
@@ -161,7 +162,7 @@ repository; the items below are the distilled result.
 
 ## Bookkeeping traps
 
-- Record the hrx-system commit and tool md5 with every result. Compiler
+- Record the Loom version (or hrx-system commit) and tool md5 with every result. Compiler
   merges moved this kernel by −13% and +10% with no source change; results
   across commits are not comparable.
 - Keep every candidate's exact source (commit or patch) next to its result.

@@ -95,13 +95,24 @@ GFX=$(amdgpu-arch | head -1); echo "${GFX:-no GPU: set GFX=gfx90a (or your targe
 export SKILL=$(realpath <skill>)                # absolute: the block below cd's away from the repo
 export LOOM_WORK=${LOOM_WORK:-$HOME/loom-work}  # every script's base dir
 mkdir -p "$LOOM_WORK" && cd "$LOOM_WORK"
-python3 -m venv venv && venv/bin/pip install ast-grep-cli && export PATH=$PWD/venv/bin:$PATH
+python3 -m venv venv && venv/bin/pip install ast-grep-cli hrx-loom==0.1.0 && export PATH=$PWD/venv/bin:$PATH
+export LOOM_TOOLS=$PWD/venv/bin                 # pinned Loom 0.1.0 (Phase 1): TOOLS / LOOM_TOOLS for the scripts
+(cd venv/bin && md5sum loom-import-cxx loom-compile > tools.md5)
 git clone https://github.com/AMReX-Codes/amrex.git && export AMREX_HOME=$PWD/amrex
-git clone https://github.com/ROCm/hrx-system.git
-git -C hrx-system checkout 5e6af0ec1a           # pinned compiler (Phase 1); never 1468c06034..970d39ac1e (#2337)
+```
+
+The `hrx-loom` wheel (Loom 0.1.0, hrx-system tag `v0.1.0` = `d01d1c18b1`)
+needs Python ≥ 3.12, glibc ≥ 2.39 and `GLIBCXX_3.4.31` (Ubuntu 24.04 has
+all three). On an older host (e.g. Rocky 9, glibc 2.34) build the same
+tools from the tag instead; this takes 15–30 min (13 min at `-j8` under
+Rosetta), so start it first:
+
+```bash
+git clone --branch v0.1.0 https://github.com/ROCm/hrx-system.git
 (cd hrx-system && python3 dev.py cmake setup)   # .venv with cmake/ninja; see below if it exits 1
 SRC=$PWD/hrx-system OUT=$PWD/loom-tools/pinned TARGETS=$GFX \
   nohup setsid bash $SKILL/scripts/build_loom_tools.sh > tools-build.log 2>&1 < /dev/null &
+export LOOM_TOOLS=$PWD/loom-tools/pinned/tools  # once tools-build.log ends in DONE
 ```
 
 Notes from the end-to-end run:
@@ -116,6 +127,12 @@ Notes from the end-to-end run:
   supported way to get hrx-system's pinned build tools; `build_loom_tools.sh`
   also accepts the apt `cmake`/`ninja-build` on `PATH` when there is no
   `.venv`, but that path has not been tested end to end.
+- The end-to-end runs predate the wheel and built the tools from source.
+  The wheel's `loom-import-cxx`/`loom-compile` were checked on gfx90a
+  (Rocky 9, run through an Ubuntu 24.04 glibc): probe results and the
+  shipped aprox13 burn match the tools built from `v0.1.0`
+  (`probes/README.md`). A pip install on Ubuntu 24.04 has not been run end
+  to end yet.
 - No GPU on the box (a build-only VM): Phase 6 stops after the production
   root compile, the HIP build and the FMA audit (`loom_gpu_compare.sh` skips
   its compare runs when no GPU is visible, or with `COMPILE_ONLY=1`).
@@ -131,13 +148,12 @@ Notes from the end-to-end run:
 Microphysics needs `AMREX_HOME` for every `make`, including the inventory's
 `make -n`. Wire test_react once per checkout:
 `git apply <skill>/assets/harness/test_react.patch`
-(`references/test-react-integration.md`). The tool build checks for a C++23
-libstdc++ (`std::expected`) first and takes 15–30 min (13 min at `-j8` under
-Rosetta); start it first.
+(`references/test-react-integration.md`). A source build of the tools
+checks for a C++23 libstdc++ (`std::expected`) first.
 
-**Work order.** The phases are numbered by dependency, but the Loom tools
-are the long pole, so: start the tool build (Setup), then do Phase 0 → 2 →
-3 → 4 (all native, no Loom tools) while it runs. As soon as the tools exist,
+**Work order.** The phases are numbered by dependency. Phase 0 → 2 → 3 → 4
+are all native and need no Loom tools, so when the tools come from a source
+build, do them while it runs. As soon as the tools exist,
 run Phase 1 (probes), then smoke-compile each module once its own native
 validator passes (EOS, then rates, then network; Phase 5 and NEW_NETWORK
 step 7), even while later validators still run; the full-burn smoke and the
@@ -164,8 +180,8 @@ Then record, in a new `$NOTES_DIR.md` (default
 `NOTES_DIR=agent-notes/<NN>-loom-<network>-<integrator>`; set it to keep
 notes elsewhere, and use `$NOTES_DIR/` wherever this file says
 `agent-notes/<NN>-loom-<network>-<integrator>/`):
-- Microphysics commit, AMReX commit, hrx-system commit
-  (`git -C <hrx> rev-parse HEAD`), ROCm version (`cat /opt/rocm/core-*/.info/version
+- Microphysics commit, AMReX commit, Loom version (`pip show hrx-loom`, or
+  for a source build `git -C <hrx> rev-parse HEAD`), ROCm version (`cat /opt/rocm/core-*/.info/version
   /opt/rocm/.info/version 2>/dev/null; hipconfig --version`), GPU target, the
   exact make command line (including `USE_NEUTRINOS=FALSE` and
   `XTRA_CXXFLAGS=-ffp-contract=off`).
@@ -178,19 +194,19 @@ notes elsewhere, and use `$NOTES_DIR/` wherever this file says
 Work on a branch off `development` (AGENTS.md); never commit on
 `development`, and do not commit at all unless the user asks.
 
-## Phase 1 — probe the Loom frontend at the pinned commit
+## Phase 1 — probe the Loom frontend at the pinned release
 
 Loom's C++ importer changes weekly (e.g. #1993 added non-escaping value
 references after the campaigns had rewritten every reference away). Do not
 trust any list of "unsupported" constructs, including the one in
 `references/loom-frontend-rules.md`, until you have re-probed it at the
-commit you are using. Copy the skill's `probes/` kit (124 one-construct
+release or commit you are using. Copy the skill's `probes/` kit (124 one-construct
 probes with root `probe::k`, and `probe.sh`, which runs them all with one
 frozen tool set) into the port's agent-notes directory, add probes for
 anything the Phase 2 inventory found that the kit doesn't cover, and run it
 on the GPU host as its header describes. `probes/README.md` has the measured
-results at public hrx-system main `5e6af0ec1a` (2026-10-27, gfx90a), the
-commit to check out (no patch is required). Member functions, `operator()`
+results at Loom 0.1.0 (hrx-system tag `v0.1.0`, `d01d1c18b1`; 2026-10-29,
+gfx90a), the pinned release (no patch is required). Member functions, `operator()`
 accessors, struct references (`const` or mutable), array reference
 parameters and deep ternaries import, so translations don't rewrite them,
 and the shipped modules use them (`Array1D`/`Array2D` accessors with the
@@ -199,9 +215,9 @@ function writes by pointer, as the previous pin `fa8eba4554` required).
 Uninitialized scalar and array locals, `for (;;)`, namespace-scope
 `constexpr` tables (`aion[]`, rate tables), runtime `switch`, `return`
 inside loops and nested multi-exit loops work too. If you
-use `5e6af0ec1a` on gfx90a, cite the table; on another commit or target,
-rerun the kit and update it. Record the
-tool md5 and hrx-system commit in the agent note.
+use Loom 0.1.0 on gfx90a, cite the table; on another release, commit or
+target, rerun the kit and update it. Record the
+tool md5 and Loom version in the agent note.
 
 The kit includes the f64 math probes (`m_f64_*`; Phase 2 tells you which
 functions the burn needs) and a contraction probe (`m_fp_contract`: with
@@ -209,8 +225,11 @@ functions the burn needs) and a contraction probe (`m_fp_contract`: with
 add, not `v_fma_f64`). Whatever math does not lower natively for f64 needs a
 source recipe (`references/microphysics-translation.md`, "Math").
 
-Build the frozen tools with `scripts/build_loom_tools.sh` (writes
-`tools.md5`); no local patch is required at `5e6af0ec1a`.
+The tools are the `hrx-loom==0.1.0` wheel's `loom-import-cxx` and
+`loom-compile` (Setup); no local patch is required. Build them with
+`scripts/build_loom_tools.sh` (writes `tools.md5`) only from the `v0.1.0`
+tag on a host the wheel doesn't support, or to test a patch or a newer
+commit.
 
 ## Phase 2 — map the reachable code
 
@@ -337,7 +356,7 @@ write it to `<root>.report.json`, not the log) and VGPR/AGPR/scratch
 from every build (`llvm-readelf --notes`; the scripts print them). A fused full burn
 compiles in 9 min (triple_alpha) to about 30 min (aprox13), almost all in
 register repair:
-use tools built from the pinned commit and start the production root compile as
+use the pinned Loom 0.1.0 tools and start the production root compile as
 soon as the burn body compiles (`references/footguns.md`).
 
 ## Phase 6 — GPU correctness in test_react
@@ -412,14 +431,14 @@ Check the time with `date` before writing any timestamp.
 - `references/loom-frontend-rules.md` — construct → rewrite table as of the last probes, `MPL_ASSUME`/SUBRANGE, lint, kernel root shape.
 - `references/microphysics-translation.md` — inventory limits, burn_t, runtime params and unported paths, tables, generated network data, autodiff, math, NSE.
 - `references/test-react-integration.md` — layout, kernel signature, host launcher, native validation, build/run and import/compile commands, comparison and NaN rule.
-- `probes/README.md` — Phase 1 probe kit (`probe.sh`, `src/`) and results at `5e6af0ec1a`.
+- `probes/README.md` — Phase 1 probe kit (`probe.sh`, `src/`) and results at Loom 0.1.0.
 
 ## Scripts
 
 - `scripts/inventory.py` (+ `reachable.py`) — Phase 2 call-graph closure and construct inventory.
 - `scripts/gen_network_data.py` + `extract_network_data.cpp` — generate `network_data.H` / `burn.H` for `rhs.H`-framework networks, checked against the stock source.
 - `scripts/loom-lint/` — ast-grep rules for Loom-hostile constructs (`tests/selftest.sh`).
-- `scripts/build_loom_tools.sh` — build frozen `loom-import-cxx`/`loom-compile` from an hrx-system tree plus optional patches; writes `tools.md5`. Header has the fresh-machine prerequisites.
+- `scripts/build_loom_tools.sh` — build frozen `loom-import-cxx`/`loom-compile` from an hrx-system tree (the `v0.1.0` tag, where the wheel doesn't install) plus optional patches; writes `tools.md5`. Header has the fresh-machine prerequisites.
 - `scripts/loom_smoke.sh` — launch/status/wait/fetch a Loom import + compile of a smoke kernel on the GPU host. `wait` serializes compiles; `wait`/`status` exit 6 when an import or compile failed.
 - `scripts/gen_abi_layout.py` — Phase 3 ABI checks: host-measured `sizeof`/`offsetof` of every `*Params` record, written to the port's `abi_layout.H` (included by the kernel root).
 - `scripts/fma_audit.py` — Phase 6 contraction screen: explains the `v_fma_f64` count (explicit recipe FMAs from the `.loom` IR, 5 per f64 division, a bounded remainder per sqrt); a heuristic, paired with the `m_fp_contract` probe.

@@ -20,14 +20,15 @@
 # Check m_fp_contract: it must show v_mul_f64 + v_add_f64 and no v_fma_f64.
 #
 # Environment:
-#   TOOLS             dir with loom-import-cxx and loom-compile built from the
-#                     pinned hrx-system commit                        (required)
+#   TOOLS             dir with loom-import-cxx and loom-compile from the pinned
+#                     Loom release (the hrx-loom venv's bin/)         (required)
 #   LOOM_WORK         base dir for the defaults below                 (default $HOME/loom-work)
 #   W                 the probes dir (contains src/; writable)        (default: this script's dir)
 #   F64_INC           dir with f64_math.h for m_f64_math_h_recipes    (default $W/include; falls
 #                     back to ../assets/kernel/f64_math.H if the whole skill was shipped)
 #   HRX               hrx-system checkout, only to record its commit  (default $LOOM_WORK/hrx-system;
-#                     $TOOLS/SOURCE from build_loom_tools.sh is used first)
+#                     $TOOLS/SOURCE from build_loom_tools.sh or the hrx-loom
+#                     version installed next to the tools is used first)
 #   TARGET            amdgpu target     (default: local GPU from amdgpu-arch/rocminfo, else gfx90a)
 #   CPUS              taskset CPU list away from timing cores         (default: all CPUs)
 #   ROCM_PATH         ROCm install                                    (default /opt/rocm)
@@ -37,7 +38,7 @@
 set -u
 usage() { sed -n '2,/^set -u/p' "$0" | sed '$d'; exit "${1:-2}"; }
 case "${1:-}" in -h|--help) usage 0;; '') ;; *) usage;; esac
-[ -n "${TOOLS:-}" ] || { echo "set TOOLS to a dir with loom-import-cxx and loom-compile built from the pinned commit"; usage; }
+[ -n "${TOOLS:-}" ] || { echo "set TOOLS to a dir with loom-import-cxx and loom-compile from the pinned Loom release"; usage; }
 here=$(cd "$(dirname "$0")" && pwd)
 R=${LOOM_WORK:-$HOME/loom-work}
 # default: the kit this script lives in (the copy in the port's agent-notes
@@ -73,7 +74,7 @@ SUMMARY=probe-summary.txt
 {
   echo "# date: $(date)"
   echo "# host: $(hostname)"
-  echo "# hrx-system: $(sed -n 's/^commit: //p' "$TOOLS/SOURCE" 2>/dev/null | grep . || git -C "$HRX" rev-parse HEAD 2>/dev/null || cat "$HRX/COMMIT" 2>/dev/null || echo unknown)"
+  echo "# hrx-system: $(sed -n 's/^commit: //p' "$TOOLS/SOURCE" 2>/dev/null | grep . || "$TOOLS/python3" -c 'import importlib.metadata as m; print("hrx-loom", m.version("hrx-loom"))' 2>/dev/null || git -C "$HRX" rev-parse HEAD 2>/dev/null || cat "$HRX/COMMIT" 2>/dev/null || echo unknown)"
   echo "# f64_math.h: $([ -f "$F64_INC/f64_math.h" ] && md5sum "$F64_INC/f64_math.h" || echo "MISSING in $F64_INC (m_f64_math_h_recipes will fail)")"
   echo "# tools md5:"
   md5sum "$TOOLS/loom-import-cxx" "$TOOLS/loom-compile" | sed 's/^/#   /'

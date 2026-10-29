@@ -25,7 +25,7 @@
 #   LOOM_WORK         base dir                                   (default $HOME/loom-work)
 #   LOOM_SMOKE_ROOT   run dirs, NAME/ inside                     (default $LOOM_WORK/loom-smoke)
 #   LOOM_TOOLS        dir with loom-import-cxx, loom-compile and optionally
-#                     tools.md5, built from the pinned commit    (required)
+#                     tools.md5, from the pinned Loom release    (required)
 #   LOOM_TARGET       amdgpu target         (default: the GPU from amdgpu-arch/rocminfo, else gfx90a)
 #   LOOM_CPUS         taskset CPU list away from timing cores    (default: all CPUs)
 #   ROCM_PATH         ROCm install                               (default /opt/rocm)

@@ -6,22 +6,27 @@ tool set on the GPU host and writes `probe-summary.txt`. See the header of
 `probe.sh` for how to ship and run it. Add probes for anything a port's
 inventory finds that is not covered here, and keep new probes in this kit.
 
-## Results at hrx-system 5e6af0ec1a (gfx90a, run 2026-10-27)
+## Results at Loom 0.1.0 (gfx90a, run 2026-10-29)
 
-Public `ROCm/hrx-system` main `5e6af0ec1a` (2026-10-27), stock tools built
-with `scripts/build_loom_tools.sh` and no patches (`loom-import-cxx` md5
-`986c76d4…`, `loom-compile` md5 `a0f2186a…`; md5s differ with the build
-environment, so record yours). All 124 probes run in a few seconds. Rerun the
-kit whenever the pinned commit changes and update this table; its last column
-holds the result at the previous pin, `fa8eba4554`.
+Loom 0.1.0 (hrx-system tag `v0.1.0`, `d01d1c18b1`), two tool sets with no
+patches: the release wheel `hrx-loom==0.1.0` (`loom-import-cxx` md5
+`4dddf591…`, `loom-compile` md5 `228828f3…` as installed; run on a glibc
+2.34 host through an Ubuntu 24.04 glibc) and tools built from the tag with
+`scripts/build_loom_tools.sh` (`7eb7c031…`, `e655bc53…`; built md5s differ
+with the build environment, so record yours). Both give the same result for
+every probe, and every result is identical to the previous pin, public main
+`5e6af0ec1a` (2026-10-27). All 124 probes run in a few seconds. Rerun the
+kit whenever the pinned release changes and update this table; its last
+column holds the result at the pin before `5e6af0ec1a`, `fa8eba4554`.
 
 The full aprox13 + helmholtz + VODE burn (neutrinos off, 4096 zones) built
-with these tools from the shipped modules is bit-exact against the stock HIP
-reference: state, `n_rhs`/`n_step` and success in every zone (default
-inputs). An older aprox13 port (flat arrays) is also bit-exact in test_react
-with the prad limiter on and with `unit_test.tmax=1.e-15`. The `zone_success`
-miscompile from `1468c06034` through `970d39ac1e` (ROCm/hrx-system#2337) is
-fixed here; don't use tools from that range.
+from the shipped modules is bit-exact against the stock HIP reference:
+state, `n_rhs`/`n_step` and success in every zone (default inputs). The
+wheel and the source build produce byte-identical `.loom` and `.hsaco`
+files for it. An older aprox13 port (flat arrays) is also bit-exact in
+test_react with the prad limiter on and with `unit_test.tmax=1.e-15`. The
+`zone_success` miscompile from `1468c06034` through `970d39ac1e`
+(ROCm/hrx-system#2337) is fixed here; don't use tools from that range.
 
 Changes from `fa8eba4554` (the shipped modules were written for that pin and
 still import and validate unchanged; the rewrites below are no longer
@@ -36,7 +41,7 @@ required for new code):
   `return` nested two `if`s deep (f24) import and compile.
 - Two VGPR counts moved by one or two (d08, o17); nothing else changed.
 
-What these results decide (at `5e6af0ec1a`):
+What these results decide (at Loom 0.1.0):
 - **References:** scalar `double&`/`int&` parameters and scalar member slices
   (`f(s.T)`) import (r01, r02, r04, r11, r13), as do `const` references to
   whole structs (r05), references to buffer elements (r06), array reference
@@ -99,7 +104,7 @@ What these results decide (at `5e6af0ec1a`):
   Assumptions may now use arithmetic (`j + 1 <= n`, f13) but still not struct
   fields (f14). f17 (a `break` loop over a private local array) passes
   without assumptions, but the same loop over `vs->y(i)` in the full VODE
-  burn still fails SUBRANGE/026 at `5e6af0ec1a` (re-checked 2026-10-27 by
+  burn still fails SUBRANGE/026 in Loom 0.1.0 (re-checked 2026-10-29 by
   removing both), so VODE keeps those `MPL_ASSUME`s. An assumption on a local loaded from a `short` field holds
   (f20).
 - **Loop exits:** `return` inside a loop imports (f03), and so does a

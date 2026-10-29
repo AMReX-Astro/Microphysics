@@ -14,7 +14,7 @@
 #   TEST_DIR    test_react directory of the HIP build tree (contains the built *.hip*.ex)
 #   KERNEL_SRC  kernel root source, relative to TEST_DIR (e.g. loom/<port>/burn_kernel.cpp)
 #   INPUTS      inputs file in TEST_DIR (e.g. inputs_<network>)
-#   TOOLS       frozen loom-import-cxx / loom-compile (+ tools.md5) from the pinned commit
+#   TOOLS       frozen loom-import-cxx / loom-compile (+ tools.md5) from the pinned Loom release
 # Environment (optional):
 #   ROOT        C++ root name (Loom symbol is ROOT with :: -> .)   (default mpl::burn_zones)
 #   NCELL       test_react n_cell; zones = NCELL^3, one box (max_grid_size = NCELL) (default 16)

@@ -1,6 +1,8 @@
 #!/bin/bash
 # Build a frozen loom-import-cxx + loom-compile pair from an hrx-system source
-# tree, optionally with local patches (none are required at the pin).
+# tree, optionally with local patches (none are required at the pin). Use it
+# where the pinned hrx-loom wheel doesn't install (glibc < 2.39), or to test
+# a patch or a newer commit.
 #
 # Runs on the GPU host, detached; keep the backgrounded command on its own
 # line, stdin from /dev/null:
@@ -20,8 +22,8 @@
 #
 # Fresh machine (Ubuntu 24.04 + ROCm): apt install g++-14 libstdc++-14-dev
 # python3.12-venv patch git, then
-#   git clone https://github.com/ROCm/hrx-system.git && cd hrx-system
-#   git checkout 5e6af0ec1a      # pinned compiler (SKILL.md, Phase 1)
+#   git clone --branch v0.1.0 https://github.com/ROCm/hrx-system.git && cd hrx-system
+#                                # pinned Loom 0.1.0 (SKILL.md, Phase 1)
 #   python3 dev.py cmake setup   # .venv with the pinned cmake/ninja (used below)
 #
 # Environment:

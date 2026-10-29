@@ -197,9 +197,9 @@ Record which runtime each result used.
 
 ## Import/compile commands
 
-Run on the GPU host only, from a bash script, with tools built once from the
-pinned hrx-system commit (`scripts/build_loom_tools.sh`, which records
-`tools.md5`):
+Run on the GPU host only, from a bash script, with the pinned Loom 0.1.0
+tools (`hrx-loom==0.1.0`, or `scripts/build_loom_tools.sh` from the
+`v0.1.0` tag; SKILL.md Setup):
 
 ```bash
 loom-import-cxx --data-model=lp64 --fp-model=precise \
