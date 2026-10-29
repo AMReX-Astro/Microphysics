@@ -1,0 +1,8 @@
+id: no-reference
+language: cpp
+severity: warning
+message: Reference local. T& r = s.field fails import (r10); a reference to an array element imports (r17). Reference parameters, including mutable struct references, import (r03, r14, r15, r19). See loom-frontend-rules.md.
+rule:
+  kind: reference_declarator
+  not: { matches: host-branch }
+  inside: { kind: init_declarator }

@@ -1,0 +1,137 @@
+diff -ruN a/unit_test/test_react/GNUmakefile b/unit_test/test_react/GNUmakefile
+--- a/unit_test/test_react/GNUmakefile
++++ b/unit_test/test_react/GNUmakefile
+@@ -32,5 +32,43 @@
+ Bpack   := ./Make.package
+ Blocs   := .
+ 
++# Loom burn kernel (loom-burn-kernel skill). LOOM_KERNEL_DIR is the port's
++# kernel directory relative to test_react, e.g. loom/<network>_<integrator>.
++ifneq ($(filter TRUE,$(USE_LOOM_VALIDATE) $(USE_LOOM_BURN)),)
++  ifeq ($(LOOM_KERNEL_DIR),)
++    $(error USE_LOOM_VALIDATE/USE_LOOM_BURN need LOOM_KERNEL_DIR=loom/<network>_<integrator>)
++  endif
++  # Unquoted on purpose: the build scripts get $(DEFINES) inside "...". The
++  # harness headers stringize it (LOOM_KERNEL_PATH in loom_eos_params.H), so
++  # the path must not contain a predefined macro name such as linux or unix.
++  ifneq ($(findstring linux,$(LOOM_KERNEL_DIR))$(findstring unix,$(LOOM_KERNEL_DIR)),)
++    $(error LOOM_KERNEL_DIR must not contain "linux" or "unix" (predefined macros))
++  endif
++  DEFINES += -DLOOM_KERNEL_DIR_PATH=$(LOOM_KERNEL_DIR)
++endif
++
++# native validation of the Loom kernel translation (loom_validate.cpp)
++ifeq ($(USE_LOOM_VALIDATE), TRUE)
++  DEFINES += -DLOOM_VALIDATE
++  VPATH_LOCATIONS += $(LOOM_KERNEL_DIR)
++endif
++
++# HIP launcher for the Loom burn kernel (loom_launch.H; runtime parameter
++# unit_test.loom_hsaco selects it, the stock burn stays the default)
++ifeq ($(USE_LOOM_BURN), TRUE)
++  ifneq ($(USE_HIP), TRUE)
++    $(error USE_LOOM_BURN=TRUE requires USE_HIP=TRUE)
++  endif
++  DEFINES += -DMICROPHYSICS_LOOM
++endif
++
+ include $(MICROPHYSICS_HOME)/unit_test/Make.unit_test
++
++# The kernel directory goes LAST on the include path: its eos.H, burner.H,
++# ... share names with stock Microphysics headers, which must keep winning
++# `#include <eos.H>`. Kernel headers include each other with "..." (same
++# directory first); validators are reached as <validate_<module>.H>.
++ifeq ($(USE_LOOM_VALIDATE), TRUE)
++  INCLUDE_LOCATIONS += $(LOOM_KERNEL_DIR)
++endif
+ 
+diff -ruN a/unit_test/test_react/Make.package b/unit_test/test_react/Make.package
+--- a/unit_test/test_react/Make.package
++++ b/unit_test/test_react/Make.package
+@@ -6,3 +6,16 @@
+ CEXE_sources += variables.cpp
+ CEXE_headers += react_zones.H
+ 
++
++ifeq ($(USE_LOOM_VALIDATE), TRUE)
++  CEXE_sources += loom_validate.cpp
++  CEXE_headers += loom_validate.H
++  CEXE_headers += loom_eos_params.H
++  CEXE_headers += loom_params.H
++endif
++
++ifeq ($(USE_LOOM_BURN), TRUE)
++  CEXE_headers += loom_launch.H
++  CEXE_headers += loom_eos_params.H
++  CEXE_headers += loom_params.H
++endif
+diff -ruN a/unit_test/test_react/_parameters b/unit_test/test_react/_parameters
+--- a/unit_test/test_react/_parameters
++++ b/unit_test/test_react/_parameters
+@@ -7,3 +7,18 @@
+ 
+ tmax          real       0.1e0
+ 
++# run the native validators of the Loom burn-kernel translation instead of
++# the burn (requires building with USE_LOOM_VALIDATE=TRUE)
++loom_validate int 0
++
++# Loom burn kernel launcher (requires building with USE_HIP=TRUE
++# USE_LOOM_BURN=TRUE; see loom_launch.H). Empty loom_hsaco = stock burn.
++loom_hsaco    string     ""
++# kernel symbol in the code object (check with llvm-readelf --syms)
++loom_kernel   string     "mpl.burn_zones"
++# zones per box the code object was compiled for (abort on mismatch)
++loom_ncells   int        0
++# 1: run stock and Loom burns alternately and compare bit for bit
++loom_compare  int        0
++# number of Loom burns (or stock/Loom pairs with loom_compare, at least 2)
++loom_repeats  int        1
+diff -ruN a/unit_test/test_react/main.cpp b/unit_test/test_react/main.cpp
+--- a/unit_test/test_react/main.cpp
++++ b/unit_test/test_react/main.cpp
+@@ -18,6 +18,12 @@
+ #include <variables.H>
+ #include <unit_test.H>
+ #include <react_util.H>
++#ifdef LOOM_VALIDATE
++#include <loom_validate.H>
++#endif
++#ifdef MICROPHYSICS_LOOM
++#include <loom_launch.H>
++#endif
+ 
+ int main (int argc, char* argv[])
+ {
+@@ -110,6 +116,16 @@
+     // C++ Network, RHS, screening, rates initialization
+     network_init();
+ 
++#ifdef LOOM_VALIDATE
++    // native validation of the Loom kernel translation (loom_validate.cpp)
++    if (unit_test_rp::loom_validate) {
++        if (loom_validate() != 0) {
++            amrex::Abort("LOOM_VALIDATE: mismatches");
++        }
++        return;
++    }
++#endif
++
+     plot_t vars;
+     vars = init_variables();
+     amrex::Vector<std::string> names;
+@@ -193,6 +209,14 @@
+ 
+     ValLocPair<int, burn_t> r;
+ 
++#ifdef MICROPHYSICS_LOOM
++    // Loom (hrx-system) burn kernel instead of the ParReduce below
++    // (loom_launch.H); stock path when unit_test.loom_hsaco is empty
++    if (!unit_test_rp::loom_hsaco.empty()) {
++        BL_PROFILE("do_react_loom");
++        r = loom_burn_main(state, integrator_n_rhs, vars, names, num_failed_d);
++    } else
++#endif
+     {
+         BL_PROFILE("do_react");
+ 

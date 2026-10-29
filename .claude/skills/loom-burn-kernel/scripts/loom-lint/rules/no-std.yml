@@ -1,0 +1,14 @@
+id: no-std
+language: cpp
+severity: error
+message: No C++ standard library in the Loom path (no std headers). Use support.h bindings.
+rule:
+  any:
+    - kind: qualified_identifier
+      has: { field: scope, regex: '^std$' }
+    - kind: preproc_include
+      has:
+        field: path
+        kind: system_lib_string
+        not: { regex: '^<(hip/hip_runtime\.h|loomcxx/[^>]+)>$' }
+  not: { matches: host-branch }

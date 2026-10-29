@@ -1,5 +1,12 @@
 # Changelog
 
+## 26.11
+
+  * infrastructure
+
+    * add the `loom-burn-kernel` agent skill for porting a `test_react`
+      burn to a Loom GPU kernel (#2117)
+
 ## 26.10
 
   * networks

@@ -1,0 +1,5 @@
+id: no-range-for
+language: cpp
+severity: error
+message: Range-for does not import. Use an indexed loop in the original visit order.
+rule: { kind: for_range_loop, not: { matches: host-branch } }

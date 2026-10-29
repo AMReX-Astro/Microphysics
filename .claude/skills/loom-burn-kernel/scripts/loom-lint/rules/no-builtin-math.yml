@@ -1,0 +1,11 @@
+id: no-builtin-math
+language: cpp
+severity: error
+message: __builtin_* math is rejected (LOWERING/059). Bind through loom::scalar or f64_math.h.
+rule:
+  kind: call_expression
+  has:
+    field: function
+    regex: '^__builtin_'
+    not: { regex: '^__builtin_(bit_cast|assume|expect|offsetof)$' }
+  not: { matches: host-branch }

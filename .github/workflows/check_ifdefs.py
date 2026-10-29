@@ -81,6 +81,9 @@ if __name__ == "__main__":
         if f.parts[:2] == ("util", "autodiff"):
             # skip third-party autodiff files
             continue
+        if f.parts[:1] == (".claude",):
+            # skip agent skill assets (Loom port templates with their own macros)
+            continue
         ierr, defines = check_file(f)
         all_defines += defines
         total_errors += ierr
