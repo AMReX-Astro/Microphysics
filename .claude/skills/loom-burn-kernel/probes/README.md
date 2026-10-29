@@ -15,7 +15,7 @@ patches: the release wheel `hrx-loom==0.1.0` (`loom-import-cxx` md5
 `scripts/build_loom_tools.sh` (`7eb7c031…`, `e655bc53…`; built md5s differ
 with the build environment, so record yours). Both give the same result for
 every probe, and every result is identical to the previous pin, public main
-`5e6af0ec1a` (2026-10-27). All 124 probes run in a few seconds. Rerun the
+`5e6af0ec1a` (2026-10-27). All 126 probes run in a few seconds. Rerun the
 kit whenever the pinned release changes and update this table; its last
 column holds the result at the pin before `5e6af0ec1a`, `fa8eba4554`.
 
@@ -96,7 +96,13 @@ What these results decide (at Loom 0.1.0):
   still fail (d09, d22) and move to namespace scope.
 - **Uninitialized locals and `for (;;)`:** scalar and array locals may stay
   uninitialized (d04, d13, d15) and conditionless `for` imports (f04, f12);
-  struct locals still need `T x{}` (d14).
+  struct locals still need `T x{}` (d14). Exception: an uninitialized scalar
+  local passed as a `double&` argument fails (r25, "runtime value-reference
+  arguments require an automatic SSA object"; found in the aprox19 port's
+  `ecapnuc(..., tmp_fr, ...)` call, which stock leaves uninitialized):
+  initialize it (`double o = 0.0;`) when the callee writes it before any
+  read. A struct-reference field passed by value next to such an argument
+  is fine (r26).
 - **Bounds assumptions:** the simple retry loop imports without
   `__builtin_assume` (f07), and the isolated triangular loop compiles (f06),
   but an index derived from a struct field with runtime loop bounds still
@@ -243,3 +249,5 @@ What these results decide (at Loom 0.1.0):
 | r22_const_ref_to_kernel_arg_struct | `const BurnParams&` bound to `*params` (kernel argument) | ok | vgpr=12 scratch=0B | same |
 | r23_const_struct_ref_member_accessor_read | `vs.y(n)` through `const Dvode&` | **ok** | vgpr=8 scratch=248B | import-fail: error [LOWERING/059]: mutation requires an owned automatic source binding |
 | r24_const_struct_ref_member_raw_array | `vs.y.arr[n]` through `const Dvode&` | ok | vgpr=8 scratch=248B | same |
+| r25_uninit_local_ref_out_arg | uninitialized `double o;` bound to a `double&` out-parameter | import-fail | error [LOWERING/059]: cannot import source construct: runtime value-reference arguments require an automatic SSA object | same |
+| r26_const_struct_ref_field_value_arg | `f(s.eta, o)`: field of a `const S&` by value, next to an initialized `double&` out-argument | ok | vgpr=6 scratch=0B | same |

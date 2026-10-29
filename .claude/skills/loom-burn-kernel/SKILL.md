@@ -212,7 +212,7 @@ Loom's C++ importer changes weekly (e.g. #1993 added non-escaping value
 references after the campaigns had rewritten every reference away). Do not
 trust any list of "unsupported" constructs, including the one in
 `references/loom-frontend-rules.md`, until you have re-probed it at the
-release or commit you are using. Copy the skill's `probes/` kit (124 one-construct
+release or commit you are using. Copy the skill's `probes/` kit (126 one-construct
 probes with root `probe::k`, and `probe.sh`, which runs them all with one
 frozen tool set) into the port's agent-notes directory, add probes for
 anything the Phase 2 inventory found that the kit doesn't cover, and run it
@@ -224,7 +224,8 @@ parameters and deep ternaries import, so translations don't rewrite them,
 and the shipped modules use them (`Array1D`/`Array2D` accessors with the
 stock indices, `const&` for everything read-only; they pass structs a
 function writes by pointer, as the previous pin `fa8eba4554` required).
-Uninitialized scalar and array locals, `for (;;)`, namespace-scope
+Uninitialized scalar and array locals (but not one passed as a `T&`
+argument, r25), `for (;;)`, namespace-scope
 `constexpr` tables (`aion[]`, rate tables), runtime `switch`, `return`
 inside loops and nested multi-exit loops work too. If you
 use Loom 0.1.0 on gfx90a, cite the table; on another release, commit or

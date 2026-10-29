@@ -117,7 +117,11 @@ repository; the items below are the distilled result.
   ("may reach 262152"), the tools predate hrx-system #2135 (issue #2122,
   probe f20).
 - Uninitialized struct locals (`burn_t s;`) fail; write `T x{}`. Scalar and
-  array locals may stay uninitialized (hrx-system #2105).
+  array locals may stay uninitialized (hrx-system #2105), except a scalar
+  passed as a `T&` argument (`double o; f(x, o);`, probe r25: LOWERING/059
+  "runtime value-reference arguments require an automatic SSA object"):
+  initialize it. Lint and the native validators don't catch this; the
+  aprox19 port hit it in the network smoke import.
 - Text Loom modules over 65,535 lines were rejected (#1877).
 - BACKEND/005 `spill-traffic-register-exhausted` can appear from harmless-looking
   statement moves (#1879, #2016). Keep the failing source, reduce it, report it.
