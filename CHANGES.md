@@ -10,8 +10,6 @@
 
   * integrators
 
-    * specialize Rosenbrock stage loops at compile time for GPU execution
-      (PR pending)
     * fix initial timestep logic (#1976)
     * remove unused tableaus for Rosenbrock (#2069)
     * apply maximum dt to `VODE` initial step (#2079)
