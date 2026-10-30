@@ -2,6 +2,7 @@
 #define ROSENBROCK_INTEGRATOR_H
 
 #include <AMReX_Algorithm.H>
+#include <AMReX_ConstexprFor.H>
 
 #include <cmath>
 #include <limits>
@@ -29,97 +30,30 @@
 
 namespace rosenbrock {
 
-template <int int_neqs>
+// A compile-time stage index avoids runtime selection between stage vectors.
+template <int i, int int_neqs>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-amrex::Real& stage (rosenbrock_t<int_neqs>& rstate, const int i, const int n)
+amrex::Array1D<amrex::Real, 1, int_neqs>& stage_vector (rosenbrock_t<int_neqs>& rstate)
 {
-    if (i == 1) {
-        return rstate.ak1(n);
-    }
-    if (i == 2) {
-        return rstate.ak2(n);
-    }
-    if (i == 3) {
-        return rstate.ak3(n);
-    }
-    if (i == 4) {
-        return rstate.ak4(n);
-    }
-    if (i == 5) {
-        return rstate.ak5(n);
-    }
-    if (i == 6) {
-        return rstate.ak6(n);
-    }
-    if (i == 7) {
-        return rstate.ak7(n);
-    }
-    if (i == 8) {
-        return rstate.ak8(n);
-    }
-    return rstate.work(n);
-}
+    static_assert(i >= 1 && i <= 8, "Invalid Rosenbrock stage");
 
-template <int int_neqs>
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-amrex::Real stage (const rosenbrock_t<int_neqs>& rstate, const int i, const int n)
-{
-    if (i == 1) {
-        return rstate.ak1(n);
-    }
-    if (i == 2) {
-        return rstate.ak2(n);
-    }
-    if (i == 3) {
-        return rstate.ak3(n);
-    }
-    if (i == 4) {
-        return rstate.ak4(n);
-    }
-    if (i == 5) {
-        return rstate.ak5(n);
-    }
-    if (i == 6) {
-        return rstate.ak6(n);
-    }
-    if (i == 7) {
-        return rstate.ak7(n);
-    }
-    if (i == 8) {
-        return rstate.ak8(n);
-    }
-    return rstate.work(n);
-}
-
-template <int int_neqs>
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-RArray1D& stage_vector (rosenbrock_t<int_neqs>& rstate, const int i)
-{
-    if (i == 1) {
+    if constexpr (i == 1) {
         return rstate.ak1;
-    }
-    if (i == 2) {
+    } else if constexpr (i == 2) {
         return rstate.ak2;
-    }
-    if (i == 3) {
+    } else if constexpr (i == 3) {
         return rstate.ak3;
-    }
-    if (i == 4) {
+    } else if constexpr (i == 4) {
         return rstate.ak4;
-    }
-    if (i == 5) {
+    } else if constexpr (i == 5) {
         return rstate.ak5;
-    }
-    if (i == 6) {
+    } else if constexpr (i == 6) {
         return rstate.ak6;
-    }
-    if (i == 7) {
+    } else if constexpr (i == 7) {
         return rstate.ak7;
-    }
-    if (i == 8) {
+    } else {
         return rstate.ak8;
     }
-    return rstate.work;
 }
 
 template <typename RosenbrockT>
@@ -488,17 +422,27 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
             rosenbrock::solve(rstate, rstate.ak1);
 
             bool valid_stage_state = true;
-            for (int istage = 2; istage <= C::stages; ++istage) {
+            // Only the short stage loops are unrolled.  A rejected stage
+            // must skip all subsequent RHS evaluations and linear solves.
+            amrex::constexpr_for<2, C::stages + 1>([&] (auto istage) {
+                if (! valid_stage_state) {
+                    return;
+                }
+                auto& aki = rosenbrock::stage_vector<istage>(rstate);
+
                 for (int n = 1; n <= int_neqs; ++n) {
                     rstate.ynew(n) = rstate.y(n);
-                    rosenbrock::stage(rstate, istage, n) = 0.0_rt;
+                    aki(n) = 0.0_rt;
 
-                    for (int jstage = 1; jstage < istage; ++jstage) {
-                        const amrex::Real akj = rosenbrock::stage(rstate, jstage, n);
-                        rstate.ynew(n) += C::a(istage, jstage) * akj;
-                        rosenbrock::stage(rstate, istage, n) +=
-                            (C::c(istage, jstage) / h) * akj;
-                    }
+                    amrex::constexpr_for<1, istage>([&] (auto jstage) {
+                        const amrex::Real akj = rosenbrock::stage_vector<jstage>(rstate)(n);
+                        if constexpr (C::a(istage, jstage) != 0.0_rt) {
+                            rstate.ynew(n) += C::a(istage, jstage) * akj;
+                        }
+                        if constexpr (C::c(istage, jstage) != 0.0_rt) {
+                            aki(n) += (C::c(istage, jstage) / h) * akj;
+                        }
+                    });
                 }
 
                 // intermediate stage time
@@ -510,17 +454,17 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
                     n_reject += 1;
                     last = false;
                     valid_stage_state = false;
-                    break;
+                    return;
                 }
 
                 rosenbrock::rhs_at(x + C::ct(istage) * h, state, rstate, rstate.ynew, rhs_tmp);
                 rstate.n_rhs += 1;
 
                 for (int n = 1; n <= int_neqs; ++n) {
-                    rosenbrock::stage(rstate, istage, n) += rhs_tmp(n);
+                    aki(n) += rhs_tmp(n);
                 }
-                rosenbrock::solve(rstate, rosenbrock::stage_vector(rstate, istage));
-            }
+                rosenbrock::solve(rstate, aki);
+            });
 
             if (! valid_stage_state) {
                 continue;
@@ -530,11 +474,15 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
                 amrex::Real y_update = 0.0_rt;
                 amrex::Real err = 0.0_rt;
 
-                for (int istage = 1; istage <= C::stages; ++istage) {
-                    const amrex::Real aki = rosenbrock::stage(rstate, istage, n);
-                    y_update += C::b(istage) * aki;
-                    err += C::e(istage) * aki;
-                }
+                amrex::constexpr_for<1, C::stages + 1>([&] (auto istage) {
+                    const amrex::Real aki = rosenbrock::stage_vector<istage>(rstate)(n);
+                    if constexpr (C::b(istage) != 0.0_rt) {
+                        y_update += C::b(istage) * aki;
+                    }
+                    if constexpr (C::e(istage) != 0.0_rt) {
+                        err += C::e(istage) * aki;
+                    }
+                });
 
                 rstate.ynew(n) = rstate.y(n) + y_update;
                 rstate.work(n) = err;
