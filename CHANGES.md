@@ -10,6 +10,8 @@
 
   * integrators
 
+    * restore the runtime Rosenbrock stage loop after GPU slowdown with
+      compile-time stage expansion (d449b24d)
     * fix initial timestep logic (#1976)
     * remove unused tableaus for Rosenbrock (#2069)
     * apply maximum dt to `VODE` initial step (#2079)
