@@ -56,6 +56,25 @@ amrex::Array1D<amrex::Real, 1, int_neqs>& stage_vector (rosenbrock_t<int_neqs>& 
     }
 }
 
+// Runtime stage selection keeps the RHS and solve in a shared stage loop.
+template <int int_neqs>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+amrex::Array1D<amrex::Real, 1, int_neqs>& stage_vector (rosenbrock_t<int_neqs>& rstate,
+                                                    const int i)
+{
+    switch (i) {
+    case 1: return rstate.ak1;
+    case 2: return rstate.ak2;
+    case 3: return rstate.ak3;
+    case 4: return rstate.ak4;
+    case 5: return rstate.ak5;
+    case 6: return rstate.ak6;
+    case 7: return rstate.ak7;
+    case 8: return rstate.ak8;
+    default: return rstate.work;
+    }
+}
+
 template <typename RosenbrockT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 amrex::Real rtol_for (const RosenbrockT& rstate, const int n)
@@ -422,27 +441,18 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
             rosenbrock::solve(rstate, rstate.ak1);
 
             bool valid_stage_state = true;
-            // Only the short stage loops are unrolled.  A rejected stage
-            // must skip all subsequent RHS evaluations and linear solves.
-            amrex::constexpr_for<2, C::stages + 1>([&] (auto istage) {
-                if (! valid_stage_state) {
-                    return;
-                }
-                auto& aki = rosenbrock::stage_vector<istage>(rstate);
+            for (int istage = 2; istage <= C::stages; ++istage) {
+                auto& aki = rosenbrock::stage_vector(rstate, istage);
 
                 for (int n = 1; n <= int_neqs; ++n) {
                     rstate.ynew(n) = rstate.y(n);
                     aki(n) = 0.0_rt;
 
-                    amrex::constexpr_for<1, istage>([&] (auto jstage) {
-                        const amrex::Real akj = rosenbrock::stage_vector<jstage>(rstate)(n);
-                        if constexpr (C::a(istage, jstage) != 0.0_rt) {
-                            rstate.ynew(n) += C::a(istage, jstage) * akj;
-                        }
-                        if constexpr (C::c(istage, jstage) != 0.0_rt) {
-                            aki(n) += (C::c(istage, jstage) / h) * akj;
-                        }
-                    });
+                    for (int jstage = 1; jstage < istage; ++jstage) {
+                        const amrex::Real akj = rosenbrock::stage_vector(rstate, jstage)(n);
+                        rstate.ynew(n) += C::a(istage, jstage) * akj;
+                        aki(n) += (C::c(istage, jstage) / h) * akj;
+                    }
                 }
 
                 // intermediate stage time
@@ -454,7 +464,7 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
                     n_reject += 1;
                     last = false;
                     valid_stage_state = false;
-                    return;
+                    break;
                 }
 
                 rosenbrock::rhs_at(x + C::ct(istage) * h, state, rstate, rstate.ynew, rhs_tmp);
@@ -464,7 +474,7 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
                     aki(n) += rhs_tmp(n);
                 }
                 rosenbrock::solve(rstate, aki);
-            });
+            }
 
             if (! valid_stage_state) {
                 continue;
