@@ -75,6 +75,33 @@ amrex::Array1D<amrex::Real, 1, int_neqs>& stage_vector (rosenbrock_t<int_neqs>& 
     }
 }
 
+// A compile-time stage index lets the compiler select stage vectors and
+// tableau coefficients directly, eliminating runtime selection in the sums.
+// Specialize only these sums: unrolling the entire stage loop also duplicates
+// the inlined RHS and linear solve, which slowed the GPU benchmark.  The
+// caller keeps those operations in a runtime loop with one shared stage body.
+template <int istage, typename C, int int_neqs>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void prepare_stage (rosenbrock_t<int_neqs>& rstate, const amrex::Real h)
+{
+    auto& aki = stage_vector<istage>(rstate);
+    for (int n = 1; n <= int_neqs; ++n) {
+        amrex::Real y = rstate.y(n);
+        amrex::Real k = 0.0_rt;
+        amrex::constexpr_for<1, istage>([&] (auto jstage) {
+            const amrex::Real akj = stage_vector<jstage>(rstate)(n);
+            if constexpr (C::a(istage, jstage) != 0.0_rt) {
+                y += C::a(istage, jstage) * akj;
+            }
+            if constexpr (C::c(istage, jstage) != 0.0_rt) {
+                k += (C::c(istage, jstage) / h) * akj;
+            }
+        });
+        rstate.ynew(n) = y;
+        aki(n) = k;
+    }
+}
+
 template <typename RosenbrockT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 amrex::Real rtol_for (const RosenbrockT& rstate, const int n)
@@ -444,16 +471,11 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
             for (int istage = 2; istage <= C::stages; ++istage) {
                 auto& aki = rosenbrock::stage_vector(rstate, istage);
 
-                for (int n = 1; n <= int_neqs; ++n) {
-                    rstate.ynew(n) = rstate.y(n);
-                    aki(n) = 0.0_rt;
-
-                    for (int jstage = 1; jstage < istage; ++jstage) {
-                        const amrex::Real akj = rosenbrock::stage_vector(rstate, jstage)(n);
-                        rstate.ynew(n) += C::a(istage, jstage) * akj;
-                        aki(n) += (C::c(istage, jstage) / h) * akj;
+                amrex::constexpr_for<2, C::stages + 1>([&] (auto stage_index) {
+                    if (istage == stage_index) {
+                        rosenbrock::prepare_stage<stage_index, C>(rstate, h);
                     }
-                }
+                });
 
                 // intermediate stage time
                 amrex::Real _time = x + C::ct(istage) * h;
