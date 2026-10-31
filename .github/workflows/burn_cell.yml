@@ -3,7 +3,7 @@ name: burn_cell
 on: [pull_request]
 jobs:
   burn_cell:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
 
@@ -16,11 +16,6 @@ jobs:
         run: |
           sudo apt-get update -y -qq
           sudo apt-get -qq -y install curl cmake jq clang g++
-
-      - name: Set compiler arch
-        run: |
-          # ubuntu-latest changed the default architecture
-          echo "EXTRACXXFLAGS=-march=x86-64" >> $GITHUB_ENV
 
       - name: check target
         run: |
