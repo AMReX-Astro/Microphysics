@@ -22,6 +22,10 @@ jobs:
           # ubuntu-latest changed the default architecture
           echo "EXTRACXXFLAGS=-march=x86-64" >> $GITHUB_ENV
 
+      - name: check target
+        run: |
+          g++ -march=x86-64 -O3 -Q --help=target | grep -E 'march=|mavx2|mfma'
+
       - name: Compile, burn_cell (VODE, he-burn/he-burn-19am)
         run: |
           cd unit_test/burn_cell
