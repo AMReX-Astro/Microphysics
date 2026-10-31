@@ -3,7 +3,7 @@ name: burn_cell
 on: [pull_request]
 jobs:
   burn_cell:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
 
@@ -16,6 +16,10 @@ jobs:
         run: |
           sudo apt-get update -y -qq
           sudo apt-get -qq -y install curl cmake jq clang g++
+
+      - name: check target
+        run: |
+          g++ -march=x86-64 -O3 -Q --help=target | grep -E 'march=|mavx2|mfma'
 
       - name: Compile, burn_cell (VODE, he-burn/he-burn-19am)
         run: |

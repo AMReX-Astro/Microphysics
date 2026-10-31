@@ -3,7 +3,11 @@ name: jac_cell
 on: [pull_request]
 jobs:
   jac_cell:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    env:
+      EXTRACXXFLAGS: "-march=x86-64 -ffp-contract=off -fno-tree-vectorize -fno-builtin"
+      GLIBC_TUNABLES: "glibc.cpu.hwcaps=-AVX2,-FMA"
+
     steps:
       - uses: actions/checkout@v7
 
