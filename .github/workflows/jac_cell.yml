@@ -5,7 +5,7 @@ jobs:
   jac_cell:
     runs-on: ubuntu-latest
     env:
-      EXTRACXXFLAGS: "-march=x86-64"
+      EXTRACXXFLAGS: "-march=x86-64 -ffp-contract=off -fno-tree-vectorize -fno-builtin"
       GLIBC_TUNABLES: "glibc.cpu.hwcaps=-AVX2,-FMA"
 
     steps:
