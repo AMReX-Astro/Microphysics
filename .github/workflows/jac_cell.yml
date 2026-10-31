@@ -4,6 +4,10 @@ on: [pull_request]
 jobs:
   jac_cell:
     runs-on: ubuntu-latest
+    env:
+      EXTRACXXFLAGS: "-march=x86-64"
+      GLIBC_TUNABLES: "glibc.cpu.hwcaps=-AVX2,-FMA"
+
     steps:
       - uses: actions/checkout@v7
 
