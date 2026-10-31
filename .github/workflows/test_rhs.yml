@@ -3,7 +3,7 @@ name: test_rhs
 on: [pull_request]
 jobs:
   test_rhs:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
 
