@@ -3,7 +3,7 @@ name: burn_cell_sdc
 on: [pull_request]
 jobs:
   burn_cell_sdc:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
 
