@@ -1,5 +1,35 @@
 # Changelog
 
+## 26.11
+
+  * networks
+
+    * update pynucastro networks with the new Jacobian terms (#2105)
+    * avoid a zero-length intermediate rate index array length (#2116)
+
+  * integrators
+
+    * Rosenbrock: add step-rejection logic for SDC (#2027)
+    * move SDC clean-up species normalization to after failure check (#2111)
+
+  * screening
+
+    * add composition derivative to screening via autodiff (#2100)
+    * fix compiling with `SCREEN_METHOD=debye_huckel` (#2109)
+
+  * docs
+
+    * fix energy generation rate notation (#2107)
+
+  * infrastructure
+
+    * clean up workflow files (#2103)
+    * revert some CI to ubuntu-24.04 (#2122)
+
+  * other
+
+    * fix loop size in CJ detonation tool (#2112)
+
 ## 26.10
 
   * networks
