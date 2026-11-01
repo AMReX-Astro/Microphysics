@@ -3,7 +3,7 @@ name: test_nse_interp
 on: [pull_request]
 jobs:
   test_nse_interp:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
 
