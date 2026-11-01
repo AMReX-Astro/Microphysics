@@ -14,9 +14,9 @@ the form (for Strang splitting):
 
 .. math::
 
-   \frac{de}{dt} = \epsilon - \epsilon_\nu
+   \frac{de}{dt} = \epsilon_\mathrm{nuc} - \epsilon_{\nu,\mathrm{weak}} - \epsilon_{\nu,\mathrm{therm}}
 
-where $\epsilon_\nu$ are the thermal neutrino losses.
+where $\epsilon_{\nu,\mathrm{therm}}$ are the thermal neutrino losses.
 
 .. note::
 
@@ -38,15 +38,15 @@ Here, the template parameter, ``do_derivatives``, can be used to disable the cod
 that computes the derivatives of the neutrino loss, for example, if a numerical Jacobian
 is used.  The output is
 
-* ``snu`` : $\epsilon_\nu$, the neutrino loss in erg/g/s
+* ``snu`` : $\epsilon_{\nu,\mathrm{therm}}$, the neutrino loss in erg/g/s
 
-* ``dsnudt`` : $d\epsilon_\nu/dT$
+* ``dsnudt`` : $\partial\epsilon_{\nu,\mathrm{therm}}/\partial T$
 
-* ``dsnudd`` : $d\epsilon_\nu/d\rho$
+* ``dsnudd`` : $\partial\epsilon_{\nu,\mathrm{therm}}/\partial\rho$
 
-* ``dsnuda`` : $d\epsilon_\nu/d\bar{A}$
+* ``dsnuda`` : $\partial\epsilon_{\nu,\mathrm{therm}}/\partial\bar{A}$
 
-* ``dsnudz`` : $d\epsilon_\nu/d\bar{Z}$
+* ``dsnudz`` : $\partial\epsilon_{\nu,\mathrm{therm}}/\partial\bar{Z}$
 
 * ``pair`` : contribution from pair neutrino loss in erg/g/s
 

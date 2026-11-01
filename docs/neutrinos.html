@@ -140,8 +140,8 @@ recombination, and Bremsstrahlung) using the method described in
 reaction networks by default, and modifies the energy equation to have
 the form (for Strang splitting):</p>
 <div class="math notranslate nohighlight">
-\[\frac{de}{dt} = \epsilon - \epsilon_\nu\]</div>
-<p>where <span class="math notranslate nohighlight">\(\epsilon_\nu\)</span> are the thermal neutrino losses.</p>
+\[\frac{de}{dt} = \epsilon_\mathrm{nuc} - \epsilon_{\nu,\mathrm{weak}} - \epsilon_{\nu,\mathrm{therm}}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\epsilon_{\nu,\mathrm{therm}}\)</span> are the thermal neutrino losses.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Thermal neutrino losses can be disabled at compile time by setting the make
@@ -160,11 +160,11 @@ variable <code class="docutils literal notranslate"><span class="pre">USE_NEUTRI
 that computes the derivatives of the neutrino loss, for example, if a numerical Jacobian
 is used.  The output is</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">snu</span></code> : <span class="math notranslate nohighlight">\(\epsilon_\nu\)</span>, the neutrino loss in erg/g/s</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">dsnudt</span></code> : <span class="math notranslate nohighlight">\(d\epsilon_\nu/dT\)</span></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">dsnudd</span></code> : <span class="math notranslate nohighlight">\(d\epsilon_\nu/d\rho\)</span></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">dsnuda</span></code> : <span class="math notranslate nohighlight">\(d\epsilon_\nu/d\bar{A}\)</span></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">dsnudz</span></code> : <span class="math notranslate nohighlight">\(d\epsilon_\nu/d\bar{Z}\)</span></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">snu</span></code> : <span class="math notranslate nohighlight">\(\epsilon_{\nu,\mathrm{therm}}\)</span>, the neutrino loss in erg/g/s</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dsnudt</span></code> : <span class="math notranslate nohighlight">\(\partial\epsilon_{\nu,\mathrm{therm}}/\partial T\)</span></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dsnudd</span></code> : <span class="math notranslate nohighlight">\(\partial\epsilon_{\nu,\mathrm{therm}}/\partial\rho\)</span></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dsnuda</span></code> : <span class="math notranslate nohighlight">\(\partial\epsilon_{\nu,\mathrm{therm}}/\partial\bar{A}\)</span></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dsnudz</span></code> : <span class="math notranslate nohighlight">\(\partial\epsilon_{\nu,\mathrm{therm}}/\partial\bar{Z}\)</span></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">pair</span></code> : contribution from pair neutrino loss in erg/g/s</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">phot</span></code> : contribution from photo-neutrino loss in erg/g/s</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">plas</span></code> : contribution from plasma neutrino loss in erg/g/s</p></li>

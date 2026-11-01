@@ -163,10 +163,16 @@ section.</p>
 <p>Here, <span class="math notranslate nohighlight">\(X_k\)</span> is the mass fraction of species <span class="math notranslate nohighlight">\(k\)</span>, <span class="math notranslate nohighlight">\(e\)</span>
 is the specific nuclear energy created through reactions. Also needed
 are density <span class="math notranslate nohighlight">\(\rho\)</span>, temperature <span class="math notranslate nohighlight">\(T\)</span>, and the specific
-heat. The function <span class="math notranslate nohighlight">\(\epsilon\)</span> provides the energy release from
-reactions and can often be expressed in terms of the instantaneous
-reaction terms, <span class="math notranslate nohighlight">\(\dot{X}_k\)</span>. As noted in the previous section,
-this is implemented in a network-specific manner.</p>
+heat. The function <span class="math notranslate nohighlight">\(\epsilon\)</span> provides the energy release / loss
+from reactions and neutrinos.  In general, it is made up of 3 terms:</p>
+<div class="math notranslate nohighlight">
+\[\epsilon = \epsilon_\mathrm{nuc} - \epsilon_{\nu,\mathrm{weak}} - \epsilon_{\nu,\mathrm{therm}}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\epsilon_\mathrm{nuc}\)</span> represents the energy release from the change in mass
+of the nuclei in the reaction, <span class="math notranslate nohighlight">\(\epsilon_{\nu,\mathrm{weak}}\)</span> represents weak-rate
+neutrino losses, and <span class="math notranslate nohighlight">\(\epsilon_{\nu,\mathrm{therm}}\)</span> represents the energy loss
+from thermal neutrino processes (see <a class="reference internal" href="neutrinos.html#neutrino-loss"><span class="std std-ref">Neutrino Losses</span></a>).
+As noted in the previous section, <span class="math notranslate nohighlight">\(\epsilon_\mathrm{nuc}\)</span> and <span class="math notranslate nohighlight">\(\epsilon_{\nu,\mathrm{weak}}\)</span> are implemented in a
+network-specific manner.</p>
 <p>In this system, <span class="math notranslate nohighlight">\(e\)</span> is equal to the total specific internal
 energy. This allows us to easily call the EOS during the burn to obtain the temperature.</p>
 <div class="admonition note">
