@@ -105,6 +105,8 @@ void nse_cell_c()
 
     // check the indices
 
+    std::cout << "testing the indices\n\n";
+
     amrex::Real logrho = std::log10(unit_test_rp::density);
     amrex::Real logT = std::log10(unit_test_rp::temperature);
 
@@ -112,15 +114,15 @@ void nse_cell_c()
     int it0 = nse_get_logT_index(logT);
     int ic0 = nse_get_ye_index(unit_test_rp::ye);
 
-    std::cout << "density value brackets: "
+    std::cout << "    density value brackets: "
               << nse_table_logrho(ir0) << " < " << logrho << " < "
               << nse_table_logrho(ir0+1) << std::endl;
 
-    std::cout << "temperature value brackets: "
+    std::cout << "    temperature value brackets: "
               << nse_table_logT(it0) << " < " << logT << " < "
               << nse_table_logT(it0+1) << std::endl;
 
-    std::cout << "Ye value brackets: "
+    std::cout << "    Ye value brackets: "
               << nse_table_ye(ic0) << " < " << unit_test_rp::ye << " < "
               << nse_table_ye(ic0+1) << std::endl;
 
@@ -211,103 +213,220 @@ void nse_cell_c()
 
     }
 
-    std::cout << std::endl;
 
-    std::cout << "tricubic interpolated values at input state\n\n";
+    // next use the full tricubic interface and look at the derivatives
 
-    nse_table_t nse_state;
-    nse_state.T = unit_test_rp::temperature;
-    nse_state.rho = unit_test_rp::density;
-    nse_state.Ye = unit_test_rp::ye;
+    {
 
-    nse_interp(nse_state);
+        std::cout << std::endl;
 
-    std::cout << "    abar    = " << nse_state.abar << std::endl;
-    std::cout << "    bea     = " << nse_state.bea << std::endl;
-    std::cout << "    dyedt   = " << nse_state.dyedt << std::endl;
-    std::cout << "    dbeadt = " << nse_state.dbeadt << std::endl;
-    std::cout << "    e_nu    = " << nse_state.e_nu << std::endl;
-    std::cout << std::endl;
-    for (int n = 0; n < NumSpec; ++n) {
-        std::cout << "    X(" << short_spec_names_cxx[n] << ") = " << nse_state.X[n] << std::endl;
-    }
+        std::cout << "trilinear interpolated values at input state\n\n";
+
+        nse_table_t nse_state;
+        nse_state.T = unit_test_rp::temperature;
+        nse_state.rho = unit_test_rp::density;
+        nse_state.Ye = unit_test_rp::ye;
+
+        nse_interp(nse_state);
+
+        std::cout << "    abar    = " << nse_state.abar << std::endl;
+        std::cout << "    bea     = " << nse_state.bea << std::endl;
+        std::cout << "    dyedt   = " << nse_state.dyedt << std::endl;
+        std::cout << "    dbeadt = " << nse_state.dbeadt << std::endl;
+        std::cout << "    e_nu    = " << nse_state.e_nu << std::endl;
+        std::cout << std::endl;
+        for (int n = 0; n < NumSpec; ++n) {
+            std::cout << "    X(" << short_spec_names_cxx[n] << ") = " << nse_state.X[n] << std::endl;
+        }
 
 
-    // temp derivatives
+        // temp derivatives
 
-    std::cout << std::endl;
-    std::cout << std::endl;
-    std::cout << "testing temperature derivatives of cubic" << std::endl << std::endl;
+        std::cout << std::endl;
+        std::cout << std::endl;
+        std::cout << "    testing temperature derivatives of cubic" << std::endl << std::endl;
 
-    std::cout << "    first finite-difference derivatives\n";
+        std::cout << "        first finite-difference derivatives\n";
 
-    nse_state.T = unit_test_rp::temperature;
-    nse_state.rho = unit_test_rp::density;
-    nse_state.Ye = unit_test_rp::ye;
+        nse_state.T = unit_test_rp::temperature;
+        nse_state.rho = unit_test_rp::density;
+        nse_state.Ye = unit_test_rp::ye;
 
-    nse_interp(nse_state);
+        nse_interp(nse_state);
 
-    amrex::Real abar_old = nse_state.abar;
-    amrex::Real bea_old = nse_state.bea;
-    amrex::Real T_old = nse_state.T;
+        amrex::Real abar_old = nse_state.abar;
+        amrex::Real bea_old = nse_state.bea;
+        amrex::Real T_old = nse_state.T;
 
-    const amrex::Real eps = 1.e-8_rt;
-    nse_state.T *= (1.0_rt + eps);
+        const amrex::Real eps = 1.e-8_rt;
+        nse_state.T *= (1.0_rt + eps);
 
-    nse_interp(nse_state);
+        nse_interp(nse_state);
 
-    std::cout << "        dAbar/dT = " << (nse_state.abar - abar_old) / (nse_state.T - T_old) << std::endl;
-    std::cout << "        dbea/dT = " << (nse_state.bea - bea_old) / (nse_state.T - T_old) << std::endl;
+        std::cout << "            dAbar/dT = " << (nse_state.abar - abar_old) / (nse_state.T - T_old) << std::endl;
+        std::cout << "            dbea/dT = " << (nse_state.bea - bea_old) / (nse_state.T - T_old) << std::endl;
 
-    std::cout << std::endl;
-    std::cout << "    now using derivative of the interpolant" << std::endl;
+        std::cout << std::endl;
+        std::cout << "        now using derivative of the interpolant" << std::endl;
 
-    amrex::Real dabardT = nse_interp_dT(unit_test_rp::temperature, unit_test_rp::density, unit_test_rp::ye,
-                                 nse_table::abartab);
-
-    amrex::Real dbeadT = nse_interp_dT(unit_test_rp::temperature, unit_test_rp::density, unit_test_rp::ye,
-                                 nse_table::beatab);
-
-    std::cout << "        dAbar/dT = " << dabardT << std::endl;
-    std::cout << "        dbea/dT = " << dbeadT << std::endl;
-
-    std::cout << std::endl;
-
-    // dens derivatives
-
-    std::cout << "testing density derivatives of cubic" << std::endl << std::endl;
-
-    std::cout << "    first finite-difference derivatives" << std::endl;
-
-    nse_state.T = unit_test_rp::temperature;
-    nse_state.rho = unit_test_rp::density;
-    nse_state.Ye = unit_test_rp::ye;
-
-    nse_interp(nse_state);
-
-    amrex::Real rho_old = nse_state.rho;
-
-    nse_state.rho *= (1.0_rt + eps);
-
-    nse_interp(nse_state);
-
-    std::cout << "        dAbar/drho = " << (nse_state.abar - abar_old) / (nse_state.rho - rho_old) << std::endl;
-    std::cout << "        dbea/drho = " << (nse_state.bea - bea_old) / (nse_state.rho - rho_old) << std::endl;
-
-    std::cout << std::endl;
-    std::cout << "    now using derivative of the interpolant" << std::endl;
-
-    amrex::Real dabardrho = nse_interp_drho(unit_test_rp::temperature, unit_test_rp::density, unit_test_rp::ye,
+        amrex::Real dabardT = nse_interp_dT(unit_test_rp::temperature, unit_test_rp::density, unit_test_rp::ye,
                                      nse_table::abartab);
 
-    amrex::Real dbeadrho = nse_interp_drho(unit_test_rp::temperature, unit_test_rp::density, unit_test_rp::ye,
-                                    nse_table::beatab);
+        amrex::Real dbeadT = nse_interp_dT(unit_test_rp::temperature, unit_test_rp::density, unit_test_rp::ye,
+                                     nse_table::beatab);
 
-    std::cout << "        dAbar/drho = " << dabardrho << std::endl;
-    std::cout << "        dbea/drho = " << dbeadrho << std::endl;
+        std::cout << "            dAbar/dT = " << dabardT << std::endl;
+        std::cout << "            dbea/dT = " << dbeadT << std::endl;
 
-    std::cout << std::endl;
-    std::cout << std::endl;
+        std::cout << std::endl;
+
+        // dens derivatives
+
+        std::cout << "    testing density derivatives of cubic" << std::endl << std::endl;
+
+        std::cout << "        first finite-difference derivatives" << std::endl;
+
+        nse_state.T = unit_test_rp::temperature;
+        nse_state.rho = unit_test_rp::density;
+        nse_state.Ye = unit_test_rp::ye;
+
+        nse_interp(nse_state);
+
+        amrex::Real rho_old = nse_state.rho;
+
+        nse_state.rho *= (1.0_rt + eps);
+
+        nse_interp(nse_state);
+
+        std::cout << "            dAbar/drho = " << (nse_state.abar - abar_old) / (nse_state.rho - rho_old) << std::endl;
+        std::cout << "            dbea/drho = " << (nse_state.bea - bea_old) / (nse_state.rho - rho_old) << std::endl;
+
+        std::cout << std::endl;
+        std::cout << "        now using derivative of the interpolant" << std::endl;
+
+        amrex::Real dabardrho = nse_interp_drho(unit_test_rp::temperature, unit_test_rp::density, unit_test_rp::ye,
+                                         nse_table::abartab);
+
+        amrex::Real dbeadrho = nse_interp_drho(unit_test_rp::temperature, unit_test_rp::density, unit_test_rp::ye,
+                                        nse_table::beatab);
+
+        std::cout << "            dAbar/drho = " << dabardrho << std::endl;
+        std::cout << "            dbea/drho = " << dbeadrho << std::endl;
+
+        std::cout << std::endl;
+        std::cout << std::endl;
+
+    }
+
+    // and repeat for trilinear
+
+    {
+
+        // override the runtime parameter
+        network_rp::nse_table_interp_linear = 1;
+
+        std::cout << std::endl;
+
+        std::cout << "trilinear interpolated values at input state\n\n";
+
+        nse_table_t nse_state;
+        nse_state.T = unit_test_rp::temperature;
+        nse_state.rho = unit_test_rp::density;
+        nse_state.Ye = unit_test_rp::ye;
+
+        nse_interp(nse_state);
+
+        std::cout << "    abar    = " << nse_state.abar << std::endl;
+        std::cout << "    bea     = " << nse_state.bea << std::endl;
+        std::cout << "    dyedt   = " << nse_state.dyedt << std::endl;
+        std::cout << "    dbeadt = " << nse_state.dbeadt << std::endl;
+        std::cout << "    e_nu    = " << nse_state.e_nu << std::endl;
+        std::cout << std::endl;
+        for (int n = 0; n < NumSpec; ++n) {
+            std::cout << "    X(" << short_spec_names_cxx[n] << ") = " << nse_state.X[n] << std::endl;
+        }
+
+
+        // temp derivatives
+
+        std::cout << std::endl;
+        std::cout << std::endl;
+        std::cout << "    testing temperature derivatives of linear" << std::endl << std::endl;
+
+        std::cout << "        first finite-difference derivatives\n";
+
+        nse_state.T = unit_test_rp::temperature;
+        nse_state.rho = unit_test_rp::density;
+        nse_state.Ye = unit_test_rp::ye;
+
+        nse_interp(nse_state);
+
+        amrex::Real abar_old = nse_state.abar;
+        amrex::Real bea_old = nse_state.bea;
+        amrex::Real T_old = nse_state.T;
+
+        const amrex::Real eps = 1.e-8_rt;
+        nse_state.T *= (1.0_rt + eps);
+
+        nse_interp(nse_state);
+
+        std::cout << "            dAbar/dT = " << (nse_state.abar - abar_old) / (nse_state.T - T_old) << std::endl;
+        std::cout << "            dbea/dT = " << (nse_state.bea - bea_old) / (nse_state.T - T_old) << std::endl;
+
+        std::cout << std::endl;
+        std::cout << "        now using derivative of the interpolant" << std::endl;
+
+        amrex::Real dabardT = nse_interp_dT(unit_test_rp::temperature, unit_test_rp::density, unit_test_rp::ye,
+                                            nse_table::abartab);
+
+        amrex::Real dbeadT = nse_interp_dT(unit_test_rp::temperature, unit_test_rp::density, unit_test_rp::ye,
+                                           nse_table::beatab);
+
+        std::cout << "            dAbar/dT = " << dabardT << std::endl;
+        std::cout << "            dbea/dT = " << dbeadT << std::endl;
+
+        std::cout << std::endl;
+
+        // dens derivatives
+
+        std::cout << "    testing density derivatives of linear" << std::endl << std::endl;
+
+        std::cout << "        first finite-difference derivatives" << std::endl;
+
+        nse_state.T = unit_test_rp::temperature;
+        nse_state.rho = unit_test_rp::density;
+        nse_state.Ye = unit_test_rp::ye;
+
+        nse_interp(nse_state);
+
+        amrex::Real rho_old = nse_state.rho;
+
+        nse_state.rho *= (1.0_rt + eps);
+
+        nse_interp(nse_state);
+
+        std::cout << "            dAbar/drho = " << (nse_state.abar - abar_old) / (nse_state.rho - rho_old) << std::endl;
+        std::cout << "            dbea/drho = " << (nse_state.bea - bea_old) / (nse_state.rho - rho_old) << std::endl;
+
+        std::cout << std::endl;
+        std::cout << "        now using derivative of the interpolant" << std::endl;
+
+        amrex::Real dabardrho = nse_interp_drho(unit_test_rp::temperature, unit_test_rp::density, unit_test_rp::ye,
+                                                nse_table::abartab);
+
+        amrex::Real dbeadrho = nse_interp_drho(unit_test_rp::temperature, unit_test_rp::density, unit_test_rp::ye,
+                                               nse_table::beatab);
+
+        std::cout << "            dAbar/drho = " << dabardrho << std::endl;
+        std::cout << "            dbea/drho = " << dbeadrho << std::endl;
+
+        std::cout << std::endl;
+        std::cout << std::endl;
+
+        // restore the runtime parameter
+        network_rp::nse_table_interp_linear = 0;
+
+    }
 
     //
     // EOS testing
@@ -332,6 +451,8 @@ void nse_cell_c()
     // and finally check
     //
     // T', rho, Ye, Abar' -> e' ???
+
+    nse_table_t nse_state;
 
     {
 
