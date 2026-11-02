@@ -789,6 +789,9 @@ namespace: ``network``
 | ``nse_table_interp_linear``           | do we do tri-linear or tri-cubic interpolation on the   | 0                            |
 |                                       | table?                                                  |                              |
 +---------------------------------------+---------------------------------------------------------+------------------------------+
+| ``nse_force_linear_interp_species``   | do we always do tri-linear for species, even when doing | 0                            |
+|                                       | cubic for other quantities?                             |                              |
++---------------------------------------+---------------------------------------------------------+------------------------------+
 
 
 
