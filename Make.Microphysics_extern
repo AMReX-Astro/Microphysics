@@ -46,6 +46,8 @@ else ifeq ($(SCREEN_METHOD), chugunov2009)
   DEFINES += -DSCREEN_METHOD=SCREEN_METHOD_chugunov2009
 else ifeq ($(SCREEN_METHOD), chabrier1998)
   DEFINES += -DSCREEN_METHOD=SCREEN_METHOD_chabrier1998
+else ifeq ($(SCREEN_METHOD), debye_huckel)
+  DEFINES += -DSCREEN_METHOD=SCREEN_METHOD_debye_huckel
 else
   $(error Invalid value for SCREEN_METHOD)
 endif

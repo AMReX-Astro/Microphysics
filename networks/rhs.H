@@ -128,8 +128,12 @@ locate_intermediate_rate_index (int intermediate_rate)
 {
     constexpr int num_intermediate = num_intermediate_reactions();
 
-    // num_intermediate may be 0, so use amrex::Array instead of a C-style array
-    amrex::Array<int, num_intermediate> indices = {};
+    // num_intermediate may be 0, so give the array at least one element:
+    // indexing std::array<T, 0> fails to compile in device code with
+    // libstdc++ >= 13 (its operator[] is a non-constexpr host function
+    // there). The loops below only touch the first num_intermediate elements.
+    constexpr int indices_size = num_intermediate > 0 ? num_intermediate : 1;
+    amrex::Array<int, indices_size> indices = {};
 
     // We loop through all rates and add their intermediate
     // rates to the temporary storage array, skipping ones

@@ -168,12 +168,6 @@ void integrator_cleanup (IntegratorT& int_state, BurnT& state,
     state.y[SMY] += state.time * state.ydot_a[SMY];
     state.y[SMZ] += state.time * state.ydot_a[SMZ];
 
-    // normalize the abundances on exit.  We'll assume that the driver
-    // calling this is making use of the conserved state (state.y[]),
-    // so that is what will be normalized.
-
-    normalize_abundances_sdc_burn(state);
-
     // The integrator may not always fail even though it can lead to
     // unphysical states.  Add some checks that indicate a burn fail
     // even if Vthe integrator thinks the integration was successful.
@@ -198,7 +192,6 @@ void integrator_cleanup (IntegratorT& int_state, BurnT& state,
             state.success = false;
         }
     }
-
 
 #ifndef AMREX_USE_GPU
     if (integrator_rp::burner_verbose) {
@@ -276,7 +269,14 @@ void integrator_cleanup (IntegratorT& int_state, BurnT& state,
             std::cout << "burn entered NSE during integration (after " << state.n_step << " steps), zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
 #endif
         }
+
     }
+
+    // normalize the abundances on exit.  We'll assume that the driver
+    // calling this is making use of the conserved state (state.y[]),
+    // so that is what will be normalized.
+
+    normalize_abundances_sdc_burn(state);
 
 }
 #endif
