@@ -1,14 +1,16 @@
-Initializing AMReX (26.09-155-g14ffe112f87b)...
-AMReX (26.09-155-g14ffe112f87b) initialized
+Initializing AMReX (26.09-188-g2ceecb347bea)...
+AMReX (26.09-188-g2ceecb347bea) initialized
 starting the single zone burn...
 reading the NSE table (C++) ...
 limited-slope derivative checks passed
 
 rho, T, Ye = 1230000000 5180000000 0.472
 
-density value brackets: 9.05 < 9.089905111 < 9.1
-temperature value brackets: 9.71 < 9.71432976 < 9.72
-Ye value brackets: 0.4725 < 0.472 < 0.47
+testing the indices
+
+    density value brackets: 9.05 < 9.089905111 < 9.1
+    temperature value brackets: 9.71 < 9.71432976 < 9.72
+    Ye value brackets: 0.4725 < 0.472 < 0.47
 
 testing 1-d cubic interpolation at input state
 
@@ -37,7 +39,7 @@ testing 1-d cubic interpolation at input state
     cubic interpolated value: 55.61650246
 
 
-tricubic interpolated values at input state
+trilinear interpolated values at input state
 
     abar    = 55.60635196
     bea     = 8.755115136
@@ -66,25 +68,76 @@ tricubic interpolated values at input state
     X(p) = 9.852136026e-06
 
 
-testing temperature derivatives of cubic
+    testing temperature derivatives of cubic
 
-    first finite-difference derivatives
-        dAbar/dT = -1.075182173e-09
-        dbea/dT = -6.863870363e-12
+        first finite-difference derivatives
+            dAbar/dT = -1.075182173e-09
+            dbea/dT = -6.863870363e-12
 
-    now using derivative of the interpolant
-        dAbar/dT = -1.075182436e-09
-        dbea/dT = -6.863845759e-12
+        now using derivative of the interpolant
+            dAbar/dT = -1.075182436e-09
+            dbea/dT = -6.863845759e-12
 
-testing density derivatives of cubic
+    testing density derivatives of cubic
 
-    first finite-difference derivatives
-        dAbar/drho = 3.988131972e-10
-        dbea/drho = 7.618115743e-13
+        first finite-difference derivatives
+            dAbar/drho = 3.988131972e-10
+            dbea/drho = 7.618115743e-13
 
-    now using derivative of the interpolant
-        dAbar/drho = 3.988138616e-10
-        dbea/drho = 7.618659448e-13
+        now using derivative of the interpolant
+            dAbar/drho = 3.988138616e-10
+            dbea/drho = 7.618659448e-13
+
+
+
+trilinear interpolated values at input state
+
+    abar    = 55.60156768
+    bea     = 8.755086235
+    dyedt   = -0.004579646804
+    dbeadt = 0.000114352989
+    e_nu    = 1.116235186e+16
+
+    X(H1) = 0
+    X(He3) = 3.091890511e-14
+    X(He4) = 0.0003218260827
+    X(C12) = 8.463006044e-10
+    X(N14) = 3.495275469e-14
+    X(O16) = 2.111006331e-09
+    X(Ne20) = 2.640521593e-11
+    X(Mg24) = 1.082527837e-08
+    X(Si28) = 8.459522857e-06
+    X(S32) = 1.23719754e-05
+    X(Ar36) = 1.28673558e-05
+    X(Ca40) = 1.322641363e-05
+    X(Ti44) = 0.0001444391323
+    X(Cr48) = 0.01147225621
+    X(Fe52) = 0.07738534479
+    X(Fe54) = 0.9098464746
+    X(Ni56) = 0.0007725467877
+    X(n) = 2.1962329e-08
+    X(p) = 1.015138913e-05
+
+
+    testing temperature derivatives of linear
+
+        first finite-difference derivatives
+            dAbar/dT = -1.097834358e-09
+            dbea/dT = -6.968188463e-12
+
+        now using derivative of the interpolant
+            dAbar/dT = -1.097834698e-09
+            dbea/dT = -6.968171776e-12
+
+    testing density derivatives of linear
+
+        first finite-difference derivatives
+            dAbar/drho = 4.095834076e-10
+            dbea/drho = 7.893956522e-13
+
+        now using derivative of the interpolant
+            dAbar/drho = 4.095838821e-10
+            dbea/drho = 7.893078626e-13
 
 
 EOS T from e consistency check (e should remain unchanged)
@@ -126,4 +179,4 @@ explore a troublesome state
     cubic interpolation gives: e_nu = 5.481706469e+12
     bounds of e_nu in the 64 cells used for tricubic: 1.3703405e+11 6.2562515e+14
 
-AMReX (26.09-155-g14ffe112f87b) finalized
+AMReX (26.09-188-g2ceecb347bea) finalized
