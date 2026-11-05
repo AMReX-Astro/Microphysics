@@ -1,0 +1,1 @@
+pynucastro version: 3.2.0.post3+g8d7dc1e4e.d20261104
