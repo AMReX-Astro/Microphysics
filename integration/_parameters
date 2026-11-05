@@ -127,3 +127,12 @@ correct_jacobian_for_const_e  bool     1
 # abundance is unreasonably small or large (each X must satisfy
 # -failure_tolerance <= X <= 1.0 + failure_tolerance).
 species_failure_tolerance  real       1.e-2_rt
+
+# Following features are currently only implemented in Rosenbrock 
+# but can be extended to all integrators with step rejection
+
+# Sets a stricter tolerance on neutrons
+strict_neut_tol              int          0
+
+# Modifies atol for determining valid integrator state
+reject_scale                 real         1.0
