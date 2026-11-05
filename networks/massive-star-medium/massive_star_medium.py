@@ -10,7 +10,8 @@ def create_network(network_type="amrex"):
            "ti44-48", "v47-51", "cr48-54", "mn51-55",
            "fe52-58", "co55-59", "ni56-60", "cu59", "zn60"]
 
-    net = pyna.network_helper(nuc, network_type=network_type)
+    net = pyna.network_helper(nuc, network_type=network_type, tabular_ordering=["ffn", "oda", "pruet_fuller", "langanke"],
+        use_detailed_balance=False)
 
     intermediate_n_nuc = ["ni57", "ni59", "co58", "fe53", "fe55",
                           "fe57", "mn52", "mn54", "cr49", "cr51",
