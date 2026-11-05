@@ -140,6 +140,8 @@ MPL_DEVICE Real cbrt(Real x) { return chemistry::f64_math::cbrt(x); }
 MPL_DEVICE Real pow(Real x, Real y) { return chemistry::f64_math::pow(x, y); }
 MPL_DEVICE Real log10(Real x) { return chemistry::f64_math::log10(x); }
 MPL_DEVICE Real tanh(Real x) { return chemistry::f64_math::tanh(x); }
+// amrex::Math::exp10: ::exp10 (OCML) on the device
+MPL_DEVICE Real exp10(Real x) { return chemistry::f64_math::exp10(x); }
 #else
 MPL_DEVICE Real abs(Real x) { return std::abs(x); }
 MPL_DEVICE Real fabs(Real x) { return std::fabs(x); }
@@ -152,6 +154,13 @@ MPL_DEVICE Real cbrt(Real x) { return std::cbrt(x); }
 MPL_DEVICE Real pow(Real x, Real y) { return std::pow(x, y); }
 MPL_DEVICE Real log10(Real x) { return std::log10(x); }
 MPL_DEVICE Real tanh(Real x) { return std::tanh(x); }
+// amrex::Math::exp10: ::exp10 on a device (OCML; also the standalone HIP
+// build), std::pow(10.0, x) on the host (AMReX_Math.H)
+#if defined(MPL_HIP_STANDALONE)
+MPL_DEVICE Real exp10(Real x) { return ::exp10(x); }
+#else
+MPL_DEVICE Real exp10(Real x) { return std::pow(10.0, x); }
+#endif
 #endif
 
 } // namespace math

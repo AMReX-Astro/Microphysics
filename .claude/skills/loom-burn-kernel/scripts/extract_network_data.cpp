@@ -1,5 +1,6 @@
 // Host extractor for gen_network_data.py: evaluates the stock constexpr data of
-// an rhs.H-framework network (NEW_NETWORK_IMPLEMENTATION) and prints it, one
+// an rhs.H-framework network (NEW_NETWORK_IMPLEMENTATION) or, with
+// -DMPL_X_PYNUCASTRO=1, a pynucastro-generated network, and prints it, one
 // record per line, doubles as C99 hex floats (%a, exact).
 //
 // Compiled by gen_network_data.py with the build's own -D/-I/-std flags (from
@@ -9,6 +10,10 @@
 //            MPL_X_RATE(name) for every Rates:: enumerator except NumRates
 //   -DMPL_X_HAVE_BION_MION=0/1  whether actual_network.H defines
 //            network::bion<spec>() / network::mion<spec>()
+//   -DMPL_X_PYNUCASTRO=0/1  pynucastro network: no rhs.H data; extract_names.inc
+//            also lists MPL_X_PAIR(name, Z1, A1, Z2, A2) for every
+//            Rates::ScreenPairs enumerator, with the arguments of the
+//            calculate_screen_factor call evaluate_screening makes for it
 // Nothing here runs on a device; the values are what the stock headers fold
 // at compile time (rhs_data, locate_intermediate_rate_index,
 // calculate_screen_factor) or define as constants.
@@ -20,13 +25,23 @@
 #include <network.H>
 #include <burn_type.H>
 #include <fundamental_constants.H>
+#ifndef MPL_X_PYNUCASTRO
+#define MPL_X_PYNUCASTRO 0
+#endif
+#if MPL_X_PYNUCASTRO
+#include <actual_network.H>
+#else
 #include <rhs.H>
+#endif
 #ifdef SCREENING
+// screen.H defines the SCREEN_METHOD_* values screen_data.H compares against
+// (rhs.H includes it; a pynucastro actual_network.H does not)
+#include <screen.H>
 #include <screen_data.H>
 #endif
 
-#ifndef NEW_NETWORK_IMPLEMENTATION
-#error "extract_network_data: this network does not use networks/rhs.H (NEW_NETWORK_IMPLEMENTATION undefined)"
+#if !MPL_X_PYNUCASTRO && !defined(NEW_NETWORK_IMPLEMENTATION)
+#error "extract_network_data: this network does not use networks/rhs.H (NEW_NETWORK_IMPLEMENTATION undefined); pass -DMPL_X_PYNUCASTRO=1 for a pynucastro network"
 #endif
 
 #ifndef MPL_X_HAVE_BION_MION
@@ -39,6 +54,7 @@ void pr_def(const char* name, int on) { std::printf("DEF %s %d\n", name, on); }
 void pr_int(const char* name, long v) { std::printf("CFG %s %ld\n", name, v); }
 void pr_real(const char* tag, const char* name, double v) { std::printf("%s %s %a\n", tag, name, v); }
 
+#if !MPL_X_PYNUCASTRO
 template <int rate>
 void print_rhs_data()
 {
@@ -62,6 +78,7 @@ void print_rhs_data()
     std::printf("DENSEXP %d %d %d\n", rate, RHS::density_exponent_forward<rate>(),
                 RHS::density_exponent_reverse<rate>());
 }
+#endif
 
 #ifdef SCREENING
 // One screened pair, evaluated as networks/rhs.H apply_screening does
@@ -85,6 +102,7 @@ void print_pair(const scrn::screen_factors_t& s)
     std::printf("\n");
 }
 
+#if !MPL_X_PYNUCASTRO
 // Same branch structure as networks/rhs.H apply_screening.
 template <int rate>
 void print_screening()
@@ -126,6 +144,7 @@ void print_screening()
         print_pair<rate, 2>(scn_fac2);
     }
 }
+#endif
 #endif
 
 } // namespace
@@ -209,7 +228,16 @@ int main()
     pr_int("NumSpecTotal", NumSpecTotal);
     pr_int("NumAux", NumAux);
     pr_int("NumRates", Rates::NumRates);
+#if MPL_X_PYNUCASTRO
+    pr_int("num_intermediate", 0);
+    pr_int("PYNUCASTRO", 1);
+#ifdef SCREENING
+    pr_int("NumScreenPairs", Rates::NumScreenPairs);
+#endif
+#else
     pr_int("num_intermediate", RHS::num_intermediate_reactions());
+    pr_int("PYNUCASTRO", 0);
+#endif
     pr_int("neqs", neqs);
     pr_int("net_ienuc", net_ienuc);
     pr_int("SFS", SFS);
@@ -227,9 +255,11 @@ int main()
     // enumerators (names from the driver, values from the headers)
 #define MPL_X_SPECIES(name) std::printf("SPECIES %s %d\n", #name, static_cast<int>(Species::name));
 #define MPL_X_RATE(name) std::printf("RATE %s %d\n", #name, static_cast<int>(Rates::name));
+#define MPL_X_PAIR(name, Z1, A1, Z2, A2)
 #include "extract_names.inc"
 #undef MPL_X_SPECIES
 #undef MPL_X_RATE
+#undef MPL_X_PAIR
 
     // per-species data: NetworkProperties::aion/zion (constexpr functions) and
     // the aion[] / zion[] / aion_inv[] arrays, which can differ in principle
@@ -254,6 +284,26 @@ int main()
     pr_real("CONST", "enuc_conv2", C::enuc_conv2);
     pr_real("CONST", "n_A", C::n_A);
 
+#if MPL_X_PYNUCASTRO
+#ifdef SCREENING
+    // one record per Rates::ScreenPairs enumerator, as actual_rhs.H
+    // evaluate_screening folds it (`constexpr auto scn_fac =
+    // scrn::calculate_screen_factor(Z1, A1, Z2, A2)`); the pair index is the
+    // enumerator value, recorded in the "rate" slot
+#define MPL_X_SPECIES(name)
+#define MPL_X_RATE(name)
+#define MPL_X_PAIR(name, Z1, A1, Z2, A2)                                                  \
+    {                                                                                      \
+        constexpr auto scn_fac = scrn::calculate_screen_factor(Z1, A1, Z2, A2);           \
+        std::printf("PAIR %s %d\n", #name, static_cast<int>(Rates::name));               \
+        print_pair<static_cast<int>(Rates::name), 1>(scn_fac);                             \
+    }
+#include "extract_names.inc"
+#undef MPL_X_SPECIES
+#undef MPL_X_RATE
+#undef MPL_X_PAIR
+#endif
+#else
     // rhs_data for every rate, intermediate indices, density exponents
     amrex::constexpr_for<1, Rates::NumRates + 1>([&] (auto n) {
         constexpr int rate = n;
@@ -265,6 +315,7 @@ int main()
         constexpr int rate = n;
         print_screening<rate>();
     });
+#endif
 #endif
 
     std::printf("END\n");

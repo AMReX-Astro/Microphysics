@@ -273,8 +273,16 @@ neutrinos is several times the chemistry kernel.
 what is generated (`network_data.H`, `burn.H` via
 `scripts/gen_network_data.py`, see `references/microphysics-translation.md`,
 "Generated network data"), and what is hand-translated per network
-(`rates.H`, `network.H`, with the `assets/prompts/` templates). For anything
-else (another EOS, integrator, NSE, pynucastro networks) read
+(`rates.H`, `network.H`, with the `assets/prompts/` templates). **For a
+pynucastro-generated network** (rate_type.H next to actual_network.H; most
+of `networks/`), start from the first such port,
+`unit_test/test_react/loom/ase_iron_vode/` (README there): `network_data.H`
+/ `burn.H` from `scripts/gen_network_data.py` (pynucastro mode, automatic),
+every rate, table, partition function, screening block, `rhs_nuc` and
+`jac_nuc` from `scripts/gen_pynucastro_net.py`, and a small hand-written
+`network.H` (glue + util/linpack.H dense LU, which `vode.H` uses when
+`network.H` defines `MPL_NET_DENSE_LU`). For anything
+else (another EOS, integrator, NSE) read
 `references/microphysics-translation.md` and
 `references/loom-frontend-rules.md` first.
 
@@ -439,7 +447,8 @@ Check the time with `date` before writing any timestamp.
 ## Scripts
 
 - `scripts/inventory.py` (+ `reachable.py`) — Phase 2 call-graph closure and construct inventory.
-- `scripts/gen_network_data.py` + `extract_network_data.cpp` — generate `network_data.H` / `burn.H` for `rhs.H`-framework networks, checked against the stock source.
+- `scripts/gen_network_data.py` + `extract_network_data.cpp` — generate `network_data.H` / `burn.H` for `rhs.H`-framework and pynucastro networks, checked against the stock source.
+- `scripts/gen_pynucastro_net.py` — translate a pynucastro network's generated headers (rates, tables, partition functions, screening blocks, rhs_nuc / jac_nuc) into `pyn_rates.H` / `pyn_network.H`; the hand-translated generic pynucastro code is digest-checked.
 - `scripts/loom-lint/` — ast-grep rules for Loom-hostile constructs (`tests/selftest.sh`).
 - `scripts/build_loom_tools.sh` — build frozen `loom-import-cxx`/`loom-compile` from an hrx-system tree (the pinned `cfd80e56de`) plus optional patches; writes `tools.md5`. Header has the fresh-machine prerequisites.
 - `scripts/loom_smoke.sh` — launch/status/wait/fetch a Loom import + compile of a smoke kernel on the GPU host. `wait` serializes compiles; `wait`/`status` exit 6 when an import or compile failed.

@@ -146,8 +146,10 @@ arguments.
 
 - Neutrinos (sneut5: sin/cos OCML recipes and `Dual3` paths are not wired).
 - NSE (table or net), SDC burners, screening methods other than screen5.
-- pynucastro-generated networks (most of `networks/`): they don't use the
-  hand-written rate library in `rates/`; their generated rate code needs its own approach (ideally a
-  Loom-compatible pynucastro output mode).
+- pynucastro-generated networks (most of `networks/`) don't use this
+  procedure: see `scripts/gen_pynucastro_net.py` and the first such port,
+  `unit_test/test_react/loom/ase_iron_vode/` (he-burn/ase-iron, chabrier1998
+  screening). A Loom-compatible pynucastro output mode would replace the
+  generator.
 - Integrators other than VODE (`prompts/integrator.md`), EOSes other than
   helmholtz (`prompts/eos.md`).

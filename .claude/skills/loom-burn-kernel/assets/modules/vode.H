@@ -25,8 +25,12 @@
 //                                       branch differences rhs() inline;
 //                                       ported on request, validated separately)
 //
-// Linear algebra: RHS::dgefa / RHS::dgesl (no pivoting) from network.H, so
+// Linear algebra: for an rhs.H-framework network (NEW_NETWORK_IMPLEMENTATION),
+// RHS::dgefa / RHS::dgesl (no pivoting) from network.H, so
 // integrator.linalg_do_pivoting is not read and dvode_t has no pivot array.
+// For any other network (network.H defines MPL_NET_DENSE_LU), util/linpack.H
+// dgefa / dgesl (network.H net_dgefa / net_dgesl) with
+// integrator.linalg_do_pivoting, and dvode_t carries the pivot array.
 //
 // Control flow: every `return` inside a VODE loop became a flag + `break`
 // (result code kept in a local), preserving each exit's side effects.
@@ -77,6 +81,7 @@ struct IntegratorParams {
     Real integrator_species_failure_tolerance;
     Real integrator_X_reject_buffer;
     Real network_small_x;
+    int integrator_linalg_do_pivoting;   // read only with MPL_NET_DENSE_LU (dense LU)
 };
 
 // ---------------------------------------------------------------------------
@@ -111,7 +116,7 @@ constexpr int VODE_LMAX = VODE_MAXORD + 1;
 // Same Array1D / Array2D members (support.H accessors, 1-based). Always
 // passed by pointer, const or not: calling a member's accessor through a
 // struct reference does not import, even a const one (probes r19, r23).
-// No jac_save (caching compiled out), no pivot (RHS::dgefa).
+// No jac_save (caching compiled out); a pivot array only with MPL_NET_DENSE_LU.
 struct dvode_t {
     Real CONP{};
     Real CRATE{};
@@ -166,6 +171,11 @@ struct dvode_t {
     Array1D<Real, 1, neqs> savf{};
 
     Array1D<Real, 1, neqs> acor{};
+
+#if MPL_NET_DENSE_LU
+    // IArray1D pivot (util/linpack.H; not NEW_NETWORK_IMPLEMENTATION)
+    NetPivotArray pivot{};
+#endif
 };
 
 // ---------------------------------------------------------------------------
@@ -814,7 +824,18 @@ MPL_DEVICE void dvjac(int& IERPJ, burn_t* state, dvode_t* vs,
         vs->jac(i, i) += 1.0;
     }
 
+#if MPL_NET_DENSE_LU
+    int IER{};
+    if (ip.integrator_linalg_do_pivoting == 1) {
+        constexpr bool allow_pivot{true};
+        net_dgefa<allow_pivot>(vs->jac, vs->pivot, IER);
+    } else {
+        constexpr bool allow_pivot{false};
+        net_dgefa<allow_pivot>(vs->jac, vs->pivot, IER);
+    }
+#else
     int IER = rhs_dgefa(vs->jac);
+#endif
 
     if (IER != 0) {
         IERPJ = 1;
@@ -896,7 +917,17 @@ MPL_DEVICE Real dvnlsd(int& NFLAG, burn_t* state, dvode_t* vs,
                            (vs->RL1 * vs->yh(i, 2) + vs->acor(i));
             }
 
+#if MPL_NET_DENSE_LU
+            if (ip.integrator_linalg_do_pivoting == 1) {
+                constexpr bool allow_pivot{true};
+                net_dgesl<allow_pivot>(vs->jac, vs->pivot, vs->y);
+            } else {
+                constexpr bool allow_pivot{false};
+                net_dgesl<allow_pivot>(vs->jac, vs->pivot, vs->y);
+            }
+#else
             rhs_dgesl(vs->jac, vs->y);
+#endif
 
             if (vs->RC != 1.0) {
                 const Real CSCALE = 2.0 / (1.0 + vs->RC);

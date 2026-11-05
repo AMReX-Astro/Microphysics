@@ -33,7 +33,7 @@ files by name (`network_data.H`, `burn.H`, `rates.H`, `network.H`); see
 | `eos.H` | helmholtz EOS: composition, eos(), reset, override, prad limiter | 600.6M checks, 0 mismatches |
 | `screen.H` | screen5, plasma state, generated screen factors | in rates validator: 11.7M checks, 0 mismatches |
 | `network_rhs.H` | rhs.H: rhs, jac, construct_rate, intermediate rates, LU (strict `<` bounds, no `MPL_ASSUME`) | 31.1M checks, 0 mismatches |
-| `vode.H` | VODE + Strang integrator glue (`aion`/`aion_inv` from `network_data.H`; stock-shaped loops) | whole burns: 11.6M checks, 0 mismatches |
+| `vode.H` | VODE + Strang integrator glue (`aion`/`aion_inv` from `network_data.H`; stock-shaped loops). If `network.H` defines `MPL_NET_DENSE_LU` (a network without NEW_NETWORK_IMPLEMENTATION, e.g. pynucastro), it keeps a pivot array and calls `network.H`'s util/linpack.H `net_dgefa` / `net_dgesl` with `integrator.linalg_do_pivoting` (`IntegratorParams::integrator_linalg_do_pivoting`, always present, read only then) | whole burns: 11.6M checks, 0 mismatches; dense-LU path: the ase-iron port |
 | `root/burn_kernel.cpp` | kernel root | vs stock do_react: 1.86M checks, 0 mismatches (16^3, 32^3, sub-box, prad limiter on) |
 | `burner.H` | burner, retry, `BurnParams` | (whole-burn validator) |
 
@@ -99,6 +99,13 @@ compile of the root, argument-metadata dump, optional managed-memory probe,
 and test_react compare runs: one run with the inputs file by default; add
 the prad-limiter run with
 `RUNS=";eos.prad_limiter_rho_c=1.0e7 eos.prad_limiter_delta_rho=3.0e6"`.
+
+`loom_params.H` (in test_react) includes `LOOM_KERNEL_DIR/loom_params_port.H`
+instead of its own body when the port keeps one there (same functions), so
+several ports share one test_react checkout. `loom_launch.H` re-burns the
+max-n_rhs zone (stock `do_react`, for the stock-shaped report) on the
+device with `amrex::single_task`: pynucastro networks' `actual_rhs` is
+`AMREX_GPU_DEVICE` only, and a host re-burn did not compile there.
 
 ## validators/, smoke/, prompts/
 

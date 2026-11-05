@@ -144,6 +144,42 @@ DEVICE double exp(double x) {
     return underflows ? 0.0 : with_overflow;
 }
 
+// exp10D.cl (expD_base.h with a double-double log(10) * x reduction), as
+// __ocml_exp10_f64 in ROCm 10.1's ocml.bc: n = rint(x * log2(10)),
+// t = (x - n * log10(2)_hi - n * log10(2)_lo) * ln(10) in two parts, then the
+// exp polynomial, ldexp, and the same overflow / underflow selects as exp
+// (the bounds test x itself, exactly as OCML does).
+DEVICE double exp10(double x) {
+    const double scaled_input = x * 0x1.a934f0979a371p+1;
+    const double dn = rint(scaled_input);
+    const double negative_dn = -dn;
+    const double r_hi = fma(negative_dn, 0x1.34413509f79ffp-2, x);
+    const double r = fma(negative_dn, -0x1.9dc1da994fd21p-59, r_hi);
+    const double r_lo_ln10 = r * -0x1.f48ad494ea3e9p-53;
+    const double t = fma(r, 0x1.26bb1bbb55516p+1, r_lo_ln10);
+
+    const double p10 = fma(t, 0x1.ade156a5dcb37p-26, 0x1.28af3fca7ab0cp-22);
+    const double p9 = fma(t, p10, 0x1.71dee623fde64p-19);
+    const double p8 = fma(t, p9, 0x1.a01997c89e6b0p-16);
+    const double p7 = fma(t, p8, 0x1.a01a014761f6ep-13);
+    const double p6 = fma(t, p7, 0x1.6c16c1852b7b0p-10);
+    const double p5 = fma(t, p6, 0x1.1111111122322p-7);
+    const double p4 = fma(t, p5, 0x1.55555555502a1p-5);
+    const double p3 = fma(t, p4, 0x1.5555555555511p-3);
+    const double p2 = fma(t, p3, 0x1.000000000000bp-1);
+    const double p1 = fma(t, p2, 1.0);
+    const double p = fma(t, p1, 1.0);
+
+    const int n = (int)dn;
+    const double z = ldexp(p, n);
+
+    const double infinity = __builtin_bit_cast(double, 0x7ff0000000000000ULL);
+    const bool overflows = x > 1024.0;
+    const bool underflows = x < -1075.0;
+    const double with_overflow = overflows ? infinity : z;
+    return underflows ? 0.0 : with_overflow;
+}
+
 // logD_base.h, with the ep.h double-double helpers expanded in place.
 DEVICE double log(double a) {
     // m = frexp_mant(a); b = m < 2/3; m = ldexp(m, b); e = frexp_exp(a) - b.

@@ -17,6 +17,13 @@
 #include <AMReX.H>
 #include <loom_eos_params.H>  // fill_eos_params, fill_eos_tables
 
+// A port that keeps its own host setup in its kernel directory
+// (loom_params_port.H, same functions) takes precedence over the body below,
+// so several ports can share one test_react checkout.
+#if __has_include(LOOM_KERNEL_PATH(loom_params_port.H))
+#include LOOM_KERNEL_PATH(loom_params_port.H)
+#else
+
 // The kernel directory is LAST on the include path (its headers share names
 // with stock ones), so its burner.H is reached by path from this directory
 // (LOOM_KERNEL_PATH: <loom_eos_params.H>).
@@ -90,6 +97,7 @@ inline void fill_integrator_params(mpl::IntegratorParams* p)
     p->integrator_species_failure_tolerance = integrator_rp::species_failure_tolerance;
     p->integrator_X_reject_buffer = integrator_rp::X_reject_buffer;
     p->network_small_x = network_rp::small_x;
+    p->integrator_linalg_do_pivoting = integrator_rp::linalg_do_pivoting ? 1 : 0;  // dense LU only
 }
 
 // Everything the burn reads. Aborts on unsupported settings.
@@ -101,5 +109,7 @@ inline void fill_burn_params(mpl::BurnParams* p)
     fill_integrator_params(&p->integ);
     // PORT: fill any other mpl::BurnParams members the port's burner adds.
 }
+
+#endif // loom_params_port.H
 
 #endif

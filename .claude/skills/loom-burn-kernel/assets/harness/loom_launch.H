@@ -316,7 +316,10 @@ std::vector<std::vector<typename FAB::value_type>> loom_to_host (const amrex::Fa
 }
 
 // Zone with the most RHS evaluations (first in AMReX order), and the burn_t
-// of a host stock re-burn of that zone (zone_state.out).
+// of a stock re-burn of that zone on the device (zone_state.out): one
+// single_task, so it also works for networks whose actual_rhs is
+// AMREX_GPU_DEVICE only (pynucastro), and burns with the same device code as
+// the stock run.
 inline amrex::ValLocPair<int, burn_t>
 loom_max_nrhs_zone (const amrex::MultiFab& state, const amrex::iMultiFab& integrator_n_rhs, const plot_t& vars)
 {
@@ -353,10 +356,24 @@ loom_max_nrhs_zone (const amrex::MultiFab& state, const amrex::iMultiFab& integr
     }
     const Dim3 lo{best_iv[0], best_iv[1], best_iv[2]};
     const Dim3 hi{best_iv[0] + 1, best_iv[1] + 1, best_iv[2] + 1};
-    Array4<Real> const za(zone.data(), lo, hi, ncomp);
-    Array4<int> const zn(zone_n.data(), lo, hi, 2);
+    Gpu::DeviceVector<Real> dzone(zone.size());
+    Gpu::copyAsync(Gpu::hostToDevice, zone.begin(), zone.end(), dzone.begin());
+    Gpu::DeviceVector<int> dzone_n(zone_n.size(), 0);
+    Gpu::DeviceVector<burn_t> dburn(1);
+    Array4<Real> const za(dzone.data(), lo, hi, ncomp);
+    Array4<int> const zn(dzone_n.data(), lo, hi, 2);
+    burn_t* const pburn = dburn.data();
+    const int bi = best_iv[0];
+    const int bj = best_iv[1];
+    const int bk = best_iv[2];
+    amrex::single_task([=] AMREX_GPU_DEVICE () noexcept {
+        burn_t bs;
+        do_react(bi, bj, bk, za, bs, zn, vars);
+        *pburn = bs;
+    });
     burn_t burn_state;
-    do_react(best_iv[0], best_iv[1], best_iv[2], za, burn_state, zn, vars);
+    Gpu::copyAsync(Gpu::deviceToHost, dburn.begin(), dburn.end(), &burn_state);
+    Gpu::streamSynchronize();
     r.index = burn_state;
     return r;
 }

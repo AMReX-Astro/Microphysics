@@ -3,15 +3,22 @@
 
 For a network that uses the networks/rhs.H framework (NEW_NETWORK_IMPLEMENTATION;
 aprox13, aprox19, aprox21, ignition_chamulak, ignition_simple, iso7, powerlaw,
-rprox, triple_alpha_plus_cago) this compiles extract_network_data.cpp against
-the stock headers with one build's flags, runs it, and writes
+rprox, triple_alpha_plus_cago) or a pynucastro-generated network (rate_type.H
+next to actual_network.H, Rates::ScreenPairs; e.g. he-burn/ase-iron) this
+compiles extract_network_data.cpp against the stock headers with one build's
+flags, runs it, and writes
 
   network_data.H  namespace mpl: NumSpec/NumAux, Species::/Rates:: indices,
                   the zion/aion/aion_inv arrays, bion/mion, the rhs_data fields as
                   constexpr if-chain functions (rd_*), the intermediate-rate
                   index table, the screen factors of every pair the network's
                   apply_screening folds, constants the glue uses, and
-                  MPL_GEN_* configuration macros.
+                  MPL_GEN_* configuration macros. For a pynucastro network:
+                  no rd_* / intermediate data (MPL_GEN_PYNUCASTRO 1), the
+                  Rates::ScreenPairs indices (namespace ScreenPairs) and the
+                  screen factors of each pair as actual_rhs.H's
+                  evaluate_screening folds them (net_screen_<field>(pair),
+                  pair = the enumerator value).
   burn.H          neqs, net_ienuc, S* indices, JacNetArray2D and NetYArray1D
                   (rhs_state_t::y) on support.H's Array2D/Array1D, and the
                   burn_t mirror (same fields, order and defaults as
@@ -178,7 +185,7 @@ def hexf(s):
 def parse_extract(text):
     d = {'def': {}, 'cfg': {}, 'species': [], 'rates': [], 'ion': {}, 'bm': {},
          'const': {}, 'rd': {}, 'inter': {}, 'densexp': {}, 'screen': [],
-         'screen_method': None}
+         'screen_method': None, 'pairs': []}
     end = False
     for line in text.splitlines():
         p = line.split()
@@ -221,6 +228,8 @@ def parse_extract(text):
                 n, v = kv.split('=')
                 fields.append((n, hexf(v)))
             d['screen'].append((rate, k, (z1, a1, z2, a2), fields))
+        elif tag == 'PAIR':
+            d['pairs'].append((p[1], int(p[2])))
         elif tag == 'END':
             end = True
     if not end:
@@ -273,6 +282,7 @@ class Gen:
         cfg = d['cfg']
         self.nspec, self.ntot, self.naux = cfg['NumSpec'], cfg['NumSpecTotal'], cfg['NumAux']
         self.nrates = cfg['NumRates']
+        self.pyn = bool(cfg.get('PYNUCASTRO', 0))
         self.spname = {v: n for n, v in d['species']}
         self.rname = {v: n for n, v in d['rates']}
 
@@ -296,7 +306,12 @@ class Gen:
         ]
 
     def screen_pairs(self):
-        """Unique (Z1, A1, Z2, A2) pairs in first-use order, with their fields."""
+        """Unique (Z1, A1, Z2, A2) pairs in first-use order, with their fields.
+        pynucastro: one per Rates::ScreenPairs enumerator, in enumerator order
+        (index = value - 1)."""
+        if self.pyn:
+            return [(key, fields, (rate, k)) for rate, k, key, fields in
+                    sorted(self.d['screen'], key=lambda r: r[0])]
         pairs, seen = [], {}
         for rate, k, key, fields in self.d['screen']:
             if key in seen:
@@ -310,7 +325,8 @@ class Gen:
     def network_data(self):
         d, L = self.d, []
         guard = 'MPL_NETWORK_DATA_H'
-        L += self.provenance('Per-network data (networks/rhs.H framework)')
+        L += self.provenance('Per-network data (pynucastro network)' if self.pyn else
+                             'Per-network data (networks/rhs.H framework)')
         L += ['//',
               '// Generic code (network_rhs.H, screen.H, eos.H, burn.H) reads everything',
               '// network-specific through this header; rhs_data(rate) is split into one',
@@ -330,6 +346,7 @@ class Gen:
               f'#define MPL_GEN_SIMPLIFIED_SDC {d["def"]["SIMPLIFIED_SDC"]}',
               f'#define MPL_GEN_TRUE_SDC {d["def"]["TRUE_SDC"]}',
               f'#define MPL_GEN_HAVE_BION_MION {d["def"]["HAVE_BION_MION"]}',
+              f'#define MPL_GEN_PYNUCASTRO {int(self.pyn)}',
               '']
         ion = d['ion']
         def table(name, k):
@@ -391,6 +408,11 @@ class Gen:
               f'constexpr Real net_legacy_MeV2gr = {lit(c["legacy_MeV2gr"])};   // C::Legacy::MeV2gr',
               f'constexpr Real net_enuc_conv2 = {lit(c["enuc_conv2"])};   // C::enuc_conv2',
               f'constexpr Real net_n_A = {lit(c["n_A"])};   // C::n_A', '']
+
+        if self.pyn:
+            L += self.pyn_screening()
+            L += ['} // namespace mpl', '', '#endif', '']
+            return '\n'.join(L)
 
         # rhs_data
         L += ['// ---------------------------------------------------------------------------',
@@ -466,6 +488,36 @@ class Gen:
         L += ['} // namespace mpl', '', '#endif', '']
         return '\n'.join(L)
 
+    def pyn_screening(self):
+        """pynucastro: Rates::ScreenPairs indices and their screen factors."""
+        d, L = self.d, []
+        if not d['def']['SCREENING']:
+            return L
+        method = d['screen_method']
+        if method not in SCREEN_FIELDS:
+            die(f'SCREEN_METHOD {method} has no field list in gen_network_data.py')
+        pairs = self.screen_pairs()
+        if [r for _, _, (r, _) in pairs] != list(range(1, len(pairs) + 1)):
+            die('ScreenPairs enumerators are not 1..NumScreenPairs in order')
+        if len(pairs) != d['cfg'].get('NumScreenPairs', -1):
+            die(f'{len(pairs)} screen pairs extracted, NumScreenPairs = {d["cfg"].get("NumScreenPairs")}')
+        fields = ['z1', 'z2', 'a1', 'a2'] + SCREEN_FIELDS[method]
+        L += ['// ---------------------------------------------------------------------------',
+              '// actual_network.H Rates::ScreenPairs, and screening/screen_data.H',
+              '// calculate_screen_factor(Z1, A1, Z2, A2) as actual_rhs.H evaluate_screening',
+              f'// folds it for each pair ({method} fields): net_screen_<field>(pair), pair =',
+              '// the enumerator value (1..NumScreenPairs).',
+              '// ---------------------------------------------------------------------------',
+              'namespace ScreenPairs {']
+        L += [f'constexpr int {n} = {v};' for n, v in d['pairs']]
+        L += [f'constexpr int NumScreenPairs = {len(pairs)};', '} // namespace ScreenPairs',
+              f'constexpr int net_num_screen_pairs = {len(pairs)};', '']
+        for f in fields:
+            L += ['MPL_DEVICE constexpr Real net_screen_' + f + '(int pair)', '{']
+            L += [f'    if (pair == {r}) {{ return {lit(dict(fl)[f])}; }}' for _, fl, (r, _) in pairs]
+            L += ['    return 0.0;', '}', '']
+        return L
+
     def burn_fields(self):
         """(type, name, array_len or None, default) in interfaces/burn_type.H order."""
         d = self.d['def']
@@ -520,13 +572,15 @@ class Gen:
         d = self.d
         L = ['// generated by gen_network_data.py: generated headers vs stock constexpr source',
              '#include <cstddef>', '#include <AMReX_Loop.H>', '#include <network.H>',
-             '#include <burn_type.H>', '#include <fundamental_constants.H>', '#include <rhs.H>',
-             '#ifdef SCREENING', '#include <screen_data.H>', '#endif',
+             '#include <burn_type.H>', '#include <fundamental_constants.H>',
+             '#include <actual_network.H>' if self.pyn else '#include <rhs.H>',
+             '#ifdef SCREENING', '#include <screen.H>', '#include <screen_data.H>', '#endif',
              f'#include "{os.path.join(emit, "network_data.H")}"',
              f'#include "{os.path.join(emit, "burn.H")}"', '',
              'static_assert(NumSpec == mpl::NumSpec && NumAux == mpl::NumAux && NumSpecExtra == mpl::NumSpecExtra);',
-             'static_assert(NumSpecTotal == mpl::Species::NumSpecTotal && Rates::NumRates == mpl::Rates::NumRates);',
-             'static_assert(RHS::num_intermediate_reactions() == mpl::net_num_intermediate);']
+             'static_assert(NumSpecTotal == mpl::Species::NumSpecTotal && Rates::NumRates == mpl::Rates::NumRates);']
+        if not self.pyn:
+            L.append('static_assert(RHS::num_intermediate_reactions() == mpl::net_num_intermediate);')
         for n in ('neqs', 'net_ienuc', 'SFS', 'SEINT', 'SFX', 'SRHO', 'SMX', 'SMY', 'SMZ',
                   'SEDEN', 'SVAR', 'SVAR_EVOLVE'):
             L.append(f'static_assert({n} == mpl::{n});')
@@ -537,8 +591,18 @@ class Gen:
               for _, n, _, _ in self.burn_fields()]
         L += ['static_assert(C::Legacy::enuc_conv2 == mpl::net_legacy_enuc_conv2 && C::Legacy::n_A == mpl::net_legacy_n_A);',
               'static_assert(C::Legacy::MeV2erg == mpl::net_legacy_MeV2erg && C::Legacy::MeV2gr == mpl::net_legacy_MeV2gr);',
-              'static_assert(C::enuc_conv2 == mpl::net_enuc_conv2 && C::n_A == mpl::net_n_A);', '',
-              'template <int rate>', 'constexpr bool rd_ok()', '{',
+              'static_assert(C::enuc_conv2 == mpl::net_enuc_conv2 && C::n_A == mpl::net_n_A);', '']
+        if self.pyn:
+            L += [f'static_assert(Rates::{n} == mpl::ScreenPairs::{n});' for n, _ in d['pairs']]
+            if d['def']['SCREENING']:
+                L.append('static_assert(Rates::NumScreenPairs == mpl::ScreenPairs::NumScreenPairs);')
+        else:
+            L += self.rd_check()
+        L += self.ion_check_and_main()
+        return '\n'.join(L)
+
+    def rd_check(self):
+        L = ['template <int rate>', 'constexpr bool rd_ok()', '{',
               '    constexpr RHS::rhs_t d = RHS::rhs_data(rate);',
               '    return d.species_A == mpl::rd_species(rate, 0) && d.species_B == mpl::rd_species(rate, 1) &&',
               '           d.species_C == mpl::rd_species(rate, 2) && d.species_D == mpl::rd_species(rate, 3) &&',
@@ -562,6 +626,10 @@ class Gen:
               '}', '']
         L += [f'static_assert(rd_ok<{r}>(), "rhs_data / intermediate index of rate {r}");'
               for r in range(1, self.nrates + 1)]
+        return L
+
+    def ion_check_and_main(self):
+        d, L = self.d, []
         for s in range(1, self.ntot + 1):
             L.append(f'static_assert(NetworkProperties::aion({s}) == mpl::net_aion({s}) && '
                      f'NetworkProperties::zion({s}) == mpl::net_zion({s}));')
@@ -580,15 +648,17 @@ class Gen:
               '    }']
         if d['def']['SCREENING']:
             fields = ['z1', 'z2', 'a1', 'a2'] + SCREEN_FIELDS[d['screen_method']]
-            for i, (key, _, _) in enumerate(self.screen_pairs()):
+            for i, (key, _, (rate, _)) in enumerate(self.screen_pairs()):
+                idx = rate if self.pyn else i
                 args = ', '.join(lit(v) for v in key)
-                cond = ' && '.join(f'sf{i}.{f} == mpl::net_screen_{f}({i})' for f in fields)
+                cond = ' && '.join(f'sf{i}.{f} == mpl::net_screen_{f}({idx})' for f in fields)
+                extra = '' if self.pyn else (f'\nstatic_assert(mpl::net_screen_pair('
+                                             f'{", ".join(str(int(v)) for v in key)}) == {i});')
                 L.insert(L.index('// aion[] / zion[] / aion_inv[] are runtime arrays on the CPU build: checked in main()'),
                          f'constexpr auto sf{i} = scrn::calculate_screen_factor({args});\n'
-                         f'static_assert({cond}, "screen pair {i}");\n'
-                         f'static_assert(mpl::net_screen_pair({", ".join(str(int(v)) for v in key)}) == {i});')
+                         f'static_assert({cond}, "screen pair {i}");' + extra)
         L += ['    return bad;', '}', '']
-        return '\n'.join(L)
+        return L
 
 
 def main():
@@ -628,9 +698,27 @@ def main():
         die('actual_network.H / network_properties.H not on the include path '
             '(were the build headers generated?)')
     net_text = open(net_h).read()
-    if 'NEW_NETWORK_IMPLEMENTATION' not in net_text or not re.search(r'\brhs_data\s*\(', net_text):
-        die(f'{net_h} does not use the networks/rhs.H framework '
-            '(no NEW_NETWORK_IMPLEMENTATION / RHS::rhs_data); not supported')
+    net_dir = os.path.dirname(net_h)
+    pyn = (os.path.isfile(os.path.join(net_dir, 'rate_type.H')) and
+           enum_names(net_text, 'ScreenPairs') is not None)
+    if not pyn and ('NEW_NETWORK_IMPLEMENTATION' not in net_text or
+                    not re.search(r'\brhs_data\s*\(', net_text)):
+        die(f'{net_h} uses neither the networks/rhs.H framework '
+            '(NEW_NETWORK_IMPLEMENTATION / RHS::rhs_data) nor the pynucastro layout '
+            '(rate_type.H, Rates::ScreenPairs); not supported')
+    pairs = []
+    if pyn:
+        pair_names = [n for n in enum_names(net_text, 'ScreenPairs') if n != 'NumScreenPairs']
+        rhs_text = strip_comments(open(os.path.join(net_dir, 'actual_rhs.H')).read())
+        num = r'([0-9.eE+-]+)(?:_rt)?'
+        for m in re.finditer(r'calculate_screen_factor\(\s*' + r'\s*,\s*'.join([num] * 4) +
+                             r'\s*\);(.*?)log_screen\((\w+)\)', rhs_text, re.S):
+            if 'calculate_screen_factor' in m.group(5):
+                die('evaluate_screening: a calculate_screen_factor call without its log_screen store')
+            pairs.append((m.group(6), m.group(1), m.group(2), m.group(3), m.group(4)))
+        if sorted(p[0] for p in pairs) != sorted(pair_names) or len(set(p[0] for p in pairs)) != len(pairs):
+            die(f'evaluate_screening pairs {[p[0] for p in pairs]} do not match '
+                f'Rates::ScreenPairs {pair_names}')
     rates = enum_names(net_text, 'NetworkRates')
     species = enum_names(open(props).read(), 'NetworkSpecies')
     if rates is None or species is None:
@@ -643,8 +731,10 @@ def main():
     with open(os.path.join(out, 'extract_names.inc'), 'w') as f:
         f.writelines(f'MPL_X_SPECIES({n})\n' for n in species)
         f.writelines(f'MPL_X_RATE({n})\n' for n in rates)
+        f.writelines(f'MPL_X_PAIR({n}, {z1}, {a1}, {z2}, {a2})\n' for n, z1, a1, z2, a2 in pairs)
     exe = os.path.join(out, 'extract_network_data')
-    cc = [a.cxx, *flags, f'-I{out}', f'-DMPL_X_HAVE_BION_MION={have_bm}', '-O0', '-w',
+    cc = [a.cxx, *flags, f'-I{out}', f'-DMPL_X_HAVE_BION_MION={have_bm}',
+          f'-DMPL_X_PYNUCASTRO={int(pyn)}', '-O0', '-w',
           os.path.join(HERE, 'extract_network_data.cpp'), '-o', exe]
     r = run(cc, cwd=test)
     open(os.path.join(out, 'extract_build.log'), 'w').write(' '.join(map(shlex.quote, cc)) + '\n' +
@@ -673,6 +763,8 @@ def main():
     for s, (a_f, z_f, a_arr, z_arr, _) in d['ion'].items():
         if a_f != a_arr or z_f != z_arr:
             die(f'species {s}: NetworkProperties::aion/zion differ from aion[]/zion[]')
+    if pyn and len(d['pairs']) != len(pairs):
+        die('extractor printed a different number of screen pairs')
     for r_, (fwd, rev) in d['densexp'].items():
         if fwd > 3 or rev > 3:
             die(f'rate {r_}: density exponent > 3 (rhs.H static_asserts this too)')
@@ -683,7 +775,7 @@ def main():
         die(f'SCREEN_METHOD {d["screen_method"]} not supported')
     warn = []
     if df['NEUTRINOS']:
-        warn.append('NEUTRINOS is defined: network_rhs.H refuses to compile (sneut5 is not ported); '
+        warn.append('NEUTRINOS is defined: the network modules refuse to compile (sneut5 is not ported); '
                     'rebuild the flags with USE_NEUTRINOS=FALSE for a kernel today')
     if df['NSE'] or df['NSE_NET']:
         warn.append('NSE/NSE_NET is defined: burn.H carries the extra fields, but the NSE burner '
