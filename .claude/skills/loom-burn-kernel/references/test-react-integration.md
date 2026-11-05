@@ -197,9 +197,9 @@ Record which runtime each result used.
 
 ## Import/compile commands
 
-Run on the GPU host only, from a bash script, with the pinned Loom 0.1.0
-tools (`hrx-loom==0.1.0`, or `scripts/build_loom_tools.sh` from the
-`v0.1.0` tag; SKILL.md Setup):
+Run on the GPU host only, from a bash script, with the pinned tools
+(`scripts/build_loom_tools.sh` from hrx-system `cfd80e56de`; SKILL.md
+Setup):
 
 ```bash
 loom-import-cxx --data-model=lp64 --fp-model=precise \
@@ -217,8 +217,8 @@ reserved for timing. The import takes seconds; a full burn's compile takes
 about 30 min and 8+ GB, so give it a 3600 s timeout (why, and how to watch
 it: `footguns.md`, "A full fused burn takes ~30 min"). (The kernel's
 includes are all `"..."` next to the source, so no `--I` is needed.)
-At the pin, aprox13 + helmholtz + VODE on gfx90a uses 256 VGPR and about 72 KB of
-scratch per lane.
+At the pin, aprox13 + helmholtz + VODE on gfx90a uses 256 VGPR and about 70 KB of
+scratch per lane (shipped modules).
 
 Keep from every build: the `.loom` IR (gzip), the compile report (without
 `--compile-report-output` the JSON goes to stderr and makes the log ~84 MB;

@@ -6,31 +6,49 @@ tool set on the GPU host and writes `probe-summary.txt`. See the header of
 `probe.sh` for how to ship and run it. Add probes for anything a port's
 inventory finds that is not covered here, and keep new probes in this kit.
 
-## Results at Loom 0.1.0 (gfx90a, run 2026-10-29)
+## Results at hrx-system main `cfd80e56de` (gfx90a, run 2026-11-05)
 
-Loom 0.1.0 (hrx-system tag `v0.1.0`, `d01d1c18b1`), two tool sets with no
-patches: the release wheel `hrx-loom==0.1.0` (`loom-import-cxx` md5
-`4dddf591…`, `loom-compile` md5 `228828f3…` as installed; run on a glibc
-2.34 host through an Ubuntu 24.04 glibc) and tools built from the tag with
-`scripts/build_loom_tools.sh` (`7eb7c031…`, `e655bc53…`; built md5s differ
-with the build environment, so record yours). Both give the same result for
-every probe, and every result is identical to the previous pin, public main
-`5e6af0ec1a` (2026-10-27). All 126 probes run in a few seconds. Rerun the
-kit whenever the pinned release changes and update this table; its last
-column holds the result at the pin before `5e6af0ec1a`, `fa8eba4554`.
+The pin is hrx-system main `cfd80e56de` (2026-11-05), tools built with
+`scripts/build_loom_tools.sh` and no patches (`loom-import-cxx` md5
+`7f731fd0…`, `loom-compile` md5 `c2d21c9a…`; built md5s differ with the
+build environment, so record yours). All 126 probes run in a few seconds.
+The last column holds the result at the previous pin, Loom 0.1.0
+(hrx-system tag `v0.1.0`, `d01d1c18b1`), rerun with the same kit on the
+same day. Rerun the kit whenever the pin changes and update this table.
 
 The full aprox13 + helmholtz + VODE burn (neutrinos off, 4096 zones) built
-from the shipped modules is bit-exact against the stock HIP reference:
-state, `n_rhs`/`n_step` and success in every zone (default inputs). The
-wheel and the source build produce byte-identical `.loom` and `.hsaco`
-files for it. An older aprox13 port (flat arrays) is also bit-exact in
-test_react with the prad limiter on and with `unit_test.tmax=1.e-15`. The
-`zone_success` miscompile from `1468c06034` through `970d39ac1e`
-(ROCm/hrx-system#2337) is fixed here; don't use tools from that range.
+from the shipped modules is bit-exact against the stock HIP reference and
+hipcc: state, `n_rhs`/`n_step` and success in every zone (default inputs;
+256 VGPR, 69,920 B scratch, compile 475 s; 70,360 B and 516–544 s at 0.1.0).
+In test_react, an older flat-array aprox13 port is bit-exact against the
+stock HIP burner with the default inputs, with the prad limiter on, and with
+`unit_test.tmax=1.e-15`. VODE's species-loop `MPL_ASSUME`s are still
+required (SUBRANGE/026 at 5 sites without them). The `zone_success` miscompile from `1468c06034`
+through `970d39ac1e` (ROCm/hrx-system#2337) is fixed here; don't use tools
+from that range.
 
-Changes from `fa8eba4554` (the shipped modules were written for that pin and
-still import and validate unchanged; the rewrites below are no longer
-required for new code):
+Changes from Loom 0.1.0 (the shipped modules import and validate unchanged):
+- An **assumption on a struct field** read through a pointer imports
+  (f14, `__builtin_assume(1 <= vs->L && vs->L <= 6)`; hrx-system #2518).
+- A **constructor with arguments** imports (o07, `D x(1.0)`; user-provided
+  constructors on trivially copyable records, hrx-system #2523).
+- New diagnostic wording, same failure: f64 cbrt and log10 now fail in
+  `legalize-math` (LOWERING/036) instead of TARGET/001; o06 and o09 have
+  reworded messages.
+- Nothing else changed, VGPR and scratch counts included.
+- Not in the kit yet, but checked on 2026-11-05 at `cfd80e56de` (all failed
+  in 0.1.0): default-initialized array members in templates
+  (`double xn[4]{}`), a namespace-scope `constexpr` table passed to a
+  `template <int N> f(const double (&)[N])`, an assumption bounded by a
+  `constexpr` call, `static_cast<T&&>` on a record, `std::move`-shaped
+  templates returning `T&&`, and nontrivial destructors.
+- The language gaps that remain at `cfd80e56de` (c03, c06, d14, f02, l01,
+  o06, o08, o09, r08, r10, r12, r25) are requested upstream in
+  ROCm/hrx-system#2647, with these probes as reproducers.
+
+Earlier changes, from `fa8eba4554` to Loom 0.1.0 (the shipped modules were
+written for `fa8eba4554`; the rewrites below are no longer required for new
+code):
 - Writes through a **mutable reference to a whole struct** import: scalar
   fields (r15), member accessors (r14, r19) and template `BurnT&` parameters
   (r03). A member accessor through a `const` struct reference imports too
@@ -41,7 +59,7 @@ required for new code):
   `return` nested two `if`s deep (f24) import and compile.
 - Two VGPR counts moved by one or two (d08, o17); nothing else changed.
 
-What these results decide (at Loom 0.1.0):
+What these results decide (at `cfd80e56de`):
 - **References:** scalar `double&`/`int&` parameters and scalar member slices
   (`f(s.T)`) import (r01, r02, r04, r11, r13), as do `const` references to
   whole structs (r05), references to buffer elements (r06), array reference
@@ -88,8 +106,8 @@ What these results decide (at Loom 0.1.0):
   struct (c03, c06): pass a tables struct **by value** (c04), or use one flat
   buffer with compile-time offsets (c05). Kernel arguments must be the table
   pointers themselves, not a pointer to a struct holding them.
-- **Records** must be plain aggregates: no constructors with arguments (o07),
-  no bases (o06). Structured bindings fail (o08). Lambdas fail (l01).
+- **Records** may have user-provided constructors, including ones with
+  arguments (o07, since `cfd80e56de`), but no bases (o06). Structured bindings fail (o08). Lambdas fail (l01).
 - **Tables:** namespace-scope `constexpr` arrays import with runtime indices
   (d01, d16-d20, d23), so `aion[]`, `zion[]`, `aion_inv[]` and rate tables keep
   the stock namespace-scope form; `static` arrays (member or block scope)
@@ -107,11 +125,11 @@ What these results decide (at Loom 0.1.0):
   `__builtin_assume` (f07), and the isolated triangular loop compiles (f06),
   but an index derived from a struct field with runtime loop bounds still
   fails SUBRANGE/026 without assumptions (f15) and compiles with them (f16).
-  Assumptions may now use arithmetic (`j + 1 <= n`, f13) but still not struct
-  fields (f14). f17 (a `break` loop over a private local array) passes
+  Assumptions may use arithmetic (`j + 1 <= n`, f13) and, since
+  `cfd80e56de`, struct fields read through a pointer (f14). f17 (a `break` loop over a private local array) passes
   without assumptions, but the same loop over `vs->y(i)` in the full VODE
-  burn still fails SUBRANGE/026 in Loom 0.1.0 (re-checked 2026-10-29 by
-  removing both), so VODE keeps those `MPL_ASSUME`s. An assumption on a local loaded from a `short` field holds
+  burn still fails SUBRANGE/026 at `cfd80e56de` (re-checked 2026-11-05 by
+  removing both; also in 0.1.0), so VODE keeps those `MPL_ASSUME`s. An assumption on a local loaded from a `short` field holds
   (f20).
 - **Loop exits:** `return` inside a loop imports (f03), and so does a
   runtime `switch` (f01). Loops
@@ -123,7 +141,7 @@ What these results decide (at Loom 0.1.0):
   `screen.H`'s `actual_log_screen` keeps the `done` flag it needed at
   `fa8eba4554`.
 
-| Probe | Construct | Result | Detail | At previous pin `fa8eba4554` |
+| Probe | Construct | Result | Detail | At previous pin, Loom 0.1.0 |
 |---|---|---|---|---|
 | c00_control | baseline | ok | vgpr=8 scratch=0B | same |
 | c01_params_pod_ptr | `const Params*` runtime-param POD | ok | vgpr=7 scratch=0B | same |
@@ -139,7 +157,7 @@ What these results decide (at Loom 0.1.0):
 | d05_struct_default_init_braces | `T x{}` | ok | vgpr=8 scratch=0B | same |
 | d06_struct_copy_assign | `old{s}; s = old;` | ok | vgpr=4 scratch=0B | same |
 | d07_limits_and_nan | `__DBL_MAX__`, NaN via bit_cast | ok | vgpr=9 scratch=0B | same |
-| d08_large_struct_runtime_index | dvode_t-sized local struct | ok | vgpr=12 scratch=2872B | vgpr=10 scratch=2872B |
+| d08_large_struct_runtime_index | dvode_t-sized local struct | ok | vgpr=12 scratch=2872B | same |
 | d09_static_constexpr_member_array | `static constexpr` member array | import-fail | error [LOWERING/059]: member-dependent initialization requires source object initialization semantics | same |
 | d10_enum_u8_base | `enum : unsigned char` | import-fail | error [PARSE/036]: invalid operands of types 'double' and '::probe::Rates' to binary operator '+' | same |
 | d11_short_and_bool_arrays | `short pivot[14]`, `bool` arrays | ok | vgpr=10 scratch=42B | same |
@@ -155,9 +173,9 @@ What these results decide (at Loom 0.1.0):
 | d21_ns_mutable_global_unreachable | mutable namespace-scope global the root never reads | import-fail | error [LOWERING/059]: global storage definitions require a global-storage projection | same |
 | d22_fn_static_constexpr_array | block-scope `static constexpr` array in a device function | import-fail | error [LOWERING/059]: local storage duration must be automatic or __shared__ | same |
 | d23_extern_const_array_defined | `extern const` array declared, then defined in the TU | ok | vgpr=14 scratch=0B | same |
-| f01_switch_runtime | runtime `switch` | **ok** | vgpr=8 scratch=0B | import-fail: error [LOWERING/059]: unsupported statement: switch-statement |
+| f01_switch_runtime | runtime `switch` | ok | vgpr=8 scratch=0B | same |
 | f02_switch_in_constexpr_fn | `rhs_data(rate)` folded | import-fail | error [LOWERING/059]: unsupported C++ type: ::probe::RhsT | same |
-| f03_return_in_loop | `return` in `while(true)` | **ok** | vgpr=9 scratch=8B | import-fail: error [LOWERING/059]: returns inside loops require a structured loop-exit projection |
+| f03_return_in_loop | `return` in `while(true)` | ok | vgpr=9 scratch=8B | same |
 | f04_for_ever | `for(;;)` | ok | vgpr=10 scratch=0B | same |
 | f05_vode_retry_shape | nested `while(true)`, result code | ok | vgpr=22 scratch=0B | same |
 | f06_runtime_triangular_loops | `for k=NQ..1, j=k..NQ` | ok | vgpr=12 scratch=672B | same |
@@ -168,7 +186,7 @@ What these results decide (at Loom 0.1.0):
 | f11_ternary_nest_40 | 40-deep nested ternary | ok | vgpr=86 scratch=240B | same |
 | f12_for_no_cond_continue | `for (m = 0;; ++m)` with `continue`/`break` | ok | vgpr=10 scratch=0B | same |
 | f13_assume_derived_expr | `__builtin_assume(j + 1 <= n)` | ok | vgpr=10 scratch=120B | same |
-| f14_assume_struct_field | `__builtin_assume(1 <= vs->L && vs->L <= 6)` | import-fail | error [LOWERING/059]: predicate member paths require direct non-static record fields | same |
+| f14_assume_struct_field | `__builtin_assume(1 <= vs->L && vs->L <= 6)` | **ok** | vgpr=8 scratch=64B | import-fail: error [LOWERING/059]: predicate member paths require direct non-static record fields |
 | f15_runtime_bound_index_no_assume | dvjust-shape runtime-bound loops and `vs->el[L]`, no assumptions | compile-fail | error [SUBRANGE/026]: view.load access byte end may reach 17179869192, exceeding storage root byte extent 848 | same |
 | f16_runtime_bound_index_assume | same as f15 with `__builtin_assume` on every index | ok | vgpr=12 scratch=848B | same |
 | f17_break_loop_private_index_no_assume | constant-bound loop with data-dependent `break`, no assumptions | ok | vgpr=12 scratch=112B | same |
@@ -176,7 +194,7 @@ What these results decide (at Loom 0.1.0):
 | f21_multi_exit_loop | dvode step-loop shape: `while (true)`, 4 `break`s + `continue` in data-dependent branches | ok | vgpr=22 scratch=64B | same |
 | f22_nested_multi_exit_loops | inner `while (true)` with 3 `break`s nested in a multi-exit outer loop (dvstep corrector shape) | ok | vgpr=20 scratch=64B | same |
 | f23_nested_single_exit_form | f22 with both loops in the single-exit `done` form | ok | vgpr=18 scratch=64B | same |
-| f24_nested_conditional_return | `return` in an `if` nested in a runtime `if`, code after both (`actual_log_screen`) | **ok** | vgpr=8 scratch=0B | import-fail: error [LOWERING/059]: conditional returns require at most one fallthrough arm; shared continuations need a scoped exit projectio |
+| f24_nested_conditional_return | `return` in an `if` nested in a runtime `if`, code after both (`actual_log_screen`) | ok | vgpr=8 scratch=0B | same |
 | f25_single_level_conditional_return | f24 with the conditions merged into one `if` | ok | vgpr=8 scratch=0B | same |
 | l01_lambda_constexpr_for | lambdas | import-fail | error [LOWERING/059]: rvalue-reference parameters require consuming object identity | same |
 | l02_template_struct_unroll | template-struct recursion | ok | vgpr=30 scratch=0B | same |
@@ -185,7 +203,7 @@ What these results decide (at Loom 0.1.0):
 | m_f64_amdgcn_rcp | `__builtin_amdgcn_rcp` on f64 (OCML `MATH_FAST_RCP` seed) | import-fail | error [PARSE/036]: unknown builtin function '__builtin_amdgcn_rcp' | same |
 | m_f64_builtin_frexp_ldexp | `__builtin_frexp` with an `int*` out-parameter, then `__builtin_ldexp` (OCML spelling) | ok | vgpr=5 scratch=0B \| v_ldexp_f64:1 v_frexp_mant_f64:1 v_frexp_exp_i32_f64:1 | same |
 | m_f64_builtin_rint | `__builtin_rint` on f64 (OCML `BUILTIN_RINT_F64`) | import-fail | error [LOWERING/059]: call requires a concrete namespace-scope function declaration | same |
-| m_f64_cbrtf | f64 cbrt | compile-fail | error [TARGET/001]: has no target-low contract | same |
+| m_f64_cbrtf | f64 cbrt | compile-fail | error [LOWERING/036]: legalize-math policy amdgpu-math rejected scalar.cbrtf for cbrtf in scalar lanes of f64 under math.op.supported | compile-fail: error [TARGET/001]: has no target-low contract |
 | m_f64_copysignf | f64 copysign | ok | vgpr=6 scratch=0B | same |
 | m_f64_cosf | f64 cos | compile-fail | error [LOWERING/036]: legalize-math policy amdgpu-math rejected scalar.cosf for cosf in scalar lanes of f64 under math.element.f32 | same |
 | m_f64_div_afn | f64 `loom::scalar::approximate::divf` (afn) | ok | vgpr=14 scratch=0B \| v_fma_f64:5 v_div_scale_f64:2 v_rcp_f64:1 v_mul_f64:1 v_div_fmas_f64:1 v_div_fixup_f64:1 | same |
@@ -195,7 +213,7 @@ What these results decide (at Loom 0.1.0):
 | m_f64_fmaf | f64 fma | ok | vgpr=8 scratch=0B \| v_fma_f64:1 | same |
 | m_f64_frexpf | f64 `loom::scalar::frexpf` (hrx-system #2131) | ok | vgpr=6 scratch=0B \| v_frexp_mant_f64:1 v_frexp_exp_i32_f64:1 | same |
 | m_f64_ldexpf | f64 `loom::scalar::ldexpf` (hrx-system #2131) | ok | vgpr=4 scratch=0B \| v_ldexp_f64:1 | same |
-| m_f64_log10f | f64 log10 | compile-fail | error [TARGET/001]: has no target-low contrac | same |
+| m_f64_log10f | f64 log10 | compile-fail | error [LOWERING/036]: legalize-math policy amdgpu-math rejected scalar.log10f for log10f in scalar lanes of f64 under math.op.supported | compile-fail: error [TARGET/001]: has no target-low contract |
 | m_f64_logf | f64 log | compile-fail | error [LOWERING/036]: legalize-math policy amdgpu-math rejected scalar.logf for logf in scalar lanes of f64 under math.element.f32 | same |
 | m_f64_math_h_recipes | `f64_math.H` exp/log/cbrt recipes | ok | vgpr=50 scratch=0B \| v_add_f64:47 v_fma_f64:36 v_mul_f64:11 v_ldexp_f64:6 v_div_scale_f64:4 v_cmp_lt_f64:3 | same |
 | m_f64_powf | f64 pow (non-integer exponent) | compile-fail | error [LOWERING/036]: legalize-math policy amdgpu-math rejected scalar.powf for powf in scalar lanes of f64 under math.element.f32 | same |
@@ -208,13 +226,13 @@ What these results decide (at Loom 0.1.0):
 | m_powi_template | `powi<N>` recursion | ok | vgpr=8 scratch=0B \| v_mul_f64:5 v_add_f64:1 | same |
 | o01_member_fn_call | `a.add(x)` | ok | vgpr=6 scratch=0B | same |
 | o02_operator_call_index | `Array1D::operator()` | ok | vgpr=6 scratch=0B | same |
-| o03_dual_operator_overload | `operator*`/`operator+` on Dual | **ok** | vgpr=10 scratch=0B | import-fail: error [LOWERING/059]: overloaded binary operation requires a Loom operation |
+| o03_dual_operator_overload | `operator*`/`operator+` on Dual | ok | vgpr=10 scratch=0B | same |
 | o04_dual_free_functions | POD Dual / Dual3 + free fns, by value | ok | vgpr=10 scratch=0B | same |
 | o05_dual3_array_free_functions | POD Dual / Dual3 + free fns, by value | ok | vgpr=12 scratch=96B | same |
-| o06_base_class | `Grad : Base` | import-fail | error [LOWERING/059]: record values require a complete aggregate without unions, bases or nontrivial lifecycle operations | same |
-| o07_ctor_with_args | `D x(1.0)` | import-fail | error [LOWERING/059]: record values require a complete aggregate without unions, bases or nontrivial lifecycle operations | same |
+| o06_base_class | `Grad : Base` | import-fail | error [LOWERING/059]: record values require a complete baseless non-union type with aggregate or user-provided construction and trivial copy and move operations | import-fail: error [LOWERING/059]: record values require a complete aggregate without unions, bases or nontrivial lifecycle operations |
+| o07_ctor_with_args | `D x(1.0)` | **ok** | vgpr=6 scratch=0B | import-fail: error [LOWERING/059]: record values require a complete aggregate without unions, bases or nontrivial lifecycle operations |
 | o08_structured_binding | `auto [f, r] = term(x)` | import-fail | error [LOWERING/059]: unsupported local declaration | same |
-| o09_dual_member_operators | member `operator*`/`operator+`/`operator+=` on Dual | import-fail | error [LOWERING/059]: addressed operator must return an lvalue reference | import-fail: error [LOWERING/059]: overloaded binary operation requires a Loom operation |
+| o09_dual_member_operators | member `operator*`/`operator+`/`operator+=` on Dual | import-fail | error [LOWERING/059]: addressed operator must return a reference | import-fail: error [LOWERING/059]: addressed operator must return an lvalue reference |
 | o10_arrow_member_call | `a->add(x)`, `a.mean()` through a pointer to a local | ok | vgpr=14 scratch=0B | same |
 | o11_array1d_by_ref | `Array1D<T,1,N>` accessor, passed by `&` and `const auto&` | ok | vgpr=10 scratch=232B | same |
 | o12_array2d_lu | `Array2D` accessor, written in place through `&` (dgefa shape) | ok | vgpr=14 scratch=144B | same |
@@ -222,12 +240,12 @@ What these results decide (at Loom 0.1.0):
 | o14_struct_ref_member_fns | `vs.add_y(n, v); vs.tick(h)` through `Dvode&` | ok | vgpr=10 scratch=128B | same |
 | o15_ptr_member_accessor_write | `vs->y(n) +=`, `vs->t +=` through a pointer | ok | vgpr=10 scratch=128B | same |
 | o16_ptr_member_to_accessor_ref | `upd(vs->y)`: Array1D member through a pointer into `Array1D&`, written | ok | vgpr=10 scratch=1936B | same |
-| o17_array2d_member_lu_runtime_bounds | `dgefa(vs->jac, nn)` with runtime bounds + `__builtin_assume` | ok | vgpr=19 scratch=1936B | vgpr=18 scratch=1936B |
+| o17_array2d_member_lu_runtime_bounds | `dgefa(vs->jac, nn)` with runtime bounds + `__builtin_assume` | ok | vgpr=19 scratch=1936B | same |
 | o18_array1d_of_rate_dual | `Array1D<rate_t<Dual>, 1, N>` element assign/copy | ok | vgpr=20 scratch=0B | same |
 | o19_const_ptr_member_accessor_read | `vs->y(n)` through `const Dvode*` | ok | vgpr=8 scratch=248B | same |
 | r01_static_scalar_ref_out | `static f(double&)` on locals | ok | vgpr=8 scratch=0B | same |
 | r02_inline_external_ref | `inline` (AMREX_INLINE) non-static fn with scalar `double&` | ok | vgpr=6 scratch=0B | same |
-| r03_template_struct_ref | `template<class BurnT> inline f(BurnT&)` | **ok** | vgpr=12 scratch=128B | import-fail: error [LOWERING/059]: mutation requires an owned automatic source binding |
+| r03_template_struct_ref | `template<class BurnT> inline f(BurnT&)` | ok | vgpr=12 scratch=128B | same |
 | r04_anon_ns_ref | anon-namespace fn with scalar `double&` | ok | vgpr=6 scratch=0B | same |
 | r05_const_struct_ref_read | `static f(const Burn&)` | ok | vgpr=8 scratch=112B | same |
 | r06_ref_to_buffer_element | `f(out[i])` | ok | vgpr=6 scratch=0B | same |
@@ -238,16 +256,16 @@ What these results decide (at Loom 0.1.0):
 | r11_ref_chain | ref forwarded through 2 static calls | ok | vgpr=10 scratch=0B | same |
 | r12_const_ref_return_max | `amrex::max` returning `const T&` | compile-fail | error [AMDGPU/023]: reject | same |
 | r13_struct_member_slice_ref | `bump(s.T)` | ok | vgpr=8 scratch=0B | same |
-| r14_struct_ref_member_update | `dvode_t&` through 2 template layers: `vs.y(n) +=` and `vs.t +=` | **ok** | vgpr=10 scratch=128B | import-fail: error [LOWERING/059]: mutation requires an owned automatic source binding |
-| r15_struct_ref_scalar_field_write | `s.T = ...` through `Burn&` | **ok** | vgpr=10 scratch=0B | import-fail: error [LOWERING/059]: mutation requires an owned automatic source binding |
+| r14_struct_ref_member_update | `dvode_t&` through 2 template layers: `vs.y(n) +=` and `vs.t +=` | ok | vgpr=10 scratch=128B | same |
+| r15_struct_ref_scalar_field_write | `s.T = ...` through `Burn&` | ok | vgpr=10 scratch=0B | same |
 | r16_struct_ref_array_member_write | `s.xn[n] = ...` through `Burn&` | ok | vgpr=10 scratch=128B | same |
 | r17_local_ref_array_elem | `double& r = a[2];` | ok | vgpr=4 scratch=0B | same |
 | r18_value_return_max | `max(const T&, const T&)` returning `T` by value | ok | vgpr=6 scratch=0B | same |
-| r19_struct_ref_member_accessor_write | `vs.y(n) += ...` through `Dvode&` | **ok** | vgpr=10 scratch=128B | import-fail: error [LOWERING/059]: mutation requires an owned automatic source binding |
+| r19_struct_ref_member_accessor_write | `vs.y(n) += ...` through `Dvode&` | ok | vgpr=10 scratch=128B | same |
 | r20_const_ref_from_deref | `const Burn&` bound to `*p` | ok | vgpr=10 scratch=0B | same |
 | r21_whole_struct_assign_through_ref | `r = rate_t{...}` through `rate_t&` | ok | vgpr=6 scratch=0B | same |
 | r22_const_ref_to_kernel_arg_struct | `const BurnParams&` bound to `*params` (kernel argument) | ok | vgpr=12 scratch=0B | same |
-| r23_const_struct_ref_member_accessor_read | `vs.y(n)` through `const Dvode&` | **ok** | vgpr=8 scratch=248B | import-fail: error [LOWERING/059]: mutation requires an owned automatic source binding |
+| r23_const_struct_ref_member_accessor_read | `vs.y(n)` through `const Dvode&` | ok | vgpr=8 scratch=248B | same |
 | r24_const_struct_ref_member_raw_array | `vs.y.arr[n]` through `const Dvode&` | ok | vgpr=8 scratch=248B | same |
 | r25_uninit_local_ref_out_arg | uninitialized `double o;` bound to a `double&` out-parameter | import-fail | error [LOWERING/059]: cannot import source construct: runtime value-reference arguments require an automatic SSA object | same |
 | r26_const_struct_ref_field_value_arg | `f(s.eta, o)`: field of a `const S&` by value, next to an initialized `double&` out-argument | ok | vgpr=6 scratch=0B | same |

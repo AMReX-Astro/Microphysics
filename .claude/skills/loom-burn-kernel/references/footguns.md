@@ -16,7 +16,13 @@ repository; the items below are the distilled result.
   time. On a laptop without the GPU, tiny one-construct
   probes may run locally, one at a time, if the user agrees.
 - **The GPU is shared.** Check for other users' GPU processes before timing,
-  and wait; never record a baseline under contention.
+  and wait; never record a baseline under contention. If another process
+  holds GPU memory, test_react aborts at startup with `Arena out of
+  memory!!!` / `hipMalloc returned 2`: AMReX reserves 3/4 of device memory
+  by default. A correctness run needs little, so add
+  `amrex.the_arena_init_size=4000000000` to every `RUNS` entry of
+  `loom_gpu_compare.sh` (2026-11-05: a 49 GB job from another user on a
+  64 GB MI210); the comparison is unaffected, the timings are not usable.
 
 ## Local GPU box (fresh Ubuntu VM with ROCm)
 
@@ -109,7 +115,7 @@ repository; the items below are the distilled result.
 
 - Tools from hrx-system `1468c06034` through `970d39ac1e` lose `zone_success`
   in lanes that leave VODE's step loop early (ROCm/hrx-system#2337; state and
-  counters still match). Fixed at `5e6af0ec1a` and in the pinned Loom 0.1.0;
+  counters still match). Fixed at `5e6af0ec1a`, in Loom 0.1.0 and at the pin `cfd80e56de`;
   don't use that range.
 - SUBRANGE/026 at compile time means a missing bounds assumption:
   `MPL_ASSUME` (`loom-frontend-rules.md`, SUBRANGE row). If the assumption

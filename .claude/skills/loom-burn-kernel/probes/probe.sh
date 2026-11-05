@@ -21,7 +21,7 @@
 #
 # Environment:
 #   TOOLS             dir with loom-import-cxx and loom-compile from the pinned
-#                     Loom release (the hrx-loom venv's bin/)         (required)
+#                     commit (build_loom_tools.sh's tools/; or a hrx-loom venv's bin/)  (required)
 #   LOOM_WORK         base dir for the defaults below                 (default $HOME/loom-work)
 #   W                 the probes dir (contains src/; writable)        (default: this script's dir)
 #   F64_INC           dir with f64_math.h for m_f64_math_h_recipes    (default $W/include; falls

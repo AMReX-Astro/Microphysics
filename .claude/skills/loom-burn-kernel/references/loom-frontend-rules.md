@@ -1,18 +1,19 @@
 # Loom C++ frontend: construct → rewrite
 
-Status as of the pinned Loom 0.1.0 (hrx-system tag `v0.1.0`, `d01d1c18b1`;
-probed 2026-10-29 on gfx90a, identical to main `5e6af0ec1a`), measured
+Status as of the pin, hrx-system main `cfd80e56de` (probed 2026-11-05 on
+gfx90a; the previous pin was Loom 0.1.0, tag `v0.1.0` = `d01d1c18b1`), measured
 with this skill's `probes/` kit (results and probe names in
 `probes/README.md`). **Re-probe at your commit** (SKILL.md Phase 1):
 rows marked "changed recently" or anything older than the commit you use
 may be stale.
 
-Since the previous pin (`fa8eba4554`), mutable struct references, a runtime
-`switch`, `return` inside a loop, nested early returns and free operator
-overloads import; the shipped modules still use the older rewrites, which
-remain valid. Tools from `1468c06034` through `970d39ac1e` miscompile burn
-kernels (`zone_success` lost, ROCm/hrx-system#2337, fixed at `5e6af0ec1a`
-and in 0.1.0); don't use them.
+Since Loom 0.1.0, constructors with arguments (o07) and assumptions that
+read a struct field (f14) import; every other probe is unchanged. Since
+`fa8eba4554`, mutable struct references, a runtime `switch`, `return`
+inside a loop, nested early returns and free operator overloads import; the
+shipped modules still use the older rewrites, which remain valid. Tools from `1468c06034` through `970d39ac1e` miscompile burn
+kernels (`zone_success` lost, ROCm/hrx-system#2337, fixed at `5e6af0ec1a`,
+in 0.1.0 and at the pin); don't use them.
 
 ## Import invocation
 
@@ -58,8 +59,8 @@ Under `__loom__`, `#include <hip/hip_runtime.h>` gives `__global__`,
 | Early `return` in an `if` nested inside another `if`, with code after both (stock `actual_log_screen`) | imports and compiles (f24), as does a single-level early return (f10, f25); f24 failed at `fa8eba4554` | Keep it (`screen.H` keeps the `done` flag it needed at `fa8eba4554`) |
 | Loop with several exits (`break`s/`continue` inside branches) under divergent control | compiles, single (f21) or nested (f22, the dvstep corrector shape) | Keep the stock loop shape; only a `return` inside the loop needs rewriting (previous row) |
 | Uninitialized locals | scalar and array locals import (`double r;`, `bool converged;`, `double a[14];`: d04, d13, d15; hrx-system #2105); struct and pointer locals fail (d14: "uninitialized locals require scalar or native vector object storage"), and so does an uninitialized scalar passed as a `T&` argument (r25: "runtime value-reference arguments require an automatic SSA object") | `T x{}` for structs; initialize a scalar that is passed as a `T&` out-argument (`double o = 0.0;`, when the callee writes it before reading); other scalars and arrays may stay uninitialized as in the source |
-| Base classes; member arithmetic operators (autodiff `dual`) | fail (o06; o09: "addressed operator must return an lvalue reference"); free `operator*`/`operator+` on an aggregate import (o03) | Flatten bases; POD dual structs with free functions or free operators (`dual.H` uses free functions; see translation guide, "Autodiff") |
-| Constructors with arguments (`D x(1.0)`) | fail (o07: records must be complete aggregates) | Aggregate init `D x{1.0, 0.0}` |
+| Base classes; member arithmetic operators (autodiff `dual`) | fail (o06; o09: "addressed operator must return a reference"); free `operator*`/`operator+` on an aggregate import (o03) | Flatten bases; POD dual structs with free functions or free operators (`dual.H` uses free functions; see translation guide, "Autodiff") |
+| Constructors with arguments (`D x(1.0)`) | import since `cfd80e56de` (o07; user-provided constructors on trivially copyable records, hrx-system #2523); failed in 0.1.0 | Keep them; the shipped modules use aggregate init `D x{1.0, 0.0}`, which also imports |
 | Structured bindings (`auto [f, r] = rhs_term(...)`) | fail (o08) | Return a 2-field struct; read `.first`/`.second` |
 | `constexpr` local of record type (`constexpr rhs_t data = rhs_data(rate);`) | fails (f02: "unsupported C++ type"), though the `constexpr` function with a `switch` is fine | One `constexpr` scalar per field used: `constexpr int expA = rhs_data(rate).exponent_A;` |
 | Enum in arithmetic with `double` | fails to parse (d10, PARSE/036): correct under the default `--std=c++26`; the pinned parser also rejects it in C++20/23 modes (reported fixed upstream as `0d27041f`, a commit not found in public hrx-system history as of 2026-10-18; re-probe d10) | `static_cast<int>(e)`; aprox13 doesn't use it |
@@ -69,8 +70,8 @@ Under `__loom__`, `#include <hip/hip_runtime.h>` gives `__global__`,
 | Namespace-scope `constexpr` arrays (`aion[]`, `zion[]`, rate tables; also `inline constexpr`, 2-D, arrays of aggregates, `extern const` with its definition in the TU) | import with runtime indices since hrx-system #2158/#2163 (d01, d16-d20, d23); stored as read-only data, read with global loads | Keep them at namespace scope as the stock HIP build does (`network_data.H` emits `aion`/`aion_inv`/`zion` this way) |
 | `static constexpr` member arrays; block-scope `static constexpr` arrays | fail (d09: "member-dependent initialization ..."; d22: "local storage duration must be automatic or __shared__") | Move the table to namespace scope (row above), or a local `const Real t[N] = {...}` |
 | Ternaries nested > 32 deep | import and compile (f11, 40 deep; hrx-system #2079) | — |
-| Stage loops with break/continue | a simple retry loop imports without help (f07), and so does a constant-bound loop with a `break` over a private local array (f17); the same loop over a struct member read through a pointer (`vs->y(i)` in VODE's species checks) still fails SUBRANGE/026 in Loom 0.1.0 (full burn without the two assumptions, 2026-10-29) | `MPL_ASSUME(0 <= i && i < N)` on the counter (next row) |
-| Private-array index with data-dependent loop bounds (triangular LU loops, VODE order loops), an index read from a struct field (`vs->el[vs->L]`), or a loop with `break` over a member array reached through a pointer (its compound condition hides the bound, even with constant limits) | imports, then **compile** fails SUBRANGE/026 "access byte end may reach ..." even though probe f06 passed in isolation (network LU, 2026-10-18) | First choice for counted loops with compile-time limits: write the bound as a strict `<` (`for (int j = k + 1; j < neqs + 1; ++j)`, `for (int j = 1; j < k; ++j)` with `k` from another such loop); Loom proves those indices in range and no assumption is needed (network LU, `network_rhs.H`; with `<=`, dgesl's back substitution fails SUBRANGE/026). Otherwise (runtime bounds from struct fields, as in VODE): `MPL_ASSUME(lo <= i && i <= hi)` (support.H: `__builtin_assume` under Loom, no-op on host) at the top of each loop body / after each derived index, using the array's true static bounds. Operands must be local scalars, constants and side-effect-free arithmetic on them (`j + 1 <= n` imports since hrx-system #2105, f13); no struct fields (`vs->L` fails: "predicate member paths ..."; copy it into a `const int` local and index with that, f14). Rely on the smoke compile, not the isolated probe |
+| Stage loops with break/continue | a simple retry loop imports without help (f07), and so does a constant-bound loop with a `break` over a private local array (f17); the same loop over a struct member read through a pointer (`vs->y(i)` in VODE's species checks) still fails SUBRANGE/026 at `cfd80e56de` (full burn without the two assumptions, 2026-11-05; also in 0.1.0) | `MPL_ASSUME(0 <= i && i < N)` on the counter (next row) |
+| Private-array index with data-dependent loop bounds (triangular LU loops, VODE order loops), an index read from a struct field (`vs->el[vs->L]`), or a loop with `break` over a member array reached through a pointer (its compound condition hides the bound, even with constant limits) | imports, then **compile** fails SUBRANGE/026 "access byte end may reach ..." even though probe f06 passed in isolation (network LU, 2026-10-18) | First choice for counted loops with compile-time limits: write the bound as a strict `<` (`for (int j = k + 1; j < neqs + 1; ++j)`, `for (int j = 1; j < k; ++j)` with `k` from another such loop); Loom proves those indices in range and no assumption is needed (network LU, `network_rhs.H`; with `<=`, dgesl's back substitution fails SUBRANGE/026). Otherwise (runtime bounds from struct fields, as in VODE): `MPL_ASSUME(lo <= i && i <= hi)` (support.H: `__builtin_assume` under Loom, no-op on host) at the top of each loop body / after each derived index, using the array's true static bounds. Operands must be local scalars, constants and side-effect-free arithmetic on them (`j + 1 <= n` imports since hrx-system #2105, f13); since `cfd80e56de` also direct struct fields read through a pointer (`__builtin_assume(1 <= vs->L && vs->L <= 6)`, f14, hrx-system #2518; in 0.1.0 it failed "predicate member paths ...", so the shipped `vode.H` copies the field into a `const int` local first, which still works). Rely on the smoke compile, not the isolated probe |
 
 This table is the authoritative place for `MPL_ASSUME`/SUBRANGE/026; other
 files point here.
