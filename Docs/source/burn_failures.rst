@@ -137,11 +137,11 @@ Some tips for helping the integrator:
 
 * Adjust ``integrator.SMALL_X_SAFE`` and/or ``network.small_x``.
 
-  The physical values for mass fractions of certain nuclear species may 
+  The physical values for mass fractions of certain nuclear species may
   be well below the chosen (or default) values for
   ``integrator.SMALL_X_SAFE`` and/or ``network.small_x``. This might
   cause the integrator to have to abruptly burn from
-  ``integrator.SMALL_X_SAFE`` or ``network.small_x`` to much smaller 
+  ``integrator.SMALL_X_SAFE`` or ``network.small_x`` to much smaller
   values leading to an underflow in computing the timestep.
 
   In such cases, reducing ``integrator.SMALL_X_SAFE`` and/or
