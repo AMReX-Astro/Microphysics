@@ -252,6 +252,16 @@ integrator to retry the entire step.</p>
 <p>This can sometimes make the integration harder, especially if used with
 <code class="docutils literal notranslate"><span class="pre">integrator.species_failure_tolerance</span></code>.</p>
 </li>
+<li><p>Adjust <code class="docutils literal notranslate"><span class="pre">integrator.SMALL_X_SAFE</span></code> and/or <code class="docutils literal notranslate"><span class="pre">network.small_x</span></code>.</p>
+<p>The physical values for mass fractions of certain nuclear species may
+be well below the chosen (or default) values for
+<code class="docutils literal notranslate"><span class="pre">integrator.SMALL_X_SAFE</span></code> and/or <code class="docutils literal notranslate"><span class="pre">network.small_x</span></code>. This might
+cause the integrator to have to abruptly burn from
+<code class="docutils literal notranslate"><span class="pre">integrator.SMALL_X_SAFE</span></code> or <code class="docutils literal notranslate"><span class="pre">network.small_x</span></code> to much smaller
+values leading to an underflow in computing the timestep.</p>
+<p>In such cases, reducing <code class="docutils literal notranslate"><span class="pre">integrator.SMALL_X_SAFE</span></code> and/or
+<code class="docutils literal notranslate"><span class="pre">network.small_x</span></code> can help.</p>
+</li>
 </ul>
 <p>Things we no longer recommend:</p>
 <ul id="index-1">
