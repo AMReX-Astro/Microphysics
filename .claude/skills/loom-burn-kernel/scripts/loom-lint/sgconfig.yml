@@ -4,9 +4,9 @@
 # #else branch of `#if defined(__loom__)` / `#ifdef __loom__` (the native host
 # fallback) is skipped. A clean lint does not mean Loom imports the file; it
 # catches the known failures before spending a remote import on them.
-# Rules and severities follow the pinned Loom (hrx-system main 920eb7f3ff),
-# except that constructs which only compile since 920eb7f3ff and have not
-# been checked against a reference (probes/README.md) are still flagged.
+# Rules and severities follow the pinned Loom (hrx-system main 920eb7f3ff):
+# a construct is allowed once its probe imports, compiles and passes
+# probes/gpucheck (probes/README.md). tests/selftest.sh checks both ways.
 ruleDirs: [rules]
 utilDirs: [utils]
 languageGlobs:

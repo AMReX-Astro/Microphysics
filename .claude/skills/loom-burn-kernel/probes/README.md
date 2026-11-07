@@ -6,12 +6,22 @@ tool set on the GPU host and writes `probe-summary.txt`. See the header of
 `probe.sh` for how to ship and run it. Add probes for anything a port's
 inventory finds that is not covered here, and keep new probes in this kit.
 
+`probe.sh` only shows that a construct imports and compiles. `gpucheck/run.sh`
+checks that it also computes the right result: it runs a probe as a host
+build, a hipcc code object and a Loom code object on the same 64 inputs and
+requires all three outputs to be bit-identical (header of `run.sh`). Run it
+on every probe that newly passes `probe.sh` before the docs or loom-lint
+treat the construct as supported. Probes that only touch a construct
+lightly get a stricter variant with a `b` suffix (r08b: the callee writes
+through the member reference and then reads the struct; r12b: the returned
+`const T&` must still see later writes to the variable it selected).
+
 ## Results at hrx-system main `920eb7f3ff` (gfx90a, run 2026-11-07)
 
 The pin is hrx-system main `920eb7f3ff` (2026-11-07), tools built with
 `scripts/build_loom_tools.sh` and no patches (`loom-import-cxx` md5
 `00f867a6…`, `loom-compile` md5 `440ad7df…`; built md5s differ with the
-build environment, so record yours). All 126 probes run in a few seconds.
+build environment, so record yours). All 132 probes run in a few seconds.
 The last column holds the result at the previous pin, hrx-system main
 `cfd80e56de` (2026-11-05), rerun with the same kit on the same day. Rerun
 the kit whenever the pin changes and update this table.
@@ -36,10 +46,13 @@ Changes from `cfd80e56de` (the shipped modules import and validate unchanged):
   selecting between two locals (r12), and an uninitialized scalar passed as
   a `double&` out-argument (r25). A block-scope `static constexpr` array
   (d22) imports too; a `static constexpr` member array (d09) still fails.
-- **Compile only.** The kit checks import and compile, not results; none of
-  these constructs has been run against a reference yet. Until one has, keep
-  the workarounds below and in `references/loom-frontend-rules.md` (and the
-  loom-lint rules that enforce them) for new code.
+- **Results checked on the GPU** (`gpucheck/run.sh`, gfx90a, 2026-11-07): all
+  ten, and the six stricter variants l01b, o08b, o09b, r08b, r10b and
+  r12b (new in the kit; they fail at `cfd80e56de`), are bit-identical to
+  hipcc and to a host build in all 64 lanes. New code can use these
+  constructs directly; loom-lint no longer flags them. They are
+  checked as single-construct kernels, and none is used in a full burn
+  yet; the shipped modules keep their older rewrites, which still validate.
 - Still failing from #2647: pointers stored in structs read through a
   pointer (c03, c06) and base classes (o06, reworded: "record values
   require a complete baseless non-union type without virtual members").
@@ -72,9 +85,8 @@ code):
   `return` nested two `if`s deep (f24) import and compile.
 - Two VGPR counts moved by one or two (d08, o17); nothing else changed.
 
-What these results decide (at `920eb7f3ff`). Where a construct only compiles
-since `920eb7f3ff` and has not been run against a reference, the workaround
-stays the recommendation:
+What these results decide (at `920eb7f3ff`; "GPU-checked since `920eb7f3ff`, `gpucheck/`" marks
+constructs whose results were checked on the GPU, above):
 - **References:** scalar `double&`/`int&` parameters and scalar member slices
   (`f(s.T)`) import (r01, r02, r04, r11, r13), as do `const` references to
   whole structs (r05), references to buffer elements (r06), array reference
@@ -85,12 +97,13 @@ stays the recommendation:
   member-function calls (o13, o14) all import, through plain and template
   parameters (r03), and so does a member's accessor read through a `const`
   struct reference (r23). Pointers work as well (o15, o19), so the shipped
-  modules' pointer parameters for written structs can stay. Failing until
-  `920eb7f3ff`, which compiles them (results not yet checked):
-  overlapping mutable arguments `f(s, s.T)` (r08), a local reference to a
-  scalar member `double& r = s.x` (r10), and a `const T&` return selecting
-  between two locals (`amrex::max`, r12: imported, then AMDGPU/023); keep
-  min/max returning by value (r18).
+  modules' pointer parameters for written structs can stay. Overlapping
+  mutable arguments `f(s, s.T)` (r08, r08b), a local reference to a scalar
+  member `double& r = s.x` (r10, r10b) and a `const T&` return selecting
+  between two locals (`amrex::max`, r12, r12b) work too (GPU-checked since `920eb7f3ff`, `gpucheck/`;
+  they failed at `cfd80e56de`), so stock code that uses them can stay.
+  Min/max by value (r18) still work; keep them where tie semantics need
+  the first operand (`references/microphysics-translation.md`).
 - **Member functions and accessors:** member calls through `.` and `->` (o01,
   o10) and `operator()` returning `T&`/`const T&` (o02) import. AMReX-style
   `Array1D<T,1,N>`/`Array2D` structs (an array member plus 1-based
@@ -99,8 +112,8 @@ stays the recommendation:
   a struct reached through a pointer (o15). Integrator and `rhs` state can
   keep its 1-based accessors and source index expressions.
 - **Operator overloading:** free `operator*`/`operator+` on a POD dual
-  import (o03); member operators fail before `920eb7f3ff` (o09; they compile at
-  `920eb7f3ff`, results not yet checked). The shipped autodiff
+  import (o03), and so do member operators, including `operator+=`
+  returning `*this` (o09, o09b; GPU-checked since `920eb7f3ff`, `gpucheck/`). The shipped autodiff
   duals keep POD structs with free functions (o04, o05,
   `assets/kernel/dual.H`).
 - **Nested ternaries:** 40 deep compiles (f11).
@@ -111,11 +124,9 @@ stays the recommendation:
   recipes call the same instructions as OCML; only OCML's fast reciprocal
   (`v_rcp_f64` + Newton steps) is replaced by IEEE division.
 - **No contraction:** `a * b + c` compiles to `v_mul_f64` + `v_add_f64`.
-- **`constexpr RhsT d = rhs_data(rate)` fails** before `920eb7f3ff` (f02;
-  it compiles since `920eb7f3ff`, results not yet checked): a constexpr local of
-  record type is unsupported, though the constexpr function with a `switch`
-  is fine. Bind each needed field to its own scalar instead:
-  `constexpr int expA = rhs_data(rate).exponent_A;`.
+- **`constexpr RhsT d = rhs_data(rate)` works** (f02; GPU-checked since `920eb7f3ff`, `gpucheck/`;
+  it failed at `cfd80e56de`, so older ports bind each field to its own
+  scalar, `constexpr int expA = rhs_data(rate).exponent_A;`).
 - **Enum in arithmetic with `double`** fails to parse (d10). That is correct
   at the importer's default `--std=c++26` (P2864R2 made it ill-formed); if a
   translation uses it, cast to `int`. Microphysics' aprox13 configuration
@@ -125,23 +136,22 @@ stays the recommendation:
   buffer with compile-time offsets (c05). Kernel arguments must be the table
   pointers themselves, not a pointer to a struct holding them.
 - **Records** may have user-provided constructors, including ones with
-  arguments (o07, since `cfd80e56de`), but no bases (o06, still failing). Structured bindings (o08) and lambdas (l01)
-  fail before `920eb7f3ff` (they compile since then; results not yet checked).
+  arguments (o07, since `cfd80e56de`), but no bases (o06, still failing). Structured bindings, by value and by
+  reference (o08, o08b), and lambdas passed to a `constexpr_for`-style
+  template, capturing by reference and by value (l01, l01b), work (GPU-checked since `920eb7f3ff`, `gpucheck/`).
 - **Tables:** namespace-scope `constexpr` arrays import with runtime indices
   (d01, d16-d20, d23), so `aion[]`, `zion[]`, `aion_inv[]` and rate tables keep
   the stock namespace-scope form; `static constexpr` member arrays still
   fail (d09) and move to namespace scope; block-scope `static constexpr`
-  arrays (d22) compile since `920eb7f3ff` (results not yet checked), but move
-  them too until they are.
+  arrays work (d22; GPU-checked since `920eb7f3ff`, `gpucheck/`).
 - **Uninitialized locals and `for (;;)`:** scalar and array locals may stay
-  uninitialized (d04, d13, d15) and conditionless `for` imports (f04, f12);
-  struct locals need `T x{}` (d14; compiles since `920eb7f3ff`, results not yet checked). Exception: an uninitialized scalar
-  local passed as a `double&` argument fails (r25, "runtime value-reference
-  arguments require an automatic SSA object"; found in the aprox19 port's
-  `ecapnuc(..., tmp_fr, ...)` call, which stock leaves uninitialized):
-  initialize it (`double o = 0.0;`) when the callee writes it before any
-  read (r25; compiles since `920eb7f3ff`, results not yet checked). A struct-reference field passed by value next to such an argument
-  is fine (r26).
+  uninitialized (d04, d13, d15), and conditionless `for` imports (f04, f12).
+  Struct locals may stay uninitialized too (d14), and so may a scalar passed
+  as a `double&` out-argument (r25, the aprox19 port's
+  `ecapnuc(..., tmp_fr, ...)` call); both GPU-checked since `920eb7f3ff`, `gpucheck/`, and both failed
+  at `cfd80e56de`, where they needed `T x{}` and `double o = 0.0;`. A
+  struct-reference field passed by value next to such an argument is fine
+  (r26).
 - **Bounds assumptions:** the simple retry loop imports without
   `__builtin_assume` (f07), and the isolated triangular loop compiles (f06),
   but an index derived from a struct field with runtime loop bounds still
@@ -184,7 +194,7 @@ stays the recommendation:
 | d11_short_and_bool_arrays | `short pivot[14]`, `bool` arrays | ok | vgpr=10 scratch=42B | same |
 | d12_f64_to_int_conversion | `int(double)` | ok | vgpr=10 scratch=0B | same |
 | d13_uninit_local_double | `double r;` assigned on both branches | ok | vgpr=8 scratch=0B | same |
-| d14_uninit_local_struct | `Burn s;` without initializer | **ok** | vgpr=6 scratch=0B | import-fail: error [LOWERING/059]: uninitialized locals require scalar or native vector object storage |
+| d14_uninit_local_struct | `Burn s;` without initializer | **ok** | vgpr=6 scratch=0B, GPU check PASS | import-fail: error [LOWERING/059]: uninitialized locals require scalar or native vector object storage |
 | d15_uninit_local_array | `double a[14];` without initializer | ok | vgpr=6 scratch=112B | same |
 | d16_ns_inline_constexpr_array | `inline constexpr double aion[N]` at namespace scope | ok | vgpr=14 scratch=0B | same |
 | d17_ns_constexpr_2d_array | namespace-scope `constexpr` 2-D table, two runtime indices | ok | vgpr=8 scratch=0B | same |
@@ -192,10 +202,10 @@ stays the recommendation:
 | d19_ns_constexpr_array_loop_index | `aion[n]`, `zion[n]` read in a constant-bound loop | ok | vgpr=20 scratch=0B | same |
 | d20_ns_constexpr_array_unreachable | namespace-scope `constexpr` array the root never reads | ok | vgpr=6 scratch=0B | same |
 | d21_ns_mutable_global_unreachable | mutable namespace-scope global the root never reads | import-fail | error [LOWERING/059]: global storage definitions require a global-storage projection | same |
-| d22_fn_static_constexpr_array | block-scope `static constexpr` array in a device function | **ok** | vgpr=14 scratch=0B | import-fail: error [LOWERING/059]: local storage duration must be automatic or __shared__ |
+| d22_fn_static_constexpr_array | block-scope `static constexpr` array in a device function | **ok** | vgpr=14 scratch=0B, GPU check PASS | import-fail: error [LOWERING/059]: local storage duration must be automatic or __shared__ |
 | d23_extern_const_array_defined | `extern const` array declared, then defined in the TU | ok | vgpr=14 scratch=0B | same |
 | f01_switch_runtime | runtime `switch` | ok | vgpr=8 scratch=0B | same |
-| f02_switch_in_constexpr_fn | `rhs_data(rate)` folded | **ok** | vgpr=6 scratch=0B | import-fail: error [LOWERING/059]: unsupported C++ type: ::probe::RhsT |
+| f02_switch_in_constexpr_fn | `rhs_data(rate)` folded | **ok** | vgpr=6 scratch=0B, GPU check PASS | import-fail: error [LOWERING/059]: unsupported C++ type: ::probe::RhsT |
 | f03_return_in_loop | `return` in `while(true)` | ok | vgpr=9 scratch=8B | same |
 | f04_for_ever | `for(;;)` | ok | vgpr=10 scratch=0B | same |
 | f05_vode_retry_shape | nested `while(true)`, result code | ok | vgpr=22 scratch=0B | same |
@@ -217,7 +227,8 @@ stays the recommendation:
 | f23_nested_single_exit_form | f22 with both loops in the single-exit `done` form | ok | vgpr=18 scratch=64B | same |
 | f24_nested_conditional_return | `return` in an `if` nested in a runtime `if`, code after both (`actual_log_screen`) | ok | vgpr=8 scratch=0B | same |
 | f25_single_level_conditional_return | f24 with the conditions merged into one `if` | ok | vgpr=8 scratch=0B | same |
-| l01_lambda_constexpr_for | lambdas | **ok** | vgpr=30 scratch=0B | import-fail: error [LOWERING/059]: rvalue-reference parameters require consuming object identity |
+| l01_lambda_constexpr_for | lambdas | **ok** | vgpr=30 scratch=0B, GPU check PASS | import-fail: error [LOWERING/059]: rvalue-reference parameters require consuming object identity |
+| l01b_lambda_multi_capture | lambda with two by-reference captures and one by-value capture, called through `cfor` twice | **ok** | vgpr=16 scratch=0B, GPU check PASS | import-fail: error [LOWERING/059]: unsupported expression: lambda-expression |
 | l02_template_struct_unroll | template-struct recursion | ok | vgpr=30 scratch=0B | same |
 | m_f32_roundevenf | f32 `loom::scalar::roundevenf` (OCML `BUILTIN_RINT_F32`, cbrt) | ok | vgpr=2 scratch=0B \| v_rndne_f32:1 | same |
 | m_f64_absf | f64 fabs | ok | vgpr=4 scratch=0B | same |
@@ -252,8 +263,10 @@ stays the recommendation:
 | o05_dual3_array_free_functions | POD Dual / Dual3 + free fns, by value | ok | vgpr=12 scratch=96B | same |
 | o06_base_class | `Grad : Base` | import-fail | error [LOWERING/059]: record values require a complete baseless non-union type without virtual members | import-fail: error [LOWERING/059]: record values require a complete baseless non-union type with aggregate or user-provided construction and trivial copy and move operations |
 | o07_ctor_with_args | `D x(1.0)` | ok | vgpr=6 scratch=0B | same |
-| o08_structured_binding | `auto [f, r] = term(x)` | **ok** | vgpr=6 scratch=0B | import-fail: error [LOWERING/059]: unsupported local declaration |
-| o09_dual_member_operators | member `operator*`/`operator+`/`operator+=` on Dual | **ok** | vgpr=10 scratch=0B | import-fail: error [LOWERING/059]: addressed operator must return a reference |
+| o08_structured_binding | `auto [f, r] = term(x)` | **ok** | vgpr=6 scratch=0B, GPU check PASS | import-fail: error [LOWERING/059]: unsupported local declaration |
+| o08b_structured_binding_ref | `auto& [a, b] = p`, writes must reach `p` | **ok** | vgpr=10 scratch=0B, GPU check PASS | import-fail: error [LOWERING/059]: unsupported local declaration |
+| o09_dual_member_operators | member `operator*`/`operator+`/`operator+=` on Dual | **ok** | vgpr=10 scratch=0B, GPU check PASS | import-fail: error [LOWERING/059]: addressed operator must return a reference |
+| o09b_compound_assign_chain | `(r += t) += t`, `Dual& q = (r += r)` written through | **ok** | vgpr=12 scratch=0B, GPU check PASS | import-fail: error [LOWERING/059]: member is read before its initialization is complete |
 | o10_arrow_member_call | `a->add(x)`, `a.mean()` through a pointer to a local | ok | vgpr=14 scratch=0B | same |
 | o11_array1d_by_ref | `Array1D<T,1,N>` accessor, passed by `&` and `const auto&` | ok | vgpr=10 scratch=232B | same |
 | o12_array2d_lu | `Array2D` accessor, written in place through `&` (dgefa shape) | ok | vgpr=14 scratch=144B | same |
@@ -271,11 +284,14 @@ stays the recommendation:
 | r05_const_struct_ref_read | `static f(const Burn&)` | ok | vgpr=8 scratch=112B | same |
 | r06_ref_to_buffer_element | `f(out[i])` | ok | vgpr=6 scratch=0B | same |
 | r07_ref_return_accessor | `double& at(A&, int)` | ok | vgpr=4 scratch=0B | same |
-| r08_overlapping_mutable_refs | `f(s, s.T)` | **ok** | vgpr=6 scratch=0B | import-fail: error [LOWERING/059]: mutable value-reference arguments must select nonoverlapping automatic objects or member slices |
+| r08_overlapping_mutable_refs | `f(s, s.T)` | **ok** | vgpr=6 scratch=0B, GPU check PASS | import-fail: error [LOWERING/059]: mutable value-reference arguments must select nonoverlapping automatic objects or member slices |
+| r08b_overlap_write_then_read | `f(s, s.T)`: the callee writes through `t`, then reads `s.T` through `s` | **ok** | vgpr=8 scratch=0B, GPU check PASS | import-fail: error [LOWERING/059]: mutable value-reference arguments must select nonoverlapping automatic objects or member slices |
 | r09_array_ref_param | `const double (&)[13]` | ok | vgpr=6 scratch=0B | same |
-| r10_local_ref_binding | `double& r = s.x;` | **ok** | vgpr=6 scratch=0B | import-fail: error [LOWERING/059]: address-of requires an existing storage-backed element |
+| r10_local_ref_binding | `double& r = s.x;` | **ok** | vgpr=6 scratch=0B, GPU check PASS | import-fail: error [LOWERING/059]: address-of requires an existing storage-backed element |
+| r10b_ref_sees_struct_write | `double& r = s.x`: struct write read through `r`, `r` write seen by a struct copy | **ok** | vgpr=10 scratch=0B, GPU check PASS | import-fail: error [LOWERING/059]: address-of requires an existing storage-backed element |
 | r11_ref_chain | ref forwarded through 2 static calls | ok | vgpr=10 scratch=0B | same |
-| r12_const_ref_return_max | `amrex::max` returning `const T&` | **ok** | vgpr=6 scratch=16B | compile-fail: error [AMDGPU/023]: reject |
+| r12_const_ref_return_max | `amrex::max` returning `const T&` | **ok** | vgpr=6 scratch=16B, GPU check PASS | compile-fail: error [AMDGPU/023]: reject |
+| r12b_const_ref_identity | `const double& m = mx(a, b)` keeps seeing later writes to the selected variable | **ok** | vgpr=12 scratch=16B, GPU check PASS | compile-fail: error [AMDGPU/023]: reject |
 | r13_struct_member_slice_ref | `bump(s.T)` | ok | vgpr=8 scratch=0B | same |
 | r14_struct_ref_member_update | `dvode_t&` through 2 template layers: `vs.y(n) +=` and `vs.t +=` | ok | vgpr=10 scratch=128B | same |
 | r15_struct_ref_scalar_field_write | `s.T = ...` through `Burn&` | ok | vgpr=10 scratch=0B | same |
@@ -288,5 +304,5 @@ stays the recommendation:
 | r22_const_ref_to_kernel_arg_struct | `const BurnParams&` bound to `*params` (kernel argument) | ok | vgpr=12 scratch=0B | same |
 | r23_const_struct_ref_member_accessor_read | `vs.y(n)` through `const Dvode&` | ok | vgpr=8 scratch=248B | same |
 | r24_const_struct_ref_member_raw_array | `vs.y.arr[n]` through `const Dvode&` | ok | vgpr=8 scratch=248B | same |
-| r25_uninit_local_ref_out_arg | uninitialized `double o;` bound to a `double&` out-parameter | **ok** | vgpr=6 scratch=0B | import-fail: error [LOWERING/059]: cannot import source construct: runtime value-reference arguments require an automatic SSA object |
+| r25_uninit_local_ref_out_arg | uninitialized `double o;` bound to a `double&` out-parameter | **ok** | vgpr=6 scratch=0B, GPU check PASS | import-fail: error [LOWERING/059]: cannot import source construct: runtime value-reference arguments require an automatic SSA object |
 | r26_const_struct_ref_field_value_arg | `f(s.eta, o)`: field of a `const S&` by value, next to an initialized `double&` out-argument | ok | vgpr=6 scratch=0B | same |

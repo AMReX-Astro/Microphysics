@@ -1,13 +1,9 @@
 id: no-static-member-array
 language: cpp
 severity: error
-message: static arrays (static constexpr members, block-scope statics) do not import. Move the table to namespace scope as a constexpr array.
+message: static data member arrays (`static constexpr double t[N]` in a struct) do not import (probe d09). Move the table to namespace scope as a constexpr array. Block-scope static constexpr arrays import since hrx-system 920eb7f3ff (d22).
 rule:
-  any:
-    - kind: field_declaration
-    - all:
-        - kind: declaration
-        - inside: { kind: function_definition, stopBy: end }
+  kind: field_declaration
   has: { kind: storage_class_specifier, regex: '^static$' }
   all:
     - has: { kind: array_declarator, stopBy: end }

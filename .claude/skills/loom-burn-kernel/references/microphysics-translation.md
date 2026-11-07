@@ -140,8 +140,9 @@ inputs file sets, or that a production code relies on, has to be ported.
   partition-function grids) import at namespace scope, including
   `inline constexpr` and anonymous-namespace tables like stock
   `network_properties.H` under HIP (probes d01, d16-d20, d23). As
-  `static constexpr` members or block-scope `static`s they still fail (d09,
-  d22): move such a table to namespace scope. Tables that are not `constexpr`
+  `static constexpr` members they still fail (d09): move such a table to
+  namespace scope. Block-scope `static constexpr` tables work since
+  `920eb7f3ff` (d22). Tables that are not `constexpr`
   (filled at startup, `AMREX_GPU_MANAGED`) are runtime data and go through
   kernel arguments.
 
@@ -168,8 +169,11 @@ does not port (NEUTRINOS, NSE, NONAKA_PLOT, non-screen5 screening).
 ## Autodiff (screening, rates, he-burn networks)
 
 `autodiff::dual` and `admath::` rely on operator overloading, expression
-templates and base classes, none of which import. Replace them with POD dual
-structs and free functions, passed and returned by value (probes o04/o05).
+templates and base classes. Member and free operators import (o03, o09,
+o09b since `920eb7f3ff`), but base classes still fail (o06) and the
+expression templates are not probed, so the library itself does not port.
+Replace it with POD dual structs and free functions, passed and returned by
+value (probes o04/o05).
 The skill ships this as `assets/kernel/dual.H` (validated bit for bit against
 autodiff; its header is the translation guide): use it rather than writing a
 new one, and extend it, with validation, for shapes it doesn't cover:

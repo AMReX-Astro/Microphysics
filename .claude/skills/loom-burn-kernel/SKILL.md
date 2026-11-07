@@ -203,9 +203,10 @@ Loom's C++ importer changes weekly (e.g. #1993 added non-escaping value
 references after the campaigns had rewritten every reference away). Do not
 trust any list of "unsupported" constructs, including the one in
 `references/loom-frontend-rules.md`, until you have re-probed it at the
-release or commit you are using. Copy the skill's `probes/` kit (126 one-construct
-probes with root `probe::k`, and `probe.sh`, which runs them all with one
-frozen tool set) into the port's agent-notes directory, add probes for
+release or commit you are using. Copy the skill's `probes/` kit (132 one-construct
+probes with root `probe::k`; `probe.sh`, which imports and compiles them all
+with one frozen tool set; and `gpucheck/run.sh`, which checks a probe's
+results against hipcc on the GPU) into the port's agent-notes directory, add probes for
 anything the Phase 2 inventory found that the kit doesn't cover, and run it
 on the GPU host as its header describes. `probes/README.md` has the measured
 results at the pin, hrx-system main `920eb7f3ff` (2026-11-07, gfx90a; no
@@ -216,14 +217,15 @@ and the shipped modules use them (`Array1D`/`Array2D` accessors with the
 stock indices, `const&` for everything read-only; they pass structs a
 function writes by pointer, as the pin `fa8eba4554` required).
 Constructors with arguments (o07) and `MPL_ASSUME`s that read a struct
-field directly (f14) import since `cfd80e56de`. At `920eb7f3ff`, nine more
-constructs compile (uninitialized struct locals, `constexpr` record locals,
-lambdas, structured bindings, member operators, local and overlapping
-references, `const T&` returns; d14, f02, l01, o08, o09, r08, r10, r12,
-r25), but none has been checked against a reference yet, so keep the
-workarounds in `references/loom-frontend-rules.md` until one has.
-Uninitialized scalar and array locals (but not one passed as a `T&`
-argument, r25), `for (;;)`, namespace-scope
+field directly (f14) import since `cfd80e56de`. At `920eb7f3ff`, uninitialized struct locals, `constexpr`
+record locals, `constexpr_for`-style lambdas, structured bindings, member
+operators, local and overlapping references, `const T&` returns and
+block-scope `static constexpr` arrays work too (d14, d22, f02, l01, o08,
+o09, r08, r10, r12, r25: results bit-identical to hipcc on the GPU,
+`probes/gpucheck/`), so new translations keep them as in the source; the
+shipped modules still carry the older rewrites, which remain valid.
+When a probe newly passes `probe.sh`, run it through `gpucheck/run.sh`
+before relying on it. Uninitialized scalar and array locals, `for (;;)`, namespace-scope
 `constexpr` tables (`aion[]`, rate tables), runtime `switch`, `return`
 inside loops and nested multi-exit loops work too. If you
 use `920eb7f3ff` on gfx90a, cite the table; on another release, commit or
@@ -306,12 +308,11 @@ ast-grep scan -c <skill>/scripts/loom-lint/sgconfig.yml \
   $(ls $K/*.H $K/*.cpp | grep -v '/validate_')
 ```
 
-Never lint the `validate_*.H` files: they are host-only and use std,
-lambdas and references on purpose (hundreds of hits). The shipped modules
-lint clean. Your own files must have no errors, and every
-`no-reference` warning in them (a reference local) must be a form the
-probes showed import (`T& r = a[i]` does, r17; `T& r = s.field` does not,
-r10).
+Never lint the `validate_*.H` files: they are host-only and use std on purpose
+(hundreds of hits). The shipped modules
+lint clean. Your own files must have no errors; the one warning,
+`no-uninit-local` (an uninitialized pointer local, which no probe covers),
+means initialize the pointer.
 
 Core rules:
 
@@ -448,7 +449,7 @@ Check the time with `date` before writing any timestamp.
 - `references/loom-frontend-rules.md` — construct → rewrite table as of the last probes, `MPL_ASSUME`/SUBRANGE, lint, kernel root shape.
 - `references/microphysics-translation.md` — inventory limits, burn_t, runtime params and unported paths, tables, generated network data, autodiff, math, NSE.
 - `references/test-react-integration.md` — layout, kernel signature, host launcher, native validation, build/run and import/compile commands, comparison and NaN rule.
-- `probes/README.md` — Phase 1 probe kit (`probe.sh`, `src/`) and results at the pin (`920eb7f3ff`) and the previous pin (`cfd80e56de`).
+- `probes/README.md` — Phase 1 probe kit (`probe.sh`, `src/`, and `gpucheck/run.sh` for GPU result checks against hipcc) and results at the pin (`920eb7f3ff`) and the previous pin (`cfd80e56de`).
 
 ## Scripts
 
