@@ -97,7 +97,8 @@ Validation (zero mismatches, bit for bit):
   `./loomval_<module>3d.gnu.ex {INPUTS} unit_test.loom_validate=1 integrator.use_jacobian_caching=0`
   (default `COMP=gnu`, the same compiler as the stock CPU reference and CI;
   every native validation build uses it, `references/test-react-integration.md`).
-- Lint your kernel headers (not validators):
+- Lint your kernel headers (not the validators or `loom_params_port.H`,
+  which are host-only):
   `ast-grep scan -c <skill>/scripts/loom-lint/sgconfig.yml <files>`.
   Read the output: "Error: Cannot parse rule" means the scan didn't run.
   0 errors required.

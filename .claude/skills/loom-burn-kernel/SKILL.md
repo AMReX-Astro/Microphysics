@@ -305,11 +305,12 @@ under a second; rules and caveats in `references/loom-frontend-rules.md`,
 ```bash
 K=unit_test/test_react/loom/<network>_<integrator>
 ast-grep scan -c <skill>/scripts/loom-lint/sgconfig.yml \
-  $(ls $K/*.H $K/*.cpp | grep -v '/validate_')
+  $(ls $K/*.H $K/*.cpp | grep -vE '/(validate_[^/]*|loom_params_port\.H)$')
 ```
 
-Never lint the `validate_*.H` files: they are host-only and use std on purpose
-(hundreds of hits). The shipped modules
+Never lint the `validate_*.H` files or a port's `loom_params_port.H`: they
+are host-only and use std, AMReX and the runtime-parameter namespaces on
+purpose (hundreds of hits from `no-std` and `no-stock-namespace`). The shipped modules
 lint clean. Your own files must have no errors; the one warning,
 `no-uninit-local` (an uninitialized pointer local, which no probe covers),
 means initialize the pointer.

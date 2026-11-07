@@ -104,7 +104,9 @@ the prad-limiter run with
 
 `loom_params.H` (in test_react) includes `LOOM_KERNEL_DIR/loom_params_port.H`
 instead of its own body when the port keeps one there (same functions), so
-several ports share one test_react checkout. `loom_launch.H` re-burns the
+several ports share one test_react checkout. It is host-only (AMReX and
+`*_rp::` runtime parameters), so loom-lint skips it like the validators
+(SKILL.md, Phase 3 lint command). `loom_launch.H` re-burns the
 max-n_rhs zone (stock `do_react`, for the stock-shaped report) on the
 device with `amrex::single_task`: pynucastro networks' `actual_rhs` is
 `AMREX_GPU_DEVICE` only, and a host re-burn did not compile there.
