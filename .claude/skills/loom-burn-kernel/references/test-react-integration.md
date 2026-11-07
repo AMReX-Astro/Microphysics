@@ -198,7 +198,7 @@ Record which runtime each result used.
 ## Import/compile commands
 
 Run on the GPU host only, from a bash script, with the pinned tools
-(`scripts/build_loom_tools.sh` from hrx-system `cfd80e56de`; SKILL.md
+(`scripts/build_loom_tools.sh` from hrx-system `920eb7f3ff`; SKILL.md
 Setup):
 
 ```bash

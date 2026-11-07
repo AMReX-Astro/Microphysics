@@ -98,24 +98,25 @@ mkdir -p "$LOOM_WORK" && cd "$LOOM_WORK"
 python3 -m venv venv && venv/bin/pip install ast-grep-cli && export PATH=$PWD/venv/bin:$PATH
 git clone https://github.com/AMReX-Codes/amrex.git && export AMREX_HOME=$PWD/amrex
 git clone https://github.com/ROCm/hrx-system.git
-git -C hrx-system checkout cfd80e56de           # pinned Loom: hrx-system main (Phase 1)
+git -C hrx-system checkout 920eb7f3ff           # pinned Loom: hrx-system main (Phase 1)
 (cd hrx-system && python3 dev.py cmake setup)   # .venv with cmake/ninja; see below if it exits 1
 SRC=$PWD/hrx-system OUT=$PWD/loom-tools/pinned TARGETS=$GFX \
   nohup setsid bash $SKILL/scripts/build_loom_tools.sh > tools-build.log 2>&1 < /dev/null &
 export LOOM_TOOLS=$PWD/loom-tools/pinned/tools  # once tools-build.log ends in DONE
 ```
 
-The pin is hrx-system main `cfd80e56de` (2026-11-05), built from source:
+The pin is hrx-system main `920eb7f3ff` (2026-11-07), built from source:
 no release contains it yet. The build needs a C++23 libstdc++ from GCC ≥ 14;
 where the distro's GCC is older (e.g. Rocky 9 / RHEL 9), point
 `GCC_TOOLCHAIN` at one (e.g. a conda `gcc` 14; `build_loom_tools.sh -h`).
 Configure downloads its dependencies, so the host needs network access. The
 build takes up to 15–30 min (13 min at `-j8` under Rosetta), so start it
 first. The
-previous pin, the Loom 0.1.0 release (`pip install hrx-loom==0.1.0`, hrx-system tag
-`v0.1.0` = `d01d1c18b1`; glibc ≥ 2.39), still builds the shipped modules
-bit-exact, but it lacks what main added since (probes f14 and o07,
-`probes/README.md`), so a new port should use the pin.
+previous pin, hrx-system main `cfd80e56de` (2026-11-05), and the Loom 0.1.0
+release before it (`pip install hrx-loom==0.1.0`, hrx-system tag `v0.1.0` =
+`d01d1c18b1`; glibc ≥ 2.39) still build the shipped modules bit-exact, but
+they lack what main added since (`probes/README.md`), so a new port should
+use the pin.
 
 Notes from the end-to-end run:
 - `uv` is optional: every Python script is standard library only, so
@@ -130,9 +131,9 @@ Notes from the end-to-end run:
   also accepts the apt `cmake`/`ninja-build` on `PATH` when there is no
   `.venv`, but that path has not been tested end to end.
 - The end-to-end runs built the tools from source at earlier pins. The
-  `cfd80e56de` tools were built on Rocky 9 (conda GCC 14, a Python 3.12
+  `920eb7f3ff` tools were built on Rocky 9 (conda GCC 14, a Python 3.12
   venv's cmake/ninja via `PYVENV`) and validated on gfx90a
-  (`probes/README.md`); `dev.py cmake setup` at `cfd80e56de` has not been
+  (`probes/README.md`); `dev.py cmake setup` at `920eb7f3ff` has not been
   run end to end yet.
 - No GPU on the box (a build-only VM): Phase 6 stops after the production
   root compile, the HIP build and the FMA audit (`loom_gpu_compare.sh` skips
@@ -207,20 +208,25 @@ probes with root `probe::k`, and `probe.sh`, which runs them all with one
 frozen tool set) into the port's agent-notes directory, add probes for
 anything the Phase 2 inventory found that the kit doesn't cover, and run it
 on the GPU host as its header describes. `probes/README.md` has the measured
-results at the pin, hrx-system main `cfd80e56de` (2026-11-05, gfx90a; no
-patch is required), next to the previous pin, Loom 0.1.0. Member functions, `operator()`
+results at the pin, hrx-system main `920eb7f3ff` (2026-11-07, gfx90a; no
+patch is required), next to the previous pin, `cfd80e56de`. Member functions, `operator()`
 accessors, struct references (`const` or mutable), array reference
 parameters and deep ternaries import, so translations don't rewrite them,
 and the shipped modules use them (`Array1D`/`Array2D` accessors with the
 stock indices, `const&` for everything read-only; they pass structs a
 function writes by pointer, as the pin `fa8eba4554` required).
 Constructors with arguments (o07) and `MPL_ASSUME`s that read a struct
-field directly (f14) import since `cfd80e56de`.
+field directly (f14) import since `cfd80e56de`. At `920eb7f3ff`, nine more
+constructs compile (uninitialized struct locals, `constexpr` record locals,
+lambdas, structured bindings, member operators, local and overlapping
+references, `const T&` returns; d14, f02, l01, o08, o09, r08, r10, r12,
+r25), but none has been checked against a reference yet, so keep the
+workarounds in `references/loom-frontend-rules.md` until one has.
 Uninitialized scalar and array locals (but not one passed as a `T&`
 argument, r25), `for (;;)`, namespace-scope
 `constexpr` tables (`aion[]`, rate tables), runtime `switch`, `return`
 inside loops and nested multi-exit loops work too. If you
-use `cfd80e56de` on gfx90a, cite the table; on another release, commit or
+use `920eb7f3ff` on gfx90a, cite the table; on another release, commit or
 target, rerun the kit and update it. Record the
 tool md5 and Loom version in the agent note.
 
@@ -231,7 +237,7 @@ add, not `v_fma_f64`). Whatever math does not lower natively for f64 needs a
 source recipe (`references/microphysics-translation.md`, "Math").
 
 The tools are `loom-import-cxx` and `loom-compile` built from
-`cfd80e56de` with `scripts/build_loom_tools.sh` (Setup; writes
+`920eb7f3ff` with `scripts/build_loom_tools.sh` (Setup; writes
 `tools.md5`); no local patch is required.
 
 ## Phase 2 — map the reachable code
@@ -367,7 +373,7 @@ write it to `<root>.report.json`, not the log) and VGPR/AGPR/scratch
 from every build (`llvm-readelf --notes`; the scripts print them). A fused full burn
 compiles in 9 min (triple_alpha) to about 30 min (aprox13), almost all in
 register repair:
-use the pinned `cfd80e56de` tools and start the production root compile as
+use the pinned `920eb7f3ff` tools and start the production root compile as
 soon as the burn body compiles (`references/footguns.md`).
 
 ## Phase 6 — GPU correctness in test_react
@@ -442,7 +448,7 @@ Check the time with `date` before writing any timestamp.
 - `references/loom-frontend-rules.md` — construct → rewrite table as of the last probes, `MPL_ASSUME`/SUBRANGE, lint, kernel root shape.
 - `references/microphysics-translation.md` — inventory limits, burn_t, runtime params and unported paths, tables, generated network data, autodiff, math, NSE.
 - `references/test-react-integration.md` — layout, kernel signature, host launcher, native validation, build/run and import/compile commands, comparison and NaN rule.
-- `probes/README.md` — Phase 1 probe kit (`probe.sh`, `src/`) and results at the pin (`cfd80e56de`) and the previous pin (Loom 0.1.0).
+- `probes/README.md` — Phase 1 probe kit (`probe.sh`, `src/`) and results at the pin (`920eb7f3ff`) and the previous pin (`cfd80e56de`).
 
 ## Scripts
 
@@ -450,7 +456,7 @@ Check the time with `date` before writing any timestamp.
 - `scripts/gen_network_data.py` + `extract_network_data.cpp` — generate `network_data.H` / `burn.H` for `rhs.H`-framework and pynucastro networks, checked against the stock source.
 - `scripts/gen_pynucastro_net.py` — translate a pynucastro network's generated headers (rates, tables, partition functions, screening blocks, rhs_nuc / jac_nuc) into `pyn_rates.H` / `pyn_network.H`; the hand-translated generic pynucastro code is digest-checked.
 - `scripts/loom-lint/` — ast-grep rules for Loom-hostile constructs (`tests/selftest.sh`).
-- `scripts/build_loom_tools.sh` — build frozen `loom-import-cxx`/`loom-compile` from an hrx-system tree (the pinned `cfd80e56de`) plus optional patches; writes `tools.md5`. Header has the fresh-machine prerequisites.
+- `scripts/build_loom_tools.sh` — build frozen `loom-import-cxx`/`loom-compile` from an hrx-system tree (the pinned `920eb7f3ff`) plus optional patches; writes `tools.md5`. Header has the fresh-machine prerequisites.
 - `scripts/loom_smoke.sh` — launch/status/wait/fetch a Loom import + compile of a smoke kernel on the GPU host. `wait` serializes compiles; `wait`/`status` exit 6 when an import or compile failed.
 - `scripts/gen_abi_layout.py` — Phase 3 ABI checks: host-measured `sizeof`/`offsetof` of every `*Params` record, written to the port's `abi_layout.H` (included by the kernel root).
 - `scripts/fma_audit.py` — Phase 6 contraction screen: explains the `v_fma_f64` count (explicit recipe FMAs from the `.loom` IR, 5 per f64 division, a bounded remainder per sqrt); a heuristic, paired with the `m_fp_contract` probe.

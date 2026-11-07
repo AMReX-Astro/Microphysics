@@ -23,7 +23,7 @@
 # Fresh machine (Ubuntu 24.04 + ROCm): apt install g++-14 libstdc++-14-dev
 # python3.12-venv patch git, then
 #   git clone https://github.com/ROCm/hrx-system.git && cd hrx-system
-#   git checkout cfd80e56de      # pinned compiler, hrx-system main (SKILL.md, Phase 1)
+#   git checkout 920eb7f3ff      # pinned compiler, hrx-system main (SKILL.md, Phase 1)
 #   python3 dev.py cmake setup   # .venv with the pinned cmake/ninja (used below)
 #
 # Environment:

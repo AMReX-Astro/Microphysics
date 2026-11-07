@@ -137,7 +137,7 @@ arguments.
    `loom_smoke.sh wait <name>` blocks until a run finishes. A fused full
    burn compiles in 9 min (triple_alpha, Rosetta) to ~30 min (aprox13),
    nearly all of it in register repair (see
-   `references/footguns.md`); use the pinned `cfd80e56de` tools (SKILL.md
+   `references/footguns.md`); use the pinned `920eb7f3ff` tools (SKILL.md
    Setup).
    SUBRANGE/026 errors: see `MPL_ASSUME` in `references/loom-frontend-rules.md`.
 8. **Kernel root, launcher, GPU comparison** (SKILL.md Phases 5-6).

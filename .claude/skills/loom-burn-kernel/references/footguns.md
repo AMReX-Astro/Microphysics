@@ -115,7 +115,7 @@ repository; the items below are the distilled result.
 
 - Tools from hrx-system `1468c06034` through `970d39ac1e` lose `zone_success`
   in lanes that leave VODE's step loop early (ROCm/hrx-system#2337; state and
-  counters still match). Fixed at `5e6af0ec1a`, in Loom 0.1.0 and at the pin `cfd80e56de`;
+  counters still match). Fixed at `5e6af0ec1a`, in Loom 0.1.0, at `cfd80e56de` and at the pin `920eb7f3ff`;
   don't use that range.
 - SUBRANGE/026 at compile time means a missing bounds assumption:
   `MPL_ASSUME` (`loom-frontend-rules.md`, SUBRANGE row). If the assumption
@@ -149,6 +149,10 @@ repository; the items below are the distilled result.
   loops schedule → allocate → rematerialize/split/materialize spills, each
   round a whole-function schedule + allocation; the round budget is the value
   count, so it never times out on its own. Small module smokes take under 1 min.
+  The shipped aprox13 standalone root (gfx90a, 24 cores each) took 473 s at
+  `cfd80e56de` and 1143 s at the pin `920eb7f3ff` (same source, same
+  machine, run side by side), so budget compile times about 2.4x those
+  measured before 2026-11-07.
 - **Watch the repair loop, don't guess.** A long compile has no output until it
   finishes. The compiler-diagnostic tools in the `loom-burn-kernel-tools` follow-up print one line per
   register-repair round and sample the compiler's stack.
