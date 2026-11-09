@@ -70,6 +70,27 @@ struct rodas5p_tableau {
     static constexpr int stages = 8;
     static constexpr amrex::Real gamma = 0.21193756319429014_rt;
 
+    // Coefficients of h * partial(f)/partial(t) in the stage RHS.
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    static constexpr amrex::Real d (const int i) {
+        if (i == 1) {
+            return 0.21193756319429014_rt;
+        }
+        if (i == 2) {
+            return -0.42387512638858027_rt;
+        }
+        if (i == 3) {
+            return -0.3384627126235924_rt;
+        }
+        if (i == 4) {
+            return 1.8046452872882734_rt;
+        }
+        if (i == 5) {
+            return 2.325825639765069_rt;
+        }
+        return 0.0_rt;
+    }
+
     AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
     static constexpr amrex::Real ct (const int i) {
         if (i == 2) {

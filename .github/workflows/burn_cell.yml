@@ -151,6 +151,9 @@ jobs:
           cd unit_test/burn_cell
           diff -I "^Initializing AMReX" -I "^AMReX" test.out ci-benchmarks/aprox13_RKC_unit_test.out
 
+      - name: Check Rosenbrock time-dependent manufactured ODEs
+        run: python3 unit_test/test_rosenbrock_time.py
+
       - name: Compile, burn_cell (Rosenbrock, aprox13)
         run: |
           cd unit_test/burn_cell
