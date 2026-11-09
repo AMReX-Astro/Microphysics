@@ -9,8 +9,6 @@
 
   * integrators
 
-    * fix missing Rodas5P time-derivative terms for SDC coupling
-      (related to #2061; PR pending)
     * Rosenbrock: add step-rejection logic for SDC (#2027)
     * move SDC clean-up species normalization to after failure check (#2111)
 
