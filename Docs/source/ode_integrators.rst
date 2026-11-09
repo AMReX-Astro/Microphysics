@@ -70,6 +70,12 @@ Presently, allowed integrators are:
 
   The H211b error-history timestep controller from :cite:`h211b` (see Eq. 31) is used.
 
+  For SDC coupling, Rodas5P includes partial time derivatives of the RHS,
+  needed when the prescribed density changes during integration. These are
+  estimated at fixed integration variables using up to three extra RHS
+  evaluations per attempted step. The finite-difference probes remain within
+  the requested integration interval.
+
 .. index:: integrator.use_jacobian_caching
 
 * ``VODE``: the VODE :cite:`vode` integration package.  We ported this
