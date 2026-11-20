@@ -1,1 +1,25 @@
-pynucastro version: 3.1.0-48-gad2501ae9
+pynucastro version: 3.2.0-96-g3ea9a6763
+
+Network summary
+---------------
+  explicitly carried nuclei: 28
+  approximated-out nuclei: 7
+  inert nuclei (included in carried): 0
+
+  NSE compatible? True
+
+  total number of rates: 153
+
+  rates explicitly connecting nuclei: 114
+  hidden rates: 39
+
+  reaclib rates: 0
+  starlib rates: 65
+  temperature tabular rates: 0
+  weak tabular rates: 6
+  beta-limited rates: 0
+  approximate rates: 14
+  derived rates: 65
+  branched rates: 0
+  modified rates: 3
+  custom rates: 0
