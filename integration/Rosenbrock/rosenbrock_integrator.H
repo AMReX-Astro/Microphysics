@@ -5,6 +5,7 @@
 
 #include <cmath>
 #include <limits>
+#include <type_traits>
 
 #include <network.H>
 #include <burn_type.H>
@@ -320,6 +321,76 @@ void rhs_at (const amrex::Real time, BurnT& state, rosenbrock_t<int_neqs>& rstat
     }
 }
 
+#ifdef SDC
+// Evaluate the partial time derivative at fixed integrator variables.
+// Probe toward tout so prescribed density evolution stays inside the burn
+// interval. Use a second-order difference where two probe times are available.
+template <typename BurnT, int int_neqs>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+bool time_derivative (const amrex::Real time, const BurnT& state,
+                      rosenbrock_t<int_neqs>& rstate,
+                      amrex::Array1D<amrex::Real, 1, int_neqs>& dfdt)
+{
+    const amrex::Real remaining = rstate.tout - time;
+    const amrex::Real direction = remaining >= 0.0_rt ? 1.0_rt : -1.0_rt;
+    const amrex::Real scale = amrex::max(std::abs(time), std::abs(remaining));
+    const amrex::Real delta = amrex::min(
+        std::cbrt(std::numeric_limits<amrex::Real>::epsilon()) * scale,
+        0.5_rt * std::abs(remaining));
+    amrex::Real t1 = time + direction * delta;
+    if (t1 == time) {
+        t1 = std::nextafter(time, rstate.tout);
+    }
+    const amrex::Real dt1 = t1 - time;
+    if (dt1 == 0.0_rt) {
+        return false;
+    }
+    const amrex::Real t2 = direction > 0.0_rt ?
+        amrex::min(time + direction * (2.0_rt * delta), rstate.tout) :
+        amrex::max(time + direction * (2.0_rt * delta), rstate.tout);
+    const amrex::Real dt2 = t2 - time;
+
+    // rhs() cleans rstate.y and updates burn-state thermodynamics. Keep each
+    // probe independent and leave the caller's baseline state untouched.
+    const auto ybase = rstate.y;
+    BurnT probe_state = state;
+    amrex::Array1D<amrex::Real, 1, int_neqs> fbase;
+    amrex::Array1D<amrex::Real, 1, int_neqs> fprobe;
+    constexpr bool in_jacobian = true;
+    // Evaluate the baseline with the same EOS initial guess as the probes.
+    // Reusing ak1 would differentiate EOS iteration/cleaning differences
+    // introduced by the intervening Jacobian evaluation as well as time.
+    rhs(time, probe_state, rstate, fbase, in_jacobian);
+    rstate.y = ybase;
+    ++rstate.n_rhs;
+    probe_state = state;
+    rhs(t1, probe_state, rstate, fprobe, in_jacobian);
+    rstate.y = ybase;
+    ++rstate.n_rhs;
+    for (int n = 1; n <= int_neqs; ++n) {
+        dfdt(n) = (fprobe(n) - fbase(n)) / dt1;
+    }
+
+    if (std::abs(dt2) > std::abs(dt1)) {
+        probe_state = state;
+        rhs(t2, probe_state, rstate, fprobe, in_jacobian);
+        rstate.y = ybase;
+        ++rstate.n_rhs;
+        for (int n = 1; n <= int_neqs; ++n) {
+            const amrex::Real slope2 = (fprobe(n) - fbase(n)) / dt2;
+            dfdt(n) += (dfdt(n) - slope2) * dt1 / (dt2 - dt1);
+        }
+    }
+
+    for (int n = 1; n <= int_neqs; ++n) {
+        if (!std::isfinite(dfdt(n))) {
+            return false;
+        }
+    }
+    return true;
+}
+#endif
+
 template <int int_neqs>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 int decompose (rosenbrock_t<int_neqs>& rstate, const amrex::Real fac)
@@ -400,6 +471,9 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
     amrex::Real hopt = h;
     amrex::Real x = rstate.t;
     amrex::Array1D<amrex::Real, 1, int_neqs> rhs_tmp;
+#ifdef SDC
+    amrex::Array1D<amrex::Real, 1, int_neqs> dfdt;
+#endif
 
     // main evolution loop
 
@@ -470,6 +544,17 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
 
             const amrex::Real fac = 1.0_rt / (h * C::gamma);
             rosenbrock::evaluate_jacobian(state, rstate, x);
+#ifdef SDC
+            if constexpr (std::is_same_v<C, rosenbrock::rodas5p_tableau>) {
+                if (!rosenbrock::time_derivative(x, state, rstate, dfdt)) {
+                    rstate.t = x;
+                    return IERR_BAD_STATE_IN_CORRECTOR;
+                }
+                for (int n = 1; n <= int_neqs; ++n) {
+                    rstate.ak1(n) += h * C::d(1) * dfdt(n);
+                }
+            }
+#endif
             int ierr_linpack = rosenbrock::decompose(rstate, fac);
 
             if (ierr_linpack != 0) {
@@ -518,6 +603,11 @@ int rosenbrock_integrator (BurnT& state, rosenbrock_t<integrator_neqs<BurnT>()>&
 
                 for (int n = 1; n <= int_neqs; ++n) {
                     rosenbrock::stage(rstate, istage, n) += rhs_tmp(n);
+#ifdef SDC
+                    if constexpr (std::is_same_v<C, rosenbrock::rodas5p_tableau>) {
+                        rosenbrock::stage(rstate, istage, n) += h * C::d(istage) * dfdt(n);
+                    }
+#endif
                 }
                 rosenbrock::solve(rstate, rosenbrock::stage_vector(rstate, istage));
             }
