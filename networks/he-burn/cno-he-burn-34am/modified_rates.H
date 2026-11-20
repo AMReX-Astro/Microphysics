@@ -9,6 +9,7 @@
 #include <rate_type.H>
 #include <temperature_table_rates.H>
 #include <reaclib_rates.H>
+#include <beta_limited_rates.H>
 
 namespace modified_rates {
 
@@ -16,6 +17,7 @@ namespace modified_rates {
 
     using namespace reaclib_rates;
     using namespace temp_tabular;
+    using namespace beta_limited_rates;
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
@@ -84,82 +86,5 @@ namespace modified_rates {
     }
 
 
-    template <typename T>
-    AMREX_GPU_DEVICE AMREX_INLINE
-    void
-    fill_rates([[maybe_unused]] const tf_t& tfactors,
-               [[maybe_unused]] T& rate_eval)
-    {
-
-        [[maybe_unused]] amrex::Real rate;
-        [[maybe_unused]] amrex::Real drate_dT;
-
-        {
-            // C12_C12_to_Mg24_modified
-            amrex::Real log_scor {0.0_rt};
-            amrex::Real dlog_scor_dT {0.0_rt};
-#ifdef SCREENING
-            log_scor = rate_eval.log_screen(k_C12_C12);
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                dlog_scor_dT = rate_eval.dlog_screen_dT(k_C12_C12);
-            }
-#endif
-            rate_C12_C12_to_Mg24_modified(rate_eval, tfactors, log_scor, dlog_scor_dT);
-        }
-
-        {
-            // O16_O16_to_S32_modified
-            amrex::Real log_scor {0.0_rt};
-            amrex::Real dlog_scor_dT {0.0_rt};
-#ifdef SCREENING
-            log_scor = rate_eval.log_screen(k_O16_O16);
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                dlog_scor_dT = rate_eval.dlog_screen_dT(k_O16_O16);
-            }
-#endif
-            rate_O16_O16_to_S32_modified(rate_eval, tfactors, log_scor, dlog_scor_dT);
-        }
-
-        {
-            // O16_C12_to_Si28_modified
-            amrex::Real log_scor {0.0_rt};
-            amrex::Real dlog_scor_dT {0.0_rt};
-#ifdef SCREENING
-            log_scor = rate_eval.log_screen(k_C12_O16);
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                dlog_scor_dT = rate_eval.dlog_screen_dT(k_C12_O16);
-            }
-#endif
-            rate_O16_C12_to_Si28_modified(rate_eval, tfactors, log_scor, dlog_scor_dT);
-        }
-
-        {
-            // Na22_1p5He4_to_Si28_modified
-            amrex::Real log_scor {0.0_rt};
-            amrex::Real dlog_scor_dT {0.0_rt};
-#ifdef SCREENING
-            log_scor = rate_eval.log_screen(k_He4_Na22);
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                dlog_scor_dT = rate_eval.dlog_screen_dT(k_He4_Na22);
-            }
-#endif
-            rate_Na22_1p5He4_to_Si28_modified(rate_eval, tfactors, log_scor, dlog_scor_dT);
-        }
-
-        {
-            // Mg24_p_p_to_Na22_He4_beta_pos_modified
-            amrex::Real log_scor {0.0_rt};
-            amrex::Real dlog_scor_dT {0.0_rt};
-#ifdef SCREENING
-            log_scor = rate_eval.log_screen(k_p_Mg24);
-            if constexpr (std::is_same_v<T, rate_derivs_t>) {
-                dlog_scor_dT = rate_eval.dlog_screen_dT(k_p_Mg24);
-            }
-#endif
-            rate_Mg24_p_p_to_Na22_He4_beta_pos_modified(rate_eval, tfactors, log_scor, dlog_scor_dT);
-        }
-
-
-    }
 }
 #endif

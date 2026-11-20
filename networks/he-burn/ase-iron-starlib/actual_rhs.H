@@ -20,9 +20,11 @@
 #include <approximate_rates.H>
 #include <modified_rates.H>
 #include <branched_rates.H>
+#include <beta_limited_rates.H>
 #include <temperature_table_rates.H>
 #include <tabular_weak_rates.H>
 #include <derived_rates.H>
+#include <fill_rates.H>
 
 using namespace amrex::literals;
 
@@ -57,405 +59,635 @@ void evaluate_screening(const burn_t& state,
 
     // Evaluate screening terms
 
-    using number_t = std::conditional_t<do_T_derivatives, autodiff::dual, amrex::Real>;
-    number_t temp = state.T;
-    if constexpr (do_T_derivatives) {
-        // seed the dual number for temperature before calculating anything with it
-        autodiff::seed(temp);
-    }
+    using number_t = std::conditional_t<do_T_derivatives, screening_dual_t, amrex::Real>;
+    amrex::Real temp = state.T;
 
     plasma_state_t<number_t> pstate{};
     fill_plasma_state(pstate, temp, state.rho, Y);
 
-    amrex::Real log_scor, dlog_scor_dT;
+    amrex::Real log_scor, dlog_scor_dT, dlog_scor_dYe, dlog_scor_dS2;
 
     {
         constexpr auto scn_fac = scrn::calculate_screen_factor(1.0_rt, 1.0_rt, 6.0_rt, 12.0_rt);
         static_assert(scn_fac.z1 == 1.0_rt);
-        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT, dlog_scor_dYe, dlog_scor_dS2);
+        } else {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        }
         rate_eval.log_screen(k_p_C12) = log_scor;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_p_C12) = dlog_scor_dT;
+            rate_eval.dlog_screen_dYe(k_p_C12) = dlog_scor_dYe;
+            rate_eval.dlog_screen_dS2(k_p_C12) = dlog_scor_dS2;
         }
     }
 
     {
         constexpr auto scn_fac = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 8.0_rt, 16.0_rt);
         static_assert(scn_fac.z1 == 2.0_rt);
-        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT, dlog_scor_dYe, dlog_scor_dS2);
+        } else {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        }
         rate_eval.log_screen(k_He4_O16) = log_scor;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_He4_O16) = dlog_scor_dT;
+            rate_eval.dlog_screen_dYe(k_He4_O16) = dlog_scor_dYe;
+            rate_eval.dlog_screen_dS2(k_He4_O16) = dlog_scor_dS2;
         }
     }
 
     {
         constexpr auto scn_fac = scrn::calculate_screen_factor(1.0_rt, 1.0_rt, 27.0_rt, 57.0_rt);
         static_assert(scn_fac.z1 == 1.0_rt);
-        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT, dlog_scor_dYe, dlog_scor_dS2);
+        } else {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        }
         rate_eval.log_screen(k_p_Co57) = log_scor;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_p_Co57) = dlog_scor_dT;
+            rate_eval.dlog_screen_dYe(k_p_Co57) = dlog_scor_dYe;
+            rate_eval.dlog_screen_dS2(k_p_Co57) = dlog_scor_dS2;
         }
     }
 
     {
         constexpr auto scn_fac = scrn::calculate_screen_factor(1.0_rt, 1.0_rt, 19.0_rt, 39.0_rt);
         static_assert(scn_fac.z1 == 1.0_rt);
-        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT, dlog_scor_dYe, dlog_scor_dS2);
+        } else {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        }
         rate_eval.log_screen(k_p_K39) = log_scor;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_p_K39) = dlog_scor_dT;
+            rate_eval.dlog_screen_dYe(k_p_K39) = dlog_scor_dYe;
+            rate_eval.dlog_screen_dS2(k_p_K39) = dlog_scor_dS2;
         }
     }
 
     {
         constexpr auto scn_fac = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 20.0_rt, 40.0_rt);
         static_assert(scn_fac.z1 == 2.0_rt);
-        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT, dlog_scor_dYe, dlog_scor_dS2);
+        } else {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        }
         rate_eval.log_screen(k_He4_Ca40) = log_scor;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_He4_Ca40) = dlog_scor_dT;
+            rate_eval.dlog_screen_dYe(k_He4_Ca40) = dlog_scor_dYe;
+            rate_eval.dlog_screen_dS2(k_He4_Ca40) = dlog_scor_dS2;
         }
     }
 
     {
         constexpr auto scn_fac = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 18.0_rt, 36.0_rt);
         static_assert(scn_fac.z1 == 2.0_rt);
-        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT, dlog_scor_dYe, dlog_scor_dS2);
+        } else {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        }
         rate_eval.log_screen(k_He4_Ar36) = log_scor;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_He4_Ar36) = dlog_scor_dT;
+            rate_eval.dlog_screen_dYe(k_He4_Ar36) = dlog_scor_dYe;
+            rate_eval.dlog_screen_dS2(k_He4_Ar36) = dlog_scor_dS2;
         }
     }
 
     {
         constexpr auto scn_fac = scrn::calculate_screen_factor(1.0_rt, 1.0_rt, 21.0_rt, 43.0_rt);
         static_assert(scn_fac.z1 == 1.0_rt);
-        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT, dlog_scor_dYe, dlog_scor_dS2);
+        } else {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        }
         rate_eval.log_screen(k_p_Sc43) = log_scor;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_p_Sc43) = dlog_scor_dT;
+            rate_eval.dlog_screen_dYe(k_p_Sc43) = dlog_scor_dYe;
+            rate_eval.dlog_screen_dS2(k_p_Sc43) = dlog_scor_dS2;
         }
     }
 
     {
         constexpr auto scn_fac = scrn::calculate_screen_factor(1.0_rt, 1.0_rt, 26.0_rt, 56.0_rt);
         static_assert(scn_fac.z1 == 1.0_rt);
-        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT, dlog_scor_dYe, dlog_scor_dS2);
+        } else {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        }
         rate_eval.log_screen(k_p_Fe56) = log_scor;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_p_Fe56) = dlog_scor_dT;
+            rate_eval.dlog_screen_dYe(k_p_Fe56) = dlog_scor_dYe;
+            rate_eval.dlog_screen_dS2(k_p_Fe56) = dlog_scor_dS2;
         }
     }
 
     {
         constexpr auto scn_fac = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 6.0_rt, 12.0_rt);
         static_assert(scn_fac.z1 == 2.0_rt);
-        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT, dlog_scor_dYe, dlog_scor_dS2);
+        } else {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        }
         rate_eval.log_screen(k_He4_C12) = log_scor;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_He4_C12) = dlog_scor_dT;
+            rate_eval.dlog_screen_dYe(k_He4_C12) = dlog_scor_dYe;
+            rate_eval.dlog_screen_dS2(k_He4_C12) = dlog_scor_dS2;
         }
     }
 
     {
         constexpr auto scn_fac = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 22.0_rt, 44.0_rt);
         static_assert(scn_fac.z1 == 2.0_rt);
-        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT, dlog_scor_dYe, dlog_scor_dS2);
+        } else {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        }
         rate_eval.log_screen(k_He4_Ti44) = log_scor;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_He4_Ti44) = dlog_scor_dT;
+            rate_eval.dlog_screen_dYe(k_He4_Ti44) = dlog_scor_dYe;
+            rate_eval.dlog_screen_dS2(k_He4_Ti44) = dlog_scor_dS2;
         }
     }
 
     {
         constexpr auto scn_fac = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 12.0_rt, 24.0_rt);
         static_assert(scn_fac.z1 == 2.0_rt);
-        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT, dlog_scor_dYe, dlog_scor_dS2);
+        } else {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        }
         rate_eval.log_screen(k_He4_Mg24) = log_scor;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_He4_Mg24) = dlog_scor_dT;
+            rate_eval.dlog_screen_dYe(k_He4_Mg24) = dlog_scor_dYe;
+            rate_eval.dlog_screen_dS2(k_He4_Mg24) = dlog_scor_dS2;
         }
     }
 
     {
         constexpr auto scn_fac = scrn::calculate_screen_factor(6.0_rt, 12.0_rt, 8.0_rt, 16.0_rt);
         static_assert(scn_fac.z1 == 6.0_rt);
-        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT, dlog_scor_dYe, dlog_scor_dS2);
+        } else {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        }
         rate_eval.log_screen(k_C12_O16) = log_scor;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_C12_O16) = dlog_scor_dT;
+            rate_eval.dlog_screen_dYe(k_C12_O16) = dlog_scor_dYe;
+            rate_eval.dlog_screen_dS2(k_C12_O16) = dlog_scor_dS2;
         }
     }
 
     {
         constexpr auto scn_fac = scrn::calculate_screen_factor(1.0_rt, 1.0_rt, 23.0_rt, 47.0_rt);
         static_assert(scn_fac.z1 == 1.0_rt);
-        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT, dlog_scor_dYe, dlog_scor_dS2);
+        } else {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        }
         rate_eval.log_screen(k_p_V47) = log_scor;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_p_V47) = dlog_scor_dT;
+            rate_eval.dlog_screen_dYe(k_p_V47) = dlog_scor_dYe;
+            rate_eval.dlog_screen_dS2(k_p_V47) = dlog_scor_dS2;
         }
     }
 
     {
         constexpr auto scn_fac = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 24.0_rt, 48.0_rt);
         static_assert(scn_fac.z1 == 2.0_rt);
-        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT, dlog_scor_dYe, dlog_scor_dS2);
+        } else {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        }
         rate_eval.log_screen(k_He4_Cr48) = log_scor;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_He4_Cr48) = dlog_scor_dT;
+            rate_eval.dlog_screen_dYe(k_He4_Cr48) = dlog_scor_dYe;
+            rate_eval.dlog_screen_dS2(k_He4_Cr48) = dlog_scor_dS2;
         }
     }
 
     {
         constexpr auto scn_fac = scrn::calculate_screen_factor(6.0_rt, 12.0_rt, 6.0_rt, 12.0_rt);
         static_assert(scn_fac.z1 == 6.0_rt);
-        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT, dlog_scor_dYe, dlog_scor_dS2);
+        } else {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        }
         rate_eval.log_screen(k_C12_C12) = log_scor;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_C12_C12) = dlog_scor_dT;
+            rate_eval.dlog_screen_dYe(k_C12_C12) = dlog_scor_dYe;
+            rate_eval.dlog_screen_dS2(k_C12_C12) = dlog_scor_dS2;
         }
     }
 
     {
         constexpr auto scn_fac = scrn::calculate_screen_factor(1.0_rt, 1.0_rt, 27.0_rt, 55.0_rt);
         static_assert(scn_fac.z1 == 1.0_rt);
-        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT, dlog_scor_dYe, dlog_scor_dS2);
+        } else {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        }
         rate_eval.log_screen(k_p_Co55) = log_scor;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_p_Co55) = dlog_scor_dT;
+            rate_eval.dlog_screen_dYe(k_p_Co55) = dlog_scor_dYe;
+            rate_eval.dlog_screen_dS2(k_p_Co55) = dlog_scor_dS2;
         }
     }
 
     {
         constexpr auto scn_fac = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 10.0_rt, 20.0_rt);
         static_assert(scn_fac.z1 == 2.0_rt);
-        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT, dlog_scor_dYe, dlog_scor_dS2);
+        } else {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        }
         rate_eval.log_screen(k_He4_Ne20) = log_scor;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_He4_Ne20) = dlog_scor_dT;
+            rate_eval.dlog_screen_dYe(k_He4_Ne20) = dlog_scor_dYe;
+            rate_eval.dlog_screen_dS2(k_He4_Ne20) = dlog_scor_dS2;
         }
     }
 
     {
         constexpr auto scn_fac = scrn::calculate_screen_factor(1.0_rt, 1.0_rt, 13.0_rt, 27.0_rt);
         static_assert(scn_fac.z1 == 1.0_rt);
-        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT, dlog_scor_dYe, dlog_scor_dS2);
+        } else {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        }
         rate_eval.log_screen(k_p_Al27) = log_scor;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_p_Al27) = dlog_scor_dT;
+            rate_eval.dlog_screen_dYe(k_p_Al27) = dlog_scor_dYe;
+            rate_eval.dlog_screen_dS2(k_p_Al27) = dlog_scor_dS2;
         }
     }
 
     {
         constexpr auto scn_fac = scrn::calculate_screen_factor(1.0_rt, 1.0_rt, 25.0_rt, 51.0_rt);
         static_assert(scn_fac.z1 == 1.0_rt);
-        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT, dlog_scor_dYe, dlog_scor_dS2);
+        } else {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        }
         rate_eval.log_screen(k_p_Mn51) = log_scor;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_p_Mn51) = dlog_scor_dT;
+            rate_eval.dlog_screen_dYe(k_p_Mn51) = dlog_scor_dYe;
+            rate_eval.dlog_screen_dS2(k_p_Mn51) = dlog_scor_dS2;
         }
     }
 
     {
         constexpr auto scn_fac = scrn::calculate_screen_factor(1.0_rt, 1.0_rt, 11.0_rt, 23.0_rt);
         static_assert(scn_fac.z1 == 1.0_rt);
-        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT, dlog_scor_dYe, dlog_scor_dS2);
+        } else {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        }
         rate_eval.log_screen(k_p_Na23) = log_scor;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_p_Na23) = dlog_scor_dT;
+            rate_eval.dlog_screen_dYe(k_p_Na23) = dlog_scor_dYe;
+            rate_eval.dlog_screen_dS2(k_p_Na23) = dlog_scor_dS2;
         }
     }
 
     {
         constexpr auto scn_fac = scrn::calculate_screen_factor(1.0_rt, 1.0_rt, 27.0_rt, 56.0_rt);
         static_assert(scn_fac.z1 == 1.0_rt);
-        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT, dlog_scor_dYe, dlog_scor_dS2);
+        } else {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        }
         rate_eval.log_screen(k_p_Co56) = log_scor;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_p_Co56) = dlog_scor_dT;
+            rate_eval.dlog_screen_dYe(k_p_Co56) = dlog_scor_dYe;
+            rate_eval.dlog_screen_dS2(k_p_Co56) = dlog_scor_dS2;
         }
     }
 
     {
         constexpr auto scn_fac = scrn::calculate_screen_factor(1.0_rt, 1.0_rt, 26.0_rt, 54.0_rt);
         static_assert(scn_fac.z1 == 1.0_rt);
-        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT, dlog_scor_dYe, dlog_scor_dS2);
+        } else {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        }
         rate_eval.log_screen(k_p_Fe54) = log_scor;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_p_Fe54) = dlog_scor_dT;
+            rate_eval.dlog_screen_dYe(k_p_Fe54) = dlog_scor_dYe;
+            rate_eval.dlog_screen_dS2(k_p_Fe54) = dlog_scor_dS2;
         }
     }
 
     {
         constexpr auto scn_fac = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 26.0_rt, 52.0_rt);
         static_assert(scn_fac.z1 == 2.0_rt);
-        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT, dlog_scor_dYe, dlog_scor_dS2);
+        } else {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        }
         rate_eval.log_screen(k_He4_Fe52) = log_scor;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_He4_Fe52) = dlog_scor_dT;
+            rate_eval.dlog_screen_dYe(k_He4_Fe52) = dlog_scor_dYe;
+            rate_eval.dlog_screen_dS2(k_He4_Fe52) = dlog_scor_dS2;
         }
     }
 
     {
         constexpr auto scn_fac = scrn::calculate_screen_factor(1.0_rt, 1.0_rt, 29.0_rt, 59.0_rt);
         static_assert(scn_fac.z1 == 1.0_rt);
-        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT, dlog_scor_dYe, dlog_scor_dS2);
+        } else {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        }
         rate_eval.log_screen(k_p_Cu59) = log_scor;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_p_Cu59) = dlog_scor_dT;
+            rate_eval.dlog_screen_dYe(k_p_Cu59) = dlog_scor_dYe;
+            rate_eval.dlog_screen_dS2(k_p_Cu59) = dlog_scor_dS2;
         }
     }
 
     {
         constexpr auto scn_fac = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 16.0_rt, 32.0_rt);
         static_assert(scn_fac.z1 == 2.0_rt);
-        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT, dlog_scor_dYe, dlog_scor_dS2);
+        } else {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        }
         rate_eval.log_screen(k_He4_S32) = log_scor;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_He4_S32) = dlog_scor_dT;
+            rate_eval.dlog_screen_dYe(k_He4_S32) = dlog_scor_dYe;
+            rate_eval.dlog_screen_dS2(k_He4_S32) = dlog_scor_dS2;
         }
     }
 
     {
         constexpr auto scn_fac = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 25.0_rt, 51.0_rt);
         static_assert(scn_fac.z1 == 2.0_rt);
-        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT, dlog_scor_dYe, dlog_scor_dS2);
+        } else {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        }
         rate_eval.log_screen(k_He4_Mn51) = log_scor;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_He4_Mn51) = dlog_scor_dT;
+            rate_eval.dlog_screen_dYe(k_He4_Mn51) = dlog_scor_dYe;
+            rate_eval.dlog_screen_dS2(k_He4_Mn51) = dlog_scor_dS2;
         }
     }
 
     {
         constexpr auto scn_fac = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 27.0_rt, 55.0_rt);
         static_assert(scn_fac.z1 == 2.0_rt);
-        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT, dlog_scor_dYe, dlog_scor_dS2);
+        } else {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        }
         rate_eval.log_screen(k_He4_Co55) = log_scor;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_He4_Co55) = dlog_scor_dT;
+            rate_eval.dlog_screen_dYe(k_He4_Co55) = dlog_scor_dYe;
+            rate_eval.dlog_screen_dS2(k_He4_Co55) = dlog_scor_dS2;
         }
     }
 
     {
         constexpr auto scn_fac = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 28.0_rt, 56.0_rt);
         static_assert(scn_fac.z1 == 2.0_rt);
-        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT, dlog_scor_dYe, dlog_scor_dS2);
+        } else {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        }
         rate_eval.log_screen(k_He4_Ni56) = log_scor;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_He4_Ni56) = dlog_scor_dT;
+            rate_eval.dlog_screen_dYe(k_He4_Ni56) = dlog_scor_dYe;
+            rate_eval.dlog_screen_dS2(k_He4_Ni56) = dlog_scor_dS2;
         }
     }
 
     {
         constexpr auto scn_fac = scrn::calculate_screen_factor(1.0_rt, 1.0_rt, 15.0_rt, 31.0_rt);
         static_assert(scn_fac.z1 == 1.0_rt);
-        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT, dlog_scor_dYe, dlog_scor_dS2);
+        } else {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        }
         rate_eval.log_screen(k_p_P31) = log_scor;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_p_P31) = dlog_scor_dT;
+            rate_eval.dlog_screen_dYe(k_p_P31) = dlog_scor_dYe;
+            rate_eval.dlog_screen_dS2(k_p_P31) = dlog_scor_dS2;
         }
     }
 
     {
         constexpr auto scn_fac = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 2.0_rt, 4.0_rt);
         static_assert(scn_fac.z1 == 2.0_rt);
-        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT, dlog_scor_dYe, dlog_scor_dS2);
+        } else {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        }
         rate_eval.log_screen(k_He4_He4) = log_scor;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_He4_He4) = dlog_scor_dT;
+            rate_eval.dlog_screen_dYe(k_He4_He4) = dlog_scor_dYe;
+            rate_eval.dlog_screen_dS2(k_He4_He4) = dlog_scor_dS2;
         }
     }
 
     {
         constexpr auto scn_fac = scrn::calculate_screen_factor(1.0_rt, 1.0_rt, 28.0_rt, 58.0_rt);
         static_assert(scn_fac.z1 == 1.0_rt);
-        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT, dlog_scor_dYe, dlog_scor_dS2);
+        } else {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        }
         rate_eval.log_screen(k_p_Ni58) = log_scor;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_p_Ni58) = dlog_scor_dT;
+            rate_eval.dlog_screen_dYe(k_p_Ni58) = dlog_scor_dYe;
+            rate_eval.dlog_screen_dS2(k_p_Ni58) = dlog_scor_dS2;
         }
     }
 
     {
         constexpr auto scn_fac = scrn::calculate_screen_factor(1.0_rt, 1.0_rt, 8.0_rt, 16.0_rt);
         static_assert(scn_fac.z1 == 1.0_rt);
-        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT, dlog_scor_dYe, dlog_scor_dS2);
+        } else {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        }
         rate_eval.log_screen(k_p_O16) = log_scor;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_p_O16) = dlog_scor_dT;
+            rate_eval.dlog_screen_dYe(k_p_O16) = dlog_scor_dYe;
+            rate_eval.dlog_screen_dS2(k_p_O16) = dlog_scor_dS2;
         }
     }
 
     {
         constexpr auto scn_fac = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 27.0_rt, 56.0_rt);
         static_assert(scn_fac.z1 == 2.0_rt);
-        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT, dlog_scor_dYe, dlog_scor_dS2);
+        } else {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        }
         rate_eval.log_screen(k_He4_Co56) = log_scor;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_He4_Co56) = dlog_scor_dT;
+            rate_eval.dlog_screen_dYe(k_He4_Co56) = dlog_scor_dYe;
+            rate_eval.dlog_screen_dS2(k_He4_Co56) = dlog_scor_dS2;
         }
     }
 
     {
         constexpr auto scn_fac = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 14.0_rt, 28.0_rt);
         static_assert(scn_fac.z1 == 2.0_rt);
-        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT, dlog_scor_dYe, dlog_scor_dS2);
+        } else {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        }
         rate_eval.log_screen(k_He4_Si28) = log_scor;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_He4_Si28) = dlog_scor_dT;
+            rate_eval.dlog_screen_dYe(k_He4_Si28) = dlog_scor_dYe;
+            rate_eval.dlog_screen_dS2(k_He4_Si28) = dlog_scor_dS2;
         }
     }
 
     {
         constexpr auto scn_fac = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 26.0_rt, 54.0_rt);
         static_assert(scn_fac.z1 == 2.0_rt);
-        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT, dlog_scor_dYe, dlog_scor_dS2);
+        } else {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        }
         rate_eval.log_screen(k_He4_Fe54) = log_scor;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_He4_Fe54) = dlog_scor_dT;
+            rate_eval.dlog_screen_dYe(k_He4_Fe54) = dlog_scor_dYe;
+            rate_eval.dlog_screen_dS2(k_He4_Fe54) = dlog_scor_dS2;
         }
     }
 
     {
         constexpr auto scn_fac = scrn::calculate_screen_factor(1.0_rt, 1.0_rt, 17.0_rt, 35.0_rt);
         static_assert(scn_fac.z1 == 1.0_rt);
-        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT, dlog_scor_dYe, dlog_scor_dS2);
+        } else {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        }
         rate_eval.log_screen(k_p_Cl35) = log_scor;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_p_Cl35) = dlog_scor_dT;
+            rate_eval.dlog_screen_dYe(k_p_Cl35) = dlog_scor_dYe;
+            rate_eval.dlog_screen_dS2(k_p_Cl35) = dlog_scor_dS2;
         }
     }
 
     {
         constexpr auto scn_fac = scrn::calculate_screen_factor(8.0_rt, 16.0_rt, 8.0_rt, 16.0_rt);
         static_assert(scn_fac.z1 == 8.0_rt);
-        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT, dlog_scor_dYe, dlog_scor_dS2);
+        } else {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        }
         rate_eval.log_screen(k_O16_O16) = log_scor;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_O16_O16) = dlog_scor_dT;
+            rate_eval.dlog_screen_dYe(k_O16_O16) = dlog_scor_dYe;
+            rate_eval.dlog_screen_dS2(k_O16_O16) = dlog_scor_dS2;
         }
     }
 
     {
         constexpr auto scn_fac = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 4.0_rt, 8.0_rt);
         static_assert(scn_fac.z1 == 2.0_rt);
-        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT, dlog_scor_dYe, dlog_scor_dS2);
+        } else {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        }
         rate_eval.log_screen(k_He4_Be8) = log_scor;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_He4_Be8) = dlog_scor_dT;
+            rate_eval.dlog_screen_dYe(k_He4_Be8) = dlog_scor_dYe;
+            rate_eval.dlog_screen_dS2(k_He4_Be8) = dlog_scor_dS2;
         }
     }
 
     {
         constexpr auto scn_fac = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 7.0_rt, 13.0_rt);
         static_assert(scn_fac.z1 == 2.0_rt);
-        actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT, dlog_scor_dYe, dlog_scor_dS2);
+        } else {
+            actual_log_screen(pstate, scn_fac, log_scor, dlog_scor_dT);
+        }
         rate_eval.log_screen(k_He4_N13) = log_scor;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
             rate_eval.dlog_screen_dT(k_He4_N13) = dlog_scor_dT;
+            rate_eval.dlog_screen_dYe(k_He4_N13) = dlog_scor_dYe;
+            rate_eval.dlog_screen_dS2(k_He4_N13) = dlog_scor_dS2;
         }
     }
 
@@ -485,30 +717,10 @@ void evaluate_rates(const burn_t& state,
 
     // Fill in different rates
 
-    reaclib_rates::fill_rates(tfactors, rate_eval);
+    rate_util::fill_rates(tfactors, state.T, state.rho, rhoy, Y, rate_eval);
 
-    tabular_weak_rates::fill_rates(state.T, state.rho, rhoy, Y, rate_eval);
+    // Apply any parameters to disable rates
 
-    temp_tabular::fill_rates(tfactors, rate_eval);
-
-    // fill modified rates next -- these can have ReacLib or
-    // TemperatureTabular/StarLib rates as the original rate
-    modified_rates::fill_rates(tfactors, rate_eval);
-
-    // fill branched rates -- these can have ReacLib or
-    // TemperatureTabular/StarLib as the underlying rate or branches.
-    branched_rates::fill_rates(tfactors, rate_eval);
-
-    // Calculate Derived Rates next. This should go last but before
-    // approx rates, since those may have ReacLibRate,
-    // TemperatureTabularRate / StarLibRate, or DerivedRate as the
-    // underlying rate.
-    derived_rates::fill_rates(tfactors, rate_eval);
-
-
-
-    // Fill approximate rates
-    approximate_rates::fill_rates(tfactors, state.rho, Y, rate_eval);
 
 }
 
@@ -552,14 +764,14 @@ void get_ydot_weak(const burn_t& state,
 
     rate_t rate_eval;
 
-    [[maybe_unused]] amrex::Real rate, drate_dT, edot_nu, edot_gamma;
     [[maybe_unused]] const amrex::Real rhoy = state.rho * state.y_e;
 
-    rate_eval.enuc_weak = 0.0_rt;
+    const tf_t tfactors = evaluate_tfactors(state.T);
 
-    // Compute all weak rates and get ydot_weak
+    // fill only the weak rates
+    rate_util::fill_weak_rates(tfactors, state.T, state.rho, rhoy, Y, rate_eval);
 
-    tabular_weak_rates::fill_rates(state.T, state.rho, rhoy, Y, rate_eval);
+    // assemble Ydot for just the weak rate evolution
 
     const auto& screened_rates = rate_eval.screened_rates;
 
@@ -624,6 +836,7 @@ void get_ydot_weak(const burn_t& state,
     ydot_nuc(Cu59) = 0.0_rt;
 
     ydot_nuc(Zn60) = 0.0_rt;
+
 
     enuc_weak = rate_eval.enuc_weak;
 }
@@ -1030,6 +1243,32 @@ void jac_nuc(const burn_t& state,
 
     jac.set(N, Zn60, 0.0);
 
+#ifdef SCREENING
+    {
+        // Screening dependence through Ye = sum(Z Y) and S2 = sum(Z^2 Y).
+        amrex::Real dscreen_ydot_dYe{};
+        amrex::Real dscreen_ydot_dS2{};
+        {
+            const amrex::Real flux = screened_rates(k_Fe56_p_to_n_Co56_derived)*Y(Fe56)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Fe56));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Fe56));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Co56_p_to_n_Ni56_derived)*Y(Co56)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Co56));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Co56));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Co56_He4_to_n_Cu59_derived)*Y(Co56)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Co56));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Co56));
+        }
+        for (int jcol = 1; jcol <= NumSpec; ++jcol) {
+            const amrex::Real Z = zion[jcol-1];
+            jac.add(N, jcol, dscreen_ydot_dYe * Z + dscreen_ydot_dS2 * Z * Z);
+        }
+    }
+#endif
 
     // p row
 
@@ -1182,6 +1421,212 @@ void jac_nuc(const burn_t& state,
     scratch = screened_rates(k_Zn60_to_p_Cu59_derived);
     jac.set(H1, Zn60, scratch);
 
+#ifdef SCREENING
+    {
+        // Screening dependence through Ye = sum(Z Y) and S2 = sum(Z^2 Y).
+        amrex::Real dscreen_ydot_dYe{};
+        amrex::Real dscreen_ydot_dS2{};
+        {
+            const amrex::Real flux = 0.5*screened_rates(k_C12_C12_to_p_Na23_starlib)*amrex::Math::powi<2>(Y(C12))*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_C12_C12));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_C12_C12));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_O16_C12_to_p_Al27_starlib)*Y(C12)*Y(O16)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_C12_O16));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_C12_O16));
+        }
+        {
+            const amrex::Real flux = 0.5*screened_rates(k_O16_O16_to_p_P31_starlib)*amrex::Math::powi<2>(Y(O16))*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_O16_O16));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_O16_O16));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_C12_p_to_N13_starlib)*Y(C12)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_C12));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_C12));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_N13_He4_to_p_O16_starlib)*Y(He4)*Y(N13)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_N13));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_N13));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Na23_p_to_He4_Ne20_starlib)*Y(Na23)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Na23));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Na23));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Na23_p_to_Mg24_starlib)*Y(Na23)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Na23));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Na23));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Al27_p_to_He4_Mg24_starlib)*Y(Al27)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Al27));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Al27));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Al27_p_to_Si28_starlib)*Y(Al27)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Al27));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Al27));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_P31_p_to_He4_Si28_starlib)*Y(P31)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_P31));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_P31));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_P31_p_to_S32_starlib)*Y(P31)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_P31));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_P31));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Cr48_He4_to_p_Mn51_starlib)*Y(Cr48)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Cr48));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Cr48));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Mn51_p_to_Fe52_starlib)*Y(Mn51)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Mn51));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Mn51));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Fe52_He4_to_p_Co55_starlib)*Y(Fe52)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Fe52));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Fe52));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Co55_p_to_Ni56_starlib)*Y(Co55)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Co55));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Co55));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Cu59_p_to_He4_Ni56_starlib)*Y(Cu59)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Cu59));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Cu59));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Cu59_p_to_Zn60_starlib)*Y(Cu59)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Cu59));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Cu59));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Mn51_He4_to_p_Fe54_starlib)*Y(He4)*Y(Mn51)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Mn51));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Mn51));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Fe54_p_to_Co55_starlib)*Y(Fe54)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Fe54));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Fe54));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Fe56_p_to_Co57_starlib)*Y(Fe56)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Fe56));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Fe56));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Co57_p_to_He4_Fe54_starlib)*Y(Co57)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Co57));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Co57));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Co57_p_to_Ni58_starlib)*Y(Co57)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Co57));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Co57));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Co55_He4_to_p_Ni58_starlib)*Y(Co55)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Co55));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Co55));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Ni58_p_to_Cu59_starlib)*Y(Ni58)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Ni58));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Ni58));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Na23_p_to_C12_C12_derived)*Y(Na23)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Na23));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Na23));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Al27_p_to_C12_O16_derived)*Y(Al27)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Al27));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Al27));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_P31_p_to_O16_O16_derived)*Y(P31)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_P31));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_P31));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_O16_p_to_He4_N13_derived)*Y(O16)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_O16));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_O16));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Ne20_He4_to_p_Na23_derived)*Y(He4)*Y(Ne20)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Ne20));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Ne20));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Mg24_He4_to_p_Al27_derived)*Y(He4)*Y(Mg24)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Mg24));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Mg24));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Si28_He4_to_p_P31_derived)*Y(He4)*Y(Si28)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Si28));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Si28));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Mn51_p_to_He4_Cr48_derived)*Y(Mn51)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Mn51));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Mn51));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Co55_p_to_He4_Fe52_derived)*Y(Co55)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Co55));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Co55));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Ni56_He4_to_p_Cu59_derived)*Y(He4)*Y(Ni56)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Ni56));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Ni56));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Fe54_p_to_He4_Mn51_derived)*Y(Fe54)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Fe54));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Fe54));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Fe56_p_to_n_Co56_derived)*Y(Fe56)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Fe56));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Fe56));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Fe54_He4_to_p_Co57_derived)*Y(Fe54)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Fe54));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Fe54));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Ni58_p_to_He4_Co55_derived)*Y(Ni58)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Ni58));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Ni58));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Co56_p_to_n_Ni56_derived)*Y(Co56)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Co56));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Co56));
+        }
+        for (int jcol = 1; jcol <= NumSpec; ++jcol) {
+            const amrex::Real Z = zion[jcol-1];
+            jac.add(H1, jcol, dscreen_ydot_dYe * Z + dscreen_ydot_dS2 * Z * Z);
+        }
+    }
+#endif
 
     // He4 row
 
@@ -1342,6 +1787,232 @@ void jac_nuc(const burn_t& state,
     scratch = screened_rates(k_Zn60_to_He4_Ni56_derived);
     jac.set(He4, Zn60, scratch);
 
+#ifdef SCREENING
+    {
+        // Screening dependence through Ye = sum(Z Y) and S2 = sum(Z^2 Y).
+        amrex::Real dscreen_ydot_dYe{};
+        amrex::Real dscreen_ydot_dS2{};
+        {
+            const amrex::Real flux = 0.5*screened_rates(k_C12_C12_to_He4_Ne20_starlib)*amrex::Math::powi<2>(Y(C12))*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_C12_C12));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_C12_C12));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_O16_C12_to_He4_Mg24_starlib)*Y(C12)*Y(O16)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_C12_O16));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_C12_O16));
+        }
+        {
+            const amrex::Real flux = 0.5*screened_rates(k_O16_O16_to_He4_Si28_starlib)*amrex::Math::powi<2>(Y(O16))*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_O16_O16));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_O16_O16));
+        }
+        {
+            const amrex::Real flux = -0.5*screened_rates(k_He4_He4_He4_to_C12_starlib)*amrex::Math::powi<3>(Y(He4))*amrex::Math::powi<2>(state.rho);
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_He4) + rate_eval.dlog_screen_dYe(k_He4_Be8));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_He4) + rate_eval.dlog_screen_dS2(k_He4_Be8));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_C12_He4_to_O16_starlib)*Y(C12)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_C12));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_C12));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_N13_He4_to_p_O16_starlib)*Y(He4)*Y(N13)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_N13));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_N13));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_O16_He4_to_Ne20_starlib)*Y(He4)*Y(O16)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_O16));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_O16));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Ne20_He4_to_Mg24_starlib)*Y(He4)*Y(Ne20)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Ne20));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Ne20));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Na23_p_to_He4_Ne20_starlib)*Y(Na23)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Na23));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Na23));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Mg24_He4_to_Si28_starlib)*Y(He4)*Y(Mg24)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Mg24));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Mg24));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Al27_p_to_He4_Mg24_starlib)*Y(Al27)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Al27));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Al27));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Si28_He4_to_S32_starlib)*Y(He4)*Y(Si28)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Si28));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Si28));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_P31_p_to_He4_Si28_starlib)*Y(P31)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_P31));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_P31));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Cr48_He4_to_p_Mn51_starlib)*Y(Cr48)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Cr48));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Cr48));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Cr48_He4_to_Fe52_starlib)*Y(Cr48)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Cr48));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Cr48));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Mn51_He4_to_Co55_starlib)*Y(He4)*Y(Mn51)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Mn51));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Mn51));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Fe52_He4_to_p_Co55_starlib)*Y(Fe52)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Fe52));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Fe52));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Fe52_He4_to_Ni56_starlib)*Y(Fe52)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Fe52));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Fe52));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Co55_He4_to_Cu59_starlib)*Y(Co55)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Co55));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Co55));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Ni56_He4_to_Zn60_starlib)*Y(He4)*Y(Ni56)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Ni56));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Ni56));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Cu59_p_to_He4_Ni56_starlib)*Y(Cu59)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Cu59));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Cu59));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Mn51_He4_to_p_Fe54_starlib)*Y(He4)*Y(Mn51)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Mn51));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Mn51));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Fe54_He4_to_Ni58_starlib)*Y(Fe54)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Fe54));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Fe54));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Co57_p_to_He4_Fe54_starlib)*Y(Co57)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Co57));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Co57));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Co55_He4_to_p_Ni58_starlib)*Y(Co55)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Co55));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Co55));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Ne20_He4_to_C12_C12_derived)*Y(He4)*Y(Ne20)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Ne20));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Ne20));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Mg24_He4_to_C12_O16_derived)*Y(He4)*Y(Mg24)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Mg24));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Mg24));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Si28_He4_to_O16_O16_derived)*Y(He4)*Y(Si28)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Si28));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Si28));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_O16_p_to_He4_N13_derived)*Y(O16)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_O16));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_O16));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Ne20_He4_to_p_Na23_derived)*Y(He4)*Y(Ne20)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Ne20));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Ne20));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Mg24_He4_to_p_Al27_derived)*Y(He4)*Y(Mg24)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Mg24));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Mg24));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Si28_He4_to_p_P31_derived)*Y(He4)*Y(Si28)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Si28));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Si28));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Mn51_p_to_He4_Cr48_derived)*Y(Mn51)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Mn51));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Mn51));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Co55_p_to_He4_Fe52_derived)*Y(Co55)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Co55));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Co55));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Ni56_He4_to_p_Cu59_derived)*Y(He4)*Y(Ni56)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Ni56));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Ni56));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Fe54_p_to_He4_Mn51_derived)*Y(Fe54)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Fe54));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Fe54));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Fe54_He4_to_p_Co57_derived)*Y(Fe54)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Fe54));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Fe54));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Ni58_p_to_He4_Co55_derived)*Y(Ni58)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Ni58));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Ni58));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Co56_He4_to_n_Cu59_derived)*Y(Co56)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Co56));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Co56));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_S32_He4_to_Ar36_approx)*Y(He4)*Y(S32)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_S32));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_S32));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Ar36_He4_to_Ca40_approx)*Y(Ar36)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Ar36));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Ar36));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Ca40_He4_to_Ti44_approx)*Y(Ca40)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Ca40));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Ca40));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Ti44_He4_to_Cr48_approx)*Y(He4)*Y(Ti44)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Ti44));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Ti44));
+        }
+        for (int jcol = 1; jcol <= NumSpec; ++jcol) {
+            const amrex::Real Z = zion[jcol-1];
+            jac.add(He4, jcol, dscreen_ydot_dYe * Z + dscreen_ydot_dS2 * Z * Z);
+        }
+    }
+#endif
 
     // C12 row
 
@@ -1428,6 +2099,82 @@ void jac_nuc(const burn_t& state,
 
     jac.set(C12, Zn60, 0.0);
 
+#ifdef SCREENING
+    {
+        // Screening dependence through Ye = sum(Z Y) and S2 = sum(Z^2 Y).
+        amrex::Real dscreen_ydot_dYe{};
+        amrex::Real dscreen_ydot_dS2{};
+        {
+            const amrex::Real flux = -screened_rates(k_C12_C12_to_p_Na23_starlib)*amrex::Math::powi<2>(Y(C12))*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_C12_C12));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_C12_C12));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_C12_C12_to_He4_Ne20_starlib)*amrex::Math::powi<2>(Y(C12))*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_C12_C12));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_C12_C12));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_O16_C12_to_p_Al27_starlib)*Y(C12)*Y(O16)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_C12_O16));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_C12_O16));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_O16_C12_to_He4_Mg24_starlib)*Y(C12)*Y(O16)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_C12_O16));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_C12_O16));
+        }
+        {
+            const amrex::Real flux = 0.16666666666666667*screened_rates(k_He4_He4_He4_to_C12_starlib)*amrex::Math::powi<3>(Y(He4))*amrex::Math::powi<2>(state.rho);
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_He4) + rate_eval.dlog_screen_dYe(k_He4_Be8));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_He4) + rate_eval.dlog_screen_dS2(k_He4_Be8));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_C12_p_to_N13_starlib)*Y(C12)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_C12));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_C12));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_C12_He4_to_O16_starlib)*Y(C12)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_C12));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_C12));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_C12_C12_to_Mg24_modified)*amrex::Math::powi<2>(Y(C12))*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_C12_C12));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_C12_C12));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_O16_C12_to_Si28_modified)*Y(C12)*Y(O16)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_C12_O16));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_C12_O16));
+        }
+        {
+            const amrex::Real flux = 2.0*screened_rates(k_Ne20_He4_to_C12_C12_derived)*Y(He4)*Y(Ne20)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Ne20));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Ne20));
+        }
+        {
+            const amrex::Real flux = 2.0*screened_rates(k_Na23_p_to_C12_C12_derived)*Y(Na23)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Na23));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Na23));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Mg24_He4_to_C12_O16_derived)*Y(He4)*Y(Mg24)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Mg24));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Mg24));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Al27_p_to_C12_O16_derived)*Y(Al27)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Al27));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Al27));
+        }
+        for (int jcol = 1; jcol <= NumSpec; ++jcol) {
+            const amrex::Real Z = zion[jcol-1];
+            jac.add(C12, jcol, dscreen_ydot_dYe * Z + dscreen_ydot_dS2 * Z * Z);
+        }
+    }
+#endif
 
     // N13 row
 
@@ -1494,6 +2241,32 @@ void jac_nuc(const burn_t& state,
 
     jac.set(N13, Zn60, 0.0);
 
+#ifdef SCREENING
+    {
+        // Screening dependence through Ye = sum(Z Y) and S2 = sum(Z^2 Y).
+        amrex::Real dscreen_ydot_dYe{};
+        amrex::Real dscreen_ydot_dS2{};
+        {
+            const amrex::Real flux = screened_rates(k_C12_p_to_N13_starlib)*Y(C12)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_C12));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_C12));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_N13_He4_to_p_O16_starlib)*Y(He4)*Y(N13)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_N13));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_N13));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_O16_p_to_He4_N13_derived)*Y(O16)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_O16));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_O16));
+        }
+        for (int jcol = 1; jcol <= NumSpec; ++jcol) {
+            const amrex::Real Z = zion[jcol-1];
+            jac.add(N13, jcol, dscreen_ydot_dYe * Z + dscreen_ydot_dS2 * Z * Z);
+        }
+    }
+#endif
 
     // O16 row
 
@@ -1582,6 +2355,87 @@ void jac_nuc(const burn_t& state,
 
     jac.set(O16, Zn60, 0.0);
 
+#ifdef SCREENING
+    {
+        // Screening dependence through Ye = sum(Z Y) and S2 = sum(Z^2 Y).
+        amrex::Real dscreen_ydot_dYe{};
+        amrex::Real dscreen_ydot_dS2{};
+        {
+            const amrex::Real flux = -screened_rates(k_O16_C12_to_p_Al27_starlib)*Y(C12)*Y(O16)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_C12_O16));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_C12_O16));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_O16_C12_to_He4_Mg24_starlib)*Y(C12)*Y(O16)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_C12_O16));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_C12_O16));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_O16_O16_to_p_P31_starlib)*amrex::Math::powi<2>(Y(O16))*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_O16_O16));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_O16_O16));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_O16_O16_to_He4_Si28_starlib)*amrex::Math::powi<2>(Y(O16))*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_O16_O16));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_O16_O16));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_C12_He4_to_O16_starlib)*Y(C12)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_C12));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_C12));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_N13_He4_to_p_O16_starlib)*Y(He4)*Y(N13)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_N13));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_N13));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_O16_He4_to_Ne20_starlib)*Y(He4)*Y(O16)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_O16));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_O16));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_O16_O16_to_S32_modified)*amrex::Math::powi<2>(Y(O16))*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_O16_O16));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_O16_O16));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_O16_C12_to_Si28_modified)*Y(C12)*Y(O16)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_C12_O16));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_C12_O16));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Mg24_He4_to_C12_O16_derived)*Y(He4)*Y(Mg24)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Mg24));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Mg24));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Al27_p_to_C12_O16_derived)*Y(Al27)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Al27));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Al27));
+        }
+        {
+            const amrex::Real flux = 2.0*screened_rates(k_Si28_He4_to_O16_O16_derived)*Y(He4)*Y(Si28)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Si28));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Si28));
+        }
+        {
+            const amrex::Real flux = 2.0*screened_rates(k_P31_p_to_O16_O16_derived)*Y(P31)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_P31));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_P31));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_O16_p_to_He4_N13_derived)*Y(O16)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_O16));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_O16));
+        }
+        for (int jcol = 1; jcol <= NumSpec; ++jcol) {
+            const amrex::Real Z = zion[jcol-1];
+            jac.add(O16, jcol, dscreen_ydot_dYe * Z + dscreen_ydot_dS2 * Z * Z);
+        }
+    }
+#endif
 
     // Ne20 row
 
@@ -1654,6 +2508,47 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Ne20, Zn60, 0.0);
 
+#ifdef SCREENING
+    {
+        // Screening dependence through Ye = sum(Z Y) and S2 = sum(Z^2 Y).
+        amrex::Real dscreen_ydot_dYe{};
+        amrex::Real dscreen_ydot_dS2{};
+        {
+            const amrex::Real flux = 0.5*screened_rates(k_C12_C12_to_He4_Ne20_starlib)*amrex::Math::powi<2>(Y(C12))*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_C12_C12));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_C12_C12));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_O16_He4_to_Ne20_starlib)*Y(He4)*Y(O16)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_O16));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_O16));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Ne20_He4_to_Mg24_starlib)*Y(He4)*Y(Ne20)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Ne20));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Ne20));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Na23_p_to_He4_Ne20_starlib)*Y(Na23)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Na23));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Na23));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Ne20_He4_to_C12_C12_derived)*Y(He4)*Y(Ne20)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Ne20));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Ne20));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Ne20_He4_to_p_Na23_derived)*Y(He4)*Y(Ne20)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Ne20));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Ne20));
+        }
+        for (int jcol = 1; jcol <= NumSpec; ++jcol) {
+            const amrex::Real Z = zion[jcol-1];
+            jac.add(Ne20, jcol, dscreen_ydot_dYe * Z + dscreen_ydot_dS2 * Z * Z);
+        }
+    }
+#endif
 
     // Na23 row
 
@@ -1723,6 +2618,42 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Na23, Zn60, 0.0);
 
+#ifdef SCREENING
+    {
+        // Screening dependence through Ye = sum(Z Y) and S2 = sum(Z^2 Y).
+        amrex::Real dscreen_ydot_dYe{};
+        amrex::Real dscreen_ydot_dS2{};
+        {
+            const amrex::Real flux = 0.5*screened_rates(k_C12_C12_to_p_Na23_starlib)*amrex::Math::powi<2>(Y(C12))*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_C12_C12));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_C12_C12));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Na23_p_to_He4_Ne20_starlib)*Y(Na23)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Na23));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Na23));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Na23_p_to_Mg24_starlib)*Y(Na23)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Na23));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Na23));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Na23_p_to_C12_C12_derived)*Y(Na23)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Na23));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Na23));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Ne20_He4_to_p_Na23_derived)*Y(He4)*Y(Ne20)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Ne20));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Ne20));
+        }
+        for (int jcol = 1; jcol <= NumSpec; ++jcol) {
+            const amrex::Real Z = zion[jcol-1];
+            jac.add(Na23, jcol, dscreen_ydot_dYe * Z + dscreen_ydot_dS2 * Z * Z);
+        }
+    }
+#endif
 
     // Mg24 row
 
@@ -1801,6 +2732,57 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Mg24, Zn60, 0.0);
 
+#ifdef SCREENING
+    {
+        // Screening dependence through Ye = sum(Z Y) and S2 = sum(Z^2 Y).
+        amrex::Real dscreen_ydot_dYe{};
+        amrex::Real dscreen_ydot_dS2{};
+        {
+            const amrex::Real flux = screened_rates(k_O16_C12_to_He4_Mg24_starlib)*Y(C12)*Y(O16)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_C12_O16));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_C12_O16));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Ne20_He4_to_Mg24_starlib)*Y(He4)*Y(Ne20)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Ne20));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Ne20));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Na23_p_to_Mg24_starlib)*Y(Na23)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Na23));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Na23));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Mg24_He4_to_Si28_starlib)*Y(He4)*Y(Mg24)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Mg24));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Mg24));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Al27_p_to_He4_Mg24_starlib)*Y(Al27)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Al27));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Al27));
+        }
+        {
+            const amrex::Real flux = 0.5*screened_rates(k_C12_C12_to_Mg24_modified)*amrex::Math::powi<2>(Y(C12))*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_C12_C12));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_C12_C12));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Mg24_He4_to_C12_O16_derived)*Y(He4)*Y(Mg24)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Mg24));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Mg24));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Mg24_He4_to_p_Al27_derived)*Y(He4)*Y(Mg24)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Mg24));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Mg24));
+        }
+        for (int jcol = 1; jcol <= NumSpec; ++jcol) {
+            const amrex::Real Z = zion[jcol-1];
+            jac.add(Mg24, jcol, dscreen_ydot_dYe * Z + dscreen_ydot_dS2 * Z * Z);
+        }
+    }
+#endif
 
     // Al27 row
 
@@ -1871,6 +2853,42 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Al27, Zn60, 0.0);
 
+#ifdef SCREENING
+    {
+        // Screening dependence through Ye = sum(Z Y) and S2 = sum(Z^2 Y).
+        amrex::Real dscreen_ydot_dYe{};
+        amrex::Real dscreen_ydot_dS2{};
+        {
+            const amrex::Real flux = screened_rates(k_O16_C12_to_p_Al27_starlib)*Y(C12)*Y(O16)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_C12_O16));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_C12_O16));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Al27_p_to_He4_Mg24_starlib)*Y(Al27)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Al27));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Al27));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Al27_p_to_Si28_starlib)*Y(Al27)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Al27));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Al27));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Al27_p_to_C12_O16_derived)*Y(Al27)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Al27));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Al27));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Mg24_He4_to_p_Al27_derived)*Y(He4)*Y(Mg24)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Mg24));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Mg24));
+        }
+        for (int jcol = 1; jcol <= NumSpec; ++jcol) {
+            const amrex::Real Z = zion[jcol-1];
+            jac.add(Al27, jcol, dscreen_ydot_dYe * Z + dscreen_ydot_dS2 * Z * Z);
+        }
+    }
+#endif
 
     // Si28 row
 
@@ -1949,6 +2967,57 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Si28, Zn60, 0.0);
 
+#ifdef SCREENING
+    {
+        // Screening dependence through Ye = sum(Z Y) and S2 = sum(Z^2 Y).
+        amrex::Real dscreen_ydot_dYe{};
+        amrex::Real dscreen_ydot_dS2{};
+        {
+            const amrex::Real flux = 0.5*screened_rates(k_O16_O16_to_He4_Si28_starlib)*amrex::Math::powi<2>(Y(O16))*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_O16_O16));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_O16_O16));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Mg24_He4_to_Si28_starlib)*Y(He4)*Y(Mg24)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Mg24));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Mg24));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Al27_p_to_Si28_starlib)*Y(Al27)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Al27));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Al27));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Si28_He4_to_S32_starlib)*Y(He4)*Y(Si28)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Si28));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Si28));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_P31_p_to_He4_Si28_starlib)*Y(P31)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_P31));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_P31));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_O16_C12_to_Si28_modified)*Y(C12)*Y(O16)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_C12_O16));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_C12_O16));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Si28_He4_to_O16_O16_derived)*Y(He4)*Y(Si28)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Si28));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Si28));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Si28_He4_to_p_P31_derived)*Y(He4)*Y(Si28)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Si28));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Si28));
+        }
+        for (int jcol = 1; jcol <= NumSpec; ++jcol) {
+            const amrex::Real Z = zion[jcol-1];
+            jac.add(Si28, jcol, dscreen_ydot_dYe * Z + dscreen_ydot_dS2 * Z * Z);
+        }
+    }
+#endif
 
     // P31 row
 
@@ -2018,6 +3087,42 @@ void jac_nuc(const burn_t& state,
 
     jac.set(P31, Zn60, 0.0);
 
+#ifdef SCREENING
+    {
+        // Screening dependence through Ye = sum(Z Y) and S2 = sum(Z^2 Y).
+        amrex::Real dscreen_ydot_dYe{};
+        amrex::Real dscreen_ydot_dS2{};
+        {
+            const amrex::Real flux = 0.5*screened_rates(k_O16_O16_to_p_P31_starlib)*amrex::Math::powi<2>(Y(O16))*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_O16_O16));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_O16_O16));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_P31_p_to_He4_Si28_starlib)*Y(P31)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_P31));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_P31));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_P31_p_to_S32_starlib)*Y(P31)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_P31));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_P31));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_P31_p_to_O16_O16_derived)*Y(P31)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_P31));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_P31));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Si28_He4_to_p_P31_derived)*Y(He4)*Y(Si28)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Si28));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Si28));
+        }
+        for (int jcol = 1; jcol <= NumSpec; ++jcol) {
+            const amrex::Real Z = zion[jcol-1];
+            jac.add(P31, jcol, dscreen_ydot_dYe * Z + dscreen_ydot_dS2 * Z * Z);
+        }
+    }
+#endif
 
     // S32 row
 
@@ -2088,6 +3193,37 @@ void jac_nuc(const burn_t& state,
 
     jac.set(S32, Zn60, 0.0);
 
+#ifdef SCREENING
+    {
+        // Screening dependence through Ye = sum(Z Y) and S2 = sum(Z^2 Y).
+        amrex::Real dscreen_ydot_dYe{};
+        amrex::Real dscreen_ydot_dS2{};
+        {
+            const amrex::Real flux = screened_rates(k_Si28_He4_to_S32_starlib)*Y(He4)*Y(Si28)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Si28));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Si28));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_P31_p_to_S32_starlib)*Y(P31)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_P31));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_P31));
+        }
+        {
+            const amrex::Real flux = 0.5*screened_rates(k_O16_O16_to_S32_modified)*amrex::Math::powi<2>(Y(O16))*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_O16_O16));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_O16_O16));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_S32_He4_to_Ar36_approx)*Y(He4)*Y(S32)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_S32));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_S32));
+        }
+        for (int jcol = 1; jcol <= NumSpec; ++jcol) {
+            const amrex::Real Z = zion[jcol-1];
+            jac.add(S32, jcol, dscreen_ydot_dYe * Z + dscreen_ydot_dS2 * Z * Z);
+        }
+    }
+#endif
 
     // Ar36 row
 
@@ -2153,6 +3289,27 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Ar36, Zn60, 0.0);
 
+#ifdef SCREENING
+    {
+        // Screening dependence through Ye = sum(Z Y) and S2 = sum(Z^2 Y).
+        amrex::Real dscreen_ydot_dYe{};
+        amrex::Real dscreen_ydot_dS2{};
+        {
+            const amrex::Real flux = screened_rates(k_S32_He4_to_Ar36_approx)*Y(He4)*Y(S32)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_S32));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_S32));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Ar36_He4_to_Ca40_approx)*Y(Ar36)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Ar36));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Ar36));
+        }
+        for (int jcol = 1; jcol <= NumSpec; ++jcol) {
+            const amrex::Real Z = zion[jcol-1];
+            jac.add(Ar36, jcol, dscreen_ydot_dYe * Z + dscreen_ydot_dS2 * Z * Z);
+        }
+    }
+#endif
 
     // Ca40 row
 
@@ -2218,6 +3375,27 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Ca40, Zn60, 0.0);
 
+#ifdef SCREENING
+    {
+        // Screening dependence through Ye = sum(Z Y) and S2 = sum(Z^2 Y).
+        amrex::Real dscreen_ydot_dYe{};
+        amrex::Real dscreen_ydot_dS2{};
+        {
+            const amrex::Real flux = screened_rates(k_Ar36_He4_to_Ca40_approx)*Y(Ar36)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Ar36));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Ar36));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Ca40_He4_to_Ti44_approx)*Y(Ca40)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Ca40));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Ca40));
+        }
+        for (int jcol = 1; jcol <= NumSpec; ++jcol) {
+            const amrex::Real Z = zion[jcol-1];
+            jac.add(Ca40, jcol, dscreen_ydot_dYe * Z + dscreen_ydot_dS2 * Z * Z);
+        }
+    }
+#endif
 
     // Ti44 row
 
@@ -2283,6 +3461,27 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Ti44, Zn60, 0.0);
 
+#ifdef SCREENING
+    {
+        // Screening dependence through Ye = sum(Z Y) and S2 = sum(Z^2 Y).
+        amrex::Real dscreen_ydot_dYe{};
+        amrex::Real dscreen_ydot_dS2{};
+        {
+            const amrex::Real flux = screened_rates(k_Ca40_He4_to_Ti44_approx)*Y(Ca40)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Ca40));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Ca40));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Ti44_He4_to_Cr48_approx)*Y(He4)*Y(Ti44)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Ti44));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Ti44));
+        }
+        for (int jcol = 1; jcol <= NumSpec; ++jcol) {
+            const amrex::Real Z = zion[jcol-1];
+            jac.add(Ti44, jcol, dscreen_ydot_dYe * Z + dscreen_ydot_dS2 * Z * Z);
+        }
+    }
+#endif
 
     // Cr48 row
 
@@ -2352,6 +3551,37 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Cr48, Zn60, 0.0);
 
+#ifdef SCREENING
+    {
+        // Screening dependence through Ye = sum(Z Y) and S2 = sum(Z^2 Y).
+        amrex::Real dscreen_ydot_dYe{};
+        amrex::Real dscreen_ydot_dS2{};
+        {
+            const amrex::Real flux = -screened_rates(k_Cr48_He4_to_p_Mn51_starlib)*Y(Cr48)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Cr48));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Cr48));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Cr48_He4_to_Fe52_starlib)*Y(Cr48)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Cr48));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Cr48));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Mn51_p_to_He4_Cr48_derived)*Y(Mn51)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Mn51));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Mn51));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Ti44_He4_to_Cr48_approx)*Y(He4)*Y(Ti44)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Ti44));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Ti44));
+        }
+        for (int jcol = 1; jcol <= NumSpec; ++jcol) {
+            const amrex::Real Z = zion[jcol-1];
+            jac.add(Cr48, jcol, dscreen_ydot_dYe * Z + dscreen_ydot_dS2 * Z * Z);
+        }
+    }
+#endif
 
     // Mn51 row
 
@@ -2425,6 +3655,47 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Mn51, Zn60, 0.0);
 
+#ifdef SCREENING
+    {
+        // Screening dependence through Ye = sum(Z Y) and S2 = sum(Z^2 Y).
+        amrex::Real dscreen_ydot_dYe{};
+        amrex::Real dscreen_ydot_dS2{};
+        {
+            const amrex::Real flux = screened_rates(k_Cr48_He4_to_p_Mn51_starlib)*Y(Cr48)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Cr48));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Cr48));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Mn51_p_to_Fe52_starlib)*Y(Mn51)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Mn51));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Mn51));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Mn51_He4_to_Co55_starlib)*Y(He4)*Y(Mn51)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Mn51));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Mn51));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Mn51_He4_to_p_Fe54_starlib)*Y(He4)*Y(Mn51)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Mn51));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Mn51));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Mn51_p_to_He4_Cr48_derived)*Y(Mn51)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Mn51));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Mn51));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Fe54_p_to_He4_Mn51_derived)*Y(Fe54)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Fe54));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Fe54));
+        }
+        for (int jcol = 1; jcol <= NumSpec; ++jcol) {
+            const amrex::Real Z = zion[jcol-1];
+            jac.add(Mn51, jcol, dscreen_ydot_dYe * Z + dscreen_ydot_dS2 * Z * Z);
+        }
+    }
+#endif
 
     // Fe52 row
 
@@ -2502,6 +3773,42 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Fe52, Zn60, 0.0);
 
+#ifdef SCREENING
+    {
+        // Screening dependence through Ye = sum(Z Y) and S2 = sum(Z^2 Y).
+        amrex::Real dscreen_ydot_dYe{};
+        amrex::Real dscreen_ydot_dS2{};
+        {
+            const amrex::Real flux = screened_rates(k_Cr48_He4_to_Fe52_starlib)*Y(Cr48)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Cr48));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Cr48));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Mn51_p_to_Fe52_starlib)*Y(Mn51)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Mn51));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Mn51));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Fe52_He4_to_p_Co55_starlib)*Y(Fe52)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Fe52));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Fe52));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Fe52_He4_to_Ni56_starlib)*Y(Fe52)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Fe52));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Fe52));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Co55_p_to_He4_Fe52_derived)*Y(Co55)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Co55));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Co55));
+        }
+        for (int jcol = 1; jcol <= NumSpec; ++jcol) {
+            const amrex::Real Z = zion[jcol-1];
+            jac.add(Fe52, jcol, dscreen_ydot_dYe * Z + dscreen_ydot_dS2 * Z * Z);
+        }
+    }
+#endif
 
     // Fe54 row
 
@@ -2585,6 +3892,47 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Fe54, Zn60, 0.0);
 
+#ifdef SCREENING
+    {
+        // Screening dependence through Ye = sum(Z Y) and S2 = sum(Z^2 Y).
+        amrex::Real dscreen_ydot_dYe{};
+        amrex::Real dscreen_ydot_dS2{};
+        {
+            const amrex::Real flux = screened_rates(k_Mn51_He4_to_p_Fe54_starlib)*Y(He4)*Y(Mn51)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Mn51));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Mn51));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Fe54_p_to_Co55_starlib)*Y(Fe54)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Fe54));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Fe54));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Fe54_He4_to_Ni58_starlib)*Y(Fe54)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Fe54));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Fe54));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Co57_p_to_He4_Fe54_starlib)*Y(Co57)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Co57));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Co57));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Fe54_p_to_He4_Mn51_derived)*Y(Fe54)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Fe54));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Fe54));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Fe54_He4_to_p_Co57_derived)*Y(Fe54)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Fe54));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Fe54));
+        }
+        for (int jcol = 1; jcol <= NumSpec; ++jcol) {
+            const amrex::Real Z = zion[jcol-1];
+            jac.add(Fe54, jcol, dscreen_ydot_dYe * Z + dscreen_ydot_dS2 * Z * Z);
+        }
+    }
+#endif
 
     // Fe56 row
 
@@ -2658,6 +4006,27 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Fe56, Zn60, 0.0);
 
+#ifdef SCREENING
+    {
+        // Screening dependence through Ye = sum(Z Y) and S2 = sum(Z^2 Y).
+        amrex::Real dscreen_ydot_dYe{};
+        amrex::Real dscreen_ydot_dS2{};
+        {
+            const amrex::Real flux = -screened_rates(k_Fe56_p_to_Co57_starlib)*Y(Fe56)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Fe56));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Fe56));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Fe56_p_to_n_Co56_derived)*Y(Fe56)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Fe56));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Fe56));
+        }
+        for (int jcol = 1; jcol <= NumSpec; ++jcol) {
+            const amrex::Real Z = zion[jcol-1];
+            jac.add(Fe56, jcol, dscreen_ydot_dYe * Z + dscreen_ydot_dS2 * Z * Z);
+        }
+    }
+#endif
 
     // Co55 row
 
@@ -2740,6 +4109,57 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Co55, Zn60, 0.0);
 
+#ifdef SCREENING
+    {
+        // Screening dependence through Ye = sum(Z Y) and S2 = sum(Z^2 Y).
+        amrex::Real dscreen_ydot_dYe{};
+        amrex::Real dscreen_ydot_dS2{};
+        {
+            const amrex::Real flux = screened_rates(k_Mn51_He4_to_Co55_starlib)*Y(He4)*Y(Mn51)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Mn51));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Mn51));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Fe52_He4_to_p_Co55_starlib)*Y(Fe52)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Fe52));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Fe52));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Co55_p_to_Ni56_starlib)*Y(Co55)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Co55));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Co55));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Co55_He4_to_Cu59_starlib)*Y(Co55)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Co55));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Co55));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Fe54_p_to_Co55_starlib)*Y(Fe54)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Fe54));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Fe54));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Co55_He4_to_p_Ni58_starlib)*Y(Co55)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Co55));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Co55));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Co55_p_to_He4_Fe52_derived)*Y(Co55)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Co55));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Co55));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Ni58_p_to_He4_Co55_derived)*Y(Ni58)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Ni58));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Ni58));
+        }
+        for (int jcol = 1; jcol <= NumSpec; ++jcol) {
+            const amrex::Real Z = zion[jcol-1];
+            jac.add(Co55, jcol, dscreen_ydot_dYe * Z + dscreen_ydot_dS2 * Z * Z);
+        }
+    }
+#endif
 
     // Co56 row
 
@@ -2821,6 +4241,32 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Co56, Zn60, 0.0);
 
+#ifdef SCREENING
+    {
+        // Screening dependence through Ye = sum(Z Y) and S2 = sum(Z^2 Y).
+        amrex::Real dscreen_ydot_dYe{};
+        amrex::Real dscreen_ydot_dS2{};
+        {
+            const amrex::Real flux = screened_rates(k_Fe56_p_to_n_Co56_derived)*Y(Fe56)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Fe56));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Fe56));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Co56_p_to_n_Ni56_derived)*Y(Co56)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Co56));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Co56));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Co56_He4_to_n_Cu59_derived)*Y(Co56)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Co56));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Co56));
+        }
+        for (int jcol = 1; jcol <= NumSpec; ++jcol) {
+            const amrex::Real Z = zion[jcol-1];
+            jac.add(Co56, jcol, dscreen_ydot_dYe * Z + dscreen_ydot_dS2 * Z * Z);
+        }
+    }
+#endif
 
     // Co57 row
 
@@ -2893,6 +4339,37 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Co57, Zn60, 0.0);
 
+#ifdef SCREENING
+    {
+        // Screening dependence through Ye = sum(Z Y) and S2 = sum(Z^2 Y).
+        amrex::Real dscreen_ydot_dYe{};
+        amrex::Real dscreen_ydot_dS2{};
+        {
+            const amrex::Real flux = screened_rates(k_Fe56_p_to_Co57_starlib)*Y(Fe56)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Fe56));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Fe56));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Co57_p_to_He4_Fe54_starlib)*Y(Co57)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Co57));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Co57));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Co57_p_to_Ni58_starlib)*Y(Co57)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Co57));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Co57));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Fe54_He4_to_p_Co57_derived)*Y(Fe54)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Fe54));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Fe54));
+        }
+        for (int jcol = 1; jcol <= NumSpec; ++jcol) {
+            const amrex::Real Z = zion[jcol-1];
+            jac.add(Co57, jcol, dscreen_ydot_dYe * Z + dscreen_ydot_dS2 * Z * Z);
+        }
+    }
+#endif
 
     // Ni56 row
 
@@ -2976,6 +4453,47 @@ void jac_nuc(const burn_t& state,
     scratch = screened_rates(k_Zn60_to_He4_Ni56_derived);
     jac.set(Ni56, Zn60, scratch);
 
+#ifdef SCREENING
+    {
+        // Screening dependence through Ye = sum(Z Y) and S2 = sum(Z^2 Y).
+        amrex::Real dscreen_ydot_dYe{};
+        amrex::Real dscreen_ydot_dS2{};
+        {
+            const amrex::Real flux = screened_rates(k_Fe52_He4_to_Ni56_starlib)*Y(Fe52)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Fe52));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Fe52));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Co55_p_to_Ni56_starlib)*Y(Co55)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Co55));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Co55));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Ni56_He4_to_Zn60_starlib)*Y(He4)*Y(Ni56)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Ni56));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Ni56));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Cu59_p_to_He4_Ni56_starlib)*Y(Cu59)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Cu59));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Cu59));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Ni56_He4_to_p_Cu59_derived)*Y(He4)*Y(Ni56)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Ni56));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Ni56));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Co56_p_to_n_Ni56_derived)*Y(Co56)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Co56));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Co56));
+        }
+        for (int jcol = 1; jcol <= NumSpec; ++jcol) {
+            const amrex::Real Z = zion[jcol-1];
+            jac.add(Ni56, jcol, dscreen_ydot_dYe * Z + dscreen_ydot_dS2 * Z * Z);
+        }
+    }
+#endif
 
     // Ni58 row
 
@@ -3053,6 +4571,42 @@ void jac_nuc(const burn_t& state,
 
     jac.set(Ni58, Zn60, 0.0);
 
+#ifdef SCREENING
+    {
+        // Screening dependence through Ye = sum(Z Y) and S2 = sum(Z^2 Y).
+        amrex::Real dscreen_ydot_dYe{};
+        amrex::Real dscreen_ydot_dS2{};
+        {
+            const amrex::Real flux = screened_rates(k_Fe54_He4_to_Ni58_starlib)*Y(Fe54)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Fe54));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Fe54));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Co57_p_to_Ni58_starlib)*Y(Co57)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Co57));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Co57));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Co55_He4_to_p_Ni58_starlib)*Y(Co55)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Co55));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Co55));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Ni58_p_to_Cu59_starlib)*Y(Ni58)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Ni58));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Ni58));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Ni58_p_to_He4_Co55_derived)*Y(Ni58)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Ni58));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Ni58));
+        }
+        for (int jcol = 1; jcol <= NumSpec; ++jcol) {
+            const amrex::Real Z = zion[jcol-1];
+            jac.add(Ni58, jcol, dscreen_ydot_dYe * Z + dscreen_ydot_dS2 * Z * Z);
+        }
+    }
+#endif
 
     // Cu59 row
 
@@ -3129,6 +4683,47 @@ void jac_nuc(const burn_t& state,
     scratch = screened_rates(k_Zn60_to_p_Cu59_derived);
     jac.set(Cu59, Zn60, scratch);
 
+#ifdef SCREENING
+    {
+        // Screening dependence through Ye = sum(Z Y) and S2 = sum(Z^2 Y).
+        amrex::Real dscreen_ydot_dYe{};
+        amrex::Real dscreen_ydot_dS2{};
+        {
+            const amrex::Real flux = screened_rates(k_Co55_He4_to_Cu59_starlib)*Y(Co55)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Co55));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Co55));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Cu59_p_to_He4_Ni56_starlib)*Y(Cu59)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Cu59));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Cu59));
+        }
+        {
+            const amrex::Real flux = -screened_rates(k_Cu59_p_to_Zn60_starlib)*Y(Cu59)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Cu59));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Cu59));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Ni58_p_to_Cu59_starlib)*Y(Ni58)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Ni58));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Ni58));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Ni56_He4_to_p_Cu59_derived)*Y(He4)*Y(Ni56)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Ni56));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Ni56));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Co56_He4_to_n_Cu59_derived)*Y(Co56)*Y(He4)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Co56));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Co56));
+        }
+        for (int jcol = 1; jcol <= NumSpec; ++jcol) {
+            const amrex::Real Z = zion[jcol-1];
+            jac.add(Cu59, jcol, dscreen_ydot_dYe * Z + dscreen_ydot_dS2 * Z * Z);
+        }
+    }
+#endif
 
     // Zn60 row
 
@@ -3194,13 +4789,38 @@ void jac_nuc(const burn_t& state,
               - screened_rates(k_Zn60_to_p_Cu59_derived);
     jac.set(Zn60, Zn60, scratch);
 
+#ifdef SCREENING
+    {
+        // Screening dependence through Ye = sum(Z Y) and S2 = sum(Z^2 Y).
+        amrex::Real dscreen_ydot_dYe{};
+        amrex::Real dscreen_ydot_dS2{};
+        {
+            const amrex::Real flux = screened_rates(k_Ni56_He4_to_Zn60_starlib)*Y(He4)*Y(Ni56)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_He4_Ni56));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_He4_Ni56));
+        }
+        {
+            const amrex::Real flux = screened_rates(k_Cu59_p_to_Zn60_starlib)*Y(Cu59)*Y(H1)*state.rho;
+            dscreen_ydot_dYe += flux * (rate_eval.dlog_screen_dYe(k_p_Cu59));
+            dscreen_ydot_dS2 += flux * (rate_eval.dlog_screen_dS2(k_p_Cu59));
+        }
+        for (int jcol = 1; jcol <= NumSpec; ++jcol) {
+            const amrex::Real Z = zion[jcol-1];
+            jac.add(Zn60, jcol, dscreen_ydot_dYe * Z + dscreen_ydot_dS2 * Z * Z);
+        }
+    }
+#endif
 
 
     // add ∂λ_weak / ∂Y_e terms now
     // this uses ∂Y_e/∂Y_i = Z_i
     for (int irow = 1; irow <= NumSpec; ++irow) {
+        const auto dweak = rate_eval.dweak_ydot_dYe(irow);
+        if (dweak == 0.0_rt) {
+            continue;
+        }
         for (int jcol = 1; jcol <= NumSpec; ++jcol) {
-            jac.add(irow, jcol, rate_eval.dweak_ydot_dYe(irow) * NetworkProperties::zion(jcol));
+            jac.add(irow, jcol, dweak * NetworkProperties::zion(jcol));
         }
     }
 
