@@ -4624,7 +4624,7 @@ namespace Rates
         "p_to_n_electron_capture_weaktab"  // 1626,
     };
 
-    template<std::uint8_t rate>
+    template<std::uint16_t rate>
     AMREX_GPU_DEVICE AMREX_INLINE
     constexpr amrex::Real get_p_random() {
         return 0.0_rt;
