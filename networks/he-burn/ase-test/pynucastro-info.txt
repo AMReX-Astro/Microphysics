@@ -1,4 +1,4 @@
-pynucastro version: 3.2.0-99-g371a6da92
+pynucastro version: 3.2.0-100-g8848f5226
 
 Network summary
 ---------------

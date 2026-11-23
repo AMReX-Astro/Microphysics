@@ -4928,11 +4928,7 @@ void get_ydot_weak(const burn_t& state,
 
     const tf_t tfactors = evaluate_tfactors(state.T);
 
-    // fill only the weak rates
-    rate_util::fill_weak_rates(tfactors, state.T, state.rho, rhoy, Y, rate_eval);
-
-    // assemble Ydot for just the weak rate evolution
-
+    // get screening terms for weak rates only
 #ifdef SCREENING
     {
         plasma_state_t<amrex::Real> pstate{};
@@ -4954,6 +4950,12 @@ void get_ydot_weak(const burn_t& state,
 
     }
 #endif
+
+
+    // fill only the weak rates
+    rate_util::fill_weak_rates(tfactors, state.T, state.rho, rhoy, Y, rate_eval);
+
+    // assemble Ydot for just the weak rate evolution
 
     const auto& screened_rates = rate_eval.screened_rates;
 
