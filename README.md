@@ -6,8 +6,7 @@
 # Microphysics
 
 *A collection of astrophysical microphysics routines for stellar
-evolution and explosions and interstellar medium chemistry (including
-primordial chemistry)*
+evolution and explosions.
 
 There are several core types of microphysics routines hosted here:
 

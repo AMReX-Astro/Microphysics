@@ -141,29 +141,6 @@ struct eos_rep_extra_t:eos_rep_t {
     amrex::Real dedZ{};
 };
 
-struct chem_eos_t:eos_base_t {
-    amrex::Real rho{};
-    amrex::Real T{};
-    amrex::Real p{};
-    amrex::Real e{};
-    amrex::Real dpdT{};
-    amrex::Real dpdr{};
-    amrex::Real dpde{};
-    amrex::Real dpdr_e{};
-    amrex::Real dedT{};
-    amrex::Real dedr{};
-    amrex::Real G{};
-
-    amrex::Real mu{};
-    amrex::Real cs{};
-
-    amrex::Real cv{};
-    amrex::Real cp{};
-
-    amrex::Real gam1{};
-};
-
-
 template <typename T>
 concept has_energy = requires { std::declval<T&>().e; };
 

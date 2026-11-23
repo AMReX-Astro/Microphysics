@@ -79,11 +79,8 @@ void rhs (const amrex::Real time, BurnT& state, T& int_state, RArray1D& ydot, [[
 #endif
 
     // We integrate X, not Y
-    // turn it off for primordial chem
-    if (! integrator_rp::use_number_densities) {
-        for (int n = 1; n <= NumSpec; ++n) {
-            ydot(n) *= aion[n-1];
-        }
+    for (int n = 1; n <= NumSpec; ++n) {
+        ydot(n) *= aion[n-1];
     }
 
     // scale the energy
@@ -134,13 +131,10 @@ void jac ([[maybe_unused]] const amrex::Real time, BurnT& state, T& int_state, M
 #endif
 
     // We integrate X, not Y
-    // turn it off for primordial chem
-    if (! integrator_rp::use_number_densities) {
-        for (int j = 1; j <= NumSpec; ++j) {
-            for (int i = 1; i <= INT_NEQS; ++i) {
-                pd.mul(j, i, aion[j-1]);
-                pd.mul(i, j, aion_inv[j-1]);
-            }
+    for (int j = 1; j <= NumSpec; ++j) {
+        for (int i = 1; i <= INT_NEQS; ++i) {
+            pd.mul(j, i, aion[j-1]);
+            pd.mul(i, j, aion_inv[j-1]);
         }
     }
 

@@ -97,9 +97,6 @@ do_species_clip              bool         0
 # valid (X > 0) before calling the RHS?
 do_corrector_validation      bool         1
 
-# flag for turning on the use of number densities for all species
-use_number_densities     bool     0
-
 # flag for tuning on the subtraction of internal energy
 subtract_internal_energy   bool     1
 

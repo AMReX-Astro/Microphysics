@@ -18,7 +18,7 @@ thermodynamic information.
 Interface and modes
 ===================
 
-.. index:: eos_t, eos_re_t, eos_rep_t, eos_rh_t, chem_eos_t
+.. index:: eos_t, eos_re_t, eos_rep_t, eos_rh_t
 
 The EOS is called as:
 
@@ -56,9 +56,6 @@ The *eos_type* passed in is one of
 * ``eos_rep_t`` : expands on ``eos_re_t`` to include pressure information
 
 * ``eos_rh_t`` : expands on ``eos_rep_t`` to include enthalpy information
-
-* ``chem_eos_t`` : adds some quantities needed for the primordial chemistry EOS
-  and explicitly does not include the mass fractions.
 
 .. tip::
 

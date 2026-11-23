@@ -117,16 +117,12 @@ by options in the input file.
 One-zone tests
 ==============
 
-.. index:: burn_cell, burn_cell_primordial_chem, burn_cell_sdc, eos_cell, jac_cell, nse_table_cell, nse_net_cell, part_func_cell, interp_cell
+.. index:: burn_cell, burn_cell_sdc, eos_cell, jac_cell, nse_table_cell, nse_net_cell, part_func_cell, interp_cell
 
 * ``burn_cell`` :
 
   given a $\rho$, $T$, and $X_k$, integrate a reaction network through a specified time
   and output the new state.  See :ref:`sec:burn_cell` for more information.
-
-* ``burn_cell_primordial_chem`` :
-
-  similar to ``burn_cell`` except specific for the primordial chemistry network.
 
 * ``burn_cell_sdc`` :
 

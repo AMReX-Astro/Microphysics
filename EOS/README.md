@@ -11,15 +11,10 @@ The following equations of state are provided:
   degenerate/relativitic electrons, and radiation.  This is Frank
   Timmes's EOS with a modified interface and thread-safety.
 
-* `metal_chem`: a multi-gamma EOS for metal ISM chemistry.
-
 * `multigamma`: a gamma-law EOS where each species can have its own
   gamma (ratio of specific heats).
 
 * `polytrope`: a simple polytropic EOS: `P = K rho**gamma`
-
-* `primordial_chem`: a version of multigamma for primordial ISM
-  chemistry
 
 * `rad_power_law`: an artificial EOS for radiation transport test
   problems.

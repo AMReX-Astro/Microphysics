@@ -45,27 +45,6 @@ energy. This allows us to easily call the EOS during the burn to obtain the temp
    :ref:`neutrino_loss`) in addition to the energy release from the
    changing binding energy of the fusion products.
 
-.. index:: integrator.use_number_densities
-
-.. note::
-
-   By setting ``integrator.use_number_densities=1``, number densities will be
-   integrated instead of mass fractions.  This makes the system:
-
-   .. math::
-      \frac{dn_k}{dt} = \dot{\omega}_k(\rho,n_k,T)
-      :label: eq:spec_n_integrate
-
-   .. math::
-      \frac{de}{dt} = \epsilon(\rho,n_k,T)
-      :label: eq:enuc_n_integrate
-
-   The effect of this flag in the integrators is that we don't worry
-   about converting between mass and molar fractions when calling the
-   righthand side function and Jacobian, and we don't do any normalization
-   requiring $\sum_k X_k = 1$.
-
-
 While the system above is the most common way to construct the set of
 burn equations, and is used in most of our production networks,
 all of them are ultimately implemented by the network itself, which
@@ -146,7 +125,7 @@ the functions ``integrator_setup()`` and ``integrator_cleanup()``.
    off the energy offset, the energy stored is now just that generated
    by reactions.
 
-#. Normalize the abundances so they sum to 1 (except if ``integrator.use_number_density`` is set).
+#. Normalize the abundances so they sum to 1.
 
 #. Output statistics on the integration if we set ``integrator.burner_verbose``.
    This is not recommended for big simulations, as it will output information
