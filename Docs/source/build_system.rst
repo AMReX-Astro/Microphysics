@@ -3,8 +3,8 @@ Build System
 ************
 
 Microphysics leverages the AMReX build system.  GNU make is the
-primary build system, but CMake is partially supported.  Here we focus
-on the GNU make build system.
+primary build system (GNU make 4.3 or newer is required), but CMake is
+partially supported.  Here we focus on the GNU make build system.
 
 .. tip::
 
@@ -72,7 +72,10 @@ The main files are:
 * ``extern_parameters.H`` : this defines all of the runtime parameters that are
   part of the build.  At the moment, they are treated as global variables
   (using managed memory on GPUs), but a ``struct`` that carries their values
-  is also available through ``extern_type.H``.
+  is also available through ``extern_type.H``.  The runtime parameter files
+  (``extern_parameters.cpp``, ``extern_parameters.H``, ``extern_type.H``, and
+  ``extern_job_info_tests.H``) are generated together; removing any one of
+  them causes the group to be regenerated on the next build.
 
 * ``AMReX_buildInfo.cpp`` : this defines functions that return the git hashes,
   compilers, compiler flags, and more meta-data about the build.  This file
