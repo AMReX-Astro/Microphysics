@@ -8,6 +8,7 @@
 
 #include <AMReX_Array.H>
 #include <AMReX_Math.H>
+
 #include <interp_tools.H>
 
 using namespace amrex::literals;
@@ -15,11 +16,6 @@ using namespace amrex::literals;
 
 // Table is expected to be in terms of dens*ye and temp (logarithmic, cgs units)
 // Table energy units are expected in terms of ergs
-
-// all tables are expected to have columns:
-// Log(rhoY)     Log(T)   mu    dQ    Vs    Log(e-cap-rate)   Log(nu-energy-loss)  Log(gamma-energy)
-// Log(g/cm^3)   Log(K)   erg   erg   erg   Log(1/s)          Log(erg/s)           Log(erg/s)
-//
 
 constexpr int num_tables = 10;
 
@@ -38,6 +34,7 @@ struct table_t
     int nrhoy;
     int nvars;
     int nheader;
+    bool has_gamma;
 };
 
 
@@ -56,7 +53,7 @@ struct weak_rate_t
 namespace rate_tables
 {
     // F17 --> O17
-    inline AMREX_GPU_DEVICE table_t j_F17_O17_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5};
+    inline AMREX_GPU_DEVICE table_t j_F17_O17_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5, .has_gamma=false};
     inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 11> j_F17_O17_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
     inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 12> j_F17_O17_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121};
     // Array3D is column-major (Fortran-ordering).  T varies fastest, then rho Ye, then the component
@@ -98,7 +95,7 @@ namespace rate_tables
          };
 
     // O17 --> F17
-    inline AMREX_GPU_DEVICE table_t j_O17_F17_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5};
+    inline AMREX_GPU_DEVICE table_t j_O17_F17_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5, .has_gamma=false};
     inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 11> j_O17_F17_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
     inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 12> j_O17_F17_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121};
     // Array3D is column-major (Fortran-ordering).  T varies fastest, then rho Ye, then the component
@@ -140,7 +137,7 @@ namespace rate_tables
          };
 
     // F18 --> Ne18
-    inline AMREX_GPU_DEVICE table_t j_F18_Ne18_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5};
+    inline AMREX_GPU_DEVICE table_t j_F18_Ne18_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5, .has_gamma=false};
     inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 11> j_F18_Ne18_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
     inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 12> j_F18_Ne18_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121};
     // Array3D is column-major (Fortran-ordering).  T varies fastest, then rho Ye, then the component
@@ -182,7 +179,7 @@ namespace rate_tables
          };
 
     // F18 --> O18
-    inline AMREX_GPU_DEVICE table_t j_F18_O18_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5};
+    inline AMREX_GPU_DEVICE table_t j_F18_O18_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5, .has_gamma=false};
     inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 11> j_F18_O18_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
     inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 12> j_F18_O18_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121};
     // Array3D is column-major (Fortran-ordering).  T varies fastest, then rho Ye, then the component
@@ -224,7 +221,7 @@ namespace rate_tables
          };
 
     // Ne18 --> F18
-    inline AMREX_GPU_DEVICE table_t j_Ne18_F18_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5};
+    inline AMREX_GPU_DEVICE table_t j_Ne18_F18_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5, .has_gamma=false};
     inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 11> j_Ne18_F18_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
     inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 12> j_Ne18_F18_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121};
     // Array3D is column-major (Fortran-ordering).  T varies fastest, then rho Ye, then the component
@@ -266,7 +263,7 @@ namespace rate_tables
          };
 
     // O18 --> F18
-    inline AMREX_GPU_DEVICE table_t j_O18_F18_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5};
+    inline AMREX_GPU_DEVICE table_t j_O18_F18_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5, .has_gamma=false};
     inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 11> j_O18_F18_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
     inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 12> j_O18_F18_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121};
     // Array3D is column-major (Fortran-ordering).  T varies fastest, then rho Ye, then the component
@@ -308,7 +305,7 @@ namespace rate_tables
          };
 
     // F19 --> Ne19
-    inline AMREX_GPU_DEVICE table_t j_F19_Ne19_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5};
+    inline AMREX_GPU_DEVICE table_t j_F19_Ne19_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5, .has_gamma=false};
     inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 11> j_F19_Ne19_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
     inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 12> j_F19_Ne19_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121};
     // Array3D is column-major (Fortran-ordering).  T varies fastest, then rho Ye, then the component
@@ -350,7 +347,7 @@ namespace rate_tables
          };
 
     // Ne19 --> F19
-    inline AMREX_GPU_DEVICE table_t j_Ne19_F19_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5};
+    inline AMREX_GPU_DEVICE table_t j_Ne19_F19_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5, .has_gamma=false};
     inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 11> j_Ne19_F19_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
     inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 12> j_Ne19_F19_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121};
     // Array3D is column-major (Fortran-ordering).  T varies fastest, then rho Ye, then the component
@@ -392,7 +389,7 @@ namespace rate_tables
          };
 
     // Mg22 --> Na22
-    inline AMREX_GPU_DEVICE table_t j_Mg22_Na22_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5};
+    inline AMREX_GPU_DEVICE table_t j_Mg22_Na22_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5, .has_gamma=false};
     inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 11> j_Mg22_Na22_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
     inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 12> j_Mg22_Na22_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121};
     // Array3D is column-major (Fortran-ordering).  T varies fastest, then rho Ye, then the component
@@ -434,7 +431,7 @@ namespace rate_tables
          };
 
     // Na22 --> Mg22
-    inline AMREX_GPU_DEVICE table_t j_Na22_Mg22_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5};
+    inline AMREX_GPU_DEVICE table_t j_Na22_Mg22_meta{.ntemp=12, .nrhoy=11, .nvars=3, .nheader=5, .has_gamma=false};
     inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 11> j_Na22_Mg22_rhoy{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0};
     inline AMREX_GPU_DEVICE amrex::Array1D<amrex::Real, 1, 12> j_Na22_Mg22_temp{7.0, 8.0, 8.30103, 8.60206, 8.845098, 9.0, 9.176091, 9.30103, 9.477121, 9.69897, 10.0, 10.477121};
     // Array3D is column-major (Fortran-ordering).  T varies fastest, then rho Ye, then the component
@@ -647,9 +644,11 @@ get_entries(const int irhoy_lo, const int jtemp_lo,
                                 log_rhoy_table, log_temp_table, data,
                                 log_rhoy, log_temp, jtab_nuloss);
 
-    entries.gamma = evaluate_vars(irhoy_lo, jtemp_lo,
-                                  log_rhoy_table, log_temp_table, data,
-                                  log_rhoy, log_temp, jtab_gamma);
+    if (table_meta.has_gamma) {
+        entries.gamma = evaluate_vars(irhoy_lo, jtemp_lo,
+                                      log_rhoy_table, log_temp_table, data,
+                                      log_rhoy, log_temp, jtab_gamma);
+    }
 
     if constexpr (do_T_derivatives) {
         entries.drate_dT =
@@ -716,7 +715,12 @@ tabular_evaluate(const table_t& table_meta,
         entries.denu_dT = 0.0;
         entries.denu_drhoye = 0.0;
     }
-    entries.gamma = amrex::Math::exp10(entries.gamma);
+    if (table_meta.has_gamma) {
+        entries.gamma = amrex::Math::exp10(entries.gamma);
+    } else {
+        entries.gamma = 0.0;
+    }
+
 }
 
 #endif
