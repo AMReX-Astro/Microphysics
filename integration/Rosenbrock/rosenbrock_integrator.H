@@ -201,7 +201,7 @@ bool valid_integrator_state ([[maybe_unused]] amrex::Real time, [[maybe_unused]]
 
 #ifdef STRANG
     for (int n = 1; n <= NumSpec; ++n) {
-        if (y(n) < -integrator_rp::atol_spec) {
+        if (y(n) < -integrator_rp::reject_scale * integrator_rp::atol_spec) {
             return false;
         }
 
@@ -217,13 +217,14 @@ bool valid_integrator_state ([[maybe_unused]] amrex::Real time, [[maybe_unused]]
 
 #ifdef SDC
     amrex::Real rho_current = state.rho_orig + time * state.ydot_a[SRHO];
+    amrex::Real mod_tol = integrator_rp::reject_scale * integrator_rp::atol_spec;
 
     for (int n = 1; n <= NumSpec; ++n) {
-        if (y(n) < -integrator_rp::atol_spec * rho_current) {
+        if (y(n) < -mod_tol * rho_current) {
             return false;
         }
 
-        if (y(n) > (1.0_rt + integrator_rp::atol_spec) * rho_current) {
+        if (y(n) > (1.0_rt + mod_tol) * rho_current) {
             return false;
         }
     }
