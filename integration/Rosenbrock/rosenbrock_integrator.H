@@ -187,20 +187,6 @@ bool matrix_is_finite (const MatrixType& matrix)
     return true;
 }
 
-// Find the index of neutrons (if they exist in the net) at compile time.
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-constexpr int find_ineutron(){
-    for (int n = 1; n <= NumSpec; n++) {
-        if (NetworkProperties::aion(n) == 1 &&
-            NetworkProperties::zion(n) == 0) {
-                return n;
-        }
-    }
-    return -1;
-}
-
-constexpr int ineutron = find_ineutron();
-
 template <typename BurnT, int int_neqs>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 bool valid_integrator_state ([[maybe_unused]] amrex::Real time, [[maybe_unused]] const BurnT& state,
@@ -224,13 +210,6 @@ bool valid_integrator_state ([[maybe_unused]] amrex::Real time, [[maybe_unused]]
         }
     }
 
-    //strict neutron check
-    if constexpr (ineutron > 0){
-        if (integrator_rp::strict_neut_tol && y(ineutron) < 0.0_rt){
-            return false;
-        }
-    }
-
     if (y(net_ienuc) <= 0.0_rt) {
         return false;
     }
@@ -246,13 +225,6 @@ bool valid_integrator_state ([[maybe_unused]] amrex::Real time, [[maybe_unused]]
         }
 
         if (y(n) > (1.0_rt + mod_tol) * rho_current) {
-            return false;
-        }
-    }
-
-    //strict neutron check
-    if constexpr (ineutron > 0){
-        if (integrator_rp::strict_neut_tol && y(ineutron) < 0.0_rt){
             return false;
         }
     }
