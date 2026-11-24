@@ -2201,8 +2201,9 @@ void eosfi8(int LIQSOL, amrex::Real CMI, amrex::Real Zion, amrex::Real RS, amrex
     PDR2 = PDRi + PDR0;
 }
 
+template <typename EOSState>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void melange9 (eos_t& state)
+void melange9 (EOSState& state)
 {
     // Version 18.04.20
     // Difference from v.10.12.14: included switch - off of WK correction
@@ -2220,27 +2221,12 @@ void melange9 (eos_t& state)
     //     choice based on comparison of total (non - OCP) free energies can be
     //     sometimes dangerous because of the fit uncertainties ("Local field
     //     correction" in solid and quantum effects in liquid are unknown)].
-    // Input: state.xn  -  species mass fractions,
-    //        AZion and ACMI  -  their charge and mass numbers,
-    //        RHO  -  total mass density [g / cc]
-    //        TEMP  -  temperature
-    // NB: instead of RHO, a true input is CHI, defined below
-    //     Hence, disagreement between RHO and DENS is the fit error (<0.4%)
-    // Output:
-    //         AY  -  rescaled so that to sum up to 1 and resorted (by AZion)
-    //         AZion  -  resorted in ascending order
-    //         ACMI  -  resorted in agreement with AZion
-    //         DENS  -  electron number density [in a.u. = 6.7483346e24 cm^{ - 3}]
-    //         GAMImean  -  effective ion - ion Coulomb coupling constant
-    //         CHI  =  mu_e / kT, where mu_e is the electron chem.potential
-    //         TPT  -  effective ionic quantum parameter (T_p / T)
-    //         LIQSOL = 0 / 1 for liquid / solid
-    //         S  -  entropy
-    //         U  -  internal energy
-    //         P  -  pressure
-    //         CV  -  heat capacity per ion, div. by Boltzmann const.
-    //         CHIR  -  inverse compressibility  - (d ln P  /  d ln V)_T ("\chi_r")
-    //         CHIT  =  (d ln P  /  d ln T)_V ("\chi_T")
+    // Input: state.rho [g/cm^3], state.T [K], and state.xn (mass fractions).
+    // Output: the available thermodynamic and electron fields in state, in CGS.
+    // The chemical potential fit followed by ELECT11 gives an electron density
+    // slightly different from the requested density (fit error < 0.4%). The
+    // analytic derivatives below are those of the reference plasma EOS at this
+    // fitted density, not exact derivatives through the approximate inverse fit.
 
     amrex::Real RHO = state.rho;
     amrex::Real T = state.T;
@@ -2444,15 +2430,71 @@ void melange9 (eos_t& state)
     amrex::Real CHIR = PDLR / PRESS; // d ln P / d ln\rho
     amrex::Real CHIT = PDLT / PRESS; // d ln P / d ln T
 
-    // Convert to CGS
-    amrex::Real Tnk = 8.31447e13_rt / abar * RHO * T6; // n_i kT [erg/cc]
-    amrex::Real avo_eos = 6.0221417930e23_rt;
-    amrex::Real N = avo_eos / abar;
-    amrex::Real k_B = 1.3806488e-16_rt;
+    // Use one conversion factor for pressure, specific energies, entropy,
+    // and specific heats, so the thermodynamic identities use consistent units.
+    constexpr amrex::Real avo_eos = 6.0221417930e23_rt;
+    constexpr amrex::Real k_B = 1.3806488e-16_rt;
+    const amrex::Real N = avo_eos / abar; // ions per gram
+    const amrex::Real Nk = N * k_B;
+    const amrex::Real rhoinv = 1.0_rt / RHO;
+    const amrex::Real Tinv = 1.0_rt / T;
+    const amrex::Real pressure = PnkT * RHO * Nk * T;
+    const amrex::Real energy = UNkT * Nk * T;
+    const amrex::Real cv = CV * Nk;
+    const amrex::Real dpdT = pressure * CHIT * Tinv;
+    const amrex::Real dpdr = pressure * CHIR * rhoinv;
 
-    state.p = PnkT * Tnk;
-    state.e = UNkT * N * k_B * T;
-    state.s = SNk * N * k_B;
+    // Fixed-composition thermodynamic identities:
+    // (de/drho)_T = (P - T (dP/dT)_rho) / rho^2,
+    // (ds/drho)_T = -(dP/dT)_rho / rho^2.
+    const amrex::Real dedr = (pressure - T * dpdT) * rhoinv * rhoinv;
+
+    if constexpr (has_energy<EOSState>) {
+        state.e = energy;
+        state.dedT = cv;
+        state.dedr = dedr;
+        state.cv = cv;
+    }
+    if constexpr (has_pressure<EOSState>) {
+        state.p = pressure;
+        state.dpdT = dpdT;
+        state.dpdr = dpdr;
+        state.dpde = dpdT / cv;
+        state.dpdr_e = dpdr - dpdT * dedr / cv;
+        state.cp = cv + T * (dpdT * rhoinv) * (dpdT * rhoinv) / dpdr;
+        state.gam1 = CHIR + CHIT * CHIT * pressure * rhoinv / (T * cv);
+        state.cs = std::sqrt(state.gam1 * pressure * rhoinv);
+    }
+    if constexpr (has_enthalpy<EOSState>) {
+        state.h = energy + pressure * rhoinv;
+        state.dhdT = cv + dpdT * rhoinv;
+        state.dhdr = dedr + dpdr * rhoinv - pressure * rhoinv * rhoinv;
+    }
+    if constexpr (has_entropy<EOSState>) {
+        state.s = SNk * Nk;
+        state.dsdT = cv * Tinv;
+        state.dsdr = -dpdT * rhoinv * rhoinv;
+    }
+
+    state.abar = abar;
+    state.zbar = zbar;
+    state.y_e = zbar / abar;
+    state.mu_e = abar / zbar;
+    state.mu = abar / (1.0_rt + zbar);
+    if constexpr (has_eta<EOSState>) {
+        state.eta = CHI; // electron chemical potential excluding rest mass / kT
+    }
+    if constexpr (has_xne_xnp<EOSState>) {
+        // Use the requested mass density, consistent with the CGS normalization
+        // above, rather than the slightly different density returned by ELECT11.
+        state.xne = RHO * N * zbar;
+        state.xnp = 0.0_rt; // positrons are outside this model
+    }
+    if constexpr (has_pele_ppos<EOSState>) {
+        state.pele = PEid * zbar * RHO * Nk * T; // ideal electron contribution
+        state.ppos = 0.0_rt;
+    }
+
 }
 
 template <typename I, typename T>

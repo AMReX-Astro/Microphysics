@@ -190,6 +190,30 @@ the :math:`\gamma_i` for a specific species. The parameters are:
 
 
 
+``pc``
+======
+
+The experimental Potekhin--Chabrier EOS accepts species mass fractions in
+``state.xn`` and converts them internally to normalized ion number fractions,
+:math:`x_i = (X_i/A_i)/\sum_j(X_j/A_j)`, for mixture thermodynamics.
+It evaluates density--temperature inputs and returns plasma pressure, specific
+internal energy, entropy, enthalpy, their density and temperature derivatives,
+specific heats, the adiabatic exponent, sound speed, and electron diagnostics.
+The derivatives assume fixed composition. The electron chemical potential fit
+introduces a small density mismatch, so finite differences of the returned
+quantities need not agree exactly with the analytic derivatives.
+
+Radiation and positrons are not included. Only density--temperature input is
+currently supported. The fundamental derivative ``G`` and the optional
+composition derivatives with respect to ``abar`` and ``zbar`` are not provided;
+the mixture depends on more composition information than these two averages.
+
+The ``unit_test/test_pc_eos`` test compares liquid and solid C/O states with
+the reference Fortran heat capacity and pressure derivatives, checks finite
+differences, and exercises full and reduced EOS states. Build it with
+``make -j4 AMREX_HOME=/path/to/amrex`` and run ``./main3d.gnu.ex``.
+
+
 ``polytrope``
 =============
 
