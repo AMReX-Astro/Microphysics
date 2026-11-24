@@ -11,7 +11,10 @@ using namespace amrex;
 #include <network.H>
 #include <cj_det.H>
 #include <unit_test.H>
-#ifndef NEW_NETWORK_IMPLEMENTATION
+#include <actual_network.H>
+#ifdef NEW_NETWORK_IMPLEMENTATION
+#include <rhs.H>
+#else
 #include <actual_rhs.H>
 #endif
 
@@ -23,25 +26,11 @@ int main(int argc, char *argv[]) {
 
   std::cout << "starting the CJ Det solve..." << std::endl;
 
-  ParmParse ppa("amr");
-
-  std::string probin_file = "probin";
-
-  ppa.query("probin_file", probin_file);
-
-  std::cout << "probin = " << probin_file << std::endl;
-
-  const int probin_file_length = probin_file.length();
-  Vector<int> probin_file_name(probin_file_length);
-
-  for (int i = 0; i < probin_file_length; i++)
-    probin_file_name[i] = probin_file[i];
-
-  init_unit_test(probin_file_name.dataPtr(), &probin_file_length);
+  init_unit_test();
 
   // C++ EOS initialization (must be done after Fortran eos_init and
   // init_extern_parameters)
-  eos_init(small_temp, small_dens);
+  eos_init(cj_rp::small_temp, cj_rp::small_dens);
 
   // C++ Network, RHS, screening, rates initialization
 
@@ -50,8 +39,6 @@ int main(int argc, char *argv[]) {
   const Real rho_min_fac = 0.9_rt;
   const Real rho_max_fac = 10.0_rt;
   const int npts_ad = 150;
-  const int npts = 100;
-
 
   // set the unburned (fuel) state
 
@@ -60,9 +47,9 @@ int main(int argc, char *argv[]) {
   eos_state_fuel.rho = 1.e7_rt;
   eos_state_fuel.T = 1.e8_rt;
   for (int n = 0; n < NumSpec; n++) {
-      eos_state_fuel.xn[n] = smallx;
+      eos_state_fuel.xn[n] = cj_rp::smallx;
   }
-  eos_state_fuel.xn[0] = 1.0_rt - (NumSpec - 1) * smallx;
+  eos_state_fuel.xn[0] = 1.0_rt - (NumSpec - 1) * cj_rp::smallx;
 
   eos(eos_input_rt, eos_state_fuel);
 
@@ -71,9 +58,9 @@ int main(int argc, char *argv[]) {
 
   eos_t eos_state_ash = eos_state_fuel;
   for (int n = 0; n < NumSpec; n++) {
-      eos_state_ash.xn[n] = smallx;
+      eos_state_ash.xn[n] = cj_rp::smallx;
   }
-  eos_state_ash.xn[NumSpec-1] = 1.0_rt - (NumSpec - 1) * smallx;
+  eos_state_ash.xn[NumSpec-1] = 1.0_rt - (NumSpec - 1) * cj_rp::smallx;
 
   // get the q value -- we need the change in molar fractions
   Array1D<Real, 1, NumSpec> dymol;
@@ -83,14 +70,29 @@ int main(int argc, char *argv[]) {
                  eos_state_fuel.xn[n-1] * aion_inv[n-1];
   }
 
-  Real q_burn;
-  ener_gener_rate(dymol, q_burn);
+  Real q_burn{};
+
+#ifdef NEW_NETWORK_IMPLEMENTATION
+
+  // note: we are assuming that the network's ener_gener_rate does not
+  // use rhs_state -- this is true, e.g., for aprox13
+  RHS::rhs_state_t<amrex::Real> state;
+  amrex::constexpr_for<1, NumSpec+1>([&] (auto n)
+  {
+      constexpr int species = n;
+      q_burn += RHS::ener_gener_rate<species>(state, dymol(species));
+  });
+#else
+      ener_gener_rate(dymol, q_burn);
+#endif
+
+  std::cout << "q_burn = " << q_burn << std::endl;
 
   // store the shock adiabat and the detonation adiabat
 
   Real rho_min = rho_min_fac * eos_state_fuel.rho;
   Real rho_max = rho_max_fac * eos_state_fuel.rho;
-  Real dlogrho = (std::log10(rho_max) - std::log10(rho_min)) / static_cast<Real>(npts-1);
+  Real dlogrho = (std::log10(rho_max) - std::log10(rho_min)) / static_cast<Real>(npts_ad-1);
 
   // initial guess
 
@@ -152,6 +154,7 @@ int main(int argc, char *argv[]) {
 
   hout.close();
 
+  amrex::Finalize();
   return 0;
 
 }

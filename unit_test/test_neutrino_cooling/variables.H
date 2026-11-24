@@ -18,6 +18,10 @@ public:
   int isneutdt = -1;
   int isneutda = -1;
   int isneutdz = -1;
+  int ispair = -1;
+  int isphot = -1;
+  int isplas = -1;
+  int isbrem = -1;
 
   int n_plot_comps = 0;
 

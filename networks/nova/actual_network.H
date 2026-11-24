@@ -1,18 +1,27 @@
-#ifndef actual_network_H
-#define actual_network_H
+#ifndef ACTUAL_NETWORK_H
+#define ACTUAL_NETWORK_H
+
+#include <random>
+#include <string_view>
 
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>
 #include <AMReX_Loop.H>
 
+#include <extern_parameters.H>
 #include <fundamental_constants.H>
 #include <network_properties.H>
 
-using namespace amrex;
+using namespace amrex::literals;
 
-void actual_network_init();
 
-const std::string network_name = "pynucastro-cxx";
+inline
+void actual_network_init() {
+
+
+}
+
+constexpr std::string_view network_name = "pynucastro-cxx";
 
 namespace network
 {
@@ -29,41 +38,53 @@ namespace network
         if constexpr (spec == H1) {
             return 0.0_rt;
         }
+        else if constexpr (spec == H2) {
+            return 2.2245662689997516_rt;
+        }
+        else if constexpr (spec == He3) {
+            return 7.718041347999588_rt;
+        }
         else if constexpr (spec == He4) {
-            return 28.29566_rt;
+            return 28.295662457999697_rt;
+        }
+        else if constexpr (spec == Be7) {
+            return 37.60083855599987_rt;
+        }
+        else if constexpr (spec == B8) {
+            return 37.7372096199997_rt;
         }
         else if constexpr (spec == C12) {
-            return 92.16172800000001_rt;
+            return 92.16173498399803_rt;
         }
         else if constexpr (spec == C13) {
-            return 97.108037_rt;
+            return 97.10804378399916_rt;
         }
         else if constexpr (spec == N13) {
-            return 94.105219_rt;
+            return 94.10522604799917_rt;
         }
         else if constexpr (spec == N14) {
-            return 104.65859599999999_rt;
+            return 104.65860734799753_rt;
         }
         else if constexpr (spec == N15) {
-            return 115.4919_rt;
+            return 115.49190414799887_rt;
         }
         else if constexpr (spec == O14) {
-            return 98.731892_rt;
+            return 98.73189611199996_rt;
         }
         else if constexpr (spec == O15) {
-            return 111.95538_rt;
+            return 111.95539521199862_rt;
         }
         else if constexpr (spec == O16) {
-            return 127.619296_rt;
+            return 127.6193154119992_rt;
         }
         else if constexpr (spec == O17) {
-            return 131.76237600000002_rt;
+            return 131.76239561199873_rt;
         }
         else if constexpr (spec == F17) {
-            return 128.21957600000002_rt;
+            return 128.21958437599824_rt;
         }
         else if constexpr (spec == F18) {
-            return 137.369484_rt;
+            return 137.36950247599816_rt;
         }
 
 
@@ -74,12 +95,67 @@ namespace network
     template<int spec>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
     constexpr amrex::Real mion () {
+        using namespace Species;
+
         static_assert(spec >= 1 && spec <= NumSpec);
 
-        constexpr amrex::Real A = NetworkProperties::aion(spec);
-        constexpr amrex::Real Z = NetworkProperties::zion(spec);
+        // Set the mass of the element
 
-        return (A - Z) * C::Legacy::m_n + Z * (C::Legacy::m_p + C::Legacy::m_e) - bion<spec>() * C::Legacy::MeV2gr;
+        if constexpr (spec == H1) {
+            return 1.6735328377636005e-24_rt;
+        }
+        else if constexpr (spec == H2) {
+            return 3.3444946862179e-24_rt;
+        }
+        else if constexpr (spec == He3) {
+            return 5.008234515140786e-24_rt;
+        }
+        else if constexpr (spec == He4) {
+            return 6.646479071584587e-24_rt;
+        }
+        else if constexpr (spec == Be7) {
+            return 1.1651884262042064e-23_rt;
+        }
+        else if constexpr (spec == B8) {
+            return 1.332517399630266e-23_rt;
+        }
+        else if constexpr (spec == C12) {
+            return 1.99264687992e-23_rt;
+        }
+        else if constexpr (spec == C13) {
+            return 2.1592578700883826e-23_rt;
+        }
+        else if constexpr (spec == N13) {
+            return 2.1596537049448796e-23_rt;
+        }
+        else if constexpr (spec == N14) {
+            return 2.3252651436495096e-23_rt;
+        }
+        else if constexpr (spec == N15) {
+            return 2.490826682883827e-23_rt;
+        }
+        else if constexpr (spec == O14) {
+            return 2.3261822098665393e-23_rt;
+        }
+        else if constexpr (spec == O15) {
+            return 2.4913176568383383e-23_rt;
+        }
+        else if constexpr (spec == O16) {
+            return 2.6560180592333686e-23_rt;
+        }
+        else if constexpr (spec == O17) {
+            return 2.822772237905709e-23_rt;
+        }
+        else if constexpr (spec == F17) {
+            return 2.8232643353472436e-23_rt;
+        }
+        else if constexpr (spec == F18) {
+            return 2.989125964092377e-23_rt;
+        }
+
+
+        // Return zero if we don't recognize the species.
+        return 0.0_rt;
     }
 
     // Legacy (non-templated) interfaces
@@ -91,7 +167,7 @@ namespace network
         amrex::Real b = 0.0_rt;
 
         // Set the binding energy of the element
-        constexpr_for<1, NumSpec+1>([&] (auto n) {
+        amrex::constexpr_for<1, NumSpec+1>([&] (auto n) {
             if (n == spec) {
                 b = bion<n>();
             }
@@ -106,7 +182,7 @@ namespace network
 
         amrex::Real m = 0.0_rt;
 
-        constexpr_for<1, NumSpec+1>([&] (auto n) {
+        amrex::constexpr_for<1, NumSpec+1>([&] (auto n) {
             if (n == spec) {
                 m = mion<n>();
             }
@@ -119,37 +195,72 @@ namespace network
 namespace Rates
 {
 
-    enum NetworkRates
+    enum NetworkRates :
+    std::uint8_t
     {
-        k_N13_to_C13_weak_wc12 = 1,
-        k_O14_to_N14_weak_wc12 = 2,
-        k_O15_to_N15_weak_wc12 = 3,
-        k_F17_to_O17_weak_wc12 = 4,
-        k_p_C12_to_N13 = 5,
-        k_He4_C12_to_O16 = 6,
-        k_p_C13_to_N14 = 7,
-        k_p_N13_to_O14 = 8,
-        k_p_N14_to_O15 = 9,
-        k_He4_N14_to_F18 = 10,
-        k_p_N15_to_O16 = 11,
-        k_p_O16_to_F17 = 12,
-        k_p_O17_to_F18 = 13,
-        k_He4_N13_to_p_O16 = 14,
-        k_p_N15_to_He4_C12 = 15,
-        k_He4_O14_to_p_F17 = 16,
-        k_p_O17_to_He4_N14 = 17,
-        k_p_F18_to_He4_O15 = 18,
-        k_He4_He4_He4_to_C12 = 19,
-        NumRates = k_He4_He4_He4_to_C12
+        k_N13_to_C13_beta_pos_reaclib = 1,
+        k_O14_to_N14_beta_pos_reaclib = 2,
+        k_O15_to_N15_beta_pos_reaclib = 3,
+        k_F17_to_O17_beta_pos_reaclib = 4,
+        k_B8_to_He4_He4_beta_pos_reaclib = 5,
+        k_p_p_to_d_beta_pos_reaclib = 6,
+        k_p_p_to_d_electron_capture_reaclib = 7,
+        k_d_p_to_He3_reaclib = 8,
+        k_d_d_to_He4_reaclib = 9,
+        k_He3_p_to_He4_beta_pos_reaclib = 10,
+        k_He3_He4_to_Be7_reaclib = 11,
+        k_Be7_p_to_B8_reaclib = 12,
+        k_C12_p_to_N13_reaclib = 13,
+        k_C12_He4_to_O16_reaclib = 14,
+        k_C13_p_to_N14_reaclib = 15,
+        k_N13_p_to_O14_reaclib = 16,
+        k_N14_p_to_O15_reaclib = 17,
+        k_N14_He4_to_F18_reaclib = 18,
+        k_N15_p_to_O16_reaclib = 19,
+        k_O16_p_to_F17_reaclib = 20,
+        k_O17_p_to_F18_reaclib = 21,
+        k_He3_d_to_p_He4_reaclib = 22,
+        k_N13_He4_to_p_O16_reaclib = 23,
+        k_N15_p_to_He4_C12_reaclib = 24,
+        k_O14_He4_to_p_F17_reaclib = 25,
+        k_O17_p_to_He4_N14_reaclib = 26,
+        k_F18_p_to_He4_O15_reaclib = 27,
+        k_He3_He3_to_p_p_He4_reaclib = 28,
+        k_Be7_d_to_p_He4_He4_reaclib = 29,
+        k_Be7_He3_to_p_p_He4_He4_reaclib = 30,
+        k_He4_He4_He4_to_C12_reaclib = 31,
+        NumRates = k_He4_He4_He4_to_C12_reaclib
     };
 
-    // number of reaclib rates
-
-    const int NrateReaclib = 19;
-
-    // number of tabular rates
-
-    const int NrateTabular = 0;
+    enum ScreenPairs :
+    std::uint8_t
+    {
+        k_p_F18 = 1,
+        k_p_C12 = 2,
+        k_He3_He3 = 3,
+        k_He4_N14 = 4,
+        k_He3_He4 = 5,
+        k_p_C13 = 6,
+        k_He3_Be7 = 7,
+        k_He4_C12 = 8,
+        k_p_p = 9,
+        k_p_O17 = 10,
+        k_p_N15 = 11,
+        k_p_d = 12,
+        k_p_He3 = 13,
+        k_d_d = 14,
+        k_d_He3 = 15,
+        k_p_Be7 = 16,
+        k_d_Be7 = 17,
+        k_p_N13 = 18,
+        k_He4_O14 = 19,
+        k_He4_He4 = 20,
+        k_p_O16 = 21,
+        k_p_N14 = 22,
+        k_He4_Be8 = 23,
+        k_He4_N13 = 24,
+        NumScreenPairs = k_He4_N13
+    };
 
     // rate names -- note: the rates are 1-based, not zero-based, so we pad
     // this vector with rate_names[0] = "" so the indices line up with the
@@ -157,41 +268,70 @@ namespace Rates
 
     static const std::vector<std::string> rate_names = {
         "",   // 0
-        "N13_to_C13_weak_wc12",  // 1,
-        "O14_to_N14_weak_wc12",  // 2,
-        "O15_to_N15_weak_wc12",  // 3,
-        "F17_to_O17_weak_wc12",  // 4,
-        "p_C12_to_N13",  // 5,
-        "He4_C12_to_O16",  // 6,
-        "p_C13_to_N14",  // 7,
-        "p_N13_to_O14",  // 8,
-        "p_N14_to_O15",  // 9,
-        "He4_N14_to_F18",  // 10,
-        "p_N15_to_O16",  // 11,
-        "p_O16_to_F17",  // 12,
-        "p_O17_to_F18",  // 13,
-        "He4_N13_to_p_O16",  // 14,
-        "p_N15_to_He4_C12",  // 15,
-        "He4_O14_to_p_F17",  // 16,
-        "p_O17_to_He4_N14",  // 17,
-        "p_F18_to_He4_O15",  // 18,
-        "He4_He4_He4_to_C12"  // 19,
+        "N13_to_C13_beta_pos_reaclib",  // 1,
+        "O14_to_N14_beta_pos_reaclib",  // 2,
+        "O15_to_N15_beta_pos_reaclib",  // 3,
+        "F17_to_O17_beta_pos_reaclib",  // 4,
+        "B8_to_He4_He4_beta_pos_reaclib",  // 5,
+        "p_p_to_d_beta_pos_reaclib",  // 6,
+        "p_p_to_d_electron_capture_reaclib",  // 7,
+        "d_p_to_He3_reaclib",  // 8,
+        "d_d_to_He4_reaclib",  // 9,
+        "He3_p_to_He4_beta_pos_reaclib",  // 10,
+        "He3_He4_to_Be7_reaclib",  // 11,
+        "Be7_p_to_B8_reaclib",  // 12,
+        "C12_p_to_N13_reaclib",  // 13,
+        "C12_He4_to_O16_reaclib",  // 14,
+        "C13_p_to_N14_reaclib",  // 15,
+        "N13_p_to_O14_reaclib",  // 16,
+        "N14_p_to_O15_reaclib",  // 17,
+        "N14_He4_to_F18_reaclib",  // 18,
+        "N15_p_to_O16_reaclib",  // 19,
+        "O16_p_to_F17_reaclib",  // 20,
+        "O17_p_to_F18_reaclib",  // 21,
+        "He3_d_to_p_He4_reaclib",  // 22,
+        "N13_He4_to_p_O16_reaclib",  // 23,
+        "N15_p_to_He4_C12_reaclib",  // 24,
+        "O14_He4_to_p_F17_reaclib",  // 25,
+        "O17_p_to_He4_N14_reaclib",  // 26,
+        "F18_p_to_He4_O15_reaclib",  // 27,
+        "He3_He3_to_p_p_He4_reaclib",  // 28,
+        "Be7_d_to_p_He4_He4_reaclib",  // 29,
+        "Be7_He3_to_p_p_He4_He4_reaclib",  // 30,
+        "He4_He4_He4_to_C12_reaclib"  // 31,
     };
+
+    template<std::uint8_t rate>
+    AMREX_GPU_DEVICE AMREX_INLINE
+    constexpr amrex::Real get_p_random() {
+        return 0.0_rt;
+    }
 
 }
 
 #ifdef NSE_NET
 namespace NSE_INDEX
 {
-    constexpr int H1_index = 0;
+    // A RatePair data table, 2D array of shape (NumNSERatePairs, 10).
+    // Each row corresponds to a RatePair returned by _get_nse_rate_pairs().
+    // Use enum names following NetworkSpecies and NetworkRates.
+
+    //  - Columns 1–3: 1-based index of reactant nuclei (forward rate)
+    //  - Columns 4–6: 1-based index of product nuclei (forward rate)
+    //  - Columns 7-8: 1-based index of non (n, H1, He4) nuclei.
+    //  - Column  9:   1-based index of the forward rate
+    //  - Column  10:  1-based index of the reverse rate
+
+    using namespace Species;
+    using namespace Rates;
+
+    constexpr int H1_index = 1;
     constexpr int N_index = -1;
-    constexpr int He4_index = 1;
+    constexpr int He4_index = 4;
+    constexpr int NumNSERatePairs = 0;
 
-    // Each row corresponds to the rate in NetworkRates enum
-    // First 3 row indices for reactants, followed by 3 product indices
-    // last index is the corresponding reverse rate index.
-
-    extern AMREX_GPU_MANAGED amrex::Array2D<int, 1, Rates::NumRates, 1, 7, Order::C> rate_indices;
+    inline AMREX_GPU_MANAGED amrex::Array2D<std::int8_t, 1, NumNSERatePairs, 1, 10, amrex::Order::C> rate_pair_data {
+    };
 }
 #endif
 

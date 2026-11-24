@@ -42,7 +42,7 @@ void rhs(const amrex::Real time, BurnT& state, T& int_state, RArray1D& ydot,
 
     // make sure that the temperature is valid
 
-    if (state.T <= EOSData::mintemp || state.T >= MAX_TEMP) {
+    if (state.T <= EOSData::mintemp || state.T >= integrator_rp::MAX_TEMP) {
 
         for (int n = 1; n <= INT_NEQS; ++n) {
             ydot(n) = 0.0_rt;
@@ -64,12 +64,12 @@ void rhs(const amrex::Real time, BurnT& state, T& int_state, RArray1D& ydot,
 
     // apply fudge factor:
 
-    if (react_boost > 0.0_rt) {
+    if (integrator_rp::react_boost > 0.0_rt) {
         // the correct size here is the size of the reactive state
         // RHS, not the SDC state RHS (neqs, not INT_NEQS)
 
         for (int n = 1; n <= neqs; ++n) {
-            ydot(n) *= react_boost;
+            ydot(n) *= integrator_rp::react_boost;
         }
     }
 
@@ -104,16 +104,9 @@ void jac (const amrex::Real time, BurnT& state, T& int_state, MatrixType& pd)
     int_to_burn(time, int_state, state);
 
 
-    if (state.T <= EOSData::mintemp || state.T >= MAX_TEMP) {
-
-        for (int j = 1; j <= INT_NEQS; ++j) {
-            for (int i = 1; i <= INT_NEQS; ++i) {
-                pd(i,j) = 0.0_rt;
-            }
-        }
-
+    if (state.T <= EOSData::mintemp || state.T >= integrator_rp::MAX_TEMP) {
+        pd.zero();
         return;
-
     }
 
     // Call the specific network routine to get the Jacobian.
@@ -122,22 +115,24 @@ void jac (const amrex::Real time, BurnT& state, T& int_state, MatrixType& pd)
 
     // The Jacobian from the nets is in terms of dYdot/dY, but we want
     // it was dXdot/dX, so convert here.
-    for (int n = 1; n <= NumSpec; n++) {
-        for (int m = 1; m <= neqs; m++) {
-            pd(n,m) = pd(n,m) * aion[n-1];
+    if (!integrator_rp::use_number_densities) {
+        for (int jcol = 1; jcol <= neqs; ++jcol) {
+            for (int irow = 1; irow <= NumSpec; irow++) {
+                pd(irow, jcol) = pd(irow, jcol) * aion[irow-1];
+            }
         }
-    }
 
-    for (int m = 1; m <= neqs; m++) {
-        for (int n = 1; n <= NumSpec; n++) {
-            pd(m,n) = pd(m,n) * aion_inv[n-1];
+        for (int jcol = 1; jcol <= NumSpec; ++jcol) {
+            for (int irow = 1; irow <= neqs; ++irow) {
+                pd(irow, jcol) = pd(irow, jcol) * aion_inv[jcol-1];
+            }
         }
     }
 
     // apply fudge factor:
 
-    if (react_boost > 0.0_rt) {
-        pd.mul(react_boost);
+    if (integrator_rp::react_boost > 0.0_rt) {
+        pd.mul(integrator_rp::react_boost);
     }
 
     // The system we integrate has the form (rho X_k, rho e)
@@ -154,31 +149,35 @@ void jac (const amrex::Real time, BurnT& state, T& int_state, MatrixType& pd)
     // now correct the species derivatives
     // this constructs dy/dX_k |_e = dy/dX_k |_T - e_{X_k} |_T dy/dT / c_v
 
-    eos_re_extra_t eos_state;
-    eos_state.rho = state.rho;
-    eos_state.T = state.T;
-    eos_state.e = state.e;
-    for (int n = 0; n < NumSpec; n++) {
-        eos_state.xn[n] = state.xn[n];
-    }
+    if (integrator_rp::correct_jacobian_for_const_e) {
+
+        eos_re_extra_t eos_state;
+        eos_state.rho = state.rho;
+        eos_state.T = state.T;
+        eos_state.e = state.e;
+        for (int n = 0; n < NumSpec; n++) {
+            eos_state.xn[n] = state.xn[n];
+        }
 #ifdef AUX_THERMO
-    // make the aux data consistent with the state X's
-    set_aux_comp_from_X(eos_state);
+        // make the aux data consistent with the state X's
+        set_aux_comp_from_X(eos_state);
 #endif
 
-    eos(eos_input_re, eos_state);
+        eos(eos_input_re, eos_state);
 
-    eos_xderivs_t eos_xderivs = composition_derivatives(eos_state);
+        eos_xderivs_t eos_xderivs = composition_derivatives(eos_state);
 
-    for (int m = 1; m <= neqs; m++) {
-        for (int n = 1; n <= NumSpec; n++) {
-            pd(m, n) -= eos_xderivs.dedX[n-1] * pd(m, net_ienuc);
+        for (int jcol = 1; jcol <= NumSpec;++jcol) {
+            for (int irow = 1; irow <= neqs; ++irow) {
+                pd(irow, jcol) -= eos_xderivs.dedX[jcol-1] * pd(irow, net_ienuc);
+            }
         }
+
     }
 
     // apply scale_system scaling (if needed)
 
-    if (scale_system) {
+    if (integrator_rp::scale_system) {
 
         // do the dX/de terms
 

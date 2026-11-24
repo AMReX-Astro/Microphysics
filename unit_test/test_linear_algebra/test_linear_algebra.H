@@ -175,7 +175,7 @@ void linear_algebra() {
 
     // now try to output a Jacobian mask based on the actual Jacobian
 
-    ArrayUtil::MathArray2D<1, INT_NEQS, 1, INT_NEQS> jac;
+    ArrayUtil::MathArray2D<jac_t, 1, INT_NEQS, 1, INT_NEQS> jac;
 
     burn_t burn_state;
     burn_state.rho = 1.e8;

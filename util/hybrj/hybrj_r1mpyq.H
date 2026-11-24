@@ -1,7 +1,7 @@
 #ifndef HYBRJ_R1MPYQ_H
 #define HYBRJ_R1MPYQ_H
 
-#include <hybrj.H>
+#include <hybrj_type.H>
 
 // given an m by n matrix a, this subroutine computes a*q where
 //  q is the product of 2*(n - 1) transformations
@@ -16,9 +16,9 @@
 // changes:
 // * Split into 2 versions, one takes an nxn matrix and one takes a vector of length n
 
-template<int neqs>
+template<int neqs, typename MatrixType>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void r1mpyq(amrex::Array2D<amrex::Real, 1, neqs, 1, neqs>& a,
+void r1mpyq(MatrixType& a,
             amrex::Array1D<amrex::Real, 1, neqs>& v,
             amrex::Array1D<amrex::Real, 1, neqs>& w) {
 

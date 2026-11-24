@@ -1,0 +1,9 @@
+@namespace: unit_test
+
+run_prefix    string     ""
+
+X             real    0.71
+Z             real    0.01
+mdot          real    0.1
+Fb            real    150.0
+COMPRESS      int     0

@@ -12,6 +12,10 @@ plot_t init_variables() {
   p.isneutdt = p.next_index(1);
   p.isneutda = p.next_index(1);
   p.isneutdz = p.next_index(1);
+  p.ispair = p.next_index(1);
+  p.isphot = p.next_index(1);
+  p.isplas = p.next_index(1);
+  p.isbrem = p.next_index(1);
 
   return p;
 }
@@ -31,6 +35,10 @@ void get_varnames(const plot_t& p, amrex::Vector<std::string>& names) {
   names[p.isneutdt] = "dsneutdt";
   names[p.isneutda] = "dsneutda";
   names[p.isneutdz] = "dsneutdz";
+  names[p.ispair] = "pair";
+  names[p.isphot] = "phot";
+  names[p.isplas] = "plas";
+  names[p.isbrem] = "brem";
 }
 
 

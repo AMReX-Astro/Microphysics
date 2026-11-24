@@ -2,6 +2,7 @@
 #define NSE_EOS_H
 
 #include <AMReX_REAL.H>
+#include <AMReX_Algorithm.H>
 
 #include <eos.H>
 
@@ -38,7 +39,7 @@ void
 nse_T_abar_from_e(const amrex::Real rho, const amrex::Real e_in, const amrex::Real Ye,
                   amrex::Real& T, amrex::Real& abar) {
 
-    using namespace amrex;
+    using namespace amrex::literals;
     using namespace AuxZero;
 
     const amrex::Real ttol{1.e-6_rt};
@@ -65,7 +66,7 @@ nse_T_abar_from_e(const amrex::Real rho, const amrex::Real e_in, const amrex::Re
         amrex::Real abar_old = nse_state.abar;
 
         // call the EOS with the initial guess for T
-        eos_extra_t eos_state;
+        eos_re_extra_t eos_state;
         eos_state.rho = rho;
         eos_state.T = T;
         eos_state.aux[iye] = Ye;
@@ -84,7 +85,7 @@ nse_T_abar_from_e(const amrex::Real rho, const amrex::Real e_in, const amrex::Re
                                   + Ye * eos_state.dedZ * dabar_dT);
 
         // update the temperature
-        T = std::clamp(T + dT, 0.25 * T, 4.0 * T);
+        T = amrex::Clamp(T + dT, 0.25 * T, 4.0 * T);
 
         // check convergence
 
@@ -92,6 +93,10 @@ nse_T_abar_from_e(const amrex::Real rho, const amrex::Real e_in, const amrex::Re
             converged = true;
         }
         iter++;
+    }
+
+    if (! converged) {
+        amrex::Abort("convergence failure in nse_T_abar_from_e");
     }
 
     // T is set to the last T
@@ -129,7 +134,7 @@ void
 nse_rho_abar_from_e(const amrex::Real T, const amrex::Real e_in, const amrex::Real Ye,
                     amrex::Real& rho, amrex::Real& abar) {
 
-    using namespace amrex;
+    using namespace amrex::literals;
     using namespace AuxZero;
 
     const amrex::Real dtol{1.e-6_rt};
@@ -156,7 +161,7 @@ nse_rho_abar_from_e(const amrex::Real T, const amrex::Real e_in, const amrex::Re
         amrex::Real abar_old = nse_state.abar;
 
         // call the EOS with the initial guess for rho
-        eos_extra_t eos_state;
+        eos_re_extra_t eos_state;
         eos_state.rho = rho;
         eos_state.T = T;
         eos_state.aux[iye] = Ye;
@@ -175,7 +180,7 @@ nse_rho_abar_from_e(const amrex::Real T, const amrex::Real e_in, const amrex::Re
                                     + Ye * eos_state.dedZ * dabar_drho);
 
         // update the density
-        rho = std::clamp(rho + drho, 0.25 * rho, 4.0 * rho);
+        rho = amrex::Clamp(rho + drho, 0.25 * rho, 4.0 * rho);
 
         // check convergence
 
@@ -183,6 +188,10 @@ nse_rho_abar_from_e(const amrex::Real T, const amrex::Real e_in, const amrex::Re
             converged = true;
         }
         iter++;
+    }
+
+    if (! converged) {
+        amrex::Abort("convergence failure in nse_rho_abar_from_e");
     }
 
     // rho is set to the last rho
@@ -220,7 +229,7 @@ void
 nse_T_abar_from_p(const amrex::Real rho, const amrex::Real p_in, const amrex::Real Ye,
                   amrex::Real& T, amrex::Real& abar) {
 
-    using namespace amrex;
+    using namespace amrex::literals;
     using namespace AuxZero;
 
     const amrex::Real ttol{1.e-6_rt};
@@ -247,7 +256,7 @@ nse_T_abar_from_p(const amrex::Real rho, const amrex::Real p_in, const amrex::Re
         amrex::Real abar_old = nse_state.abar;
 
         // call the EOS with the initial guess for T
-        eos_extra_t eos_state;
+        eos_rep_extra_t eos_state;
         eos_state.rho = rho;
         eos_state.T = T;
         eos_state.aux[iye] = Ye;
@@ -266,7 +275,7 @@ nse_T_abar_from_p(const amrex::Real rho, const amrex::Real p_in, const amrex::Re
                                   + Ye * eos_state.dpdZ * dabar_dT);
 
         // update the temperature
-        T = std::clamp(T + dT, 0.25 * T, 4.0 * T);
+        T = amrex::Clamp(T + dT, 0.25 * T, 4.0 * T);
 
         // check convergence
 
@@ -274,6 +283,10 @@ nse_T_abar_from_p(const amrex::Real rho, const amrex::Real p_in, const amrex::Re
             converged = true;
         }
         iter++;
+    }
+
+    if (! converged) {
+        amrex::Abort("convergence failure in nse_T_abar_from_p");
     }
 
     // T is set to the last T
@@ -311,7 +324,7 @@ void
 nse_rho_abar_from_p(const amrex::Real T, const amrex::Real p_in, const amrex::Real Ye,
                     amrex::Real& rho, amrex::Real& abar) {
 
-    using namespace amrex;
+    using namespace amrex::literals;
     using namespace AuxZero;
 
     const amrex::Real dtol{1.e-6_rt};
@@ -338,7 +351,7 @@ nse_rho_abar_from_p(const amrex::Real T, const amrex::Real p_in, const amrex::Re
         amrex::Real abar_old = nse_state.abar;
 
         // call the EOS with the initial guess for rho
-        eos_extra_t eos_state;
+        eos_rep_extra_t eos_state;
         eos_state.rho = rho;
         eos_state.T = T;
         eos_state.aux[iye] = Ye;
@@ -357,7 +370,7 @@ nse_rho_abar_from_p(const amrex::Real T, const amrex::Real p_in, const amrex::Re
                                     + Ye * eos_state.dpdZ * dabar_drho);
 
         // update the density
-        rho = std::clamp(rho + drho, 0.25 * rho, 4.0 * rho);
+        rho = amrex::Clamp(rho + drho, 0.25 * rho, 4.0 * rho);
 
         // check convergence
 
@@ -365,6 +378,10 @@ nse_rho_abar_from_p(const amrex::Real T, const amrex::Real p_in, const amrex::Re
             converged = true;
         }
         iter++;
+    }
+
+    if (! converged) {
+        amrex::Abort("convergence failure in nse_rho_abar_from_p");
     }
 
     // rho is set to the last rho

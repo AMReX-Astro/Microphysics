@@ -1,8 +1,5 @@
 @namespace: unit_test
 
-small_temp    real       1.e5
-small_dens    real       1.e5
-
 # the final time to integrate to
 tmax          real       1.e-2
 

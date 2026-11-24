@@ -4,6 +4,7 @@
 #define NEW_NETWORK_IMPLEMENTATION
 
 #include <AMReX_REAL.H>
+#include <string_view>
 
 using namespace amrex;
 
@@ -14,7 +15,7 @@ using namespace amrex;
 AMREX_INLINE
 void actual_network_init() {}
 
-const std::string network_name = "powerlaw";
+constexpr std::string_view network_name = "powerlaw";
 
 namespace Rates {
     enum NetworkRates {
@@ -53,9 +54,9 @@ namespace RHS {
         return data;
     }
 
-    template<int rate, typename dual_t>
+    template<int rate, typename number_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void evaluate_analytical_rate (const rhs_state_t<dual_t>& state, rate_t& rates)
+    void evaluate_analytical_rate (const rhs_state_t<number_t>& state, rate_t<number_t>& rates)
     {
         using namespace Species;
         using namespace Rates;
@@ -66,24 +67,24 @@ namespace RHS {
             }
             else {
                 rates.fr = network_rp::rtilde / network_rp::rho_burn_ref *
-                           std::pow(state.tf.temp / network_rp::T_burn_ref, network_rp::nu);
+                           admath::pow(state.tf.temp / network_rp::T_burn_ref, network_rp::nu);
             }
 
             rates.rr = 0.0_rt;
         }
     }
 
-    template<int rate, typename dual_t>
+    template<int rate, typename number_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void postprocess_rate (const rhs_state_t<dual_t>& state, rate_t& rates,
-                           rate_t& rates1, rate_t& rates2, rate_t& rates3)
+    void postprocess_rate (const rhs_state_t<number_t>& state, rate_t<number_t>& rates,
+                           rate_t<number_t>& rates1, rate_t<number_t>& rates2, rate_t<number_t>& rates3)
     {
         // Nothing to do for this network.
     }
 
-    template<int spec, typename dual_t>
+    template<int spec, typename number_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    Real ener_gener_rate ([[maybe_unused]] const rhs_state_t<dual_t>& rhs_state, Real const& dydt)
+    Real ener_gener_rate ([[maybe_unused]] const rhs_state_t<number_t>& rhs_state, Real const& dydt)
     {
         if constexpr (spec == 2) {
             return dydt * NetworkProperties::aion(spec) * network_rp::specific_q_burn;

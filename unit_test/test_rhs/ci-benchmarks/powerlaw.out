@@ -22,8 +22,8 @@
  J_ash_inert                                 0                      0
  J_inert_inert                               0                      0
  J_E_inert                                   0                      0
- J_fuel_E                                    0                      0
- J_ash_E                                     0                      0
+ J_fuel_E                        -9120177709.1          -10061.863238
+ J_ash_E                          5030.9316188           4560088854.6
  J_inert_E                                   0                      0
- J_E_E                                       0                      0
+ J_E_E                            201237.26475       1.8240355418e+11
 

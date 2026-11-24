@@ -1,0 +1,119 @@
+#ifndef JAC_CELL_H
+#define JAC_CELL_H
+
+#include <fstream>
+#include <iostream>
+#include <iomanip>
+#include <format>
+
+#include <extern_parameters.H>
+#include <eos.H>
+#include <network.H>
+#include <burner.H>
+#include <react_util.H>
+#include <numerical_jacobian.H>
+
+AMREX_INLINE
+void jac_cell_c()
+{
+
+    amrex::Real massfractions[NumSpec] = {-1.0};
+
+    // Make sure user set all the mass fractions to values in the interval [0, 1]
+    for (int n = 1; n <= NumSpec; ++n) {
+
+        massfractions[n-1] = get_xn(n, unit_test_rp::uniform_xn);
+
+        if (massfractions[n-1] < 0 || massfractions[n-1] > 1) {
+            amrex::Error("mass fraction for " + short_spec_names_cxx[n-1] + " not initialized in the interval [0,1]!");
+        }
+
+    }
+
+    burn_t burn_state;
+
+    burn_state.rho = unit_test_rp::density;
+    burn_state.T = unit_test_rp::temperature;
+    for (int n = 0; n < NumSpec; ++n) {
+        burn_state.xn[n] = massfractions[n];
+    }
+
+    if (! unit_test_rp::skip_initial_normalization) {
+        normalize_abundances_burn(burn_state);
+    }
+
+    // get the energy
+
+    eos(eos_input_rt, burn_state);
+
+    JacNetArray2D jac_analytic;
+    JacNetArray2D jac_numerical;
+
+    actual_jac(burn_state, jac_analytic);
+
+    // we need to convert this to be in terms of X instead of Y
+
+    for (int j = 1; j <= NumSpec; ++j) {
+        for (int i = 1; i <= neqs; ++i) {
+            jac_analytic(j, i) *= aion[j-1];
+            jac_analytic(i, j) *= aion_inv[j-1];
+        }
+    }
+
+    if (integrator_rp::correct_jacobian_for_const_e) {
+
+        eos_re_extra_t eos_state;
+        eos_state.rho = burn_state.rho;
+        eos_state.T = burn_state.T;
+        eos_state.e = burn_state.e;
+        for (int n = 0; n < NumSpec; n++) {
+            eos_state.xn[n] = burn_state.xn[n];
+        }
+#ifdef AUX_THERMO
+        // make the aux data consistent with the state X's
+        set_aux_comp_from_X(eos_state);
+#endif
+
+        eos(eos_input_re, eos_state);
+
+        eos_xderivs_t eos_xderivs = composition_derivatives(eos_state);
+
+        for (int jcol = 1; jcol <= NumSpec;++jcol) {
+            for (int irow = 1; irow <= neqs; ++irow) {
+                jac_analytic(irow, jcol) -= eos_xderivs.dedX[jcol-1] * jac_analytic(irow, net_ienuc);
+            }
+        }
+
+    }
+
+
+    jac_info_t jac_info;
+    jac_info.h = 1.e-5_rt;  // timestep really doesn't make sense here
+
+    numerical_jac(burn_state, jac_info, jac_numerical);
+
+    // output
+
+    // header
+    std::cout << std::format("{:^13}   {:^20}  {:^20}  {:^20}\n",
+                             "element", "numerical", "analytic", "rel. error");
+
+    for (int ii = 1; ii <= neqs; ++ii) {
+        std::string ilabel = (ii < neqs) ? short_spec_names_cxx[ii-1] : "e";
+        for (int jj = 1; jj <= neqs; ++jj) {
+            std::string jlabel = (jj < neqs) ? short_spec_names_cxx[jj-1] : "e";
+
+            auto err = std::abs(jac_numerical(ii,jj) - jac_analytic(ii,jj));
+            if (jac_analytic(ii,jj) != 0.0) {
+                err /= std::abs(jac_analytic(ii,jj));
+            }
+
+            std::cout << std::format("J({:4}, {:4}) = {:20.10g}  {:20.10g}  {:20.10e}\n",
+                                     ilabel, jlabel, jac_numerical(ii,jj), jac_analytic(ii,jj), err);
+        }
+        std::cout << std::endl;
+    }
+
+
+}
+#endif

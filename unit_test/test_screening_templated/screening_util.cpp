@@ -20,9 +20,9 @@ using namespace amrex;
 using namespace unit_test_rp;
 
 // for whatever reason, this doesn't work when inlined
-template <int do_T_derivatives, typename dual_t>
+template <int do_T_derivatives, typename number_t>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void maybe_seed(dual_t& value) {
+void maybe_seed(number_t& value) {
   if constexpr (do_T_derivatives) {
     autodiff::seed(value);
   }
@@ -62,8 +62,8 @@ void screen_test_C(const Box& bx,
     }
 
     constexpr int do_T_derivatives = 1;
-    using dual_t = std::conditional_t<do_T_derivatives, autodiff::dual, amrex::Real>;
-    dual_t temp_zone = std::pow(10.0, std::log10(temp_min) + static_cast<Real>(j)*dlogT);
+    using number_t = std::conditional_t<do_T_derivatives, autodiff::dual, amrex::Real>;
+    number_t temp_zone = std::pow(10.0, std::log10(temp_min) + static_cast<Real>(j)*dlogT);
     maybe_seed<do_T_derivatives>(temp_zone);
 
     Real dens_zone = std::pow(10.0, std::log10(dens_min) + static_cast<Real>(i)*dlogrho);
@@ -76,7 +76,7 @@ void screen_test_C(const Box& bx,
     }
 
     for (int loop = 0; loop < unit_test_rp::loops; ++loop) {
-    plasma_state_t<dual_t> pstate;
+    plasma_state_t<number_t> pstate;
     fill_plasma_state(pstate, temp_zone, dens_zone, ymass);
 
     Real sc1a;

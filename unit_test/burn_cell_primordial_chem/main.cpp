@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
 
     init_unit_test();
 
-    // C++ EOS initialization (must be done after Fortran eos_init and
+    // C++ EOS initialization (must be done after
     // init_extern_parameters)
     eos_init(unit_test_rp::small_temp, unit_test_rp::small_dens);
 

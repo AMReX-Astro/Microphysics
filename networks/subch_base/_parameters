@@ -1,4 +1,0 @@
-@namespace: network
-
-disable_p_C12_to_N13    int     0
-disable_He4_N13_to_p_O16    int     0

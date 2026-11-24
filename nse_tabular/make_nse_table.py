@@ -119,6 +119,10 @@ def output_header(Ts, rhos, yes):
         nse_h.write(f"    constexpr amrex::Real ye_max = {yes.max()};\n")
         nse_h.write(f"    constexpr amrex::Real dye = {(yes.max() - yes.min()) / (len(yes) - 1)};\n\n")
 
+        nse_h.write("    constexpr amrex::Real inv_dlogT = 1.0_rt / dlogT;\n")
+        nse_h.write("    constexpr amrex::Real inv_dlogrho = 1.0_rt / dlogrho;\n")
+        nse_h.write("    constexpr amrex::Real inv_dye = 1.0_rt / dye;\n")
+
         nse_h.write("}\n")
         nse_h.write("#endif\n")
 

@@ -1,7 +1,17 @@
 @namespace: eos
 
+# polytrope type: 1 is non-relativistic, fully degenerate electron
+# gas; 2 is fully-relativistic, fully degenerate gas.  If these are
+# set, then only pulytrope_mu_e needs to be set.
 polytrope_type       int      0
+
+# density exponent for pressure, P = K rho**gamma
 polytrope_gamma      real     0.0e0
+
+# proportionality constant in EOS, P = K rho**gamma
 polytrope_K          real     0.0e0
+
+# mean molecular weight per electron for the cases when polytrope_type
+# is 1 or 2.  In that case, we have P = K (rho / mu_e)**gamma
 polytrope_mu_e       real     2.0e0
 

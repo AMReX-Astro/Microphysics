@@ -3,6 +3,7 @@
 
 #include <AMReX_REAL.H>
 #include <AMReX_ANSIEscCode.H>
+#include <AMReX_GpuPrint.H>
 
 #include <iomanip>
 
@@ -89,12 +90,13 @@ IntegratorT integrator_setup (BurnT& state, amrex::Real dt, bool is_retry)
 
     burn_to_integrator(state, int_state);
 
-    // Save the initial composition, temperature, and energy for our later diagnostics.
-
     return int_state;
 }
 
-
+///
+/// Save the initial composition and thermodynamic state for
+/// diagnostics.
+///
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 state_backup_t integrator_backup (const BurnT& state) {
@@ -105,8 +107,8 @@ state_backup_t integrator_backup (const BurnT& state) {
     for (int n = 0; n < NumSpec; ++n) {
         state_save.xn_in[n] = state.xn[n];
     }
-    state_save.T_in = state.T;
 #endif
+    state_save.T_in = state.T;
     state_save.e_in = state.e;
 
     return state_save;
@@ -117,25 +119,13 @@ state_backup_t integrator_backup (const BurnT& state) {
 template <typename BurnT, typename IntegratorT>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void integrator_cleanup (IntegratorT& int_state, BurnT& state,
-                         int istate, const state_backup_t& state_save, amrex::Real dt)
+                         int istate, const state_backup_t& state_save, amrex::Real dt,
+                         const amrex::Real final_state_species_failure_tolerance_factor = 1.0_rt)
 {
 
     // Copy the integration data back to the burn state.
 
     integrator_to_burn(int_state, state);
-
-#ifdef NSE
-    // compute the temperature based on the energy release -- we need
-    // this in case we failed in our burn here because we entered NSE
-
-#ifdef AUX_THERMO
-    // need to sync the auxiliary data up with the new mass fractions
-    set_aux_comp_from_X(state);
-#endif
-    if (integrator_rp::call_eos_in_rhs) {
-        eos(eos_input_re, state);
-    }
-#endif
 
     // Subtract off the initial energy (the application codes expect
     // to get back only the generated energy during the burn).
@@ -157,6 +147,8 @@ void integrator_cleanup (IntegratorT& int_state, BurnT& state,
     state.n_jac = int_state.n_jac;
     state.n_step = int_state.n_step;
 
+    state.error_code = static_cast<short>(istate);
+
     // The integrator may not always fail even though it can lead to
     // unphysical states.  Add some checks that indicate a burn fail
     // even if the integrator thinks the integration was successful.
@@ -165,15 +157,18 @@ void integrator_cleanup (IntegratorT& int_state, BurnT& state,
         state.success = false;
     }
 
+    const amrex::Real final_state_species_failure_tolerance =
+        final_state_species_failure_tolerance_factor * integrator_rp::species_failure_tolerance;
+
     for (int n = 1; n <= NumSpec; ++n) {
-        if (int_state.y(n) < -species_failure_tolerance) {
+        if (int_state.y(n) < -final_state_species_failure_tolerance) {
             state.success = false;
         }
 
         // Don't enforce a max if we are evolving number densities
 
         if (! integrator_rp::use_number_densities) {
-            if (int_state.y(n) > 1.0_rt + species_failure_tolerance) {
+            if (int_state.y(n) > 1.0_rt + integrator_rp::species_failure_tolerance) {
                 state.success = false;
             }
         }
@@ -184,7 +179,11 @@ void integrator_cleanup (IntegratorT& int_state, BurnT& state,
         // Print out some integration statistics, if desired.
         std::cout <<  "integration summary: " << std::endl;
         std::cout <<  "dens: " << state.rho << " temp: " << state.T << std::endl;
-        std::cout << " energy released: " << state.e << std::endl;
+        if (integrator_rp::subtract_internal_energy) {
+            std::cout << " energy released: " << state.e << std::endl;
+        } else {
+            std::cout << " energy released: " << state.e - state_save.e_in << std::endl;
+        }
         std::cout <<  "number of steps taken: " << state.n_step << std::endl;
         std::cout <<  "number of f evaluations: " << state.n_rhs << std::endl;
     }
@@ -193,36 +192,37 @@ void integrator_cleanup (IntegratorT& int_state, BurnT& state,
     // If we failed, print out the current state of the integration.
 
     if (! state.success) {
-        if (istate != IERR_ENTERED_NSE) {
 #ifndef AMREX_USE_GPU
-            std::cout << amrex::Font::Bold << amrex::FGColor::Red << "[ERROR] integration failed in net" << amrex::ResetDisplay << std::endl;
-            std::cout << "istate = " << istate << std::endl;
-            if (istate == IERR_SUCCESS) {
-                std::cout << "  Integration exited successfully, but a check on the data values failed" << std::endl;
-            }
-            std::cout << "zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
-            std::cout << "time = " << int_state.t << std::endl;
-            std::cout << "dt = " << std::setprecision(16) << dt << std::endl;
-            std::cout << "temp start = " << std::setprecision(16) << state_save.T_in << std::endl;
-            std::cout << "xn start = ";
-            for (const double X : state_save.xn_in) {
-                std::cout << std::setprecision(16) << X << " ";
-            }
-            std::cout << std::endl;
-            std::cout << "dens current = " << std::setprecision(16) << state.rho << std::endl;
-            std::cout << "temp current = " << std::setprecision(16) << state.T << std::endl;
-            std::cout << "xn current = ";
-            for (const double X : state.xn) {
-                std::cout << std::setprecision(16) << X << " ";
-            }
-            std::cout << std::endl;
-            std::cout << "energy generated = " << state.e << std::endl;
-#endif
-        } else {
-#ifndef AMREX_USE_GPU
-            std::cout << "burn entered NSE during integration (after " << state.n_step << " steps), zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
-#endif
+        std::cout << amrex::Font::Bold << amrex::FGColor::Red << "[ERROR] integration failed in net" << amrex::ResetDisplay << std::endl;
+        std::cout << "istate = " << istate << std::endl;
+        if (istate == IERR_SUCCESS) {
+            std::cout << "  Integration exited successfully, but a check on the data values failed" << std::endl;
         }
+        std::cout << "zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
+        std::cout << "time = " << int_state.t << std::endl;
+        std::cout << "dt = " << std::setprecision(OUTDIGITS) << dt << std::endl;
+        std::cout << "temp start = " << std::setprecision(OUTDIGITS) << state_save.T_in << std::endl;
+        std::cout << "xn start = ";
+        for (const double X : state_save.xn_in) {
+            std::cout << std::scientific << std::setprecision(OUTDIGITS) << X << " ";
+        }
+        std::cout << std::endl;
+        std::cout << "dens current = " << std::setprecision(OUTDIGITS) << state.rho << std::endl;
+        std::cout << "temp current = " << std::setprecision(OUTDIGITS) << state.T << std::endl;
+        std::cout << "xn current = ";
+        for (const double X : state.xn) {
+            std::cout << std::scientific << std::setprecision(OUTDIGITS) << X << " ";
+        }
+        std::cout << std::endl;
+        if (integrator_rp::subtract_internal_energy) {
+            std::cout << "energy generated = " << state.e << std::endl;
+        } else {
+            std::cout << "energy generated = " << state.e - state_save.e_in << std::endl;
+        }
+#elif defined(ALLOW_GPU_PRINTF)
+        AMREX_DEVICE_PRINTF("[ERROR] integration failed in net, istate = %d, time = %g, dt = %g, dens = %g, temp_start = %g\n",
+                            istate, int_state.t, dt, state.rho, state_save.T_in);
+#endif
     }
 
 }

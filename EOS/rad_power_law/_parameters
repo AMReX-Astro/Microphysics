@@ -1,5 +1,10 @@
 @namespace: eos
 
+# specific heat proportionality constant, K, c_v = K rho**m T**(-n)
 eos_const_c_v        real     -1.e0
+
+# specific heat density exponent, m, c_v = K rho**m T**(-n)
 eos_c_v_exp_m        real      0.e0
+
+# specific heat (negative) temperature exponent, n, c_v = K rho**m T**(-n)
 eos_c_v_exp_n        real      0.e0

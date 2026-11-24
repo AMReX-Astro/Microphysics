@@ -1,0 +1,4 @@
+@namespace: network
+
+disable_C12_p_to_N13_reaclib    int     0
+disable_N13_He4_to_p_O16_reaclib    int     0

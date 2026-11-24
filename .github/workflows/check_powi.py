@@ -64,7 +64,7 @@ def git_diff():
     # Print out suggested change and raise error after detecting modification
     if git_diff_output.stdout:
         print("Detected potential usage to replace std::pow"
-              " with integer powers via amrex::Math::powi\n")
+              " with integer powers via amrex::Math::powi or admath::powi\n")
         print("Below are the suggested changes:\n")
         print(git_diff_output.stdout)
 

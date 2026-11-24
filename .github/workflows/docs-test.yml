@@ -18,16 +18,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install pandoc and doxygen
         run: |
-          sudo apt install pandoc doxygen
+          sudo apt-get update -y -qq
+          sudo apt-get install -y pandoc doxygen
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
-          python-version: '3.11'
+          python-version: '3.14'
           cache: "pip"
 
       - name: Install dependencies
@@ -35,10 +36,5 @@ jobs:
 
       - name: Build docs
         run: |
-          cd sphinx_docs/
+          cd Docs/
           make SPHINXOPTS='-v -W --keep-going' html
-
-      - name: Link check
-        run: |
-          cd sphinx_docs/
-          make SPHINXOPTS=-v linkcheck

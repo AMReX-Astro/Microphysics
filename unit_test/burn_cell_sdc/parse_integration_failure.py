@@ -47,10 +47,16 @@ def doit(string):
     # figure out if it is the VODE failure or burn_t that was provided
 
     is_vode = False
+
+    density = None
+    temperature = None
     rhoe = None
     tmax = None
-
+    xn = None
     aux = None
+    A_rho = None
+    A_rhoe = None
+    A_X_k = None
     A_aux_k = None
 
     for line in string:
@@ -163,7 +169,7 @@ def doit(string):
 
 if __name__ == "__main__":
     err_file = sys.argv[1]
-    with open(err_file, "r") as f:
+    with open(err_file) as f:
         lines = f.readlines()
 
     doit(lines)

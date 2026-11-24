@@ -16,8 +16,6 @@
 #include <nonaka_plot.H>
 #endif
 
-using namespace integrator_rp;
-
 // The rhs routine provides the right-hand-side for the DVODE solver.
 // This is a generic interface that calls the specific RHS routine in the
 // network you're actually using.
@@ -51,7 +49,7 @@ void rhs (const amrex::Real time, BurnT& state, T& int_state, RArray1D& ydot, [[
     // Only do the burn if the incoming temperature is within the temperature
     // bounds. Otherwise set the RHS to zero and return.
 
-    if (state.T <= EOSData::mintemp || state.T >= MAX_TEMP) {
+    if (state.T <= EOSData::mintemp || state.T >= integrator_rp::MAX_TEMP) {
 
         for (int n = 1; n <= INT_NEQS; ++n) {
             ydot(n) = 0.0_rt;
@@ -82,28 +80,28 @@ void rhs (const amrex::Real time, BurnT& state, T& int_state, RArray1D& ydot, [[
 
     // We integrate X, not Y
     // turn it off for primordial chem
-    if (!use_number_densities) {
+    if (! integrator_rp::use_number_densities) {
         for (int n = 1; n <= NumSpec; ++n) {
             ydot(n) *= aion[n-1];
         }
     }
 
     // scale the energy
-    if (scale_system) {
+    if (integrator_rp::scale_system) {
         ydot(net_ienuc) /= state.e_scale;
     }
 
     // Allow energy integration to be disabled.
 
-    if (!integrate_energy) {
+    if (! integrator_rp::integrate_energy) {
         ydot(net_ienuc) = 0.0_rt;
     }
 
     // apply fudge factor:
 
-    if (react_boost > 0.0_rt) {
+    if (integrator_rp::react_boost > 0.0_rt) {
         for (int n = 1; n <= INT_NEQS; ++n) {
-            ydot(n) *= react_boost;
+            ydot(n) *= integrator_rp::react_boost;
         }
     }
 
@@ -120,16 +118,9 @@ void jac ([[maybe_unused]] const amrex::Real time, BurnT& state, T& int_state, M
     // Only do the burn if the incoming temperature is within the temperature
     // bounds. Otherwise set the Jacobian to zero and return.
 
-    if (state.T <= EOSData::mintemp || state.T >= MAX_TEMP) {
-
-        for (int j = 1; j <= INT_NEQS; ++j) {
-            for (int i = 1; i <= INT_NEQS; ++i) {
-                pd(i,j) = 0.0_rt;
-            }
-        }
-
+    if (state.T <= EOSData::mintemp || state.T >= integrator_rp::MAX_TEMP) {
+        pd.zero();
         return;
-
     }
 
     // Call the specific network routine to get the Jacobian.
@@ -144,7 +135,7 @@ void jac ([[maybe_unused]] const amrex::Real time, BurnT& state, T& int_state, M
 
     // We integrate X, not Y
     // turn it off for primordial chem
-    if (!use_number_densities) {
+    if (! integrator_rp::use_number_densities) {
         for (int j = 1; j <= NumSpec; ++j) {
             for (int i = 1; i <= INT_NEQS; ++i) {
                 pd.mul(j, i, aion[j-1]);
@@ -153,9 +144,50 @@ void jac ([[maybe_unused]] const amrex::Real time, BurnT& state, T& int_state, M
         }
     }
 
+    // The system we integrate has the form (rho X_k, rho e)
+
+    // pd is now of the form:
+    //
+    //  SFS         / d(rho X1dot)/dX1  d(rho X1dit)/dX2 ... 1/cv d(rho X1dot)/dT \ //
+    //              | d(rho X2dot)/dX1  d(rho X2dot)/dX2 ... 1/cv d(rho X2dot)/dT |
+    //  SFS-1+nspec |   ...                                                       |
+    //  SEINT       \ d(rho Edot)/dX1   d(rho Edot)/dX2  ... 1/cv d(rho Edot)/dT  /
+    //
+    //                   SFS                                         SEINT
+
+    // now correct the species derivatives
+    // this constructs dy/dX_k |_e = dy/dX_k |_T - e_{X_k} |_T dy/dT / c_v
+
+    if (integrator_rp::correct_jacobian_for_const_e) {
+
+        eos_re_extra_t eos_state;
+        eos_state.rho = state.rho;
+        eos_state.T = state.T;
+        eos_state.e = state.e;
+        for (int n = 0; n < NumSpec; n++) {
+            eos_state.xn[n] = state.xn[n];
+        }
+#ifdef AUX_THERMO
+        // make the aux data consistent with the state X's
+        set_aux_comp_from_X(eos_state);
+#endif
+
+        eos(eos_input_re, eos_state);
+
+        eos_xderivs_t eos_xderivs = composition_derivatives(eos_state);
+
+        for (int jcol = 1; jcol <= NumSpec;++jcol) {
+            for (int irow = 1; irow <= neqs; ++irow) {
+                pd(irow, jcol) -= eos_xderivs.dedX[jcol-1] * pd(irow, net_ienuc);
+            }
+        }
+
+    }
+
+
     // scale the energy derivatives
 
-    if (scale_system) {
+    if (integrator_rp::scale_system) {
         // first the row de/dX
         for (int j = 1; j <= INT_NEQS; ++j) {
             pd(net_ienuc,j) /= state.e_scale;
@@ -168,13 +200,13 @@ void jac ([[maybe_unused]] const amrex::Real time, BurnT& state, T& int_state, M
     }
 
     // apply fudge factor:
-    if (react_boost > 0.0_rt) {
-        pd.mul(react_boost);
+    if (integrator_rp::react_boost > 0.0_rt) {
+        pd.mul(integrator_rp::react_boost);
     }
 
     // Allow temperature and energy integration to be disabled.
 
-    if (!integrate_energy) {
+    if (! integrator_rp::integrate_energy) {
         for (int j = 1; j <= INT_NEQS; ++j) {
             pd(net_ienuc,j) = 0.0_rt;
         }

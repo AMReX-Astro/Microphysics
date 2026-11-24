@@ -8,7 +8,8 @@
 
 namespace EOSData
 {
-  extern bool initialized;
+  inline bool initialized;
+
   extern AMREX_GPU_MANAGED amrex::Real mintemp;
   extern AMREX_GPU_MANAGED amrex::Real maxtemp;
   extern AMREX_GPU_MANAGED amrex::Real mindens;

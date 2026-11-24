@@ -1,6 +1,9 @@
 @namespace: conductivity
 
+# proportionality constant, C, in k = C T**m
 cond_coeff       real 1.0
+
+# temperature exponent, m, in k = C T**m
 cond_exponent    real 1.0
 
 

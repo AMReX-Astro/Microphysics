@@ -7,6 +7,6 @@ unit_test.temperature = 1.e9
 unit_test.X1 = 1.0
 unit_test.X2 = 0.0
 unit_test.X3 = 0.0
-unit_test.x4 = 0.0
+unit_test.X4 = 0.0
 
 

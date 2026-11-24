@@ -17,20 +17,19 @@
 #include <extern_parameters.H>
 #include <eos_type.H>
 #include <cmath>
+#include <string_view>
 
-using namespace eos_rp;
-
-const std::string eos_name = "rad_power_law";
+constexpr std::string_view eos_name = "rad_power_law";
 
 inline
 void actual_eos_init ()
 {
 
-    if (eos_const_c_v <= 0.e0_rt) {
+    if (eos_rp::eos_const_c_v <= 0.e0_rt) {
         amrex::Error("eos_const_c_v must be > 0");
     }
 
-    if (eos_c_v_exp_n == 1.0e0_rt) {
+    if (eos_rp::eos_c_v_exp_n == 1.0e0_rt) {
         amrex::Error("eos_c_v_exp_n == 1 is unsupported");
     }
 
@@ -76,18 +75,18 @@ void actual_eos (I input, T& state)
 
     case eos_input_rt:
 
-        if constexpr (has_energy<T>::value) {
-            state.cv = eos_const_c_v * std::pow(state.rho, eos_c_v_exp_m) * std::pow(state.T, -eos_c_v_exp_n);
-            state.e  = eos_const_c_v * std::pow(state.rho, eos_c_v_exp_m) * std::pow(state.T, 1 - eos_c_v_exp_n) / (1 - eos_c_v_exp_n);
+        if constexpr (has_energy<T>) {
+            state.cv = eos_rp::eos_const_c_v * std::pow(state.rho, eos_rp::eos_c_v_exp_m) * std::pow(state.T, -eos_rp::eos_c_v_exp_n);
+            state.e  = eos_rp::eos_const_c_v * std::pow(state.rho, eos_rp::eos_c_v_exp_m) * std::pow(state.T, 1 - eos_rp::eos_c_v_exp_n) / (1 - eos_rp::eos_c_v_exp_n);
         }
 
         break;
 
     case eos_input_re:
 
-        if constexpr (has_energy<T>::value) {
-            state.T  = std::pow((1 - eos_c_v_exp_n) * state.e * std::pow(state.rho, -eos_c_v_exp_m) / eos_const_c_v, 1.0_rt / (1.0_rt - eos_c_v_exp_n));
-            state.cv = eos_const_c_v * std::pow(state.rho, eos_c_v_exp_m) * std::pow(state.T, -eos_c_v_exp_n);
+        if constexpr (has_energy<T>) {
+            state.T  = std::pow((1 - eos_rp::eos_c_v_exp_n) * state.e * std::pow(state.rho, -eos_rp::eos_c_v_exp_m) / eos_rp::eos_const_c_v, 1.0_rt / (1.0_rt - eos_rp::eos_c_v_exp_n));
+            state.cv = eos_rp::eos_const_c_v * std::pow(state.rho, eos_rp::eos_c_v_exp_m) * std::pow(state.T, -eos_rp::eos_c_v_exp_n);
         }
 
         break;
@@ -105,23 +104,23 @@ void actual_eos (I input, T& state)
     // Set some data to nonsense values so that things intentionally go wrong
     // if this EOS is somehow used for hydro.
 
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         state.p    = -1.e0_rt;
     }
-    if constexpr (has_pressure<T>::value && has_energy<T>::value) {
+    if constexpr (has_pressure<T> && has_energy<T>) {
         state.gam1 = -1.e0_rt;
         state.cs   = -1.e0_rt;
     }
-    if constexpr (has_entropy<T>::value) {
+    if constexpr (has_entropy<T>) {
         state.s    = -1.e0_rt;
     }
-    if constexpr (has_enthalpy<T>::value) {
+    if constexpr (has_enthalpy<T>) {
         state.h    = -1.e0_rt;
     }
 
     // Give dpdr a value for the purposes of the composition_derivatives routine.
 
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         state.dpdr = 0.e0_rt;
     }
 }

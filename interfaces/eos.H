@@ -98,7 +98,7 @@ template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void reset_e (T& state, bool& has_been_reset)
 {
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_energy<T>) {
         if (state.e < EOSData::mine || state.e > EOSData::maxe) {
             eos_reset(state, has_been_reset);
         }
@@ -109,7 +109,7 @@ template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void reset_h (T& state, bool& has_been_reset)
 {
-    if constexpr (has_enthalpy<T>::value) {
+    if constexpr (has_enthalpy<T>) {
         if (state.h < EOSData::minh || state.h > EOSData::maxh) {
             eos_reset(state, has_been_reset);
         }
@@ -120,7 +120,7 @@ template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void reset_s (T& state, bool& has_been_reset)
 {
-    if constexpr (has_entropy<T>::value) {
+    if constexpr (has_entropy<T>) {
         if (state.s < EOSData::mins || state.s > EOSData::maxs) {
             eos_reset(state, has_been_reset);
         }
@@ -131,7 +131,7 @@ template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void reset_p (T& state, bool& has_been_reset)
 {
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         if (state.p < EOSData::minp || state.p > EOSData::maxp) {
             eos_reset(state, has_been_reset);
         }
@@ -252,7 +252,7 @@ template <typename T>
 AMREX_INLINE
 void check_e (T& state)
 {
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_energy<T>) {
         if (state.e < EOSData::mine) {
             print_state(state);
             amrex::Error("EOS: e smaller than mine.");
@@ -268,7 +268,7 @@ template <typename T>
 AMREX_INLINE
 void check_h (T& state)
 {
-    if constexpr (has_enthalpy<T>::value) {
+    if constexpr (has_enthalpy<T>) {
         if (state.h < EOSData::minh) {
             print_state(state);
             amrex::Error("EOS: h smaller than minh.");
@@ -285,7 +285,7 @@ template <typename T>
 AMREX_INLINE
 void check_s (T& state)
 {
-    if constexpr (has_entropy<T>::value) {
+    if constexpr (has_entropy<T>) {
         if (state.s < EOSData::mins) {
             print_state(state);
             amrex::Error("EOS: s smaller than mins.");
@@ -301,7 +301,7 @@ template <typename T>
 AMREX_INLINE
 void check_p (T& state)
 {
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         if (state.p < EOSData::minp) {
             print_state(state);
             amrex::Error("EOS: p smaller than minp.");
@@ -394,14 +394,13 @@ void check_inputs (const I input, T& state)
 
 template <typename I, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void eos (const I input, T& state, bool use_raw_inputs = false)
+void eos (const I input, T& state)
 {
   static_assert(std::is_same_v<I, eos_input_t>, "input must be an eos_input_t");
 
   // Input arguments
 
   bool has_been_reset = false;
-  bool use_composition_routine = true;
 
   // Local variables
 
@@ -411,15 +410,9 @@ void eos (const I input, T& state, bool use_raw_inputs = false)
   }
 #endif
 
-  if (use_raw_inputs) {
-    use_composition_routine = false;
-  }
-
-  if constexpr (has_xn<T>::value) {
-      if (use_composition_routine) {
-          // Get abar, zbar, etc.
-          composition(state);
-      }
+  if constexpr (has_xn<T>) {
+      // Get abar, zbar, etc.
+      composition(state);
   }
 
   // Force the inputs to be valid.

@@ -14,6 +14,7 @@
 #include <extern_parameters.H>
 
 #include <burn_type.H>
+#include <neutrino.H>
 
 #ifdef NSE_TABLE
 #include <nse_table.H>
@@ -25,14 +26,14 @@
 
 using namespace amrex::literals;
 
-#if defined(NSE_TABLE)
+#ifdef NSE_TABLE
 
 ///
 /// this acts as an explicit Euler step for the system (rho e, rho aux)
 /// on input, *_source are the reactive sources at time t0 and on output
 /// they are the sources at time t0+dt
 ///
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0, const amrex::Real *rhoaux0,
                 const amrex::Real dt, const amrex::Real *ydot_a,
                 amrex::Real& drhoedt, amrex::Real* drhoauxdt, const amrex::Real T_fixed) {
@@ -64,8 +65,8 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0, const amrex::Re
 
 #ifdef NEUTRINOS
     constexpr int do_derivatives = 0;
-    sneut5<do_derivatives>(T0, rho0, abar, zbar,
-                           snu, dsnudt, dsnudd, dsnuda, dsnudz);
+    neutrino_cooling<do_derivatives>(T0, rho0, abar, zbar,
+                                     snu, dsnudt, dsnudd, dsnuda, dsnudz);
 #endif
 
     // call the NSE table at t0
@@ -167,7 +168,7 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0, const amrex::Re
 /// this version works with the tabulated NSE and requires AUX_THERMO
 ///
 template <typename BurnT>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
 
     using namespace AuxZero;
@@ -270,7 +271,7 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
 
     amrex::Real sum_X{0.0_rt};
     for (auto & xn : nse_state.X) {
-        xn = std::clamp(xn, small_x, 1.0_rt);
+        xn = amrex::Clamp(xn, small_x, 1.0_rt);
         sum_X += xn;
     }
 
@@ -301,207 +302,218 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
 }
 
 #else
+/// Self-Consistent NSE VERSION
+
+///
+/// This computes drhoedt and drhoyedt_weak for a given (rho, rho e, and rho Ye)
+///
+AMREX_GPU_DEVICE AMREX_INLINE
+void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
+                const amrex::Real rhoYe0, amrex::Real &T0,
+                amrex::Real &mu_p, amrex::Real &mu_n,
+                amrex::Real &drhoyedt_weak, amrex::Real& drhoedt,
+                const amrex::Real T_fixed) {
+
+    // initialize burn_state for NSE state
+
+    amrex::Real Ye0 = rhoYe0 / rho0;
+
+    burn_t burn_state;
+
+    burn_state.T = (T_fixed > 0.0_rt) ? T_fixed : T0;
+    burn_state.rho = rho0;
+    burn_state.e = rhoe0 / rho0;
+    burn_state.y_e = Ye0;
+    burn_state.mu_p = mu_p;
+    burn_state.mu_n = mu_n;
+
+    // Since internal energy is updated during integration,
+    // we use (rho, e, Ye) as input to find the NSE state.
+    // If T is fixed, i.e. T_fixed > 0, then use (rho, T, Ye)
+
+    auto nse_input = (T_fixed > 0.0_rt) ? nse_input_rty : nse_input_rey;
+    auto nse_state = get_actual_nse_state(nse_input, burn_state,
+                                          1.0e-10_rt, true);
+
+    // Update the input temperature, mu_p and mu_n with the new NSE state.
+
+    if (T_fixed <= 0.0_rt) {
+        T0 = nse_state.T;
+    }
+    mu_p = nse_state.mu_p;
+    mu_n = nse_state.mu_n;
+
+#ifdef NEUTRINOS
+    // compute the plasma neutrino losses
+
+    // Get abar for neutrino
+
+    amrex::Real abar{0.0_rt};
+    for (int n = 0; n < NumSpec; ++n) {
+        abar += nse_state.xn[n] * aion_inv[n];
+    }
+    abar = 1.0_rt / abar;
+
+    amrex::Real snu{0.0_rt};
+    amrex::Real dsnudt{0.0_rt};
+    amrex::Real dsnudd{0.0_rt};
+    amrex::Real dsnuda{0.0_rt};
+    amrex::Real dsnudz{0.0_rt};
+
+    amrex::Real zbar = abar * Ye0;
+
+    constexpr int do_derivatives = 0;
+    neutrino_cooling<do_derivatives>(T0, rho0, abar, zbar,
+                                     snu, dsnudt, dsnudd, dsnuda, dsnudz);
+#endif
+
+    // Get molar fractions, ydots and neutrino loss due to weak rates
+
+    amrex::Array1D<amrex::Real, 1, NumSpec> Y;
+    amrex::Real e_nu {0.0_rt};
+
+    for (int n = 1; n <= NumSpec; ++n) {
+        Y(n) = nse_state.xn[n-1] * aion_inv[n-1];
+    }
+
+    // Fill in ydot with only weak rates contributing
+
+    amrex::Array1D<amrex::Real, 1, neqs> ydot_weak;
+    get_ydot_weak(nse_state, ydot_weak, e_nu, Y);
+
+    // Find drhoyedt_weak from weak reaction
+
+    drhoyedt_weak = 0.0_rt;
+    for (int n = 0; n < NumSpec; ++n) {
+        drhoyedt_weak += rho0 * zion[n] * ydot_weak(n+1);
+    }
+
+    // Find drhoedt
+
+    drhoedt = 0.0_rt;
+    for (int n = 1; n <= NumSpec; ++n) {
+        drhoedt += rho0 * ydot_weak(n) * network::mion(n);
+    }
+    drhoedt *= C::enuc_conv2;
+
+    // include plasma neutrino terms
+
+    drhoedt -= rho0 * snu;
+
+    // include neutrino loss terms from weak rates
+    // Note that e_nu here is already negative so we add here.
+
+    if (integrator_rp::nse_include_enu_weak == 1) {
+        drhoedt += rho0 * e_nu;
+    }
+}
+
+
 ///
 /// update the state due to NSE changes for the simplified-SDC case
 /// this version works with the self-consistent NSE
 ///
+
 template <typename BurnT>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+AMREX_GPU_DEVICE AMREX_INLINE
 void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
 
     state.success = true;
     state.n_rhs = 0;
     state.n_jac = 0;
 
-    // store the initial mass fractions -- we will need these
-    // to compute the energy release.
+    // store the initial state
 
-    amrex::Real X_old[NumSpec];
+    amrex::Real rho_old = state.y[SRHO];
+    amrex::Real rhoe_old = state.y[SEINT];
+    amrex::Real rhoye_old = rho_old * state.y_e;
+    amrex::Real T_old = state.T;
+    amrex::Real mu_p = state.mu_p;
+    amrex::Real mu_n = state.mu_n;
+
+    // do an RK2 integration
+
+    // initialize derivatives needed
+
+    amrex::Real drhoedt{0.0_rt};
+    amrex::Real drhoyedt_weak{0.0_rt};
+    amrex::Real drhoyedt_a{0.0_rt};
+
+    // find the advection contribution for ye: drhoyedt_a
+    // The advection contribution is already time-centered
 
     for (int n = 0; n < NumSpec; ++n) {
-        X_old[n] = state.y[SFS+n] / state.y[SRHO];
+        drhoyedt_a += state.ydot_a[SFS+n] * zion[n] * aion_inv[n];
     }
 
-    // density and momentum have no reactive sources
-    amrex::Real rho_old = state.y[SRHO];
+    // get the derivatives: drhoyedt_weak and drhoedt at t = t^n
+
+    nse_derivs(rho_old, rhoe_old,
+               rhoye_old, T_old,
+               mu_p, mu_n,
+               drhoyedt_weak, drhoedt,
+               state.T_fixed);
+
+    // evolve to the midpoint in time and the midpoint NSE state.
+
+    amrex::Real rho_tmp = rho_old + 0.5_rt * dt * state.ydot_a[SRHO];
+    amrex::Real rhoe_tmp = rhoe_old + 0.5_rt * dt * (state.ydot_a[SEINT] + drhoedt);
+    amrex::Real rhoye_tmp = rhoye_old + 0.5_rt * dt * (drhoyedt_weak + drhoyedt_a);
+
+    // compute the derivatives at the midpoint in time
+
+    nse_derivs(rho_tmp, rhoe_tmp,
+               rhoye_tmp, T_old,
+               mu_p, mu_n,
+               drhoyedt_weak, drhoedt,
+               state.T_fixed);
+
+    // evolve to the new time
+
+    amrex::Real rho_new = rho_old + dt * state.ydot_a[SRHO];
+    amrex::Real rhoe_new = rhoe_old + dt * (state.ydot_a[SEINT] + drhoedt);
+    amrex::Real rhoye_new = rhoye_old + dt * (drhoyedt_weak + drhoyedt_a);
+
+    // With updated temp, rho, and Ye get final NSE state
+
+    burn_t burn_state;
+    burn_state.T = (state.T_fixed > 0.0_rt) ? state.T_fixed : T_old;
+    burn_state.rho = rho_new;
+    burn_state.e = rhoe_new / rho_new;
+    burn_state.y_e = rhoye_new / rho_new;
+    burn_state.mu_p = mu_p;
+    burn_state.mu_n = mu_n;
+
+    auto nse_input = (state.T_fixed > 0.0_rt) ? nse_input_rty : nse_input_rey;
+    auto nse_state = get_actual_nse_state(nse_input, burn_state,
+                                          1.0e-10_rt, true);
+
+    // Update rho X using new NSE state
+    // These should be already normalized due to NSE constraint
+
+    for (int n = 0; n < NumSpec; ++n) {
+        state.y[SFS+n] = nse_state.y[SFS+n];
+    }
+
+    // Update density and momentum, which have no reactive sources
 
     state.y[SRHO] += dt * state.ydot_a[SRHO];
     state.y[SMX] += dt * state.ydot_a[SMX];
     state.y[SMY] += dt * state.ydot_a[SMY];
     state.y[SMZ] += dt * state.ydot_a[SMZ];
 
-    // if we are doing drive_initial_convection, we want to use
-    // the temperature that comes in through T_fixed
+    // Update total and internal energy.
 
-    amrex::Real T_in = state.T_fixed > 0.0_rt ? state.T_fixed : state.T;
+    state.y[SEINT] = rhoe_new;
+    state.y[SEDEN] += dt * (state.ydot_a[SEDEN] + drhoedt);
 
-    // get the neutrino loss term -- we want to use the state that we
-    // came in here with, so the original Abar and Zbar
-    amrex::Real snu{0.0};
-    amrex::Real dsnudt{0.0};
-    amrex::Real dsnudd{0.0};
-    amrex::Real dsnuda{0.0};
-    amrex::Real dsnudz{0.0};
+    // Update chemical potentials and temperature
 
-    amrex::Real abar{0.0};
-    amrex::Real zbar{0.0};
-    for (int n = 0; n < NumSpec; ++n) {
-        abar += X_old[n] * aion_inv[n];
-        zbar += X_old[n] * zion[n] * aion_inv[n];
+    if (state.T_fixed <= 0.0_rt) {
+        state.T = nse_state.T;
     }
-    abar = 1.0 / abar;
-    zbar *= abar;
-
-#ifdef NEUTRINOS
-    {
-        constexpr int do_derivatives = 0;
-        sneut5<do_derivatives>(T_in, rho_old, abar, zbar,
-                               snu, dsnudt, dsnudd, dsnuda, dsnudz);
-    }
-#endif
-    amrex::Real snu_old = snu;
-
-
-    // if our network could return the evolution of Ye due to the
-    // weak interactions, we would evaluate the NSE state here and
-    // get dYe/dt.
-
-    //amrex::Real dyedt_old = 0.0;
-
-
-    // predict the U^{n+1,*} state with only estimates of the X
-    // updates with advection to dt and the neutrino loss term in
-    // energy
-
-    BurnT burn_state;
-    burn_state.T = T_in; // initial guess
-    burn_state.mu_p = state.mu_p;
-    burn_state.mu_n = state.mu_n;
-
-    amrex::Real rhoX_source[NumSpec] = {0.0_rt};
-
-    amrex::Real rhoX_new[NumSpec];
-
-    amrex::Real rhoe_new;
-    amrex::Real rho_enucdot = -rho_old * snu;
-
-    amrex::Real rho_half = 0.5_rt * (rho_old + state.y[SRHO]);
-
-    // predict the new aux for the first iteration -- this is really
-    // just including the advection bits
-
-    for (int n = 0; n < NumSpec; n++) {
-        rhoX_new[n] = state.y[SFS+n] + dt * state.ydot_a[SFS+n] + dt * rhoX_source[n];
-    }
-
-    burn_t nse_state;
-
-    for (int iter = 0; iter < integrator_rp::nse_iters; iter++) {
-
-        // update (rho e)^{n+1} based on the new energy generation rate
-        rhoe_new = state.y[SEINT] + dt * state.ydot_a[SEINT] + dt * rho_enucdot;
-
-        // call the EOS to get the updated T*
-
-        amrex::Real T_new;
-        burn_state.rho = state.y[SRHO];
-        burn_state.e = rhoe_new / state.y[SRHO];
-        for (int n = 0; n < NumSpec; n++) {
-            burn_state.xn[n] = rhoX_new[n] / state.y[SRHO];
-            burn_state.y[SFS+n] = rhoX_new[n];
-        }
-
-        if (state.T_fixed > 0) {
-            T_new = state.T_fixed;
-        } else {
-            eos(eos_input_re, burn_state);
-            T_new = burn_state.T;
-        }
-        burn_state.T = T_new;
-
-        // solve for the NSE state for this network we need to call
-        // get_nse_state with a burn_t.  We will have it compute
-        // Ye from the input X's
-
-        nse_state = get_actual_nse_state(burn_state);
-
-        // compute the energy release.  The mass fractions in nse_state.xn[]
-        // include the advective parts, so first we need to remove that.
-
-        amrex::Real rhoX_tilde[NumSpec];
-        for (int n = 0; n < NumSpec; ++n) {
-            rhoX_tilde[n] = state.y[SRHO] * nse_state.xn[n] - dt * state.ydot_a[SFS+n];
-        }
-
-        //amrex::Real dyedt = 0.0_rt;   // we can update this in the future by calling actual_rhs()
-
-        // we want to compute (rho eps) = - N_A c^2 sum{m_i (rhoX_tilde - rhoX_old) / A_i}
-        rho_enucdot = 0.0;
-        for (int n = 0; n < NumSpec; ++n) {
-            rho_enucdot += (rhoX_tilde[n] - rho_old * X_old[n]) *
-                network::mion(n+1) * aion_inv[n];
-        }
-        rho_enucdot *= C::Legacy::enuc_conv2;
-
-        // now get the updated neutrino term
-        abar = 0.0;
-        zbar = 0.0;
-        for (int n = 0; n < NumSpec; ++n) {
-            abar += nse_state.xn[n] * aion_inv[n];
-            zbar += nse_state.xn[n] * zion[n] * aion_inv[n];
-        }
-        abar = 1.0 / abar;
-        zbar *= abar;
-
-#ifdef NEUTRINOS
-        constexpr int do_derivatives = 0;
-        sneut5<do_derivatives>(T_new, state.y[SRHO], abar, zbar,
-                               snu, dsnudt, dsnudd, dsnuda, dsnudz);
-#endif
-
-        rho_enucdot -= 0.5_rt * rho_half * (snu_old + snu);
-
-        // update the new state for the next pass -- this should
-        // already implicitly have the advective portion included,
-        // since it was there when we called the NSE state
-
-        for (int n = 0; n < NumSpec; n++) {
-            rhoX_new[n] = state.y[SRHO] * nse_state.xn[n];
-        }
-
-    }
-
-    // now update the aux quantities
-
-    // the new mass fractions are just those that come from the table
-    // make sure they are normalized
-    amrex::Real sum_X{0.0_rt};
-    amrex::Real X[NumSpec] = {0.0_rt};
-    for (int n = 0; n < NumSpec; ++n) {
-        X[n] = amrex::max(small_x, amrex::min(1.0_rt, nse_state.xn[n]));
-        sum_X += X[n];
-    }
-
-    for (int n = 0; n < NumSpec; ++n) {
-        X[n] /= sum_X;
-    }
-
-    for (int n = 0; n < NumSpec; ++n) {
-        state.y[SFS+n] = state.y[SRHO] * X[n];
-    }
-
-
-    // density and momenta have already been updated
-
-    // update the total and internal energy now
-
-    state.y[SEINT] += dt * state.ydot_a[SEINT] + dt * rho_enucdot;
-    state.y[SEDEN] += dt * state.ydot_a[SEDEN] + dt * rho_enucdot;
-
-    // store the chemical potentials
     state.mu_p = nse_state.mu_p;
     state.mu_n = nse_state.mu_n;
-
 }
 #endif
 

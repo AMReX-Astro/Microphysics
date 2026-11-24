@@ -12,8 +12,6 @@
 #include <vode_type.H>
 #include <vode_dvode.H>
 
-using namespace integrator_rp;
-
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void actual_integrator (BurnT& state, amrex::Real dt, bool is_retry=false)
@@ -29,7 +27,8 @@ void actual_integrator (BurnT& state, amrex::Real dt, bool is_retry=false)
     auto istate = dvode(state, vode_state);
     state.error_code = istate;
 
-    integrator_cleanup(vode_state, state, istate, state_save, dt);
+    integrator_cleanup(vode_state, state, istate, state_save, dt,
+                       vode_final_state_species_failure_tolerance_factor);
 
 
 }

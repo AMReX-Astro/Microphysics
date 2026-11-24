@@ -1,5 +1,6 @@
 @namespace: conductivity
 
+# opacity value, in units of cm**2/g
 const_opacity        real     7.0e-2
 
 

@@ -1,5 +1,3 @@
-unit_test.run_prefix = "react_aprox13_mott_"
-
 unit_test.small_temp = 1e5
 unit_test.small_dens = 1e5
 

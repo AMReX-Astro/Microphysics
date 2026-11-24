@@ -11,10 +11,9 @@
 #include <extern_parameters.H>
 #include <cmath>
 #include <actual_eos_data.H>
+#include <string_view>
 
-using namespace eos_rp;
-
-const std::string eos_name = "multigamma";
+constexpr std::string_view eos_name = "multigamma";
 
 inline
 void actual_eos_init ()
@@ -23,96 +22,37 @@ void actual_eos_init ()
     // Set the gammas & masses for the species
 
     for (int n = 0; n < NumSpec; ++n) {
-        gammas[n] = eos_gamma_default;
+        gammas[n] = eos_rp::eos_gamma_default;
         spmasses[n] = 1.67353251819e-24;
     }
 
     int idx;
 
-    idx = network_spec_index(species_a_name);
-    if (idx >= 0) {
-        gammas[idx] = species_a_gamma;
-        spmasses[idx] = species_a_mass;
-    }
+    // Set the gammas & masses for the species
+    #define GET_SPECIES_PARAMS(num) do { \
+        idx = network_spec_index(eos_rp::species_##num##_name); \
+        if (idx >= 0) { \
+            gammas[idx] = eos_rp::species_##num##_gamma; \
+            spmasses[idx] = eos_rp::species_##num##_mass; \
+        } \
+    } while (0)
 
-    idx = network_spec_index(species_b_name);
-    if (idx >= 0) {
-        gammas[idx] = species_b_gamma;
-        spmasses[idx] = species_b_mass;
-   }
+    GET_SPECIES_PARAMS(1);
+    GET_SPECIES_PARAMS(2);
+    GET_SPECIES_PARAMS(3);
+    GET_SPECIES_PARAMS(4);
+    GET_SPECIES_PARAMS(5);
+    GET_SPECIES_PARAMS(6);
+    GET_SPECIES_PARAMS(7);
+    GET_SPECIES_PARAMS(8);
+    GET_SPECIES_PARAMS(9);
+    GET_SPECIES_PARAMS(10);
+    GET_SPECIES_PARAMS(11);
+    GET_SPECIES_PARAMS(12);
+    GET_SPECIES_PARAMS(13);
+    GET_SPECIES_PARAMS(14);
 
-    idx = network_spec_index(species_c_name);
-    if (idx >= 0) {
-        gammas[idx] = species_c_gamma;
-        spmasses[idx] = species_c_mass;
-    }
-
-    idx = network_spec_index(species_d_name);
-    if (idx >= 0) {
-        gammas[idx] = species_d_gamma;
-        spmasses[idx] = species_d_mass;
-    }
-
-    idx = network_spec_index(species_e_name);
-    if (idx >= 0) {
-        gammas[idx] = species_e_gamma;
-        spmasses[idx] = species_e_mass;
-    }
-
-    idx = network_spec_index(species_f_name);
-    if (idx >= 0) {
-        gammas[idx] = species_f_gamma;
-        spmasses[idx] = species_f_mass;
-    }
-
-    idx = network_spec_index(species_g_name);
-    if (idx >= 0) {
-        gammas[idx] = species_g_gamma;
-        spmasses[idx] = species_g_mass;
-    }
-
-    idx = network_spec_index(species_h_name);
-    if (idx >= 0) {
-        gammas[idx] = species_h_gamma;
-        spmasses[idx] = species_h_mass;
-    }
-
-    idx = network_spec_index(species_i_name);
-    if (idx >= 0) {
-        gammas[idx] = species_i_gamma;
-        spmasses[idx] = species_i_mass;
-    }
-
-    idx = network_spec_index(species_j_name);
-    if (idx >= 0) {
-        gammas[idx] = species_j_gamma;
-        spmasses[idx] = species_j_mass;
-    }
-
-    idx = network_spec_index(species_k_name);
-    if (idx >= 0) {
-        gammas[idx] = species_k_gamma;
-        spmasses[idx] = species_k_mass;
-    }
-
-    idx = network_spec_index(species_l_name);
-    if (idx >= 0) {
-        gammas[idx] = species_l_gamma;
-        spmasses[idx] = species_l_mass;
-    }
-
-    idx = network_spec_index(species_m_name);
-    if (idx >= 0) {
-        gammas[idx] = species_m_gamma;
-        spmasses[idx] = species_m_mass;
-    }
-
-    idx = network_spec_index(species_n_name);
-    if (idx >= 0) {
-        gammas[idx] = species_n_gamma;
-        spmasses[idx] = species_n_mass;
-    }
-
+    #undef GET_SPECIES_PARAMS
 }
 
 
@@ -185,7 +125,7 @@ void actual_eos (I input, T& state)
         // dens, energy, and xmass are inputs
         // Solve for the temperature
 
-        if constexpr (has_energy<T>::value) {
+        if constexpr (has_energy<T>) {
             dens = state.rho;
 
             // stop the integration if the internal energy < 0
@@ -215,7 +155,7 @@ void actual_eos (I input, T& state)
     case eos_input_rp:
         // dens, pressure, and xmass are inputs
 
-        if constexpr (has_pressure<T>::value) {
+        if constexpr (has_pressure<T>) {
             dens = state.rho;
 
             // stop the integration if the pressure < 0
@@ -267,28 +207,28 @@ void actual_eos (I input, T& state)
     state.T   = temp;
     state.rho = dens;
 
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_energy<T>) {
         state.e = eint;
     }
 
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         amrex::Real pressure = state.rho * eint / sum_gammasinv;
         state.p = pressure;
 
         state.dpdT = pressure / temp;
         state.dpdr = pressure / dens;
         state.cs = std::sqrt((1.0 + 1.0/sum_gammasinv) * state.p /state.rho);
-        if constexpr (has_G<T>::value) {
+        if constexpr (has_G<T>) {
             state.G = 0.5 * (1.0 + (1.0 + 1.0/sum_gammasinv));
         }
     }
 
     amrex::Real dedT = sum_gammasinv * sum_Abarinv * gasconstant;
     amrex::Real dedr = 0.0_rt;
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_energy<T>) {
         state.dedT = dedT;
         state.dedr = dedr;
-        if constexpr (has_pressure<T>::value) {
+        if constexpr (has_pressure<T>) {
             state.dpde = state.dpdT / state.dedT;
         }
     }

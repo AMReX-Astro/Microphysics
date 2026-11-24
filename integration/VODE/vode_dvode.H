@@ -95,6 +95,10 @@ int dvode (BurnT& state, DvodeT& vstate)
         return istate;
     }
 
+    // Limit the initial step before scaling the history.  The first
+    // dvstep call has NEWH = 0, so it will use H0 without rescaling.
+    H0 = std::copysign(amrex::min(std::abs(H0), integrator_rp::ode_max_dt), H0);
+
     // Load H with H0 and scale yh(:,2) by H0.
     vstate.H = H0;
     for (int i = 1; i <= int_neqs; ++i) {
@@ -133,7 +137,7 @@ int dvode (BurnT& state, DvodeT& vstate)
            // start of problem), check for too much accuracy being requested, and
            // check for H below the roundoff level in T.
 
-           if (vstate.n_step >= ode_max_steps) {
+           if (vstate.n_step >= integrator_rp::ode_max_steps) {
                // The maximum number of steps was taken before reaching TOUT.
 #ifndef AMREX_USE_GPU
                std::cout << amrex::Font::Bold << amrex::FGColor::Red << "DVODE: maximum number of steps taken before reaching TOUT" << amrex::ResetDisplay << std::endl;
@@ -236,12 +240,7 @@ int dvode (BurnT& state, DvodeT& vstate)
        if (vstate.n_step > MIN_NSE_BAILOUT_STEPS && vstate.tn <= vstate.tout) {
            // first we need to make the burn_t in sync
 
-#ifdef STRANG
-           update_thermodynamics(state, vstate);
-#endif
-#ifdef SDC
            int_to_burn(vstate.tn, vstate, state);
-#endif
 
            if (in_nse(state)) {
                vstate.t = vstate.tn;
