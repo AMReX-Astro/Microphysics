@@ -1,5 +1,151 @@
 # Changelog
 
+## 26.11
+
+  * networks
+
+    * update pynucastro networks with the new Jacobian terms (#2105)
+    * avoid a zero-length intermediate rate index array length (#2116)
+
+  * integrators
+
+    * Rosenbrock: add step-rejection logic for SDC (#2027)
+    * move SDC clean-up species normalization to after failure check (#2111)
+
+  * screening
+
+    * add composition derivative to screening via autodiff (#2100)
+    * fix compiling with `SCREEN_METHOD=debye_huckel` (#2109)
+
+  * docs
+
+    * fix energy generation rate notation (#2107)
+
+  * infrastructure
+
+    * clean up workflow files (#2103)
+    * revert some CI to ubuntu-24.04 (#2122)
+
+  * other
+
+    * fix loop size in CJ detonation tool (#2112)
+
+## 26.10
+
+  * networks
+
+    * add the `ase-big` network (#2029)
+    * update pynucastro nets to pynucastro >= 3.0 (#2049)
+    * update CNO_extras to better match MESA (#2051)
+
+  * integrators
+
+    * fix initial timestep logic (#1976)
+    * remove unused tableaus for Rosenbrock (#2069)
+    * apply maximum dt to `VODE` initial step (#2079)
+    * enforce `ode_max_dt` in `BackwardEuler` (#2080) and `RKC` (#2081)
+    * fix explicit time used in `BackwardEuler` RHS / Jac evaluation
+      (#2083)
+    * fix incorrect initial dt used in `BackwardEuler` (#2086)
+    * fix RKS NSE bailout check (#2090)
+    * `QSS` needs to guard initial energy subtraction (#2085)
+    * make `ForwardEuler` respect `integrator.subtract_initial_energy`
+      (#2087)
+    * integrator diagnostics should respect
+      `integrator.subtract_internal_energy` (#2089)
+
+  * NSE
+
+    * add convergence checks in the tabular NSE EOS routines (#2077)
+    * add validation to NSE table reading (#2078)
+
+  * docs
+
+    * fix equation rendering (#2099)
+    * fix equation in docs (#2101)
+
+  * unit tests
+
+    * make `burn_cell` respect `integrator.subtract_internal_energy` (#2088)
+    * rename `test_nse_interp` to `nse_interp_check` + cleaning
+      (#2091)
+    * `jac_cell` now respects `correct_jacobian_for_const_e` (#2098)
+
+  * infrastructure
+
+    * linkcheck is now a separate github action (#2102)
+
+## 26.09
+
+  * networks
+
+    * remove old C++ files from pynucastro nets and `general_null`
+      (#2044, #2045)
+
+  * integrators
+
+    * optionally add T/e correction term to Strang Jacobians (#1595)
+    * remove unused vars from `BackwardEuler` (#2046)
+
+  * docs
+
+    * improved documentation on how the Jacobian is computed (#2036)
+
+  * infrastructure
+
+    * JOSS paper fixes (#2037, #2038, #2039, #2041, #2042)
+    * update `CITATION.md` (#2040)
+
+## 26.08
+
+  * networks
+
+    * `ase-iron` now includes Cu59 and Zn60 (#1993)
+    * update pynucastro scripts to use new class names to prepare for
+      pynucastro 3.0 (#2035)
+    * add a StarLib version of `ase-iron` (#2032)
+
+  * integrators
+
+    * clean unused var warnings in Rosenbrock (#2031)
+
+  * infrastructure
+
+    * bump github CI setup-python from 6 to 7 (#2030)
+    * add an `AGENTS.md` (#2034)
+
+## 26.07
+
+  * networks
+
+    * update pynucastro networks to 2.12 (#1998).  This was done first
+      as a test for `ase` in (#2009)
+
+  * integrators
+
+    * remove some variants of Rosenbrock that are not useful, including
+      Rosenbrock-Euler and Ros2 (#2015), YASS (#2014).
+
+  * NSE
+
+    * mark the NSE solver `__device__` only on GPUs (#2012)
+
+  * docs
+
+    * make linkcheck more robust (#2010)
+    * fix a typo in an equation (#2022)
+
+  * unit tests
+
+    * add a `test_react` benchmark inputs for comparing CPU and GPU
+      (#2018)
+
+  * infrastructure
+
+    * fix DOIs / journal names for the JOSS paper (#2023, #2026)
+    * bump github CI checkout action from 6 to 7 (#2021) and cache
+      from 5 to 6 (#2025)
+
 ## 26.06
 
   * add a 5th order stiffly-accurate Rosenbrock integrator (#1994,

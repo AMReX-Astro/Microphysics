@@ -13,10 +13,8 @@ has the form:
 
 .. math::
 
-   \begin{align*}
-      \frac{d(\rho X_k)}{dt} &= \Adv{\rho X_k}^{n+1/2} + \rho \dot{\omega}_k(\rho, X_k, T) \\
-      \frac{d(\rho e)}{dt} &= \Adv{\rho e}^{n+1/2} + \rho \epsilon(\rho, X_k, T)
-   \end{align*}
+   \frac{d(\rho X_k)}{dt} &= \Adv{\rho X_k}^{n+1/2} + \rho \dot{\omega}_k(\rho, X_k, T) \\
+   \frac{d(\rho e)}{dt} &= \Adv{\rho e}^{n+1/2} + \rho \epsilon(\rho, X_k, T)
 
 with density constructed as needed via:
 

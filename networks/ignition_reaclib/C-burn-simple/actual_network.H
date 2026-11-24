@@ -1,5 +1,5 @@
-#ifndef actual_network_H
-#define actual_network_H
+#ifndef ACTUAL_NETWORK_H
+#define ACTUAL_NETWORK_H
 
 #include <random>
 #include <string_view>
@@ -147,9 +147,9 @@ namespace Rates
         k_C12_C12_to_He4_Ne20_reaclib = 1,
         k_C12_C12_to_n_Mg23_reaclib = 2,
         k_C12_C12_to_p_Na23_reaclib = 3,
-        k_He4_C12_to_O16_reaclib = 4,
-        k_n_to_p_weaktab = 5,
-        NumRates = k_n_to_p_weaktab
+        k_C12_He4_to_O16_reaclib = 4,
+        k_n_to_p_beta_neg_weaktab = 5,
+        NumRates = k_n_to_p_beta_neg_weaktab
     };
 
     enum ScreenPairs :
@@ -169,8 +169,8 @@ namespace Rates
         "C12_C12_to_He4_Ne20_reaclib",  // 1,
         "C12_C12_to_n_Mg23_reaclib",  // 2,
         "C12_C12_to_p_Na23_reaclib",  // 3,
-        "He4_C12_to_O16_reaclib",  // 4,
-        "n_to_p_weaktab"  // 5,
+        "C12_He4_to_O16_reaclib",  // 4,
+        "n_to_p_beta_neg_weaktab"  // 5,
     };
 
     template<std::uint8_t rate>

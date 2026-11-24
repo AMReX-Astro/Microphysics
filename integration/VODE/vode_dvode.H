@@ -95,6 +95,10 @@ int dvode (BurnT& state, DvodeT& vstate)
         return istate;
     }
 
+    // Limit the initial step before scaling the history.  The first
+    // dvstep call has NEWH = 0, so it will use H0 without rescaling.
+    H0 = std::copysign(amrex::min(std::abs(H0), integrator_rp::ode_max_dt), H0);
+
     // Load H with H0 and scale yh(:,2) by H0.
     vstate.H = H0;
     for (int i = 1; i <= int_neqs; ++i) {

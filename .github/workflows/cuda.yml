@@ -15,15 +15,8 @@ jobs:
 
       - name: Get AMReX
         run: |
-          mkdir external
-          cd external
-          git clone https://github.com/AMReX-Codes/amrex.git
-          cd amrex
-          git checkout development
-          echo 'AMREX_HOME=$(GITHUB_WORKSPACE)/external/amrex' >> $GITHUB_ENV
-          echo $AMREX_HOME
-          if [[ -n "${AMREX_HOME}" ]]; then exit 1; fi
-          cd ../..
+          git clone --branch development --depth 1 https://github.com/AMReX-Codes/amrex.git external/amrex
+          echo "AMREX_HOME=${GITHUB_WORKSPACE}/external/amrex" >> "$GITHUB_ENV"
 
       - name: Dependencies
         run: .github/workflows/dependencies/dependencies_nvcc.sh 12.9
@@ -45,4 +38,4 @@ jobs:
         run: |
           export PATH=/usr/local/nvidia/bin:/usr/local/cuda/bin:${PATH}
           cd unit_test/test_sdc
-          make USE_CUDA=TRUE COMP=gnu USE_MPI=FALSE NETWORK_DIR=ase USE_NSE_NET=TRUE SCREEN_METHOD=chabrier1998 -j 4
+          make USE_CUDA=TRUE COMP=gnu USE_MPI=FALSE NETWORK_DIR=he-burn/ase USE_NSE_NET=TRUE SCREEN_METHOD=chabrier1998 -j 4

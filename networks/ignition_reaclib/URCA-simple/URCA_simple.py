@@ -10,7 +10,7 @@ def create_network():
                                     "c12(c12,p)na23",
                                     "c12(a,g)o16"])
 
-    tl = pyna.TabularLibrary()
+    tl = pyna.TabularWeakLibrary()
     tl_rates = tl.get_rate_by_name(["na23(,)ne23",
                                     "ne23(,)na23",
                                     "n(,)p",
