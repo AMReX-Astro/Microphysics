@@ -65,7 +65,9 @@ The main files are:
 
 * ``network_properties.H`` : this defines the properties of the composition that
   make up the network (and therefore, used by the equation of state and other
-  physics).
+  physics).  It is regenerated when the network input, generation scripts,
+  header template, or preprocessor defines change.  A companion
+  ``network_properties.options`` file records the selected input and defines.
 
 * ``extern_parameters.H`` : this defines all of the runtime parameters that are
   part of the build.  At the moment, they are treated as global variables
@@ -216,9 +218,6 @@ will remove all the build temporary files (including the ``tmp_build_dir/``).
    should always do ``make clean`` first in the build directory.
 
 Some other targets include:
-
-* ``nettables`` : create the symlinks for any weak reaction rate tables that are part of the
-  network.
 
 * ``table`` : create a symlink for the ``helm_table.dat`` EOS table if the ``helmholtz`` EOS is used.
 
