@@ -11,6 +11,7 @@
 #include <AMReX_REAL.H>
 
 #include <eos_type.H>
+#include <eos_data.H>
 #include <extern_parameters.H>
 
 // Equation of state for fully ionized electron-ion plasmas (EOS EIP)
@@ -2201,6 +2202,39 @@ void eosfi8(int LIQSOL, amrex::Real CMI, amrex::Real Zion, amrex::Real RS, amrex
     PDR2 = PDRi + PDR0;
 }
 
+// Solid mixing requires Z2 >= Z1. Orient each pair locally so network
+// species ordering is immaterial, and reject absent pairs before division.
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+amrex::Real pc_solid_pair (amrex::Real z1, amrex::Real z2,
+                          amrex::Real x1, amrex::Real x2, amrex::Real game)
+{
+    constexpr amrex::Real tiny = 1.e-7_rt;
+    constexpr amrex::Real c53 = 5.0_rt / 3.0_rt;
+    if (x1 <= 0.0_rt || x2 <= 0.0_rt || z1 < 1.0_rt || z2 < 1.0_rt || z1 == z2) {
+        return 0.0_rt;
+    }
+    if (z2 < z1) {
+        const auto ztmp = z1;
+        z1 = z2;
+        z2 = ztmp;
+        const auto xtmp = x1;
+        x1 = x2;
+        x2 = xtmp;
+    }
+    const amrex::Real rz = z2 / z1;
+    const amrex::Real f2 = x2 / (x1 + x2);
+    const amrex::Real f1 = x1 / (x1 + x2);
+    if (f1 < tiny || f2 < tiny) {
+        return 0.0_rt;
+    }
+    const amrex::Real x = f2 / rz + (1.0_rt - 1.0_rt / rz) * std::pow(f2, rz);
+    const amrex::Real gamma = std::pow(z1, c53) * game;
+    amrex::Real delta = 0.012_rt * (1.0_rt - 1.0_rt / (rz * rz)) *
+                       (f1 + f2 * std::pow(rz, c53));
+    delta *= x / f2 * std::max(0.0_rt, 1.0_rt - x) / f1;
+    return x1 * x2 * gamma * delta;
+}
+
 template <typename EOSState>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void melange9 (EOSState& state)
@@ -2231,6 +2265,12 @@ void melange9 (EOSState& state)
     amrex::Real RHO = state.rho;
     amrex::Real T = state.T;
 
+    if (!std::isfinite(RHO) || !std::isfinite(T) ||
+        RHO < EOSData::mindens || RHO > EOSData::maxdens ||
+        T < EOSData::mintemp || T > EOSData::maxtemp) {
+        amrex::Error("PC EOS: density or temperature outside configured bounds");
+    }
+
     // Convert temperature to a.u. = 2Ryd = 3.1577e5 K.
     const amrex::Real UN_T6 = 0.3157746_rt;
     amrex::Real Tlg = std::log10(T);
@@ -2245,20 +2285,23 @@ void melange9 (EOSState& state)
     const amrex::Real AUM = 1822.888_rt;      // a.m.u. / m_e
     const amrex::Real GAMIMELT = 175.0_rt; // OCP value of Gamma_i for melting
     const amrex::Real RSIMELT = 140.0_rt; // ion density parameter of quantum melting
-    const amrex::Real RAD = 2.554e-7_rt; // Radiation constant ( = 4\sigma / c) (in a.u.)
-
-    if (RHO < 1.e-19_rt || RHO > 1.e15_rt) {
-        printf("MELANGE: RHO out of range\n");
-        exit(1);
-    }
 
     // MELANGE uses ion number fractions, while state.xn contains mass fractions.
     // x_i = (X_i / A_i) / sum_j(X_j / A_j).
     amrex::Real number_fractions[NumSpec];
     amrex::Real sum_molar = 0.0_rt;
     for (int i = 0; i < NumSpec; ++i) {
+        if (!std::isfinite(state.xn[i]) || state.xn[i] < 0.0_rt) {
+            amrex::Error("PC EOS: mass fractions must be finite and nonnegative");
+        }
+        if (state.xn[i] > 0.0_rt && zion[i] < 1.0_rt) {
+            amrex::Error("PC EOS: nonzero abundances require charged ion species");
+        }
         number_fractions[i] = state.xn[i] / aion[i];
         sum_molar += number_fractions[i];
+    }
+    if (!std::isfinite(sum_molar) || sum_molar <= 0.0_rt) {
+        amrex::Error("PC EOS: composition must have positive total abundance");
     }
     for (int i = 0; i < NumSpec; ++i) {
         number_fractions[i] /= sum_molar;
@@ -2283,10 +2326,6 @@ void melange9 (EOSState& state)
         Z321 = Z321 + number_fractions[i] * zion[i] * std::pow(zion[i] + 1.0_rt, 1.5_rt); // 26.12.09
         abar = abar + number_fractions[i] * aion[i];
     }
-
-    // (0) Photons:
-    amrex::Real UINTRAD = RAD * TEMP * TEMP * TEMP * TEMP;
-    amrex::Real PRESSRAD = UINTRAD / 3.0_rt;
 
     // (1) ideal electron gas (including relativity and degeneracy)
     amrex::Real DENS = RHO / 11.20587 * zbar / abar; // number density of electrons [au]
@@ -2386,22 +2425,8 @@ void melange9 (EOSState& state)
         FMIX = 0.0_rt;
         for (int i = 0; i < NumSpec; ++i) {
             for (int j = i+1; j < NumSpec; ++j) {
-                amrex::Real RZ = zion[j] / zion[i];
-                amrex::Real X2 = number_fractions[j] / (number_fractions[i] + number_fractions[j]);
-                amrex::Real X1 = std::max(0.0, 1.0_rt - X2);
-
-                if (X1 < TINY) {
-                    continue; // 27.01.19
-                }
-                if (X2 < TINY) {
-                    continue;
-                }
-
-                amrex::Real X = X2 / RZ + (1.0_rt - 1.0_rt / RZ) * std::pow(X2, RZ);
-                amrex::Real GAMI = std::pow(zion[i], C53) * GAME; // Gamma_i corrected 14.05.13
-                amrex::Real DeltaG = 0.012_rt * (1.0_rt - 1.0_rt / (RZ * RZ)) * (X1 + X2 * std::pow(RZ, C53));
-                DeltaG = DeltaG * X / X2 * std::max(0.0_rt, 1.0_rt - X) / X1;
-                FMIX = FMIX + number_fractions[i] * number_fractions[j] * GAMI * DeltaG;
+                FMIX += pc_solid_pair(zion[i], zion[j], number_fractions[i],
+                                      number_fractions[j], GAME);
             }
         }
 
@@ -2420,7 +2445,6 @@ void melange9 (EOSState& state)
     PDLR = PDLR + PRESSI * PDRMIX;
 
     // First - order:
-    amrex::Real PRADnkT = PRESSRAD / PRESSI; // radiative pressure / n_i k T
     amrex::Real PnkT = PRESS / PRESSI; // P / n_i k T
     amrex::Real UNkT = UINT / PRESSI; // U / N_i k T
     amrex::Real SNk = Stot / DENSI; // S / N_i k
@@ -2438,11 +2462,35 @@ void melange9 (EOSState& state)
     const amrex::Real Nk = N * k_B;
     const amrex::Real rhoinv = 1.0_rt / RHO;
     const amrex::Real Tinv = 1.0_rt / T;
-    const amrex::Real pressure = PnkT * RHO * Nk * T;
-    const amrex::Real energy = UNkT * Nk * T;
-    const amrex::Real cv = CV * Nk;
-    const amrex::Real dpdT = pressure * CHIT * Tinv;
+    amrex::Real pressure = PnkT * RHO * Nk * T;
+    amrex::Real energy = UNkT * Nk * T;
+    amrex::Real entropy = SNk * Nk;
+    amrex::Real cv = CV * Nk;
+    amrex::Real dpdT = pressure * CHIT * Tinv;
     const amrex::Real dpdr = pressure * CHIR * rhoinv;
+
+    // Match Helmholtz's equilibrium radiation contribution and constants.
+    // With separate radiation evolution, the EOS must not include photons.
+    constexpr amrex::Real clight = 2.99792458e10_rt;
+#ifdef RADIATION
+    constexpr amrex::Real ssol = 0.0_rt;
+#else
+    constexpr amrex::Real ssol = 5.67051e-5_rt;
+#endif
+    constexpr amrex::Real asol = 4.0_rt * ssol / clight;
+    amrex::Real prad = (asol / 3.0_rt) * T * T * T * T;
+    if (eos_rp::prad_limiter_rho_c > 0.0_rt && eos_rp::prad_limiter_delta_rho > 0.0_rt) {
+        prad *= 0.5_rt * (1.0_rt + std::tanh((RHO - eos_rp::prad_limiter_rho_c) /
+                                           eos_rp::prad_limiter_delta_rho));
+    }
+    // As in Helmholtz, ignore density derivatives of the limiter itself.
+    const amrex::Real dprad_dT = 4.0_rt * prad * Tinv;
+    const amrex::Real erad = 3.0_rt * prad * rhoinv;
+    pressure += prad;
+    energy += erad;
+    entropy += (prad * rhoinv + erad) * Tinv;
+    cv += 3.0_rt * dprad_dT * rhoinv;
+    dpdT += dprad_dT;
 
     // Fixed-composition thermodynamic identities:
     // (de/drho)_T = (P - T (dP/dT)_rho) / rho^2,
@@ -2462,7 +2510,10 @@ void melange9 (EOSState& state)
         state.dpde = dpdT / cv;
         state.dpdr_e = dpdr - dpdT * dedr / cv;
         state.cp = cv + T * (dpdT * rhoinv) * (dpdT * rhoinv) / dpdr;
-        state.gam1 = CHIR + CHIT * CHIT * pressure * rhoinv / (T * cv);
+        // Recompute the response of the combined plasma + radiation EOS.
+        const amrex::Real chit = T * dpdT / pressure;
+        const amrex::Real chir = RHO * dpdr / pressure;
+        state.gam1 = chir + chit * chit * pressure * rhoinv / (T * cv);
         state.cs = std::sqrt(state.gam1 * pressure * rhoinv);
     }
     if constexpr (has_enthalpy<EOSState>) {
@@ -2471,7 +2522,7 @@ void melange9 (EOSState& state)
         state.dhdr = dedr + dpdr * rhoinv - pressure * rhoinv * rhoinv;
     }
     if constexpr (has_entropy<EOSState>) {
-        state.s = SNk * Nk;
+        state.s = entropy;
         state.dsdT = cv * Tinv;
         state.dsdr = -dpdT * rhoinv * rhoinv;
     }
@@ -2511,9 +2562,17 @@ void actual_eos (I input, T& state)
 AMREX_INLINE
 void actual_eos_init ()
 {
-    // TODO:
-    // - Verify that zion is sorted in increasing order
-    // - Set mintemp, mindens, etc.
+    // Density limits from the reference MELANGE implementation. Temperature
+    // limits are numerical guardrails, not a physical validity envelope.
+    EOSData::mindens = 1.e-19_rt;
+    EOSData::maxdens = 1.e15_rt;
+    EOSData::mintemp = eos_rp::pc_min_temp;
+    EOSData::maxtemp = eos_rp::pc_max_temp;
+    EOSData::minx = 0.0_rt;
+    if (!std::isfinite(EOSData::mintemp) || !std::isfinite(EOSData::maxtemp) ||
+        EOSData::mintemp <= 0.0_rt || EOSData::maxtemp < EOSData::mintemp) {
+        amrex::Error("PC EOS: require 0 < pc_min_temp <= pc_max_temp, both finite");
+    }
 }
 
 AMREX_INLINE
