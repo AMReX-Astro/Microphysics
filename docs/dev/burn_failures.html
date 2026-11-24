@@ -153,7 +153,7 @@ something has gone really wrong in the integration and the integrator
 keeps trying to cut the timestep to be able to advance.  Too many
 steps means that the integrator hit the cap imposed by
 <code class="docutils literal notranslate"><span class="pre">integrator.ode_max_steps</span></code>.  This should never be made too
-large—usually if you need more than a few 1000 steps, then the some
+large—usually if you need more than a few 1000 steps, then some
 of the solutions discussed below can help.</p>
 </section>
 <section id="why-does-the-integrator-struggle">
@@ -161,10 +161,12 @@ of the solutions discussed below can help.</p>
 <p>There are a few common reasons why the integrator might encounter trouble:</p>
 <ul>
 <li><p>The integrators don’t know that the mass fractions should stay in
-<span class="math notranslate nohighlight">\([0, 1]\)</span>.</p>
-<p>Note: they should ensure that the mass fractions sum to 1 as long as
-<span class="math notranslate nohighlight">\(\sum_i \dot{\omega}_k = 0\)</span> in the righthand side function.</p>
-<p>This is a place where adjusting <code class="docutils literal notranslate"><span class="pre">integrator.atol_spec</span></code> can help.</p>
+<span class="math notranslate nohighlight">\([0, 1]\)</span>.  This is a place where adjusting <code class="docutils literal notranslate"><span class="pre">integrator.atol_spec</span></code> can help.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The integrators should ensure that the mass fractions sum to 1 as long as
+<span class="math notranslate nohighlight">\(\sum_k \dot{\omega}_k = 0\)</span> in the right-hand side function.</p>
+</div>
 </li>
 <li><p>The state wants to enter nuclear statistical equilibrium.  As we
 approach equilibrium, the integrator will see large, oppositely
@@ -175,9 +177,8 @@ numerically, the cancellation is not perfect.</p>
 <li><p>The Jacobian is not good enough to allow the nonlinear solver to
 converge.</p>
 <p>The Jacobians used in our networks are approximate (even the
-analytic one).  For example, the analytic Jacobian neglects the
-composition dependence in the screening functions.  In the analytic we
-neglect the composition influence in screening.</p>
+analytic ones).  For example, the analytic Jacobian neglects the
+composition dependence in the screening functions.</p>
 </li>
 </ul>
 </section>
@@ -191,7 +192,7 @@ are tracked well, and helps prevent generating negative mass
 fractions.</p>
 <p>In general, <code class="docutils literal notranslate"><span class="pre">atol_spec</span></code> should be picked to be the magnitude of
 the smallest mass fraction you care about.  You should never set
-it to be larger that <code class="docutils literal notranslate"><span class="pre">rtol_spec</span></code>.  See <a class="reference internal" href="ode_integrators.html#sec-tolerances"><span class="std std-ref">Tolerances</span></a>
+it to be larger than <code class="docutils literal notranslate"><span class="pre">rtol_spec</span></code>.  See <a class="reference internal" href="ode_integrators.html#sec-tolerances"><span class="std std-ref">Tolerances</span></a>
 for some discussion.</p>
 </li>
 <li><p>Adjust the step-rejection logic in the integrator.  This is a
@@ -216,6 +217,15 @@ check on how much the species changed from one step to the next
 per step.  We only check the species that are larger than
 <code class="docutils literal notranslate"><span class="pre">X_reject_buffer</span> <span class="pre">*</span> <span class="pre">atol_spec</span></code>, so if trace species are causing
 problems, <code class="docutils literal notranslate"><span class="pre">X_reject_buffer</span></code> can be used to ignore them.</p></li>
+<li><p>Increase <code class="docutils literal notranslate"><span class="pre">integrator.reject_scale</span></code>.  This is used inside of the
+integration step rejection logic to determine how negative of a mass
+fraction triggers a retry.  In particular, if:</p>
+<p><span class="math notranslate nohighlight">\(X_k &lt; - \mathrm{atol\_spec} \cdot \mathrm{reject\_scale}\)</span></p>
+<p>then we reject a step, and the integrator will try again with a smaller
+timestep.  If you have a tight absolute tolerance, this may
+reject too many steps due to very small, but negative mass fractions.
+Trying <code class="docutils literal notranslate"><span class="pre">integrator.reject_scale</span> <span class="pre">=</span> <span class="pre">100.0</span></code> might help.</p>
+</li>
 </ul>
 </li>
 <li><p>Try the numerical Jacobian (<code class="docutils literal notranslate"><span class="pre">integrator.jacobian=2</span></code>).  The
@@ -225,20 +235,23 @@ terms.  The numerical Jacobian sometimes works better.</p></li>
 <code class="docutils literal notranslate"><span class="pre">integrator.use_burn_retry=1</span></code>, the burn will immediately be
 retried if it fails, with a slightly different configuration.</p>
 <p>By default the type of Jacobian is swapped (if we were analytic,
-then do numerical, and vice vera).  This is controlled by
+then do numerical, and vice versa).  This is controlled by
 <code class="docutils literal notranslate"><span class="pre">integrator.retry_swap_jacobian</span></code>.  The tolerances can also be
 changed on retry.</p>
 <p>See <a class="reference internal" href="ode_integrators.html#sec-retry"><span class="std std-ref">Retry Mechanism</span></a> for the full list of options.</p>
 </li>
-<li><p>Use the right integrator.  In general, VODE is the best choice.
-But if the network is only mildly stiff, then RKC can work well
-(typically, it works when the temperatures are below <span class="math notranslate nohighlight">\(10^9~\mathrm{K}\)</span>.</p></li>
+<li><p>Use the right integrator.  While VODE is the default, the Rosenbrock
+integrator can work really well for a lot of problems and may be faster.
+If the network is only mildly stiff, then RKC can work well
+(typically, it works when the temperatures are below <span class="math notranslate nohighlight">\(10^9~\mathrm{K}\)</span>).</p></li>
 <li><p>If you are near NSE, then use the NSE solver.  This is described
 in <a class="reference internal" href="nse_net.html#self-consistent-nse"><span class="std std-ref">Self-consistent NSE</span></a>.</p>
-<p>Note: not every network is compatible with the self-consistent
-NSE solver.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Not every network is compatible with the self-consistent NSE solver.</p>
+</div>
 </li>
-<li><p>Use Jacobian-caching.  If you build on GPUs, this is disabled by
+<li><p>Use Jacobian caching.  If you build on GPUs, this is disabled by
 default.  You can re-enable it by building with
 <code class="docutils literal notranslate"><span class="pre">USE_JACOBIAN_CACHING=TRUE</span></code>.  Also make sure that
 <code class="docutils literal notranslate"><span class="pre">integrator.use_jacobian_caching=1</span></code> (this is the default).</p>
@@ -267,14 +280,14 @@ values leading to an underflow in computing the timestep.</p>
 <ul id="index-1">
 <li><p>Clipping the species (<code class="docutils literal notranslate"><span class="pre">integrator.do_species_clip</span></code>) can lead to
 instabilities.  This changes the integration state directly in the
-righthand side function, outside of the control of the integrator.
+right-hand side function, outside of the control of the integrator.
 While it sometimes may work, it often leads to problems.  A better
 way to deal with keeping the species in <span class="math notranslate nohighlight">\([0, 1]\)</span> is through the
 absolute tolerance.</p>
 <p>The <a class="reference external" href="https://sundials.readthedocs.io/en/latest/cvode/Usage/index.html#advice-on-controlling-unphysical-negative-values">SUNDIALS CVODE documentation</a> has
 a good discussion on this numerical instability.</p>
 </li>
-<li><p>Renormalizing the species during the integration / righthand side call
+<li><p>Renormalizing the species during the integration / right-hand side call
 (<code class="docutils literal notranslate"><span class="pre">integrator.renormalize_abundances</span></code>).  Like clipping, this can
 cause numerical instabilities.</p></li>
 </ul>
@@ -285,6 +298,8 @@ cause numerical instabilities.</p></li>
 stdout (CPU runs only).  This state can then be used with
 <code class="docutils literal notranslate"><span class="pre">burn_cell_sdc</span></code> to reproduce the burn failure outside of a
 simulation.  For SDC, see the discussion at <a class="reference internal" href="burn_cell_sdc.html#sec-redo-burn-fail"><span class="std std-ref">Rerunning a burn fail</span></a>.</p>
+<p id="index-2">For GPU runs, some diagnostic information can be obtained by compiling
+with <code class="docutils literal notranslate"><span class="pre">USE_GPU_PRINTF=TRUE</span></code></p>
 </section>
 </section>
 
