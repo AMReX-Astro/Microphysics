@@ -48,7 +48,7 @@ program rewrite
   ! read in table
   open(newunit=uold, file="nse19.tbl.orig")
 
-  open(newunit=unew, file="nse19.tbl")
+  open(newunit=unew, file="nse.tbl")
 
 5 format(2f12.5, 1pe12.5, 6e12.5, 19e12.5)
 

@@ -18,7 +18,6 @@ unit_test.primary_species_3 = "oxygen-16"
 # 2 = numerical jacobian
 integrator.jacobian   = 1
 
-integrator.retry_burn = 0
 integrator.renormalize_abundances = 0
 
 network.small_x = 1.e-16

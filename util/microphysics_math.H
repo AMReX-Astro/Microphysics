@@ -1,12 +1,13 @@
-#ifndef _microphysics_math_H
-#define _microphysics_math_H
+#ifndef MICROPHYSICS_MATH_H
+#define MICROPHYSICS_MATH_H
 
 #include <AMReX.H>
 #include <AMReX_REAL.H>
-#include <esum.H>
 
 // Override definitions of constants in GCEM to work around lack of support
 // on Power9 for long double. We don't use arithmetic > 64 bit anyway.
+
+// NOLINTBEGIN(modernize-use-std-numbers)
 
 #define GCEM_LOG_2 0.6931471805599453094172321214581765680755
 #define GCEM_LOG_10 2.3025850929940456840179914546843642076011
@@ -19,6 +20,8 @@
 #define GCEM_SQRT_PI 1.7724538509055160272981674833411451827975
 #define GCEM_SQRT_HALF_PI 1.2533141373155002512078826424055226265035
 #define GCEM_E 2.7182818284590452353602874713526624977572
+
+// NOLINTEND(modernize-use-std-numbers)
 
 #include <gcem.hpp>
 

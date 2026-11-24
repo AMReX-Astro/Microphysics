@@ -19,11 +19,10 @@ integrator.burner_verbose = 0
 # 2 = numerical jacobian
 integrator.jacobian = 1
 
-integrator.retry_burn = 0
 integrator.renormalize_abundances = 0
 
-integrator.rtol_spec = 1.0e-12
-integrator.rtol_enuc = 1.0e-9
+integrator.rtol_spec = 1.0e-6
+integrator.rtol_enuc = 1.0e-6
 integrator.atol_spec = 1.0e-12
 integrator.atol_enuc = 1.0e-9
 

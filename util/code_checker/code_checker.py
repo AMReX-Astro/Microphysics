@@ -11,7 +11,7 @@ from pathlib import Path
 ignore_dirs = ['tmp_build_dir', 't', 'python_library']
 
 def find_fortran_files():
-    # find Microphysics Fortran source files 
+    # find Microphysics Fortran source files
     try:
         microphysics_home = os.environ['MICROPHYSICS_HOME']
     except KeyError:
@@ -31,7 +31,7 @@ def pytest_generate_tests(metafunc):
 
 def test_double_precision(filename):
     if any([f'/{s}/' in str(filename) for s in ignore_dirs]):
-        return 
+        return
 
     with open(filename, 'r') as file_dat:
 
@@ -43,11 +43,11 @@ def test_double_precision(filename):
                 assert re.search(double_prec, l.split('!')[0]) is None
 
         except UnicodeDecodeError:
-            return 
+            return
 
 def test_dexp(filename):
     if any([f'/{s}/' in str(filename) for s in ignore_dirs]):
-        return 
+        return
 
     with open(filename, 'r') as file_dat:
 
@@ -59,11 +59,11 @@ def test_dexp(filename):
                 assert re.search(dexp, l.split('!')[0]) is None
 
         except UnicodeDecodeError:
-            return 
+            return
 
 def test_dlog(filename):
     if any([f'/{s}/' in str(filename) for s in ignore_dirs]):
-        return 
+        return
 
     with open(filename, 'r') as file_dat:
 
@@ -77,7 +77,7 @@ def test_dlog(filename):
                 assert re.search(dlog10, l.split('!')[0]) is None
 
         except UnicodeDecodeError:
-            return 
+            return
 
 
 
@@ -85,9 +85,9 @@ def test_check_rt(filename):
     """
     make sure that all of the numerical constants use _rt and are defined as real(rt)
     """
-    
+
     if any([f'/{s}/' in str(filename) for s in ignore_dirs]):
-        return 
+        return
     elif 'extern.F90' in str(filename):
         return
 
@@ -106,4 +106,4 @@ def test_check_rt(filename):
                 # assert 'use amrex_constants_module' not in l.split('!')[0]
 
         except UnicodeDecodeError:
-            return 
+            return

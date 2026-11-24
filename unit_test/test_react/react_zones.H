@@ -1,5 +1,5 @@
-#ifndef _react_zones_H_
-#define _react_zones_H_
+#ifndef REACT_ZONES_H
+#define REACT_ZONES_H
 
 #include <variables.H>
 #include <network.H>
@@ -10,10 +10,9 @@
 #include <extern_parameters.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-bool do_react (int i, int j, int k, Array4<Real> const& state, Array4<int> const& n_rhs, const plot_t p)
+bool do_react (int i, int j, int k, amrex::Array4<amrex::Real> const& state,
+               burn_t& burn_state, amrex::Array4<int> const& n_rhs, const plot_t& p)
 {
-
-    burn_t burn_state;
 
     burn_state.rho = state(i, j, k, p.irho);
     burn_state.T = state(i, j, k, p.itemp);
@@ -33,7 +32,17 @@ bool do_react (int i, int j, int k, Array4<Real> const& state, Array4<int> const
     // energy.
     burn_state.e = 0.0_rt;
 
-    Real dt = tmax;
+    amrex::Real dt = unit_test_rp::tmax;
+
+    burn_state.i = i;
+    burn_state.j = j;
+    burn_state.k = k;
+#ifdef NONAKA_PLOT
+    burn_state.level = 0;
+    burn_state.reference_time = 0.0;
+#endif
+
+    burn_state.T_fixed = -1.0_rt;
 
     burner(burn_state, dt);
 
@@ -51,6 +60,7 @@ bool do_react (int i, int j, int k, Array4<Real> const& state, Array4<int> const
     state(i, j, k, p.irho_hnuc) = state(i, j, k, p.irho) * burn_state.e / dt;
 
     n_rhs(i, j, k, 0) = burn_state.n_rhs;
+    n_rhs(i, j, k, 1) = burn_state.n_step;
 
     return burn_state.success;
 

@@ -1,0 +1,71 @@
+name: osx
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+
+  schedule:
+    - cron: "0 5 * * 1"  # runs at 05:00 UTC on Mondays
+
+jobs:
+  build:
+
+    runs-on: macOS-latest
+
+    env:
+      os: MacOSX-x86_64
+      configuration: Release
+
+    strategy:
+      fail-fast: true
+      max-parallel: 4
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          auto-update-conda: true
+
+      - name: Conda Environment
+        shell: bash -l {0}
+        run: |
+          conda config --set always_yes yes --set changeps1 no
+          conda config --add channels conda-forge
+          conda install conda-devenv
+          conda devenv
+      - name: Cache
+        id: cache
+        uses: actions/cache@v2
+        with:
+          path: $HOME/.ccache
+          key: ${{ runner.os }}-ccache
+      - name: Configure
+        shell: bash -l {0}
+        run: |
+          source activate autodiff
+          cmake -S . -B .build -DCMAKE_BUILD_TYPE=${{ env.configuration }} -DAUTODIFF_TEST_SANITIZE=ON
+      - name: Build
+        shell: bash -l {0}
+        run: |
+          source activate autodiff
+          ccache -s
+          ccache -z
+          cmake --build .build --parallel 3
+          ccache -s
+      - name: Install
+        shell: bash -l {0}
+        run: |
+          source activate autodiff
+          cmake --build .build --target install
+      - name: Test
+        shell: bash -l {0}
+        run: |
+          source activate autodiff
+          cmake -S . -B .build -DCMAKE_BUILD_TYPE=Debug
+          cmake --build .build --target tests --parallel 3

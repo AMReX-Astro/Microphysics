@@ -11,5 +11,3 @@ unit_test.tmax = 1.e-3
 
 unit_test.primary_species_1 = "helium-4"
 
-integrator.retry_burn = 1
-

@@ -1,0 +1,141 @@
+@namespace: eos
+
+eos_gamma_default       real          1.4
+
+# define the specie names, and their masses and gammas
+species_1_name          string     "co_total"
+species_1_gamma         real          5./3.
+species_1_mass          real          0.0
+
+species_2_name          string     "h2o_total"
+species_2_gamma         real          5./3.
+species_2_mass          real          0.0
+
+species_3_name          string     "elec"
+species_3_gamma         real          5./3.
+species_3_mass          real          9.10938188e-28
+
+species_4_name          string     "hp"
+species_4_gamma         real          5./3.
+species_4_mass          real          1.67262158e-24
+
+species_5_name          string     "h"
+species_5_gamma         real          5./3.
+species_5_mass          real          1.67353251819e-24
+
+species_6_name          string     "hm"
+species_6_gamma         real          5./3.
+species_6_mass          real          1.67444345638e-24
+
+species_7_name          string     "dp"
+species_7_gamma         real          5./3.
+species_7_mass          real          3.34512158e-24
+
+species_8_name          string     "d"
+species_8_gamma         real          5./3.
+species_8_mass          real          3.34603251819e-24
+
+species_9_name          string     "h2p"
+species_9_gamma         real          1.4
+species_9_mass          real          3.34615409819e-24
+
+species_10_name          string     "dm"
+species_10_gamma         real          5./3.
+species_10_mass          real          3.34694345638e-24
+
+species_11_name          string     "h2"
+species_11_gamma         real          1.4
+species_11_mass          real          3.34706503638e-24
+
+species_12_name          string     "hdp"
+species_12_gamma         real          1.4
+species_12_mass          real          5.01865409819e-24
+
+species_13_name          string     "hd"
+species_13_gamma         real          1.4
+species_13_mass          real          5.01956503638e-24
+
+species_14_name          string     "hepp"
+species_14_gamma         real          5./3.
+species_14_mass          real          6.69024316e-24
+
+species_15_name          string     "hep"
+species_15_gamma         real          5./3.
+species_15_mass          real          6.69115409819e-24
+
+species_16_name          string     "he"
+species_16_gamma         real          5./3.
+species_16_mass          real          6.69206503638e-24
+
+species_17_name          string     "cp"
+species_17_gamma         real          5./3.
+species_17_mass          real          2.007528417094e-23
+
+#carbon cannot be declared as c because it conflicts with namespace C used for physical constants
+species_18_name          string     "carbon"
+species_18_gamma         real          5./3.
+species_18_mass          real          2.0076195109128e-23
+
+species_19_name          string     "ch"
+species_19_gamma         real          1.4
+species_19_mass          real          2.1749727627316e-23
+
+species_20_name          string     "ch2"
+species_20_gamma         real          1.4
+species_20_mass          real          2.3423260145503998e-23
+
+species_21_name          string     "ch3"
+species_21_gamma         real          1.4
+species_21_mass          real          .5096792663692e-23
+
+species_22_name          string     "op"
+species_22_gamma         real          5./3.
+species_22_mass          real          2.6767349207316e-23
+
+species_23_name          string     "o"
+species_23_gamma         real          5./3.
+species_23_mass          real          2.6768260145504e-23
+
+species_24_name          string     "ch4"
+species_24_gamma         real          1.4
+species_24_mass          real          2.677032518188e-23
+
+species_25_name          string     "ohp"
+species_25_gamma         real          1.4
+species_25_mass          real          2.8440881725504e-23
+
+species_26_name          string     "oh"
+species_26_gamma         real          1.4
+species_26_mass          real          2.8441792663692003e-23
+
+species_27_name          string     "h2op"
+species_27_gamma         real          1.4
+species_27_mass          real          3.0114414243692e-23
+
+species_28_name          string     "h2o"
+species_28_gamma         real          1.4
+species_28_mass          real          3.011532518188e-23
+
+species_29_name          string     "h3op"
+species_29_gamma         real          1.4
+species_29_mass          real          3.178794676188e-23
+
+species_30_name          string     "cop"
+species_30_gamma         real          1.4
+species_30_mass          real          4.6843544316444e-23
+
+species_31_name          string     "co"
+species_31_gamma         real          1.4
+species_31_mass          real          4.6844455254632e-23
+
+species_32_name          string     "o2p"
+species_32_gamma         real          1.4
+species_32_mass          real          5.353560935282e-23
+
+species_33_name          string     "o2"
+species_33_gamma         real          1.4
+species_33_mass          real          5.3536520291008e-23
+
+species_34_name          string     "co2"
+species_34_gamma         real          1.4
+species_34_mass          real          7.3612715400136e-23

@@ -1,5 +1,5 @@
-#ifndef _react_zones_H_
-#define _react_zones_H_
+#ifndef REACT_ZONES_H
+#define REACT_ZONES_H
 
 #include <variables.H>
 #include <network.H>
@@ -9,9 +9,9 @@
 #include <burner.H>
 #include <extern_parameters.H>
 
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-bool do_react (const plot_t p, const int i, const int j, const int k,
-               Array4<Real> const& state, Array4<int> const& n_rhs)
+AMREX_GPU_DEVICE AMREX_FORCE_INLINE
+bool do_react (const plot_t& p, const int i, const int j, const int k,
+               Array4<amrex::Real> const& state, Array4<int> const& n_rhs)
 {
 
     burn_t burn_state;
@@ -22,14 +22,21 @@ bool do_react (const plot_t p, const int i, const int j, const int k,
 
     // call the EOS first to get the sound speed
 
-    eos_t eos_state;
+    eos_extra_t eos_state;
     eos_state.rho = state(i, j, k, p.irho);
     eos_state.T = state(i, j, k, p.itemp);
     for (int n = 0; n < NumSpec; n++) {
       eos_state.xn[n] = state(i, j, k, p.ispec_old+n);
     }
-#ifdef NSE_THERMO
-    set_nse_aux_from_X(eos_state);
+#ifdef AUX_THERMO
+    set_aux_comp_from_X(eos_state);
+#endif
+#ifdef NSE_NET
+    // if we are doing self-consistent NSE, then set Ye manually
+    eos_state.y_e = 0.0_rt;
+    for (int n = 0; n < NumSpec; ++n) {
+        eos_state.y_e = eos_state.xn[n] * zion[n] * aion_inv[n];
+    }
 #endif
 
     eos(eos_input_rt, eos_state);
@@ -38,6 +45,7 @@ bool do_react (const plot_t p, const int i, const int j, const int k,
 
     burn_state.rho = eos_state.rho;
     burn_state.T = eos_state.T;
+    burn_state.T_fixed = -1.e200_rt;
 
     for (int n = 0; n < NumSpec; n++) {
       burn_state.y[SFS+n] = burn_state.rho * eos_state.xn[n];
@@ -48,8 +56,13 @@ bool do_react (const plot_t p, const int i, const int j, const int k,
         burn_state.y[SFX+n] = burn_state.rho * eos_state.aux[n];
     }
 #endif
+#ifdef NSE_NET
+    burn_state.y_e = eos_state.y_e;
 
-#if defined(SDC_EVOLVE_ENERGY)
+    burn_state.mu_p = unit_test_rp::mu_p;
+    burn_state.mu_n = unit_test_rp::mu_n;
+#endif
+
     burn_state.y[SRHO] = state(i, j, k, p.irho);
 
     // we will pick velocities to be 10% of the sound speed
@@ -63,14 +76,8 @@ bool do_react (const plot_t p, const int i, const int j, const int k,
                 burn_state.y[SMY] * burn_state.y[SMY] +
                 burn_state.y[SMZ] * burn_state.y[SMZ]) / burn_state.y[SRHO];
 
-#elif defined(SDC_EVOLVE_ENTHALPY)
-    burn_state.y[SENTH] = burn_state.rho * eos_state.h;
-
-    burn_state.p0 = eos_state.p;
-#endif
-
     // normalize
-    Real sum_spec = 0.0_rt;
+    amrex::Real sum_spec = 0.0_rt;
     for (int n = 0; n < NumSpec; n++) {
       sum_spec += burn_state.y[SFS+n] / burn_state.rho;
     }
@@ -78,29 +85,35 @@ bool do_react (const plot_t p, const int i, const int j, const int k,
       burn_state.y[SFS+n] /= sum_spec;
     }
 
-#if defined(SDC_EVOLVE_ENERGY)
-    Real rhoe_old = burn_state.y[SEINT];
-#elif defined (SDC_EVOLVE_ENTHALPY)
-    Real rhoh_old = burn_state.y[SENTH];
-#endif
+    amrex::Real rhoe_old = burn_state.y[SEINT];
 
     // zero out the advective terms
 
-    for (int n = 0; n < SVAR; n++) {
-        burn_state.ydot_a[n] = 0.0;
+    for (auto& e : burn_state.ydot_a) {
+        e = 0.0;
     }
 
-    // these need to be initialized 
+
+    // for diagnostics
+    burn_state.i = i;
+    burn_state.j = j;
+    burn_state.k = k;
+#ifdef NONAKA_PLOT
+    burn_state.level = 0;
+    burn_state.reference_time = 0.0;
+#endif
+
+    // these need to be initialized
 
     burn_state.sdc_iter = 1;
     burn_state.num_sdc_iters = 1;
 
-    burner(burn_state, tmax);
+    burner(burn_state, unit_test_rp::tmax);
 
     for (int n = 0; n < NumSpec; ++n) {
         state(i, j, k, p.ispec + n) = burn_state.y[SFS+n]/burn_state.rho;
         state(i, j, k, p.irodot + n) = (burn_state.y[SFS+n] -
-                                        state(i, j, k, p.irho) * state(i, j, k, p.ispec_old + n)) / tmax;
+                                        state(i, j, k, p.irho) * state(i, j, k, p.ispec_old + n)) / unit_test_rp::tmax;
     }
 
 #if NAUX_NET > 0
@@ -109,13 +122,18 @@ bool do_react (const plot_t p, const int i, const int j, const int k,
     }
 #endif
 
-#if defined(SDC_EVOLVE_ENERGY)
-    state(i, j, k, p.irho_Hnuc) = (burn_state.y[SEINT] - rhoe_old) / tmax;
-#elif defined (SDC_EVOLVE_ENTHALPY)
-    state(i, j, k, p.irho_Hnuc) = (burn_state.y[SENTH] - rhoh_old) / tmax;
+#ifdef NSE
+    state(i, j, k, p.inse) = burn_state.nse;
 #endif
 
+    state(i, j, k, p.irho_Hnuc) = (burn_state.y[SEINT] - rhoe_old) / unit_test_rp::tmax;
+
     n_rhs(i, j, k, 0) = burn_state.n_rhs;
+#ifdef NSE
+    n_rhs(i, j, k, 1) = static_cast<int>(burn_state.nse);
+#else
+    n_rhs(i, j, k, 1) = 0;
+#endif
 
     return burn_state.success;
 

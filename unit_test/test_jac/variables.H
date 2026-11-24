@@ -1,5 +1,5 @@
-#ifndef _variables_H_
-#define _variables_H_
+#ifndef VARIABLES_H
+#define VARIABLES_H
 
 // A module to provide integer indices into the various storage arrays
 // for accessing the different variables by name.
@@ -29,6 +29,6 @@ public:
 
 plot_t init_variables();
 
-void get_varnames(const plot_t p, amrex::Vector<std::string>& names);
+void get_varnames(const plot_t& p, amrex::Vector<std::string>& names);
 
 #endif

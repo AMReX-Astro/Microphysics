@@ -20,7 +20,8 @@ using namespace amrex;
 #include <cmath>
 
 #include <unit_test.H>
-#include <unit_test_F.H>
+
+using namespace unit_test_rp;
 
 int main (int argc, char* argv[])
 {
@@ -74,7 +75,7 @@ void main_main ()
         ba.maxSize(max_grid_size);
 
         // This defines the physical box, [0, 1] in each direction.
-        RealBox real_box({AMREX_D_DECL(0.0, 0.0, 0.0)},
+        amrex::RealBox real_box({AMREX_D_DECL(0.0, 0.0, 0.0)},
                          {AMREX_D_DECL(1.0, 1.0, 1.0)});
 
         // This defines a Geometry object
@@ -92,17 +93,7 @@ void main_main ()
 
     ParmParse ppa("amr");
 
-    std::string probin_file = "probin";
-
-    ppa.query("probin_file", probin_file);
-
-    const int probin_file_length = probin_file.length();
-    Vector<int> probin_file_name(probin_file_length);
-
-    for (int i = 0; i < probin_file_length; i++)
-        probin_file_name[i] = probin_file[i];
-
-    init_unit_test(probin_file_name.dataPtr(), &probin_file_length);
+    init_unit_test();
 
     eos_init(small_temp, small_dens);
 
@@ -111,9 +102,6 @@ void main_main ()
     // for C++
     plot_t vars;
 
-    // for F90
-    Vector<std::string> varnames;
-
     // C++ test
     vars = init_variables();
 
@@ -121,7 +109,7 @@ void main_main ()
     get_varnames(vars, names);
 
     // time = starting time in the simulation
-    Real time = 0.0;
+    amrex::Real time = 0.0;
 
     // How Boxes are distributed among MPI processes
     DistributionMapping dm(ba);
@@ -134,17 +122,17 @@ void main_main ()
     state.setVal(0.0);
 
     // What time is it now?  We'll use this to compute total run time.
-    Real strt_time = ParallelDescriptor::second();
+    amrex::Real strt_time = ParallelDescriptor::second();
 
 
-    Real dlogrho = 0.0e0_rt;
-    Real dlogT = 0.0e0_rt;
-    Real dNi = 0.0_rt;
+    amrex::Real dlogrho = 0.0e0_rt;
+    amrex::Real dlogT = 0.0e0_rt;
+    amrex::Real dNi = 0.0_rt;
 
     if (n_cell > 1) {
-        dlogrho = (std::log10(dens_max) - std::log10(dens_min))/Real(n_cell - 1);
-        dlogT   = (std::log10(temp_max) - std::log10(temp_min))/Real(n_cell - 1);
-        dNi = 1.0_rt / Real(n_cell - 1);
+        dlogrho = (std::log10(dens_max) - std::log10(dens_min)) / static_cast<amrex::Real>(n_cell - 1);
+        dlogT   = (std::log10(temp_max) - std::log10(temp_min)) / static_cast<amrex::Real>(n_cell - 1);
+        dNi = 1.0_rt / static_cast<amrex::Real>(n_cell - 1);
     }
 
     // Initialize the state and compute the different thermodynamics
@@ -153,7 +141,7 @@ void main_main ()
     {
         const Box& bx = mfi.validbox();
 
-        Array4<Real> const sp = state.array(mfi);
+        Array4<amrex::Real> const sp = state.array(mfi);
 
         aprox_rates_test(bx, dlogrho, dlogT, dNi, vars, sp);
         aprox_rates_extra_c12ag(bx, dlogrho, dlogT, dNi, vars, sp);
@@ -162,17 +150,16 @@ void main_main ()
 
     // Call the timer again and compute the maximum difference between
     // the start time and stop time over all processors
-    Real stop_time = ParallelDescriptor::second() - strt_time;
+    amrex::Real stop_time = ParallelDescriptor::second() - strt_time;
     const int IOProc = ParallelDescriptor::IOProcessorNumber();
     ParallelDescriptor::ReduceRealMax(stop_time, IOProc);
 
     std::string name = "test_aprox_rates.";
-    std::string language = ".cxx";
 
     // Write a plotfile
-    WriteSingleLevelPlotfile(name + eos_name + language, state, names, geom, time, 0);
+    WriteSingleLevelPlotfile(name + std::string(eos_name), state, names, geom, time, 0);
 
-    write_job_info(name + eos_name + language);
+    write_job_info(name + std::string(eos_name));
 
     // Tell the I/O Processor to write out the "run time"
     amrex::Print() << "Run time = " << stop_time << std::endl;

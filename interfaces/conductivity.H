@@ -1,10 +1,8 @@
-#ifndef _conductivity_H_
-#define _conductivity_H_
+#ifndef CONDUCTIVITY_H
+#define CONDUCTIVITY_H
 
 #include <eos_type.H>
 #include <actual_conductivity.H>
-
-using namespace amrex;
 
 AMREX_FORCE_INLINE
 void conductivity_init() {

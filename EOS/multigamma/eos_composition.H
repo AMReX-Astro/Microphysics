@@ -1,17 +1,16 @@
-
-#ifndef _eos_composition_H_
-#define _eos_composition_H_
+#ifndef EOS_COMPOSITION_H
+#define EOS_COMPOSITION_H
 
 #include <AMReX_BLFort.H>
 #include <network.H>
 #include <eos_type.H>
 
-using namespace amrex;
+using namespace amrex::literals;
 
 struct eos_xderivs_t {
-  Real dedX[NumSpec];
-  Real dpdX[NumSpec];
-  Real dhdX[NumSpec];
+  amrex::Real dedX[NumSpec];
+  amrex::Real dpdX[NumSpec];
+  amrex::Real dhdX[NumSpec];
 };
 
 // Given a set of mass fractions, calculate quantities that depend
@@ -33,7 +32,7 @@ void subroutine (T& state)
     }
     state.mu_e = 1.0_rt / state.y_e;
 
-    Real sum = 0.0_rt;
+    amrex::Real sum = 0.0_rt;
     for (int n = 0; n < NumSpec; ++n) {
         sum = sum + state.xn[n] * aion_inv[n];
     }
@@ -45,7 +44,6 @@ void subroutine (T& state)
 
 // Compute thermodynamic derivatives with respect to xn(:)
 
-#ifdef EXTRA_THERMO
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 eos_x_derivs_t composition_derivatives (const T& state)
@@ -53,7 +51,7 @@ eos_x_derivs_t composition_derivatives (const T& state)
     eos_xderivs_t state_xderivs;
 
     // Get the mass of a nucleon from Avogadro's number.
-    const Real m_nucleon = 1.0_rt / n_A;
+    const amrex::Real m_nucleon = 1.0_rt / n_A;
 
     // Composition derivatives
 
@@ -66,6 +64,5 @@ eos_x_derivs_t composition_derivatives (const T& state)
 
     return state_xderivs;
 }
-#endif
 
 #endif

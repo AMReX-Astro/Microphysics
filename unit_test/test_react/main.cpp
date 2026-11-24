@@ -17,11 +17,8 @@ using namespace amrex;
 #include <AMReX_buildInfo.H>
 #include <variables.H>
 #include <unit_test.H>
-#include <unit_test_F.H>
 #include <react_util.H>
-#ifdef NSE_THERMO
-#include <nse.H>
-#endif
+
 int main (int argc, char* argv[])
 {
     amrex::Initialize(argc, argv);
@@ -55,8 +52,8 @@ void main_main ()
         // number of cells on each side of a square (or cubic) domain.
         pp.get("n_cell", n_cell);
 
-	print_every_nrhs = 0;
-	pp.query("print_every_nrhs", print_every_nrhs);
+        print_every_nrhs = 0;
+        pp.query("print_every_nrhs", print_every_nrhs);
 
         // The domain is broken into boxes of size max_grid_size
         max_grid_size = 32;
@@ -105,20 +102,10 @@ void main_main ()
 
     ParmParse ppa("amr");
 
-    std::string probin_file = "probin";
+    init_unit_test();
 
-    ppa.query("probin_file", probin_file);
-
-    const int probin_file_length = probin_file.length();
-    Vector<int> probin_file_name(probin_file_length);
-
-    for (int i = 0; i < probin_file_length; i++)
-      probin_file_name[i] = probin_file[i];
-
-    init_unit_test(probin_file_name.dataPtr(), &probin_file_length);
-
-    // C++ EOS initialization (must be done after Fortran eos_init and init_extern_parameters)
-    eos_init(small_temp, small_dens);
+    // C++ EOS initialization (must be done after init_extern_parameters)
+    eos_init(unit_test_rp::small_temp, unit_test_rp::small_dens);
 
     // C++ Network, RHS, screening, rates initialization
     network_init();
@@ -131,7 +118,7 @@ void main_main ()
     // time = starting time in the simulation
     Real time = 0.0;
 
-    // How Boxes are distrubuted among MPI processes
+    // How Boxes are distributed among MPI processes
     DistributionMapping dm(ba);
 
     // we allocate our main multifabs
@@ -143,8 +130,8 @@ void main_main ()
     Real dlogT;
 
     if (n_cell > 1) {
-        dlogrho = (std::log10(dens_max) - std::log10(dens_min))/(n_cell - 1);
-        dlogT   = (std::log10(temp_max) - std::log10(temp_min))/(n_cell - 1);
+        dlogrho = (std::log10(unit_test_rp::dens_max) - std::log10(unit_test_rp::dens_min)) / static_cast<amrex::Real>(n_cell - 1);
+        dlogT   = (std::log10(unit_test_rp::temp_max) - std::log10(unit_test_rp::temp_min)) / static_cast<amrex::Real>(n_cell - 1);
     } else {
         dlogrho = 0.0_rt;
         dlogT   = 0.0_rt;
@@ -152,46 +139,50 @@ void main_main ()
 
     init_t comp_data = setup_composition(n_cell);
 
-    for ( MFIter mfi(state); mfi.isValid(); ++mfi )
     {
-        const Box& bx = mfi.validbox();
+        BL_PROFILE("initialize");
 
-        auto state_arr = state.array(mfi);
-
-        amrex::ParallelFor(bx,
-        [=] AMREX_GPU_HOST_DEVICE (int i, int j, int k)
+        for (MFIter mfi(state); mfi.isValid(); ++mfi)
         {
+            const Box& bx = mfi.validbox();
 
-            state_arr(i, j, k, vars.itemp) =
-                std::pow(10.0_rt, (std::log10(temp_min) + static_cast<Real>(j)*dlogT));
-            state_arr(i, j, k, vars.irho) =
-                std::pow(10.0_rt, (std::log10(dens_min) + static_cast<Real>(i)*dlogrho));
+            auto state_arr = state.array(mfi);
 
-            Real xn[NumSpec];
-            get_xn(k, comp_data, xn, uniform_xn);
+            amrex::ParallelFor(bx,
+            [=] AMREX_GPU_HOST_DEVICE (int i, int j, int k)
+            {
 
-            for (int n = 0; n < NumSpec; n++) {
-                state_arr(i, j, k, vars.ispec_old+n) =
-                    amrex::max(xn[n], 1.e-10_rt);
-            }
+                state_arr(i, j, k, vars.itemp) =
+                    std::pow(10.0_rt, (std::log10(unit_test_rp::temp_min) + static_cast<amrex::Real>(j)*dlogT));
+                state_arr(i, j, k, vars.irho) =
+                    std::pow(10.0_rt, (std::log10(unit_test_rp::dens_min) + static_cast<amrex::Real>(i)*dlogrho));
 
-            // initialize the auxillary state (in particular, for NSE)
-#ifdef NSE_THERMO
-            eos_t eos_state;
-            for (int n = 0; n < NumSpec; n++) {
-                eos_state.xn[n] = xn[n];
-            }
-            set_nse_aux_from_X(eos_state);
-            for (int n = 0; n < NumAux; n++) {
-                state_arr(i, j, k, vars.iaux_old+n) = eos_state.aux[n];
-            }
+                Real xn[NumSpec];
+                get_xn(k, comp_data, xn, unit_test_rp::uniform_xn);
+
+                for (int n = 0; n < NumSpec; n++) {
+                    state_arr(i, j, k, vars.ispec_old+n) =
+                        amrex::max(xn[n], 1.e-10_rt);
+                }
+
+                // initialize the auxiliary state (in particular, for NSE)
+#ifdef AUX_THERMO
+                eos_t eos_state;
+                for (int n = 0; n < NumSpec; n++) {
+                    eos_state.xn[n] = xn[n];
+                }
+                set_aux_comp_from_X(eos_state);
+                for (int n = 0; n < NumAux; n++) {
+                    state_arr(i, j, k, vars.iaux_old+n) = eos_state.aux[n];
+                }
 #endif
-        });
+            });
+        }
     }
 
-    // allocate a multifab for the number of RHS calls
+    // allocate a multifab for the number of RHS calls and steps
     // so we can manually do the reductions (for GPU)
-    iMultiFab integrator_n_rhs(ba, dm, 1, Nghost);
+    iMultiFab integrator_n_rhs(ba, dm, 2, Nghost);
 
     // What time is it now?  We'll use this to compute total react time.
     Real strt_time = ParallelDescriptor::second();
@@ -200,48 +191,40 @@ void main_main ()
     AsyncArray<int> aa_num_failed(&num_failed, 1);
     int* num_failed_d = aa_num_failed.data();
 
-    // Do the reactions
-#ifdef _OPENMP
-#pragma omp parallel
-#endif
-    for ( MFIter mfi(state, tile_size); mfi.isValid(); ++mfi )
+    ValLocPair<int, burn_t> r;
+
     {
-        const Box& bx = mfi.tilebox();
+        BL_PROFILE("do_react");
 
-        auto s = state.array(mfi);
-        auto n_rhs = integrator_n_rhs.array(mfi);
+        // Do the reactions
+        auto const& ma = state.arrays();
+        auto const& ia = integrator_n_rhs.arrays();
 
-        AMREX_PARALLEL_FOR_3D(bx, i, j, k,
+        r = amrex::ParReduce(TypeList<ReduceOpMax>{}, TypeList<ValLocPair<int, burn_t>>{}, state,
+        [=] AMREX_GPU_DEVICE (int box_no, int i, int j, int k) -> GpuTuple<ValLocPair<int, burn_t>>
         {
-            bool success = do_react(i, j, k, s, n_rhs, vars);
+
+            Array4<Real> const& s = ma[box_no];
+            auto n_rhs = ia[box_no];
+
+            burn_t burn_state;
+            bool success = do_react(i, j, k, s, burn_state, n_rhs, vars);
 
             if (!success) {
                 Gpu::Atomic::Add(num_failed_d, 1);
             }
+
+            return {ValLocPair<int, burn_t>{n_rhs(i,j,k,0), burn_state}};
         });
-
-#ifndef AMREX_USE_GPU
-        if (print_every_nrhs != 0) {
-
-            auto int_state = integrator_n_rhs.array(mfi);
-
-            AMREX_PARALLEL_FOR_3D(bx, i, j, k,
-            {
-                std::cout << " nrhs for " << i << " " << j << " " << k << " " <<int_state(i,j,k,0) << std::endl;
-            });
-        }
-#endif
 
     }
 
     aa_num_failed.copyToHost(&num_failed, 1);
     Gpu::synchronize();
 
-#ifndef AMREX_USE_GPU
     if (num_failed > 0) {
         amrex::Abort("Integration failed");
     }
-#endif
 
     // Call the timer again and compute the maximum difference between
     // the start time and stop time over all processors
@@ -249,9 +232,6 @@ void main_main ()
     const int IOProc = ParallelDescriptor::IOProcessorNumber();
     ParallelDescriptor::ReduceRealMax(stop_time, IOProc);
 
-    int n_rhs_min = integrator_n_rhs.min(0);
-    int n_rhs_max = integrator_n_rhs.max(0);
-    long n_rhs_sum = integrator_n_rhs.sum(0, 0, true);
 
     // get the name of the integrator from the build info functions
     // written at compile time.  We will append the name of the
@@ -269,19 +249,45 @@ void main_main ()
     std::string name = "test_react.";
     std::string integrator = buildInfoGetModuleVal(int_idx);
 
-    std::string language = ".cxx";
-
     // Write a plotfile
-    WriteSingleLevelPlotfile(prefix + name + integrator + language, state, names, geom, time, 0);
+    WriteSingleLevelPlotfile(prefix + name + integrator, state, names, geom, time, 0);
 
-    write_job_info(prefix + name + integrator + language);
+    write_job_info(prefix + name + integrator);
 
-    // Tell the I/O Processor to write out the "run time"
-    amrex::Print() << "Run time = " << stop_time << std::endl;
+    // output stats on the number of RHS calls
 
-    // print statistics
-    std::cout << "min number of rhs calls: " << n_rhs_min << std::endl;
-    std::cout << "avg number of rhs calls: " << n_rhs_sum / (n_cell*n_cell*n_cell) << std::endl;
-    std::cout << "max number of rhs calls: " << n_rhs_max << std::endl;
+    // these operations are over all processors
+    int n_rhs_min = integrator_n_rhs.min(0);
+    int n_rhs_max = integrator_n_rhs.max(0);
+    long n_rhs_sum = integrator_n_rhs.sum(0);
+
+    int n_step_min = integrator_n_rhs.min(1);
+    int n_step_max = integrator_n_rhs.max(1);
+    long n_step_sum = integrator_n_rhs.sum(1);
+
+    if (ParallelDescriptor::IOProcessor()) {
+
+        // Tell the I/O Processor to write out the "run time"
+        amrex::Print() << "Run time = " << stop_time << std::endl;
+
+        long n_cell_cubed = static_cast<long>(n_cell) * n_cell * n_cell;
+        // print statistics
+        std::cout << "min number of rhs calls: " << n_rhs_min << std::endl;
+        std::cout << "avg number of rhs calls: " << n_rhs_sum / n_cell_cubed << std::endl;
+        std::cout << "max number of rhs calls: " << n_rhs_max << std::endl;
+
+        std::cout << "min number of steps: " << n_step_min << std::endl;
+        std::cout << "avg number of steps: " << n_step_sum / n_cell_cubed << std::endl;
+        std::cout << "max number of steps: " << n_step_max << std::endl;
+
+    }
+
+    // output the state that took the most time
+
+    if (ParallelDescriptor::IOProcessor()) {
+        std::ofstream of("zone_state.out");
+        of << r.index << std::endl;
+        of.close();
+    }
 
 }

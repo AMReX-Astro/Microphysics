@@ -1,0 +1,68 @@
+name: windows
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+
+  schedule:
+    - cron: "0 5 * * 1"  # runs at 05:00 UTC on Mondays
+
+jobs:
+  build:
+
+    # runs-on: windows-latest  # Getting "fatal error C1001: Internal compiler error." for some examples in windows with MSVC 2022 
+    runs-on: windows-2019
+
+    env:
+      configuration: Release
+
+    strategy:
+      fail-fast: true
+      max-parallel: 4
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          auto-update-conda: true
+          auto-activate-base: true
+          activate-environment: ''
+      - name: Conda Environment
+        shell: powershell
+        run: |
+          conda config --set always_yes yes --set changeps1 no
+          conda config --add channels conda-forge
+          conda install conda-devenv
+          conda devenv
+      - name: Cache
+        id: cache
+        uses: actions/cache@v2
+        with:
+          path: $HOME\clcache
+          key: ${{ runner.os }}-clcache
+      - name: Configure
+        shell: powershell
+        run: |
+          conda activate autodiff
+          cmake -S . -B .build
+      - name: Build
+        shell: powershell
+        run: |
+          conda activate autodiff
+          cmake --build .build --config ${{ env.configuration }}
+      - name: Install
+        shell: powershell
+        run: |
+          conda activate autodiff
+          cmake --build .build --config ${{ env.configuration }} --target install
+      - name: Test
+        shell: powershell
+        run: |
+          conda activate autodiff
+          cmake --build .build --config ${{ env.configuration }} --target tests

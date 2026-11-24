@@ -1,0 +1,5 @@
+# test_screening_templated
+
+This is a unit test for the screening routines, using the templated network
+machinery to exercise all the rates in a network.
+

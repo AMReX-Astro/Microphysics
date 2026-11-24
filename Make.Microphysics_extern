@@ -1,22 +1,64 @@
 # This is the main include makefile for applications that want to use Microphysics
 # You should set NETWORK_OUTPUT_PATH before including this file
 
-USE_FORT_MICROPHYSICS ?= TRUE
-ifeq ($(USE_FORT_MICROPHYSICS), TRUE)
-  DEFINES += -DMICROPHYSICS_FORT
+# For some (older?) versions of HIP, inlining produces large kernels
+# that seem to cause memory issues
+ifeq ($(USE_HIP),TRUE)
+  ifeq ($(DISABLE_HIP_INLINE),TRUE)
+    EXTRACXXFLAGS += -mllvm -amdgpu-function-calls=true
+  endif
 endif
+
+# for common code paths between simplified-SDC and true-SDC, we'll
+# use the SDC define
 
 ifeq ($(USE_SIMPLIFIED_SDC), TRUE)
   DEFINES += -DSIMPLIFIED_SDC
+  DEFINES += -DSDC
+  USE_ALL_SDC := TRUE
 else ifeq ($(USE_TRUE_SDC), TRUE)
   DEFINES += -DTRUE_SDC
+  DEFINES += -DSDC
+  USE_ALL_SDC := TRUE
 else
   DEFINES += -DSTRANG
 endif
 
-USE_CXX_REACTIONS ?= FALSE
-ifeq ($(USE_CXX_REACTIONS),TRUE)
-  DEFINES += -DCXX_REACTIONS
+USE_NONAKA_PLOT ?= FALSE
+ifeq ($(USE_NONAKA_PLOT),TRUE)
+  DEFINES += -DNONAKA_PLOT
+endif
+
+# sometimes we benefit from loop unrolling.  This specifies
+# the size of the unroll
+NET_LOOP_UNROLL_LEN ?= 4
+DEFINES += -DNET_LOOP_UNROLL_LEN=$(NET_LOOP_UNROLL_LEN)
+
+
+SCREEN_METHOD ?= screen5
+ifeq ($(SCREEN_METHOD), null)
+  DEFINES += -DSCREEN_METHOD=SCREEN_METHOD_null
+else ifeq ($(SCREEN_METHOD), screen5)
+  DEFINES += -DSCREEN_METHOD=SCREEN_METHOD_screen5
+else ifeq ($(SCREEN_METHOD), chugunov2007)
+  DEFINES += -DSCREEN_METHOD=SCREEN_METHOD_chugunov2007
+else ifeq ($(SCREEN_METHOD), chugunov2009)
+  DEFINES += -DSCREEN_METHOD=SCREEN_METHOD_chugunov2009
+else ifeq ($(SCREEN_METHOD), chabrier1998)
+  DEFINES += -DSCREEN_METHOD=SCREEN_METHOD_chabrier1998
+else ifeq ($(SCREEN_METHOD), debye_huckel)
+  DEFINES += -DSCREEN_METHOD=SCREEN_METHOD_debye_huckel
+else
+  $(error Invalid value for SCREEN_METHOD)
+endif
+
+NEUTRINO_METHOD ?= sneut5
+ifeq ($(NEUTRINO_METHOD), kipp)
+  DEFINES += -DNEUTRINO_METHOD=NEUTRINO_METHOD_kipp
+else ifeq ($(NEUTRINO_METHOD), sneut5)
+  DEFINES += -DNEUTRINO_METHOD=NEUTRINO_METHOD_sneut5
+else
+  $(error Invalid value for NEUTRINO_METHOD: $(NEUTRINO_METHOD))
 endif
 
 ifeq ($(EOS_DIR), gamma_law_general)
@@ -26,7 +68,11 @@ endif
 
 
 EOS_PATH := $(MICROPHYSICS_HOME)/EOS/$(strip $(EOS_DIR))
-NETWORK_PATH := $(MICROPHYSICS_HOME)/networks/$(strip $(NETWORK_DIR))
+ifneq ($(NETWORK_CUSTOM_PATH),)
+    NETWORK_PATH := $(NETWORK_CUSTOM_PATH)
+else
+    NETWORK_PATH := $(MICROPHYSICS_HOME)/networks/$(strip $(NETWORK_DIR))
+endif
 ifeq ($(USE_CONDUCTIVITY), TRUE)
    CONDUCTIVITY_PATH := $(MICROPHYSICS_HOME)/conductivity/$(strip $(CONDUCTIVITY_DIR))
 endif
@@ -42,24 +88,16 @@ ifndef GENERAL_NET_INPUTS
    endif
 endif
 
-# URCA network has tables
-ifeq ($(findstring URCA-simple, $(NETWORK_DIR)), URCA-simple)
-  all: urcatables
+# electron capture tables
+NET_TABLES = $(wildcard $(NETWORK_PATH)/*_betadecay.dat) $(wildcard $(NETWORK_PATH)/*_electroncapture.dat)
+
+ifneq "$(NET_TABLES)" ""
+  all: nettables
 endif
 
-urcatables:
-	@if [ ! -f 23Ne-23Na_betadecay.dat ]; then echo ${bold}Linking 23Ne-23Na_betadecay.dat${normal}; ln -s $(NETWORK_PATH)/23Ne-23Na_betadecay.dat .;  fi
-	@if [ ! -f 23Na-23Ne_electroncapture.dat ]; then echo ${bold}Linking 23Na-23Ne_electroncapture.dat${normal}; ln -s $(NETWORK_PATH)/23Na-23Ne_electroncapture.dat .;  fi
-
-# Pynucastro networks read rate data from an external file
-PYNUCASTRO_FILE := "$(NETWORK_PATH)/reaclib_rate_metadata.dat"
-all: pynucastrorates
-
-
-# do not check to see if the file already exists, just force-link it in
-# because different Reaclib networks will have different versions of the file
-pynucastrorates:
-	@if [ -f $(PYNUCASTRO_FILE) ] && [ ! -f ./reaclib_rate_metadata.dat ]; then echo Linking pynucastro rate file; ln -s $(PYNUCASTRO_FILE) .; fi
+nettables:
+	@echo linking network data files...
+	$(foreach t, $(NET_TABLES), $(shell if [ ! -f `basename $t` ]; then ln -s $(t) . ; fi))
 
 EXTERN_CORE += $(EOS_HOME)
 EXTERN_CORE += $(EOS_PATH)
@@ -73,19 +111,24 @@ endif
 table:
 	@if [ ! -f helm_table.dat ]; then echo Linking helm_table.dat; ln -s $(EOS_PATH)/helm_table.dat .;  fi
 
-ifeq ($(findstring gamma_law, $(EOS_DIR)), gamma_law)
-   DEFINES += -DEOS_GAMMA_LAW_GENERAL
+# USE_ALL_NSE will be used if any of the NSE techniques is applied
+ifeq ($(USE_NSE_TABLE),TRUE)
+  USE_ALL_NSE := TRUE
+endif
+
+ifeq ($(USE_NSE_NET),TRUE)
+  USE_ALL_NSE := TRUE
 endif
 
 # NSE networks need the table
-ifeq ($(USE_NSE),TRUE)
-  ifeq ($(findstring aprox19, $(NETWORK_DIR)), aprox19)
-     all: nsetable
-  endif
+ifeq ($(USE_NSE_TABLE),TRUE)
+  NSE_TABULAR_HOME ?= $(MICROPHYSICS_HOME)/nse_tabular
+  EXTERN_CORE += $(NSE_TABULAR_HOME)
+  all: nsetable
 endif
 
 nsetable:
-	@if [ ! -f nse19.tbl ]; then echo Linking nse19.tbl; ln -s $(NETWORK_PATH)/nse19.tbl .; fi
+	@if [ ! -f $(NSE_TABLE_NAME) ]; then echo Linking $(NSE_TABLE_NAME); ln -s $(NETWORK_PATH)/$(NSE_TABLE_NAME) .; fi
 
 
 # include the network
@@ -107,23 +150,50 @@ ifeq ($(USE_CONDUCTIVITY),TRUE)
   EXTERN_CORE += $(CONDUCTIVITY_PATH)
 endif
 
+# backwards compatibility -- remove after 25.01
+ifdef Opacity_dir
+   OPACITY_DIR=$(Opacity_dir)
+endif
 
 ifeq ($(USE_RAD), TRUE)
-   ifeq ($(Opacity_dir), null)
+   ifeq ($(OPACITY_DIR), null)
      $(error The null opacity directory has been removed, please update to rad_power_law)
    endif
    EXTERN_CORE += $(MICROPHYSICS_HOME)/opacity
 
-   OPAC_PATH := $(MICROPHYSICS_HOME)/opacity/$(Opacity_dir)
+   OPAC_PATH := $(MICROPHYSICS_HOME)/opacity/$(OPACITY_DIR)
    EXTERN_CORE += $(OPAC_PATH)
 endif
-
-ifeq ($(USE_EXTRA_THERMO), TRUE)
-  DEFINES += -DEXTRA_THERMO
-endif
-
 
 # fundamental constants
 EXTERN_CORE += $(MICROPHYSICS_HOME)/constants
 
 
+# self-consistent NSE solver for a network
+ifeq ($(USE_NSE_NET), TRUE)
+     DEFINES += -DNSE_NET
+     DEFINES += -DNSE
+
+     EXTERN_CORE += $(MICROPHYSICS_HOME)/nse_solver
+     EXTERN_CORE += $(MICROPHYSICS_HOME)/util/hybrj
+endif
+EXTERN_CORE += $(MICROPHYSICS_HOME)/util/approx_math
+
+# we can't have both NSE solvers
+ifeq ($(USE_NSE_TABLE), TRUE)
+  ifeq ($(USE_NSE_NET), TRUE)
+    $(error USE_NSE_TABLE and USE_NSE_NET cannot be used together)
+  endif
+endif
+
+# Only allow null chabrier1998 screening with NSE_NET
+ifeq ($(USE_NSE_NET),TRUE)
+  ifneq ($(or $(filter-out null chabrier1998,$(SCREEN_METHOD)),),)
+    $(error USE_NSE_NET can only be used with null or chabrier1998 screening)
+  endif
+endif
+
+clean::
+	@if [ -L helm_table.dat ]; then rm -f helm_table.dat; fi
+	@if [ -L reaclib_rate_metadata.dat ]; then rm -f reaclib_rate_metadata.dat; fi
+	$(foreach t, $(wildcard *_betadecay.dat *_electroncapture.dat nse*.tbl), $(shell if [ -L $t ]; then rm -f $t; fi))

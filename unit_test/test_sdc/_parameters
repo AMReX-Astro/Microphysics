@@ -1,19 +1,11 @@
 @namespace: unit_test
 
-dens_min      real       1.d6
-dens_max      real       1.d9
-temp_min      real       1.d6
-temp_max      real       1.d15
+dens_min      real       1.e6
+dens_max      real       1.e9
+temp_min      real       1.e6
+temp_max      real       1.e15
 
-uniform_xn    integer    0
+tmax          real       0.1e0
 
-primary_species_1  character   ""
-primary_species_2  character   ""
-primary_species_3  character   ""
-
-tmax          real       0.1d0
-
-small_temp    real       1.e5
-small_dens    real       1.e3
-
-do_acc        integer    1
+mu_p          real       -6.0
+mu_n          real      -11.0

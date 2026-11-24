@@ -1,7 +1,10 @@
 AMREX_HOME ?= /path/to/amrex
-MICROPHYSICS_HOME ?= /path/to/Castro
+MICROPHYSICS_HOME ?= /path/to/Microphysics
 
-USE_FORT_MICROPHYSICS ?= TRUE
+# use our .clang-tidy with the AMReX USE_CLANG_TIDY=TRUE build
+CLANG_TIDY_CONFIG_FILE := $(MICROPHYSICS_HOME)/.clang-tidy
+# space-separated list of paths to skip when running clang-tidy
+CLANG_TIDY_IGNORE_SOURCES = $(AMREX_HOME)/Src
 
 # default is not to compile with CUDA
 USE_CUDA ?= FALSE
@@ -17,6 +20,7 @@ TOP := $(MICROPHYSICS_HOME)
 EOS_HOME ?= $(TOP)/EOS
 NETWORK_HOME ?= $(TOP)/networks
 CONDUCTIVITY_HOME ?= $(TOP)/conductivity
+NSE_TABULAR_HOME ?= $(TOP)/nse_tabular
 
 EBASE ?= main
 
@@ -24,22 +28,22 @@ EBASE ?= main
 # Networks and Util this list will be searched for runtime parameters
 EXTERN_CORE ?=
 
-
-ifdef USE_CUDA
-  ifeq ($(USE_CUDA),TRUE)
-    USE_GPU_PRAGMA = TRUE
-    DEFINES += -DCUDA
-  endif
+ifeq ($(USE_MICROPHYSICS_DEBUG),TRUE)
+  DEFINES += -DMICROPHYSICS_DEBUG
 endif
 
-# Require C++17
-CXXSTD := c++17
+# Require C++20
+CXXSTD := c++20
+
+ifeq ($(USE_GPU_PRINTF),TRUE)
+  DEFINES += -DALLOW_GPU_PRINTF
+endif
 
 include $(AMREX_HOME)/Tools/GNUMake/Make.defs
 
 MICROPHYSICS_AUTO_SOURCE_DIR := $(TmpBuildDir)/microphysics_sources/$(optionsSuffix).EXE
 
-all: build_status $(executable) starkiller_library
+all: build_status $(executable)
 	@echo SUCCESS
 
 build_status:
@@ -47,45 +51,8 @@ build_status:
           --git_names "Microphysics AMReX" \
           --git_dirs "$(TOP) $(AMREX_HOME)"
 
-starkiller_library: $(executable)
-ifeq ($(USE_COMPILE_WITH_F2PY), TRUE)
-	@echo Wrapping sources with f90wrap ...
-	sh dowrap.sh
-	@echo Linking objects with f2py ...
-	sh dof2py.sh
-endif
-
-# Use a coarse grained OMP approach
-DEFINES += -DCRSEGRNDOMP
-
-
-# OpenACC support
-ifeq ($(USE_ACC), TRUE)
-  DEFINES += -DACC
-endif
-
 ifeq ($(USE_REACT), TRUE)
   DEFINES += -DREACTIONS
-endif
-
-USE_NETWORK_SOLVER ?= FALSE
-ifeq ($(USE_NETWORK_SOLVER), TRUE)
-  DEFINES += -DNETWORK_SOLVER
-endif
-
-ifeq ($(USE_REACT_SPARSE_JACOBIAN), TRUE)
-  DEFINES += -DREACT_SPARSE_JACOBIAN
-
-  # The following is sometimes useful to turn on for debugging sparse J indices
-  # (if a get/set/scale is called with (row, col) not in the sparse J, stop)
-  # Otherwise, set/scale do nothing, and get returns 0.
-  ifeq ($(USE_SPARSE_STOP_ON_OOB), TRUE)
-    DEFINES += -DSPARSE_STOP_ON_OOB
-  endif
-endif
-
-ifeq ($(USE_COMPILE_WITH_F2PY), TRUE)
-  DEFINES += -DCOMPILE_WITH_F2PY
 endif
 
 
@@ -123,10 +90,6 @@ Blocs += $(foreach dir, $(EXTERN_CORE), $(dir))
 
 include $(Bpack)
 
-# this is a safety from the mega-fortran attempts
-f90EXE_sources += $(ca_f90EXE_sources)
-F90EXE_sources += $(ca_F90EXE_sources)
-
 INCLUDE_LOCATIONS += $(Blocs)
 VPATH_LOCATIONS   += $(Blocs)
 
@@ -142,20 +105,12 @@ INCLUDE_LOCATIONS += $(MICROPHYSICS_AUTO_SOURCE_DIR)
 # runtime parameters
 #------------------------------------------------------------------------------
 
-# runtime parameter support for extern/ routines
-ifeq ($(USE_FORT_MICROPHYSICS), TRUE)
-  F90EXE_sources += extern.F90
-  FEXE_headers += extern_parameters_F.H
-endif
-
 CEXE_sources += extern_parameters.cpp
 CEXE_headers += extern_parameters.H
 
 # for dependency resolution
 
 AUTO_BUILD_SOURCES += $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern_parameters.H
-
-EXTERN_TEMPLATE := $(MICROPHYSICS_HOME)/interfaces/extern_probin.template
 
 # these are for finding runtime parameters
 EXTERN_SEARCH += $(EXTERN_CORE) $(MICROPHYSICS_HOME)/unit_test
@@ -164,20 +119,13 @@ ifdef MICROPHYSICS_HOME
 endif
 
 EXTERN_PARAMETERS := $(shell $(MICROPHYSICS_HOME)/util/build_scripts/findparams.py $(EXTERN_SEARCH))
+EXTERN_PARAMETERS += $(CUSTOM_PARAMETERS)
 
-ifeq ($(USE_FORT_MICROPHYSICS), TRUE)
-   extern_fort_opts = -t $(EXTERN_TEMPLATE) -o $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern.F90 -n extern --with_fortran
-else
-   extern_fort_opts =
-endif
-
-
-$(MICROPHYSICS_AUTO_SOURCE_DIR)/extern.F90: $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern_parameters.H
 $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern_parameters.cpp: $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern_parameters.H
 
-$(MICROPHYSICS_AUTO_SOURCE_DIR)/extern_parameters.H: $(EXTERN_PARAMETERS) $(EXTERN_TEMPLATE)
+$(MICROPHYSICS_AUTO_SOURCE_DIR)/extern_parameters.H: $(EXTERN_PARAMETERS)
 	@if [ ! -d $(MICROPHYSICS_AUTO_SOURCE_DIR) ]; then mkdir -p $(MICROPHYSICS_AUTO_SOURCE_DIR); fi
-	$(MICROPHYSICS_HOME)/util/build_scripts/write_probin.py $(extern_fort_opts) \
+	$(MICROPHYSICS_HOME)/util/build_scripts/write_probin.py \
            --cxx_prefix $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern \
            --pa "$(EXTERN_PARAMETERS)"
 
@@ -221,6 +169,7 @@ $(objEXETempDir)/AMReX_buildInfo.o: .FORCE
           --link_flags "$(LDFLAGS)" --libraries "$(libraries)" \
           --MODULES "$(MNAMES)" $(EXTRA_BUILD_INFO) \
           --GIT "$(TOP) $(AMREX_HOME) $(MICROPHYSICS_HOME)"
+	@if [ ! -d $(objEXETempDir) ]; then mkdir -p $(objEXETempDir); fi
 	$(SILENT) $(CCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) -c $(CXXEXEFLAGS) AMReX_buildInfo.cpp -o $(objEXETempDir)/AMReX_buildInfo.o
 	$(SILENT) $(RM) AMReX_buildInfo.cpp
 
@@ -232,22 +181,9 @@ $(objEXETempDir)/AMReX_buildInfo.o: .FORCE
 include $(AMREX_HOME)/Tools/GNUMake/Make.rules
 
 clean::
-	$(SILENT) $(RM) extern.F90
-	$(SILENT) $(RM) network_properties.F90 network_properties.H
-	$(SILENT) $(RM) $(MICROPHYSICS_AUTO_SOURCE_DIR)/*.H $(MICROPHYSICS_AUTO_SOURCE_DIR)/*.[fF]90
-	$(SILENT) $(RM) extern_parameters.cpp extern_parameters_F.H extern_parameters.H
-
-# Older versions of CASTRO generated a "network.f90" file when using
-# the general_null network, which conflicts with our generalized
-# network.f90 file.  So we should delete the local copy if we are
-# trying to rebuild from an old directory.
-# The same is true for "extern.f90".
-
-clean::
-	$(RM) network.f90
-	$(RM) extern.f90
-	@if [ -L helm_table.dat ]; then rm -f helm_table.dat; fi
-	@if [ -L nse19.tbl ]; then rm -f nse19.tbl; fi
+	$(SILENT) $(RM) network_properties.H
+	$(SILENT) $(RM) $(MICROPHYSICS_AUTO_SOURCE_DIR)/*.H
+	$(SILENT) $(RM) extern_parameters.cpp extern_parameters.H
 
 
 # for debugging.  To see the value of a Makefile variable,

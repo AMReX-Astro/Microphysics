@@ -15,30 +15,17 @@ USE_SIMPLIFIED_SDC = TRUE
 
 EBASE = main
 
-USE_CXX_EOS = TRUE
-
-USE_CXX_REACTIONS = TRUE
-
-USE_EXTRA_THERMO = TRUE
-
-USE_FORT_MICROPHYSICS = FALSE
 BL_NO_FORT = TRUE
 
-ifeq ($(USE_CXX_REACTIONS),TRUE)
-  DEFINES += -DCXX_REACTIONS
-endif
-
-# define the location of the CASTRO top directory
+# define the location of the Microphysics top directory
 MICROPHYSICS_HOME  := ../..
 
-# This sets the EOS directory in Castro/EOS -- note: gamma_law will not work,
-# you'll need to use gamma_law_general
+# This sets the EOS directory
 EOS_DIR     := helmholtz
 
-# This sets the network directory in Castro/Networks
+# This sets the network directory
 NETWORK_DIR := aprox13
 INTEGRATOR_DIR := VODE
-DEFINES += -DSDC_EVOLVE_ENERGY
 
 CONDUCTIVITY_DIR := stellar
 

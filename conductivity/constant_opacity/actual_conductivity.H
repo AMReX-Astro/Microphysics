@@ -1,12 +1,15 @@
-#ifndef _actual_conductivity_H_
-#define _actual_conductivity_H_
+#ifndef ACTUAL_CONDUCTIVITY_H
+#define ACTUAL_CONDUCTIVITY_H
 
+#include <string_view>
 #include <cmath>
 #include <eos_type.H>
 #include <network.H>
 #include <extern_parameters.H>
 
-const std::string cond_name = "constant_opacity";
+using namespace conductivity_rp;
+
+constexpr std::string_view cond_name = "constant_opacity";
 
 AMREX_FORCE_INLINE
 void

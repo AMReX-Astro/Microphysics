@@ -1,0 +1,32 @@
+name: hip
+
+on: [push, pull_request]
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.head_ref }}-hip
+  cancel-in-progress: true
+
+jobs:
+  hip-compile:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Get AMReX
+        run: |
+          git clone --branch development --depth 1 https://github.com/AMReX-Codes/amrex.git external/amrex
+          echo "AMREX_HOME=${GITHUB_WORKSPACE}/external/amrex" >> "$GITHUB_ENV"
+
+      - name: Dependencies
+        run: .github/workflows/dependencies/dependencies_hip.sh 6.3.2
+
+      - name: compile test_react with HIP (iso7)
+        run: |
+          cd unit_test/test_react
+          make USE_HIP=TRUE USE_MPI=FALSE USE_OMP=FALSE USE_CUDA=FALSE NETWORK_DIR=iso7 -j 4
+
+      - name: compile test_react with HIP (ignition_reaclib/URCA-simple)
+        run: |
+          cd unit_test/test_react
+          make realclean
+          make USE_HIP=TRUE USE_MPI=FALSE USE_OMP=FALSE USE_CUDA=FALSE NETWORK_DIR=ignition_reaclib/URCA-simple -j 4

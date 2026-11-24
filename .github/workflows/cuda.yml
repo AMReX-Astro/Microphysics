@@ -1,0 +1,41 @@
+name: cuda
+
+on: [push, pull_request]
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.head_ref }}-cuda
+  cancel-in-progress: true
+
+jobs:
+  cuda-compile:
+    name: CUDA@12.9 GCC
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Get AMReX
+        run: |
+          git clone --branch development --depth 1 https://github.com/AMReX-Codes/amrex.git external/amrex
+          echo "AMREX_HOME=${GITHUB_WORKSPACE}/external/amrex" >> "$GITHUB_ENV"
+
+      - name: Dependencies
+        run: .github/workflows/dependencies/dependencies_nvcc.sh 12.9
+
+      - name: compile test_react (aprox13)
+        run: |
+          export PATH=/usr/local/nvidia/bin:/usr/local/cuda/bin:${PATH}
+          cd unit_test/test_react
+          make NETWORK_DIR=aprox13 USE_CUDA=TRUE COMP=gnu USE_MPI=FALSE -j 4
+
+      - name: compile test_react (ignition_reaclib/URCA-simple)
+        run: |
+          export PATH=/usr/local/nvidia/bin:/usr/local/cuda/bin:${PATH}
+          cd unit_test/test_react
+          make realclean
+          make NETWORK_DIR=ignition_reaclib/URCA-simple USE_CUDA=TRUE COMP=gnu USE_MPI=FALSE -j 4
+
+      - name: compile test_sdc (ase)
+        run: |
+          export PATH=/usr/local/nvidia/bin:/usr/local/cuda/bin:${PATH}
+          cd unit_test/test_sdc
+          make USE_CUDA=TRUE COMP=gnu USE_MPI=FALSE NETWORK_DIR=he-burn/ase USE_NSE_NET=TRUE SCREEN_METHOD=chabrier1998 -j 4

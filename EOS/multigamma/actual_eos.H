@@ -1,5 +1,5 @@
-#ifndef _actual_eos_H_
-#define _actual_eos_H_
+#ifndef ACTUAL_EOS_H
+#define ACTUAL_EOS_H
 
 // This is a multi-gamma EOS.  Each species can have its own gamma, but
 // otherwise, they all act as an ideal gas.
@@ -7,6 +7,7 @@
 // Note: at the moment, it is not clear what the proper expression for
 // a multi-gamma entropy should be, so do not rely on the entropy.
 
+#include <string_view>
 #include <AMReX.H>
 #include <network.H>
 #include <fundamental_constants.H>
@@ -14,7 +15,7 @@
 #include <cmath>
 #include <actual_eos_data.H>
 
-const std::string eos_name = "multigamma";
+constexpr std::string_view eos_name = "multigamma";
 
 inline
 void actual_eos_init ()
@@ -24,24 +25,24 @@ void actual_eos_init ()
     // that can override the default gammas for a few named species.
 
     for (int n = 0; n < NumSpec; ++n) {
-        gammas[n] = eos_gamma_default;
+        gammas[n] = eos_rp::eos_gamma_default;
     }
 
     int idx;
 
-    idx = network_spec_index(species_a_name);
+    idx = network_spec_index(eos_rp::species_a_name);
     if (idx >= 0) {
-        gammas[idx] = species_a_gamma;
+        gammas[idx] = eos_rp::species_a_gamma;
     }
 
-    idx = network_spec_index(species_b_name);
+    idx = network_spec_index(eos_rp::species_b_name);
     if (idx >= 0) {
-        gammas[idx] = species_b_gamma;
+        gammas[idx] = eos_rp::species_b_gamma;
     }
 
-    idx = network_spec_index(species_c_name);
+    idx = network_spec_index(eos_rp::species_c_name);
     if (idx >= 0) {
-        gammas[idx] = species_c_gamma;
+        gammas[idx] = eos_rp::species_c_gamma;
     }
 
 }
@@ -51,7 +52,7 @@ template <typename I>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 bool is_input_valid (I input)
 {
-  static_assert(std::is_same<I, eos_input_t>::value, "input must be an eos_input_t");
+  static_assert(std::is_same_v<I, eos_input_t>, "input must be an eos_input_t");
 
   bool valid = true;
 
@@ -68,14 +69,14 @@ template <typename I, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void actual_eos (I input, T& state)
 {
-    static_assert(std::is_same<I, eos_input_t>::value, "input must be an eos_input_t");
+    static_assert(std::is_same_v<I, eos_input_t>, "input must be an eos_input_t");
 
     // Get the mass of a nucleon from Avogadro's number.
-    const Real m_nucleon = 1.0_rt / C::n_A;
+    const amrex::Real m_nucleon = 1.0_rt / C::n_A;
 
     // Special gamma factors
-    Real sumY_gm1 = 0.0_rt;
-    Real sumYg_gm1 = 0.0_rt;
+    amrex::Real sumY_gm1 = 0.0_rt;
+    amrex::Real sumYg_gm1 = 0.0_rt;
     for (int n = 0; n < NumSpec; ++n) {
         sumY_gm1 = sumY_gm1 + state.xn[n] * aion_inv[n] / (gammas[n] - 1.0_rt);
         sumYg_gm1 = sumYg_gm1 + state.xn[n] * gammas[n] * aion_inv[n] / (gammas[n] - 1.0_rt);
@@ -86,7 +87,7 @@ void actual_eos (I input, T& state)
     // and temp as needed from the inputs.
     //-------------------------------------------------------------------------
 
-    Real temp, dens;
+    amrex::Real temp, dens;
 
     switch (input) {
 
@@ -106,7 +107,7 @@ void actual_eos (I input, T& state)
 
         // Solve for the temperature:
         // h = e + p/rho = (p/rho)*[1 + 1/(gamma-1)] = (p/rho)*gamma/(gamma-1)
-        if constexpr (has_enthalpy<T>::value) {
+        if constexpr (has_enthalpy<T>) {
             dens = state.rho;
             temp = state.h * (m_nucleon / C::k_B) / sumYg_gm1;
         }
@@ -119,7 +120,7 @@ void actual_eos (I input, T& state)
 
         // Solve for the density:
         // p = rho k T / (abar m_nucleon)
-        if constexpr (has_pressure<T>::value) {
+        if constexpr (has_pressure<T>) {
             dens = state.p * state.abar * (m_nucleon / C::k_B) / state.T;
             temp = state.T;
         }
@@ -132,7 +133,7 @@ void actual_eos (I input, T& state)
 
         // Solve for the temperature:
         // p = rho k T / (mu m_nucleon)
-        if constexpr (has_pressure<T>::value) {
+        if constexpr (has_pressure<T>) {
             dens = state.rho;
             temp = state.p * state.abar * (m_nucleon / C::k_B) / state.rho;
         }
@@ -145,7 +146,7 @@ void actual_eos (I input, T& state)
 
         // Solve for the temperature
         // e = k T / [(mu m_nucleon)*(gamma-1)]
-        if constexpr (has_energy<T>::value) {
+        if constexpr (has_energy<T>) {
             dens = state.rho;
             temp = state.e * (m_nucleon / C::k_B) / sumY_gm1;
         }
@@ -166,7 +167,7 @@ void actual_eos (I input, T& state)
         // pressure, enthalpy and xmass are inputs
 
         // Solve for temperature and density
-        if constexpr (has_pressure<T>::value && has_enthalpy<T>::value) {
+        if constexpr (has_pressure<T> && has_enthalpy<T>) {
             dens = state.p * state.abar / state.h * sumYg_gm1;
             temp = state.p * state.abar * (m_nucleon / C::k_B) / dens;
         }
@@ -199,27 +200,27 @@ void actual_eos (I input, T& state)
 
     state.T   = temp;
     state.rho = dens;
-    Real pres = dens * (C::k_B / m_nucleon) * temp / state.abar;
-    Real ener = (C::k_B / m_nucleon) * temp * sumY_gm1;
-    Real enth = ener + pres / dens;
+    amrex::Real pres = dens * (C::k_B / m_nucleon) * temp / state.abar;
+    amrex::Real ener = (C::k_B / m_nucleon) * temp * sumY_gm1;
+    amrex::Real enth = ener + pres / dens;
 
     // Compute the pressure simply from the ideal gas law, and the
     // specific internal energy using the gamma-law EOS relation.
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         state.p = pres;
     }
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_energy<T>) {
         state.e = ener;
     }
 
     // Enthalpy is h = e + p/rho
-    if constexpr (has_enthalpy<T>::value) {
+    if constexpr (has_enthalpy<T>) {
         state.h = enth;
     }
 
     // entropy (per gram) -- this is wrong. Not sure what the expression
     // is for a multigamma gas
-    if constexpr (has_entropy<T>::value) {
+    if constexpr (has_entropy<T>) {
         state.s = ((C::k_B / m_nucleon) / state.abar) *
                   (2.5_rt + std::log((std::pow(state.abar * m_nucleon, 2.5_rt) / dens) *
                                      std::pow(C::k_B * temp, 1.5_rt) /
@@ -227,38 +228,38 @@ void actual_eos (I input, T& state)
     }
 
     // Compute the thermodynamic derivatives and specific heats
-    Real dpdT = pres / temp;
-    Real dpdr = pres / dens;
-    if constexpr (has_pressure<T>::value) {
+    amrex::Real dpdT = pres / temp;
+    amrex::Real dpdr = pres / dens;
+    if constexpr (has_pressure<T>) {
         state.dpdT = dpdT;
         state.dpdr = dpdr;
     }
 
-    Real dedT = ener / temp;
-    Real dedr = 0.0_rt;
-    if constexpr (has_energy<T>::value) {
+    amrex::Real dedT = ener / temp;
+    amrex::Real dedr = 0.0_rt;
+    if constexpr (has_energy<T>) {
         state.dedT = dedT;
         state.dedr = dedr;
     }
 
-    Real dsdT = 0.0_rt;
-    Real dsdr = 0.0_rt;
-    if constexpr (has_entropy<T>::value) {
+    amrex::Real dsdT = 0.0_rt;
+    amrex::Real dsdr = 0.0_rt;
+    if constexpr (has_entropy<T>) {
         state.dsdT = dsdT;
         state.dsdr = dsdr;
     }
 
-    Real dhdT = dedT + dpdT / dens;
-    Real dhdr = 0.0_rt;
-    if constexpr (has_enthalpy<T>::value) {
+    amrex::Real dhdT = dedT + dpdT / dens;
+    amrex::Real dhdr = 0.0_rt;
+    if constexpr (has_enthalpy<T>) {
         state.dhdT = dhdT;
         state.dhdr = dhdr;
     }
 
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_energy<T>) {
         state.cv = state.dedT;
     }
-    if constexpr (has_pressure<T>::value && has_energy<T>::value) {
+    if constexpr (has_pressure<T> && has_energy<T>) {
         state.cp = enth / state.T;
 
         state.gam1 = state.cp / state.cv;
@@ -267,21 +268,23 @@ void actual_eos (I input, T& state)
         state.dpde   = state.dpdT / state.dedT;
     }
 
-#ifdef EXTRA_THERMO
     // These need to be worked out.
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_dpdA<T>) {
         state.dpdA = 0.0_rt;
+    }
+    if constexpr (has_dpdZ<T>) {
         state.dpdZ = 0.0_rt;
     }
 
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_dedA<T>) {
         state.dedA = 0.0_rt;
+    }
+    if constexpr (has_dedZ<T>) {
         state.dedZ = 0.0_rt;
     }
-#endif
 
     // Sound speed
-    if constexpr (has_pressure<T>::value && has_energy<T>::value) {
+    if constexpr (has_pressure<T> && has_energy<T>) {
         state.cs = std::sqrt(state.gam1 * state.p / dens);
     }
 }

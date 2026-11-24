@@ -1,0 +1,34 @@
+@namespace: network
+
+# density above which to assume we are in NSE
+rho_nse      real    3.e8
+
+# temperature above which to assume we are in NSE
+T_nse        real    3.e9
+
+# upper-limit for C + N mass fraction required for NSE
+C_nse        real    0.01
+
+# upper-limit for O mass fraction required for NSE
+O_nse        real    0.01
+
+# upper-limit for Si mass fraction required for NSE
+Si_nse       real    0.01
+
+# lower-limit for the He + iron-group mass fraction required for NSE
+He_Fe_nse    real    0.88
+
+# temperature above which we always assume NSE, regardless of composition
+# note: rho_nse is still considered.
+T_always_nse  real  9.e9
+
+
+# factor (< 1) by which to relax the criteria for entering NSE.
+# This is only applied after a failed burn.
+nse_relax_factor  real   1.0
+
+# do we do tri-linear or tri-cubic interpolation on the table?
+nse_table_interp_linear   bool    0
+
+# do we always do tri-linear for species, even when doing cubic for other quantities?
+nse_force_linear_interp_species   bool   0

@@ -1,51 +1,57 @@
-#ifndef _vode_dvstep_H_
-#define _vode_dvstep_H_
+#ifndef VODE_DVSTEP_H
+#define VODE_DVSTEP_H
 
 #include <vode_type.H>
 #include <vode_dvset.H>
 #include <vode_dvjust.H>
 #include <vode_dvnlsd.H>
 
+template <typename BurnT, typename DvodeT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void advance_nordsieck (dvode_t& vstate)
+void advance_nordsieck (BurnT& state, DvodeT& vstate)
 {
+    amrex::ignore_unused(state);
 
     // Effectively multiplies the Nordsieck history
     // array by the Pascal triangle matrix.
 
+    constexpr int int_neqs = integrator_neqs<BurnT>();
+
     for (int k = vstate.NQ; k >= 1; --k) {
         for (int j = k; j <= vstate.NQ; ++j) {
-            for (int i = 1; i <= VODE_NEQS; ++i) {
+            for (int i = 1; i <= int_neqs; ++i) {
                 vstate.yh(i,j) += vstate.yh(i,j+1);
             }
         }
     }
-
 }
 
 
+template <typename BurnT, typename DvodeT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void retract_nordsieck (dvode_t& vstate)
+void retract_nordsieck (BurnT& state, DvodeT& vstate)
 {
+    amrex::ignore_unused(state);
 
     // Undoes the Pascal triangle matrix multiplication
     // implemented in subroutine advance_nordsieck.
 
+    constexpr int int_neqs = integrator_neqs<BurnT>();
+
     for (int k = vstate.NQ; k >= 1; --k) {
         for (int j = k; j <= vstate.NQ; ++j) {
-            for (int i = 1; i <= VODE_NEQS; ++i) {
+            for (int i = 1; i <= int_neqs; ++i) {
                 vstate.yh(i,j) -= vstate.yh(i,j+1);
             }
         }
     }
-
 }
 
 
+template <typename BurnT, typename DvodeT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-int dvstep (burn_t& state, dvode_t& vstate)
+int dvstep (BurnT& state, DvodeT& vstate)
 {
-
     // dvstep performs one step of the integration of an initial value
     // problem for a system of ordinary differential equations.
     // dvstep calls subroutine dvnlsd for the solution of the nonlinear system
@@ -61,30 +67,28 @@ int dvstep (burn_t& state, dvode_t& vstate)
     // On a successful return, ETAMAX is reset and ACOR is scaled.
 
     // Parameter declarations
-    const int KFC = -3;
-    const int KFH = -7;
-    const int MXNCF = 10;
-    const Real ADDON = 1.0e-6_rt;
-    const Real BIAS1 = 6.0e0_rt;
-    const Real BIAS2 = 6.0e0_rt;
-    const Real BIAS3 = 10.0e0_rt;
-    const Real ETACF = 0.25e0_rt;
-    const Real ETAMIN = 0.1e0_rt;
-    const Real ETAMXF = 0.2e0_rt;
-    const Real ETAMX2 = 10.0e0_rt;
-    const Real ETAMX3 = 10.0e0_rt;
-    const Real ONEPSM = 1.00001e0_rt;
-    const Real THRESH = 1.5e0_rt;
+    constexpr int KFC = -3;
+    constexpr int KFH = -7;
+    constexpr int MXNCF = 10;
+    constexpr amrex::Real ADDON = 1.0e-6_rt;
+    constexpr amrex::Real BIAS1 = 6.0e0_rt;
+    constexpr amrex::Real BIAS2 = 6.0e0_rt;
+    constexpr amrex::Real BIAS3 = 10.0e0_rt;
+    constexpr amrex::Real ETACF = 0.25e0_rt;
+    constexpr amrex::Real ETAMIN = 0.1e0_rt;
+    constexpr amrex::Real ETAMXF = 0.2e0_rt;
+    constexpr amrex::Real ETAMX2 = 10.0e0_rt;
+    constexpr amrex::Real ETAMX3 = 10.0e0_rt;
+    constexpr amrex::Real ONEPSM = 1.00001e0_rt;
+    constexpr amrex::Real THRESH = 1.5e0_rt;
 
-    Real CNQUOT, DDN, DSM, DUP, TOLD;
-    Real ETAQ, ETAQM1, ETAQP1, FLOTL, R;
-    int NCF, NFLAG;
+    amrex::Real DSM{};
+    int NCF{}, NFLAG{};
 
-    ETAQ = 1.0_rt;
-    ETAQM1 = 1.0_rt;
+    constexpr int int_neqs = integrator_neqs<BurnT>();
 
     int kflag = 0;
-    TOLD = vstate.tn;
+    amrex::Real TOLD = vstate.tn;
     NCF = 0;
     vstate.JCUR = 0;
     NFLAG = 0;
@@ -98,25 +102,25 @@ int dvstep (burn_t& state, dvode_t& vstate)
     if (vstate.NEWH != 0) {
 
         if (vstate.NEWQ < vstate.NQ) {
-            dvjust(-1, vstate);
+            dvjust(-1, state, vstate);
             vstate.NQ = vstate.NEWQ;
-            vstate.L = vstate.NQ + 1;
+            vstate.L = static_cast<short>(vstate.NQ + 1);
             vstate.NQWAIT = vstate.L;
         }
         else if (vstate.NEWQ > vstate.NQ) {
-            dvjust(1, vstate);
+            dvjust(1, state, vstate);
             vstate.NQ = vstate.NEWQ;
-            vstate.L = vstate.NQ + 1;
+            vstate.L = static_cast<short>(vstate.NQ + 1);
             vstate.NQWAIT = vstate.L;
         }
 
         // Rescale the history array for a change in H by a factor of ETA.
 
-        R = 1.0_rt;
+        amrex::Real R = 1.0_rt;
 
         for (int j = 2; j <= vstate.L; ++j) {
             R *= vstate.ETA;
-            for (int i = 1; i <= VODE_NEQS; ++i) {
+            for (int i = 1; i <= int_neqs; ++i) {
                 vstate.yh(i,j) *= R;
             }
         }
@@ -127,18 +131,25 @@ int dvstep (burn_t& state, dvode_t& vstate)
 
     }
 
-    IArray1D pivot;
-
     // Compute the predicted values by effectively
     // multiplying the yh array by the Pascal triangle matrix.
     // dvset is called to calculate all integration coefficients.
     // RC is the ratio of new to old values of the coefficient H / EL(2) = h / l1.
 
+    // Save the value of y before calling the solver.
+    // We will use this saved value to determine if any
+    // constraints were violated in the update.
+
+    amrex::Array1D<amrex::Real, 1, int_neqs> y_save;
+    for (int i = 1; i <= int_neqs; ++i) {
+        y_save(i) = vstate.y(i);
+    }
+
     while (true) {
 
         vstate.tn += vstate.H;
 
-        advance_nordsieck(vstate);
+        advance_nordsieck(state, vstate);
 
         dvset(vstate);
 
@@ -146,18 +157,10 @@ int dvstep (burn_t& state, dvode_t& vstate)
         vstate.RC *= (vstate.RL1 / vstate.PRL1);
         vstate.PRL1 = vstate.RL1;
 
-        // Save the value of y before calling the solver.
-        // We will use this saved value to determine if any
-        // constraints were violated in the update.
-
-        Array1D<Real, 1, VODE_NEQS> y_save;
-        for (int i = 1; i <= VODE_NEQS; ++i) {
-            y_save(i) = vstate.y(i);
-        }
 
         // Call the nonlinear system solver.
 
-        Real ACNRM = dvnlsd(pivot, NFLAG, state, vstate);
+        const amrex::Real ACNRM = dvnlsd(NFLAG, state, vstate);
 
         if (NFLAG != 0) {
 
@@ -170,7 +173,7 @@ int dvstep (burn_t& state, dvode_t& vstate)
             vstate.ETAMAX = 1.0_rt;
             vstate.tn = TOLD;
 
-            retract_nordsieck(vstate);
+            retract_nordsieck(state, vstate);
 
             if (std::abs(vstate.H) <= HMIN * ONEPSM) {
                 kflag = -2;
@@ -186,11 +189,11 @@ int dvstep (burn_t& state, dvode_t& vstate)
             vstate.ETA = amrex::max(vstate.ETA, HMIN / std::abs(vstate.H));
 
             // Rescale the history array for a change in H by a factor of ETA.
-            R = 1.0_rt;
+            amrex::Real R = 1.0_rt;
 
             for (int j = 2; j <= vstate.L; ++j) {
                 R *= vstate.ETA;
-                for (int i = 1; i <= VODE_NEQS; ++i) {
+                for (int i = 1; i <= int_neqs; ++i) {
                     vstate.yh(i,j) *= R;
                 }
             }
@@ -207,18 +210,16 @@ int dvstep (burn_t& state, dvode_t& vstate)
 
         bool valid_update = true;
 
-#ifdef SIMPLIFIED_SDC
-#if defined(SDC_EVOLVE_ENERGY)
-	if (vstate.y(SEINT+1) < 0.0_rt) {
-	    valid_update = false;
-	}
+#ifdef SDC
+        if (vstate.y(SEINT+1) < 0.0_rt) {
+            valid_update = false;
+        }
 
-        Real rho_current = state.rho_orig + vstate.tn * state.ydot_a[SRHO];
+        amrex::Real rho_current = state.rho_orig + vstate.tn * state.ydot_a[SRHO];
 
         if (rho_current < 0.0_rt) {
             valid_update = false;
         }
-#endif
 #endif
 
         for (int i = 1; i <= NumSpec; ++i) {
@@ -228,67 +229,74 @@ int dvstep (burn_t& state, dvode_t& vstate)
             // factor in a given step (as long as their initial abundance was large enough
             // for us to worry about).
 
-            if (std::abs(y_save(i)) >= atol_spec &&
+            if (std::abs(y_save(i)) > integrator_rp::X_reject_buffer * vstate.atol_spec &&
+                std::abs(vstate.y(i)) > integrator_rp::X_reject_buffer * vstate.atol_spec &&
                 (std::abs(vstate.y(i)) > vode_increase_change_factor * std::abs(y_save(i)) ||
                  std::abs(vstate.y(i)) < vode_decrease_change_factor * std::abs(y_save(i)))) {
+#ifdef MICROPHYSICS_DEBUG
+#ifndef AMREX_USE_GPU
+               std::cout << "rejecting step based on species " << i << " from " << y_save(i) << " to " << vstate.y(i) << std::endl;
+#endif
+#endif
                 valid_update = false;
+                break;
             }
 
             // Constrain abundances such that they are not negative (within a tolerance)
             // or greater than one (within a tolerance).
-            if (vstate.y(i) < -vode_failure_tolerance) {
+            if (vstate.y(i) < -integrator_rp::species_failure_tolerance) {
                 valid_update = false;
+                break;
             }
 
-            if (vstate.y(i) > 1.0_rt + vode_failure_tolerance) {
-                valid_update = false;
+            // Don't enforce the condition below if
+            // vstate.y contains number densities
+            if (! integrator_rp::use_number_densities) {
+                if (vstate.y(i) > 1.0_rt + integrator_rp::species_failure_tolerance) {
+                    valid_update = false;
+                    break;
+                }
             }
 
 #endif
 
-#ifdef SIMPLIFIED_SDC
+#ifdef SDC
 
-            // these are basically the same checks as with Strang above, except
-            // now we are evolving rhoX instead of X
+            // these are basically the same checks as with Strang
+            // above, except now we are evolving rhoX instead of X.
+            // Also, we only consider the reactive portion of the
+            // update
 
+            amrex::Real rhoX_current = (vstate.y(SFS+i) - vstate.H * state.ydot_a[SFS-1+i]);
 
-            // this doesn't seem to work well with SDC
+            // note: vstate.atol_spec here is density-weighted
 
-            //if (std::abs(y_save(SFS+i)) >= atol_spec * rho_current &&
-            //    (std::abs(vstate.y(SFS+i)) > vode_increase_change_factor * std::abs(y_save(SFS+i)) ||
-            //     std::abs(vstate.y(SFS+i)) < vode_decrease_change_factor * std::abs(y_save(SFS+i)))) {
-            //    valid_update = false;
-            //}
-
-#if defined(SDC_EVOLVE_ENERGY)
-            if (vstate.y(SFS+i) < -vode_failure_tolerance * rho_current) {
-                valid_update = false;
-            }
-
-            if (vstate.y(SFS+i) > (1.0_rt + vode_failure_tolerance) * rho_current) {
-                valid_update = false;
-            }
+            if (std::abs(y_save(SFS+i)) > integrator_rp::X_reject_buffer * vstate.atol_spec &&
+                std::abs(rhoX_current) > integrator_rp::X_reject_buffer * vstate.atol_spec &&
+                (std::abs(rhoX_current) > vode_increase_change_factor * std::abs(y_save(SFS+i)) ||
+                 std::abs(rhoX_current) < vode_decrease_change_factor * std::abs(y_save(SFS+i)))) {
+#ifdef MICROPHYSICS_DEBUG
+#ifndef AMREX_USE_GPU
+                std::cout << "rejecting step based on species " << i
+                          << " from " << y_save(SFS+i)
+                          << " to " << rhoX_current << std::endl;
 #endif
-
 #endif
-
-#ifdef TRUE_SDC
-            // as above, we want to make sure that the mass fractions stay bounded, but we are
-            // evolving:
-            //
-            //  y(1) = density
-            //  y(2:2+NumSpec-1) = rho X
-            //  y(NumSpec+2) = rho e
-
-            if (vstate.y(1+i) < -vode_failure_tolerance * vstate.y(1)) {
                 valid_update = false;
+                break;
             }
 
-            if (vstate.y(1+i) > (1.0_rt + vode_failure_tolerance) * vstate.y(1)) {
+            if (vstate.y(SFS+i) < -integrator_rp::species_failure_tolerance * rho_current) {
                 valid_update = false;
+                break;
             }
-#endif
 
+            if (vstate.y(SFS+i) > (1.0_rt + integrator_rp::species_failure_tolerance) * rho_current) {
+                valid_update = false;
+                break;
+            }
+
+#endif
 
         }
 
@@ -304,22 +312,22 @@ int dvstep (burn_t& state, dvode_t& vstate)
             // If ETAMAX = 1 (a failure occurred this step), keep NQWAIT >= 2.
 
             kflag = 0;
-            vstate.NST += 1;
+            vstate.n_step += 1;
             for (int iback = 1; iback <= vstate.NQ; ++iback) {
-                int i = vstate.L - iback;
+                const int i = vstate.L - iback;
                 vstate.tau(i+1) = vstate.tau(i);
             }
 
             vstate.tau(1) = vstate.H;
             for (int j = 1; j <= vstate.L; ++j) {
-                for (int i = 1; i <= VODE_NEQS; ++i) {
+                for (int i = 1; i <= int_neqs; ++i) {
                     vstate.yh(i,j) += vstate.el(j) * vstate.acor(i);
                 }
             }
 
             vstate.NQWAIT -= 1;
             if ((vstate.L != VODE_LMAX) && (vstate.NQWAIT == 1)) {
-                for (int i = 1; i <= VODE_NEQS; ++i) {
+                for (int i = 1; i <= int_neqs; ++i) {
                     vstate.yh(i,VODE_LMAX) = vstate.acor(i);
                 }
                 vstate.CONP = vstate.tq(5);
@@ -337,12 +345,12 @@ int dvstep (burn_t& state, dvode_t& vstate)
             vstate.NEWH = 0;
             vstate.ETA = 1.0_rt;
             vstate.ETAMAX = ETAMX3;
-            if (vstate.NST <= 10) {
+            if (vstate.n_step <= 10) {
                 vstate.ETAMAX = ETAMX2;
             }
 
-            R = 1.0_rt / vstate.tq(2);
-            for (int i = 1; i <= VODE_NEQS; ++i) {
+            amrex::Real R = 1.0_rt / vstate.tq(2);
+            for (int i = 1; i <= int_neqs; ++i) {
                 vstate.acor(i) *= R;
             }
 
@@ -361,7 +369,7 @@ int dvstep (burn_t& state, dvode_t& vstate)
         NFLAG = -2;
         vstate.tn = TOLD;
 
-        retract_nordsieck(vstate);
+        retract_nordsieck(state, vstate);
 
         if (std::abs(vstate.H) <= HMIN * ONEPSM) {
             kflag = -1;
@@ -373,7 +381,7 @@ int dvstep (burn_t& state, dvode_t& vstate)
         if (kflag > KFC) {
 
             // Compute ratio of new H to current H at the current order.
-            FLOTL = vstate.L;
+            amrex::Real FLOTL = vstate.L;
             vstate.ETA = 1.0_rt / (std::pow(BIAS2 * DSM, 1.0_rt / FLOTL) + ADDON);
             vstate.ETA = amrex::max(vstate.ETA, HMIN / std::abs(vstate.H), ETAMIN);
             if ((kflag <= -2) && (vstate.ETA > ETAMXF)) {
@@ -381,11 +389,11 @@ int dvstep (burn_t& state, dvode_t& vstate)
             }
 
             // Rescale the history array for a change in H by a factor of ETA.
-            R = 1.0_rt;
+            amrex::Real R = 1.0_rt;
 
             for (int j = 2; j <= vstate.L; ++j) {
                 R *= vstate.ETA;
-                for (int i = 1; i <= VODE_NEQS; ++i) {
+                for (int i = 1; i <= int_neqs; ++i) {
                     vstate.yh(i,j) *= R;
                 }
             }
@@ -412,17 +420,17 @@ int dvstep (burn_t& state, dvode_t& vstate)
 
         if (vstate.NQ != 1) {
             vstate.ETA = amrex::max(ETAMIN, HMIN / std::abs(vstate.H));
-            dvjust(-1, vstate);
+            dvjust(-1, state, vstate);
             vstate.L = vstate.NQ;
             vstate.NQ -= 1;
             vstate.NQWAIT = vstate.L;
 
             // Rescale the history array for a change in H by a factor of ETA.
-            R = 1.0_rt;
+            amrex::Real R = 1.0_rt;
 
             for (int j = 2; j <= vstate.L; ++j) {
                 R *= vstate.ETA;
-                for (int i = 1; i <= VODE_NEQS; ++i) {
+                for (int i = 1; i <= int_neqs; ++i) {
                     vstate.yh(i,j) *= R;
                 }
             }
@@ -440,8 +448,8 @@ int dvstep (burn_t& state, dvode_t& vstate)
         vstate.HSCAL = vstate.H;
         vstate.tau(1) = vstate.H;
         rhs(vstate.tn, state, vstate, vstate.savf);
-        vstate.NFE += 1;
-        for (int i = 1; i <= VODE_NEQS; ++i) {
+        vstate.n_rhs += 1;
+        for (int i = 1; i <= int_neqs; ++i) {
             vstate.yh(i,2) = vstate.H * vstate.savf(i);
         }
 
@@ -461,54 +469,57 @@ int dvstep (burn_t& state, dvode_t& vstate)
     bool already_set_eta = false;
 
     // Compute ratio of new H to current H at the current order.
-    FLOTL = vstate.L;
-    ETAQ = 1.0_rt / (std::pow(BIAS2 * DSM, 1.0_rt / FLOTL) + ADDON);
+    amrex::Real FLOTL = vstate.L;
+    const amrex::Real ETAQ = 1.0_rt / (std::pow(BIAS2 * DSM, 1.0_rt / FLOTL) + ADDON);
     if (vstate.NQWAIT == 0) {
         vstate.NQWAIT = 2;
-        ETAQM1 = 0.0_rt;
+
+        amrex::Real ETAQM1{0.0_rt};
+
         if (vstate.NQ != 1) {
             // Compute ratio of new H to current H at the current order less one.
-            DDN = 0.0_rt;
-            for (int i = 1; i <= VODE_NEQS; ++i) {
+            amrex::Real DDN = 0.0_rt;
+            for (int i = 1; i <= int_neqs; ++i) {
                 DDN += (vstate.yh(i,vstate.L) * vstate.ewt(i)) * (vstate.yh(i,vstate.L) * vstate.ewt(i));
             }
-            DDN = std::sqrt(DDN / VODE_NEQS) / vstate.tq(1);
+            DDN = std::sqrt(DDN / int_neqs) / vstate.tq(1);
             ETAQM1 = 1.0_rt / (std::pow(BIAS1 * DDN, 1.0_rt / (FLOTL - 1.0_rt)) + ADDON);
         }
 
-        ETAQP1 = 0.0_rt;
+        amrex::Real ETAQP1{0.0_rt};
+
         if (vstate.L != VODE_LMAX) {
             // Compute ratio of new H to current H at current order plus one.
-            CNQUOT = (vstate.tq(5) / vstate.CONP) * std::pow(vstate.H / vstate.tau(2), vstate.L);
-            for (int i = 1; i <= VODE_NEQS; ++i) {
+            amrex::Real CNQUOT = (vstate.tq(5) / vstate.CONP) * std::pow(vstate.H / vstate.tau(2), vstate.L);
+            for (int i = 1; i <= int_neqs; ++i) {
                 vstate.savf(i) = vstate.acor(i) - CNQUOT * vstate.yh(i,VODE_LMAX);
             }
-            DUP = 0.0_rt;
-            for (int i = 1; i <= VODE_NEQS; ++i) {
+            amrex::Real DUP = 0.0_rt;
+            for (int i = 1; i <= int_neqs; ++i) {
                 DUP += (vstate.savf(i) * vstate.ewt(i)) * (vstate.savf(i) * vstate.ewt(i));
             }
-            DUP = std::sqrt(DUP / VODE_NEQS) / vstate.tq(3);
+            DUP = std::sqrt(DUP / int_neqs) / vstate.tq(3);
             ETAQP1 = 1.0_rt / (std::pow(BIAS3 * DUP, 1.0_rt / (FLOTL + 1.0_rt)) + ADDON);
         }
 
         if (ETAQ < ETAQP1) {
             if (ETAQP1 > ETAQM1) {
                 vstate.ETA = ETAQP1;
-                vstate.NEWQ = vstate.NQ + 1;
-                for (int i = 1; i <= VODE_NEQS; ++i) {
+                vstate.NEWQ = static_cast<short>(vstate.NQ + 1);
+                for (int i = 1; i <= int_neqs; ++i) {
                     vstate.yh(i,VODE_LMAX) = vstate.acor(i);
                 }
             }
             else {
                 vstate.ETA = ETAQM1;
-                vstate.NEWQ = vstate.NQ - 1;
+                vstate.NEWQ = static_cast<short>(vstate.NQ - 1);
             }
             already_set_eta = true;
         }
 
         if (ETAQ < ETAQM1 && !already_set_eta) {
             vstate.ETA = ETAQM1;
-            vstate.NEWQ = vstate.NQ - 1;
+            vstate.NEWQ = static_cast<short>(vstate.NQ - 1);
             already_set_eta = true;
         }
 
@@ -525,11 +536,11 @@ int dvstep (burn_t& state, dvode_t& vstate)
         vstate.ETA = vstate.ETA / amrex::max(1.0_rt, std::abs(vstate.H) * vstate.HMXI * vstate.ETA);
         vstate.NEWH = 1;
         vstate.ETAMAX = ETAMX3;
-        if (vstate.NST <= 10) {
+        if (vstate.n_step <= 10) {
             vstate.ETAMAX = ETAMX2;
         }
-        R = 1.0_rt / vstate.tq(2);
-        for (int i = 1; i <= VODE_NEQS; ++i) {
+        amrex::Real R = 1.0_rt / vstate.tq(2);
+        for (int i = 1; i <= int_neqs; ++i) {
             vstate.acor(i) *= R;
         }
         return kflag;
@@ -539,16 +550,15 @@ int dvstep (burn_t& state, dvode_t& vstate)
     vstate.NEWH = 0;
     vstate.ETA = 1.0_rt;
     vstate.ETAMAX = ETAMX3;
-    if (vstate.NST <= 10) {
+    if (vstate.n_step <= 10) {
         vstate.ETAMAX = ETAMX2;
     }
-    R = 1.0_rt / vstate.tq(2);
-    for (int i = 1; i <= VODE_NEQS; ++i) {
+    amrex::Real R = 1.0_rt / vstate.tq(2);
+    for (int i = 1; i <= int_neqs; ++i) {
         vstate.acor(i) *= R;
     }
 
     return kflag;
-
 }
 
 #endif

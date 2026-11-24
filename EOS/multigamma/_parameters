@@ -1,14 +1,25 @@
 @namespace: eos
 
+# default ratio of specific heats used for all components unless specified
+# explicitly as species a, b, or c
 eos_gamma_default       real          1.4
 
-species_a_name          character     ""
+# name of species "a"
+species_a_name          string        ""
+
+# ratio of specific heats for species "a"
 species_a_gamma         real          1.4
 
-species_b_name          character     ""
+# name of species "b"
+species_b_name          string        ""
+
+# ratio of specific heats for species "b"
 species_b_gamma         real          1.4
 
-species_c_name          character     ""
+# name of species "c"
+species_c_name          string        ""
+
+# ratio of specific heats for species "c"
 species_c_gamma         real          1.4
 
 

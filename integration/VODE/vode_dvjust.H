@@ -1,11 +1,13 @@
-#ifndef _vode_dvjust_H_
-#define _vode_dvjust_H_
+#ifndef VODE_DVJUST_H
+#define VODE_DVJUST_H
 
 #include <vode_type.H>
 
+template <typename BurnT, typename DvodeT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void dvjust (int IORD, dvode_t& vstate)
+void dvjust (int IORD, BurnT& state, DvodeT& vstate)
 {
+    amrex::ignore_unused(state);
 
     // This subroutine adjusts the YH array on reduction of order,
     // and also when the order is increased.
@@ -13,14 +15,16 @@ void dvjust (int IORD, dvode_t& vstate)
     //  IORD  = An integer flag used to indicate an order
     //          increase (IORD = +1) or an order decrease (IORD = -1).
 
+    constexpr int int_neqs = integrator_neqs<BurnT>();
+
     if ((vstate.NQ == 2) && (IORD != 1)) {
         return;
     }
 
-    int NQM1 = vstate.NQ - 1;
-    int NQM2 = vstate.NQ - 2;
+    const int NQM1 = vstate.NQ - 1;
+    const int NQM2 = vstate.NQ - 2;
 
-    Real HSUM, XI, ALPH0, ALPH1, PROD, XIOLD, T1;
+    amrex::Real XI{};
 
     // Check to see if the order is being increased or decreased.
 
@@ -31,20 +35,20 @@ void dvjust (int IORD, dvode_t& vstate)
             vstate.el(j) = 0.0_rt;
         }
         vstate.el(3) = 1.0_rt;
-        HSUM = 0.0_rt;
+        amrex::Real HSUM = 0.0_rt;
         for (int j = 1; j <= NQM2; ++j) {
             // Construct coefficients of x*x*(x+xi(1))*...*(x+xi(j)).
             HSUM += vstate.tau(j);
             XI = HSUM / vstate.HSCAL;
             for (int iback = 1; iback <= j+1; ++iback) {
-                int i = (j + 4) - iback;
+                const int i = (j + 4) - iback;
                 vstate.el(i) = vstate.el(i) * XI + vstate.el(i-1);
             }
         }
 
         // Subtract correction terms from YH array.
         for (int j = 3; j <= vstate.NQ; ++j) {
-            for (int i = 1; i <= VODE_NEQS; ++i) {
+            for (int i = 1; i <= int_neqs; ++i) {
                 vstate.yh(i,j) -= vstate.yh(i,vstate.L) * vstate.el(j);
             }
         }
@@ -58,11 +62,11 @@ void dvjust (int IORD, dvode_t& vstate)
         }
 
         vstate.el(3) = 1.0_rt;
-        ALPH0 = -1.0_rt;
-        ALPH1 = 1.0_rt;
-        PROD = 1.0_rt;
-        XIOLD = 1.0_rt;
-        HSUM = vstate.HSCAL;
+        amrex::Real ALPH0 = -1.0_rt;
+        amrex::Real ALPH1 = 1.0_rt;
+        amrex::Real PROD = 1.0_rt;
+        amrex::Real XIOLD = 1.0_rt;
+        amrex::Real HSUM = vstate.HSCAL;
 
         if (vstate.NQ != 1) {
             for (int j = 1; j <= NQM1; ++j) {
@@ -80,21 +84,20 @@ void dvjust (int IORD, dvode_t& vstate)
             }
         }
 
-        T1 = (-ALPH0 - ALPH1) / PROD;
+        amrex::Real T1 = (-ALPH0 - ALPH1) / PROD;
         // Load column L + 1 in YH array.
-        for (int i = 1; i <= VODE_NEQS; ++i) {
+        for (int i = 1; i <= int_neqs; ++i) {
             vstate.yh(i,vstate.L+1) = T1 * vstate.yh(i,VODE_LMAX);
         }
 
         // Add correction terms to YH array.
         for (int j = 3; j <= vstate.NQ + 1; ++j) {
-            for (int i = 1; i <= VODE_NEQS; ++i) {
+            for (int i = 1; i <= int_neqs; ++i) {
                 vstate.yh(i,j) += vstate.el(j) * vstate.yh(i,vstate.L+1);
             }
         }
 
     }
-
 }
 
 #endif

@@ -18,7 +18,6 @@ using namespace amrex;
 #include <AMReX_buildInfo.H>
 #include <variables.H>
 #include <unit_test.H>
-#include <unit_test_F.H>
 #include <react_util.H>
 
 int main (int argc, char* argv[])
@@ -39,7 +38,11 @@ void main_main ()
 
     std::string prefix = "plt";
 
+#ifdef AMREX_USE_GPU
+    IntVect tile_size(1024, 1024, 1024);
+#else
     IntVect tile_size(1024, 8, 8);
+#endif
 
     // inputs parameters
     {
@@ -97,20 +100,14 @@ void main_main ()
 
     ParmParse ppa("amr");
 
-    std::string probin_file = "probin";
+    init_unit_test();
 
-    ppa.query("probin_file", probin_file);
+    if (integrator_rp::jacobian != 1) {
+        amrex::Error("test_rhs only works for integrator.jacobian = 1");
+    }
 
-    const int probin_file_length = probin_file.length();
-    Vector<int> probin_file_name(probin_file_length);
-
-    for (int i = 0; i < probin_file_length; i++)
-      probin_file_name[i] = probin_file[i];
-
-    init_unit_test(probin_file_name.dataPtr(), &probin_file_length);
-
-    // C++ EOS initialization (must be done after Fortran eos_init and init_extern_parameters)
-    eos_init(small_temp, small_dens);
+    // C++ EOS initialization (must be done after init_extern_parameters)
+    eos_init(unit_test_rp::small_temp, unit_test_rp::small_dens);
 
     // C++ Network, RHS, screening, rates initialization
     network_init();
@@ -123,7 +120,7 @@ void main_main ()
     // time = starting time in the simulation
     Real time = 0.0;
 
-    // How Boxes are distrubuted among MPI processes
+    // How Boxes are distributed among MPI processes
     DistributionMapping dm(ba);
 
     // we allocate our main multifabs
@@ -135,8 +132,8 @@ void main_main ()
     Real dlogT;
 
     if (n_cell > 1) {
-        dlogrho = (std::log10(dens_max) - std::log10(dens_min))/(n_cell - 1);
-        dlogT   = (std::log10(temp_max) - std::log10(temp_min))/(n_cell - 1);
+        dlogrho = (std::log10(unit_test_rp::dens_max) - std::log10(unit_test_rp::dens_min)) / static_cast<amrex::Real>(n_cell - 1);
+        dlogT   = (std::log10(unit_test_rp::temp_max) - std::log10(unit_test_rp::temp_min)) / static_cast<amrex::Real>(n_cell - 1);
     } else {
         dlogrho = 0.0_rt;
         dlogT   = 0.0_rt;
@@ -155,12 +152,12 @@ void main_main ()
         {
 
             state_arr(i, j, k, vars.itemp) =
-                std::pow(10.0_rt, (std::log10(temp_min) + static_cast<Real>(j)*dlogT));
+                std::pow(10.0_rt, (std::log10(unit_test_rp::temp_min) + static_cast<amrex::Real>(j)*dlogT));
             state_arr(i, j, k, vars.irho) =
-                std::pow(10.0_rt, (std::log10(dens_min) + static_cast<Real>(i)*dlogrho));
+                std::pow(10.0_rt, (std::log10(unit_test_rp::dens_min) + static_cast<amrex::Real>(i)*dlogrho));
 
             Real xn[NumSpec];
-            get_xn(k, comp_data, xn, uniform_xn);
+            get_xn(k, comp_data, xn, unit_test_rp::uniform_xn);
 
             for (int n = 0; n < NumSpec; n++) {
                 state_arr(i, j, k, vars.ispec_old+n) =
@@ -183,7 +180,8 @@ void main_main ()
 
         auto s = state.array(mfi);
 
-        AMREX_PARALLEL_FOR_3D(bx, i, j, k,
+        amrex::ParallelFor(bx,
+        [=] AMREX_GPU_HOST_DEVICE (int i, int j, int k)
         {
             do_rhs(i, j, k, s, vars);
         });

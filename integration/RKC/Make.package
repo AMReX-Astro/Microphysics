@@ -1,0 +1,8 @@
+ifeq ($(USE_ALL_SDC), TRUE)
+  CEXE_headers += actual_integrator_sdc.H
+else
+  CEXE_headers += actual_integrator.H
+endif
+
+CEXE_headers += rkc_type.H
+CEXE_headers += rkc.H

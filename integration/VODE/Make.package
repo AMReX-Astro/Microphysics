@@ -1,30 +1,17 @@
-ifeq ($(USE_SIMPLIFIED_SDC), TRUE)
-  CEXE_headers += actual_integrator_simplified_sdc.H
-  CEXE_headers += vode_rhs_simplified_sdc.H
-  CEXE_headers += vode_type_simplified_sdc.H
-  CEXE_headers += vode_jac_util_simplified_sdc.H
-  CEXE_sources += vode_jac_util_simplified_sdc.cpp
+ifeq ($(USE_ALL_SDC), TRUE)
+  CEXE_headers += actual_integrator_sdc.H
 else
-  ifneq ($(USE_TRUE_SDC), TRUE)
-    CEXE_headers += vode_rhs.H
-    CEXE_headers += actual_integrator.H
-  endif
+  CEXE_headers += actual_integrator.H
 endif
 
 # by default we do not enable Jacobian caching on GPUs to save memory
-ifneq ($(USE_CUDA), TRUE)
+ifneq ($(USE_GPU), TRUE)
   DEFINES += -DALLOW_JACOBIAN_CACHING
 endif
 
 ifeq ($(USE_JACOBIAN_CACHING), TRUE)
   DEFINES += -DALLOW_JACOBIAN_CACHING
 endif
-
-ifneq ($(USE_TRUE_SDC), TRUE)
-  CEXE_headers += vode_type_strang.H
-endif
-
-DEFINES += -DINTEGRATOR_HAS_FORTRAN_IMPLEMENTATION
 
 CEXE_headers += vode_dvode.H
 CEXE_headers += vode_type.H
@@ -34,4 +21,3 @@ CEXE_headers += vode_dvjust.H
 CEXE_headers += vode_dvnlsd.H
 CEXE_headers += vode_dvset.H
 CEXE_headers += vode_dvstep.H
-CEXE_headers += vode_parameters.H

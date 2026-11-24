@@ -1,5 +1,5 @@
-#ifndef _eos_data_H_
-#define _eos_data_H_
+#ifndef EOS_DATA_H
+#define EOS_DATA_H
 
 #include <AMReX.H>
 #include <AMReX_REAL.H>
@@ -8,7 +8,8 @@
 
 namespace EOSData
 {
-  extern bool initialized;
+  inline bool initialized;
+
   extern AMREX_GPU_MANAGED amrex::Real mintemp;
   extern AMREX_GPU_MANAGED amrex::Real maxtemp;
   extern AMREX_GPU_MANAGED amrex::Real mindens;

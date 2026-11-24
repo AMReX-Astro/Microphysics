@@ -15,9 +15,12 @@ using namespace amrex;
 #include <network.H>
 #include <eos.H>
 #include <variables.H>
+#include <react_util.H>
 
 #include <cmath>
 #include <unit_test.H>
+
+using namespace unit_test_rp;
 
 int main (int argc, char* argv[])
 {
@@ -89,17 +92,7 @@ void main_main ()
 
     ParmParse ppa("amr");
 
-    std::string probin_file = "probin";
-
-    ppa.query("probin_file", probin_file);
-
-    const int probin_file_length = probin_file.length();
-    Vector<int> probin_file_name(probin_file_length);
-
-    for (int i = 0; i < probin_file_length; i++)
-      probin_file_name[i] = probin_file[i];
-
-    init_unit_test(probin_file_name.dataPtr(), &probin_file_length);
+    init_unit_test();
 
     eos_init(small_temp, small_dens);
 
@@ -114,7 +107,7 @@ void main_main ()
     // time = starting time in the simulation
     Real time = 0.0;
 
-    // How Boxes are distrubuted among MPI processes
+    // How Boxes are distributed among MPI processes
     DistributionMapping dm(ba);
 
     // we allocate our main multifabs
@@ -129,13 +122,13 @@ void main_main ()
 
     Real dlogrho = 0.0e0_rt;
     Real dlogT   = 0.0e0_rt;
-    Real dmetal  = 0.0e0_rt;
 
     if (n_cell > 1) {
         dlogrho = (std::log10(dens_max) - std::log10(dens_min))/(n_cell - 1);
         dlogT   = (std::log10(temp_max) - std::log10(temp_min))/(n_cell - 1);
-        dmetal  = (metalicity_max  - 0.0)/(n_cell - 1);
     }
+
+    init_t comp_data = setup_composition(n_cell);
 
     // Initialize the state and compute the different thermodynamics
     // by inverting the EOS
@@ -145,7 +138,7 @@ void main_main ()
 
         Array4<Real> const sp = state.array(mfi);
 
-        eos_test_C(bx, dlogrho, dlogT, dmetal, vars, sp);
+        eos_test_C(bx, dlogrho, dlogT, comp_data, vars, sp);
 
     }
 
@@ -157,12 +150,11 @@ void main_main ()
 
 
     std::string name = "test_eos.";
-    std::string language = ".cxx";
 
     // Write a plotfile
-    WriteSingleLevelPlotfile(name + eos_name + language, state, names, geom, time, 0);
+    WriteSingleLevelPlotfile(name + std::string(eos_name), state, names, geom, time, 0);
 
-    write_job_info(name + eos_name + language);
+    write_job_info(name + std::string(eos_name));
 
     // Tell the I/O Processor to write out the "run time"
     amrex::Print() << "Run time = " << stop_time << std::endl;

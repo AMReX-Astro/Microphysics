@@ -64,7 +64,7 @@ plot_t init_variables() {
     p.ife55ng = p.next_index(4);
     p.ife56pg = p.next_index(4);
 
-    // langanke and ecapnuc are different so not included in n_tests 
+    // langanke and ecapnuc are different so not included in n_tests
     p.ilanganke = p.next_index(2);
     p.iecapnuc = p.next_index(4);
 
@@ -72,7 +72,7 @@ plot_t init_variables() {
 }
 
 
-void get_varnames(const plot_t p, amrex::Vector<std::string>& names) {
+void get_varnames(const plot_t& p, amrex::Vector<std::string>& names) {
 
     names.resize(p.n_plot_comps);
 

@@ -1,7 +1,7 @@
 
 
-Bpack   += ../Make.package
-Blocs   += ..
+Bpack   += $(MICROPHYSICS_HOME)/unit_test/Make.package
+Blocs   += $(MICROPHYSICS_HOME)/unit_test
 
 include $(MICROPHYSICS_HOME)/Make.Microphysics
 

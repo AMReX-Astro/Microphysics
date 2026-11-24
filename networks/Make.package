@@ -5,29 +5,12 @@ VPATH_LOCATIONS   += $(MICROPHYSICS_UTIL_PATH)
 
 include $(MICROPHYSICS_UTIL_PATH)/Make.package
 
-include $(MICROPHYSICS_HOME)/networks/$(NETWORK_DIR)/NETWORK_PROPERTIES
-include $(MICROPHYSICS_HOME)/networks/$(NETWORK_DIR)/NAUX_NETWORK
-
-DEFINES += -DNAUX_NET=$(NAUX)
-
 ifeq ($(USE_REACT), TRUE)
 
-  ifeq ($(INTEGRATOR_DIR), VODE90)
-    override INTEGRATOR_DIR = VODE
-    $(warning VODE90 has been renamed VODE)
-  endif
-
-  ifeq ($(INTEGRATOR_DIR), VODE)
-    ifeq ($(USE_CLEANED_CORRECTOR), TRUE)
-      DEFINES += -DCLEAN_INTEGRATOR_CORRECTION
-    endif
-  endif
-
   VPATH_LOCATIONS += $(MICROPHYSICS_HOME)/networks
-  ifeq ($(USE_FORT_MICROPHYSICS), TRUE)  
-    f90EXE_sources += rate_type.f90
-  endif
-  CEXE_headers += rate_type.H
+
+  CEXE_headers += rhs.H
+  CEXE_sources += rhs.cpp
 
   # we need the actual integrator in the VPATH before the
   # integration/ dir to get overrides correct
@@ -42,6 +25,8 @@ ifeq ($(USE_REACT), TRUE)
 endif
 
 ifeq ($(USE_RATES), TRUE)
+
+  DEFINES += -DRATES
 
   RATE_PATH := $(MICROPHYSICS_HOME)/rates
 
@@ -63,14 +48,24 @@ ifeq ($(USE_SCREENING), TRUE)
 
   include $(SCREEN_PATH)/Make.package
 
-  DEFINES += -DNUMSCREEN=$(NSCREEN)
+  DEFINES += -DSCREENING
 
 endif
 
-ifeq ($(USE_NSE), TRUE)
+ifeq ($(USE_AUX_THERMO), TRUE)
+  DEFINES += -DAUX_THERMO
+endif
 
-  DEFINES += -DNSE_THERMO -DNSE_TABLE -DNSE
+ifeq ($(USE_NSE_TABLE), TRUE)
+  # note: NSE_THERMO is deprecated
+  DEFINES += -DAUX_THERMO -DNSE_THERMO -DNSE_TABLE -DNSE
 
+endif
+
+ifeq ($(USE_NSE_NET),TRUE)
+  ifneq ($(PYNUCASTRO_NETWORK),TRUE)
+    $(error USE_NSE_NET can only be used with pynucastro generated networks)
+  endif
 endif
 
 ifeq ($(USE_NEUTRINOS), TRUE)
@@ -83,6 +78,8 @@ ifeq ($(USE_NEUTRINOS), TRUE)
 
   include $(NEUTRINO_PATH)/Make.package
 
+  DEFINES += -DNEUTRINOS
+
 endif
 
 NETWORK_OUTPUT_PATH ?= .
@@ -93,16 +90,18 @@ AUTO_BUILD_SOURCES += $(NETWORK_OUTPUT_PATH)/network_properties.H
 net_prop_debug: $(NETWORK_OUTPUT_PATH)/network_properties.H
 
 ifneq ($(NETWORK_DIR), general_null)
-  $(NETWORK_OUTPUT_PATH)/network_properties.F90: $(NETWORK_OUTPUT_PATH)/network_properties.H
-
-  ifneq ($(USE_FORT_MICROPHYSICS), TRUE)
-    net_opts := --skip_fortran
-  endif
+  NAUX := $(shell PYTHONPATH=$(MICROPHYSICS_HOME)/networks/general_null $(MICROPHYSICS_HOME)/networks/get_naux.py \
+                 --microphysics_path "$(MICROPHYSICS_HOME)" \
+                 --defines "$(DEFINES)" \
+                 --net "$(NETWORK_DIR)" \
+                 --net-custom-path "$(NETWORK_CUSTOM_PATH)")
+  DEFINES += "-DNAUX_NET=$(NAUX)"
 
 $(NETWORK_OUTPUT_PATH)/network_properties.H:
-	$(MICROPHYSICS_HOME)/networks/update_headers.py $(net_opts) \
+	PYTHONPATH=$(MICROPHYSICS_HOME)/networks/general_null $(MICROPHYSICS_HOME)/networks/update_headers.py \
            --microphysics_path $(MICROPHYSICS_HOME) \
-           --net $(NETWORK_DIR) \
+           --net "$(NETWORK_DIR)" \
+           --net-custom-path "$(NETWORK_CUSTOM_PATH)" \
            --odir $(NETWORK_OUTPUT_PATH) \
            --defines "$(DEFINES)"
 

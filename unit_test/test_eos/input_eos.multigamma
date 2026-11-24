@@ -6,7 +6,8 @@ unit_test.dens_max   = 5.e9
 unit_test.temp_min   = 1.e6
 unit_test.temp_max   = 1.e10
 
-unit_test.metalicity_max = 0.5
+unit_test.primary_species_1 = "carbon-12"
+unit_test.primary_species_2 = "helium-4"
 
 eos.species_a_name = "helium-4"
 eos.species_a_gamma = 1.6666
@@ -14,3 +15,4 @@ eos.species_a_gamma = 1.6666
 eos.species_b_name = "carbon-12"
 eos.species_b_gamma = 1.333333
 
+unit_test.small_dens = 1.e-4

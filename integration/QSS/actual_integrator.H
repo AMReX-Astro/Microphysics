@@ -3,15 +3,20 @@
 
 #include <network.H>
 #include <actual_network.H>
+#ifdef NEW_NETWORK_IMPLEMENTATION
+#include <rhs.H>
+#else
 #include <actual_rhs.H>
+#endif
 #include <burn_type.H>
-#include <rate_type.H>
 #include <eos_type.H>
 #include <eos.H>
 #include <extern_parameters.H>
+#include <integrator_data.H>
 
+template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void clean_state (burn_t& state)
+void clean_state (BurnT& state)
 {
     // Renormalize the abundances.
 
@@ -19,164 +24,70 @@ void clean_state (burn_t& state)
 
     // Evaluate the EOS to get T from e.
 
-    if (call_eos_in_rhs) {
+    if (integrator_rp::call_eos_in_rhs) {
         eos(eos_input_re, state);
     }
 
     // Ensure that the temperature always stays within reasonable limits.
 
-    state.T = amrex::min(MAX_TEMP, amrex::max(state.T, EOSData::mintemp));
+    state.T = amrex::min(integrator_rp::MAX_TEMP, amrex::max(state.T, EOSData::mintemp));
 }
 
+template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void initialize_state (burn_t& state)
+void initialize_state (BurnT& state)
 {
     // We assume that (rho, T) coming in are valid, do an EOS call
     // to fill the rest of the thermodynamic variables.
 
     eos(eos_input_rt, state);
 
-    state.self_heat = true;
-
     state.success = true;
+    state.error_code = IERR_SUCCESS;
 
+    state.time = 0.0;
     state.n_rhs = 0;
+    state.n_step = 0;
+
+    // Initialize ydot to zero for Strang burn.
+
+    for (int n = 0; n < SVAR; ++n) {
+        state.ydot_a[n] = 0;
+    }
 }
 
+template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void evaluate_rhs (burn_t& state, Array1D<Real, 1, NumSpec>& f_minus, Array1D<Real, 1, NumSpec>& f_plus,
-                   Real& dedt)
+void evaluate_rhs (BurnT& state, amrex::Array1D<amrex::Real, 1, NumSpec>& f_minus, amrex::Array1D<amrex::Real, 1, NumSpec>& f_plus,
+                   amrex::Real& dedt)
 {
-    Array1D<rate_t, 1, Rates::NumGroups> rr_old;
-    evaluate_rates(state, rr_old);
+    // Call the RHS with a special array that will record both the positive and negative
+    // contributions to each integration quantity.
 
-    rate_fr_t rr;
+    constexpr int int_neqs = integrator_neqs<BurnT>();
 
-    // Convert old-style rates to new-style
-    for (int j = 1; j <= Rates::NumRatesFR; ++j) {
-        rr.forward_rates(j) = rr_old(1).rates(2 * j - 1);
-        rr.reverse_rates(j) = rr_old(1).rates(2 * j);
-    }
+    amrex::Array1D<amrex::Real, 1, 2 * int_neqs> ydot;
+    RHS::rhs(state, ydot);
 
-    Array1D<Real, 1, NumSpec> y;
+    // Now unpack the positive and negative contributions.
 
-    for (int spec = 1; spec <= NumSpec; ++spec) {
-        y(spec) = state.xn[spec-1] * aion_inv[spec-1];
-    }
-
-    // For each species calculate its positive and negative RHS contributions.
-
-    for (int spec = 1; spec <= NumSpec; ++spec) {
-        f_plus(spec) = 0.0;
-        f_minus(spec) = 0.0;
-    }
-
-    for (int rate = 1; rate <= Rates::NumRatesFR; ++rate) {
-
-        // Loop through rates and then species. All terms that have a positive
-        // contribution to the RHS for this species get the full term added to
-        // f_plus. All terms that deplete the species are added to f_minus.
-
-        rhs_t rhs_data = RHS::rhs_data(rate);
-
-        // First, compute the Y * rate component of both the forward and
-        // reverse reactions, which is the same regardless of which species
-        // we're producing or consuming.
-
-        Real forward_term = rr.forward_rates(rate);
-
-        if (rhs_data.species_A >= 0) {
-            Real Y_A = state.xn[rhs_data.species_A-1] * aion_inv[rhs_data.species_A-1];
-            forward_term *= std::pow(Y_A, rhs_data.exponent_A);
-        }
-
-        if (rhs_data.species_B >= 0) {
-            Real Y_B = state.xn[rhs_data.species_B-1] * aion_inv[rhs_data.species_B-1];
-            forward_term *= std::pow(Y_B, rhs_data.exponent_B);
-        }
-
-        if (rhs_data.species_C >= 0) {
-            Real Y_C = state.xn[rhs_data.species_C-1] * aion_inv[rhs_data.species_C-1];
-            forward_term *= std::pow(Y_C, rhs_data.exponent_C);
-        }
-
-        Real reverse_term = rr.reverse_rates(rate);
-
-        if (rhs_data.species_D >= 0) {
-            Real Y_D = state.xn[rhs_data.species_D-1] * aion_inv[rhs_data.species_D-1];
-            reverse_term *= std::pow(Y_D, rhs_data.exponent_D);
-        }
-
-        if (rhs_data.species_E >= 0) {
-            Real Y_E = state.xn[rhs_data.species_E-1] * aion_inv[rhs_data.species_E-1];
-            reverse_term *= std::pow(Y_E, rhs_data.exponent_E);
-        }
-
-        if (rhs_data.species_F >= 0) {
-            Real Y_F = state.xn[rhs_data.species_F-1] * aion_inv[rhs_data.species_F-1];
-            reverse_term *= std::pow(Y_F, rhs_data.exponent_F);
-        }
-
-        for (int spec = 1; spec <= NumSpec; ++spec) {
-
-            // Now compute the total contribution to this species.
-
-            Real term = 0.0_rt;
-
-            if (rhs_data.species_A == spec) {
-                f_plus(spec) += rhs_data.number_A * reverse_term;
-                f_minus(spec) += rhs_data.number_A * forward_term;
-            }
-            if (rhs_data.species_B == spec) {
-                f_plus(spec) += rhs_data.number_B * reverse_term;
-                f_minus(spec) += rhs_data.number_B * forward_term;
-            }
-            if (rhs_data.species_C == spec) {
-                f_plus(spec) += rhs_data.number_C * reverse_term;
-                f_minus(spec) += rhs_data.number_C * forward_term;
-            }
-            if (rhs_data.species_D == spec) {
-                f_plus(spec) += rhs_data.number_D * forward_term;
-                f_minus(spec) += rhs_data.number_D * reverse_term;
-            }
-            if (rhs_data.species_E == spec) {
-                f_plus(spec) += rhs_data.number_E * forward_term;
-                f_minus(spec) += rhs_data.number_E * reverse_term;
-            }
-            if (rhs_data.species_F == spec) {
-                f_plus(spec) += rhs_data.number_F * forward_term;
-                f_minus(spec) += rhs_data.number_F * reverse_term;
-            }
-
-            if (term > 0.0) {
-                f_plus(spec) += term;
-            } else {
-                f_minus(spec) -= term;
-            }
-        }
-    }
-
-    // Scale by aion to get dX/dt instead of dY/dt.
-
-    for (int spec = 1; spec <= NumSpec; ++spec) {
-        f_plus(spec) *= aion[spec - 1];
-        f_minus(spec) *= aion[spec - 1];
-    }
- 
-    // Determine the corresponding energy RHS.
-
-    Array1D<Real, 1, NumSpec> dYdt;
     for (int n = 1; n <= NumSpec; ++n) {
-        dYdt(n) = (f_plus(n) - f_minus(n)) * aion_inv[n - 1];
+        f_plus(n) = ydot(2 * n - 1) * aion[n-1];
+        f_minus(n) = ydot(2 * n) * aion[n-1];
     }
 
-    dedt = RHS::ener_rhs(state, dYdt);
+    if (integrator_rp::integrate_energy) {
+        dedt = ydot(2 * net_ienuc - 1) - ydot(2 * net_ienuc);
+    }
+    else {
+        dedt = 0.0_rt;
+    }
 
     state.n_rhs += 1;
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-Real alpha (const Real& r)
+amrex::Real alpha (const amrex::Real& r)
 {
     // Evaluate alpha (Guidry et al. paper II, Equation 4)
     // Note the first term in the numerator has a typo,
@@ -189,18 +100,19 @@ Real alpha (const Real& r)
         return 0.5_rt; // Limit for r -> infinity
     }
     else {
-        Real r2 = r * r;
-        Real r3 = r2 * r;
-        Real a = (180.0_rt * r3 + 60.0_rt * r2 + 11.0_rt * r + 1.0_rt);
+        amrex::Real r2 = r * r;
+        amrex::Real r3 = r2 * r;
+        amrex::Real a = (180.0_rt * r3 + 60.0_rt * r2 + 11.0_rt * r + 1.0_rt);
         a /= (360.0_rt * r3 + 60.0_rt * r2 + 12.0_rt * r + 1.0_rt);
         return a;
     }
 }
 
+template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-bool predictor (burn_t& state_0, Array1D<Real, 1, NumSpec>& f_minus_0,
-                Array1D<Real, 1, NumSpec>& f_plus_0, Real& dedt_0,
-                const Real& t, const Real& dt, burn_t& state)
+bool predictor (BurnT& state_0, amrex::Array1D<amrex::Real, 1, NumSpec>& f_minus_0,
+                amrex::Array1D<amrex::Real, 1, NumSpec>& f_plus_0, amrex::Real& dedt_0,
+                const amrex::Real& t, const amrex::Real& dt, BurnT& state)
 {
     evaluate_rhs(state_0, f_minus_0, f_plus_0, dedt_0);
 
@@ -208,15 +120,15 @@ bool predictor (burn_t& state_0, Array1D<Real, 1, NumSpec>& f_minus_0,
 
     for (int n = 1; n <= NumSpec; ++n)
     {
-        Real X_0 = state_0.xn[n-1];
-        Real k_0 = f_minus_0(n) / X_0;
-        Real r_0 = 1.0_rt / amrex::max(k_0 * dt, 1.0e-50_rt);
-        Real alpha_0 = alpha(r_0);
+        amrex::Real X_0 = state_0.xn[n-1];
+        amrex::Real k_0 = f_minus_0(n) / X_0;
+        amrex::Real r_0 = 1.0_rt / amrex::max(k_0 * dt, 1.0e-50_rt);
+        amrex::Real alpha_0 = alpha(r_0);
 
-        Real dXdt = (f_plus_0(n) - k_0 * X_0) / (1.0_rt + alpha_0 * k_0 * dt);
+        amrex::Real dXdt = (f_plus_0(n) - k_0 * X_0) / (1.0_rt + alpha_0 * k_0 * dt);
         state.xn[n-1] = X_0 + dt * dXdt;
 
-        if (state.xn[n-1] < -species_tolerance || state.xn[n-1] > 1.0_rt + species_tolerance) {
+        if (X_0 >= integrator_rp::atol_spec && (state.xn[n-1] < -integrator_rp::species_tolerance || state.xn[n-1] > 1.0_rt + integrator_rp::species_tolerance)) {
             return false;
         }
     }
@@ -228,18 +140,19 @@ bool predictor (burn_t& state_0, Array1D<Real, 1, NumSpec>& f_minus_0,
     return true;
 }
 
+template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-bool corrector (const burn_t& state_0, const Array1D<Real, 1, NumSpec>& f_minus_0,
-                const Array1D<Real, 1, NumSpec>& f_plus_0, const Real& dedt_0,
-                const Real& t, const Real& dt, burn_t& state)
+bool corrector (const BurnT& state_0, const amrex::Array1D<amrex::Real, 1, NumSpec>& f_minus_0,
+                const amrex::Array1D<amrex::Real, 1, NumSpec>& f_plus_0, const amrex::Real& dedt_0,
+                const amrex::Real& t, const amrex::Real& dt, BurnT& state)
 {
     // Note that the corrector involves a re-evaluation of the rates. This seems
     // safe given how temperature sensitive our rates are. Mott et al. recommend
     // this for cases where the integration is sensitive to T (second to last
     // paragraph of section 4).
 
-    Array1D<Real, 1, NumSpec> f_minus_p, f_plus_p;
-    Real dedt_p;
+    amrex::Array1D<amrex::Real, 1, NumSpec> f_minus_p, f_plus_p;
+    amrex::Real dedt_p;
 
     // We assume state coming in represents the predictor.
 
@@ -249,30 +162,30 @@ bool corrector (const burn_t& state_0, const Array1D<Real, 1, NumSpec>& f_minus_
 
     for (int n = 1; n <= NumSpec; ++n)
     {
-        Real X_0 = state_0.xn[n-1];
-        Real X_p = state.xn[n-1];
-        Real k_0 = f_minus_0(n) / X_0;
-        Real k_p = f_minus_p(n) / X_p;
-        Real k_bar = 0.5_rt * (k_p + k_0);
-        Real r_bar = 1.0_rt / amrex::max(k_bar * dt, 1.0e-50_rt);
-        Real alpha_bar = alpha(r_bar);
-        Real f_plus_tilde = alpha_bar * f_plus_p(n) + (1.0_rt - alpha_bar) * f_plus_0(n);
+        amrex::Real X_0 = state_0.xn[n-1];
+        amrex::Real X_p = state.xn[n-1];
+        amrex::Real k_0 = f_minus_0(n) / X_0;
+        amrex::Real k_p = f_minus_p(n) / X_p;
+        amrex::Real k_bar = 0.5_rt * (k_p + k_0);
+        amrex::Real r_bar = 1.0_rt / amrex::max(k_bar * dt, 1.0e-50_rt);
+        amrex::Real alpha_bar = alpha(r_bar);
+        amrex::Real f_plus_tilde = alpha_bar * f_plus_p(n) + (1.0_rt - alpha_bar) * f_plus_0(n);
 
-        Real dXdt = (f_plus_tilde - k_bar * X_0) / (1.0_rt + alpha_bar * k_bar * dt);
-        Real X_c = X_0 + dt * dXdt;
+        amrex::Real dXdt = (f_plus_tilde - k_bar * X_0) / (1.0_rt + alpha_bar * k_bar * dt);
+        amrex::Real X_c = X_0 + dt * dXdt;
 
         state.xn[n-1] = X_c;
 
-        if (state.xn[n-1] < -species_tolerance || state.xn[n-1] > 1.0_rt + species_tolerance) {
+        if (X_0 >= integrator_rp::atol_spec && (state.xn[n-1] < -integrator_rp::species_tolerance || state.xn[n-1] > 1.0_rt + integrator_rp::species_tolerance)) {
             return false;
         }
     }
 
-    Real e_0 = state_0.e;
-    Real e_p = state.e;
+    amrex::Real e_0 = state_0.e;
+    amrex::Real e_p = state.e;
 
-    Real dedt = 0.5_rt * (dedt_0 + dedt_p);
-    Real e_c = e_0 + dt * dedt;
+    amrex::Real dedt = 0.5_rt * (dedt_0 + dedt_p);
+    amrex::Real e_c = e_0 + dt * dedt;
 
     state.e = e_c;
 
@@ -281,58 +194,56 @@ bool corrector (const burn_t& state_0, const Array1D<Real, 1, NumSpec>& f_minus_
     return true;
 }
 
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void actual_integrator (burn_t& state, Real dt)
+template <typename BurnT>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void actual_integrator (BurnT& state, amrex::Real dt, const bool is_retry=false)
 {
     initialize_state(state);
 
-    Real T_in = state.T;
-    Real e_in = state.e;
-    Real xn_in[NumSpec];
+    amrex::Real T_in = state.T;
+    amrex::Real e_in = state.e;
+    amrex::Real xn_in[NumSpec];
     for (int n = 0; n < NumSpec; ++n) {
         xn_in[n] = state.xn[n];
     }
 
-    Real t = 0.0;
+    amrex::Real t = 0.0;
 
     // Start the guess for the timestepping by evaluating the RHS and
     // choose a dt that is some fraction of (X / dX/dt). The exception
     // will be cases where F_plus >> F_minus (see Mott 1999, Equation 3.40).
 
-    Array1D<Real, 1, NumSpec> f_minus_init, f_plus_init;
-    Real dedt_init;
+    amrex::Array1D<amrex::Real, 1, NumSpec> f_minus_init, f_plus_init;
+    amrex::Real dedt_init;
 
     evaluate_rhs(state, f_minus_init, f_plus_init, dedt_init);
 
-    Real dt_sub = dt;
+    amrex::Real dt_sub = dt;
 
     for (int n = 1; n <= NumSpec; ++n) {
-        if (f_plus_init(n) >= 1.e2 * f_minus_init(n)) {
-            dt_sub = amrex::min(dt_sub, xn_in[n - 1] / f_minus_init(n));
-        }
-        else {
-            dt_sub = amrex::min(dt_sub, xn_in[n - 1] / std::abs(f_plus_init(n) - f_minus_init(n)));
+        if (xn_in[n-1] >= integrator_rp::atol_spec) {
+            dt_sub = amrex::min(dt_sub, xn_in[n - 1] / amrex::max(std::abs(f_plus_init(n) - f_minus_init(n)), 1.e-50_rt));
         }
     }
 
-    dt_sub *= dt_init_fraction;
+    dt_sub *= integrator_rp::dt_init_fraction;
 
-    dt_sub = amrex::min(dt_sub, ode_max_dt);
+    dt_sub = amrex::min(dt_sub, integrator_rp::ode_max_dt);
 
     // When checking the integration time to see if we're done,
     // be careful with roundoff issues.
 
-    const Real timestep_safety_factor = 1.0e-12_rt;
+    const amrex::Real timestep_safety_factor = 1.0e-12_rt;
 
     int num_timesteps = 0;
 
-    while (t < (1.0_rt - timestep_safety_factor) * dt && num_timesteps < ode_max_steps)
+    while (t < (1.0_rt - timestep_safety_factor) * dt && num_timesteps < integrator_rp::ode_max_steps)
     {
         // Start the step with a guess that is a small factor above the previous timestep.
 
-        dt_sub *= dt_max_change_factor;
+        dt_sub *= integrator_rp::dt_max_change_factor;
 
-        dt_sub = amrex::min(dt_sub, ode_max_dt);
+        dt_sub = amrex::min(dt_sub, integrator_rp::ode_max_dt);
 
         // Prevent the timestep from overshooting the final time.
 
@@ -342,7 +253,7 @@ void actual_integrator (burn_t& state, Real dt)
 
         // Make a copy of the old-time state, which does not change in the iterations.
 
-        burn_t state_0 = state;
+        BurnT state_0 = state;
 
         // Calculate the quasi-steady-state update. This is based on Guidry et al. paper II.
         // (The actual implementation largely follows Mott et al. (2000, 2001) from CHEMEQ2.)
@@ -391,23 +302,23 @@ void actual_integrator (burn_t& state, Real dt)
 
         int timestep_iter = 0;
 
-        for (timestep_iter = 0; timestep_iter < num_timestep_iters; ++timestep_iter)
+        for (timestep_iter = 0; timestep_iter < integrator_rp::num_timestep_iters; ++timestep_iter)
         {
             // Evaluate the predictor. The return value indicates whether we consider it
             // a successful prediction; if it was unsuccessful, we'll cut the timestep by
             // an arbitrary factor and try again.
 
-            Array1D<Real, 1, NumSpec> f_plus_0, f_minus_0;
-            Real dedt_0;
+            amrex::Array1D<amrex::Real, 1, NumSpec> f_plus_0, f_minus_0;
+            amrex::Real dedt_0;
 
             bool success = predictor(state_0, f_minus_0, f_plus_0, dedt_0, t, dt_sub, state);
 
             // Save the initial predictor state.
 
-            burn_t predictor_state = state;
+            BurnT predictor_state = state;
 
             if (!success) {
-                dt_sub *= dt_cut_factor;
+                dt_sub *= integrator_rp::dt_cut_factor;
                 continue;
             }
 
@@ -416,7 +327,7 @@ void actual_integrator (burn_t& state, Real dt)
             // predictor for the next. The return value is the maximum relative diff between
             // the predictor and the corrector.
 
-            for (int corrector_iter = 0; corrector_iter < num_corrector_iters; ++corrector_iter)
+            for (int corrector_iter = 0; corrector_iter < integrator_rp::num_corrector_iters; ++corrector_iter)
             {
                 success = corrector(state_0, f_minus_0, f_plus_0, dedt_0, t, dt_sub, state);
 
@@ -426,24 +337,26 @@ void actual_integrator (burn_t& state, Real dt)
             }
 
             if (!success) {
-                dt_sub *= dt_cut_factor;
+                dt_sub *= integrator_rp::dt_cut_factor;
                 continue;
             }
 
             // Compute the maximum diff between the initial predictor and the final corrector.
 
-            Real max_diff = 0.0_rt;
+            amrex::Real max_diff = 0.0_rt;
 
             for (int n = 1; n <= NumSpec; ++n)
             {
-                Real dX = std::abs(state.xn[n-1] - predictor_state.xn[n-1]);
-                max_diff = amrex::max(max_diff, dX / state.xn[n-1]);
+                amrex::Real dX = std::abs(state.xn[n-1] - predictor_state.xn[n-1]);
+                if (state_0.xn[n-1] >= integrator_rp::atol_spec) {
+                    max_diff = amrex::max(max_diff, dX / state.xn[n-1]);
+                }
             }
 
             // If the relative diff was smaller than the requested tolerance factor, we're done.
             // Otherwise, cut dt and try again.
 
-            if (max_diff <= predictor_corrector_tolerance) {
+            if (max_diff <= integrator_rp::predictor_corrector_tolerance) {
                 break;
             }
             else {
@@ -454,34 +367,51 @@ void actual_integrator (burn_t& state, Real dt)
                 // method; given the expense of our RHS it seems unlikely that this would make
                 // a performance difference, but it is a potential optimization.
 
-                Real sigma = max_diff / (predictor_corrector_tolerance / tolerance_safety_factor);
+                amrex::Real sigma = max_diff / (integrator_rp::predictor_corrector_tolerance / integrator_rp::tolerance_safety_factor);
                 dt_sub *= (1.0_rt / std::sqrt(sigma) + 0.005);
             }
         }
 
         // If we didn't get a converged timestep in the fixed number of iterations, the integration failed.
 
-        if (timestep_iter >= num_timestep_iters) {
+        if (timestep_iter >= integrator_rp::num_timestep_iters) {
             state.success = false;
+            state.error_code = IERR_CORRECTOR_CONVERGENCE;
             break;
         }
 
         t += dt_sub;
+        state.time = t;
+
         ++num_timesteps;
+        state.n_step = num_timesteps;
     }
 
-    if (num_timesteps >= ode_max_steps) {
+    if (num_timesteps >= integrator_rp::ode_max_steps) {
         state.success = false;
+        state.error_code = IERR_TOO_MANY_STEPS;
     }
 
     state.time = t;
+    state.n_step = num_timesteps;
+
+    // Subtract off the initial energy (the application codes expect
+    // to get back only the generated energy during the burn).
+
+    if (integrator_rp::subtract_internal_energy) {
+        state.e -= e_in;
+    }
 
 #ifndef AMREX_USE_GPU
-    if (burner_verbose) {
+    if (integrator_rp::burner_verbose) {
         // Print out some integration statistics, if desired.
         std::cout <<  "integration summary: " << std::endl;
         std::cout <<  "dens: " << state.rho << " temp: " << state.T << std::endl;
-        std::cout <<  "energy released: " << state.e - e_in << std::endl;
+        if (integrator_rp::subtract_internal_energy) {
+            std::cout <<  "energy released: " << state.e << std::endl;
+        } else {
+            std::cout <<  "energy released: " << state.e - e_in << std::endl;
+        }
         std::cout <<  "number of steps taken: " << num_timesteps << std::endl;
         std::cout <<  "number of f evaluations: " << state.n_rhs << std::endl;
     }
@@ -506,7 +436,11 @@ void actual_integrator (burn_t& state, Real dt)
             std::cout << state.xn[n] << " ";
         }
         std::cout << std::endl;
-        std::cout << "energy generated = " << state.e - e_in << std::endl;
+        if (integrator_rp::subtract_internal_energy) {
+            std::cout << "energy generated = " << state.e << std::endl;
+        } else {
+            std::cout << "energy generated = " << state.e - e_in << std::endl;
+        }
 #endif
     }
 }

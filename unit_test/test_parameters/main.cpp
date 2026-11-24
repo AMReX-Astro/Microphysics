@@ -10,11 +10,9 @@
 using namespace amrex;
 
 #include <test_parameters.H>
-#include <test_parameters_F.H>
 #include <AMReX_buildInfo.H>
 
 #include <extern_parameters.H>
-#include <unit_test_F.H>
 #include <unit_test.H>
 
 int main (int argc, char* argv[])
@@ -37,26 +35,13 @@ void main_main ()
 
     ParmParse ppa("amr");
 
-    std::string probin_file = "probin";
-
-    ppa.query("probin_file", probin_file);
-
-    const int probin_file_length = probin_file.length();
-    Vector<int> probin_file_name(probin_file_length);
-
-    for (int i = 0; i < probin_file_length; i++)
-      probin_file_name[i] = probin_file[i];
-
-    // initialize the F90 parameters
-    init_unit_test(probin_file_name.dataPtr(), &probin_file_length);
-
-    do_f90_parameters();
+    auto params = init_unit_test();
 
     std::cout << "in C++" << std::endl;
 
-    std::cout << "  eos_input_is_constant = " << eos_input_is_constant << std::endl;
-    std::cout << "  test_string = " << test_string << std::endl;
-    std::cout << "  dens_min = " << dens_min << std::endl;
-    std::cout << "  nonaka_file = " << nonaka_file << std::endl;
+    std::cout << "  eos_input_is_constant = " << eos_rp::eos_input_is_constant << " " << params.eos.eos_input_is_constant << std::endl;
+    std::cout << "  test_string = " << unit_test_rp::test_string << " " << params.unit_test.test_string << std::endl;
+    std::cout << "  dens_min = " << unit_test_rp::dens_min << " " << params.unit_test.dens_min << std::endl;
+    std::cout << "  nonaka_file = " << integrator_rp::nonaka_file << " " << params.integrator.nonaka_file << std::endl;
 
 }

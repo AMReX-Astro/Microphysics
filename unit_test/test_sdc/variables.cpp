@@ -19,10 +19,14 @@ plot_t init_variables() {
   p.irodot = p.next_index(NumSpec);
   p.irho_Hnuc = p.next_index(1);
 
+#ifdef NSE
+  p.inse = p.next_index(1);
+#endif
+
   return p;
 }
 
-void get_varnames(const plot_t p, amrex::Vector<std::string>& names) {
+void get_varnames(const plot_t& p, amrex::Vector<std::string>& names) {
 
   names.resize(p.n_plot_comps);
 
@@ -35,10 +39,15 @@ void get_varnames(const plot_t p, amrex::Vector<std::string>& names) {
   }
   names[p.irho_Hnuc] = "rho_Hnuc";
 
-#if NAUX_NET > 0  
+#if NAUX_NET > 0
   for (int n = 0; n < NumAux; n++) {
       names[p.iaux + n] = aux_names_cxx[n];
       names[p.iaux_old + n] = "old_" + aux_names_cxx[n];
   }
 #endif
+
+#ifdef NSE
+  names[p.inse] = "in_nse";
+#endif
+
 }

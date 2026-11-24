@@ -1,11 +1,8 @@
 CEXE_sources += main.cpp
 
-FEXE_headers += test_cond_F.H
 CEXE_headers += test_cond.H
 
 CEXE_sources += variables.cpp
 CEXE_sources += conductivity_util.cpp
 CEXE_headers += variables.H
 
-F90EXE_sources += variables_F.F90
-F90EXE_sources += conductivity_util_F.F90
