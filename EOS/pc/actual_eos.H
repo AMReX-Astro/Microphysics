@@ -681,7 +681,7 @@ void blin9c (Real TEMP, Real CHI,
         Real FJ1DX = (2.0_rt * R * R * RDX - FJ0DX) / TEMP;
         Real FJ1DT = (2.0_rt * R * R * RDT - FJ0DT - FJ1) / TEMP;
         Real FJ1DXX = (4.0_rt * R * RDX * RDX + 2.0_rt * R * R * RDXX - FJ0DXX) / TEMP;
-        Real FJ1DTT = (4.0_rt * R * RDT * RDX + 2.0_rt * R * R * RDTT - FJ0DTT - 2.0_rt * FJ1DT) / TEMP;
+        Real FJ1DTT = (4.0_rt * R * RDT * RDT + 2.0_rt * R * R * RDTT - FJ0DTT - 2.0_rt * FJ1DT) / TEMP;
         Real FJ1DXT = (4.0_rt * R * RDX * RDT + 2.0_rt * R * R * RDXT - FJ0DXT - FJ1DX) / TEMP;
 
         W1 = FJ1 + PI26 * AM[1];
@@ -1109,7 +1109,7 @@ void subfermj (Real CMU1,
     CJ01 = X0; // J_{1/2}^1
     CJ11 = CJ01 * CMU1; // J_{3/2}^1
     CJ21 = CJ11 * CMU1; // J_{5/2}^1
-    Real RCJ02 = CMU / X0; // J_{1/2}^2
+    CJ02 = CMU / X0; // J_{1/2}^2
     CJ12 = CMU1 / X0 * (3.0_rt + 2.0_rt * CMU1); // J_{3/2}^2
     CJ22 = CMU1 * CMU1 / X0 * (5.0_rt + 3.0_rt * CMU1); // J_{5/2}^2
     CJ03 = -1.0_rt / X3; // J_{1/2}^3
@@ -1192,7 +1192,7 @@ void sommerf (Real TEMR, Real CHI,
                    PIT26 * (-0.25_rt * CJ02 + CMU1 * CJ03 + CMU1 * CMU1 * CJ04));
     W1DTT = CN2 / TEMR * (8.75_rt * CJ10 - 5.0_rt * CMU1 * CJ11 + CMU1 * CMU1 * CJ12 +
                           PIT26 * (0.75_rt * CJ12 - CMU1 * CJ13 + CMU1 * CMU1 * CJ14));
-    W2DTT = CN2 / TEMR * TEMR * (15.75_rt * CJ20 - 7.0_rt * CMU1 * CJ21 + CMU1 * CMU1 * CJ22 +
+    W2DTT = CN2 / (TEMR * TEMR) * (15.75_rt * CJ20 - 7.0_rt * CMU1 * CJ21 + CMU1 * CMU1 * CJ22 +
                                  PIT26 * (3.75_rt * CJ22 - 3.0_rt * CMU1 * CJ23 + CMU1 * CMU1 * CJ24));
     W0XXX = CN0 * TEMR * TEMR * TEMR * (CJ03 + PIT26 * CJ05);
     W0XXT = CN0 * TEMR * (CMU1 * CJ03 + 0.5_rt * CJ02 + PIT26 * (CMU1 * CJ05 + 2.5_rt * CJ04));
@@ -1269,7 +1269,7 @@ void elect11b(Real TEMP, Real CHI,
     Real dndH = TPI * (W0DX + TEMR * W1DX); // (d n_e/d\chi)_T
     Real dndT = TPI * (1.5_rt * W0 / TEMR + 2.5 * W1 + W0DT + TEMR * W1DT); // (d n_e/dT)_\chi
     Real dndHH = TPI * (W0DXX + TEMR * W1DXX); // (d^2 n_e/d\chi)_T
-    Real dndTT = TPI * (0.75_rt * W0 / TEMR * TEMR + 3. * W0DT / TEMR + W0DTT +
+    Real dndTT = TPI * (0.75_rt * W0 / (TEMR * TEMR) + 3. * W0DT / TEMR + W0DTT +
                         3.75 * W1 / TEMR + 5. * W1DT + TEMR * W1DTT);
     Real dndHT = TPI * (1.5_rt * W0DX / TEMR + W0DXT + 2.5 * W1DX + TEMR * W1DXT);
 
@@ -1341,7 +1341,7 @@ void elect11a(Real TEMP, Real CHI,
     // derivatives over chi at constant T and second derivatives:
     Real dndH = TPI * (W0DX + TEMR * W1DX); // (d n_e/d\chi)_T
     Real dndHH = TPI * (W0DXX + TEMR * W1DXX); // (d^2 n_e/d\chi)_T
-    Real dndTT = TPI * (0.75_rt * W0 / TEMR * TEMR + 3.0_rt * W0DT / TEMR + W0DTT +
+    Real dndTT = TPI * (0.75_rt * W0 / (TEMR * TEMR) + 3.0_rt * W0DT / TEMR + W0DTT +
                         3.75_rt * W1 / TEMR + 5.0_rt * W1DT + TEMR * W1DTT);
     Real dndHT = TPI * (1.5_rt * W0DX / TEMR + W0DXT + 2.5_rt * W1DX + TEMR * W1DXT);
 
@@ -2220,7 +2220,7 @@ void melange9 (eos_t& state)
     //     choice based on comparison of total (non - OCP) free energies can be
     //     sometimes dangerous because of the fit uncertainties ("Local field
     //     correction" in solid and quantum effects in liquid are unknown)].
-    // Input: AY  -  their partial number densities,
+    // Input: state.xn  -  species mass fractions,
     //        AZion and ACMI  -  their charge and mass numbers,
     //        RHO  -  total mass density [g / cc]
     //        TEMP  -  temperature
@@ -2266,24 +2266,36 @@ void melange9 (eos_t& state)
         exit(1);
     }
 
+    // MELANGE uses ion number fractions, while state.xn contains mass fractions.
+    // x_i = (X_i / A_i) / sum_j(X_j / A_j).
+    amrex::Real number_fractions[NumSpec];
+    amrex::Real sum_molar = 0.0_rt;
+    for (int i = 0; i < NumSpec; ++i) {
+        number_fractions[i] = state.xn[i] / aion[i];
+        sum_molar += number_fractions[i];
+    }
+    for (int i = 0; i < NumSpec; ++i) {
+        number_fractions[i] /= sum_molar;
+    }
+
     // Calculation of average values:
-    Real zbar = 0.0_rt; // Note that this is not the same as state.zbar
+    Real zbar = 0.0_rt;
     Real z2bar = 0.0_rt;
     Real Z52 = 0.0_rt;
     Real Z53 = 0.0_rt;
     Real Z73 = 0.0_rt;
     Real Z321 = 0.0_rt; // corr.26.12.09
-    Real abar = 0.0_rt; // Note that this is not the same as state.abar
+    Real abar = 0.0_rt;
 
     for (int i = 0; i < NumSpec; ++i) {
-        zbar = zbar + state.xn[i] * zion[i];
-        z2bar = z2bar + state.xn[i] * zion[i] * zion[i];
+        zbar = zbar + number_fractions[i] * zion[i];
+        z2bar = z2bar + number_fractions[i] * zion[i] * zion[i];
         Real Z13 = std::pow(zion[i], C13);
-        Z53 = Z53 + state.xn[i] * std::pow(Z13, 5);
-        Z73 = Z73 + state.xn[i] * std::pow(Z13, 7);
-        Z52 = Z52 + state.xn[i] * std::pow(zion[i], 2.5_rt);
-        Z321 = Z321 + state.xn[i] * zion[i] * std::pow(zion[i] + 1.0_rt, 1.5_rt); // 26.12.09
-        abar = abar + state.xn[i] * aion[i];
+        Z53 = Z53 + number_fractions[i] * std::pow(Z13, 5);
+        Z73 = Z73 + number_fractions[i] * std::pow(Z13, 7);
+        Z52 = Z52 + number_fractions[i] * std::pow(zion[i], 2.5_rt);
+        Z321 = Z321 + number_fractions[i] * zion[i] * std::pow(zion[i] + 1.0_rt, 1.5_rt); // 26.12.09
+        abar = abar + number_fractions[i] * aion[i];
     }
 
     // (0) Photons:
@@ -2335,13 +2347,13 @@ void melange9 (eos_t& state)
 
     // Add Coulomb + xc nonideal contributions, and ideal free energy:
     for (int i = 0; i < NumSpec; ++i) {
-        // Only include species with non-negligible mass number
+        // Only include species with non-negligible number fraction
         // and Z >= 1 (to exclude e.g. free neutron species).
-        if (state.xn[i] >= TINY && zion[i] >= 1.0_rt) {
+        if (number_fractions[i] >= TINY && zion[i] >= 1.0_rt) {
             Real Zion = zion[i];
             Real CMI = aion[i];
             Real GAMI = std::pow(Zion, C53) * GAME; // Gamma_i for given ion species
-            Real DNI = DENSI * state.xn[i]; // number density of ions of given type
+            Real DNI = DENSI * number_fractions[i]; // number density of ions of given type
             Real PRI = DNI * TEMP; //  =  ideal - ions partial pressure (normalization)
 
             Real FC1, UC1, PC1, SC1, CV1, PDT1, PDR1;
@@ -2353,7 +2365,7 @@ void melange9 (eos_t& state)
 
             // First - order TD functions:
             UINT = UINT + UC2 * PRI; // internal energy density (e + i + Coul.)
-            Stot = Stot + DNI * (SC2 - std::log(state.xn[i])); //entropy per unit volume[a.u.]
+            Stot = Stot + DNI * (SC2 - std::log(number_fractions[i])); //entropy per unit volume[a.u.]
             PRESS = PRESS + PC2 * PRI; // pressure (e + i + Coul.) [a.u.]
 
             // Second - order functions (they take into account compositional changes):
@@ -2389,7 +2401,7 @@ void melange9 (eos_t& state)
         for (int i = 0; i < NumSpec; ++i) {
             for (int j = i+1; j < NumSpec; ++j) {
                 Real RZ = zion[j] / zion[i];
-                Real X2 = state.xn[j] / (state.xn[i] + state.xn[j]);
+                Real X2 = number_fractions[j] / (number_fractions[i] + number_fractions[j]);
                 Real X1 = std::max(0.0, 1.0_rt - X2);
 
                 if (X1 < TINY) {
@@ -2403,7 +2415,7 @@ void melange9 (eos_t& state)
                 Real GAMI = std::pow(zion[i], C53) * GAME; // Gamma_i corrected 14.05.13
                 Real DeltaG = 0.012_rt * (1.0_rt - 1.0_rt / (RZ * RZ)) * (X1 + X2 * std::pow(RZ, C53));
                 DeltaG = DeltaG * X / X2 * std::max(0.0_rt, 1.0_rt - X) / X1;
-                FMIX = FMIX + state.xn[i] * state.xn[j] * GAMI * DeltaG;
+                FMIX = FMIX + number_fractions[i] * number_fractions[j] * GAMI * DeltaG;
             }
         }
 
