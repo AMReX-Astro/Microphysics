@@ -186,7 +186,9 @@ the sub-directory may have a different name).</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">network_properties.H</span></code> : this defines the properties of the composition that
 make up the network (and therefore, used by the equation of state and other
-physics).</p></li>
+physics).  It is regenerated when the network input, generation scripts,
+header template, or preprocessor defines change.  A companion
+<code class="docutils literal notranslate"><span class="pre">network_properties.options</span></code> file records the selected input and defines.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">extern_parameters.H</span></code> : this defines all of the runtime parameters that are
 part of the build.  At the moment, they are treated as global variables
 (using managed memory on GPUs), but a <code class="docutils literal notranslate"><span class="pre">struct</span></code> that carries their values
@@ -305,8 +307,6 @@ should always do <code class="docutils literal notranslate"><span class="pre">ma
 </div>
 <p>Some other targets include:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">nettables</span></code> : create the symlinks for any weak reaction rate tables that are part of the
-network.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">table</span></code> : create a symlink for the <code class="docutils literal notranslate"><span class="pre">helm_table.dat</span></code> EOS table if the <code class="docutils literal notranslate"><span class="pre">helmholtz</span></code> EOS is used.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">nsetable</span></code> : create a symlink for the NSE table if <code class="docutils literal notranslate"><span class="pre">USE_NSE_TABLE=TRUE</span></code> is set.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">build_status</span></code> : report the current git versions of Microphysics and AMReX</p></li>
