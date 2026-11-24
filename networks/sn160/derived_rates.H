@@ -1,0 +1,29 @@
+#ifndef DERIVED_RATES_H
+#define DERIVED_RATES_H
+
+#include <tfactors.H>
+#include <actual_network.H>
+#include <partition_functions.H>
+#include <temperature_table_rates.H>
+#include <interp_tools.H>
+
+namespace derived_rates {
+
+    using namespace Rates;
+
+
+    template <typename T>
+    AMREX_GPU_DEVICE AMREX_INLINE
+    void
+    fill_rates([[maybe_unused]] const tf_t& tfactors,
+               [[maybe_unused]] T& rate_eval)
+    {
+
+        [[maybe_unused]] amrex::Real rate;
+        [[maybe_unused]] amrex::Real drate_dT;
+
+
+    }
+
+}
+#endif

@@ -2,12 +2,13 @@
 #define ACTUAL_EOS_H
 
 #include <string>
+#include <string_view>
 #include <extern_parameters.H>
 #include <fundamental_constants.H>
 #include <eos_data.H>
 #include <cmath>
 
-const std::string eos_name = "tillotson";
+constexpr std::string_view eos_name = "tillotson";
 
 inline
 void actual_eos_init() {
@@ -125,7 +126,7 @@ void actual_eos (I input, T& state)
 
     // Pressure and pressure derivatives
 
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         state.p = pres;
         state.dpdr_e = dpdr_e;
         state.dpde = dpde;
@@ -140,13 +141,13 @@ void actual_eos (I input, T& state)
 
     // Sound speed
 
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         state.cs = std::sqrt(state.dpdr_e);
     }
 
     // Compute gamma from sound speed
 
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         state.gam1 = state.cs * state.cs * state.rho / state.p;
     }
 
@@ -154,7 +155,7 @@ void actual_eos (I input, T& state)
 
     state.cv = eos_rp::eos_c_v;
 
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         state.cp = state.gam1 * eos_rp::eos_c_v;
     }
 
@@ -168,13 +169,13 @@ void actual_eos (I input, T& state)
 
     // Usual formula for enthalpy
 
-    if constexpr (has_enthalpy<T>::value) {
+    if constexpr (has_enthalpy<T>) {
         state.h = state.e + state.p / state.rho;
     }
 
     // Arbitrary value for entropy
 
-    if constexpr (has_entropy<T>::value) {
+    if constexpr (has_entropy<T>) {
         state.s = 1.0_rt;
     }
 }

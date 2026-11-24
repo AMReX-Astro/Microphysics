@@ -1,3 +1,5 @@
+.. _sec:unit_tests:
+
 **********************
 Overview of Unit Tests
 **********************
@@ -115,12 +117,12 @@ by options in the input file.
 One-zone tests
 ==============
 
-.. index:: burn_cell, burn_cell_primordial_chem, burn_cell_sdc, eos_cell, jac_cell, nse_table_cell, test_ase, test_part_func
+.. index:: burn_cell, burn_cell_primordial_chem, burn_cell_sdc, eos_cell, jac_cell, nse_table_cell, nse_net_cell, part_func_cell, interp_cell
 
 * ``burn_cell`` :
 
   given a $\rho$, $T$, and $X_k$, integrate a reaction network through a specified time
-  and output the new state.
+  and output the new state.  See :ref:`sec:burn_cell` for more information.
 
 * ``burn_cell_primordial_chem`` :
 
@@ -129,39 +131,50 @@ One-zone tests
 * ``burn_cell_sdc`` :
 
   similar to ``burn_cell`` except this uses the SDC integration code paths.
+  See :ref:`sec:burn_cell_sdc` for more information.
 
 * ``eos_cell`` :
 
   given a $\rho$, $T$, and $X_k$, call the equation of state and print out
-  the thermodynamic information.
+  the thermodynamic information.  See :ref:`sec:eos_cell` for more information.
+
+* ``interp_cell`` :
+
+  This tests the cubic interpolant used in pynucastro networks for interpolating
+  a rate that is given as pairs of $(T, N_A \langle \sigma v \rangle)$.
 
 * ``jac_cell`` :
 
   for a single thermodynamic state, compute the analytic Jacobian
   (using the functions provided by the network) and a numerical
   finite-difference approximation to the Jacobian and output them,
-  element-by-element, to the display.
+  element-by-element, to the display.  See :ref:`sec:jac_cell` for more information.
 
 * ``nse_table_cell`` :
 
   given a $\rho$, $T$, and $Y_e$, evaluate the NSE state via table interpolation
   and print it out.
 
-* ``test_ase`` :
+* ``nse_net_cell`` :
 
   for the self-consistent NSE, take a $\rho$, $T$, and $Y_e$, and solve for the NSE
   state.  Then check the NSE condition to see if we are actually satisfying the NSE
   criteria for the network.
 
-* ``test_part_func``
+* ``part_func_cell``
 
   exercise the partition function interpolation for a few select nuclei.
 
+* ``table_rate_cell``
+
+  evaluate a tabular weak rate from a pynucastro network.  This is meant to be
+  used for a direct comparison to pynucastro to make sure the interpolation is
+  working.
 
 Infrastructure tests
 ====================
 
-.. index:: test_linear_algebra, test_nse_interp, test_parameters, test_sdc_vode_rhs
+.. index:: test_linear_algebra, nse_interp_check, test_parameters, test_sdc_vode_rhs
 
 * ``test_linear_algebra`` :
 
@@ -169,9 +182,13 @@ Infrastructure tests
   to get $b = Ax$, and then call the linear algebra routines to see if we
   we recover $x$ from $b$.
 
-* ``test_nse_interp`` :
+* ``nse_interp_check`` :
 
-  run various tests of the NSE interpolation routines.
+  run various tests of the tabular NSE interpolation routines.
+
+* ``screen_derivs_check`` :
+
+  test the autodiff temperature and composition interfaces to the screening routines.
 
 * ``test_parameters`` :
 

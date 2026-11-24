@@ -22,6 +22,10 @@ constexpr amrex::Real HMIN = 0.0_rt;
 constexpr amrex::Real vode_increase_change_factor = 4.0_rt;
 constexpr amrex::Real vode_decrease_change_factor = 0.25_rt;
 
+// The interpolation back to tout is not monotonic, so the final state
+// allows slightly more negativity than internal integration nodes.
+constexpr amrex::Real vode_final_state_species_failure_tolerance_factor = 1.5_rt;
+
 // For the backward differentiation formula (BDF) integration
 // the maximum order should be no greater than 5.
 constexpr int VODE_MAXORD = 5;
@@ -143,11 +147,11 @@ struct dvode_t
     amrex::Array1D<amrex::Real, 1, int_neqs> y;
 
     // Jacobian
-    ArrayUtil::MathArray2D<1, int_neqs, 1, int_neqs> jac;
+    ArrayUtil::MathArray2D<jac_t, 1, int_neqs, 1, int_neqs> jac;
 
 #ifdef ALLOW_JACOBIAN_CACHING
     // Saved Jacobian
-    ArrayUtil::MathArray2D<1, int_neqs, 1, int_neqs> jac_save;
+    ArrayUtil::MathArray2D<jac_t, 1, int_neqs, 1, int_neqs> jac_save;
 #endif
 
     // the Nordsieck history array

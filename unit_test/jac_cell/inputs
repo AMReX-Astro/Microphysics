@@ -1,0 +1,7 @@
+unit_test.small_temp = 1.e5
+unit_test.small_dens = 1.e5
+
+unit_test.density = 1.e6
+unit_test.temperature = 3.e9
+
+unit_test.uniform_xn = 1

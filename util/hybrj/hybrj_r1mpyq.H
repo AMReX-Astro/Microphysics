@@ -16,9 +16,9 @@
 // changes:
 // * Split into 2 versions, one takes an nxn matrix and one takes a vector of length n
 
-template<int neqs>
+template<int neqs, typename MatrixType>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void r1mpyq(amrex::Array2D<amrex::Real, 1, neqs, 1, neqs>& a,
+void r1mpyq(MatrixType& a,
             amrex::Array1D<amrex::Real, 1, neqs>& v,
             amrex::Array1D<amrex::Real, 1, neqs>& w) {
 

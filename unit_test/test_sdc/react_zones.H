@@ -9,9 +9,7 @@
 #include <burner.H>
 #include <extern_parameters.H>
 
-using namespace unit_test_rp;
-
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+AMREX_GPU_DEVICE AMREX_FORCE_INLINE
 bool do_react (const plot_t& p, const int i, const int j, const int k,
                Array4<amrex::Real> const& state, Array4<int> const& n_rhs)
 {
@@ -33,6 +31,13 @@ bool do_react (const plot_t& p, const int i, const int j, const int k,
 #ifdef AUX_THERMO
     set_aux_comp_from_X(eos_state);
 #endif
+#ifdef NSE_NET
+    // if we are doing self-consistent NSE, then set Ye manually
+    eos_state.y_e = 0.0_rt;
+    for (int n = 0; n < NumSpec; ++n) {
+        eos_state.y_e = eos_state.xn[n] * zion[n] * aion_inv[n];
+    }
+#endif
 
     eos(eos_input_rt, eos_state);
 
@@ -50,6 +55,12 @@ bool do_react (const plot_t& p, const int i, const int j, const int k,
     for (int n = 0; n < NumAux; n++) {
         burn_state.y[SFX+n] = burn_state.rho * eos_state.aux[n];
     }
+#endif
+#ifdef NSE_NET
+    burn_state.y_e = eos_state.y_e;
+
+    burn_state.mu_p = unit_test_rp::mu_p;
+    burn_state.mu_n = unit_test_rp::mu_n;
 #endif
 
     burn_state.y[SRHO] = state(i, j, k, p.irho);
@@ -78,8 +89,8 @@ bool do_react (const plot_t& p, const int i, const int j, const int k,
 
     // zero out the advective terms
 
-    for (int n = 0; n < SVAR; n++) {
-        burn_state.ydot_a[n] = 0.0;
+    for (auto& e : burn_state.ydot_a) {
+        e = 0.0;
     }
 
 
@@ -97,12 +108,12 @@ bool do_react (const plot_t& p, const int i, const int j, const int k,
     burn_state.sdc_iter = 1;
     burn_state.num_sdc_iters = 1;
 
-    burner(burn_state, tmax);
+    burner(burn_state, unit_test_rp::tmax);
 
     for (int n = 0; n < NumSpec; ++n) {
         state(i, j, k, p.ispec + n) = burn_state.y[SFS+n]/burn_state.rho;
         state(i, j, k, p.irodot + n) = (burn_state.y[SFS+n] -
-                                        state(i, j, k, p.irho) * state(i, j, k, p.ispec_old + n)) / tmax;
+                                        state(i, j, k, p.irho) * state(i, j, k, p.ispec_old + n)) / unit_test_rp::tmax;
     }
 
 #if NAUX_NET > 0
@@ -111,9 +122,18 @@ bool do_react (const plot_t& p, const int i, const int j, const int k,
     }
 #endif
 
-    state(i, j, k, p.irho_Hnuc) = (burn_state.y[SEINT] - rhoe_old) / tmax;
+#ifdef NSE
+    state(i, j, k, p.inse) = burn_state.nse;
+#endif
+
+    state(i, j, k, p.irho_Hnuc) = (burn_state.y[SEINT] - rhoe_old) / unit_test_rp::tmax;
 
     n_rhs(i, j, k, 0) = burn_state.n_rhs;
+#ifdef NSE
+    n_rhs(i, j, k, 1) = static_cast<int>(burn_state.nse);
+#else
+    n_rhs(i, j, k, 1) = 0;
+#endif
 
     return burn_state.success;
 

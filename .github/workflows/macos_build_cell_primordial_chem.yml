@@ -3,19 +3,17 @@ name: macos_burn_cell_primordial_chem
 on: [pull_request]
 jobs:
   burn_cell:
-    runs-on: macos-13
+    runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v7
 
       - name: Install dependencies
         run: |
-          brew install cmake openmpi python3 || true
+          brew install openmpi python3
 
       - name: Compile and run
         run: |
           mkdir build && cd build
           cmake .. -DBUILD_UNIT_TEST_PC=true -DBUILD_AMReX=true
           make -j 4
-          ctest --output-on-failure
+          ctest --output-on-failure --no-tests=error

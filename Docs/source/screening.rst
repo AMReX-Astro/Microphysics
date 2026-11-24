@@ -1,3 +1,5 @@
+.. _sec:screening:
+
 ***************************
 Screening of Reaction Rates
 ***************************
@@ -49,7 +51,6 @@ For example,
    make SCREEN_METHOD=screen5
 
 Any of the available screening methods can be used with any reaction network.
-
 The options are:
 
 * ``screen5`` :
@@ -60,7 +61,7 @@ The options are:
   :math:`\Gamma < 0.3`, it uses screening described in
   :cite:`graboske:1973`. In the strong screening regime,
   :math:`\Gamma > 0.8`, it uses screening described in
-  :cite:`jancovici:1977`, :cite:`alastuey:1978`, :cite:`itoh:1979`.
+  :cite:`jancovici:1977, alastuey:1978, itoh:1979`.
   For the intermediate screening regime, :math:`0.3 < \Gamma < 0.8`,
   a weighted blending between the weak and strong screening are used.
   The overall procedure is described in :cite:`Wallace:1982`.
@@ -84,15 +85,39 @@ The options are:
   This includes the portion in the appendix that blends in the weak
   screening limit.
 
+.. index:: screening.enable_chabrier1998_quantum_corr
+
 * ``chabrier1998`` :
 
-  This implements the screening of :cite:`Chabrier_1998` as well as
-  the quantum corrections for strong screening according to screen5,
-  which is suggested in the appendix of :cite:`Calder_2007`.
-  This screening is compatible with NSE calculations unlike ``screen5``,
-  ``chugunov2007``, and ``chugunov2009``. This screening is valid in the
-  weak screening regime, :math:`\Gamma < 0.1`, and strong screening regime,
-  :math:`1 \lesssim \Gamma \lesssim 160`.
+  This implements the screening of :cite:`Chabrier_1998`, with
+  optional quantum corrections for strong screening according to
+  screen5 (as suggested in the appendix of :cite:`Calder_2007`).  This
+  screening is valid in the weak screening regime, :math:`\Gamma <
+  0.1`, and strong screening regime, :math:`1 \lesssim \Gamma \lesssim
+  160`.
+
+ .. note::
+
+     With quantum corrections disabled
+     (``screening.enable_chabrier1998_quantum_corr=0``, the default),
+     this screening is compatible with NSE calculations unlike
+     ``screen5``, ``chugunov2007``, and ``chugunov2009``.
+
+.. index:: screening.enable_debye_huckel_skip, screening.debye_huckel_skip_threshold
+
+* ``debye_huckel`` :
+
+  This is just the Debye-Hückel weak-screening limit from
+  :cite:`chugunov:2009`.
+
+  While it can be used on its own (by building with
+  ``SCREEN_METHOD=debye_huckel``, it is really meant to be used as a
+  test to determine whether a more extensive screening approximation
+  should be used.  By setting ``screening.enable_debye_huckel_skip``,
+  we first compute this weak-screening approximation and then, if it
+  is larger than ``screening.debye_huckel_skip_threshold``, the full
+  screening factor is computed (using the method specified via
+  ``SCREEN_METHOD``).
 
 * ``null`` :
 
@@ -110,3 +135,92 @@ Runtime Options
   default since ``chabrier1998`` is often used along with
   ``USE_NSE_NET=TRUE``, and the NSE solver doesn't include quantum
   corrections.
+
+
+Screening Interface
+-------------------
+
+Before we call the screening routine, there are two data types we need
+to initialize.  The first is the ``screen_factors_t``---this is unique
+to the pair of nuclei that are considering and contains all of the
+common factors involving the charges, $Z_1$ and $Z_2$ of the nuclei.
+This is ``constexpr``, so the point is that we do this hard work at
+compile time.  An example is:
+
+.. code:: c++
+
+   constexpr auto pair = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 6.0_rt, 12.0_rt);
+
+This sets up the ``screen_factor_t`` for $\isotm{He}{4} + \isotm{C}{12}$.
+
+The next is the ``plasma_state_t``---this describes the plasma as a
+whole, and is independent of the screening pair.  ``plasma_state_t``
+is templated in a fashion that determines which derivatives will be
+returned by the screening functions.  Usually we want the screening
+factor and its temperature derivative, in which case we would do:
+
+.. code:: c++
+
+   autodiff::dual tt = temp;
+   autodiff::seed(tt);
+   plasma_state_t<autodiff::dual> plasma_state;
+   fill_plasma_state(plasma_state, tt, rho, y);
+
+This uses the C++ autodiff machinery described in :ref:`sec:autodiff`.
+
+We can then call the screening routine as:
+
+.. code:: c++
+
+   actual_log_screen(plasma_state, pair, h, dh_dT);
+
+
+Composition Derivatives
+-----------------------
+
+If we want to get the composition derivatives of the screening factor,
+then we create our plasma state as:
+``plasma_state_t<screening_dual_t>`` In this case,
+``fill_plasma_state`` seeds a three-component autodiff gradient in the
+order :math:`(T, M_1, M_2)`, where
+
+.. math::
+
+   M_1 = \sum_i Z_i Y_i, \qquad M_2 = \sum_i Z_i^2 Y_i.
+
+The sums include all plasma species.  Here, $M_1 = Y_e$, and $M_2$ is
+related to "z2bar", which is normally defined as :math:`\overline{Z^2}
+= \bar{A} \sum_i Z_i^2 Y_i`.  Density and the reacting pair's nuclear
+charges and masses are held fixed.  These two moments contain all
+composition dependence of the implemented screening methods; there is
+no independent dependence on :math:`\bar{A}`.
+
+For example::
+
+   plasma_state_t<screening_dual_t> pstate;
+   fill_plasma_state(pstate, temp, rho, Y);
+   amrex::Real h, dh_dT, dh_dM1, dh_dM2;
+   actual_log_screen(pstate, scn_fac, h, dh_dT, dh_dM1, dh_dM2);
+
+where ``h`` (defined at the top of this page) is the natural logarithm
+of the screening enhancement.  The same output arguments are available
+for ``actual_screen``, which returns the enhancement itself and its
+derivatives, including its output cap.  The plasma state can be reused
+for every screening pair.
+
+Recover the derivative with respect to an individual molar abundance via
+
+.. math::
+
+   \frac{\partial h}{\partial Y_j}
+   = Z_j \frac{\partial h}{\partial M_1}
+     + Z_j^2 \frac{\partial h}{\partial M_2}.
+
+For a screened rate :math:`\lambda=\lambda_0 e^h`, its screening
+contribution to the abundance derivative is
+:math:`\lambda\,\partial h/\partial Y_j`.
+
+.. note::
+
+   An alternate interface provides just the temperature derivative, by building
+   ``plasma_state_t<autodiff::dual>``.

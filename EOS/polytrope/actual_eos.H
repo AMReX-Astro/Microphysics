@@ -23,12 +23,13 @@
 //
 // This is assumed to be constant for the degenerate gases.
 
+#include <string_view>
 #include <AMReX.H>
 #include <extern_parameters.H>
 #include <eos_type.H>
 #include <actual_eos_data.H>
 
-const std::string eos_name = "polytrope";
+constexpr std::string_view eos_name = "polytrope";
 
 inline
 void actual_eos_init ()
@@ -126,22 +127,22 @@ void actual_eos (I input, T& state)
     amrex::Real temp = state.T;
 
     amrex::Real pres = 1.0_rt;
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         pres = state.p;
     }
 
     amrex::Real enth = 1.0_rt;
-    if constexpr (has_enthalpy<T>::value) {
+    if constexpr (has_enthalpy<T>) {
         enth = state.h;
     }
 
     amrex::Real eint = 1.0_rt;
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_energy<T>) {
         eint = state.e;
     }
 
     amrex::Real entr = 1.0_rt;
-    if constexpr (has_entropy<T>::value) {
+    if constexpr (has_entropy<T>) {
         entr = state.s;
     }
 
@@ -265,46 +266,46 @@ void actual_eos (I input, T& state)
 
     state.T   = temp;
     state.rho = dens;
-    if constexpr (has_enthalpy<T>::value) {
+    if constexpr (has_enthalpy<T>) {
         state.h   = enth;
     }
-    if constexpr (has_entropy<T>::value) {
+    if constexpr (has_entropy<T>) {
         state.s   = entr;
     }
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_energy<T>) {
         state.e   = eint;
     }
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         state.p   = pres;
     }
 
     // Compute the thermodynamic derivatives and specific heats
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         state.dpdT = 0.0_rt;
         state.dpdr = gamma_const * pres / dens;
     }
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_energy<T>) {
         state.dedT = 0.0_rt;
         state.dedr = pres / (dens * dens);
     }
-    if constexpr (has_entropy<T>::value) {
+    if constexpr (has_entropy<T>) {
         state.dsdT = 0.0_rt;
         state.dsdr = 0.0_rt;
     }
-    if constexpr (has_enthalpy<T>::value) {
+    if constexpr (has_enthalpy<T>) {
         state.dhdT = 0.0_rt;
         state.dhdr = state.dedr + gm1 * pres / (dens * dens);
     }
 
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_pressure<T>) {
         state.dpde = 0.0_rt;
         state.dpdr_e = gamma_const * pres / dens;
     }
 
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_energy<T>) {
         state.cv = state.dedT;
     }
-    if constexpr (has_pressure<T>::value && has_energy<T>::value) {
+    if constexpr (has_pressure<T> && has_energy<T>) {
         state.cp = gamma_const * state.cv;
 
         state.gam1 = gamma_const;
@@ -312,22 +313,22 @@ void actual_eos (I input, T& state)
 
     // Compute dpdX, dedX, dhdX.
 
-    if constexpr (has_dpdA<T>::value) {
+    if constexpr (has_dpdA<T>) {
         state.dpdA = - state.p / state.abar;
     }
-    if constexpr (has_dpdZ<T>::value) {
+    if constexpr (has_dpdZ<T>) {
         state.dpdZ =   state.p / (1.0_rt + state.zbar);
     }
 
-    if constexpr (has_dedA<T>::value) {
+    if constexpr (has_dedA<T>) {
         state.dedA = - state.e / state.abar;
     }
-    if constexpr (has_dedZ<T>::value) {
+    if constexpr (has_dedZ<T>) {
         state.dedZ =   state.e / (1.0_rt + state.zbar);
     }
 
     // sound speed
-    if constexpr (has_pressure<T>::value && has_energy<T>::value) {
+    if constexpr (has_pressure<T> && has_energy<T>) {
         state.cs = std::sqrt(gamma_const * pres / dens);
     }
 }

@@ -42,7 +42,7 @@ void main_main ()
     init_unit_test();
 
     // C++ EOS initialization (must be done after init_extern_parameters)
-    eos_init(small_temp, small_dens);
+    eos_init(unit_test_rp::small_temp, unit_test_rp::small_dens);
 
     // C++ Network, RHS, screening, rates initialization
     network_init();

@@ -8,14 +8,14 @@
 
 template <int num_eqs, bool allow_pivot>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void dgesl (RArray2D& a, IArray1D& pivot, RArray1D& b)
+void dgesl (const RArray2D& a, const IArray1D& pivot, RArray1D& b)
 {
 
-    int nm1 = num_eqs - 1;
+    constexpr int nm1 = num_eqs - 1;
 
     // solve a * x = b
     // first solve l * y = b
-    if (nm1 >= 1) {
+    if constexpr (nm1 >= 1) {
         for (int k = 1; k <= nm1; ++k) {
 
             amrex::Real t{};
@@ -30,6 +30,7 @@ void dgesl (RArray2D& a, IArray1D& pivot, RArray1D& b)
                 t = b(k);
             }
 
+            AMREX_UNROLL_LOOP(NET_LOOP_UNROLL_LEN)
             for (int j = k+1; j <= num_eqs; ++j) {
                 b(j) += t * a(j,k);
             }
@@ -39,9 +40,10 @@ void dgesl (RArray2D& a, IArray1D& pivot, RArray1D& b)
     // now solve u * x = y
     for (int kb = 1; kb <= num_eqs; ++kb) {
 
-        int k = num_eqs + 1 - kb;
+        const int k = num_eqs + 1 - kb;
         b(k) = b(k) / a(k,k);
         amrex::Real t = -b(k);
+        AMREX_UNROLL_LOOP(NET_LOOP_UNROLL_LEN)
         for (int j = 1; j <= k-1; ++j) {
             b(j) += t * a(j,k);
         }
@@ -64,11 +66,11 @@ void dgefa (RArray2D& a, IArray1D& pivot, int& info)
     // gaussian elimination with partial pivoting
 
     info = 0;
-    int nm1 = num_eqs - 1;
+    constexpr int nm1 = num_eqs - 1;
 
     amrex::Real t;
 
-    if (nm1 >= 1) {
+    if constexpr (nm1 >= 1) {
 
         for (int k = 1; k <= nm1; ++k) {
 
@@ -77,10 +79,12 @@ void dgefa (RArray2D& a, IArray1D& pivot, int& info)
 
             if constexpr (allow_pivot) {
                 amrex::Real dmax = std::abs(a(k,k));
+                AMREX_UNROLL_LOOP(NET_LOOP_UNROLL_LEN)
                 for (int i = k+1; i <= num_eqs; ++i) {
-                    if (std::abs(a(i,k)) > dmax) {
+                    amrex::Real ai = std::abs(a(i, k));
+                    if (ai > dmax) {
                         l = i;
-                        dmax = std::abs(a(i,k));
+                        dmax = ai;
                     }
                 }
 
@@ -101,6 +105,7 @@ void dgefa (RArray2D& a, IArray1D& pivot, int& info)
 
                 // compute multipliers
                 t = -1.0e0_rt / a(k,k);
+                AMREX_UNROLL_LOOP(NET_LOOP_UNROLL_LEN)
                 for (int j = k+1; j <= num_eqs; ++j) {
                     a(j,k) *= t;
                 }
@@ -116,6 +121,7 @@ void dgefa (RArray2D& a, IArray1D& pivot, int& info)
                         }
                     }
 
+                    AMREX_UNROLL_LOOP(NET_LOOP_UNROLL_LEN)
                     for (int i = k+1; i <= num_eqs; ++i) {
                         a(i,j) += t * a(i,k);
                     }

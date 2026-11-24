@@ -6,6 +6,7 @@
 #include <AMReX_REAL.H>
 #include <AMReX_Vector.H>
 #include <AMReX_Array.H>
+#include <string_view>
 
 using namespace amrex::literals;
 
@@ -21,7 +22,7 @@ using namespace network_rp;
 AMREX_INLINE
 void actual_network_init() {}
 
-const std::string network_name = "aprox13";
+constexpr std::string_view network_name = "aprox13";
 
 namespace network
 {
@@ -121,17 +122,6 @@ namespace network
         return m;
     }
 }
-
-#ifdef NSE_NET
-namespace NSE_INDEX
-{
-    // P_index is for photoionization proton
-    constexpr int P_index= -1;
-    constexpr int H1_index = -1;
-    constexpr int N_index = -1;
-    constexpr int He4_index = 0;
-}
-#endif
 
 namespace Rates {
     enum NetworkRates: std::uint8_t {

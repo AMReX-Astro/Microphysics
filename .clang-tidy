@@ -9,10 +9,9 @@ Checks: >
        -cppcoreguidelines-avoid-magic-numbers,
        -cppcoreguidelines-avoid-non-const-global-variables,
        -cppcoreguidelines-init-variables,
-       -cppcoreguidelines-interfaces-global-init,
        -cppcoreguidelines-macro-usage,
        -cppcoreguidelines-non-private-member-variables-in-classes,
-       -cppcoreguidelines-owning-memory,
+       -cppcoreguidelines-use-enum-class,
        -cppcoreguidelines-pro-*,
      misc-*,
        -misc-const-correctness,
@@ -22,6 +21,7 @@ Checks: >
        -misc-use-internal-linkage,
      modernize-*,
        -modernize-avoid-c-arrays,
+       -modernize-use-designated-initializers,
        -modernize-use-trailing-return-type,
      performance-*,
        -performance-avoid-endl,
@@ -39,8 +39,9 @@ Checks: >
        -readability-magic-numbers,
        -readability-math-missing-parentheses,
        -readability-named-parameter,
-       -readability-simplify-boolean-expr,
      mpi-*,
      openmp-*
 
 HeaderFilterRegex: '(/conductivity/|/constants/|/EOS/|/integration/|/interfaces/|/networks/|/neutrinos/|/nse_solver/|/opacity/|/rates/|/screening/|/util/|^\./|^./tmp_build_dir/microphysics_sources/*/).*\.H$'
+
+HeaderFileExtensions: ['', "H", 'h', 'hh', 'hpp', 'hxx']

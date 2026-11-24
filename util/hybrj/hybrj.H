@@ -11,24 +11,41 @@
 #include <hybrj_r1updt.H>
 #include <AMReX_GpuUtility.H>
 
-template<int neqs, typename T>
+template<int neqs, typename T, typename MatrixType>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void hybrj(hybrj_t<neqs>& hj,
-           const T& data) {
+void hybrj(hybrj_t<neqs, MatrixType>& hj,
+           const T& data,
+           void (*fcn)(amrex::Array1D<amrex::Real, 1, neqs>&,
+                       amrex::Array1D<amrex::Real, 1, neqs>&,
+                       const T&, int&),
+           void (*jcn)(amrex::Array1D<amrex::Real, 1, neqs>&,
+                       MatrixType&,
+                       const T&, int&)
+           ) {
 
     // the purpose of hybrj is to find a zero of a system of
     // n nonlinear functions in n variables by a modification
     // of the powell hybrid method. the user must provide a
     // subroutine which calculates the functions and the jacobian.
     //
-    // We require fcn and jcn to be defined in the other header file
-    // where we include this header.
-    //
     // fcn jcn are the names of the user-supplied subroutine which
     // calculates the functions and the jacobian.
     //
-    // void fcn(Array1D<Real, 1, neqs>& x, Array1D<Real, 1, neqs>& fvec, int& iflag)
-    // void jcn(Array1D<Real, 1, neqs>& x, Array2D<Real, 1, neqs, 1, neqs> fjac, int& iflag)
+    // void fcn(Array1D<Real, 1, neqs>& x,
+    //          Array1D<Real, 1, neqs>& fvec,
+    //          const T& data,
+    //          int& iflag)
+    //
+    // where x is the solution vector, fvec is the function we want
+    // to zero, data is an optional type that can be passed in, and
+    // flag is used for the status.
+    //
+    // void jcn(Array1D<Real, 1, neqs>& x,
+    //          Array2D<Real, 1, neqs, 1, neqs>& fjac,
+    //          const T& data,
+    //          int& iflag)
+    //
+    // where fjac is the Jacobian.
     //
     // the value of iflag should not be changed by fcn unless
     // the user wants to terminate execution of hybrj.
@@ -190,7 +207,7 @@ void hybrj(hybrj_t<neqs>& hj,
 
             bool invalid = false;
 
-            for (int i = 1; i < neqs; ++i) {
+            for (int i = 1; i <= neqs; ++i) {
               if ( amrex::isinf(hj.wa1(i)) || amrex::isnan(hj.wa1(i)) ){
                 invalid = true;
               }

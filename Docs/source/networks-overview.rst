@@ -114,7 +114,7 @@ There are two primary files within each network directory.
    state and (respectively) the time-derivatives and Jacobian
    elements to fill in.
 
-   .. note::
+   .. important::
 
       Some networks do not provide an analytic Jacobian and instead
       rely on the numerical difference-approximation to the Jacobian. In
@@ -130,5 +130,7 @@ These must be called upon initialization. These should be not called
 within OpenMP parallel regions, because in general they will modify
 global data.
 
-Note, depending on the network, some of these may do nothing, but
-these interfaces are all required for maximum flexibility.
+.. note::
+
+   Depending on the network, some of these may do nothing, but these
+   interfaces are all required for maximum flexibility.

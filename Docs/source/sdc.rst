@@ -44,6 +44,8 @@ is the reaction source term.
    are supported by the same integrators, and both of these options
    will set the ``SDC`` preprocessor flag.
 
+.. _sec:true_sdc:
+
 "True" SDC
 ----------
 
@@ -56,12 +58,10 @@ $k+1$ appears as:
 
 .. math::
 
-   \begin{align*}
     \Uc^{m+1,(k+1)} = \Uc^{m,(k+1)}
      &+ \delta t_m\left[\Advs{\Uc^{m,(k+1)}} - \Advs{\Uc^{m,(k)}}\right] \\
      &+ \delta t_m\left[\Rbs{\Uc^{m+1,(k+1)}} - \Rbs{\Uc^{m+1,(k)}}\right]\\
      &+ \int_{t^m}^{t^{m+1}}\Advs{\Uc^{(k)}} + \Rbs{\Uc^{(k)}}d\tau.
-   \end{align*}
 
 Solving this requires a nonlinear solve of:
 
@@ -74,17 +74,17 @@ define ${\bf C}$ for convenience as:
 
 .. math::
 
-   \begin{align}
    {\bf C} &= \left [ {\Advs{\Uc}}^{m,(k+1)} - {\Advs{\Uc}}^{m,(k)} \right ]
                   -  {\Rbs{\Uc}}^{{m+1},(k)}  \nonumber \\
-               &+ \frac{1}{\delta t_m} \int_{t^m}^{t^{m+1}} \left  ( {\Advs{\Uc}}^{(k)} + {\Rbs{\Uc}}^{(k)}\right ) d\tau
-   \end{align}
+           &+ \frac{1}{\delta t_m} \int_{t^m}^{t^{m+1}} \left  ( {\Advs{\Uc}}^{(k)} + {\Rbs{\Uc}}^{(k)}\right ) d\tau
 
 This can be cast as an ODE system as:
 
 .. math::
 
   \frac{d\Uc}{dt} \approx \frac{\Uc^{m+1} - \Uc^m}{\delta t_m} = \Rbs{\Uc} + {\bf C}
+
+.. _sec:simplified_sdc:
 
 Simplified SDC
 --------------
@@ -242,3 +242,8 @@ for a reaction network.
    system was more complicated, and we included density in ${\bf w}$.
    This is not needed, and we use the Jacobian defined in
    :cite:`castro_simple_sdc` instead.
+
+.. note::
+
+   The final form of the Jacobian is identical to the one used in
+   Strang integration.

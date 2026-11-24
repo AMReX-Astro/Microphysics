@@ -1,0 +1,11 @@
+@namespace: unit_test
+
+run_prefix    string     ""
+
+density       real       1.e7
+
+temperature   real       3.e9
+
+ye            real       0.75
+mu_p          real       -3.0
+mu_n          real       -12.0

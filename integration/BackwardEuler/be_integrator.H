@@ -28,8 +28,13 @@
 ///
 template <typename BurnT, typename BeT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-int single_step (BurnT& state, BeT& be, const amrex::Real dt)
+int single_step (BurnT& state, BeT& be,
+                 const amrex::Real t, const amrex::Real dt)
 {
+    // here t is the current time.  Since we are implicit, we
+    // want to evaluate the RHS at the new time, t + dt
+    const amrex::Real tnew = t + dt;
+
     constexpr int int_neqs = integrator_neqs<BurnT>();
 
     int ierr = IERR_SUCCESS;
@@ -40,7 +45,7 @@ int single_step (BurnT& state, BeT& be, const amrex::Real dt)
 
     amrex::Array1D<amrex::Real, 1, int_neqs> ydot;
 
-    rhs(be.t, state, be, ydot);
+    rhs(tnew, state, be, ydot);
 
     be.n_rhs += 1;
 
@@ -57,15 +62,36 @@ int single_step (BurnT& state, BeT& be, const amrex::Real dt)
 
         // work with the current guess
 
+        if (integrator_rp::do_corrector_validation) {
+#ifdef SDC
+            const amrex::Real rho_current = state.rho_orig + tnew * state.ydot_a[SRHO];
+            const amrex::Real thresh = integrator_rp::species_failure_tolerance * rho_current;
+#else
+            const amrex::Real thresh = integrator_rp::species_failure_tolerance;
+#endif
+            bool fail{};
+            for (int i = 1; i <= NumSpec; ++i) {
+                if (be.y(i) < -thresh) {
+                    fail = true;
+                    break;
+                }
+            }
+
+            if (fail) {
+                ierr = IERR_BAD_STATE_IN_CORRECTOR;
+                break;
+            }
+        }
+
         // get the ydots for our current guess of y
 
-        rhs(be.t, state, be, ydot);
+        rhs(tnew, state, be, ydot);
         be.n_rhs += 1;
 
         // construct the Jacobian
 
         if (be.jacobian_type == 1) {
-            jac(be.t, state, be, be.jac);
+            jac(tnew, state, be, be.jac);
         } else {
             jac_info_t jac_info;
             jac_info.h = dt;
@@ -150,17 +176,14 @@ int single_step (BurnT& state, BeT& be, const amrex::Real dt)
     if (! converged) {
 
         if (ierr == IERR_SUCCESS) {
-
             // if we didn't set another error, then we probably ran
             // out of iterations, so set nonconvergence
-
             ierr = IERR_CORRECTOR_CONVERGENCE;
+        }
 
-            // reset the solution to the original
-            for (int n = 1; n <= int_neqs; n++) {
-                be.y(n) = y_old(n);
-            }
-
+        // reset the solution to the original on any failure
+        for (int n = 1; n <= int_neqs; n++) {
+            be.y(n) = y_old(n);
         }
 
     }
@@ -180,6 +203,17 @@ int be_integrator (BurnT& state, BeT& be)
     be.n_step = 0;
 
     int ierr;
+
+    if (integrator_rp::do_single_step == 1) {
+        // Do a single step to the final time
+        const amrex::Real dt_single_step = be.tout - be.t;
+        ierr = single_step(state, be, be.t, dt_single_step);
+        if (ierr == IERR_SUCCESS) {
+            be.t = be.tout;
+        }
+        ++be.n_step;
+        return ierr;
+    }
 
     // estimate the timestep
 
@@ -210,50 +244,55 @@ int be_integrator (BurnT& state, BeT& be)
         // our strategy is to take 2 steps at dt/2 and one at dt and
         // to compute the error from those
 
-
-        // try to take a step dt
-
         // first do 2 (fine) dt/2 steps
 
         amrex::Array1D<amrex::Real, 1, int_neqs> y_fine;
 
-        ierr = single_step(state, be, dt_sub/2);
+        // keep track of whether we have a valid fine solution
+        // this means no errors from either half step
+        bool have_fine_solution = false;
+
+        ierr = single_step(state, be, be.t, dt_sub/2);
         if (ierr == IERR_SUCCESS) {
-            ierr = single_step(state, be, dt_sub/2);
+            ierr = single_step(state, be, be.t + dt_sub/2, dt_sub/2);
 
-            // store the fine dt solution
+            if (ierr == IERR_SUCCESS) {
+                // store the fine dt solution
+                for (int n = 1; n <= int_neqs; ++n) {
+                    y_fine(n) = be.y(n);
+                }
+                have_fine_solution = true;
 
-            for (int n = 1; n <= int_neqs; ++n) {
-                y_fine(n) = be.y(n);
+                // now do a single (coarse) dt step
+                // first reset the solution
+                for (int n = 1; n <= int_neqs; ++n) {
+                    be.y(n) = y_old(n);
+                }
+                ierr = single_step(state, be, be.t, dt_sub);
             }
-
-            // now that single (coarse) dt step
-            // first reset the solution
-            for (int n = 1; n <= int_neqs; ++n) {
-                be.y(n) = y_old(n);
-            }
-            ierr = single_step(state, be, dt_sub);
         }
-
-        // define a weight for each variable to use in checking the error
-
-        amrex::Array1D<amrex::Real, 1, int_neqs> w;
-        for (int n = 1; n <= NumSpec; n++) {
-            w(n) = 1.0_rt / (be.rtol_spec * std::abs(y_fine(n)) + be.atol_spec);
-        }
-        w(net_ienuc) = 1.0_rt / (be.rtol_enuc * std::abs(y_fine(net_ienuc)) + be.atol_enuc);
-
-        // now look for w |y_fine - y_coarse| < 1
 
         amrex::Real rel_error = 0.0_rt;
-        for (int n = 1; n <= NumSpec; n++) {
-            rel_error = amrex::max(rel_error, w(n) * std::abs(y_fine(n) - be.y(n)));
-        }
-        rel_error = amrex::max(rel_error, w(net_ienuc) * std::abs(y_fine(net_ienuc) - be.y(net_ienuc)));
-
         bool step_success = false;
-        if (rel_error < 1.0_rt) {
-            step_success = true;
+        if (ierr == IERR_SUCCESS && have_fine_solution) {
+            // define a weight for each variable to use in checking the error
+
+            amrex::Array1D<amrex::Real, 1, int_neqs> w;
+            for (int n = 1; n <= NumSpec; n++) {
+                w(n) = 1.0_rt / (be.rtol_spec * std::abs(y_fine(n)) + be.atol_spec);
+            }
+            w(net_ienuc) = 1.0_rt / (be.rtol_enuc * std::abs(y_fine(net_ienuc)) + be.atol_enuc);
+
+            // now look for w |y_fine - y_coarse| < 1
+
+            for (int n = 1; n <= NumSpec; n++) {
+                rel_error = amrex::max(rel_error, w(n) * std::abs(y_fine(n) - be.y(n)));
+            }
+            rel_error = amrex::max(rel_error, w(net_ienuc) * std::abs(y_fine(net_ienuc) - be.y(net_ienuc)));
+
+            if (rel_error < 1.0_rt) {
+                step_success = true;
+            }
         }
 
         if (ierr == IERR_SUCCESS && step_success) {
@@ -275,6 +314,8 @@ int be_integrator (BurnT& state, BeT& be)
 
             amrex::Real dt_new = dt_sub * std::sqrt(1.0_rt / rel_error);
             dt_sub = amrex::Clamp(dt_new, dt_sub / 2.0, 2.0 * dt_sub);
+            // apply our global cap
+            dt_sub = std::min(dt_sub, integrator_rp::ode_max_dt);
 
         } else {
 

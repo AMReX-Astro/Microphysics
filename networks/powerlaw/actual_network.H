@@ -4,6 +4,7 @@
 #define NEW_NETWORK_IMPLEMENTATION
 
 #include <AMReX_REAL.H>
+#include <string_view>
 
 using namespace amrex;
 
@@ -14,7 +15,7 @@ using namespace amrex;
 AMREX_INLINE
 void actual_network_init() {}
 
-const std::string network_name = "powerlaw";
+constexpr std::string_view network_name = "powerlaw";
 
 namespace Rates {
     enum NetworkRates {
