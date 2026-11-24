@@ -64,6 +64,11 @@ breathe_projects = {
 
 breathe_default_project = "microphysics"
 
+# Alternative EOS, network, and integrator implementations deliberately define
+# the same C/C++ names. Their file pages have distinct Doxygen targets, but
+# Sphinx's language domains see them as duplicate declarations.
+suppress_warnings = ['duplicate_declaration.cpp', 'duplicate_declaration.c']
+
 # bibtex
 bibtex_bibfiles = ["refs.bib"]
 bibtex_default_style = "unsrt"

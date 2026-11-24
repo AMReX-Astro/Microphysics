@@ -232,3 +232,25 @@ Some other targets include:
 
 * ``net_prop_debug`` : this will simply create the ``network_properties.H`` file for the
   current network and output it into ``tmp_build_dir/microphysics_sources/``.
+
+
+Building the API documentation
+==============================
+
+The API reference includes all EOS, network, and integrator implementations,
+regardless of which ones are selected for an application build. Install Doxygen
+and the Python packages in ``requirements.txt``, then run from the repository root:
+
+.. code:: bash
+
+   make -C Docs api
+
+This generates Doxygen XML in ``Docs/doxy_files/xml`` and Breathe pages in
+``Docs/source``. Use ``make -C Docs html`` to build the complete HTML guide.
+
+Many implementations share filenames and C++ symbols. ``generate_api.py`` uses
+source locations to qualify file names in the XML index and generated directives,
+for example ``EOS/helmholtz/actual_eos.H``. The generated pages are refreshed on
+each run. Browse the file list to choose a specific implementation; an unqualified
+C++ symbol reference cannot select among alternative implementations. Sphinx's
+expected duplicate-declaration warnings are suppressed for this combined reference.

@@ -19,6 +19,7 @@
 
   * docs
 
+    * disambiguate API file pages for alternative physics implementations
     * fix energy generation rate notation (#2107)
 
   * infrastructure
