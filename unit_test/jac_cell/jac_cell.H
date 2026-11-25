@@ -1,13 +1,15 @@
 #ifndef JAC_CELL_H
 #define JAC_CELL_H
 
+#include <fstream>
+#include <iostream>
+#include <iomanip>
+#include <format>
+
 #include <extern_parameters.H>
 #include <eos.H>
 #include <network.H>
 #include <burner.H>
-#include <fstream>
-#include <iostream>
-#include <iomanip>
 #include <react_util.H>
 #include <numerical_jacobian.H>
 
@@ -58,6 +60,33 @@ void jac_cell_c()
         }
     }
 
+    if (integrator_rp::correct_jacobian_for_const_e) {
+
+        eos_re_extra_t eos_state;
+        eos_state.rho = burn_state.rho;
+        eos_state.T = burn_state.T;
+        eos_state.e = burn_state.e;
+        for (int n = 0; n < NumSpec; n++) {
+            eos_state.xn[n] = burn_state.xn[n];
+        }
+#ifdef AUX_THERMO
+        // make the aux data consistent with the state X's
+        set_aux_comp_from_X(eos_state);
+#endif
+
+        eos(eos_input_re, eos_state);
+
+        eos_xderivs_t eos_xderivs = composition_derivatives(eos_state);
+
+        for (int jcol = 1; jcol <= NumSpec;++jcol) {
+            for (int irow = 1; irow <= neqs; ++irow) {
+                jac_analytic(irow, jcol) -= eos_xderivs.dedX[jcol-1] * jac_analytic(irow, net_ienuc);
+            }
+        }
+
+    }
+
+
     jac_info_t jac_info;
     jac_info.h = 1.e-5_rt;  // timestep really doesn't make sense here
 
@@ -66,16 +95,21 @@ void jac_cell_c()
     // output
 
     // header
-    std::cout << std::setw(16) << "element" << std::setw(20)
-              << "numerical" << std::setw(20) << "analytic" << std::endl;
+    std::cout << std::format("{:^13}   {:^20}  {:^20}  {:^20}\n",
+                             "element", "numerical", "analytic", "rel. error");
 
     for (int ii = 1; ii <= neqs; ++ii) {
         std::string ilabel = (ii < neqs) ? short_spec_names_cxx[ii-1] : "e";
         for (int jj = 1; jj <= neqs; ++jj) {
             std::string jlabel = (jj < neqs) ? short_spec_names_cxx[jj-1] : "e";
-            std::cout << "J(" << std::setw(4) << ilabel << ", " << std::setw(4) << jlabel << ") = "
-                      << std::setw(20) << jac_numerical(ii,jj) << " "
-                      << std::setw(20) << jac_analytic(ii,jj) << std::endl;
+
+            auto err = std::abs(jac_numerical(ii,jj) - jac_analytic(ii,jj));
+            if (jac_analytic(ii,jj) != 0.0) {
+                err /= std::abs(jac_analytic(ii,jj));
+            }
+
+            std::cout << std::format("J({:4}, {:4}) = {:20.10g}  {:20.10g}  {:20.10e}\n",
+                                     ilabel, jlabel, jac_numerical(ii,jj), jac_analytic(ii,jj), err);
         }
         std::cout << std::endl;
     }

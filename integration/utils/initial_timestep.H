@@ -50,9 +50,9 @@ amrex::Real initial_react_dt (BurnT& burn_state, IntT& int_state,
        // routine
 
        for (int ii = 1; ii <= NumSpec; ii++) {
-           ewt(ii) = int_state.rtol_spec * std::abs(y_old(ii)) + int_state.atol_spec;
+           ewt(ii) = 1.0_rt / (int_state.rtol_spec * std::abs(y_old(ii)) + int_state.atol_spec);
        }
-       ewt(net_ienuc) = int_state.rtol_enuc * std::abs(y_old(net_ienuc)) + int_state.atol_enuc;
+       ewt(net_ienuc) = 1.0_rt / (int_state.rtol_enuc * std::abs(y_old(net_ienuc)) + int_state.atol_enuc);
 
        // Construct the trial point.
 
@@ -89,7 +89,7 @@ amrex::Real initial_react_dt (BurnT& burn_state, IntT& int_state,
     // Save the final timestep, with a bias factor.
 
     amrex::Real dt = h / 2.0_rt;
-    dt = amrex::Clamp(h, hL, hU);
+    dt = amrex::Clamp(dt, hL, hU);
 
     dt = amrex::min(dt, integrator_rp::ode_max_dt);
 

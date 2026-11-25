@@ -46,6 +46,8 @@ else ifeq ($(SCREEN_METHOD), chugunov2009)
   DEFINES += -DSCREEN_METHOD=SCREEN_METHOD_chugunov2009
 else ifeq ($(SCREEN_METHOD), chabrier1998)
   DEFINES += -DSCREEN_METHOD=SCREEN_METHOD_chabrier1998
+else ifeq ($(SCREEN_METHOD), debye_huckel)
+  DEFINES += -DSCREEN_METHOD=SCREEN_METHOD_debye_huckel
 else
   $(error Invalid value for SCREEN_METHOD)
 endif
@@ -86,17 +88,6 @@ ifndef GENERAL_NET_INPUTS
    endif
 endif
 
-# electron capture tables
-NET_TABLES = $(wildcard $(NETWORK_PATH)/*_betadecay.dat) $(wildcard $(NETWORK_PATH)/*_electroncapture.dat)
-
-ifneq "$(NET_TABLES)" ""
-  all: nettables
-endif
-
-nettables:
-	@echo linking network data files...
-	$(foreach t, $(NET_TABLES), $(shell if [ ! -f `basename $t` ]; then ln -s $(t) . ; fi))
-
 EXTERN_CORE += $(EOS_HOME)
 EXTERN_CORE += $(EOS_PATH)
 
@@ -105,6 +96,8 @@ EXTERN_CORE += $(EOS_PATH)
 ifeq ($(findstring helmholtz, $(EOS_DIR)), helmholtz)
    all: table
 endif
+
+.PHONY: table nsetable
 
 table:
 	@if [ ! -f helm_table.dat ]; then echo Linking helm_table.dat; ln -s $(EOS_PATH)/helm_table.dat .;  fi
@@ -194,4 +187,6 @@ endif
 clean::
 	@if [ -L helm_table.dat ]; then rm -f helm_table.dat; fi
 	@if [ -L reaclib_rate_metadata.dat ]; then rm -f reaclib_rate_metadata.dat; fi
-	$(foreach t, $(wildcard *_betadecay.dat *_electroncapture.dat nse*.tbl), $(shell if [ -L $t ]; then rm -f $t; fi))
+	@set -e; for t in nse*.tbl; do \
+	    if [ -L "$$t" ]; then rm -f "$$t"; fi; \
+	done

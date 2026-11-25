@@ -15,10 +15,8 @@ has the form:
 
 .. math::
 
-   \begin{align*}
-      \frac{dX_k}{dt} &= \dot{\omega}_k(\rho, X_k, T) \\
-      \frac{de}{dt} &= \epsilon(\rho, X_k, T)
-   \end{align*}
+   \frac{dX_k}{dt} &= \dot{\omega}_k(\rho, X_k, T) \\
+   \frac{de}{dt} &= \epsilon(\rho, X_k, T)
 
 with density held constant and the temperature found via the equation of state,
 $T = T(\rho, X_k, e)$.

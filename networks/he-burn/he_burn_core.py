@@ -41,7 +41,8 @@ def get_core_library(*,
         # N14 + 1.5 He4 -> Ne20
         n14agf18 = reaclib_lib.get_rate_by_name("n14(a,g)f18")
         n14_new = pyna.ModifiedRate(n14agf18, new_products=["ne20"],
-                                    stoichiometry={pyna.Nucleus("he4"): 1.5})
+                                    stoichiometry={pyna.Nucleus("he4"): 1.5},
+                                    description="N14 + 1.5α -> Ne20")
 
         core_lib.add_rate(n14_new)
 
@@ -50,12 +51,14 @@ def get_core_library(*,
         o16pgf17 = reaclib_lib.get_rate_by_name("o16(p,g)f17")
         if "o17" in nuclei:
             o16_new = pyna.ModifiedRate(o16pgf17,
-                                        new_products=["o17"])
+                                        new_products=["o17"],
+                                        description="O16(p,γ)F17(e+ν)O17")
         else:
             o16_new = pyna.ModifiedRate(o16pgf17,
                                         new_reactants=["p", "o16"],
                                         new_products=["n14", "he4"],
-                                        stoichiometry={pyna.Nucleus("p"): 2})
+                                        stoichiometry={pyna.Nucleus("p"): 2},
+                                        description="O16(p,γ)F17(e+ν)O17(p,α)N14")
 
         core_lib.add_rate(o16_new)
 
@@ -67,7 +70,8 @@ def get_core_library(*,
 
     for r, mp in other_rates:
         _r = reaclib_lib.get_rate_by_name(r)
-        new_rate = pyna.ModifiedRate(_r, new_products=[mp])
+        new_rate = pyna.ModifiedRate(_r, new_products=[mp],
+                                     description=f"{r}(n,γ){mp}")
         core_lib += pyna.Library(rates=[new_rate])
 
     # finally, the aprox nets don't include the reverse rates for

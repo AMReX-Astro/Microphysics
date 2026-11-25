@@ -12,85 +12,104 @@ tags:
 
 authors:
 - surname: AMReX-Astro Microphysics Team
-  affiliation: '†'
+  affiliation: '1'
 
 - name: Khanak Bhargava
-  affiliation: '1'
+  affiliation: '2'
+  orcid: 0000-0003-0385-7918
 
 - name: Abigail Bishop
-  affiliation: '2'
+  affiliation: '3'
+  orcid: 0000-0002-0375-644X
 
 - name: Zhi Chen
-  affiliation: '1'
+  affiliation: '2'
+  orcid: 0000-0002-2839-107X
 
 - name: Doreen Fan
-  affiliation: '3'
+  affiliation: '4'
+  orcid: 0000-0002-3246-4315
 
 - name: Carl Fields
-  affiliation: '4'
+  affiliation: '5'
+  orcid: 0000-0002-8925-057X
 
 - name: Adam M. Jacobs
-  affiliation: '3'
-  
+  affiliation: '4'
+  orcid: 0000-0002-3580-2420
+
 - name: Eric T. Johnson
-  affiliation: '1'
+  affiliation: '2'
+  orcid: 0000-0003-3603-6868
 
 - name: Max P. Katz
-  affiliation: '1'
+  affiliation: '2'
+  orcid: 0000-0003-0439-4556
 
 - name: Mark Krumholz
-  affiliation: '5'
-  
-- name: Chris Malone
   affiliation: '6'
+  orcid: 0000-0003-3893-854X
+
+- name: Chris Malone
+  affiliation: '7'
+  orcid: 0000-0002-4045-7932
 
 - name: Andy Nonaka
-  affiliation: '7'
-  
-- name: Piyush Sharda
   affiliation: '8'
+  orcid: 0000-0003-1791-0265
+
+- name: Piyush Sharda
+  affiliation: '9'
+  orcid: 0000-0003-3347-7094
 
 - given-names: Alexander
   surname: Smith Clark
-  affiliation: '1'
+  affiliation: '2'
+  orcid: 0000-0001-5961-1680
 
 - name: Frank Timmes
-  affiliation: '9'
+  affiliation: '10'
+  orcid: 0000-0002-0474-159X
 
 - name: Ben Wibking
-  affiliation: '10'
+  affiliation: '11'
+  orcid: 0000-0003-3175-2291
 
 - name: Don E. Willcox
-  affiliation: '3'
-  
+  affiliation: '12'
+  orcid: 0000-0003-2300-5165
+
 - name: Michael Zingale
-  affiliation: '1'
+  affiliation: '2'
+  orcid: 0000-0001-8401-030X
 
 affiliations:
-- index: †
-  name: https://github.com/amrex-astro/Microphysics
 - index: 1
-  name: Department of Physics and Astronomy, Stony Brook University, Stony Brook, NY, USA
+  name: Collaboration
 - index: 2
-  name: Department of Physics, University of Wisconsin, Madison, Madison, WI, USA
+  name: Department of Physics and Astronomy, Stony Brook University, Stony Brook, NY, USA
 - index: 3
-  name: affiliation not disclosed
+  name: Department of Physics, University of Wisconsin, Madison, Madison, WI, USA
 - index: 4
-  name: Department of Astronomy, University of Arizona, Tucson, AZ, USA
+  name: Independent Researcher, USA
 - index: 5
-  name: Research School of Astronomy and Astrophysics, The Australian National University, Australia
+  name: Department of Astronomy, University of Arizona, Tucson, AZ, USA
 - index: 6
-  name: Los Alamos National Laboratory, Los Alamos, NM, USA
+  name: Research School of Astronomy and Astrophysics, The Australian National University, Australia
 - index: 7
-  name: Lawrence Berkeley National Laboratory, Berkeley, CA, USA
+  name: Los Alamos National Laboratory, Los Alamos, NM, USA
 - index: 8
-  name: Leiden Observatory, Leiden, The Netherlands
+  name: Lawrence Berkeley National Laboratory, Berkeley, CA, USA
 - index: 9
-  name: Arizona State University, Tempe, AZ, USA
+  name: Leiden Observatory, Leiden, The Netherlands
 - index: 10
+  name: Arizona State University, Tempe, AZ, USA
+- index: 11
   name: Department of Physics and Astronomy, Michigan State University, E. Lansing, MI, USA
+- index: 12
+  name: Institute for Advanced Computational Science, Stony Brook University, Stony Brook, NY, USA
 
-date: 20 July 2025
+date: 4 Aug 2026
 
 bibliography: paper.bib
 ---
@@ -113,7 +132,7 @@ implemented in C++ with GPU-offloading a key design feature.
 
 # Statement of need
 
-Astrophysical simulation codes need many different smallscale
+Astrophysical simulation codes need many different small-scale
 (microphysics) physics inputs to close the system of equations.  There
 are many astrophysics simulation codes built around the AMReX library,
 with each specializing in different astrophysics phenomena.  Each of
@@ -126,7 +145,7 @@ support for astrophysical simulation codes.
 
 Individual reaction networks and equations of state have been made
 available by authors for decades, including a wide variety from
-https://cococubed.com/code_pages/burn.shtml.  Flash
+[Cococubed.com](https://cococubed.com/code_pages/burn.shtml).  Flash
 [@flash] comes with a set of reaction networks and equations of state
 as well.  The closest compilation to ours is the recent
 singularity-EOS library [@singularity], which provides various
@@ -159,11 +178,11 @@ opacities, as well as the tools needed to work with them, most notably
 the suite of stiff ODE integrators for the networks.
 Several classic Fortran libraries have been converted to header-only
 C++ implementations, including the VODE integrator [@vode], the hybrid
-Powell method of MINPACK [@powell], and the Runge-Kutta Chebyshev
+Powell method of MINPACK [@powell], and the Runge--Kutta--Chebyshev
 (RKC) integration method [@rkc].  The code was modernized where possible,
 with many `go to` statements removed and additional logic added
-to support our applications (see for example the discussion
-on VODE in @castro_simple_sdc).
+to support our applications [see for example the discussion
+on VODE in @castro_simple_sdc].
 We also make use of the C++ autodiff library [@autodiff] to compute
 thermodynamic derivatives required in the Jacobians of our reaction
 networks.
@@ -192,10 +211,10 @@ Another key design feature is the separation of the reaction network
 from the integrator.  This allows us to easily experiment with
 different integration methods (such as the RKC integrator) and also
 support different modes of coupling reactions to a simulation code,
-including operator splitting and spectral deferred corrections (SDC)
-(see, e.g., @castro_simple_sdc).  The latter is especially important
+including operator splitting and spectral deferred corrections [SDC\;
+see, e.g., @castro_simple_sdc].  The latter is especially important
 for explosive astrophysical flows.  Tight integration with pynucastro
-[@pynucastro; @pynucastro2], allows for the generation of custom
+[@pynucastro; @pynucastro2] allows for the generation of custom
 reaction networks for a science problem.
 
 There are two ways to use Microphysics: in a standalone fashion (via
@@ -239,4 +258,3 @@ supported by the US Department of Energy, Office of Nuclear Physics
 grant DE-FG02-87ER40317.
 
 # References
-
