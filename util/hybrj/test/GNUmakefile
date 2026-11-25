@@ -22,7 +22,7 @@ MICROPHYSICS_HOME  := ../../..
 EOS_DIR     := helmholtz
 
 # This sets the network directory
-NETWORK_DIR := aprox21
+NETWORK_DIR := he-burn/ase
 
 SCREEN_METHOD = chabrier1998
 

@@ -18,7 +18,7 @@ something has gone really wrong in the integration and the integrator
 keeps trying to cut the timestep to be able to advance.  Too many
 steps means that the integrator hit the cap imposed by
 ``integrator.ode_max_steps``.  This should never be made too
-large---usually if you need more than a few 1000 steps, then the some
+large---usually if you need more than a few 1000 steps, then some
 of the solutions discussed below can help.
 
 
@@ -29,12 +29,13 @@ Why does the integrator struggle?
 There are a few common reasons why the integrator might encounter trouble:
 
 * The integrators don't know that the mass fractions should stay in
-  $[0, 1]$.
+  $[0, 1]$.  This is a place where adjusting ``integrator.atol_spec`` can help.
 
-  Note: they should ensure that the mass fractions sum to 1 as long as
-  $\sum_i \dot{\omega}_k = 0$ in the righthand side function.
+  .. note::
 
-  This is a place where adjusting ``integrator.atol_spec`` can help.
+     The integrators should ensure that the mass fractions sum to 1 as long as
+     $\sum_k \dot{\omega}_k = 0$ in the right-hand side function.
+
 
 * The state wants to enter nuclear statistical equilibrium.  As we
   approach equilibrium, the integrator will see large, oppositely
@@ -47,15 +48,14 @@ There are a few common reasons why the integrator might encounter trouble:
   converge.
 
   The Jacobians used in our networks are approximate (even the
-  analytic one).  For example, the analytic Jacobian neglects the
-  composition dependence in the screening functions.  In the analytic we
-  neglect the composition influence in screening.
+  analytic ones).  For example, the analytic Jacobian neglects the
+  composition dependence in the screening functions.
 
 
 Making the integration robust
 =============================
 
-.. index:: integrator.atol_spec, integrator.species_failure_tolerance, integrator.use_jacobian_caching, integrator.do_corrector_validation, integrator.use_burn_retry, integrator.X_reject_buffer
+.. index:: integrator.atol_spec, integrator.species_failure_tolerance, integrator.use_jacobian_caching, integrator.do_corrector_validation, integrator.use_burn_retry, integrator.X_reject_buffer, integrator.reject_scale
 
 Some tips for helping the integrator:
 
@@ -66,7 +66,7 @@ Some tips for helping the integrator:
 
   In general, ``atol_spec`` should be picked to be the magnitude of
   the smallest mass fraction you care about.  You should never set
-  it to be larger that ``rtol_spec``.  See :ref:`sec:tolerances`
+  it to be larger than ``rtol_spec``.  See :ref:`sec:tolerances`
   for some discussion.
 
 * Adjust the step-rejection logic in the integrator.  This is a
@@ -93,6 +93,17 @@ Some tips for helping the integrator:
     ``X_reject_buffer * atol_spec``, so if trace species are causing
     problems, ``X_reject_buffer`` can be used to ignore them.
 
+  * Increase ``integrator.reject_scale``.  This is used inside of the
+    integration step rejection logic to determine how negative of a mass
+    fraction triggers a retry.  In particular, if:
+
+    :math:`X_k < - \mathrm{atol\_spec} \cdot \mathrm{reject\_scale}`
+
+    then we reject a step, and the integrator will try again with a smaller
+    timestep.  If you have a tight absolute tolerance, this may
+    reject too many steps due to very small, but negative mass fractions.
+    Trying ``integrator.reject_scale = 100.0`` might help.
+
 * Try the numerical Jacobian (``integrator.jacobian=2``).  The
   analytic Jacobian is faster to evaluate, but it approximates some
   terms.  The numerical Jacobian sometimes works better.
@@ -102,23 +113,25 @@ Some tips for helping the integrator:
   retried if it fails, with a slightly different configuration.
 
   By default the type of Jacobian is swapped (if we were analytic,
-  then do numerical, and vice vera).  This is controlled by
+  then do numerical, and vice versa).  This is controlled by
   ``integrator.retry_swap_jacobian``.  The tolerances can also be
   changed on retry.
 
   See :ref:`sec:retry` for the full list of options.
 
-* Use the right integrator.  In general, VODE is the best choice.
-  But if the network is only mildly stiff, then RKC can work well
-  (typically, it works when the temperatures are below $10^9~\mathrm{K}$.
+* Use the right integrator.  While VODE is the default, the Rosenbrock
+  integrator can work really well for a lot of problems and may be faster.
+  If the network is only mildly stiff, then RKC can work well
+  (typically, it works when the temperatures are below $10^9~\mathrm{K}$).
 
 * If you are near NSE, then use the NSE solver.  This is described
   in :ref:`self_consistent_nse`.
 
-  Note: not every network is compatible with the self-consistent
-  NSE solver.
+  .. note::
 
-* Use Jacobian-caching.  If you build on GPUs, this is disabled by
+     Not every network is compatible with the self-consistent NSE solver.
+
+* Use Jacobian caching.  If you build on GPUs, this is disabled by
   default.  You can re-enable it by building with
   ``USE_JACOBIAN_CACHING=TRUE``.  Also make sure that
   ``integrator.use_jacobian_caching=1`` (this is the default).
@@ -153,7 +166,7 @@ Things we no longer recommend:
 
 * Clipping the species (``integrator.do_species_clip``) can lead to
   instabilities.  This changes the integration state directly in the
-  righthand side function, outside of the control of the integrator.
+  right-hand side function, outside of the control of the integrator.
   While it sometimes may work, it often leads to problems.  A better
   way to deal with keeping the species in $[0, 1]$ is through the
   absolute tolerance.
@@ -161,7 +174,7 @@ Things we no longer recommend:
   The `SUNDIALS CVODE documentation <https://sundials.readthedocs.io/en/latest/cvode/Usage/index.html#advice-on-controlling-unphysical-negative-values>`_ has
   a good discussion on this numerical instability.
 
-* Renormalizing the species during the integration / righthand side call
+* Renormalizing the species during the integration / right-hand side call
   (``integrator.renormalize_abundances``).  Like clipping, this can
   cause numerical instabilities.
 
@@ -172,3 +185,8 @@ When a burn fails, the entire ``burn_t`` state will be output to
 stdout (CPU runs only).  This state can then be used with
 ``burn_cell_sdc`` to reproduce the burn failure outside of a
 simulation.  For SDC, see the discussion at :ref:`sec:redo_burn_fail`.
+
+.. index:: USE_GPU_PRINTF
+
+For GPU runs, some diagnostic information can be obtained by compiling
+with ``USE_GPU_PRINTF=TRUE``
