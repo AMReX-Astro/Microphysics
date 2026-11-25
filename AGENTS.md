@@ -115,6 +115,19 @@ Note: the default coupling with advective source terms is Strang / operator
 splitting
 
 
+### Compile-time generated headers
+
+At compile-time, several important header files are generated in
+`tmp_build_dir/microphysics/3d.gnu.EXE` (where the last part of the
+directory depends on the compiler and other build options used).
+
+- `network_properties.H` : defines the names of the species in the networks
+  and properties / helpers
+- `extern_job_info_tests.H`, `extern_parameters.cpp`, `extern_parameters.H`, `extern_type.H` :
+  control the runtime parameters.
+
+None of these files should be edited directly.
+
 ## Runtime Parameters
 
 All runtime configuration goes in the `inputs` file, not in source code. Parameter namespaces:
