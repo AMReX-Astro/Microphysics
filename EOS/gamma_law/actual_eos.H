@@ -264,9 +264,6 @@ void actual_eos (I input, T& state)
 
             // sound speed
             state.cs = std::sqrt(eos_rp::eos_gamma * state.p * rhoinv);
-            if constexpr (has_G<T>) {
-                state.G = 0.5 * (1.0 + eos_rp::eos_gamma);
-            }
         }
     }
 

@@ -27,7 +27,6 @@ struct eos_t:eos_base_t {
     amrex::Real dsdr{};
     amrex::Real dpde{};
     amrex::Real dpdr_e{};
-    amrex::Real G{}; // fundamental derivative (Thompson 1971), we use equation 2.24 of Menikoff & Plohr 1989
 
     amrex::Real cv{};
     amrex::Real cp{};
@@ -164,9 +163,6 @@ concept has_dedA = requires { std::declval<T&>().dedA; };
 
 template <typename T>
 concept has_dedZ = requires { std::declval<T&>().dedZ; };
-
-template <typename T>
-concept has_G = requires { std::declval<T&>().G; };
 
 template <typename T>
 concept has_pele_ppos = requires { std::declval<T&>().pele; };
