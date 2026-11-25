@@ -307,15 +307,16 @@ above).</p>
 <span class="math notranslate nohighlight">\(\isotm{He}{3,4}\)</span>, <span class="math notranslate nohighlight">\(\isotm{Be}{7}\)</span>, <span class="math notranslate nohighlight">\(\isotm{B}{8}\)</span>,
 <span class="math notranslate nohighlight">\(\isotm{C}{12,13}\)</span>, <span class="math notranslate nohighlight">\(\isotm{N}{13-15}\)</span>, <span class="math notranslate nohighlight">\(\isotm{O}{14-17}\)</span>,
 <span class="math notranslate nohighlight">\(\isotm{F}{17,18}\)</span> and is used to model the onset of a classical novae
-thermonuclear runaway. The first set of nuclei, <span class="math notranslate nohighlight">\(\isotm{H}{1,2}\)</span>,
-<span class="math notranslate nohighlight">\(\isotm{He}{3,4}\)</span> represent the pp-chain sector of the reaction
-network, while the second set, of <span class="math notranslate nohighlight">\(\isotm{Be}{7}\)</span>, and <span class="math notranslate nohighlight">\(\isotm{B}{8}\)</span>,
-describe the involvement of the x-process. Finally, all the remaining
-nuclei are active participants of the CNO cycle with endpoints at
-<span class="math notranslate nohighlight">\(\isotm{F}{17}\)</span> and <span class="math notranslate nohighlight">\(\isotm{F}{18}\)</span>. The triple-<span class="math notranslate nohighlight">\(\alpha\)</span> reaction
+thermonuclear runaway. These are linked together by 55 rates (including reverse rates).</p>
+<p>The first set of nuclei, <span class="math notranslate nohighlight">\(\isotm{H}{1,2}\)</span>, <span class="math notranslate nohighlight">\(\isotm{He}{3,4}\)</span> represent
+the pp-chain sector of the reaction network, while the second set, of
+<span class="math notranslate nohighlight">\(\isotm{Be}{7}\)</span>, and <span class="math notranslate nohighlight">\(\isotm{B}{8}\)</span>, describe the involvement of the
+x-process. Finally, all the remaining nuclei are active participants
+of the CNO cycle with endpoints at <span class="math notranslate nohighlight">\(\isotm{F}{17}\)</span> and
+<span class="math notranslate nohighlight">\(\isotm{F}{18}\)</span>. The triple-<span class="math notranslate nohighlight">\(\alpha\)</span> reaction
 <span class="math notranslate nohighlight">\(\alpha(\alpha\alpha,\gamma)\isotm{C}{12}\)</span>, serves as bridge between
 the nuclei of first and the last set.</p>
-<p>The the cold-CNO chain of reactions of the CN-branch are:</p>
+<p>The cold-CNO chain of reactions of the CN-branch are:</p>
 <ul class="simple">
 <li><p><span class="math notranslate nohighlight">\(\isotm{C}{12}(p,\gamma)\isotm{N}{13}(\beta^{+}\nu_e)\isotm{C}{13}(p,\gamma)\)</span></p></li>
 </ul>
@@ -323,13 +324,17 @@ the nuclei of first and the last set.</p>
 <ul class="simple">
 <li><p><span class="math notranslate nohighlight">\(\isotm{N}{14}(p,\gamma)\isotm{O}{15}(\beta^{+})\isotm{N}{15}(p,\gamma)\isotm{O}{16}(p,\gamma)\isotm{F}{17}(\beta^{+}\nu_e)\isotm{O}{17}\)</span></p></li>
 </ul>
-<p>where the isotopes <span class="math notranslate nohighlight">\(\isotm{N}{15}\)</span> and <span class="math notranslate nohighlight">\(\isotm{O}{17}\)</span> may decay back into <span class="math notranslate nohighlight">\(\isotm{C}{12}\)</span> and <span class="math notranslate nohighlight">\(\isotm{N}{14}\)</span> through
-<span class="math notranslate nohighlight">\(\isotm{N}{15}(p,\alpha)\isotm{C}{12}\)</span> and <span class="math notranslate nohighlight">\(\isotm{O}{17}(p,\alpha)\isotm{N}{14}\)</span> respectively.</p>
+<p>where the isotopes <span class="math notranslate nohighlight">\(\isotm{N}{15}\)</span> and <span class="math notranslate nohighlight">\(\isotm{O}{17}\)</span> may decay back
+into <span class="math notranslate nohighlight">\(\isotm{C}{12}\)</span> and <span class="math notranslate nohighlight">\(\isotm{N}{14}\)</span> through
+<span class="math notranslate nohighlight">\(\isotm{N}{15}(p,\alpha)\isotm{C}{12}\)</span> and
+<span class="math notranslate nohighlight">\(\isotm{O}{17}(p,\alpha)\isotm{N}{14}\)</span> respectively.</p>
 <figure class="align-center">
 <img alt="_images/nova.png" src="_images/nova.png" />
 </figure>
-<p>Once the temperature reaches a threshold of <span class="math notranslate nohighlight">\(\gtrsim 10^8\,\mathrm{K}\)</span>, the fast <span class="math notranslate nohighlight">\(p\)</span>-captures, for example,
-<span class="math notranslate nohighlight">\(\isotm{N}{13}(p,\gamma)\isotm{O}{14}\)</span>, are more likely than the <span class="math notranslate nohighlight">\(\beta^{+}\)</span>-decays <span class="math notranslate nohighlight">\(\isotm{N}{13}(\beta^{+}\nu_e)\isotm{C}{13}\)</span>
+<p>Once the temperature reaches a threshold of <span class="math notranslate nohighlight">\(\gtrsim
+10^8\,\mathrm{K}\)</span>, the fast <span class="math notranslate nohighlight">\(p\)</span>-captures, for example,
+<span class="math notranslate nohighlight">\(\isotm{N}{13}(p,\gamma)\isotm{O}{14}\)</span>, are more likely than the
+<span class="math notranslate nohighlight">\(\beta^{+}\)</span>-decays <span class="math notranslate nohighlight">\(\isotm{N}{13}(\beta^{+}\nu_e)\isotm{C}{13}\)</span>
 reactions. These rates are also included in this network.</p>
 </section>
 <section id="nova-li">
@@ -338,6 +343,10 @@ reactions. These rates are also included in this network.</p>
 nuclei beyond fluorine.  It should give a more accurate energy in late
 stages of the burst, and can also be used to explore lithium
 production.</p>
+<p>To keep the network size down, a filtering process is done to remove
+rates that are not expected to be important under the thermodynamic
+conditions encountered in a nova.  The result is that the network has
+25 nuclei and 54 rates.</p>
 <figure class="align-center">
 <img alt="_images/nova-li.png" src="_images/nova-li.png" />
 </figure>
