@@ -89,6 +89,33 @@ AUTO_BUILD_SOURCES += $(NETWORK_OUTPUT_PATH)/network_properties.H
 
 net_prop_debug: $(NETWORK_OUTPUT_PATH)/network_properties.H
 
+# Track both the network input and the defines used to interpret it.  A
+# different network can have an older input file than the existing header.
+ifeq ($(NETWORK_DIR), general_null)
+  MICROPHYSICS_NETWORK_FILE := $(GENERAL_NET_INPUTS)
+else
+  MICROPHYSICS_NETWORK_FILE := $(firstword $(wildcard $(NETWORK_PATH)/pynucastro.net) $(NETWORK_PATH)/$(NETWORK_DIR).net)
+endif
+
+.PHONY: microphysics_network_config_force
+microphysics_network_config_force:
+
+$(NETWORK_OUTPUT_PATH)/network_properties.options: microphysics_network_config_force
+	@mkdir -p "$(NETWORK_OUTPUT_PATH)"
+	@set -e; \
+	printf '%s\n' '$(abspath $(MICROPHYSICS_NETWORK_FILE))' '$(subst ','"'"',$(DEFINES))' > "$@.tmp"; \
+	if cmp -s "$@.tmp" "$@"; then \
+	    rm -f "$@.tmp"; \
+	else \
+	    mv -f "$@.tmp" "$@"; \
+	fi
+
+$(NETWORK_OUTPUT_PATH)/network_properties.H: $(MICROPHYSICS_NETWORK_FILE) \
+    $(NETWORK_OUTPUT_PATH)/network_properties.options \
+    $(MICROPHYSICS_HOME)/networks/general_null/network_header.template \
+    $(MICROPHYSICS_HOME)/networks/general_null/write_network.py \
+    $(MICROPHYSICS_HOME)/networks/general_null/network_param_file.py
+
 ifneq ($(NETWORK_DIR), general_null)
   NAUX := $(shell PYTHONPATH=$(MICROPHYSICS_HOME)/networks/general_null $(MICROPHYSICS_HOME)/networks/get_naux.py \
                  --microphysics_path "$(MICROPHYSICS_HOME)" \
@@ -97,7 +124,7 @@ ifneq ($(NETWORK_DIR), general_null)
                  --net-custom-path "$(NETWORK_CUSTOM_PATH)")
   DEFINES += "-DNAUX_NET=$(NAUX)"
 
-$(NETWORK_OUTPUT_PATH)/network_properties.H:
+$(NETWORK_OUTPUT_PATH)/network_properties.H: $(MICROPHYSICS_HOME)/networks/update_headers.py
 	PYTHONPATH=$(MICROPHYSICS_HOME)/networks/general_null $(MICROPHYSICS_HOME)/networks/update_headers.py \
            --microphysics_path $(MICROPHYSICS_HOME) \
            --net "$(NETWORK_DIR)" \
