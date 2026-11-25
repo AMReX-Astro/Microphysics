@@ -72,9 +72,7 @@ Presently, allowed integrators are:
 
   For SDC coupling, Rodas5P includes partial time derivatives of the RHS,
   needed when the prescribed density changes during integration. These are
-  estimated at fixed integration variables using up to three extra RHS
-  evaluations per attempted step. The finite-difference probes remain within
-  the requested integration interval.
+  estimated via finite-differencing.
 
 .. index:: integrator.use_jacobian_caching
 
