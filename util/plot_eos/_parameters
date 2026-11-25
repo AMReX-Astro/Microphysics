@@ -8,6 +8,8 @@ T_min      real      1.e6
 T_max      real      1.e10
 nT         int       41
 
-var        string    "pres"
+# variable to plot (this should be a member of eos_t)
+var        string    "p"
 
-
+# for GNUplot, do we skip a line after each row in the output?
+skip_after_row   bool   0

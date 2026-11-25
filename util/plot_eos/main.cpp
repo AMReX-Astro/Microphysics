@@ -7,21 +7,21 @@
 
 int main(int argc, char *argv[]) {
 
-  amrex::Initialize(argc, argv);
+    // silence the AMReX initializing and finalizing messages
+    amrex::SetVerbose(0);
 
-  // initialize runtime parameters
+    amrex::Initialize(argc, argv);
 
-  init_extern_parameters();
+    // initialize runtime parameters
+    init_extern_parameters();
 
-  // initialize EOS (must be done after init_extern_parameters)
+    // initialize EOS (must be done after init_extern_parameters)
+    eos_init();
 
-  eos_init();
+    // initialize network (this may set nuclei properties needed by the EOS)
+    network_init();
 
-  // initialize network (this may set nuclei properties needed by the EOS)
+    output_plot_info();
 
-  network_init();
-
-  output_plot_info();
-
-  amrex::Finalize();
+    amrex::Finalize();
 }
