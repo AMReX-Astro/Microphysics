@@ -40,25 +40,30 @@ void output_plot_info()
 
     amrex::Real dlogT = (std::log10(plot_rp::T_max) -
                          std::log10(plot_rp::T_min)) /
-        static_cast<amrex::Real>(plot_rp::nT);
+        static_cast<amrex::Real>(plot_rp::nT - 1);
 
     amrex::Real dlogrho = (std::log10(plot_rp::rho_max) -
                            std::log10(plot_rp::rho_min)) /
-        static_cast<amrex::Real>(plot_rp::nrho);
+        static_cast<amrex::Real>(plot_rp::nrho - 1);
+
+    // print hte header
+    std::cout << std::format("# {:^15} {:^15} {:^15}\n",
+                             "temperature", "density", plot_rp::var);
+
 
     // loop
 
     auto field = string_to_member<decltype(state)>(plot_rp::var);
 
-    for (int itemp = 0; itemp <= plot_rp::nT; ++itemp) {
+    for (int itemp = 0; itemp < plot_rp::nT; ++itemp) {
         state.T = std::pow(10.0_rt, std::log10(plot_rp::T_min) + itemp * dlogT);
 
-        for (int jrho = 0; jrho <= plot_rp::nrho; ++jrho) {
+        for (int jrho = 0; jrho < plot_rp::nrho; ++jrho) {
             state.rho = std::pow(10.0_rt, std::log10(plot_rp::rho_min) + jrho * dlogrho);
 
             eos(eos_input_rt, state);
 
-            std::cout << std::format("{:15.8g} {:15.8g} {:15.8g}\n",
+            std::cout << std::format("  {:15.8g} {:15.8g} {:15.8g}\n",
                                      state.T, state.rho, field(state));
 
         }

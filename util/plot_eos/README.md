@@ -39,3 +39,12 @@ plot "eosdata.out" using 1:2:3 with image
 ```
 
 ### python / matplotlib
+
+The `make_plot.py` script can be used to visualize the EOS quantity.  For example,
+
+```
+./main3d.gnu.ex plot.var="gam1" > eosdata.out
+./make_plot eosdata.out
+```
+
+produces a file `eos_gam1.png`.
