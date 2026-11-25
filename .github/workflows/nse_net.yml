@@ -1,6 +1,11 @@
 name: nse_net
 
 on: [pull_request]
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.head_ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
 jobs:
   nse_net:
     runs-on: ubuntu-24.04

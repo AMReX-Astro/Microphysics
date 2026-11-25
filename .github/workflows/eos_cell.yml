@@ -1,6 +1,11 @@
 name: eos_cell
 
 on: [pull_request]
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.head_ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
 jobs:
   eos_cell:
     runs-on: ubuntu-latest
