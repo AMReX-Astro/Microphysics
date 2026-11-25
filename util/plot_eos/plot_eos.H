@@ -46,7 +46,7 @@ void output_plot_info()
                            std::log10(plot_rp::rho_min)) /
         static_cast<amrex::Real>(plot_rp::nrho - 1);
 
-    // print hte header
+    // print the header
     std::cout << std::format("# {:^15} {:^15} {:^15}\n",
                              "temperature", "density", plot_rp::var);
 
