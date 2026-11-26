@@ -23,6 +23,7 @@
 
   * infrastructure
 
+    * generate runtime parameter files with a grouped GNU make target so missing outputs are recreated
     * clean up workflow files (#2103)
     * revert some CI to ubuntu-24.04 (#2122)
 
