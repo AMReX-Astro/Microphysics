@@ -256,14 +256,10 @@ int rkclow (BurnT& state, RkcT& rstate)
             newspc = ! jacatt;
         }
 
-        // Update the data for interpolation stored in work(*).
+        // Keep the accepted solution and its slope for the next step.
         for (int i = 1; i <= int_neqs; ++i) {
-            amrex::Real ylast = rstate.yn(i);
-            amrex::Real yplast = rstate.fn(i);
             rstate.yn(i) = rstate.y(i);
             rstate.fn(i) = rstate.yjm1(i);
-            rstate.yjm1(i) = ylast;
-            rstate.yjm2(i) = yplast;
         }
 #ifdef NSE
         // Check for NSE only after accepting the step, so the state
