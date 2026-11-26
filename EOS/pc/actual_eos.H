@@ -1964,7 +1964,10 @@ void fscrliq8 (amrex::Real RS, amrex::Real GAME, amrex::Real Zion,
     amrex::Real COR0 = 1.0_rt + U0 / D0;
     amrex::Real COR0DX = (U0DX - U0 * D0DX / D0) / D0;
     amrex::Real COR0DG = (U0DG - U0 * D0DG / D0) / D0;
-    amrex::Real COR0DXX = (U0DXX - (2.0_rt * U0DX * D0DX + U0 * D0DXX) / D0 + 2.0_rt * (D0DX / D0) * (D0DX / D0)) / D0;
+    // Correct the second derivative of COR0 = 1 + U0 / D0. The original
+    // Fortran FSCRliq8 also omits U0 in the final term; this fixes that error.
+    amrex::Real COR0DXX = (U0DXX - (2.0_rt * U0DX * D0DX + U0 * D0DXX) / D0 +
+                         2.0_rt * U0 * (D0DX / D0) * (D0DX / D0)) / D0;
     amrex::Real COR0DGG = (U0DGG - 2.0_rt * U0DG * D0DG / D0 + 2.0_rt * U0 * (D0DG / D0) * (D0DG / D0)) / D0;
     amrex::Real COR0DXG = (U0DXG - (U0DX * D0DG + U0DG * D0DX) / D0 + 2.0_rt * U0 * D0DX * D0DG / (D0 * D0)) / D0;
     // Relativism:
