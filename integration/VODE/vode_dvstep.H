@@ -249,13 +249,9 @@ int dvstep (BurnT& state, DvodeT& vstate)
                 break;
             }
 
-            // Don't enforce the condition below if
-            // vstate.y contains number densities
-            if (! integrator_rp::use_number_densities) {
-                if (vstate.y(i) > 1.0_rt + integrator_rp::species_failure_tolerance) {
-                    valid_update = false;
-                    break;
-                }
+            if (vstate.y(i) > 1.0_rt + integrator_rp::species_failure_tolerance) {
+                valid_update = false;
+                break;
             }
 
 #endif

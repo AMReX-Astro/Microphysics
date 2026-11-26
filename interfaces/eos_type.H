@@ -27,7 +27,6 @@ struct eos_t:eos_base_t {
     amrex::Real dsdr{};
     amrex::Real dpde{};
     amrex::Real dpdr_e{};
-    amrex::Real G{}; // fundamental derivative (Thompson 1971), we use equation 2.24 of Menikoff & Plohr 1989
 
     amrex::Real cv{};
     amrex::Real cp{};
@@ -141,29 +140,6 @@ struct eos_rep_extra_t:eos_rep_t {
     amrex::Real dedZ{};
 };
 
-struct chem_eos_t:eos_base_t {
-    amrex::Real rho{};
-    amrex::Real T{};
-    amrex::Real p{};
-    amrex::Real e{};
-    amrex::Real dpdT{};
-    amrex::Real dpdr{};
-    amrex::Real dpde{};
-    amrex::Real dpdr_e{};
-    amrex::Real dedT{};
-    amrex::Real dedr{};
-    amrex::Real G{};
-
-    amrex::Real mu{};
-    amrex::Real cs{};
-
-    amrex::Real cv{};
-    amrex::Real cp{};
-
-    amrex::Real gam1{};
-};
-
-
 template <typename T>
 concept has_energy = requires { std::declval<T&>().e; };
 
@@ -187,9 +163,6 @@ concept has_dedA = requires { std::declval<T&>().dedA; };
 
 template <typename T>
 concept has_dedZ = requires { std::declval<T&>().dedZ; };
-
-template <typename T>
-concept has_G = requires { std::declval<T&>().G; };
 
 template <typename T>
 concept has_pele_ppos = requires { std::declval<T&>().pele; };

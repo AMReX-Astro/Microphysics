@@ -59,13 +59,6 @@ void clean_state (const amrex::Real time, BurnT& state, I& int_state)
         }
     }
 
-    // for primordial chem, just enforce positivity
-    if (integrator_rp::use_number_densities) {
-        for (int n = 1; n <= NumSpec; ++n) {
-            int_state.y(n) = amrex::max(int_state.y(n), integrator_rp::SMALL_X_SAFE);
-        }
-    }
-
     // Renormalize the abundances as necessary.
 
     if (integrator_rp::renormalize_abundances) {

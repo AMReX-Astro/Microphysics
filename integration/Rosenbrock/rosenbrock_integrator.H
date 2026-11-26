@@ -185,7 +185,7 @@ bool valid_integrator_state ([[maybe_unused]] amrex::Real time, [[maybe_unused]]
             return false;
         }
 
-        if (! integrator_rp::use_number_densities && y(n) > 1.0_rt) {
+        if (y(n) > 1.0_rt) {
             return false;
         }
     }

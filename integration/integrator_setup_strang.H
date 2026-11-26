@@ -134,12 +134,9 @@ void integrator_cleanup (IntegratorT& int_state, BurnT& state,
         state.e -= state_save.e_in;
     }
 
-    // Normalize the final abundances (except if they are number
-    // densities)
+    // Normalize the final abundances
 
-    if (! integrator_rp::use_number_densities) {
-        normalize_abundances_burn(state);
-    }
+    normalize_abundances_burn(state);
 
     // Get the number of RHS and Jacobian evaluations.
 
@@ -165,12 +162,8 @@ void integrator_cleanup (IntegratorT& int_state, BurnT& state,
             state.success = false;
         }
 
-        // Don't enforce a max if we are evolving number densities
-
-        if (! integrator_rp::use_number_densities) {
-            if (int_state.y(n) > 1.0_rt + integrator_rp::species_failure_tolerance) {
-                state.success = false;
-            }
+        if (int_state.y(n) > 1.0_rt + integrator_rp::species_failure_tolerance) {
+            state.success = false;
         }
     }
 
