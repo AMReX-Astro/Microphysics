@@ -9,8 +9,6 @@
 
   * integrators
 
-    * RKC: honor the per-solve Jacobian choice in the Gershgorin estimator
-      and bound the spectral radius with absolute diagonal entries (PR pending)
     * Rosenbrock: add step-rejection logic for SDC (#2027)
     * move SDC clean-up species normalization to after failure check (#2111)
 
