@@ -59,6 +59,8 @@ def doit(string):
     A_X_k = None
     A_aux_k = None
 
+    X_is_rho_weighted = False
+
     for line in string:
         if line.startswith("dens start"):
             is_vode = True
@@ -82,7 +84,16 @@ def doit(string):
                 _tmp = line.split("=")[-1]
                 xn = [float(q) for q in _tmp.split()]
 
+            elif line.startswith("rho xn start"):
+                _tmp = line.split("=")[-1]
+                xn = [float(q) for q in _tmp.split()]
+                if_rho_weights = True
+
             elif line.startswith("aux start"):
+                _tmp = line.split("=")[-1]
+                aux = [float(q) for q in _tmp.split()]
+
+            elif line.startswith("rho aux start"):
                 _tmp = line.split("=")[-1]
                 aux = [float(q) for q in _tmp.split()]
 
@@ -131,40 +142,40 @@ def doit(string):
                 _tmp = line.split("=")[-1]
                 A_aux_k = [float(q) for q in _tmp.split()]
 
-    print(f"unit_test.density = {density}")
-    print(f"unit_test.temperature = {temperature}")
+    print(f"unit_test.density = {density:30.20g}")
+    print(f"unit_test.temperature = {temperature:30.20g}")
     if rhoe:
-        print(f"unit_test.rhoe = {rhoe}")
+        print(f"unit_test.rhoe = {rhoe:30.20g}")
 
     if tmax:
-        print(f"unit_test.tmax = {tmax}")
+        print(f"unit_test.tmax = {tmax:30.20g}")
 
     print("")
 
     for n, X in enumerate(xn):
-        print(f"unit_test.X{n+1} = {X}")
+        print(f"unit_test.X{n+1} = {X:30.20g}")
 
     print("")
 
     if aux:
         for n, a in enumerate(aux):
-            print(f"unit_test.Aux{n+1} = {a}")
+            print(f"unit_test.Aux{n+1} = {a:30.20g}")
 
     print("")
 
-    print(f"unit_test.Adv_rho = {A_rho}")
-    print(f"unit_test.Adv_rhoe = {A_rhoe}")
+    print(f"unit_test.Adv_rho = {A_rho:30.20g}")
+    print(f"unit_test.Adv_rhoe = {A_rhoe:30.20g}")
 
     print("")
 
     for n, A in enumerate(A_X_k):
-        print(f"unit_test.Adv_X{n+1} = {A}")
+        print(f"unit_test.Adv_X{n+1} = {A:30.20g}")
 
     if A_aux_k:
         print("")
 
         for n, A in enumerate(A_aux_k):
-            print(f"unit_test.Adv_Aux{n+1} = {A}")
+            print(f"unit_test.Adv_Aux{n+1} = {A:30.20g}")
 
 
 if __name__ == "__main__":
