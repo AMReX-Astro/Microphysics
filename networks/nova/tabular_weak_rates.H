@@ -18,35 +18,68 @@ namespace tabular_weak_rates {
 
     using namespace rate_tables;
 
+    template <typename T>
+    AMREX_GPU_DEVICE AMREX_INLINE
+    void rate_F17_to_O17_electron_capture_weaktab(T& rate_eval, const amrex::Real temp, const amrex::Real log_temp, const amrex::Real rho, const amrex::Real rhoy, const amrex::Real log_rhoy, const amrex::Array1D<amrex::Real, 1, NumSpec>& Y) {
+
+        // F17 --> O17
+
+        weak_rate_t table_values{};
+        constexpr int do_T_derivatives = std::is_same_v<T, rate_derivs_t>;
+        tabular_evaluate<do_T_derivatives>(j_F17_O17_meta, j_F17_O17_rhoy, j_F17_O17_temp, j_F17_O17_data,
+                                            log_rhoy, rhoy, log_temp, temp, table_values);
+
+        rate_eval.screened_rates(k_F17_to_O17_electron_capture_weaktab) = table_values.rate;
+        if constexpr (std::is_same_v<T, rate_derivs_t>) {
+            rate_eval.dscreened_rates_dT(k_F17_to_O17_electron_capture_weaktab) = table_values.drate_dT;
+
+            // accumulate ∂/∂Y_e contributions to F17 and O17
+            // this is the derivative of ∂Y(F17)/∂t = -Y(F17) λ and
+            //                           ∂Y(O17)/∂t = +Y(F17) λ
+            rate_eval.dweak_ydot_dYe(F17) -= rho * Y(F17) * table_values.drate_drhoye;
+            rate_eval.dweak_ydot_dYe(O17) += rho * Y(F17) * table_values.drate_drhoye;
+
+            // also accumulate the derivatives of ε_{ν,weak} with respect to T and Y
+            rate_eval.denuc_weak_dY(F17) += C::n_A * (table_values.enu + table_values.gamma);
+            rate_eval.denuc_weak_dT += C::n_A * Y(F17) * table_values.denu_dT;
+            // finally the derivatives of ε_{ν,weak} with respect to Ye
+            rate_eval.denuc_weak_dYe += C::n_A * rho * Y(F17) * table_values.denu_drhoye;
+        }
+
+        rate_eval.enuc_weak += C::n_A * Y(F17) * (table_values.enu + table_values.gamma);
+    }
 
     template <typename T>
     AMREX_GPU_DEVICE AMREX_INLINE
-    void
-    fill_rates([[maybe_unused]] const amrex::Real temp,
-               [[maybe_unused]] const amrex::Real rho,
-               [[maybe_unused]] const amrex::Real rhoy,
-               [[maybe_unused]] const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
-               [[maybe_unused]] T& rate_eval)
-    {
+    void rate_O17_to_F17_beta_neg_weaktab(T& rate_eval, const amrex::Real temp, const amrex::Real log_temp, const amrex::Real rho, const amrex::Real rhoy, const amrex::Real log_rhoy, const amrex::Array1D<amrex::Real, 1, NumSpec>& Y) {
 
-        // Calculate tabular weak rates
+        // O17 --> F17
 
-        [[maybe_unused]] const amrex::Real log_temp = std::log10(temp);
-        [[maybe_unused]] const amrex::Real log_rhoy = std::log10(rhoy);
+        weak_rate_t table_values{};
+        constexpr int do_T_derivatives = std::is_same_v<T, rate_derivs_t>;
+        tabular_evaluate<do_T_derivatives>(j_O17_F17_meta, j_O17_F17_rhoy, j_O17_F17_temp, j_O17_F17_data,
+                                            log_rhoy, rhoy, log_temp, temp, table_values);
 
-        rate_eval.enuc_weak = 0.0_rt;
-
+        rate_eval.screened_rates(k_O17_to_F17_beta_neg_weaktab) = table_values.rate;
         if constexpr (std::is_same_v<T, rate_derivs_t>) {
-            for (int n = 1; n <= NumSpec; ++n) {
-                rate_eval.dweak_ydot_dYe(n) = 0.0_rt;
-                rate_eval.denuc_weak_dY(n) = 0.0_rt;
-            }
-            rate_eval.denuc_weak_dT = 0.0_rt;
-            rate_eval.denuc_weak_dYe = 0.0_rt;
+            rate_eval.dscreened_rates_dT(k_O17_to_F17_beta_neg_weaktab) = table_values.drate_dT;
 
+            // accumulate ∂/∂Y_e contributions to O17 and F17
+            // this is the derivative of ∂Y(O17)/∂t = -Y(O17) λ and
+            //                           ∂Y(F17)/∂t = +Y(O17) λ
+            rate_eval.dweak_ydot_dYe(O17) -= rho * Y(O17) * table_values.drate_drhoye;
+            rate_eval.dweak_ydot_dYe(F17) += rho * Y(O17) * table_values.drate_drhoye;
+
+            // also accumulate the derivatives of ε_{ν,weak} with respect to T and Y
+            rate_eval.denuc_weak_dY(O17) += C::n_A * (table_values.enu + table_values.gamma);
+            rate_eval.denuc_weak_dT += C::n_A * Y(O17) * table_values.denu_dT;
+            // finally the derivatives of ε_{ν,weak} with respect to Ye
+            rate_eval.denuc_weak_dYe += C::n_A * rho * Y(O17) * table_values.denu_drhoye;
         }
 
+        rate_eval.enuc_weak += C::n_A * Y(O17) * (table_values.enu + table_values.gamma);
     }
+
 
 }
 #endif
