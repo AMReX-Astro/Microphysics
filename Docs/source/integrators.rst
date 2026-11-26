@@ -91,7 +91,7 @@ appropriate Jacobian terms) by the specified constant amount.
 The main entry point for integrating the reaction ODE system is
 ``burner()`` in ``interfaces/burner.H``.  This simply calls the
 ``integrator()`` routine (at the moment this can be
-``BackwardEuler``, ``ForwardEuler``, ``RKC``, ``Rosenbrock``, ``QSS``, or ``VODE``).
+``BackwardEuler``, ``ForwardEuler``, ``RKC``, ``ROCK``, ``Rosenbrock``, ``QSS``, or ``VODE``).
 
 .. code-block:: c++
 
