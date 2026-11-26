@@ -43,14 +43,14 @@ Presently, allowed integrators are:
 .. index:: integrator.use_circle_theorem
 
 * ``RKC``: a stabilized explicit Runge-Kutta-Chebyshev integrator based
-  on :cite:`sommeijer_rkc_1998`.  This does not require a Jacobian, but
-  does need to estimate the spectral radius of the system, which is
-  done internally.  This works for moderately stiff problems.
+  on :cite:`sommeijer_rkc_1998`.  It estimates the spectral radius of
+  the system internally and works for moderately stiff problems.
 
-  The spectral radius is estimated by default using the power method,
-  built into RKC.  Alternately, by setting ``integrator.use_circle_theorem=1``,
-  the `Gershgorin circle theorem <https://en.wikipedia.org/wiki/Gershgorin_circle_theorem>`_
-  is used instead.
+  By default, ``integrator.use_circle_theorem=1`` selects the
+  `Gershgorin circle theorem <https://en.wikipedia.org/wiki/Gershgorin_circle_theorem>`_
+  to bound the spectral radius using the Jacobian.  Set
+  ``integrator.use_circle_theorem=0`` to use the built-in power method,
+  which does not require forming a Jacobian.
 
 * ``Rosenbrock``: this implements several different Rosenbrock implicit
   methods for stiff ODEs.  Several different methods can be selected through
