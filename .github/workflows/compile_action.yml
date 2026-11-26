@@ -1,6 +1,11 @@
 name: Test compilation
 
 on: [pull_request]
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.head_ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
 jobs:
   compilation:
     runs-on: ubuntu-latest

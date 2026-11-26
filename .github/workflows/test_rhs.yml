@@ -1,6 +1,11 @@
 name: test_rhs
 
 on: [pull_request]
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.head_ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
 jobs:
   test_rhs:
     runs-on: ubuntu-24.04

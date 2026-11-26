@@ -1,6 +1,11 @@
 name: nse_table
 
 on: [pull_request]
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.head_ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
 jobs:
   nse_table:
     runs-on: ubuntu-24.04

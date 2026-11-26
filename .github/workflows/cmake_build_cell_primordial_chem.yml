@@ -1,6 +1,11 @@
 name: cmake_burn_cell_primordial_chem
 
 on: [pull_request]
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.head_ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
 jobs:
   burn_cell:
     runs-on: ubuntu-latest

@@ -1,6 +1,11 @@
 name: macos_burn_cell_metal_chem
 
 on: [pull_request]
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.head_ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
 jobs:
   burn_cell:
     runs-on: macos-latest
