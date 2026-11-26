@@ -2,6 +2,22 @@
 
 ## 26.11
 
+  * eos
+
+    * pc: guard absent solid-mixture pairs, remove charge-order dependence,
+      reject invalid compositions, and initialize density and temperature bounds
+
+    * pc: add equilibrium radiation and its thermodynamic derivatives, with
+      the Helmholtz density limiter and RADIATION build behavior
+
+    * pc: convert mass fractions to ion number fractions for mixture thermodynamics
+      (fixes the composition handling introduced in 22ef98a4)
+    * pc: correct electron derivative formulas and the missing CJ02 assignment
+      in the Fortran-to-C++ translation
+    * pc: qualify Real types with the amrex namespace for current AMReX builds
+    * pc: return thermodynamic derivatives, specific heats, enthalpy, sound speed,
+      and electron diagnostics, including for reduced EOS state types
+
   * networks
 
     * update pynucastro networks with the new Jacobian terms (#2105)

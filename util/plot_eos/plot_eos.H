@@ -1,0 +1,77 @@
+#ifndef EOS_CELL_H
+#define EOS_CELL_H
+
+#include <format>
+#include <functional>
+#include <string_view>
+
+#include <extern_parameters.H>
+#include <eos.H>
+#include <network.H>
+#include <iostream>
+#include <react_util.H>
+
+template <typename EOSType>
+constexpr auto string_to_member(std::string_view name) {
+    if (name == "p")    return std::mem_fn(&EOSType::p);
+    if (name == "e")    return std::mem_fn(&EOSType::e);
+    if (name == "h")    return std::mem_fn(&EOSType::h);
+    if (name == "s")    return std::mem_fn(&EOSType::s);
+    if (name == "gam1") return std::mem_fn(&EOSType::gam1);
+
+    throw std::invalid_argument(std::format("unknown eos_t member {}", name));
+}
+
+
+AMREX_INLINE
+void output_plot_info()
+{
+
+    eos_t state;
+
+    // set the mass fractions to be equal
+
+    amrex::Real massfractions[NumSpec];
+    for (double &X : state.xn) {
+        X = 1.0_rt / static_cast<amrex::Real>(NumSpec);
+    }
+
+    // compute spacing between points
+
+    amrex::Real dlogT = (std::log10(plot_rp::T_max) -
+                         std::log10(plot_rp::T_min)) /
+        static_cast<amrex::Real>(plot_rp::nT - 1);
+
+    amrex::Real dlogrho = (std::log10(plot_rp::rho_max) -
+                           std::log10(plot_rp::rho_min)) /
+        static_cast<amrex::Real>(plot_rp::nrho - 1);
+
+    // print the header
+    std::cout << std::format("# {:^15} {:^15} {:^15}\n",
+                             "temperature", "density", plot_rp::var);
+
+
+    // loop
+
+    auto field = string_to_member<decltype(state)>(plot_rp::var);
+
+    for (int itemp = 0; itemp < plot_rp::nT; ++itemp) {
+        state.T = std::pow(10.0_rt, std::log10(plot_rp::T_min) + itemp * dlogT);
+
+        for (int jrho = 0; jrho < plot_rp::nrho; ++jrho) {
+            state.rho = std::pow(10.0_rt, std::log10(plot_rp::rho_min) + jrho * dlogrho);
+
+            eos(eos_input_rt, state);
+
+            std::cout << std::format("  {:15.8g} {:15.8g} {:15.8g}\n",
+                                     state.T, state.rho, field(state));
+
+        }
+
+        if (plot_rp::skip_after_row) {
+            std::cout << std::endl;
+        }
+    }
+
+}
+#endif

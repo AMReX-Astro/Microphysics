@@ -190,6 +190,55 @@ the :math:`\gamma_i` for a specific species. The parameters are:
 
 
 
+``pc``
+======
+
+The experimental Potekhin--Chabrier EOS accepts species mass fractions in
+``state.xn`` and converts them internally to normalized ion number fractions,
+:math:`x_i = (X_i/A_i)/\sum_j(X_j/A_j)`, for mixture thermodynamics.
+It evaluates density--temperature inputs and returns total pressure, specific
+internal energy, entropy, enthalpy, their density and temperature derivatives,
+specific heats, the adiabatic exponent, sound speed, and electron diagnostics.
+The derivatives assume fixed composition. The electron chemical potential fit
+introduces a small density mismatch, so finite differences of the returned
+quantities need not agree exactly with the analytic derivatives.
+
+Equilibrium radiation is included with the same constants and optional
+``eos.prad_limiter_rho_c`` and ``eos.prad_limiter_delta_rho`` density limiter as
+``helmholtz``. The limiter is disabled by default. As in ``helmholtz``, derivatives
+of the limiter itself with respect to density are ignored. Builds defining
+``RADIATION`` omit the EOS photon contribution to avoid double-counting radiation
+that is evolved separately. Electron diagnostics include only the electron
+contribution.
+
+Zero-abundance species are supported, and solid-mixture pairs are ordered
+internally by charge, independent of network ordering. Mass fractions must
+be finite and nonnegative, with a positive total abundance. Nonzero abundances
+of neutral species (including free neutrons) are rejected.
+
+The density bounds are :math:`10^{-19}`--:math:`10^{15}` g/cm\ :sup:`3`,
+following the reference implementation. Temperature bounds are set by
+``eos.pc_min_temp`` (default 1 K) and ``eos.pc_max_temp`` (default
+:math:`10^{12}` K); both must be finite and satisfy
+:math:`0 < T_\mathrm{min} \le T_\mathrm{max}`. The standard EOS interface
+clamps density and temperature to these bounds. An application-provided
+minimum density or temperature can raise the corresponding floor.
+These are numerical guardrails, not a validated physical domain: full
+ionization and the absence of positrons and quantum-liquid effects must
+still be appropriate for the application.
+
+Positrons are not included. Only density--temperature input is
+currently supported. The fundamental derivative ``G`` and the optional
+composition derivatives with respect to ``abar`` and ``zbar`` are not provided;
+the mixture depends on more composition information than these two averages.
+
+The ``unit_test/test_pc_eos`` test compares liquid and solid C/O states with
+the reference Fortran heat capacity and pressure derivatives, checks finite
+differences, exercises full and reduced EOS states, and checks the radiation
+terms and density limiter. Build it with
+``make -j4 AMREX_HOME=/path/to/amrex`` and run ``./main3d.gnu.ex``.
+
+
 ``polytrope``
 =============
 
