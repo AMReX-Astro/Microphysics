@@ -19,7 +19,7 @@ void circle_theorem_sprad(const amrex::Real time, BurnT& state, T& int_state, am
 
     ArrayUtil::MathArray2D<jac_t, 1, INT_NEQS, 1, INT_NEQS> jac_array;
 
-    if (integrator_rp::jacobian == 1) {
+    if (int_state.jacobian_type == 1) {
         jac(time, state, int_state, jac_array);
     } else {
 #ifdef STRANG
@@ -32,13 +32,13 @@ void circle_theorem_sprad(const amrex::Real time, BurnT& state, T& int_state, am
         numerical_jac(state, jac_info, jac_array);
     }
 
-    // the Gershgorin circle theorem says that the spectral radius is <
-    // max_i ( -a_{ii} + sum_{j,j!=i} |a_{ij}|)
+    // The Gershgorin circle theorem bounds the spectral radius by
+    // max_i ( |a_{ii}| + Σ_{j,j≠i} |a_{ij}|).
 
     sprad = std::numeric_limits<amrex::Real>::lowest();
 
     for (int irow = 1; irow <= INT_NEQS; ++irow) {
-        amrex::Real rho = -jac_array(irow, irow);
+        amrex::Real rho = std::abs(jac_array(irow, irow));
         for (int jcol = 1; jcol <= INT_NEQS; ++jcol) {
             if (jcol == irow) {
                 continue;

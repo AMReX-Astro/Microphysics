@@ -19,6 +19,8 @@
 
   * docs
 
+    * correct the default RKC spectral-radius estimator and document how to
+      select the power method (PR pending)
     * fix energy generation rate notation (#2107)
 
   * infrastructure
