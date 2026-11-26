@@ -148,6 +148,12 @@ int rkcrho (BurnT& state, IntT& rstate, const amrex::Real max_timestep, amrex::R
         }
     }
 
+    // Save the original state once; each RHS evaluation restores it.
+    RArray1D ysav;
+    for (int i = 1; i <= INT_NEQS; ++i) {
+        ysav(i) = rstate.y(i);
+    }
+
     // Now iterate with a nonlinear power method.
 
     amrex::Real sigma{};
@@ -155,10 +161,8 @@ int rkcrho (BurnT& state, IntT& rstate, const amrex::Real max_timestep, amrex::R
     for (int iter = 0; iter < itmax; ++iter) {
 
         // we want to call the RHS with yjm1() as the input, so we need to copy
-        // this temporarily into vstate.y()
-        RArray1D ysav;
+        // this temporarily into rstate.y()
         for (int i = 1; i <= INT_NEQS; ++i) {
-            ysav(i) = rstate.y(i);
             rstate.y(i) = rstate.yjm1(i);
         }
         rhs(rstate.t, state, rstate, rstate.yjm2);
