@@ -6,9 +6,6 @@ AMREX_GPU_MANAGED int helmholtz::input_is_constant;
 AMREX_GPU_MANAGED amrex::Real helmholtz::d[imax];
 AMREX_GPU_MANAGED amrex::Real helmholtz::t[jmax];
 
-AMREX_GPU_MANAGED amrex::Real helmholtz::ttol;
-AMREX_GPU_MANAGED amrex::Real helmholtz::dtol;
-
 // for the helmholtz free energy tables
 AMREX_GPU_MANAGED amrex::Real helmholtz::f[jmax][imax][9];
 

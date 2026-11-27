@@ -1,1 +1,2 @@
 CEXE_headers += eos_composition.H
+CEXE_headers += eos_inversion.H

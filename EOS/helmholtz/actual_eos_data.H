@@ -29,9 +29,6 @@ namespace helmholtz
     extern AMREX_GPU_MANAGED amrex::Real d[imax];
     extern AMREX_GPU_MANAGED amrex::Real t[jmax];
 
-    extern AMREX_GPU_MANAGED amrex::Real ttol;
-    extern AMREX_GPU_MANAGED amrex::Real dtol;
-
     // for the helmholtz free energy tables
     extern AMREX_GPU_MANAGED amrex::Real f[jmax][imax][9];
 
