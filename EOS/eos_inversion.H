@@ -1,5 +1,5 @@
-#ifndef EOS_INVERSION
-#define EOS_INVERSION
+#ifndef EOS_INVERSION_H
+#define EOS_INVERSION_H
 
 #include <AMReX.H>
 #include <AMReX_REAL.H>
@@ -350,7 +350,7 @@ bool invert_eos (I input, T& state)
 
     }
 
-    // do any finalization for the EOS implmentation.
+    // do any finalization for the EOS implementation.
 
     finalize_state(input, state, v_want, v1_want, v2_want);
 

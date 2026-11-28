@@ -947,6 +947,12 @@ void actual_eos (I input, T& state)
 
     auto converged = invert_eos(input, state);
 
+#ifndef AMREX_USE_GPU
+    if (! converged) {
+        amrex::Error("EOS did not converge");
+    }
+#endif
+
 }
 
 
