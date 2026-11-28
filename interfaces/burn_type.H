@@ -66,7 +66,7 @@ using jac_t = amrex::Real;
 
 using  JacNetArray2D = ArrayUtil::MathArray2D<jac_t, 1, neqs, 1, neqs>;
 
-struct burn_t
+struct burn_t : eos_base_t
 {
 
   // on exit, this will be set to the integration time we achieved
