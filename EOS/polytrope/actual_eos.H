@@ -117,7 +117,7 @@ void eos_set_polytrope_parameters (int polytrope_in, int gamma_in, int K_in, int
 //---------------------------------------------------------------------------
 // The main interface
 //---------------------------------------------------------------------------
-template <typename I, typename T>
+template <typename I, EOSState T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void actual_eos (I input, T& state)
 {

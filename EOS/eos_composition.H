@@ -26,7 +26,7 @@ struct eos_xderivs_t {
 /// The auxiliary state provides an alternate description to the composition,
 /// in terms of Ye, abar, and binding energy / nucleon
 ///
-template <class state_t>
+template <EOSState state_t>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void set_aux_comp_from_X(state_t& state) {
 
@@ -46,7 +46,7 @@ void set_aux_comp_from_X(state_t& state) {
 }
 #endif
 
-template <typename T>
+template <EOSState T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void composition (T& state)
 {
@@ -78,7 +78,7 @@ void composition (T& state)
 #endif
 }
 
-template <typename T>
+template <EOSState T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 eos_xderivs_t composition_derivatives (const T& state)
 {

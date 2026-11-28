@@ -66,7 +66,7 @@ void eos_finalize ()
 
 // Given an EOS state, ensure that rho and T are
 // valid, then call with eos_input_rt.
-template <typename T>
+template <EOSState T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void eos_reset (T& state, bool& has_been_reset)
 {
@@ -79,7 +79,7 @@ void eos_reset (T& state, bool& has_been_reset)
 }
 
 // For density, just ensure that it is within mindens and maxdens.
-template <typename T>
+template <EOSState T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void reset_rho (T& state)
 {
@@ -87,14 +87,14 @@ void reset_rho (T& state)
 }
 
 // For temperature, just ensure that it is within mintemp and maxtemp.
-template <typename T>
+template <EOSState T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void reset_T (T& state)
 {
   state.T = amrex::min(EOSData::maxtemp, amrex::max(EOSData::mintemp, state.T));
 }
 
-template <typename T>
+template <EOSState T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void reset_e (T& state, bool& has_been_reset)
 {
@@ -105,7 +105,7 @@ void reset_e (T& state, bool& has_been_reset)
     }
 }
 
-template <typename T>
+template <EOSState T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void reset_h (T& state, bool& has_been_reset)
 {
@@ -116,7 +116,7 @@ void reset_h (T& state, bool& has_been_reset)
     }
 }
 
-template <typename T>
+template <EOSState T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void reset_s (T& state, bool& has_been_reset)
 {
@@ -127,7 +127,7 @@ void reset_s (T& state, bool& has_been_reset)
     }
 }
 
-template <typename T>
+template <EOSState T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void reset_p (T& state, bool& has_been_reset)
 {
@@ -138,7 +138,7 @@ void reset_p (T& state, bool& has_been_reset)
     }
 }
 
-template <typename I, typename T>
+template <typename I, EOSState T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void reset_inputs(const I input, T& state, bool& has_been_reset)
 {
@@ -206,7 +206,7 @@ void reset_inputs(const I input, T& state, bool& has_been_reset)
 }
 
 #ifndef AMREX_USE_GPU
-template <typename T>
+template <EOSState T>
 AMREX_INLINE
 void print_state (T& state) {
   std::cout << "DENS = " << state.rho << std::endl;
@@ -220,7 +220,7 @@ void print_state (T& state) {
   std::cout << "Y_E = " << state.y_e;
 }
 
-template <typename T>
+template <EOSState T>
 AMREX_INLINE
 void check_rho (T& state)
 {
@@ -234,7 +234,7 @@ void check_rho (T& state)
   }
 }
 
-template <typename T>
+template <EOSState T>
 AMREX_INLINE
 void check_T (T& state)
 {
@@ -248,7 +248,7 @@ void check_T (T& state)
   }
 }
 
-template <typename T>
+template <EOSState T>
 AMREX_INLINE
 void check_e (T& state)
 {
@@ -264,7 +264,7 @@ void check_e (T& state)
     }
 }
 
-template <typename T>
+template <EOSState T>
 AMREX_INLINE
 void check_h (T& state)
 {
@@ -281,7 +281,7 @@ void check_h (T& state)
     }
 }
 
-template <typename T>
+template <EOSState T>
 AMREX_INLINE
 void check_s (T& state)
 {
@@ -297,7 +297,7 @@ void check_s (T& state)
     }
 }
 
-template <typename T>
+template <EOSState T>
 AMREX_INLINE
 void check_p (T& state)
 {
@@ -313,7 +313,7 @@ void check_p (T& state)
     }
 }
 
-template <typename I, typename T>
+template <typename I, EOSState T>
 AMREX_INLINE
 void check_inputs (const I input, T& state)
 {
@@ -392,7 +392,7 @@ void check_inputs (const I input, T& state)
 }
 #endif
 
-template <typename I, typename T>
+template <typename I, EOSState T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void eos (const I input, T& state)
 {

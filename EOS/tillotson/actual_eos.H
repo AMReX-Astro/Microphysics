@@ -42,7 +42,7 @@ bool is_input_valid (I input)
   return valid;
 }
 
-template <typename I, typename T>
+template <typename I, EOSState T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void actual_eos (I input, T& state)
 {
