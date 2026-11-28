@@ -1,10 +1,17 @@
 #ifndef EOS_TYPE_H
 #define EOS_TYPE_H
 
+#include <concepts>
+#include <type_traits>
+
 #include <AMReX.H>
 #include <network.H>
 
 struct eos_base_t {};
+
+// Recognize the full, reduced, chemistry, and user-defined EOS state types.
+template <typename T>
+concept EOSState = std::derived_from<std::remove_cvref_t<T>, eos_base_t>;
 
 struct eos_t:eos_base_t {
     amrex::Real rho{};
@@ -209,7 +216,7 @@ concept has_xn = requires { std::declval<T&>().xn; };
 template <typename T>
 concept has_base_variables = requires { std::declval<T&>().rho; };
 
-template <typename T>
+template <EOSState T>
 inline
 std::ostream& print_state (std::ostream& o, T const& eos_state)
 {
@@ -316,7 +323,7 @@ std::ostream& print_state (std::ostream& o, T const& eos_state)
     return o;
 }
 
-template <typename T, typename U = typename std::enable_if_t<std::is_base_of_v<eos_base_t, T>>>
+template <EOSState T>
 inline
 std::ostream& operator<< (std::ostream& o, T const& eos_state)
 {

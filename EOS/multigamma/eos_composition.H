@@ -16,7 +16,7 @@ struct eos_xderivs_t {
 // Given a set of mass fractions, calculate quantities that depend
 // on the composition like abar and zbar.
 
-template <typename T>
+template <EOSState T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void subroutine (T& state)
 {
@@ -44,7 +44,7 @@ void subroutine (T& state)
 
 // Compute thermodynamic derivatives with respect to xn(:)
 
-template <typename T>
+template <EOSState T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 eos_x_derivs_t composition_derivatives (const T& state)
 {

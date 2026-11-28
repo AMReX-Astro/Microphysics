@@ -150,7 +150,7 @@ namespace electron_table_indexing {
 }
 
 
-template <typename T>
+template <EOSState T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void apply_electrons (T& state)
 {
@@ -447,7 +447,7 @@ void apply_electrons (T& state)
 
 
 
-template <typename T>
+template <EOSState T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void apply_ions (T& state)
 {
@@ -528,7 +528,7 @@ void apply_ions (T& state)
 
 
 
-template <typename T>
+template <EOSState T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void apply_radiation (T& state)
 {
@@ -613,7 +613,7 @@ void apply_radiation (T& state)
 
 
 
-template <typename T>
+template <EOSState T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void apply_coulomb_corrections (T& state)
 {
@@ -1132,7 +1132,7 @@ void double_iter_update (T& state, int var1, int var2,
 
 
 
-template <typename I, typename T>
+template <typename I, EOSState T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void finalize_state (I input, T& state,
                      amrex::Real v_want, amrex::Real v1_want, amrex::Real v2_want)
@@ -1230,7 +1230,7 @@ void finalize_state (I input, T& state,
 
 
 
-template <typename I, typename T>
+template <typename I, EOSState T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void actual_eos (I input, T& state)
 {

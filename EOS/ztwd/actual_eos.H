@@ -126,7 +126,7 @@ void pres_iter (amrex::Real pres, amrex::Real& dens, amrex::Real B)
 
 
 
-template <typename I, typename T>
+template <typename I, EOSState T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void actual_eos (I input, T& state)
 {
