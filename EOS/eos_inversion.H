@@ -3,171 +3,80 @@
 
 #include <AMReX.H>
 #include <AMReX_REAL.H>
+#include <eos_type.H>
+
+namespace eos_inversion {
 
 constexpr int max_newton = 100;
 
-template <typename I, typename T>
+// The input mode determines the targets and independent variables once,
+// before entering the Newton loop.
+template <eos_input_t Input>
+struct inversion_traits {
+    static constexpr bool double_iter = Input == eos_input_ps || Input == eos_input_ph;
+    static constexpr EOS::eos_iter var =
+        Input == eos_input_rh || Input == eos_input_th ? EOS::ienth :
+        Input == eos_input_re ? EOS::iener : EOS::ipres;
+    static constexpr EOS::eos_iter var2 = Input == eos_input_ps ? EOS::ientr : EOS::ienth;
+    static constexpr EOS::eos_iter dvar =
+        Input == eos_input_tp || Input == eos_input_th ? EOS::idens : EOS::itemp;
+};
+
+template <EOS::eos_iter Var, typename T>
+inline constexpr bool has_quantity =
+    (Var == EOS::ipres && has_pressure<T>) ||
+    (Var == EOS::iener && has_energy<T>) ||
+    (Var == EOS::ientr && has_entropy<T>) ||
+    (Var == EOS::ienth && has_enthalpy<T>);
+
+struct eos_quantity {
+    amrex::Real value;
+    amrex::Real dT;
+    amrex::Real drho;
+};
+
+// Share the property selection between the one- and two-variable updates.
+template <EOS::eos_iter Var, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void prepare_for_iterations (I input, const T& state,
-                             bool& single_iter, amrex::Real& v_want, amrex::Real& v1_want, amrex::Real& v2_want,
-                             int& var, int& dvar, int& var1, int& var2)
+eos_quantity quantity (const T& state)
 {
-    using namespace helmholtz;
-    using namespace EOS;
+    static_assert(has_quantity<Var, T>, "EOS state is missing the inversion target");
 
-    single_iter = true;
-
-    if (input == eos_input_rt) {
-
-        // Nothing to do here.
-
-    }  else if (input == eos_input_rh) {
-
-        if constexpr (has_enthalpy<T>) {
-            v_want = state.h;
-            var  = ienth;
-            dvar = itemp;
-        }
-
-    } else if (input == eos_input_tp) {
-
-        if constexpr (has_pressure<T>) {
-            v_want = state.p;
-            var  = ipres;
-            dvar = idens;
-        }
-
-    } else if (input == eos_input_rp) {
-
-        if constexpr (has_pressure<T>) {
-            v_want = state.p;
-            var  = ipres;
-            dvar = itemp;
-        }
-
-    } else if (input == eos_input_re) {
-
-        if constexpr (has_energy<T>) {
-            v_want = state.e;
-            var  = iener;
-            dvar = itemp;
-        }
-
-    } else if (input == eos_input_ps) {
-
-        if constexpr (has_pressure<T> && has_entropy<T>) {
-            single_iter = false;
-            v1_want = state.p;
-            v2_want = state.s;
-            var1 = ipres;
-            var2 = ientr;
-        }
-
-    } else if (input == eos_input_ph) {
-
-        if constexpr (has_pressure<T> && has_enthalpy<T>) {
-            single_iter = false;
-            v1_want = state.p;
-            v2_want = state.h;
-            var1 = ipres;
-            var2 = ienth;
-        }
-
-    } else if (input == eos_input_th) {
-
-        if constexpr (has_enthalpy<T>) {
-            v_want = state.h;
-            var  = ienth;
-            dvar = idens;
-        }
-
-#ifndef AMREX_USE_GPU
-    } else {
-        amrex::Error("Unknown EOS input");
-#endif
+    if constexpr (Var == EOS::ipres) {
+        return {state.p, state.dpdT, state.dpdr};
+    } else if constexpr (Var == EOS::iener) {
+        return {state.e, state.dedT, state.dedr};
+    } else if constexpr (Var == EOS::ientr) {
+        return {state.s, state.dsdT, state.dsdr};
+    } else if constexpr (Var == EOS::ienth) {
+        return {state.h, state.dhdT, state.dhdr};
     }
-
 }
 
 
-
-template <typename T>
+template <EOS::eos_iter Var, EOS::eos_iter DVar, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void single_iter_update (T& state, int var, int dvar,
-                         amrex::Real v_want, bool& converged)
+void single_iter_update (T& state, amrex::Real v_want, bool& converged)
 {
+    static_assert(DVar == EOS::itemp || DVar == EOS::idens);
 
-    using namespace EOS;
+    const auto q = quantity<Var>(state);
+    amrex::Real x, dvdx, xtol, smallx;
 
-    amrex::Real x, v = 0.0_rt, dvdx = 0.0_rt, xtol, smallx;
-
-    if (dvar == itemp) {
-
+    if constexpr (DVar == EOS::itemp) {
         x = state.T;
+        dvdx = q.dT;
         smallx = EOSData::mintemp;
         xtol = eos_rp::eos_ttol;
-
-        if (var == ipres) {
-            if constexpr (has_pressure<T>) {
-                v    = state.p;
-                dvdx = state.dpdT;
-            }
-        }
-        else if (var == iener) {
-            if constexpr (has_energy<T>) {
-                v    = state.e;
-                dvdx = state.dedT;
-            }
-        }
-        else if (var == ientr) {
-            if constexpr (has_entropy<T>) {
-                v    = state.s;
-                dvdx = state.dsdT;
-            }
-        }
-        else if (var == ienth) {
-            if constexpr (has_enthalpy<T>) {
-                v    = state.h;
-                dvdx = state.dhdT;
-            }
-        }
-
     } else {
-        // dvar == density
-
         x = state.rho;
+        dvdx = q.drho;
         smallx = EOSData::mindens;
         xtol = eos_rp::eos_dtol;
-
-        if (var == ipres) {
-            if constexpr (has_pressure<T>) {
-                v    = state.p;
-                dvdx = state.dpdr;
-            }
-        }
-        else if (var == iener) {
-            if constexpr (has_energy<T>) {
-                v    = state.e;
-                dvdx = state.dedr;
-            }
-        }
-        else if (var == ientr) {
-            if constexpr (has_entropy<T>) {
-                v    = state.s;
-                dvdx = state.dsdr;
-            }
-        }
-        else if (var == ienth) {
-            if constexpr (has_enthalpy<T>) {
-                v    = state.h;
-                dvdx = state.dhdr;
-            }
-        }
-
     }
 
     // Now do the calculation for the next guess for T/rho
-    amrex::Real xnew = x - (v - v_want) / dvdx;
+    amrex::Real xnew = x - (q.value - v_want) / dvdx;
 
     // Don't let the temperature/density change by more than a factor of two
     xnew = amrex::Clamp(xnew, 0.5_rt * x, 2.0_rt * x);
@@ -175,94 +84,27 @@ void single_iter_update (T& state, int var, int dvar,
     // Don't let us freeze/evacuate
     xnew = amrex::max(smallx, xnew);
 
-    // Store the new temperature/density
-
-    if (dvar == itemp) {
+    if constexpr (DVar == EOS::itemp) {
         state.T = xnew;
     } else {
         state.rho = xnew;
     }
 
-    // Compute the error from the last iteration
-
     amrex::Real error = std::abs(xnew - x);
-
     if (error < xtol * x) converged = true;
 }
 
 
-
-template <typename T>
+template <EOS::eos_iter Var1, EOS::eos_iter Var2, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void double_iter_update (T& state, int var1, int var2,
-                         amrex::Real v1_want, amrex::Real v2_want, bool& converged)
+void double_iter_update (T& state, amrex::Real v1_want, amrex::Real v2_want,
+                         bool& converged)
 {
-    using namespace EOS;
-
-    amrex::Real v1 = 0.0_rt, dv1dt = 0.0_rt, dv1dr = 0.0_rt, v2 = 0.0_rt, dv2dt = 0.0_rt, dv2dr = 0.0_rt;
-
-    // Figure out which variables we're using
+    const auto [v1, dv1dt, dv1dr] = quantity<Var1>(state);
+    const auto [v2, dv2dt, dv2dr] = quantity<Var2>(state);
 
     amrex::Real told = state.T;
     amrex::Real rold = state.rho;
-
-    if (var1 == ipres) {
-        if constexpr (has_pressure<T>) {
-            v1    = state.p;
-            dv1dt = state.dpdT;
-            dv1dr = state.dpdr;
-        }
-    }
-    else if (var1 == iener) {
-        if constexpr (has_energy<T>) {
-            v1    = state.e;
-            dv1dt = state.dedT;
-            dv1dr = state.dedr;
-        }
-    }
-    else if (var1 == ientr) {
-        if constexpr (has_entropy<T>) {
-            v1    = state.s;
-            dv1dt = state.dsdT;
-            dv1dr = state.dsdr;
-        }
-    }
-    else if (var1 == ienth) {
-        if constexpr (has_enthalpy<T>) {
-            v1    = state.h;
-            dv1dt = state.dhdT;
-            dv1dr = state.dhdr;
-        }
-    }
-
-    if (var2 == ipres) {
-        if constexpr (has_pressure<T>) {
-            v2    = state.p;
-            dv2dt = state.dpdT;
-            dv2dr = state.dpdr;
-        }
-    }
-    else if (var2 == iener) {
-        if constexpr (has_energy<T>) {
-            v2    = state.e;
-            dv2dt = state.dedT;
-            dv2dr = state.dedr;
-        }
-    }
-    else if (var2 == ientr) {
-        if constexpr (has_entropy<T>) {
-            v2    = state.s;
-            dv2dt = state.dsdT;
-            dv2dr = state.dsdr;
-        }
-    }
-    else if (var2 == ienth) {
-        if constexpr (has_enthalpy<T>) {
-            v2    = state.h;
-            dv2dt = state.dhdT;
-            dv2dr = state.dhdr;
-        }
-    }
 
     // Two functions, f and g, to iterate over
     amrex::Real v1i = v1_want - v1;
@@ -303,58 +145,94 @@ void double_iter_update (T& state, int var1, int var2,
 }
 
 
-template <typename I, typename T>
+template <eos_input_t Input, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-bool invert_eos (I input, T& state)
+bool invert_eos_impl (T& state)
 {
+    using traits = inversion_traits<Input>;
 
-    bool single_iter, converged;
-    int var{}, dvar{}, var1, var2;
-    amrex::Real v_want{}, v1_want{}, v2_want{};
+    // Runtime dispatch instantiates every mode. Discard unsupported bodies so
+    // reduced states never instantiate accessors for fields they do not have.
+    constexpr bool supported = Input == eos_input_rt ||
+        (has_quantity<traits::var, T> &&
+         (!traits::double_iter || has_quantity<traits::var2, T>));
 
-    prepare_for_iterations(input, state, single_iter,
-                           v_want, v1_want, v2_want,
-                           var, dvar, var1, var2);
-
-    converged = false;
-
-    // Only take a single step if we're coming in with both rho and T;
-    // in this call we just want the EOS to fill the other
-    // thermodynamic quantities.
-
-    if (input == eos_input_rt) converged = true;
-
-    // Iterate until converged.
-
-    for (int iter = 1; iter <= max_newton; ++iter) {
-
-        // apply the EOS implementation to the state
-
-        apply_eos(state);
-
-        // Calculate enthalpy the usual way, h = e + p / rho.
-
-        if constexpr (has_enthalpy<T>) {
-            state.h = state.e + state.p / state.rho;
-            state.dhdr = state.dedr + state.dpdr / state.rho - state.p / (state.rho * state.rho);
-            state.dhdT = state.dedT + state.dpdT / state.rho;
+    if constexpr (!supported) {
+        return false;
+    } else {
+        amrex::Real v_want{}, v1_want{}, v2_want{};
+        if constexpr (Input != eos_input_rt) {
+            if constexpr (traits::double_iter) {
+                v1_want = quantity<traits::var>(state).value;
+                v2_want = quantity<traits::var2>(state).value;
+            } else {
+                v_want = quantity<traits::var>(state).value;
+            }
         }
 
-        if (converged) {
-            break;
-        } else if (single_iter) {
-            single_iter_update(state, var, dvar, v_want, converged);
-        } else {
-            double_iter_update(state, var1, var2, v1_want, v2_want, converged);
+        // With rho and T supplied, evaluate the EOS only once.
+        bool converged = Input == eos_input_rt;
+
+        for (int iter = 1; iter <= max_newton; ++iter) {
+            apply_eos(state);
+
+            // Calculate enthalpy the usual way, h = e + p / rho.
+            if constexpr (has_enthalpy<T>) {
+                state.h = state.e + state.p / state.rho;
+                state.dhdr = state.dedr + state.dpdr / state.rho - state.p / (state.rho * state.rho);
+                state.dhdT = state.dedT + state.dpdT / state.rho;
+            }
+
+            // Evaluate the EOS at the converged guess before finalizing.
+            if (converged) {
+                break;
+            }
+            if constexpr (Input != eos_input_rt) {
+                if constexpr (traits::double_iter) {
+                    double_iter_update<traits::var, traits::var2>(state, v1_want, v2_want, converged);
+                } else {
+                    single_iter_update<traits::var, traits::dvar>(state, v_want, converged);
+                }
+            }
         }
 
+        finalize_state(Input, state, v_want, v1_want, v2_want);
+        return converged;
+    }
+}
+
+
+} // namespace eos_inversion
+
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+bool invert_eos (eos_input_t input, T& state)
+{
+    using namespace eos_inversion;
+
+    switch (input) {
+    case eos_input_rt:
+        return invert_eos_impl<eos_input_rt>(state);
+    case eos_input_rh:
+        return invert_eos_impl<eos_input_rh>(state);
+    case eos_input_tp:
+        return invert_eos_impl<eos_input_tp>(state);
+    case eos_input_rp:
+        return invert_eos_impl<eos_input_rp>(state);
+    case eos_input_re:
+        return invert_eos_impl<eos_input_re>(state);
+    case eos_input_ps:
+        return invert_eos_impl<eos_input_ps>(state);
+    case eos_input_ph:
+        return invert_eos_impl<eos_input_ph>(state);
+    case eos_input_th:
+        return invert_eos_impl<eos_input_th>(state);
     }
 
-    // do any finalization for the EOS implementation.
-
-    finalize_state(input, state, v_want, v1_want, v2_want);
-
-    return converged;
+#ifndef AMREX_USE_GPU
+    amrex::Error("Unknown EOS input");
+#endif
+    return false;
 }
 
 #endif
